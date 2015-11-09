@@ -1,0 +1,8 @@
+Installation
+------------
+1. Install node.js and MongoDB (on Debian/Ubuntu: "apt-get install nodejs mongodb").
+2. Run "npm i" in project root to install dependencies. ("sudo npm i" can be required, depending on node.js installation)
+4. Configure application (see config.js)
+5. Check if tests passing "./app.js test" or "node app.js test" 
+6. Run application "./app.js" or "node app.js"
+

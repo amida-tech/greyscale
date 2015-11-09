@@ -1,0 +1,7 @@
+{
+  "accessKeyId": "AKIAISSRUEZ2QZUBQMMA",
+  "secretAccessKey": "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",
+  "Bucket": "tripwecan",
+  "prefix": "http://tripwecan.s3.amazonaws.com/",
+  "maxFileSize": "10485760"
+}

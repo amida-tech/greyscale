@@ -1,0 +1,8 @@
+{
+  "101": "Invalid e-mail",
+  "102": "Password should be more then 6 symbols",
+  "103": "Account with this e-mail already exist",
+  "104": "Unsupported account type",
+  "105": "Invalid password",
+  "106": "Role allready has this right"
+}

@@ -1,0 +1,23 @@
+<% layout('layout') -%>
+
+<script>
+    function validate(form) {
+        if (form.elements["password"].value != form.elements["password2"].value) {
+            alert('Entered the field are not the same!');
+            return false;
+        }
+        return true;
+    }
+</script>
+
+<div>
+    <span>Enter the new password</span>
+
+    <form action="" method="POST" enctype="multipart/form-data" onsubmit="return validate(this);">
+        <input type="hidden" name="_id" value="<%=_id%>"/>
+        <label for="password">Текст</label><input id="password" type="password" name="password"/><br/>
+        <label for="password2">Текст</label><input id="password2" type="password" name="password2"/><br/>
+        <input type="submit"/>
+    </form>
+</div>
+
