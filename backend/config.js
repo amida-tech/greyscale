@@ -7,7 +7,7 @@ var environments = {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: 'postgres',
+      user: 'semyon',
       password: 'aw34res',
       database: 'indaba',
       host: 'localhost',
@@ -21,13 +21,13 @@ var environments = {
     email: {
       transport: {
         opts: {
-          host: 'email-smtp.eu-west-1.amazonaws.com',
-          port: 25,
+          host: 'smtp.gmail.com',
+          port: 465,
           auth: {
-            user: 'AKIAJEEPNJ3ITOZKU6VQ',
-            pass: 'ApeVzgOe3GemGtwyR35lNA0Hi1EWDXqsUFHGSsA9OGBG'
+            user: 'indaba.msk2015@gmail.com',
+            pass: 'indabamsk2015'
           },
-          secure: false
+          secure: true
         }
       },
       sender: {

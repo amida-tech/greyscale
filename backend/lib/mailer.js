@@ -24,8 +24,8 @@ var Emailer = (function () {
   }
 
   Emailer.prototype.send = function (callback) {
-    var html = this.options.html || this.getHtml(this.options.template, this.data),
-      attachments = this.getAttachments(html),
+    var html = this.options.html || this.getHtml(this.options.template, this.data);
+    var attachments = this.getAttachments(html),
       messageData = {
         to: "'" + this.options.to.name + " " + this.options.to.surname + "' <" + this.options.to.email + ">",
         from: util.format('%s <%s>', config.email.sender.name, config.email.sender.email),
@@ -43,11 +43,14 @@ var Emailer = (function () {
   };
 
   Emailer.prototype.getHtml = function (templateName, data) {
-    var templatePath = "./views/emails/" + templateName + ".html",
-      templateContent = fs.readFileSync(templatePath, "utf8");
-    return _.template(templateContent, data, {
+    var templatePath = "./views/emails/" + templateName + ".html";
+    var templateContent = fs.readFileSync(templatePath, "utf8");
+    _.templateSettings = {
       interpolate: /\{\{(.+?)\}\}/g
-    });
+    };
+    data.config = config;
+    var res =  _.template(templateContent)(data);
+    return res;
   };
 
   Emailer.prototype.getAttachments = function (html) {

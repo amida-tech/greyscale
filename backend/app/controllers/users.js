@@ -11,7 +11,8 @@ var client = require('app/db_bootstrap'),
   vl = require('validator'),
   HttpError = require('app/error').HttpError,
   util = require('util'),
-  async = require('async');
+  async = require('async'),
+  Emailer = require('lib/mailer');
 
 var Role = require('app/models/role');
 var Query = require('app/util').Query,
@@ -132,6 +133,7 @@ module.exports = {
   },
 
   selectSelf: function (req, res, next) {
+    
     var request = 'ARRAY(' +
       ' SELECT "Rights"."action" FROM "RolesRights" ' +
       ' LEFT JOIN "Rights"' +
@@ -177,22 +179,23 @@ module.exports = {
         if (!_.first(update)) {
           throw new HttpError(400, 'Cannot update user data');
         } else {
-          var subject = "TripWeCan. Restore password";
-          var recipient = {'email': req.body.email, 'name': user.firstName + " " + user.lastName};
 
-          var template = 'password-reset';
-          var vars = [
-            {
-              "name": "token",
-              "content": token
+          var options = {
+            to : {
+              name: user.firstName,
+              surname : user.lastName,
+              email : req.body.email,
+              subject : 'Indaba. Restore password'
             },
-            {
-              "name": "name",
-              "content": recipient.name
-            }
-          ];
-          console.log(vars);
-          //Mailer.send(subject, recipient, template, vars); TODO send nodemailer mail
+            template: 'forgot'
+          };
+          var data = {
+            name: user.firstName,
+            surname: user.lastName,
+            token: token
+          };
+          var mailer = new Emailer(options, data);
+          mailer.send();
         }
       }
     }).then(function (data) {
@@ -263,271 +266,6 @@ module.exports = {
     });
   },
 
-  authFaceBook: function (req, res, next) {
-    if (req.user) {
-      return next();
-    }
-    if (req.userInfo) {
-      // create user
-      co(function *() {
-          // if user alreary exists
-          var user_upd = yield thunkQuery(
-                            User.update({
-                              "facebookID": req.userInfo.id,
-                              "facebookDetails": req.userInfo
-                            })
-                            .where(User.email.equals(req.userInfo.email))
-                            .returning(User.id));
-          if (user_upd.length) {
-            return user_upd;
-          }
-
-          // new user
-          var password = yield thunkrandomBytes(8);
-          password = password.toString('hex');
-          req.body = {
-            "firstName": req.userInfo.first_name,
-            "lastName": req.userInfo.last_name,
-            "email": req.userInfo.email,
-            "roleID": "3", // TODO save at config.js
-            "password": password,
-            "facebookID": req.userInfo.id,
-            "facebookDetails": req.userInfo
-          };
-          return yield insertOne(req, res, next);
-        }
-      ).then(function (data) {
-          //res.status(201).json(_.first(data));
-          req.user = _.first(data);
-          return next();
-        }, function (err) {
-          next(err);
-        });
-      //res.json(req.userInfo);
-    }
-    else {
-      return next(new HttpError(400, 'Auth facebook error!'));
-    }
-  }
-  /*venues: function (req, res, next) {
-   try {
-   var id = new ObjectId(req.params.id);
-   }
-   catch (e) {
-   return next(404);
-   }
-   User
-   .findOne({_id: id})
-   .select('venue')
-   .populate({
-   path: 'venue',
-   match: req.mngs.q,
-   select: req.mngs.f,
-   options: req.mngs.opt
-   })
-   .exec(function (err, user) {
-   if (!err) {
-   res.json(user);
-   }
-   else {
-   next(err);
-   }
-   })
-
-   },*/
-  /*events: function (req, res, next) {
-   try {
-   var id = new ObjectId(req.params.id);
-   }
-   catch (e) {
-   return next(404);
-   }
-   User
-   .findOne({_id: id})
-   .select('event')
-   .populate({
-   path: 'event',
-   match: req.mngs.q,
-   select: req.mngs.f,
-   options: req.mngs.opt
-   })
-   .exec(function (err, user) {
-   if (!err) {
-   res.json(user);
-   }
-   else {
-   next(err);
-   }
-   })
-
-   },*/
-  /*events_created: function (req, res, next) {
-   try {
-   var id = new ObjectId(req.params.id);
-   }
-   catch (e) {
-   return next(404);
-   }
-   User
-   .findOne({_id: id})
-   .select('event_created')
-   .populate({
-   path: 'event',
-   match: req.mngs.q,
-   select: req.mngs.f,
-   options: req.mngs.opt
-   })
-   .exec(function (err, user) {
-   if (!err) {
-   res.json(user);
-   }
-   else {
-   next(err);
-   }
-   })
-
-   },*/
-
-
-  /*recovery: function (req, res, next) {  // TODO log method
-   User
-   .findOne({email: req.body.email})
-   .exec(function (err, user) {
-   if (!err) {
-   if (!user) {
-   return next(new HttpError(401, 'User not found'));
-   }
-   else {
-   var newUserRecoveryPassword = new UserRecoveryPassword({userID: user._id});
-   newUserRecoveryPassword.save(function (err, data) {
-   if (err) {
-   return next(err);
-   }
-   else {
-   res.render('email/user_recovery', data, function (err, html) {
-   var options = {
-   to: {
-   email: user.email,
-   name: user.name.firstName,
-   surname: user.name.lastName,
-   subject: "TripWeCan - password recovery"
-   },
-   html: html
-   };
-   var mailer = new Mailer(options, null);
-
-   mailer.send(function (err, result) {
-   if (err) {
-   req.error('Error while sending email', err);
-   res.status(503).end();
-   }
-   else {
-   res.status(202).end();
-   }
-   });
-
-
-   });
-   }
-
-   });
-
-   }
-   }
-   else {
-   next(new VError(err, 'Can not recover password'));
-   }
-   });
-   },*/
-
-  /*getRecoveryCode: function (req, res, next) {
-   UserRecoveryPassword
-   .findOne({code: req.params.code})
-   .exec(function (err, urc) {
-   if (!err) {
-   if (urc) {
-   res.render('user/recovery', urc);
-   }
-   else {
-   res.render('user/mes', {'message': 'User not found'});
-   }
-   }
-   else {
-   next(err);
-   }
-   });
-   },*/
-
-  /*setRecoveryCode: function (req, res, next) { // TODO log method
-   if (req.body.password != req.body.password2) {
-   res.render('user/mes', {'message': 'Password changed!'});
-   }
-   UserRecoveryPassword
-   .findOne({
-   code: req.params.code,
-   _id: req.body._id
-   })
-   .exec(function (err, urc) {
-   if (!err) {
-   if (urc) {
-   User
-   .findOne({_id: urc.userID})
-   .exec(function (err, user) {
-   if (!err) {
-   user.password = req.body.password;
-   user.save(function (err, data) {
-   if (!err) {
-   res.render('user/mes', {'message': 'Password changed!'});
-   urc.remove();
-   }
-   else {
-   res.render('user/mes', {'message': err.message.message});
-   }
-   })
-   }
-   else {
-   next(err);
-   }
-   })
-   }
-   else {
-   res.render('user/mes', {'message': 'User not found'});
-   }
-   }
-   else {
-   next(err);
-   }
-   });
-   },*/
-
-  /*companies: function (req, res, next) {
-   var query = {'customerID': req.user._id};
-
-   Company
-   .find(underscore.extend(req.mngs.q, query), req.mngs.f, req.mngs.opt)
-   .populate('stateID')
-   .exec(function (err, data) {
-   if (!err) {
-
-   Company.populate(data, {
-   path: 'stateID.countryID',
-   model: 'Country'
-   }, function (err, country) {
-   if (!err) {
-   res.json(country);
-   }
-   else {
-   next(err);
-   }
-   });
-
-
-   }
-   else {
-   next(err);
-   }
-   })
-   }*/
 };
 
 function* insertOne(req, res, next) {
@@ -559,17 +297,21 @@ function* insertOne(req, res, next) {
 
   var user = yield thunkQuery(User.insert(req.body).returning(User.id));
 
-  var subject = "Thank you for registering at TripWeCan"
-  var recipient = {'email': req.body.email, 'name': req.body.firstName + " " + req.body.lastName};
-
-  var template = 'registration';
-  var vars = [{
-    "name": "name",
-    "content": req.body.firstName + " " + req.body.lastName
-
-  }];
-
-  Mailer.send(subject, recipient, template, vars);
+  var options = {
+    to : {
+      name: req.body.firstName,
+      surname : req.body.lastName,
+      email : req.body.email,
+      subject : 'Thank you for registering at Indaba'
+    },
+    template: 'welcome'
+  };
+  var data = {
+    name: req.body.firstName,
+    surname: req.body.lastName,
+  };
+  var mailer = new Emailer(options, data);
+  mailer.send();
 
   return user;
 }

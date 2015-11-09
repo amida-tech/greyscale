@@ -5,22 +5,18 @@ var config = require('config'),
 
 var ClientPG = function() {
   var client = new Client(config.pgConnect);
-  console.log(config.pgConnect);
   client.on('error', function (err) {
     logger.error(util.format('Connection error: %s', err));
   });
 
   client.connect(function (err, client) {
     console.log('connection!')
-     if (!err) {
+     if (err) {
        console.log(err);
      }
   });
 
   return client;
 };
-
-
-
 
 module.exports = ClientPG;
