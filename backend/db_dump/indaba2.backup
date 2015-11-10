@@ -1,0 +1,875 @@
+--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- Name: event_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE event_status AS ENUM (
+    'New',
+    'Submitted',
+    'Approved',
+    'Rejected',
+    'Deleted',
+    'Active',
+    'Inactive'
+);
+
+
+ALTER TYPE public.event_status OWNER TO postgres;
+
+--
+-- Name: order_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE order_status AS ENUM (
+    'New',
+    'Acknowledged',
+    'Confirmed',
+    'Fulfilled',
+    'Cancelled'
+);
+
+
+ALTER TYPE public.order_status OWNER TO postgres;
+
+--
+-- Name: tour_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE tour_status AS ENUM (
+    'New',
+    'Submitted',
+    'Approved',
+    'Active',
+    'Inactive',
+    'Deleted',
+    'Rejected'
+);
+
+
+ALTER TYPE public.tour_status OWNER TO postgres;
+
+--
+-- Name: transport_status; Type: TYPE; Schema: public; Owner: postgres
+--
+
+CREATE TYPE transport_status AS ENUM (
+    'New',
+    'Submitted',
+    'Approved',
+    'Available',
+    'Rented',
+    'Deleted'
+);
+
+
+ALTER TYPE public.transport_status OWNER TO postgres;
+
+--
+-- Name: order_before_update(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION order_before_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+   NEW."updated" = now();
+
+   RETURN NEW;
+END$$;
+
+
+ALTER FUNCTION public.order_before_update() OWNER TO postgres;
+
+--
+-- Name: tours_before_insert(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION tours_before_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+   new."created" = now();
+new."updated" = now();
+
+   RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.tours_before_insert() OWNER TO postgres;
+
+--
+-- Name: tours_before_update(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION tours_before_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+   NEW."updated" = now();
+
+   RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.tours_before_update() OWNER TO postgres;
+
+--
+-- Name: twc_delete_old_token(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION twc_delete_old_token() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+   DELETE FROM "Token" WHERE "userID" = NEW."userID";
+   RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.twc_delete_old_token() OWNER TO postgres;
+
+--
+-- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION twc_get_token(body character varying, exp character varying) RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$BEGIN
+
+  SELECT t."body"
+    FROM "Token" t
+   where (t."body" = twc_get_token.body)
+   and ((now() - t."issuedAt") < (twc_get_token.exp || ' milliseconds')::interval);
+         
+END$$;
+
+
+ALTER FUNCTION public.twc_get_token(body character varying, exp character varying) OWNER TO postgres;
+
+--
+-- Name: user_company_check(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION user_company_check() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+  if (
+    exists (
+	select * 
+	  from "Users" 
+	        left join "Roles" on "Users"."roleID" = "Roles"."id"  
+	 where "Users"."id" = new."userID"
+	       and "Roles"."name" = 'customer')
+  )		
+  then
+    RAISE EXCEPTION 'Bad user role - customer!';
+  end if;
+    
+  RETURN NEW; 
+END;$$;
+
+
+ALTER FUNCTION public.user_company_check() OWNER TO postgres;
+
+--
+-- Name: users_before_update(); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION users_before_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+   NEW."updated" = now();
+
+   RETURN NEW;
+END$$;
+
+
+ALTER FUNCTION public.users_before_update() OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: Rights; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "Rights" (
+    id integer NOT NULL,
+    action character varying(80) NOT NULL,
+    description text
+);
+
+
+ALTER TABLE public."Rights" OWNER TO postgres;
+
+--
+-- Name: Rights_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE "Rights_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."Rights_id_seq" OWNER TO postgres;
+
+--
+-- Name: Rights_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE "Rights_id_seq" OWNED BY "Rights".id;
+
+
+--
+-- Name: role_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE role_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.role_id_seq OWNER TO postgres;
+
+--
+-- Name: Roles; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "Roles" (
+    id integer DEFAULT nextval('role_id_seq'::regclass) NOT NULL,
+    name character varying(20) NOT NULL
+);
+
+
+ALTER TABLE public."Roles" OWNER TO postgres;
+
+--
+-- Name: RolesRights; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "RolesRights" (
+    "roleID" bigint NOT NULL,
+    "rightID" bigint NOT NULL
+);
+
+
+ALTER TABLE public."RolesRights" OWNER TO postgres;
+
+--
+-- Name: Token; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "Token" (
+    "userID" integer NOT NULL,
+    body character varying(200) NOT NULL,
+    "issuedAt" timestamp without time zone DEFAULT ('now'::text)::timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public."Token" OWNER TO postgres;
+
+--
+-- Name: UserRights; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "UserRights" (
+    "userID" bigint NOT NULL,
+    "rightID" bigint NOT NULL,
+    "canDo" boolean
+);
+
+
+ALTER TABLE public."UserRights" OWNER TO postgres;
+
+--
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_id_seq OWNER TO postgres;
+
+--
+-- Name: Users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "Users" (
+    "roleID" integer NOT NULL,
+    id integer DEFAULT nextval('user_id_seq'::regclass) NOT NULL,
+    email character varying(80) NOT NULL,
+    "firstName" character varying(80) NOT NULL,
+    "lastName" character varying(80),
+    password character varying(200) NOT NULL,
+    mobile character varying(20),
+    birthday date,
+    "resetPasswordToken" character varying(100),
+    "resetPasswordExpires" bigint,
+    created timestamp with time zone DEFAULT now() NOT NULL,
+    updated timestamp without time zone
+);
+
+
+ALTER TABLE public."Users" OWNER TO postgres;
+
+--
+-- Name: brand_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE brand_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.brand_id_seq OWNER TO postgres;
+
+--
+-- Name: order_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE order_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.order_id_seq OWNER TO postgres;
+
+--
+-- Name: transport_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE transport_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transport_id_seq OWNER TO postgres;
+
+--
+-- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE transportmodel_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.transportmodel_id_seq OWNER TO postgres;
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"'::regclass);
+
+
+--
+-- Data for Name: Rights; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "Rights" (id, action, description) FROM stdin;
+1	events_view_all	Can see list of all events
+3	events_add	Can add events
+4	events_edit_all	Can edit all events
+6	events_delete_all	Can delete all events
+5	events_edit_own	Can edit only own events
+7	events_delete_own	Can delete only own events
+8	tours_view_all	Can view list of all tours
+11	tours_edit_own	Can edit only own tours
+14	tours_delete_own	Can delete only own tours
+9	tours_view_own	Can view list of only own tours
+10	tours_add	Can add tours
+16	rights_view_all	Can see list of all rights
+97	countries_view_one	\N
+17	rights_add_one	Can add rights
+100	orders_edit_own	\N
+101	orders_delete_own	\N
+18	rights_view_one	Can see one right
+19	rights_delete_one	Can delete one right
+20	rights_edit_one	Can edit one right
+102	orders_view_own	\N
+24	users_view_all	Can view list of all users
+104	transport_models_del_image	\N
+26	users_edit_one	Can edit the user
+27	users_view_one	Can see the user
+28	users_delete_one	Can delete the user
+29	users_token	\N
+30	users_logout_self	\N
+31	users_logout	\N
+32	users_view_self	\N
+33	users_edit_self	\N
+34	transport_models_view_all	\N
+35	transport_models_add	\N
+36	transport_models_view_one	\N
+37	transport_models_edit_one	\N
+38	transport_models_delete_one	\N
+39	transport_models_add_image	\N
+46	venues_view_all	\N
+47	venues_add	\N
+48	venues_view_one	\N
+49	venues_edit_one	\N
+50	venues_delete_one	\N
+51	orders_view_all	\N
+52	orders_add	\N
+53	orders_view_one	\N
+54	orders_edit_one	\N
+55	orders_delete_one	\N
+56	brands_view_all	\N
+57	brands_add	\N
+58	brands_view_one	\N
+59	brands_edit_one	\N
+60	brands_delete_one	\N
+61	companies_view_all	\N
+62	companies_add	\N
+63	companies_view_one	\N
+64	companies_edit_one	\N
+65	companies_delete_one	\N
+66	do_all	Can do everything in the system (admin special right)
+67	services_view_all	Can see list of services
+68	services_add	Can add services
+69	service_edit_one	Can edit services
+70	service_delete_one	Can delete services
+71	offers_view_all	Can see list of offers
+72	countries_view_all	Can see list of countries
+73	logs_view_all	Can see list of logs
+13	tours_delete_one	Can delete all tours
+12	tours_edit_one	Can edit all tours
+80	role_rights_view_one	\N
+81	role_rights_add	\N
+82	user_companies_add	\N
+83	user_companies_delete	\N
+86	services_view_one	\N
+91	cities_view_all	\N
+92	cities_view_one	\N
+93	states_view_all	\N
+94	states_view_one	\N
+107	orders_company_view_all	Can see orders, assigned to company
+77	tours_select_one	Can get detail information about tour
+111	moderation_view_all	Can see the list of entities for moderation (status = 'Submited')
+2	events_view_own	Can see list of events, assigned to company
+108	transports_view_own	Can see only transport items, assigned to user company(s)
+109	transports_edit_own	Can edit only transport items linked with user's company(s)
+43	transports_edit_one	Can edit all transport items
+44	transports_delete_one	Can delete all transport items
+110	transports_delete_own	Can delete only transport items, linked wit user's company(s)
+40	transports_view_all	Can see list of all transport items
+41	transports_add	Can add new transport items
+42	transports_view_one	Can see details page of all transport items
+112	statistics_all	Can get statistic data
+113	moderation_approve	Can set the status of entity to "Approved"
+123	moderation_inactivate_own	Can set only the status of own entity to "Inactive"
+114	moderation_reject	Can set the status of entity to "Rejected"
+124	moderation_new_own	Can set the status of own entity to "New"
+117	moderation_activate	Can set the status of entity to "Active"
+118	moderation_inactivate	Can set the status of entity to "Inactive"
+119	moderation_new	Can set the status of entity to "New"
+115	moderation_submit	Can set the status of entity to "Submitted"
+116	moderation_delete	Can set the status of entity to "Deleted"
+120	moderation_approve_own	Can set only the status of own entity to "Approved"
+121	moderation_reject_own	Can only set the status of own entity to "Rejected"
+122	moderation_activate_own	Can set only the status of own entity to "Active"
+125	moderation_delete_own	Can set only the status of own entity to "Deleted"
+126	moderation_submit_own	Can set only the status of own entity to "Submitted"
+\.
+
+
+--
+-- Name: Rights_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"Rights_id_seq"', 126, true);
+
+
+--
+-- Data for Name: Roles; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "Roles" (id, name) FROM stdin;
+1	admin
+4	public
+5	user
+8	test2
+2	client
+3	customer
+\.
+
+
+--
+-- Data for Name: RolesRights; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "RolesRights" ("roleID", "rightID") FROM stdin;
+2	3
+2	42
+2	11
+2	9
+2	10
+4	72
+4	91
+4	92
+4	93
+4	94
+4	97
+4	67
+4	86
+2	77
+3	32
+3	33
+5	32
+5	8
+5	9
+5	72
+5	91
+5	93
+5	10
+5	77
+5	92
+5	94
+5	97
+5	11
+5	12
+3	52
+3	54
+3	55
+3	100
+3	101
+3	102
+5	1
+5	2
+5	3
+5	4
+5	5
+5	6
+5	7
+5	47
+5	40
+5	41
+5	42
+5	43
+5	34
+3	53
+3	42
+3	77
+4	8
+4	77
+4	40
+4	42
+1	2
+1	4
+3	34
+3	36
+3	107
+5	102
+2	52
+3	9
+3	10
+3	11
+3	14
+3	93
+3	94
+3	7
+3	5
+3	56
+3	58
+3	108
+3	109
+3	41
+1	52
+2	2
+3	126
+3	122
+3	123
+3	3
+3	2
+2	5
+2	41
+2	40
+2	102
+\.
+
+
+--
+-- Data for Name: Token; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "Token" ("userID", body, "issuedAt") FROM stdin;
+54	138e393f51e47d66cdaaa971fa7c71a25f48b920f6113af53c9aecc543131dbf	2014-12-27 09:19:14.374563
+90	2878e3b16a25a788668ce4023f745ed9324d6605a837d051422f049ef439761f	2015-06-08 16:02:34.826848
+84	5a22e7b0f76e3a3011ef1ced877d444806f04db6571cdabb865b25c342f58c8d	2015-01-29 07:55:10.279829
+93	d3b0757b1035fc5fa130676fdf62e779242d5eba6f68592de08435e242861f47	2015-03-11 17:06:01.216828
+95	c959cb1a316def33d13482ffcfccba8e03228959541fc38cda9f199a13ce567a	2015-03-17 15:06:37.981102
+35	32824b0efed0c0be53bd119c4fddd6b1ed7fbd5f168d2d0e7d2e5c21b9fa4758	2015-03-31 14:16:41.713094
+47	63280a3b1a237ead9420f3390d6e71d8146583163444f633ea63805942a7b662	2015-06-09 19:01:32.517733
+56	459e823d1b7d6f8e8e6ca62f9410e53d104a740d1e3375b7a2228469d1101ded	2014-12-16 08:14:51.989618
+82	b4e7d7cc1b65363f9bfdca6551f3b5f246e9a8f0c5539d18531356cfd5030b5d	2015-03-31 18:11:38.391391
+37	82a86da182c9ea21e52abc9779734320eab1b4da7a5432c880ca34f3d352fe61	2015-03-26 13:02:01.193949
+92	a1a6922abc8484d7eff1775e7252c5544266eaec1e2fb1a0802e339d6e3213fd	2015-03-18 02:48:49.447903
+55	b751f994bb3276f999bff4a90e1382c8605a6941c438a80036dcd625281e3ae2	2030-12-12 00:00:00
+94	7861d7b1b7ece30611abcee336f4d9688cc2b0ee93d22f040876998e2f8d682a	2015-03-12 15:37:18.88121
+60	092149628a4e696b05a5cada1268c3ee28a9f1accd39762cdde7290b9bdad9fd	2015-01-21 06:40:54.552954
+80	4021521fa146a7e1ab23cdc120842fa367c0cacccc7df7fb1849844b6ad5e593	2015-01-04 03:19:34.092721
+78	c6553d8b8585f32f967f0d989fc5cc46c1080b56a5cdd9e95c791444aac26c25	2015-01-23 08:44:49.886475
+100	615b1ea5e119eb7e978ad87cc0c8fc6b7de20863e654d5932030a86ed66cbf95	2015-04-18 06:53:34.601861
+23	b751f994bb3276f999bff4a90e1382c8605a6941c438a80036dcd625281e3ae4	2030-12-12 00:00:00
+79	5783126d22cdc1652e2eb85cab7d845ca07977db88f4cdf9aa3d382cb5cc5773	2015-02-16 07:13:08.992361
+32	44ad2ad13a7404e7f0bf8159f66aca6e64977ea130dc3abcce3490b1499a2b10	2015-11-04 16:19:23.518684
+81	f8901ae375580f43a4eb88bfc670328090f57196159d3045a14671fd7279ecdd	2015-02-16 16:15:16.362536
+65	9a45d1a3daf81b719aa18763b7601e5c34c0a04bfbaaaa001e7afd9d8a86b3cd	2014-12-24 07:16:46.830463
+66	72a8c0f1e7434d3571a68d129d90bd7134671ffefbb24614fd64fc11f7197f91	2014-12-24 10:09:50.929946
+67	376e059baf41f99121f79c1dafaac62f54553859b9704c590354e655f9de1f0a	2014-12-24 11:49:53.942986
+86	2f5ddf958264aca7c3ce4a53e2490fc9dd75fd115479145317f2c8caa82636e2	2015-02-17 19:07:47.263378
+46	ac644942a5482c612aef6e6cc95af0943b07174bd731c82be57eaa1800c8aee9	2014-12-08 11:00:52.40202
+97	76ab934899e329a50dfe622965c0dd708da829d29eb8aa0c5e8f6f2835d3f29a	2015-04-11 16:40:58.143145
+71	4e7ee2a847dbb46fd79b51bc2436c791f2d436b21c596bd1a9a1fcf9edf14045	2014-12-25 02:01:03.152349
+73	e36b675edb3584f2a8cd249e92eeea9772c3821e3db69c8b837c8e6a8f893aa3	2014-12-25 02:21:34.132064
+89	f3584df036468d8c876a7173881d2a84361f885e2140c162c0f51bacd02196f2	2015-02-19 06:58:07.557545
+74	84a8246838d2459201857c0b9ab5c5e6597ab7f21854552cf48dca942038c5a7	2014-12-25 02:34:50.442223
+83	dc525f47bbc3ed683761458a20bffcc2f2ccbb603734886b616d3e668ce6b5e5	2015-01-28 16:41:32.884523
+91	f1f8d861a6ef4f87b03974f2db9d9b20a93a068b368691975f1a6ad4604f3c06	2015-03-10 16:43:09.509843
+36	e0c921b2103e4bc85ca5603c36eeee22668f79d2d1cbdc8ce3fdb52283fbc010	2015-01-10 11:54:18.566218
+61	397ad7404fbdcfad2ab63b77df0492987a5752f8a2dd2f0e6bb66011387306fe	2015-01-15 07:12:11.646917
+107	e7f38c6fa61a87bd7dcfa67efcca026a78c763a416475146c39076d0244e61e9	2015-05-05 04:15:59.197305
+105	a71cd5a58bb857fedc18dc6cf51472f7bdd921278c57610ca41142d0272e31de	2015-04-22 20:33:44.912491
+106	b11d21dec7b35b5ea15f98725e3f69dd26db63d4242d51d6d0954498a3b96642	2015-04-23 17:40:47.393725
+98	87e14a884f1999f635b23fe69a6af060d1d772617bb0650d8b96a2a9025e02db	2015-04-15 05:23:33.394182
+34	8360cde8f130fbf049b857c36cdeddb001aef925f25bd948363a3290866372e2	2015-04-24 07:20:13.671901
+87	b87869b93b608149373788b6f61b5ad00e188100fca24f57f6adecebe25008f5	2015-05-23 19:21:37.442341
+99	33970a123f368661d777d8b7570eac165c381d802b23eb601cba764cbf1ace3b	2015-04-15 07:25:18.400175
+76	cec394d6f885856a77bc4d64f2fb79bfbaa970984630de700dc9297774a43cd4	2015-11-09 14:47:00.817612
+\.
+
+
+--
+-- Data for Name: UserRights; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "UserRights" ("userID", "rightID", "canDo") FROM stdin;
+\.
+
+
+--
+-- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "Users" ("roleID", id, email, "firstName", "lastName", password, mobile, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated) FROM stdin;
+1	76	next15@mail.ru	Semyon	Babushkin	2d5f0a9630f33d66a52a4c3d8dfc8b4497f1ae9ab9fd910de9dc1a1d9e6c40c3	\N	\N	\N	\N	2015-03-08 03:00:00+03	2015-11-09 15:36:54.197024
+2	110	babushkin.semyon@gmail.com	Semyon	Babushkin	2d5f0a9630f33d66a52a4c3d8dfc8b4497f1ae9ab9fd910de9dc1a1d9e6c40c3	\N	\N	\N	\N	2015-11-09 15:45:40.06981+03	\N
+\.
+
+
+--
+-- Name: brand_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('brand_id_seq', 19, true);
+
+
+--
+-- Name: order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('order_id_seq', 320, true);
+
+
+--
+-- Name: role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('role_id_seq', 8, true);
+
+
+--
+-- Name: transport_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('transport_id_seq', 22, true);
+
+
+--
+-- Name: transportmodel_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('transportmodel_id_seq', 24, true);
+
+
+--
+-- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('user_id_seq', 110, true);
+
+
+--
+-- Name: Rights_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "Rights"
+    ADD CONSTRAINT "Rights_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_email_key" UNIQUE (email);
+
+
+--
+-- Name: id; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "Roles"
+    ADD CONSTRAINT id PRIMARY KEY (id);
+
+
+--
+-- Name: roleRight_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "RolesRights"
+    ADD CONSTRAINT "roleRight_pkey" PRIMARY KEY ("roleID", "rightID");
+
+
+--
+-- Name: userID; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "userID" PRIMARY KEY (id);
+
+
+--
+-- Name: userRights_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "UserRights"
+    ADD CONSTRAINT "userRights_pkey" PRIMARY KEY ("userID", "rightID");
+
+
+--
+-- Name: Rights_action_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
+
+
+--
+-- Name: Token_body_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX "Token_body_idx" ON "Token" USING btree (body);
+
+
+--
+-- Name: fki_roleID; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_roleID" ON "Users" USING btree ("roleID");
+
+
+--
+-- Name: fki_rolesrights_rightID; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX "fki_rolesrights_rightID" ON "RolesRights" USING btree ("rightID");
+
+
+--
+-- Name: tr_delete_token; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER tr_delete_token BEFORE INSERT ON "Token" FOR EACH ROW EXECUTE PROCEDURE twc_delete_old_token();
+
+
+--
+-- Name: users_before_update; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER users_before_update BEFORE UPDATE ON "Users" FOR EACH ROW EXECUTE PROCEDURE users_before_update();
+
+
+--
+-- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "RolesRights"
+    ADD CONSTRAINT "RolesRights_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
+
+
+--
+-- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
+
+
+--
+-- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY "RolesRights"
+    ADD CONSTRAINT "rolesrights_rightID" FOREIGN KEY ("rightID") REFERENCES "Rights"(id);
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
