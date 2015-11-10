@@ -1,3 +1,5 @@
+.idea
+*~
 backend/node_modules_/pg/node_modules/
 backend/node_modules_/
 backend/node_modules/pg/build/Release/obj/binding/binding.tlog/link.command.1.tlog

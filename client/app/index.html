@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
+    <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
+    <!-- endbower -->
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+</head>
+<body ng-app="greyscaleClientApp">
+<!--[if lte IE 8]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div ui-view=""></div>
+<div class="footer navbar-fixed-bottom">
+    <div class="container">
+        <p class="pull-right"><span class="glyphicon glyphicon-copyright-mark"></span> greyscale</p>
+    </div>
+</div>
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<!-- script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script-->
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+<script src="bower_components/angular-touch/angular-touch.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+<!-- rdash scripts -->
+<script src="vendors/rdash/module.js"></script>
+<script src="vendors/rdash/directives/loading.js"></script>
+<script src="vendors/rdash/directives/widget.js"></script>
+<script src="vendors/rdash/directives/widget-body.js"></script>
+<script src="vendors/rdash/directives/widget-footer.js"></script>
+<script src="vendors/rdash/directives/widget-header.js"></script>
+<!-- end rdash scripts -->
+<!-- greyscale.core -->
+<script src="greyscale.core/scripts/greyscale.core.js"></script>
+<script src="greyscale.core/scripts/services/greycsale-auth.js"></script>
+<!-- end greyscale.core -->
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="scripts/app.js"></script>
+<script src="scripts/controllers/main.js"></script>
+<script src="scripts/controllers/login.js"></script>
+<!-- endbuild -->
+<!-- directives -->
+<script src="scripts/directives/sidebar.js"></script>
+<script src="scripts/directives/headerbar.js"></script>
+<script src="scripts/directives/login-form.js"></script>
+<!-- end directives -->
+</body>
+</html>
