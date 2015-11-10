@@ -1,7 +1,0 @@
-{
-    "accessKeyId": "accessKeyId",
-    "secretAccessKey": "secretAccessKey",
-    "Bucket": "Bucket",
-    "prefix": "http://someurl.s3.amazonaws.com/",
-    "maxFileSize": "10485760"
-}

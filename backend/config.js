@@ -2,13 +2,13 @@ var environments = {
   development: {
     port: 3001, // Port for incoming HTTP. Can be overriden by env. variable PORT
     encoding: 'utf8',
-    domain: 'http://localhost:3001',
+    domain: 'http://indaba.ntrlab.ru',
     authToken: {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: 'semyon',
-      password: 'aw34res',
+      user: 'indaba',
+      password: 'indaba',
       database: 'indaba',
       host: 'localhost',
       port: 5432
