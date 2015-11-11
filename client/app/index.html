@@ -10,8 +10,6 @@
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
-    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
@@ -34,16 +32,16 @@
 <!-- bower:js -->
 <script src="bower_components/jquery/dist/jquery.js"></script>
 <script src="bower_components/angular/angular.js"></script>
-<!-- script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script-->
+<script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
 <script src="bower_components/angular-cookies/angular-cookies.js"></script>
 <script src="bower_components/angular-resource/angular-resource.js"></script>
 <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="bower_components/angular-touch/angular-touch.js"></script>
-<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
-<!-- rdash scripts -->
+
+<!-- build:js({.tmp,app}) scripts/rdash-angular.js -->
 <script src="vendors/rdash/module.js"></script>
 <script src="vendors/rdash/directives/loading.js"></script>
 <script src="vendors/rdash/directives/widget.js"></script>
@@ -51,19 +49,27 @@
 <script src="vendors/rdash/directives/widget-footer.js"></script>
 <script src="vendors/rdash/directives/widget-header.js"></script>
 <!-- end rdash scripts -->
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/greyscale.core.js -->
 <!-- greyscale.core -->
 <script src="greyscale.core/scripts/greyscale.core.js"></script>
 <script src="greyscale.core/scripts/services/greycsale-auth.js"></script>
 <!-- end greyscale.core -->
+<!-- endbuild -->
+
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
+<!-- controllers -->
 <script src="scripts/app.js"></script>
 <script src="scripts/controllers/main.js"></script>
 <script src="scripts/controllers/login.js"></script>
-<!-- endbuild -->
+<!-- end controllers -->
+
 <!-- directives -->
 <script src="scripts/directives/sidebar.js"></script>
 <script src="scripts/directives/headerbar.js"></script>
 <script src="scripts/directives/login-form.js"></script>
 <!-- end directives -->
+<!-- endbuild -->
 </body>
 </html>

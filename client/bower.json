@@ -9,9 +9,8 @@
     "angular-ui-router": "^0.2.10",
     "angular-touch": "^1.4.0",
     "rdash-ui": "~1.0.1",
-    "bootstrap": "~3.2.0",
-    "font-awesome": "~4.1.0",
-    "angular-bootstrap": "~0.14.3"
+    "angular-bootstrap": "~0.14.3",
+    "font-awesome": "fontawesome#~4.4.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"
