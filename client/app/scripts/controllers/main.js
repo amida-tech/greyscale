@@ -2,12 +2,12 @@
 
 /**
  * @ngdoc function
- * @name greyscaleClientApp.controller:MainCtrl
+ * @name greyscaleApp.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the greyscaleClientApp
+ * Controller of the greyscaleApp
  */
-angular.module('greyscaleClientApp')
+angular.module('greyscaleApp')
     .controller('MainCtrl', function (greyscaleAuthSrv) {
         greyscaleAuthSrv.isAuthenticated()
             .then(function (isAuthenticated) {

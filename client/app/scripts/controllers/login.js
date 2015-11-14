@@ -3,7 +3,7 @@
  */
 "use strict";
 
-angular.module('greyscaleClientApp')
+angular.module('greyscaleApp')
     .controller('LoginCtrl', function ($state, greyscaleAuthSrv) {
         greyscaleAuthSrv.isAuthenticated()
             .then(function (isAuthenticated) {

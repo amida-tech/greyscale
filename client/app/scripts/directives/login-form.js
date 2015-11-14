@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('greyscaleClientApp')
+angular.module('greyscaleApp')
     .directive('loginForm', function (greyscaleAuthSrv, $state, $log) {
         return {
             templateUrl: 'views/directives/login-form.html',
@@ -9,7 +9,7 @@ angular.module('greyscaleClientApp')
             controller: function ($scope) {
                 $scope.model = {
                     login: {
-                        label: 'User name',
+                        label: 'E-m@il',
                         value: null
                     },
                     password: {

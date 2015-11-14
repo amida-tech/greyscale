@@ -16,16 +16,16 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 </head>
-<body ng-app="greyscaleClientApp">
+<body ng-app="greyscaleApp">
 <!--[if lte IE 8]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
     your browser</a> to improve your experience.</p>
 <![endif]-->
 
-<div ui-view=""></div>
+<div ui-view></div>
 <div class="footer navbar-fixed-bottom">
     <div class="container">
-        <p class="pull-right"><span class="glyphicon glyphicon-copyright-mark"></span> greyscale</p>
+        <p class="pull-right">Turn knowledge into data.</p>
     </div>
 </div>
 <!-- build:js(.) scripts/vendor.js -->
@@ -38,6 +38,9 @@
 <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
 <script src="bower_components/angular-touch/angular-touch.js"></script>
 <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/lodash/lodash.js"></script>
+<script src="bower_components/restangular/dist/restangular.js"></script>
+<script src="bower_components/angular-messages/angular-messages.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -63,12 +66,15 @@
 <script src="scripts/app.js"></script>
 <script src="scripts/controllers/main.js"></script>
 <script src="scripts/controllers/login.js"></script>
+<script src="scripts/controllers/register.js"></script>
 <!-- end controllers -->
 
 <!-- directives -->
 <script src="scripts/directives/sidebar.js"></script>
 <script src="scripts/directives/headerbar.js"></script>
 <script src="scripts/directives/login-form.js"></script>
+<script src="scripts/directives/register-form.js"></script>
+<script src="scripts/directives/isEqual.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
 </body>

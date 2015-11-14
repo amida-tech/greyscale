@@ -2,15 +2,16 @@
 
 /**
  * @ngdoc overview
- * @name greyscaleClientApp
+ * @name greyscaleApp
  * @description
- * # greyscaleClientApp
+ * # greyscaleApp
  *
  * Main module of the application.
  */
-var _app = angular.module('greyscaleClientApp', [
+var _app = angular.module('greyscaleApp', [
     'ngCookies',
     'ngResource',
+    'ngMessages',
     'ngTouch',
     'ui.bootstrap',
     'ui.router',
@@ -32,6 +33,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: '',
                 isPublic: false
+            }
+        })
+        .state('register', {
+            url: '/register',
+            templateUrl: 'views/controllers/register.html',
+            controller: 'RegisterCtrl',
+            data: {
+                name: 'Register',
+                isPublic: true
             }
         })
         .state('login', {

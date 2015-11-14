@@ -3,7 +3,7 @@
  */
 "use strict";
 
-angular.module('greyscaleClientApp')
+angular.module('greyscaleApp')
     .directive('headerbar',function(){
         return {
             templateUrl: 'views/directives/headerbar.html',
