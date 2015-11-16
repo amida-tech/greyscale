@@ -28,5 +28,15 @@ var opt = {
   stdio: stdio
 };
 
+
 var app = spawn(process.execPath, args, opt);
+
+var children = [];
+process.on('SIGTERM', function() {
+    children.forEach(function(child) {
+        child.kill();
+    });
+});
+
+children.push(app);
 
