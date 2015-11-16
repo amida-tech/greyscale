@@ -2,7 +2,7 @@ var environments = {
   development: {
     port: 3001, // Port for incoming HTTP. Can be overriden by env. variable PORT
     encoding: 'utf8',
-    domain: 'http://indaba.ntrlab.ru',
+    domain: 'localhost',
     authToken: {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },

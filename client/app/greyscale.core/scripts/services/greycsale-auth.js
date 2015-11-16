@@ -4,37 +4,48 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .service('greyscaleAuthSrv', function (Restangular, $log, $rootScope, $q) {
+    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, greyscaleTokenSrv, greyscaleProfileSrv, $log) {
 
-        var _user = null;
+        var _auth_err_handler = function (err) {
+            greyscaleProfileSrv.logout();
+            return $q.reject(err);
+        };
 
         function _login(user, passwd) {
-            var _res = $q.resolve(true);
-            /* 2do: implement login API call*/
-            _user = user;
-            return _res;
+            Restangular.setDefaultHeaders({'Authorization': 'Basic ' + btoa(user + ':' + passwd)});
+            return Restangular
+                .one('users','token')
+                .get()
+                .then(function (resp) {
+                    $log.debug(greyscaleProfileSrv);
+                    greyscaleProfileSrv.token(resp.token);
+                    return resp;
+                })
+                .catch(_auth_err_handler);
         }
 
         function _isAuthenticated() {
-            var _res = $q.resolve(_user !== null);
-            /* 2do: implement authorization API call */
-            return _res;
+            return $q.resolve(greyscaleProfileSrv.token() !== null);
         }
 
         function _logout(token) {
-            var _res = $q.resolve(true);
-            /* 2do: implement logout API call*/
-            _user = null;
-            $rootScope.$emit('logout');
-            return _res;
+            return greyscaleTokenSrv
+                .one('users')
+                .post('logout')
+                .finally(greyscaleProfileSrv.logout);
         }
 
         function _register(user_data) {
-            return Restangular.one('users').customPOST(user_data);
+            return Restangular
+                .one('users')
+                .customPOST(user_data);
         }
 
         function _users() {
-            return $q.reject([]);
+            return greyscaleTokenSrv
+                .one('users')
+                .get()
+                .catch(_auth_err_handler);
         }
 
         function _roles() {

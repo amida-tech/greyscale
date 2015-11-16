@@ -16,7 +16,8 @@ var _app = angular.module('greyscaleApp', [
     'ui.bootstrap',
     'ui.router',
     'RDash',
-    'greyscale.core'
+    'greyscale.core',
+    'greyscale.user'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {
