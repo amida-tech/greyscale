@@ -6,6 +6,6 @@ angular.module('greyscale.core', ['restangular'])
         RestangularProvider.setBaseUrl("http://indaba.ntrlab.ru:83/v0.2");
         RestangularProvider.setDefaultHttpFields({
             cache: false,
-            withCredentials: true
+            withCredentials: false
         });
     });
