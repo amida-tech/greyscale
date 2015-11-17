@@ -4,20 +4,19 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, greyscaleTokenSrv, greyscaleProfileSrv, $log) {
+    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, greyscaleRestSrv, greyscaleProfileSrv, $log) {
 
         var _auth_err_handler = function (err) {
-            greyscaleProfileSrv.logout();
+//            greyscaleProfileSrv.logout();
+            $log.debug(err);
             return $q.reject(err);
         };
 
         function _login(user, passwd) {
-            Restangular.setDefaultHeaders({'Authorization': 'Basic ' + btoa(user + ':' + passwd)});
-            return Restangular
+            return greyscaleRestSrv({'Authorization': 'Basic ' + btoa(user + ':' + passwd)})
                 .one('users','token')
                 .get()
                 .then(function (resp) {
-                    $log.debug(greyscaleProfileSrv);
                     greyscaleProfileSrv.token(resp.token);
                     return resp;
                 })
@@ -29,10 +28,12 @@ angular.module('greyscale.core')
         }
 
         function _logout(token) {
-            return greyscaleTokenSrv
-                .one('users')
-                .post('logout')
-                .finally(greyscaleProfileSrv.logout);
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users','logout')
+                .post()
+                .then(greyscaleProfileSrv.logout)
+                .catch(_auth_err_handler);
+//                .finally(greyscaleProfileSrv.logout);
         }
 
         function _register(user_data) {
@@ -42,7 +43,7 @@ angular.module('greyscale.core')
         }
 
         function _users() {
-            return greyscaleTokenSrv
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
                 .one('users')
                 .get()
                 .catch(_auth_err_handler);

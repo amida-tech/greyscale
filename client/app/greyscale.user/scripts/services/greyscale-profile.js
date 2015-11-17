@@ -8,15 +8,15 @@ angular.module('greyscale.user')
         var _token = null;
 
         this.token = function (val) {
-            if (angular.isDefined(val)) {
+            if (typeof val !== 'undefined') {
                 _token = val;
-            } else {
-                return _token;
             }
+            return _token;
         };
 
         this.logout = function () {
             _token = null;
             $rootScope.$emit('logout');
+            return this;
         };
     });
