@@ -4,7 +4,8 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, greyscaleRestSrv, greyscaleProfileSrv, $log) {
+    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, $log,
+                                           greyscaleRestSrv, greyscaleProfileSrv, greyscaleBase64Srv) {
 
         var _auth_err_handler = function (err) {
 //            greyscaleProfileSrv.logout();
@@ -13,7 +14,7 @@ angular.module('greyscale.core')
         };
 
         function _login(user, passwd) {
-            return greyscaleRestSrv({'Authorization': 'Basic ' + btoa(user + ':' + passwd)})
+            return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' +  passwd)})
                 .one('users','token')
                 .get()
                 .then(function (resp) {
