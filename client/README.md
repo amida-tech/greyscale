@@ -75,4 +75,4 @@ Contributors are welcome. See issues https://github.com/amida-tech/greyscale/iss
 
 ## License
 
-Licensed under [Apache 2.0](./LICENSE)
+Licensed under [Apache 2.0](../LICENSE)
