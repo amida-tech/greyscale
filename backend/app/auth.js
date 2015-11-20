@@ -2,9 +2,11 @@ var passport = require('passport'),
   BasicStrategy = require('passport-http').BasicStrategy,
   TokenStrategy = require('lib/passport_token'),
   client = require('app/db_bootstrap'),
-  User = require('app/models/user'),
-  Role = require('app/models/role'),
+  User = require('app/models/users'),
+  Role = require('app/models/roles'),
   Token = require('app/models/token'),
+  EssenceRoles = require('app/models/essence_roles'),
+  Essences = require('app/models/essences'),
   HttpError = require('app/error').HttpError,
   util = require('util'),
   config = require('config');
@@ -127,6 +129,22 @@ module.exports = {
       }
       
   },
+
+  // checkPermission: function (action, essence) {
+  //   return function (req, res, next) {
+  //     co(function* () {
+  //       var EssenceId = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.lable.equals(essence)));
+  //       if(!_.first(EssenceId)){
+  //         throw new HttpError(403, "Essence does not exist: " + essence);
+  //       }
+  //       EssenceRoles.select(EssenceRoles.star()).from(EssenceRoles).where
+  //     }).then(function(data){
+  //       console.log('ok');
+  //     },function(err){
+  //       next(err);
+  //     });
+  //   }
+  // },
   checkRight: function (action) {
     return function (req, res, next) {
 

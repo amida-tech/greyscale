@@ -7,8 +7,8 @@ var environments = {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: 'semyon',
-      password: 'aw34res',
+      user: 'postgres',
+      password: 'postgres',
       database: 'indaba',
       host: 'localhost',
       port: 5432

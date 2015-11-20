@@ -46,6 +46,58 @@ router.route('/v0.2/role/:roleID/rights/:rightID')
 
 
 //----------------------------------------------------------------------------------------------------------------------
+//    ESSENCES
+//----------------------------------------------------------------------------------------------------------------------
+var essences = require('app/controllers/essences');
+
+router.route('/v0.2/essences')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//    ACCESS_MATRICES
+//----------------------------------------------------------------------------------------------------------------------
+var access_matrices = require('app/controllers/access_matrices');
+
+router.route('/v0.2/access_matrices')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.insertOne);
+
+router.route('/v0.2/access_matrices/:id/permissions')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsSelect);
+  
+
+//----------------------------------------------------------------------------------------------------------------------
+//    ACCESS_PERMISSIONS
+//----------------------------------------------------------------------------------------------------------------------
+router.route('/v0.2/access_permissions')
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsInsertOne);
+
+router.route('/v0.2/access_permissions/:id') 
+  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsDeleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    ESSENCE_ROLES
+//----------------------------------------------------------------------------------------------------------------------
+var essence_roles = require('app/controllers/essence_roles')
+
+router.route('/v0.2/essence_roles')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.insertOne);
+
+router.route('/v0.2/essence_roles/:essenceId/:entityId')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.selectEntityRoles);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    PRODUCTS
+//----------------------------------------------------------------------------------------------------------------------
+var products = require('app/controllers/products')
+router.route('/v0.2/products')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ products.select)
+  .post(authenticate('token').always, products.insertOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 // USERS
 //----------------------------------------------------------------------------------------------------------------------
 var users = require('app/controllers/users');
@@ -67,7 +119,7 @@ router.route('/v0.2/users/check_restore_token/:token')
   .get(users.checkRestoreToken);
 
 router.route('/v0.2/users/logout')
-  .post(authenticate('token').always, checkRight('users_logout_self'), users.logout);
+  .post(authenticate('token').always, /*checkRight('users_logout_self'),*/ users.logout);
 
 router.route('/v0.2/users/logout/:id')
   .post(authenticate('token').always, checkRight('users_logout'), users.logout);

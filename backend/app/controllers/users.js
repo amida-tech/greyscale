@@ -2,7 +2,7 @@ var client = require('app/db_bootstrap'),
   _ = require('underscore'),
   crypto = require('crypto'),
   config = require('config'),
-  User = require('app/models/user'),
+  User = require('app/models/users'),
   Rights = require('app/models/rights'),
   RoleRights = require('app/models/role_rights'),
   Token = require('app/models/token'),
@@ -14,7 +14,7 @@ var client = require('app/db_bootstrap'),
   async = require('async'),
   Emailer = require('lib/mailer');
 
-var Role = require('app/models/role');
+var Role = require('app/models/roles');
 var Query = require('app/util').Query,
   query = new Query(),
   co = require('co'),

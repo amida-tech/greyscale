@@ -2,7 +2,7 @@ var client = require('app/db_bootstrap'),
   _ = require('underscore'),
   config = require('config'),
 // tables
-  Role = require('app/models/role');
+  Role = require('app/models/roles');
 
 var co = require('co');
 //var query = thunkify(client.query);
