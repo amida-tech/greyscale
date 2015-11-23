@@ -6,6 +6,7 @@ var passport = require('passport'),
   Role = require('app/models/roles'),
   Token = require('app/models/token'),
   EssenceRoles = require('app/models/essence_roles'),
+  AccessPermission = require('app/models/access_permissions'),
   Essences = require('app/models/essences'),
   HttpError = require('app/error').HttpError,
   util = require('util'),
@@ -130,21 +131,67 @@ module.exports = {
       
   },
 
-  // checkPermission: function (action, essence) {
-  //   return function (req, res, next) {
-  //     co(function* () {
-  //       var EssenceId = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.lable.equals(essence)));
-  //       if(!_.first(EssenceId)){
-  //         throw new HttpError(403, "Essence does not exist: " + essence);
-  //       }
-  //       EssenceRoles.select(EssenceRoles.star()).from(EssenceRoles).where
-  //     }).then(function(data){
-  //       console.log('ok');
-  //     },function(err){
-  //       next(err);
-  //     });
-  //   }
-  // },
+  checkPermission: function (action) {
+    return function (req, res, next) {
+      co(function* () {
+        var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
+        Action = _.first(Action);
+        console.log(Action);
+
+        var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)));
+        Essence = _.first(Essence);
+        if(!Essence){
+          throw new HttpError(403, "Essence does not exist: " + Action.essenceId);
+        }
+
+        try{
+          var model = require('app/models/'+Essence.fileName);
+        }catch(err){
+          throw new HttpError(403, "Cannot find model file: " + Essence.fileName);
+        }
+        
+        
+        var Membership = yield thunkQuery(
+          EssenceRoles
+            .select(EssenceRoles.roleId)
+            .from(EssenceRoles)
+            .where(
+              EssenceRoles.essenceId.equals(Essence.id)
+              .and(EssenceRoles.entityId.equals(req.params.id))
+              .and(EssenceRoles.userId.equals(req.user.id))
+            )
+        );
+        Membership = _.first(Membership);
+
+        if(!Membership){
+          throw new HttpError(403, "This user does not have membership on this entity");
+        }
+
+        var Matrix = yield thunkQuery(model.select(model.matrixId).where(model.id.equals(req.params.id))); // TODO subquery
+        Matrix = _.first(Matrix);
+
+        var Permissions = yield thunkQuery(
+          AccessPermission
+            .select(AccessPermission.star())
+            .from(AccessPermission)
+            .where(
+              AccessPermission.matrixId.equals(Matrix.matrixId)
+              .and(AccessPermission.roleId.equals(Membership.roleId))
+              .and(AccessPermission.rightId.equals(Action.id))
+            )
+        );
+        if(!_.first(Permissions)){
+          throw new HttpError(401, "User's role has not permission for this action");
+        }
+        return Permissions;
+      }).then(function(data){
+        next();
+      },function(err){
+        next(err);
+      });
+    }
+  },
+
   checkRight: function (action) {
     return function (req, res, next) {
 

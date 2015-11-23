@@ -1,9 +1,11 @@
 var sql = require('sql');
 
-var columns = ['id',
-              'action',
-              'description'
-              ];
+var columns = [
+    'id',
+    'action',
+    'description',
+    'essenceId'
+];
 
 var Right = sql.define({
   name: 'Rights',

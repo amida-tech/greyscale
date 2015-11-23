@@ -22,6 +22,16 @@ module.exports = {
     });
   },
 
+  delete: function (req, res, next) {
+    var q = Product.delete().where(Product.id.equals(req.params.id));
+    query(q, function (err, data) {
+      if (err) {
+        return next(err);
+      }
+      res.status(204).end();
+    });
+  },
+
   insertOne: function (req, res, next) {
 
     co(function* () {
