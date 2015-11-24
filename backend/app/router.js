@@ -103,6 +103,13 @@ router.route('/v0.2/products/:id')
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    ORGANIZATIONS
+//----------------------------------------------------------------------------------------------------------------------
+var organizations = require('app/controllers/organizations');
+router.route('/v0.2/organizations')
+  .post(authenticate('token').always,organizations.insertOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 // USERS
 //----------------------------------------------------------------------------------------------------------------------
 var users = require('app/controllers/users');
@@ -125,6 +132,9 @@ router.route('/v0.2/users/check_restore_token/:token')
 
 router.route('/v0.2/users/logout')
   .post(authenticate('token').always, /*checkRight('users_logout_self'),*/ users.logout);
+
+router.route('/v0.2/users/invite')
+  .post(authenticate('token').always, checkRight('users_invite'), users.invite)
 
 router.route('/v0.2/users/logout/:id')
   .post(authenticate('token').always, checkRight('users_logout'), users.logout);

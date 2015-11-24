@@ -3,6 +3,7 @@ var client = require('app/db_bootstrap'),
   crypto = require('crypto'),
   config = require('config'),
   User = require('app/models/users'),
+  Organization = require('app/models/organizations'),
   Rights = require('app/models/rights'),
   RoleRights = require('app/models/role_rights'),
   Token = require('app/models/token'),
@@ -93,6 +94,63 @@ module.exports = {
         next(err);
       });
 
+  },
+
+  invite: function (req, res, next) {
+    co(function* (){
+      if(!req.body.email || !req.body.firstName || !req.body.lastName){
+        throw new HttpError(400, 'Email, First name and Last name fields are required');
+      }
+      if (!vl.isEmail(req.body.email)) {
+        throw new HttpError(400, 101);
+      }
+      var isExistEmail = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+      if(_.first(isExistEmail)){
+        throw new HttpError(400, 'User with this email has already registered');
+      }
+
+      var pass = crypto.randomBytes(5).toString('hex');
+
+      var newClient = {
+        'firstName' : req.body.firstName,
+        'lastName'  : req.body.lastName,
+        'email'     : req.body.email,
+        'roleID'    : 2, //client
+        'password'  : User.hashPassword(pass)
+      };
+
+      var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+      var newOrganization = {
+        'name'        : 'Your new organization',
+        'adminUserId' : _.first(userId).id
+      };
+
+      var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
+
+      var options = {
+        to : {
+          name    : req.body.firstName,
+          surname : req.body.lastName,
+          email   : 'babushkin.semyon@gmail.com',//req.body.email,
+          subject : 'Indaba. Invite'
+        },
+        template: 'invite'
+      };
+      var data = {
+        name: req.body.firstName,
+        surname: req.body.lastName,
+        company_name: newOrganization.name
+      };
+      var mailer = new Emailer(options, data);
+      mailer.send();
+      
+      return _.first(userId);
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
   },
 
   selectOne: function (req, res, next) {
