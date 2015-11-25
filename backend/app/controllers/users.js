@@ -104,50 +104,121 @@ module.exports = {
       if (!vl.isEmail(req.body.email)) {
         throw new HttpError(400, 101);
       }
-      var isExistEmail = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
-      if(_.first(isExistEmail)){
+      var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+      isExistUser = _.first(isExistUser);
+      if(isExistUser && isExistUser.isActive){
         throw new HttpError(400, 'User with this email has already registered');
       }
 
-      var pass = crypto.randomBytes(5).toString('hex');
+      var OrgNameTemp     = 'Your new organization';
+      var firstName       = isExistUser ? isExistUser.firstName : req.body.firstName;
+      var lastName        = isExistUser ? isExistUser.lastName : req.body.lastName;
+      var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
 
-      var newClient = {
-        'firstName' : req.body.firstName,
-        'lastName'  : req.body.lastName,
-        'email'     : req.body.email,
-        'roleID'    : 2, //client
-        'password'  : User.hashPassword(pass)
-      };
+      if(!isExistUser){
+        var pass            = crypto.randomBytes(5).toString('hex');
+        var newClient = {
+          'firstName'       : req.body.firstName,
+          'lastName'        : req.body.lastName,
+          'email'           : req.body.email,
+          'roleID'          : 2, //client
+          'password'        : User.hashPassword(pass),
+          'isActive'        : false,
+          'activationToken' : activationToken
+        };
 
-      var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+        var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
 
-      var newOrganization = {
-        'name'        : 'Your new organization',
-        'adminUserId' : _.first(userId).id
-      };
+        var newOrganization = {
+          'name'        : OrgNameTemp,
+          'adminUserId' : _.first(userId).id,
+          'isActive'    : false
+        };
 
-      var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
+        var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
+      }
+
+      var userId = isExistUser ? isExistUser.id : _.first(userId).id;
 
       var options = {
         to : {
-          name    : req.body.firstName,
-          surname : req.body.lastName,
+          name    : firstName,
+          surname : lastName,
           email   : 'babushkin.semyon@gmail.com',//req.body.email,
           subject : 'Indaba. Invite'
         },
         template: 'invite'
       };
       var data = {
-        name: req.body.firstName,
-        surname: req.body.lastName,
-        company_name: newOrganization.name
+        name: firstName,
+        surname: lastName,
+        company_name: OrgNameTemp,
+        token: activationToken
       };
       var mailer = new Emailer(options, data);
       mailer.send();
       
-      return _.first(userId);
     }).then(function(data){
+      res.status(200).end();
+    }, function(err){
+      next(err);
+    });
+  },
+
+  activate: function(req, res, next) {
+    co(function* (){
+      var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
+      if(!_.first(isExist)){
+        throw new HttpError(400, 'Token is not valid')
+      }
+      var data = {
+        activationToken : null,
+        isActive        : true
+      };
+      yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)));
+      return isExist;
+    }).then(function(data){
+      res.json(_.first(data));
+    },function(err){
+      next(err);
+    });
+  },
+
+  selfOrganization: function(req, res, next){
+    co(function* (){
+      if(req.user.roleID !== 2){
+        throw new HttpError(400, 'Your role is not "client". Only clients can have organization');
+      }
+      Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)));
+      if(!_.first(Org)){
+        throw new HttpError(404, 'Not found');
+      }
+      return _.first(Org);
+    }).then(function(data) {
       res.json(data);
+    },function(err) {
+      next(err);
+    });
+  },
+
+  selfOrganizationUpdate: function(req, res, next){
+    co(function* (){
+      if(!req.body.name || !req.body.address || !req.body.url){
+        throw new HttpError(400, 'Name, address and url fields are required');
+      }
+      var data = {
+        name     : req.body.name,
+        address  : req.body.address,
+        url      : req.body.url,
+        isActive : true
+      }
+      var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id));
+      if(!_.first(updated)){
+        throw new HttpError(404, 'Not found');
+      }
+      return updated;
+    }).then(function(data){
+      res.json(_.first(data));
     }, function(err){
       next(err);
     });

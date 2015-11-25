@@ -18,11 +18,11 @@ var columns =  [
   'birthday',
   'resetPasswordToken',
   'resetPasswordExpires',
-  //'facebookID',
-  //'facebookDetails',
   'created',
   'updated',
-  'currencyID'
+  'currencyID',
+  'isActive',
+  'activationToken'
   ];
 
 var User = sql.define({

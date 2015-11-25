@@ -127,6 +127,13 @@ router.route('/v0.2/users/forgot')
 router.route('/v0.2/users/reset-password')
   .put(users.resetPassword);
 
+router.route('/v0.2/users/activate/:token')
+  .get(users.activate);
+
+router.route('/v0.2/users/self/organization')
+  .get(authenticate('token').always, users.selfOrganization)
+  .put(authenticate('token').always, users.selfOrganizationUpdate);
+
 router.route('/v0.2/users/check_restore_token/:token')
   .get(users.checkRestoreToken);
 

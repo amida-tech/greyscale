@@ -8,7 +8,8 @@ var Organization = sql.define({
         'address', 
         'adminUserId', 
         'url', 
-        'enforceApiSecurity'
+        'enforceApiSecurity',
+        'isActive'
     ]
 });
 
