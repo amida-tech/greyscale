@@ -37,10 +37,34 @@ angular.module('greyscale.core')
 //                .finally(greyscaleProfileSrv.logout);
         }
 
+        function _clients() {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users')
+                .get({'roleID':2})
+                .then(function(resp){
+                    return resp;
+                })
+                .catch(_auth_err_handler);
+        }
+
+        function _invite(user_data) {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users')
+                .one('invite')
+                .customPOST(user_data);
+        }
+
         function _register(user_data) {
             return Restangular
                 .one('users')
                 .customPOST(user_data);
+        }
+
+        function _activate(token) {
+            return Restangular
+                .one('users')
+                .one('activate',token)
+                .get();
         }
 
         function _users() {
@@ -60,6 +84,9 @@ angular.module('greyscale.core')
             logout: _logout,
             isAuthenticated: _isAuthenticated,
             users: _users,
-            roles: _roles
+            roles: _roles,
+            clients: _clients,
+            invite: _invite,
+            activate: _activate,
         };
     });

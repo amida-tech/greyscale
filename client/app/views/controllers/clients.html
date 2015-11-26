@@ -1,0 +1,35 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1>Clients</h1>
+        <button class="btn btn-info" ng-click="inviteForm()">Invite</button>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>email</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Is active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="client in clients">
+                        <td>{{client.id}}</td>
+                        <td>{{client.firstName}}</td>
+                        <td>{{client.lastName}}</td>
+                        <td>{{client.email}}</td>
+                        <td>{{(roles | filter : {id : client.roleID})[0].name}}</td>
+                        <td>{{client.created | date}}</td>
+                        <td>
+                            <span ng-if="client.isActive" class="text-success"><i class="fa fa-check"></i></span>
+                            <span ng-if="!client.isActive" class="text-danger"><i class="fa fa-warning"></i></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

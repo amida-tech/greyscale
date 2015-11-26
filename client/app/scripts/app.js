@@ -36,6 +36,14 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('activate', {
+            url: '/activate/:token',
+            controller: 'ActivateCtrl',
+            data: {
+                name: 'Activate',
+                isPublic: true
+            }
+        })
         .state('register', {
             url: '/register',
             templateUrl: 'views/controllers/register.html',
@@ -53,6 +61,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Login',
                 isPublic: true
             }
+        })
+        .state('main.clients', {
+            url: 'clients',
+            templateUrl: 'views/controllers/clients.html',
+            controller: 'ClientsCtrl',
+            data: {
+                name: 'Clients',
+                isPublic: true
+            }
         });
     $urlRouterProvider.otherwise('/');
 });
@@ -60,6 +77,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         //if rule not defined
+        console.log(toState);
+        return;
         if (!angular.isDefined(toState.data.isPublic)) {
             return;
         }

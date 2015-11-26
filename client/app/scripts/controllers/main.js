@@ -8,7 +8,7 @@
  * Controller of the greyscaleApp
  */
 angular.module('greyscaleApp')
-    .controller('MainCtrl', function (greyscaleAuthSrv) {
+    .controller('MainCtrl', function ($state, greyscaleAuthSrv) {
         greyscaleAuthSrv.isAuthenticated()
             .then(function (isAuthenticated) {
                 if (!isAuthenticated) {
