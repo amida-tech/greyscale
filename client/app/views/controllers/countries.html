@@ -1,0 +1,28 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1>Countries</h1>
+        <!-- <button class="btn btn-info" ng-click="inviteForm()">Invite</button> -->
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Name</th>
+                        <th>Alpha2</th>
+                        <th>Alpha3</th>
+                        <th>Nbr</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="country in countries">
+                        <td>{{country.id}}</td>
+                        <td>{{country.name}}</td>
+                        <td>{{country.alpha2}}</td>
+                        <td>{{country.alpha3}}</td>
+                        <td>{{country.nbr}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

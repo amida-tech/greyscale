@@ -5,3 +5,4 @@ backend/node_modules_/
 backend/node_modules/pg/build/Release/obj/binding/binding.tlog/link.command.1.tlog
 backend/node_modules/
 backend/config.js
+backend/db_dump/local/

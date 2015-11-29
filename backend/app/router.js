@@ -78,7 +78,7 @@ router.route('/v0.2/access_matrices')
 
 router.route('/v0.2/access_matrices/:id/permissions')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsSelect);
-  
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_PERMISSIONS
@@ -86,7 +86,7 @@ router.route('/v0.2/access_matrices/:id/permissions')
 router.route('/v0.2/access_permissions')
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsInsertOne);
 
-router.route('/v0.2/access_permissions/:id') 
+router.route('/v0.2/access_permissions/:id')
   .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsDeleteOne);
 
 
@@ -154,6 +154,13 @@ router.route('/v0.2/users/:id')
   .get(authenticate('token').always, checkRight('users_view_one'), users.selectOne)
   .put(authenticate('token').always, checkRight('users_edit_one'), users.updateOne)
   .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    COUNTRIES
+//----------------------------------------------------------------------------------------------------------------------
+var countries = require('app/controllers/countries');
+router.route('/v0.2/countries')
+    .get(authenticate('token').always, countries.select);
 
 module.exports = router;
 

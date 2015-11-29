@@ -78,6 +78,18 @@ angular.module('greyscale.core')
             return Restangular.one('roles').get();
         }
 
+        function _countries() {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('countries')
+                .get()
+/*
+                .then(function(resp){
+                    return resp;
+                })
+*/
+                .catch(_auth_err_handler);
+        }
+
         return {
             register: _register,
             login: _login,
@@ -88,5 +100,6 @@ angular.module('greyscale.core')
             clients: _clients,
             invite: _invite,
             activate: _activate,
+            countries: _countries
         };
     });
