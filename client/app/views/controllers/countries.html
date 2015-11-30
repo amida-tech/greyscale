@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-lg-12">
         <h1>Countries</h1>
-        <!-- <button class="btn btn-info" ng-click="inviteForm()">Invite</button> -->
+        <button class="btn btn-info" ng-click="addCountry()">Add</button>
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -20,6 +20,8 @@
                         <td>{{country.alpha2}}</td>
                         <td>{{country.alpha3}}</td>
                         <td>{{country.nbr}}</td>
+            			<td><button class="btn btn-info" ng-click="editCountry()">Edit</button></td>
+                        <td><button class="btn btn-info" ng-click="deleteCountry()">Delete</button></td>
                     </tr>
                 </tbody>
             </table>

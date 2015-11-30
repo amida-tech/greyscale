@@ -1,0 +1,74 @@
+<div class="page">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong><span class="glyphicon glyphicon-th"></span> Add new country</strong>
+        </div>
+        <div class="panel-body">
+            <div name="addCountryForm" class="form-horizontal" ng-form="addCountryForm">
+                <div class="form-group">
+                    <label for="name" class="col-sm-4 control-label">Country name</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
+                               ng-required="true" ng-minlength="1" focus="true">
+                        <div class="text-center" ng-messages="addCountryForm.name.$error" role="alert"
+                             ng-if="addCountryForm.name.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Country name is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="name" class="col-sm-4 control-label">Alpha2</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="alpha2" id="alpha2" ng-model="model.alpha2"
+                               ng-required="true" ng-minlength="1" focus="true">
+                        <div class="text-center" ng-messages="addCountryForm.alpha2.$error" role="alert"
+                             ng-if="addCountryForm.alpha2.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Alpha2 country code is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="name" class="col-sm-4 control-label">Alpha3</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="alpha3" id="alpha3" ng-model="model.alpha3"
+                               ng-required="true" ng-minlength="1" focus="true">
+                        <div class="text-center" ng-messages="addCountryForm.alpha3.$error" role="alert"
+                             ng-if="addCountryForm.alpha3.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Alpha3 country code is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="name" class="col-sm-4 control-label">Numeric code</label>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="nbr" id="nbr" ng-model="model.nbr"
+                               ng-required="true" ng-minlength="1" focus="true">
+                        <div class="text-center" ng-messages="addCountryForm.nbr.$error" role="alert"
+                             ng-if="addCountryForm.nbr.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Numeric country code is required.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-2 col-md-offset-8">
+                        <button type="button"
+                                class="btn btn-primary pull-right"
+                                ng-click="close()">
+                            Cancel
+                        </button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button type="submit"
+                                class="btn btn-primary pull-right"
+                                ng-click="add()"
+                                ng-disabled="addCountryForm.$invalid">
+                            Add
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -141,7 +141,7 @@ router.route('/v0.2/users/logout')
   .post(authenticate('token').always, /*checkRight('users_logout_self'),*/ users.logout);
 
 router.route('/v0.2/users/invite')
-  .post(authenticate('token').always, checkRight('users_invite'), users.invite)
+  .post(authenticate('token').always, checkRight('users_invite'), users.invite);
 
 router.route('/v0.2/users/logout/:id')
   .post(authenticate('token').always, checkRight('users_logout'), users.logout);
@@ -159,8 +159,13 @@ router.route('/v0.2/users/:id')
 //    COUNTRIES
 //----------------------------------------------------------------------------------------------------------------------
 var countries = require('app/controllers/countries');
+
 router.route('/v0.2/countries')
     .get(authenticate('token').always, countries.select);
+
+router.route('/v0.2/countries')
+    .post(authenticate('token').always, checkRight('countries_insert_one'), countries.insertOne)
+    .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
 module.exports = router;
 
