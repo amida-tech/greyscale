@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .controller('ClientsCtrl', function ($state, $scope, greyscaleAuthSrv, $modal) {
+    .controller('ClientsCtrl', function ($state, $scope, greyscaleAuthSrv, $modal, inform) {
     	console.log('ClientsCtrl');
     	$scope.clients = [];
     	$scope.roles   = [];
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
     });
 
 angular.module('greyscaleApp')
-    .controller('ClientInviteCtrl', function ($scope, $modalInstance, greyscaleAuthSrv) {
+    .controller('ClientInviteCtrl', function ($scope, $modalInstance, greyscaleAuthSrv, inform) {
     	$scope.model = {
     		'firstName' : '',
     		'lastName' : '',
@@ -38,19 +38,20 @@ angular.module('greyscaleApp')
     		greyscaleAuthSrv.invite($scope.model).then(function(){
     			$scope.close();
     		},function(err){
-    			alert(err.data.message); //TODO
+    			inform.add(err.data.message);
     		});
     	}
     });
 
 angular.module('greyscaleApp')
-	.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $stateParams) {
+	.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state) {
 		greyscaleAuthSrv.activate($stateParams.token)
 		.then(function(resp){
 			console.log(resp);
 			alert(JSON.stringify(resp));
 		},function(err){
-			alert(err.data.message); //TODO
+			inform.add(err.data.message, {type: 'danger'});
+			$state.go('login');
 		})
 	});
 

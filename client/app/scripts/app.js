@@ -17,7 +17,8 @@ var _app = angular.module('greyscaleApp', [
     'ui.router',
     'RDash',
     'greyscale.core',
-    'greyscale.user'
+    'greyscale.user',
+    'inform'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {
@@ -77,8 +78,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         //if rule not defined
-        console.log(toState);
-        return;
         if (!angular.isDefined(toState.data.isPublic)) {
             return;
         }
