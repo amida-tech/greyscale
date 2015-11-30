@@ -38,6 +38,7 @@ module.controller('ClientInviteCtrl', function ($scope, $modalInstance, greyscal
     $scope.invite = function(){
         greyscaleAuthSrv.invite($scope.model).then(function(){
             $scope.close();
+            inform.add('User invited', {type : 'success'});
         },function(err){
             inform.add(err.data.message);
         });

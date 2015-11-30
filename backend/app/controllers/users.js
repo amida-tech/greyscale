@@ -114,9 +114,10 @@ module.exports = {
       var firstName       = isExistUser ? isExistUser.firstName : req.body.firstName;
       var lastName        = isExistUser ? isExistUser.lastName : req.body.lastName;
       var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
+      var pass            = crypto.randomBytes(5).toString('hex');
 
       if(!isExistUser){
-        var pass            = crypto.randomBytes(5).toString('hex');
+        
         var newClient = {
           'firstName'       : req.body.firstName,
           'lastName'        : req.body.lastName,
@@ -144,7 +145,7 @@ module.exports = {
         to : {
           name    : firstName,
           surname : lastName,
-          email   : 'babushkin.semyon@gmail.com',//req.body.email,
+          email   : req.body.email,
           subject : 'Indaba. Invite'
         },
         template: 'invite'
@@ -153,6 +154,8 @@ module.exports = {
         name: firstName,
         surname: lastName,
         company_name: OrgNameTemp,
+        login: req.body.email,
+        password: pass,
         token: activationToken
       };
       var mailer = new Emailer(options, data);
