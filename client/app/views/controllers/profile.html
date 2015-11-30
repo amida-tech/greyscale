@@ -1,0 +1,85 @@
+<div class="row">
+    <div class="col-lg-12">
+        <h1>Profile</h1>
+    </div>
+    <div class="col-lg-6">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="widget-content">
+                    <div class="widget-icon green pull-left">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="title">{{user.firstName}} {{user.lastName}}</div>
+                    <div class="comment">{{user.email}}</div>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <td>Birthday</td>
+                            <td>
+                                <span ng-if="user.birthday">{{user.birthday | date}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mobile</td>
+                            <td>
+                                <span ng-if="user.mobile">{{user.mobile}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Registration date</td>
+                            <td>
+                                <span ng-if="user.created">{{user.created | date}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-success pull-right" ng-click="editProfile()">Edit</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" ng-show="org.loaded">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="widget-content">
+                    <div class="widget-icon green pull-left">
+                        <i class="fa fa-group"></i>
+                    </div>
+                    <div class="title">{{org.name}}</div>
+                    <div class="comment">
+                        Organization
+                        <span ng-if="org.isActive" class="text-success"> verified <i class="fa fa-check"></i></span>
+                        <span ng-if="!org.isActive" class="text-danger"> not verified <i class="fa fa-warning"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <tr>
+                            <td>Url</td>
+                            <td>{{org.url}}</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>{{org.address}}</td>
+                        </tr>
+                        
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-success pull-right" ng-click="editOrg()">Edit</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

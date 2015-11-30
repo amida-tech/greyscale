@@ -80,6 +80,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Countries',
                 isPublic: true
             }
+        })
+        .state('main.profile', {
+            url: 'profile',
+            templateUrl: 'views/controllers/profile.html',
+            controller: 'ProfileCtrl',
+            data: {
+                name: 'Profile',
+                isPublic: true
+            }
         });
     $urlRouterProvider.otherwise('/');
 });

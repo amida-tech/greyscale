@@ -37,6 +37,16 @@ angular.module('greyscale.core')
 //                .finally(greyscaleProfileSrv.logout);
         }
 
+        function _self() {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users','self')
+                .get()
+                .then(function(resp){
+                    return resp;
+                })
+                .catch(_auth_err_handler);
+        }
+
         function _clients() {
             return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
                 .one('users')
@@ -90,6 +100,24 @@ angular.module('greyscale.core')
                 .catch(_auth_err_handler);
         }
 
+
+        // TODO move to another service ??
+        function _getOrg() {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users')
+                .one('self')
+                .one('organization')
+                .get();
+        }
+
+        function _orgSave(data) {
+            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+                .one('users')
+                .one('self')
+                .one('organization')
+                .customPUT(data);
+        }
+
         return {
             register: _register,
             login: _login,
@@ -100,6 +128,9 @@ angular.module('greyscale.core')
             clients: _clients,
             invite: _invite,
             activate: _activate,
-            countries: _countries
+            countries: _countries,
+            self: _self,
+            getOrg: _getOrg,
+            orgSave: _orgSave
         };
     });

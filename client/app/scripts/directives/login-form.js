@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('loginForm', function (greyscaleAuthSrv, $state, $log) {
+    .directive('loginForm', function (greyscaleAuthSrv, $state, $log, inform) {
         return {
             templateUrl: 'views/directives/login-form.html',
             restrict: 'AE',
@@ -28,7 +28,8 @@ angular.module('greyscaleApp')
                         greyscaleAuthSrv.login($scope.model.login.value, $scope.model.password.value)
                             .then(function () {
                                 $state.go('main');
-                            }).catch(function () {
+                            }).catch(function (err) {
+                                inform.add(err.data.message, {type:'danger'});
                                 $scope.model.error = 'Please check your Login/Password';
                             });
                     } else {

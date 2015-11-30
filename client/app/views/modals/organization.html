@@ -1,0 +1,71 @@
+<div class="page">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong><span class="glyphicon glyphicon-th"></span> Invite new client</strong>
+        </div>
+        <div class="panel-body">
+            <div name="orgForm" class="form-horizontal" ng-form="orgForm">
+                
+                <div class="form-group">
+                    <label for="name" class="col-sm-4 control-label">Company name</label>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
+                               ng-required="true" ng-minlength="1">
+
+                        <div class="text-center" ng-messages="orgForm.name.$error" role="alert"
+                             ng-if="orgForm.name.$dirty">
+                            <span ng-message="requred, minlength" class="help-block">Please input company name.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="address" class="col-sm-4 control-label">Address</label>
+
+                    <div class="col-sm-8">
+                        <textarea type="text" class="form-control" name="address" id="address" ng-model="model.address"
+                               ng-required="true" ng-minlength="1"></textarea>
+
+                        <div class="text-center" ng-messages="orgForm.address.$error" role="alert"
+                             ng-if="orgForm.address.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Address is required.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="url" class="col-sm-4 control-label">Url</label>
+
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" name="url" id="url" ng-model="model.url"
+                               ng-required="true" ng-minlength="1">
+
+                        <div class="text-center" ng-messages="orgForm.url.$error" role="alert"
+                             ng-if="orgForm.url.$dirty">
+                            <span ng-message="requred, minlength" class="help-block">Url is requiered</span>
+                        </div>
+                    </div>
+                </div>
+                
+                
+                
+
+                <div class="form-group">
+                    <div class="col-sm-2 col-md-offset-8">
+                        <button type="button" class="btn btn-primary pull-right" ng-click="close()">
+                            Cancel
+                        </button>
+                    </div>
+                    <div class="col-sm-2">
+                        <button id="main-login-btn" type="submit" class="btn btn-primary pull-right"
+                                ng-click="update()"
+                                ng-disabled="orgForm.$invalid">Update
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
