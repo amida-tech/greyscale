@@ -71,6 +71,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Clients',
                 isPublic: true
             }
+        })
+        .state('main.countries', {
+            url: 'countries',
+            templateUrl: 'views/controllers/countries.html',
+            controller: 'CountriesCtrl',
+            data: {
+                name: 'Countries',
+                isPublic: true
+            }
         });
     $urlRouterProvider.otherwise('/');
 });
