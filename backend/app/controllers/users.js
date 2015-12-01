@@ -189,7 +189,7 @@ module.exports = {
         throw new HttpError(400, 'Token is not valid');
       }
       if(!req.body.password){
-        throw new HttpError(400, 'Password field is required');
+        throw new HttpError(400, 'Password field is required!');
       }
       var data = {
         activationToken : null,
