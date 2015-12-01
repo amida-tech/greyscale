@@ -39,6 +39,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('activate', {
             url: '/activate/:token',
+            templateUrl: 'views/controllers/activation.html',
             controller: 'ActivateCtrl',
             data: {
                 name: 'Activate',
@@ -54,6 +55,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: true
             }
         })
+        // .state('activation', {
+        //     url: '/activation',
+        //     templateUrl: 'views/controllers/activation.html',
+        //     controller: 'ActiovationCtrl',
+        //     data: {
+        //         name: 'Actiovation',
+        //         isPublic: true
+        //     }
+        // })
         .state('login', {
             url: '/login?returnTo',
             templateUrl: 'views/controllers/login.html',

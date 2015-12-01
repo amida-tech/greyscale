@@ -168,18 +168,38 @@ module.exports = {
     });
   },
 
-  activate: function(req, res, next) {
+  checkActivationToken: function(req, res, next) {
     co(function* (){
       var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
       if(!_.first(isExist)){
         throw new HttpError(400, 'Token is not valid')
       }
+      return isExist;
+    }).then(function(data){
+      res.json(_.first(data));
+    },function(err){
+      next(err);
+    });
+  },
+
+  activate: function(req, res, next){
+    co(function* (){
+      var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
+      if(!_.first(isExist)){
+        throw new HttpError(400, 'Token is not valid');
+      }
+      if(!req.body.password){
+        throw new HttpError(400, 'Password field is required');
+      }
       var data = {
         activationToken : null,
-        isActive        : true
-      };
-      yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)));
-      return isExist;
+        isActive        : true,
+        password        : User.hashPassword(req.body.password),
+        firstName       : req.body.firstName,
+        lastName        : req.body.lastName
+      }
+      var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
+      return updated;
     }).then(function(data){
       res.json(_.first(data));
     },function(err){

@@ -128,7 +128,8 @@ router.route('/v0.2/users/reset-password')
   .put(users.resetPassword);
 
 router.route('/v0.2/users/activate/:token')
-  .get(users.activate);
+  .get(users.checkActivationToken)
+  .post(users.activate);
 
 router.route('/v0.2/users/self/organization')
   .get(authenticate('token').always, users.selfOrganization)

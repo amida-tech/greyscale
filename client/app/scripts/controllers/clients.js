@@ -46,10 +46,9 @@ module.controller('ClientInviteCtrl', function ($scope, $modalInstance, greyscal
 });
 
 module.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state) {
-    greyscaleAuthSrv.activate($stateParams.token)
+    greyscaleAuthSrv.checkActivationToken($stateParams.token)
     .then(function(resp){
-        inform.add('Your account activated', {type: 'success'});
-        $state.go('login', {returnTo: 'main.profile'});
+        $scope.user = resp;
     },function(err){
         inform.add(err.data.message, {type: 'danger'});
         $state.go('login');

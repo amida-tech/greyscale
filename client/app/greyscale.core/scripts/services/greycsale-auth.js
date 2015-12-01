@@ -70,11 +70,18 @@ angular.module('greyscale.core')
                 .customPOST(user_data);
         }
 
-        function _activate(token) {
+        function _checkActivationToken(token) {
             return Restangular
                 .one('users')
                 .one('activate',token)
                 .get();
+        }
+
+        function _activate(token , data) {
+            return Restangular
+                .one('users')
+                .one('activate',token)
+                .customPOST(data);
         }
 
         function _users() {
@@ -115,6 +122,7 @@ angular.module('greyscale.core')
             clients: _clients,
             invite: _invite,
             activate: _activate,
+            checkActivationToken :_checkActivationToken,
             self: _self,
             getOrg: _getOrg,
             orgSave: _orgSave
