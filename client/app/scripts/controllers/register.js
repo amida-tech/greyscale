@@ -4,6 +4,5 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .controller('RegisterCtrl', function ($state, $scope, greyscaleAuthSrv) {
-    });
+    .controller('RegisterCtrl', function () {});
 

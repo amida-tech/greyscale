@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, $log,
+    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, $log, $cookieStore,
                                            greyscaleRestSrv, greyscaleProfileSrv, greyscaleBase64Srv) {
 
         var _auth_err_handler = function (err) {
@@ -25,7 +25,7 @@ angular.module('greyscale.core')
         }
 
         function _isAuthenticated() {
-            return $q.resolve(greyscaleProfileSrv.token() !== null);
+            return $q.resolve(greyscaleProfileSrv.token() !== undefined);
         }
 
         function _logout(token) {

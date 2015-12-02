@@ -19,8 +19,8 @@ angular.module('greyscaleApp')
 
                 $scope.logout = function () {
                     greyscaleAuthSrv.logout();
-                }
+                };
 
             }
-        }
+        };
     });

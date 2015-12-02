@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
             link: function (scope, elem, attr) {
                 scope.activate = function () {
                     scope.model.err = null;
-                    
+
                     var data = {
                         "password": scope.model.password,
                         "firstName": scope.model.firstName,
@@ -30,5 +30,5 @@ angular.module('greyscaleApp')
                     });
                 };
             }
-        }
+        };
     });

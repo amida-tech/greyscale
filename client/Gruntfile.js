@@ -498,7 +498,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'dev',
                         baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
-                        defaultUser: 'test',
+                        defaultUser: 'no@mail.net',
                         defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
