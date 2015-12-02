@@ -121,6 +121,10 @@ router.route('/v0.2/users')
 router.route('/v0.2/users/token')
   .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
 
+
+router.route('/v0.2/users/checkToken/:token')
+  .get(users.checkToken);
+
 router.route('/v0.2/users/forgot')
   .post(users.forgot);
 

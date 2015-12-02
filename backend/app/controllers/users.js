@@ -52,6 +52,20 @@ module.exports = {
       });
   },
 
+  checkToken: function(req, res, next) {
+    co(function* (){
+      var existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
+      if(!_.first(existToken)){
+        throw new HttpError(400, 'Token invalid');
+      }
+      return existToken;
+    }).then(function(data){
+      res.status(200).end();
+    }, function(err) {
+      next(err);
+    });
+  },
+
   logout: function (req, res, next) {
     var id = req.params.id || req.user.id;
     if (!id) {
