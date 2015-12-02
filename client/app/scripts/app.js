@@ -128,5 +128,5 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
 
     $rootScope.$on('logout', function(){
         $state.go('login');
-    })
+    });
 });

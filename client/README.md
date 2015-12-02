@@ -61,6 +61,31 @@ Install required bower packages. Go to 'src' directory and run
 ```
 bower install
 ```
+# Configuration managment
+
+You have the option to choose your API services from different servers. This is helpful if you do not have or want the Backend Project set up on your local environment.
+There are different configurations:
+
+### Development with localhost-based server
+
+This is development server configuration. Server must be installed on the same host where client app run. Log to the browser console debug information enabled.
+
+```
+grunt ngconstant:local
+```
+
+### Development without server (dev)
+
+This is development server configuration. Log to the browser console debug information enabled.
+
+```
+grunt ngconstant:dev
+```
+
+#### *Note about config switch*
+Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\app\greyscale.core\scripts\config\greyscale-env.js)
+Please do not update it manual.
+
 ## Build & development
 
 Run `grunt` for building and `grunt serve` for preview.

@@ -20,10 +20,10 @@ angular.module('greyscaleApp')
                         validate();
                     });
 
-                    attrs.$observe('isEqual', function (val) {
+                    attrs.$observe('isEqual', function () {
                         validate();
                     });
                 }
             }
-        }
+        };
     });

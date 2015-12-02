@@ -12,12 +12,12 @@
 
 angular.module('greyscaleApp')
     .controller('CountriesCtrl', function ($state, $scope, greyscaleCountrySrv, $uibModal) {
-    	console.log('Controller `CountriesCtrl` started');
-    	$scope.countries = [];
-    	greyscaleCountrySrv.countries().then(function(list){
-    		$scope.countries = list;
-    	});
-        $scope.addCountry = function() {
+        console.log('Controller `CountriesCtrl` started');
+        $scope.countries = [];
+        greyscaleCountrySrv.countries().then(function (list) {
+            $scope.countries = list;
+        });
+        $scope.addCountry = function () {
             $uibModal.open({
                 templateUrl: 'views/modals/country-add.html',
                 controller: 'CountryAddCtrl',
@@ -25,36 +25,34 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in'
             });
         };
-        $scope.deleteCountry = function() {
-            greyscaleCountrySrv.deleteCountry(this.country).then(function(){
+        $scope.deleteCountry = function () {
+            greyscaleCountrySrv.deleteCountry(this.country).then(function () {
                 console.log('`CountriesCtrl` - country deleted successfully');
                 $state.reload();
-            },function(err){
-                console.log('`CountriesCtrl` - country delete error: '+err);
+            }, function (err) {
+                console.log('`CountriesCtrl` - country delete error: ' + err);
                 window.alert(err); //TODO
             });
         };
-    });
-
-angular.module('greyscaleApp')
+    })
     .controller('CountryAddCtrl', function ($state, $scope, $uibModalInstance, greyscaleCountrySrv) {
         console.log('Controller `CountryAddCtrl` started');
         $scope.model = {
-            'name'      : '',
-            'alpha2'    : '',
-            'alpha3'    : '',
-            'nbr'       : ''
+            'name': '',
+            'alpha2': '',
+            'alpha3': '',
+            'nbr': ''
         };
-        $scope.close = function(){
+        $scope.close = function () {
             $uibModalInstance.close();
             $state.reload();
         };
-        $scope.add = function(){
-            greyscaleCountrySrv.addCountry($scope.model).then(function(){
+        $scope.add = function () {
+            greyscaleCountrySrv.addCountry($scope.model).then(function () {
                 console.log('`CountryAddCtrl` - country added successfully');
                 $scope.close();
-            },function(err){
-                console.log('`CountryAddCtrl` - country add error: '+err);
+            }, function (err) {
+                console.log('`CountryAddCtrl` - country add error: ' + err);
                 window.alert(err); //TODO
             });
         };

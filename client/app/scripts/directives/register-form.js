@@ -50,5 +50,5 @@ angular.module('greyscaleApp')
                         });
                 };
             }
-        }
+        };
     });

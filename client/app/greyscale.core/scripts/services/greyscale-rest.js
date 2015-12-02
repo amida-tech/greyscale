@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleProfileSrv, $log) {
+    .service('greyscaleRestSrv', function (Restangular) {
         return function (headers) {
             return Restangular.withConfig(function (RestangularConfigurer) {
                 RestangularConfigurer.setDefaultHeaders(headers);

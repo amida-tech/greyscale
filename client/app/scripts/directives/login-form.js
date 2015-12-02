@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('loginForm', function (greyscaleAuthSrv, $state, $log, inform) {
+    .directive('loginForm', function (greyscaleAuthSrv, $state, greyscaleEnv, $log) {
         return {
             templateUrl: 'views/directives/login-form.html',
             restrict: 'AE',
@@ -10,11 +10,11 @@ angular.module('greyscaleApp')
                 $scope.model = {
                     login: {
                         label: 'E-m@il',
-                        value: null
+                        value: greyscaleEnv.defaultUser || ''
                     },
                     password: {
                         label: 'Password',
-                        value: null
+                        value: greyscaleEnv.defaultPassword || ''
                     },
                     error: null
                 };
@@ -29,8 +29,7 @@ angular.module('greyscaleApp')
                             .then(function () {
                                 $state.go('main');
                             }).catch(function (err) {
-                                inform.add(err.data.message, {type:'danger'});
-                                $scope.model.error = 'Please check your Login/Password';
+                                $scope.model.error = 'Please check your E-mail/Password';
                             });
                     } else {
                         $scope.model.error = 'Please check your Login/Password';

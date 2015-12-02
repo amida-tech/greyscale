@@ -9,8 +9,7 @@ angular.module('greyscaleApp')
             restrict: "AE",
             template: "",
             model: "=",
-            controller: function($scope) {
-
+            controller: function() {
             }
         };
     });
