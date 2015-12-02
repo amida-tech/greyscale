@@ -1,5 +1,6 @@
 var _ = require('underscore'),
   Role_rights = require('app/models/role_rights'),
+  Roles = require('app/models/roles'),
   Rights = require('app/models/rights'),
   vl = require('validator'),
   HttpError = require('app/error').HttpError,
@@ -33,6 +34,22 @@ module.exports = {
       var isExists = yield thunkQuery(Role_rights.select().where(req.params));
       if (_.first(isExists)) {
           throw new HttpError(403, 106);
+      }
+
+      var Right = yield thunkQuery(Rights.select().where(Rights.id.equals(req.params.rightID)));
+      if (!_.first(Right)){
+        throw new HttpError(400, 'This right does not exist');
+      }
+
+      var Role = yield thunkQuery(Roles.select().where(Roles.id.equals(req.params.roleID)));
+      Role = _.first(Role);
+
+      if (!Role){
+        throw new HttpError(400, 'This role does not exist');
+      }
+
+      if (Role && !Role.isSystem){
+        throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
       }
     
       var result = yield thunkQuery(Role_rights.insert(req.params));

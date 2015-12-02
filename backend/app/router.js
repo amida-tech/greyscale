@@ -38,10 +38,10 @@ router.route('/v0.2/rights/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var role_rights = require('app/controllers/role_rights');
 
-router.route('/v0.2/role/:roleID/rights')
+router.route('/v0.2/roles/:roleID/rights')
   .get(authenticate('token').always, checkRight('role_rights_view_one'), role_rights.select);
 
-router.route('/v0.2/role/:roleID/rights/:rightID')
+router.route('/v0.2/roles/:roleID/rights/:rightID')
   .post(authenticate('token').always, checkRight('role_rights_add'), role_rights.insertOne)
   .delete(authenticate('token').always, checkRight('role_rights_delete'), role_rights.deleteOne);
 
