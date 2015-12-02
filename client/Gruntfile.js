@@ -463,7 +463,50 @@ module.exports = function (grunt) {
             ]
         },
 
-        // Test settings
+        //ngconstant app settings
+        ngconstant: {
+            // Options for all targets
+            options: {
+                name: 'greyscale.core',
+                deps: false,
+                dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js'
+            },
+            // Environment targets
+            local: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        name: 'local',
+                        baseServerUrl: 'http://localhost:3005/v0.2',
+                        enableDebugLog: true
+                    }
+                }
+            },
+            env: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        name: 'env',
+                        baseServerUrl: 'http://' + process.env.SERVICE_HOST + ':3005/v0.2',
+                        enableDebugLog: true
+                    }
+                }
+            },
+            dev: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        name: 'dev',
+                        baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
+                        defaultUser: 'test',
+                        defaultPassword: 'testuser',
+                        enableDebugLog: true
+                    }
+                }
+            }
+        },
+
+            // Test settings
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
@@ -518,6 +561,21 @@ module.exports = function (grunt) {
         'filerev',
         'usemin',
         'htmlmin'
+    ]);
+
+    grunt.registerTask('buildDev', [
+        'ngconstant:dev',
+        'build'
+    ]);
+
+    grunt.registerTask('buildLocal', [
+        'ngconstant:local',
+        'build'
+    ]);
+
+    grunt.registerTask('buildEnv', [
+        'ngconstant:dev',
+        'build'
     ]);
 
     grunt.registerTask('default', [
