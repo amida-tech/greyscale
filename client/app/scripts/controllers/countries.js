@@ -11,9 +11,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('CountriesCtrl', function ($state, $scope, greyscaleCountrySrv, $uibModal) {
-        console.log('Controller `CountriesCtrl` started');
+    .controller('CountriesCtrl', function ($state, $scope, greyscaleCountrySrv, $uibModal, $log) {
         $scope.countries = [];
+
         greyscaleCountrySrv.countries().then(function (list) {
             $scope.countries = list;
         });
@@ -27,16 +27,15 @@ angular.module('greyscaleApp')
         };
         $scope.deleteCountry = function () {
             greyscaleCountrySrv.deleteCountry(this.country).then(function () {
-                console.log('`CountriesCtrl` - country deleted successfully');
+                $log.debug('`CountriesCtrl` - country deleted successfully');
                 $state.reload();
             }, function (err) {
-                console.log('`CountriesCtrl` - country delete error: ' + err);
+                $log.debug('`CountriesCtrl` - country delete error: ' + err);
                 window.alert(err); //TODO
             });
         };
     })
     .controller('CountryAddCtrl', function ($state, $scope, $uibModalInstance, greyscaleCountrySrv) {
-        console.log('Controller `CountryAddCtrl` started');
         $scope.model = {
             'name': '',
             'alpha2': '',
@@ -49,11 +48,11 @@ angular.module('greyscaleApp')
         };
         $scope.add = function () {
             greyscaleCountrySrv.addCountry($scope.model).then(function () {
-                console.log('`CountryAddCtrl` - country added successfully');
+                $log.debug('`CountryAddCtrl` - country added successfully');
                 $scope.close();
             }, function (err) {
-                console.log('`CountryAddCtrl` - country add error: ' + err);
-                window.alert(err); //TODO
+                $log.debug('`CountryAddCtrl` - country add error: ' + err);
+                inform.add(err,{type:'danger'});
             });
         };
     });

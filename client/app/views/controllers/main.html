@@ -1,10 +1,17 @@
-<div id="page-wrapper" ng-class="{'open': toggle}" ng-cloak>
+<div id="page-wrapper" ng-class="{'open': model.toggle}" ng-cloak>
     <sidebar toggle="{{model.toggle}}"></sidebar>
     <div id="content-wrapper">
         <div class="page-content">
             <headerbar></headerbar>
             <!-- Main Content -->
             <div ui-view></div>
+<!--
+            <div class="footer navbar-bottom">
+                <div class="container">
+                    <p class="pull-right">Turn knowledge into data.</p>
+                </div>
+            </div>
+-->
         </div>
         <!-- End Page Content -->
     </div>

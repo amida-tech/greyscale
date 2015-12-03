@@ -29,6 +29,7 @@ angular.module('greyscaleApp')
                             .then(function () {
                                 $state.go('main');
                             }).catch(function (err) {
+                                $log.debug(err);
                                 $scope.model.error = 'Please check your E-mail/Password';
                             });
                     } else {
