@@ -261,6 +261,81 @@ module.exports = {
     });
   },
 
+  selfOrganizationInvite: function(req, res, next){
+    co(function* (){
+      if(!req.body.email || !req.body.firstName || !req.body.lastName){
+        throw new HttpError(400, 'Email, First name and Last name fields are required');
+      }
+      if (!vl.isEmail(req.body.email)) {
+        throw new HttpError(400, 101);
+      }
+      var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+      isExistUser = _.first(isExistUser);
+      if(isExistUser && isExistUser.isActive){
+        throw new HttpError(400, 'User with this email has already registered');
+      }
+
+      var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+      org = _.first(org);
+      if(!org){
+        throw new HttpError(400, 'You dont have any organizations');
+      }
+
+      var firstName       = isExistUser ? isExistUser.firstName : req.body.firstName;
+      var lastName        = isExistUser ? isExistUser.lastName : req.body.lastName;
+      var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
+      var pass            = crypto.randomBytes(5).toString('hex');
+
+      if(!isExistUser){
+        var newClient = {
+          'firstName'       : req.body.firstName,
+          'lastName'        : req.body.lastName,
+          'email'           : req.body.email,
+          'roleID'          : 3, //user
+          'password'        : User.hashPassword(pass),
+          'isActive'        : false,
+          'activationToken' : activationToken,
+          'organizationId'  : org.id
+        };
+
+        var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+      }
+
+
+      var options = {
+        to : {
+          name    : firstName,
+          surname : lastName,
+          email   : req.body.email,
+          subject : 'Indaba. Organization membership'
+        },
+        template: 'org_invite'
+      };
+      var data = {
+        name: firstName,
+        surname: lastName,
+        company: org,
+        inviter : req.user,
+        // login: req.body.email,
+        // password: pass,
+        token: activationToken
+      };
+      var mailer = new Emailer(options, data);
+      mailer.send(function(data){
+        console.log("EMAIL RESULT --->>>");
+        console.log(data);
+
+      });
+      
+
+      return newClient;
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
+  },
+
   selectOne: function (req, res, next) {
     query(User.select().where(req.params), function (err, user) {
       if (!err) {

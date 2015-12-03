@@ -22,7 +22,8 @@ var columns =  [
   'updated',
   'currencyID',
   'isActive',
-  'activationToken'
+  'activationToken',
+  'organizationId'
   ];
 
 var User = sql.define({

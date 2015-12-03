@@ -105,14 +105,22 @@ router.route('/v0.2/products/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
 //----------------------------------------------------------------------------------------------------------------------
+var users = require('app/controllers/users');
 var organizations = require('app/controllers/organizations');
+
 router.route('/v0.2/organizations')
   .post(authenticate('token').always,organizations.insertOne);
+
+router.route('/v0.2/users/self/organization')
+  .get(authenticate('token').always, users.selfOrganization)
+  .put(authenticate('token').always, users.selfOrganizationUpdate);
+
+router.route('/v0.2/users/self/organization/invite')
+  .post(authenticate('token').always, users.selfOrganizationInvite);
 
 //----------------------------------------------------------------------------------------------------------------------
 // USERS
 //----------------------------------------------------------------------------------------------------------------------
-var users = require('app/controllers/users');
 
 router.route('/v0.2/users')
   .get(authenticate('token').always, checkRight('rights_view_all'), users.select)
@@ -135,9 +143,7 @@ router.route('/v0.2/users/activate/:token')
   .get(users.checkActivationToken)
   .post(users.activate);
 
-router.route('/v0.2/users/self/organization')
-  .get(authenticate('token').always, users.selfOrganization)
-  .put(authenticate('token').always, users.selfOrganizationUpdate);
+
 
 router.route('/v0.2/users/check_restore_token/:token')
   .get(users.checkRestoreToken);
