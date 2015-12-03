@@ -10,17 +10,24 @@ angular.module('greyscaleApp')
             toggle: '=',
             restrict: 'AE',
             controller: function($scope, $cookieStore, greyscaleAuthSrv) {
-                $scope.toggle = $cookieStore.get('toggle') || false;
+                $scope.model = {
+                    toggle: $cookieStore.get('toggle') || false,
+                    alerts: [],
+                    title: 'Title'
+                };
 
                 $scope.toggleSidebar = function() {
-                    $scope.toggle = !$scope.toggle;
-                    $cookieStore.put('toggle', $scope.toggle);
+                    $scope.model.toggle = !$scope.model.toggle;
+                    $cookieStore.put('toggle', $scope.model.toggle);
                 };
 
                 $scope.logout = function () {
                     greyscaleAuthSrv.logout();
                 };
 
+                $scope.closeAlert = function(index) {
+                    $scope.model.alerts.splice(index, 1);
+                };
             }
         };
     });

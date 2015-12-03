@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .factory('greyscaleCountrySrv', function ($rootScope, $q, Restangular, $log,
-                                           greyscaleRestSrv, greyscaleProfileSrv, greyscaleBase64Srv) {
+                                           greyscaleRestSrv, greyscaleProfileSrv) {
 
         function _countries() {
             return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})

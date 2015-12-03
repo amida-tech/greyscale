@@ -14,9 +14,8 @@ angular.module('greyscale.core')
         };
 
         function _login(user, passwd) {
-            return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' +  passwd)})
-                .one('users','token')
-                .get()
+            return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)})
+                .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleProfileSrv.token(resp.token);
                     return resp;
@@ -25,40 +24,49 @@ angular.module('greyscale.core')
         }
 
         function _isAuthenticated() {
-            return $q.resolve(greyscaleProfileSrv.token() !== undefined);
+            var _token = greyscaleProfileSrv.token();
+            var res = $q.resolve(false);
+            if (_token) {
+                res = greyscaleRestSrv().one('users', 'checkToken').one(_token).get()
+                    .then(function () {
+                        return true;
+                    })
+                    .catch(function () {
+                        greyscaleProfileSrv.logout();
+                        return res;
+                    });
+            }
+            return res;
         }
 
-        function _logout(token) {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
-                .one('users','logout')
-                .post()
-                .then(greyscaleProfileSrv.logout)
-                .catch(_auth_err_handler);
-//                .finally(greyscaleProfileSrv.logout);
+        function _logout() {
+            return greyscaleRestSrv().one('users', 'logout').post()
+                .catch(_auth_err_handler)
+                .finally(greyscaleProfileSrv.logout);
         }
 
         function _self() {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
-                .one('users','self')
+            return greyscaleRestSrv()
+                .one('users', 'self')
                 .get()
-                .then(function(resp){
+                .then(function (resp) {
                     return resp;
                 })
                 .catch(_auth_err_handler);
         }
 
         function _clients() {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+            return greyscaleRestSrv()
                 .one('users')
-                .get({'roleID':2})
-                .then(function(resp){
+                .get({'roleID': 2})
+                .then(function (resp) {
                     return resp;
                 })
                 .catch(_auth_err_handler);
         }
 
         function _invite(user_data) {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+            return greyscaleRestSrv()
                 .one('users')
                 .one('invite')
                 .customPOST(user_data);
@@ -73,14 +81,14 @@ angular.module('greyscale.core')
         function _checkActivationToken(token) {
             return Restangular
                 .one('users')
-                .one('activate',token)
+                .one('activate', token)
                 .get();
         }
 
-        function _activate(token , data) {
+        function _activate(token, data) {
             return Restangular
                 .one('users')
-                .one('activate',token)
+                .one('activate', token)
                 .customPOST(data);
         }
 
@@ -89,10 +97,6 @@ angular.module('greyscale.core')
                 .one('users')
                 .get()
                 .catch(_auth_err_handler);
-        }
-
-        function _roles() {
-            return Restangular.one('roles').get();
         }
 
         // TODO move to another service ??
@@ -118,11 +122,10 @@ angular.module('greyscale.core')
             logout: _logout,
             isAuthenticated: _isAuthenticated,
             users: _users,
-            roles: _roles,
             clients: _clients,
             invite: _invite,
             activate: _activate,
-            checkActivationToken :_checkActivationToken,
+            checkActivationToken: _checkActivationToken,
             self: _self,
             getOrg: _getOrg,
             orgSave: _orgSave

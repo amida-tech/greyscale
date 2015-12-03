@@ -1,0 +1,18 @@
+<rd-widget>
+    <rd-widget-header icon="{{model.icon}}" title="{{model.title}}">
+        <div class="text-right" ng-show="editable">
+            <button class="btn btn-default btn-xs" ng-click="addItem()">Add</button>
+        </div>
+    </rd-widget-header>
+    <div class="table-responsive">
+        <table class="table table-responsive table-hover panel" ng-table-dynamic="model.tableParams with model.cols">
+            <tr ng-repeat="row in $data">
+                <td ng-repeat="col in $columns" sortable="{{col.field}}">{{row[col.field]}}</td>
+                <td data-title="" class="text-right" ng-show="model.editable">
+                    <button class="btn btn-info btn-xs" ng-click="model.edtItem()">Edit</button>
+                    <button class="btn btn-danger btn-xs" ng-click="model.delItem()">Delete</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</rd-widget>

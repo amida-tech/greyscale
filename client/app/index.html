@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
     <link rel="stylesheet" href="bower_components/angular-inform/dist/angular-inform.css" />
+    <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.min.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
@@ -24,11 +25,6 @@
 <![endif]-->
 <div inform class="inform-fixed inform-shadow"></div>
 <div ui-view></div>
-<div class="footer navbar-fixed-bottom">
-    <div class="container">
-        <p class="pull-right">Turn knowledge into data.</p>
-    </div>
-</div>
 <!-- build:js(.) scripts/vendor.js -->
 <!-- bower:js -->
 <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -43,6 +39,7 @@
 <script src="bower_components/restangular/dist/restangular.js"></script>
 <script src="bower_components/angular-messages/angular-messages.js"></script>
 <script src="bower_components/angular-inform/dist/angular-inform.js"></script>
+<script src="bower_components/ng-table/dist/ng-table.min.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -64,6 +61,7 @@
 <script src="greyscale.core/scripts/services/greyscale-country.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-rest.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-base64.js"></script>
+<script src="greyscale.core/scripts/services/greyscale-access.js"></script>
 <!-- end greyscale.core -->
 <!-- endbuild -->
 
@@ -82,6 +80,7 @@
 <script src="scripts/controllers/register.js"></script>
 <script src="scripts/controllers/clients.js"></script>
 <script src="scripts/controllers/countries.js"></script>
+<script src="scripts/controllers/access.js"></script>
 <!-- end controllers -->
 
 <!-- directives -->
@@ -90,7 +89,8 @@
 <script src="scripts/directives/login-form.js"></script>
 <script src="scripts/directives/register-form.js"></script>
 <script src="scripts/directives/activation-form.js"></script>
-<script src="scripts/directives/isEqual.js"></script>
+<script src="scripts/directives/is-equal.js"></script>
+<script src="scripts/directives/widget-table.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
 </body>

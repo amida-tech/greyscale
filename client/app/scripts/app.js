@@ -13,6 +13,7 @@ var _app = angular.module('greyscaleApp', [
     'ngResource',
     'ngMessages',
     'ngTouch',
+    'ngTable',
     'ui.bootstrap',
     'ui.router',
     'RDash',
@@ -32,6 +33,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: '/',
             templateUrl: 'views/controllers/main.html',
             controller: 'MainCtrl',
+//            abstract: true,
             data: {
                 name: '',
                 isPublic: false
@@ -79,7 +81,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'ClientsCtrl',
             data: {
                 name: 'Clients',
-                isPublic: true
+                isPublic: false
             }
         })
         .state('main.countries', {
@@ -88,7 +90,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'CountriesCtrl',
             data: {
                 name: 'Countries',
-                isPublic: true
+                isPublic: false
             }
         })
         .state('main.profile', {
@@ -97,9 +99,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'ProfileCtrl',
             data: {
                 name: 'Profile',
-                isPublic: true
+                isPublic: false
+            }
+        })
+        .state('access', {
+            url: 'access',
+            parent: 'main',
+            templateUrl: 'views/controllers/access.html',
+            controller: 'AccessCtrl',
+            data: {
+                name: 'Access management',
+                isPublic: false
             }
         });
+
     $urlRouterProvider.otherwise('/');
 });
 
@@ -126,7 +139,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
         });
     });
 
-    $rootScope.$on('logout', function(){
+    $rootScope.$on('logout', function () {
         $state.go('login');
     });
 });
