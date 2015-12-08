@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleProfileSrv, $log) {
+    .service('greyscaleRestSrv', function (Restangular, greyscaleProfileSrv) {
         return function (headers) {
             return Restangular.withConfig(function (RestangularConfigurer) {
                 headers = headers || {};
@@ -12,7 +12,6 @@ angular.module('greyscale.core')
                 if (token) {
                     angular.extend(headers, {token: token});
                 }
-                $log.debug('req headers:', headers);
                 RestangularConfigurer.setDefaultHeaders(headers);
             });
         };

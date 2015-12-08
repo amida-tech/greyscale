@@ -93,6 +93,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             },
             views: {
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
                 'body@dashboard': {
                     template: ''
                 }
@@ -106,6 +110,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             },
             views: {
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/access.html',
                     controller: 'AccessCtrl'
@@ -116,6 +124,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'clients',
             views: {
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
                 'body@dashboard':{
                     templateUrl: 'views/controllers/clients.html',
                     controller: 'ClientsCtrl'
@@ -130,6 +142,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent:'home',
             url: 'countries',
             views:{
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/countries.html',
                     controller: 'CountriesCtrl'
@@ -144,6 +160,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent:'home',
             url: 'profile',
             views: {
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/profile.html',
                     controller: 'ProfileCtrl'
@@ -158,7 +178,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv, $log) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         //if rule not defined
         if (!angular.isDefined(toState.data.isPublic)) {

@@ -4,29 +4,33 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('headerbar',function(){
+    .directive('headerbar', function () {
         return {
-            templateUrl: 'views/directives/headerbar.html',
-            toggle: '=',
+            template: '<div class="meta"><div class="page">{{model.title}}</div><div class="breadcrumb-links">' +
+            '<ul class="breadcrumb"><li ng-repeat="parent in model.path">' +
+            '<a ui-sref="{{parent.route}}">{{parent.name}}</a></li><li class="active">{{model.title}}</li>' +
+            '</ul></div></div>',
+            scope: {},
             restrict: 'AE',
-            controller: function($scope, $cookieStore, greyscaleAuthSrv) {
+            controller: function ($scope, $state) {
+                var _getPath = function (_state) {
+                    var path = [];
+                    while (_state) {
+                        if (_state.data && _state.data.name) {
+                            path.unshift({
+                                route: _state.name,
+                                name: _state.data.name
+                            });
+                        }
+                        _state = _state.parent;
+                    }
+
+                    return path;
+                };
+
                 $scope.model = {
-                    toggle: $cookieStore.get('toggle') || false,
-                    alerts: [],
-                    title: 'Title'
-                };
-
-                $scope.toggleSidebar = function() {
-                    $scope.model.toggle = !$scope.model.toggle;
-                    $cookieStore.put('toggle', $scope.model.toggle);
-                };
-
-                $scope.logout = function () {
-                    greyscaleAuthSrv.logout();
-                };
-
-                $scope.closeAlert = function(index) {
-                    $scope.model.alerts.splice(index, 1);
+                    title: $state.current.data.name,
+                    path: _getPath($state.$current.parent)
                 };
             }
         };
