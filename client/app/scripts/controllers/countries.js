@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
             });
         };
     })
-    .controller('CountryAddCtrl', function ($state, $scope, $uibModalInstance, greyscaleCountrySrv) {
+    .controller('CountryAddCtrl', function ($state, $scope, $uibModalInstance, greyscaleCountrySrv, $log, inform) {
         $scope.model = {
             'name': '',
             'alpha2': '',

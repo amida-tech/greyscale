@@ -30,85 +30,127 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
     $stateProvider
         .state('main', {
-            url: '/',
-            templateUrl: 'views/controllers/main.html',
-            controller: 'MainCtrl',
-//            abstract: true,
-            data: {
-                name: '',
-                isPublic: false
-            }
+            templateUrl: 'views/abstract/main.html',
+            abstract: true
         })
         .state('activate', {
+            parent: 'main',
             url: '/activate/:token',
-            templateUrl: 'views/controllers/activation.html',
-            controller: 'ActivateCtrl',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/activation.html',
+                    controller: 'ActivateCtrl'
+                }
+            },
             data: {
                 name: 'Activate',
                 isPublic: true
             }
         })
         .state('register', {
+            parent: 'main',
             url: '/register',
-            templateUrl: 'views/controllers/register.html',
-            controller: 'RegisterCtrl',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/register.html',
+                    controller: 'RegisterCtrl'
+                }
+            },
             data: {
                 name: 'Register',
                 isPublic: true
             }
         })
-        // .state('activation', {
-        //     url: '/activation',
-        //     templateUrl: 'views/controllers/activation.html',
-        //     controller: 'ActiovationCtrl',
-        //     data: {
-        //         name: 'Actiovation',
-        //         isPublic: true
-        //     }
-        // })
         .state('login', {
+            parent: 'main',
             url: '/login?returnTo',
-            templateUrl: 'views/controllers/login.html',
-            controller: 'LoginCtrl',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                }
+            },
             data: {
                 name: 'Login',
                 isPublic: true
             }
         })
-        .state('main.clients', {
+        .state('dashboard', {
+            url:'/',
+            parent: 'main',
+            abstract: true,
+            views: {
+                'body@main':{
+                    templateUrl: 'views/abstract/dashboard.html'
+                }
+            }
+        })
+        .state('home',{
+            parent:'dashboard',
+            url:'',
+            data: {
+                name: 'Home',
+                isPublic: false
+            },
+            views: {
+                'body@dashboard': {
+                    template: ''
+                }
+            }
+        })
+        .state('access', {
+            parent: 'home',
+            url: 'access',
+            data: {
+                name: 'Access management',
+                isPublic: false
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/access.html',
+                    controller: 'AccessCtrl'
+                }
+            }
+        })
+        .state('clients', {
+            parent: 'home',
             url: 'clients',
-            templateUrl: 'views/controllers/clients.html',
-            controller: 'ClientsCtrl',
+            views: {
+                'body@dashboard':{
+                    templateUrl: 'views/controllers/clients.html',
+                    controller: 'ClientsCtrl'
+                }
+            },
             data: {
                 name: 'Clients',
                 isPublic: false
             }
         })
-        .state('main.countries', {
+        .state('countries', {
+            parent:'home',
             url: 'countries',
-            templateUrl: 'views/controllers/countries.html',
-            controller: 'CountriesCtrl',
+            views:{
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/countries.html',
+                    controller: 'CountriesCtrl'
+                }
+            },
             data: {
                 name: 'Countries',
                 isPublic: false
             }
         })
-        .state('main.profile', {
+        .state('profile', {
+            parent:'home',
             url: 'profile',
-            templateUrl: 'views/controllers/profile.html',
-            controller: 'ProfileCtrl',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/profile.html',
+                    controller: 'ProfileCtrl'
+                }
+            },
             data: {
                 name: 'Profile',
-                isPublic: false
-            }
-        })
-        .state('access', {
-            url: 'access',
-            parent: 'main',
-            templateUrl: 'views/controllers/access.html',
-            controller: 'AccessCtrl',
-            data: {
-                name: 'Access management',
                 isPublic: false
             }
         });
@@ -116,7 +158,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv, $log) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         //if rule not defined
         if (!angular.isDefined(toState.data.isPublic)) {
@@ -141,5 +183,8 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
 
     $rootScope.$on('logout', function () {
         $state.go('login');
+    });
+    $rootScope.$on('login', function () {
+        $state.go('home');
     });
 });

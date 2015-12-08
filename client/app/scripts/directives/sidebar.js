@@ -7,7 +7,10 @@ angular.module('greyscaleApp')
     .directive('sidebar',function(){
         return {
             templateUrl: 'views/directives/sidebar.html',
-            toggle: '=',
+            scope: {
+                toggle: '=',
+                items: '='
+            },
             restrict: 'AE',
             controller: function($scope, $cookieStore) {
                 $scope.toggle = $cookieStore.get('toggle') || false;

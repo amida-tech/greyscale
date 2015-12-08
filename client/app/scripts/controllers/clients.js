@@ -6,18 +6,19 @@
 var module = angular.module('greyscaleApp');
 
 
-module.controller('ClientsCtrl', function ($state, $scope, greyscaleAuthSrv, $modal, inform) {
+module.controller('ClientsCtrl', function ($state, $scope, greyscaleAuthSrv, $uibModal, inform, greyscaleAccessSrv) {
     console.log('ClientsCtrl');
     $scope.clients = [];
     $scope.roles   = [];
-    greyscaleAuthSrv.roles().then(function(roles){
+
+    greyscaleAccessSrv.roles().then(function(roles){
         $scope.roles = roles;
     });
     greyscaleAuthSrv.clients().then(function(list){
         $scope.clients = list;
     });
     $scope.inviteForm = function() {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: "views/modals/client-invite.html",
             controller: 'ClientInviteCtrl',
             size: 'md',
@@ -55,8 +56,8 @@ module.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $statePara
     })
 });
 
-module.controller('ProfileCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state, $modal) {
-    
+module.controller('ProfileCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state, $uibModal) {
+
     $scope.org = {
         loaded  : false,
         name    : '',
@@ -86,7 +87,7 @@ module.controller('ProfileCtrl', function ($scope, greyscaleAuthSrv, $stateParam
     }
 
     $scope.editOrg = function () {
-        var modalInstance = $modal.open({
+        var modalInstance = $uibModal.open({
             templateUrl: "views/modals/organization.html",
             controller: 'OrgFormCtrl',
             size: 'md',

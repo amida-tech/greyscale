@@ -1,0 +1,9 @@
+<div id="page-wrapper" ng-class="{'open': model.toggle}" ng-cloak>
+    <sidebar toggle="model.toggle"></sidebar>
+    <div id="content-wrapper">
+        <div class="page-content">
+            <headerbar></headerbar>
+            <div ui-view="body"></div>
+        </div>
+    </div>
+</div>

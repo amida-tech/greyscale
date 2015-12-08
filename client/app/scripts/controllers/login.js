@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
         greyscaleAuthSrv.isAuthenticated()
             .then(function (isAuthenticated) {
                 if (isAuthenticated) {
-                    $state.go('main');
+                    $state.go('home');
                 }
             });
     });
