@@ -6,46 +6,6 @@
 var module = angular.module('greyscaleApp');
 
 
-module.controller('ClientsCtrl', function ($state, $scope, greyscaleAuthSrv, $uibModal, inform, greyscaleAccessSrv) {
-    console.log('ClientsCtrl');
-    $scope.clients = [];
-    $scope.roles   = [];
-
-    greyscaleAccessSrv.roles().then(function(roles){
-        $scope.roles = roles;
-    });
-    greyscaleAuthSrv.clients().then(function(list){
-        $scope.clients = list;
-    });
-    $scope.inviteForm = function() {
-        var modalInstance = $uibModal.open({
-            templateUrl: "views/modals/client-invite.html",
-            controller: 'ClientInviteCtrl',
-            size: 'md',
-            windowClass: 'modal fade in',
-        });
-    }
-});
-
-module.controller('ClientInviteCtrl', function ($scope, $modalInstance, greyscaleAuthSrv, inform) {
-    $scope.model = {
-        'firstName' : '',
-        'lastName' : '',
-        'email' : ''
-    };
-    $scope.close = function(){
-        $modalInstance.close();
-    }
-    $scope.invite = function(){
-        greyscaleAuthSrv.invite($scope.model).then(function(){
-            $scope.close();
-            inform.add('User invited', {type : 'success'});
-        },function(err){
-            inform.add(err.data.message);
-        });
-    }
-});
-
 module.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state) {
     greyscaleAuthSrv.checkActivationToken($stateParams.token)
     .then(function(resp){
@@ -56,7 +16,7 @@ module.controller('ActivateCtrl', function ($scope, greyscaleAuthSrv, $statePara
     })
 });
 
-module.controller('ProfileCtrl', function ($scope, greyscaleAuthSrv, $stateParams, inform, $state, $uibModal) {
+module.controller('ProfileCtrl', function ($scope, greyscaleAccessSrv, greyscaleAuthSrv, $stateParams, inform, $state, $uibModal) {
 
     $scope.org = {
         loaded  : false,
@@ -65,7 +25,7 @@ module.controller('ProfileCtrl', function ($scope, greyscaleAuthSrv, $stateParam
         url     : ''
     };
 
-    greyscaleAuthSrv.self()
+    greyscaleAcessSrv.user()
     .then(function(resp){
         $scope.user = resp;
         if(resp.roleID == 2){ //client

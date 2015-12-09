@@ -19,7 +19,8 @@ var _app = angular.module('greyscaleApp', [
     'RDash',
     'greyscale.core',
     'greyscale.user',
-    'inform'
+    'inform',
+    'lodashAngularWrapper'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {
@@ -118,24 +119,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                     templateUrl: 'views/controllers/access.html',
                     controller: 'AccessCtrl'
                 }
-            }
-        })
-        .state('clients', {
-            parent: 'home',
-            url: 'clients',
-            views: {
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
-                'body@dashboard':{
-                    templateUrl: 'views/controllers/clients.html',
-                    controller: 'ClientsCtrl'
-                }
-            },
-            data: {
-                name: 'Clients',
-                isPublic: false
             }
         })
         .state('countries', {

@@ -45,60 +45,6 @@ angular.module('greyscale.core')
                 .finally(greyscaleProfileSrv.logout);
         }
 
-        function _self() {
-            return greyscaleRestSrv()
-                .one('users', 'self')
-                .get()
-                .then(function (resp) {
-                    return resp;
-                })
-                .catch(_auth_err_handler);
-        }
-
-        function _clients() {
-            return greyscaleRestSrv()
-                .one('users')
-                .get({'roleID': 2})
-                .then(function (resp) {
-                    return resp;
-                })
-                .catch(_auth_err_handler);
-        }
-
-        function _invite(user_data) {
-            return greyscaleRestSrv()
-                .one('users')
-                .one('invite')
-                .customPOST(user_data);
-        }
-
-        function _register(user_data) {
-            return Restangular
-                .one('users')
-                .customPOST(user_data);
-        }
-
-        function _checkActivationToken(token) {
-            return Restangular
-                .one('users')
-                .one('activate', token)
-                .get();
-        }
-
-        function _activate(token, data) {
-            return Restangular
-                .one('users')
-                .one('activate', token)
-                .customPOST(data);
-        }
-
-        function _users() {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
-                .one('users')
-                .get()
-                .catch(_auth_err_handler);
-        }
-
         // TODO move to another service ??
         function _getOrg() {
             return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
@@ -117,16 +63,9 @@ angular.module('greyscale.core')
         }
 
         return {
-            register: _register,
             login: _login,
             logout: _logout,
             isAuthenticated: _isAuthenticated,
-            users: _users,
-            clients: _clients,
-            invite: _invite,
-            activate: _activate,
-            checkActivationToken: _checkActivationToken,
-            self: _self,
             getOrg: _getOrg,
             orgSave: _orgSave
         };
