@@ -25,7 +25,7 @@ module.controller('ProfileCtrl', function ($scope, greyscaleAccessSrv, greyscale
         url     : ''
     };
 
-    greyscaleAcessSrv.user()
+    greyscaleAccessSrv.user()
     .then(function(resp){
         $scope.user = resp;
         if(resp.roleID == 2){ //client
