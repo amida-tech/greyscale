@@ -89,7 +89,39 @@ router.route('/v0.2/access_permissions')
 router.route('/v0.2/access_permissions/:id')
   .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsDeleteOne);
 
+//----------------------------------------------------------------------------------------------------------------------
+//    LANGUAGES
+//----------------------------------------------------------------------------------------------------------------------
+var languages = require('app/controllers/languages');
 
+router.route('/v0.2/languages')
+  .get(authenticate('token').always, languages.select)
+  .post(authenticate('token').always, languages.insertOne);
+
+router.route('/v0.2/languages/:id')
+  .get(authenticate('token').always, languages.selectOne)
+  .put(authenticate('token').always, languages.editOne)
+  .delete(authenticate('token').always, languages.delete);
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//    TRANSLATIONS
+//----------------------------------------------------------------------------------------------------------------------
+var translations = require('app/controllers/translations');
+router.route('/v0.2/translations')
+  .get(authenticate('token').always, translations.select)
+  .post(authenticate('token').always, translations.insertOne);
+
+router.route('/v0.2/translations/:essenceId/:entityId/:field/:langId')
+  .delete(authenticate('token').always,/*checkPermission('product_delete','products'),*/ translations.delete)
+  .put(authenticate('token').always,/*checkPermission('product_delete','products'),*/ translations.editOne);
+
+router.route('/v0.2/translations/:essenceId')
+  .get(authenticate('token').always, translations.selectByParams);
+
+router.route('/v0.2/translations/:essenceId/:entityId')
+  .get(authenticate('token').always, translations.selectByParams);
 //----------------------------------------------------------------------------------------------------------------------
 //    PRODUCTS
 //----------------------------------------------------------------------------------------------------------------------
@@ -100,6 +132,7 @@ router.route('/v0.2/products')
 
 
 router.route('/v0.2/products/:id')
+  .get(authenticate('token').always,checkPermission('product_select','products'),products.selectOne)
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
 
 //----------------------------------------------------------------------------------------------------------------------

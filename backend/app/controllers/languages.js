@@ -1,8 +1,7 @@
 var client = require('app/db_bootstrap'),
   _ = require('underscore'),
   config = require('config'),
-  Product = require('app/models/products'),
-  AccessMatrix = require('app/models/access_matrices'),
+  Language = require('app/models/languages'),
   co = require('co'),
   Query = require('app/util').Query,
   getTranslateQuery = require('app/util').getTranslateQuery,
@@ -14,7 +13,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
-    var q = getTranslateQuery(req, Product);
+    var q = Language.select().from(Language);
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -24,7 +23,7 @@ module.exports = {
   },
 
   selectOne: function (req, res, next) {
-    var q = getTranslateQuery(req, Product, Product.id.equals(req.params.id));
+    var q = Language.select().from(Language).where(Language.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -34,7 +33,7 @@ module.exports = {
   },
 
   delete: function (req, res, next) {
-    var q = Product.delete().where(Product.id.equals(req.params.id));
+    var q = Language.delete().where(Language.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -43,23 +42,24 @@ module.exports = {
     });
   },
 
-  insertOne: function (req, res, next) {
-
-    co(function* () {
-      var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-      if (!_.first(isExistMatrix)) {
-          throw new HttpError(403, 'Matrix with this id does not exist');
+  editOne: function (req, res, next) {
+    var q = Language.update(req.body).where(Language.id.equals(req.params.id));
+    query(q, function (err, data) {
+      if (err) {
+        return next(err);
       }
-    
-      var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
-
-      return result;
-    }).then(function (data) {
-      res.status(201).json(_.first(data));
-    }, function (err) {
-      next(err);
+      res.status(202).end();
     });
+  },
 
+  insertOne: function (req, res, next) {
+    var q = Language.insert(req.body).returning(Language.id);
+    query(q, function (err, data) {
+      if (err) {
+        return next(err);
+      }
+      res.status(201).json(_.first(data));
+    });
   }
 
 };

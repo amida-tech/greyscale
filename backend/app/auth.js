@@ -31,6 +31,7 @@ var requestRights = 'ARRAY(' +
   ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
   ') AS rights';
 
+
 // Register strategy for Basic HTTP auth
 passport.use(new BasicStrategy(
   {passReqToCallback: true},
@@ -139,7 +140,9 @@ module.exports = {
       co(function* () {
         var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
         Action = _.first(Action);
-        console.log(Action);
+        if(typeof Action == 'undefined'){
+          return true;
+        }
 
         var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)));
         Essence = _.first(Essence);

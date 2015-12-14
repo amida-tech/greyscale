@@ -1,5 +1,6 @@
 var HttpError = require('app/error').HttpError,
   moment = require('moment'),
+
   _ = require('underscore');
 
 exports.Query = function () {
@@ -69,7 +70,9 @@ exports.Query = function () {
       if (arguments.length == 2) {
         cb = options;
       }
+
       console.log(queryObject.toQuery());
+
       client.query(queryObject.toQuery(), function (err, result) {
         if (err) {
           return cb ? cb(err) : err;
@@ -90,3 +93,37 @@ exports.Query = function () {
     }
   }
 };
+
+exports.getTranslateQuery = function (req, model, condition) {
+  var Language = require('app/models/languages'),
+  Essence = require('app/models/essences'),
+  Translation = require('app/models/translations');
+  var code = req.headers['language'];
+  // console.log(languages.split(','));
+  var query = model.select(model.star());
+  var from  = model;
+  if((typeof model.translate !== 'undefined') && (typeof code !== 'undefined')){
+    var translate = model.translate;
+
+    from = from
+      .leftJoin(Essence).on(Essence.tableName.equals(model._name)) // Join Essence Table
+      .leftJoin(Language).on(Language.code.equals(code)) // Join Language Table
+    for(var i in translate){
+      var field = translate[i];
+      var alias = 't_'+i;
+      from = from.leftJoin(Translation.as(alias)).on(
+        Translation.as(alias).essenceId.equals(Essence.id)
+        .and(Translation.as(alias).entityId.equals(model.id))
+        .and(Translation.as(alias).field.equals(field))
+        .and(Translation.as(alias).langId.equals(Language.id))
+      )
+      query = query.select(Translation.as(alias).value.as(code + '_' + field));
+    }
+  }
+
+  query = query.from(from);
+  if (typeof condition !== 'undefined')  {
+    query = query.where(condition);
+  }
+  return query;
+}
