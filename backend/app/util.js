@@ -94,20 +94,49 @@ exports.Query = function () {
   }
 };
 
-exports.getTranslateQuery = function (req, model, condition) {
+exports.detectLanguage = function* (req){
+  var 
+  acceptLanguage = require('accept-language');
+  Query = require('app/util').Query,
+  query = new Query(),
+  thunkify = require('thunkify'),
+  _ = require('underscore'),
+  Language = require('app/models/languages'),
+  thunkQuery = thunkify(query);
+  
+  var languages = {};
+  var result =  yield thunkQuery(Language.select().from(Language));
+  for (var i in result){
+    languages[result[i].code] = result[i];
+  }
+  acceptLanguage.languages(Object.keys(languages));
+  var code = acceptLanguage.get(req.headers['accept-language']);
+  var detectedLang = languages[code].id;
+
+  console.log('Detected language : ' + languages[code].name);
+  return languages[code].id;
+};
+
+exports.getTranslateQuery = function (langId, model, condition) {
+  
   var Language = require('app/models/languages'),
   Essence = require('app/models/essences'),
   Translation = require('app/models/translations');
-  var code = req.headers['language'];
-  // console.log(languages.split(','));
-  var query = model.select(model.star());
-  var from  = model;
-  if((typeof model.translate !== 'undefined') && (typeof code !== 'undefined')){
-    var translate = model.translate;
 
+  var query = model;
+  var from  = model;
+
+  if((typeof model.translate !== 'undefined')){
+    var translate = model.translate;
     from = from
       .leftJoin(Essence).on(Essence.tableName.equals(model._name)) // Join Essence Table
-      .leftJoin(Language).on(Language.code.equals(code)) // Join Language Table
+
+    for(var i in model.table.columns){
+      if(model.translate.indexOf(model.table.columns[i].name) == -1){
+        query = query.select(model[model.table.columns[i].name]);
+      }
+    }
+
     for(var i in translate){
       var field = translate[i];
       var alias = 't_'+i;
@@ -115,10 +144,13 @@ exports.getTranslateQuery = function (req, model, condition) {
         Translation.as(alias).essenceId.equals(Essence.id)
         .and(Translation.as(alias).entityId.equals(model.id))
         .and(Translation.as(alias).field.equals(field))
-        .and(Translation.as(alias).langId.equals(Language.id))
+        .and(Translation.as(alias).langId.equals(langId))
       )
-      query = query.select(Translation.as(alias).value.as(code + '_' + field));
+      query = query.select(model[field].case([Translation.as(alias).value.isNotNull()],[Translation.as(alias).value],model[field]).as(field));
     }
+    
+  }else{
+    query = query.select(model.star());
   }
 
   query = query.from(from);
