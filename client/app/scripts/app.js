@@ -18,7 +18,7 @@ var _app = angular.module('greyscaleApp', [
     'ui.router',
     'RDash',
     'greyscale.core',
-    'greyscale.user',
+    'greyscale.rest',
     'inform',
     'lodashAngularWrapper'
 ]);

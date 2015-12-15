@@ -4,11 +4,10 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, $log, $cookieStore,
+    .factory('greyscaleAuthSrv', function ($rootScope, $q, Restangular, $log, $cookieStore, greyscaleTokenSrv,
                                            greyscaleRestSrv, greyscaleProfileSrv, greyscaleBase64Srv) {
 
         var _auth_err_handler = function (err) {
-//            greyscaleProfileSrv.logout();
             $log.debug(err);
             return $q.reject(err);
         };
@@ -17,14 +16,14 @@ angular.module('greyscale.core')
             return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)})
                 .one('users', 'token').get()
                 .then(function (resp) {
-                    greyscaleProfileSrv.token(resp.token);
+                    greyscaleTokenSrv(resp.token);
                     return resp;
                 })
                 .catch(_auth_err_handler);
         }
 
         function _isAuthenticated() {
-            var _token = greyscaleProfileSrv.token();
+            var _token = greyscaleTokenSrv();
             var res = $q.resolve(false);
             if (_token) {
                 res = greyscaleRestSrv().one('users', 'checkToken').one(_token).get()
@@ -45,28 +44,9 @@ angular.module('greyscale.core')
                 .finally(greyscaleProfileSrv.logout);
         }
 
-        // TODO move to another service ??
-        function _getOrg() {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
-                .one('users')
-                .one('self')
-                .one('organization')
-                .get();
-        }
-
-        function _orgSave(data) {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
-                .one('users')
-                .one('self')
-                .one('organization')
-                .customPUT(data);
-        }
-
         return {
             login: _login,
             logout: _logout,
-            isAuthenticated: _isAuthenticated,
-            getOrg: _getOrg,
-            orgSave: _orgSave
+            isAuthenticated: _isAuthenticated
         };
     });

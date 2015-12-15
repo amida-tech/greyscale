@@ -3,22 +3,21 @@
  */
 'use strict';
 
-angular.module('greyscale.core')
-    .factory('greyscaleCountrySrv', function ($rootScope, $q, Restangular, $log,
-                                           greyscaleRestSrv, greyscaleProfileSrv) {
+angular.module('greyscale.rest')
+    .factory('greyscaleCountrySrv', function (greyscaleRestSrv) {
 
         function _countries() {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+            return greyscaleRestSrv()
                 .one('countries')
                 .get();
         }
         function _addCountry(country) {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+            return greyscaleRestSrv()
                 .one('countries')
                 .customPOST(country);
         }
         function _deleteCountry(country) {
-            return greyscaleRestSrv({"token": greyscaleProfileSrv.token()})
+            return greyscaleRestSrv()
                 .one('countries')
                 .remove(country);
         }
