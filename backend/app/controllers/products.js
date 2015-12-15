@@ -3,9 +3,13 @@ var client = require('app/db_bootstrap'),
   config = require('config'),
   Product = require('app/models/products'),
   AccessMatrix = require('app/models/access_matrices'),
+  Translation = require('app/models/translations'),
+  Language = require('app/models/languages'),
+  Essence = require('app/models/essences'),
   co = require('co'),
   Query = require('app/util').Query,
   getTranslateQuery = require('app/util').getTranslateQuery,
+  detectLanguage = require('app/util').detectLanguage,
   query = new Query(),
   thunkify = require('thunkify'),
   HttpError = require('app/error').HttpError,
@@ -14,13 +18,14 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
-    var q = getTranslateQuery(req, Product);
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
-      }
+    co(function* (){
+      var langId = yield* detectLanguage(req);
+      return yield thunkQuery(getTranslateQuery(langId, Product));
+    }).then(function(data){
       res.json(data);
-    });
+    },function(err){
+      next(err);
+    })
   },
 
   selectOne: function (req, res, next) {
