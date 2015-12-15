@@ -12,25 +12,82 @@
 
 angular.module('greyscaleApp')
     .controller('CountriesCtrl', function ($scope, $state, greyscaleProfileSrv, greyscaleModalsSrv, greyscaleCountrySrv,
-                                           $log, inform) {
-        $scope.countries = [];
-
-        greyscaleProfileSrv.getProfile()
-            .then(greyscaleCountrySrv.countries)
-            .then(function (list) {
-                $scope.countries = list;
-            });
-
-        $scope.addCountry = function () {
-            greyscaleModalsSrv.editCountry();
-        };
-
-        $scope.deleteCountry = function () {
-            greyscaleCountrySrv.deleteCountry(this.country)
-                .catch(function (err) {
-                    $log.debug('`CountriesCtrl` - country delete error: ' + err);
-                    inform.add('country delete error: ' + err);
-                })
-                .finally($state.reload);
+                                           $log, inform, NgTableParams, $filter, greyscaleGlobals, _, $uibModal) {
+        $scope.model = {
+            countries: {
+                editable: true,
+                title: 'Countries',
+                icon: 'fa-table',
+                cols: [
+                    {
+                        field: 'id',
+                        title: 'ID',
+                        show: true
+                    },
+                    {
+                        field: 'name',
+                        title: 'Name',
+                        show: true,
+                        sortable: 'name'
+                    },
+                    {
+                        field: 'alpha2',
+                        title: 'Alpha2',
+                        show: true,
+                        sortable: 'alpha2'
+                    },
+                    {
+                        field: 'alpha3',
+                        title: 'Alpha3',
+                        show: true,
+                        sortable: 'alpha3'
+                    },
+                    {
+                        field: 'nbr',
+                        title: 'Nbr',
+                        show: true,
+                        sortable: 'nbr'
+                    }
+                ],
+                tableParams: new NgTableParams(
+                    {
+                        page: 1,
+                        count: 15,
+                        sorting: {id: 'asc'}
+                    },
+                    {
+                        counts: [],
+                        getData: function ($defer, params) {
+                            greyscaleCountrySrv.countries().then(function (list) {
+                                params.total(list.length);
+                                var orderedData = params.sorting() ? $filter('orderBy')(list, params.orderBy()) : list;
+                                $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                            });
+                        }
+                    }),
+                add: {
+                    title: 'Add',
+                    handler: function () {
+                        greyscaleModalsSrv.editCountry();
+                    }
+                },
+                del: {
+                    title: 'Delete',
+                    handler: function (country) {
+                        greyscaleCountrySrv.deleteCountry(country)
+                            .catch(function (err) {
+                                inform.add('country delete error: ' + err);
+                            })
+                            .finally($state.reload);
+                    }
+                },
+                edt: {
+                    title: 'Edit',
+                    handler: function () {
+                        inform.add('Edit country');
+                        //$log.debug('Edit country');
+                    }
+                }
+            }
         };
     });

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('CountryFormCtrl', function ($scope, $state, $uibModalInstance, inform, data) {
+    .controller('CountryFormCtrl', function ($scope, $state, $uibModalInstance, greyscaleCountrySrv, inform, data) {
         $scope.model = {
             'name': '',
             'alpha2': '',

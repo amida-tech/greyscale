@@ -41,7 +41,7 @@ module.exports = {
         co(function* (){
             return yield thunkQuery(Country.delete().where(Country.id.equals(req.query.id)));
         }).then(function(){
-            res.status(204).end();
+            res.status(200).end();
         },function(err){
             next(err);
         });
