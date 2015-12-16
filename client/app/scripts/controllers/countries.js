@@ -12,9 +12,9 @@
 
 angular.module('greyscaleApp')
     .controller('CountriesCtrl', function ($scope, $state, greyscaleProfileSrv, greyscaleModalsSrv, greyscaleCountrySrv,
-                                           $log, inform, NgTableParams, $filter, greyscaleGlobals, _, $uibModal) {
+                                           $log, inform, NgTableParams, $filter, greyscaleGlobals) {
 
-        var _cols = greyscaleGlobals.tables.countries.cols;
+        var _cols = angular.copy(greyscaleGlobals.tables.countries.cols);
 
         var _tableParams = new NgTableParams(
             {
@@ -69,6 +69,7 @@ angular.module('greyscaleApp')
                 }
             ]
         });
+
         $scope.model = {
             countries: {
                 editable: true,

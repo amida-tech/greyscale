@@ -22,8 +22,10 @@ angular.module('greyscaleApp')
             },
             link: function ($scope, elem) {
                 var _field = $scope.widgetCell.field;
+
                 switch ($scope.widgetCell.dataFormat) {
                     case 'action':
+                        elem.addClass('text-right');
                         elem.append('<button ng-repeat="act in widgetCell.actions" class="btn btn-xs btn-{{act.class}}" ' +
                             'ng-click="act.handler(rowValue)">{{act.title}}</button>');
                         $compile(elem.contents())($scope);
