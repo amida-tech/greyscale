@@ -20,7 +20,8 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.core',
     'greyscale.rest',
     'inform',
-    'lodashAngularWrapper'
+    'lodashAngularWrapper',
+    'smart-table'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {

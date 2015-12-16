@@ -35,7 +35,7 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            greyscaleToken(null);
+            greyscaleTokenSrv(null);
             $cookieStore.remove('token');
             $rootScope.$emit('logout');
             return this;

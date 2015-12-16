@@ -53,6 +53,83 @@ angular.module('greyscale.core')
                             dataFormat: 'boolean'
                         }
                     ]
+                },
+                roles: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true
+                        },
+                        {
+                            field: 'name',
+                            title: 'Name',
+                            show: true,
+                            sortable: false
+                        }
+                    ]
+                },
+                roleRights: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true,
+                            sortable:'id'
+                        },
+                        {
+                            field: 'action',
+                            title: 'Action',
+                            show: true,
+                            sortable:'action'
+                        },
+                        {
+                            field: 'description',
+                            title: 'Right description',
+                            show: true,
+                            sortable:'description'
+                        },
+                        {
+                            field: 'essenceId',
+                            title: 'Entry Type',
+                            show: true,
+                            sortable:'essenceId'
+                        }
+
+                    ]
+                },
+                countries: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true
+                        },
+                        {
+                            field: 'name',
+                            title: 'Name',
+                            show: true,
+                            sortable: 'name'
+                        },
+                        {
+                            field: 'alpha2',
+                            title: 'Alpha2',
+                            show: true,
+                            sortable: 'alpha2'
+                        },
+                        {
+                            field: 'alpha3',
+                            title: 'Alpha3',
+                            show: true,
+                            sortable: 'alpha3'
+                        },
+                        {
+                            field: 'nbr',
+                            title: 'Nbr',
+                            show: true,
+                            sortable: 'nbr'
+                        }
+                    ]
                 }
             }
         };

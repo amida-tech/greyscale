@@ -7,16 +7,7 @@
     <div class="table-responsive">
         <table class="table table-responsive table-hover panel" ng-table-dynamic="model.tableParams with model.cols">
             <tr ng-repeat="row in $data">
-                <td ng-repeat="col in $columns" widget-cell cell-format="col.dataFormat"
-                    cell-value="row[col.field]"></td>
-                <td data-title="" class="text-right" ng-show="model.editable">
-                    <button class="btn btn-info btn-xs" ng-click="model.edt.handler()" ng-show="model.edt">
-                        {{model.edt.title}}
-                    </button>
-                    <button class="btn btn-danger btn-xs" ng-click="model.del.handler(row)" ng-show="model.del">
-                        {{model.del.title}}
-                    </button>
-                </td>
+                <td ng-repeat="col in $columns" widget-cell="col" row-value="row"></td>
             </tr>
         </table>
     </div>

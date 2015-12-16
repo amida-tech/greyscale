@@ -13,46 +13,45 @@
 angular.module('greyscaleApp')
     .controller('CountriesCtrl', function ($scope, $state, greyscaleProfileSrv, greyscaleModalsSrv, greyscaleCountrySrv,
                                            $log, inform, NgTableParams, $filter, greyscaleGlobals, _, $uibModal) {
+        var _cols = greyscaleGlobals.tables.countries.cols;
+
+        _cols.push({
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [
+                {
+                    title: 'Edit',
+                    class: 'info',
+                    handler: function (country) {
+                        inform.add('Edit country');
+                        $log.debug(country);
+                    }
+                },
+                {
+                    title: 'Delete',
+                    class: 'danger',
+                    handler: function (country) {
+                        greyscaleCountrySrv.deleteCountry(country)
+                            .catch(function (err) {
+                                inform.add('country delete error: ' + err);
+                            })
+                            .finally($state.reload);
+                    }
+                }
+            ]
+        });
         $scope.model = {
             countries: {
                 editable: true,
                 title: 'Countries',
                 icon: 'fa-table',
-                cols: [
-                    {
-                        field: 'id',
-                        title: 'ID',
-                        show: true
-                    },
-                    {
-                        field: 'name',
-                        title: 'Name',
-                        show: true,
-                        sortable: 'name'
-                    },
-                    {
-                        field: 'alpha2',
-                        title: 'Alpha2',
-                        show: true,
-                        sortable: 'alpha2'
-                    },
-                    {
-                        field: 'alpha3',
-                        title: 'Alpha3',
-                        show: true,
-                        sortable: 'alpha3'
-                    },
-                    {
-                        field: 'nbr',
-                        title: 'Nbr',
-                        show: true,
-                        sortable: 'nbr'
-                    }
-                ],
+                cols: _cols,
                 tableParams: new NgTableParams(
                     {
                         page: 1,
-                        count: 15,
+                        count: 10,
                         sorting: {id: 'asc'}
                     },
                     {
@@ -69,23 +68,6 @@ angular.module('greyscaleApp')
                     title: 'Add',
                     handler: function () {
                         greyscaleModalsSrv.editCountry();
-                    }
-                },
-                del: {
-                    title: 'Delete',
-                    handler: function (country) {
-                        greyscaleCountrySrv.deleteCountry(country)
-                            .catch(function (err) {
-                                inform.add('country delete error: ' + err);
-                            })
-                            .finally($state.reload);
-                    }
-                },
-                edt: {
-                    title: 'Edit',
-                    handler: function () {
-                        inform.add('Edit country');
-                        //$log.debug('Edit country');
                     }
                 }
             }

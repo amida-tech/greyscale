@@ -11,19 +11,7 @@ angular.module('greyscaleApp')
                 editable: false,
                 title: 'Roles',
                 icon: 'fa-users',
-                cols: [
-                    {
-                        field: 'id',
-                        title: 'ID',
-                        show: true
-                    },
-                    {
-                        field: 'name',
-                        title: 'Name',
-                        show: true,
-                        sortable: false
-                    }
-                ],
+                cols: greyscaleGlobals.tables.roles.cols,
                 tableParams: new NgTableParams(
                     {
                         page: 1,
@@ -77,6 +65,23 @@ angular.module('greyscaleApp')
                     handler: greyscaleModalsSrv.inviteUser
                 }
 
+            },
+            roleRights: {
+                title: 'role rights',
+                icon: 'fa-icon',
+                cols: greyscaleGlobals.tables.roleRights.cols,
+                tableParams: new NgTableParams(
+                    {
+                        page: 1,
+                        count: 5,
+                        sorting: {id: 'asc'}
+                    },
+                    {
+                        counts: [],
+                        getData: function ($defer, params) {
+
+                        }
+                    })
             }
         };
     });
