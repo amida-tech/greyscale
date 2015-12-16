@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('CountryFormCtrl', function ($scope, $state, $uibModalInstance, greyscaleCountrySrv, inform, data) {
+    .controller('CountryFormCtrl', function ($scope, $uibModalInstance, greyscaleCountrySrv, inform, data) {
         $scope.model = {
             'name': '',
             'alpha2': '',
@@ -16,16 +16,16 @@ angular.module('greyscaleApp')
             angular.extend($scope.model,data);
         }
 
-        $scope.close = function () {
-            $uibModalInstance.close();
-            $state.reload();
+        $scope.close = function (res) {
+            return $uibModalInstance.close(res);
         };
 
         $scope.add = function () {
-            greyscaleCountrySrv.addCountry($scope.model)
+            return greyscaleCountrySrv.addCountry($scope.model)
+                .then($scope.close)
                 .catch(function (err) {
                     inform.add(err, {type: 'danger'});
                 })
-                .finally($scope.close);
+                .finally();
         };
     });

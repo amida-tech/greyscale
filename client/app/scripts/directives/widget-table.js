@@ -21,7 +21,7 @@ angular.module('greyscaleApp')
                 rowValue: '='
             },
             link: function ($scope, elem) {
-            var _field = $scope.widgetCell.field;
+                var _field = $scope.widgetCell.field;
                 switch ($scope.widgetCell.dataFormat) {
                     case 'action':
                         elem.append('<button ng-repeat="act in widgetCell.actions" class="btn btn-xs btn-{{act.class}}" ' +
