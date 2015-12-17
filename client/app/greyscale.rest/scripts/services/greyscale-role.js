@@ -14,7 +14,7 @@ angular.module('greyscale.rest')
                 return greyscaleRestSrv().one('roles').get();
             },
             listRights: function (roleId) {
-                return _roleRights(roleId).get()
+                return _roleRights(roleId).get();
             },
             addRight: function (roleId, rightId) {
                 return _roleRights(roleId).one(rightId).customPOST();

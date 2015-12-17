@@ -4,9 +4,9 @@
             <button class="btn btn-default btn-xs" ng-click="model.add.handler()">{{model.add.title}}</button>
         </div>
     </rd-widget-header>
-    <div class="table-responsive">
+    <div class="table-responsive widget-table">
         <table class="table table-responsive table-hover panel" ng-table-dynamic="model.tableParams with model.cols">
-            <tr ng-repeat="row in $data">
+            <tr ng-repeat="row in $data" ng-click="select(row)" ng-class="{selected: isSelected(row)}">
                 <td ng-repeat="col in $columns" widget-cell="col" row-value="row"></td>
             </tr>
         </table>

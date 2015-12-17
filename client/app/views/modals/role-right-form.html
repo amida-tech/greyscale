@@ -1,0 +1,35 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button">
+        <span>×</span>
+    </button>
+    <h3 class="modal-title">Add right to role '{{model.name}}'</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-sm-12">
+            <div name="roleRightForm" class="form-horizontal" ng-form="roleRightForm">
+                <div class="form-group">
+                    <label for="right" class="col-sm-2 control-label">Right:</label>
+                    <select class="col-sm-10"
+                            id="right" name="right"
+                            ng-options="item.action for item in view.rights track by item.id"
+                            ng-model="selected"
+                            ng-required="true" convert-to-string></select>
+
+                    <div class="text-center" ng-messages="roleRightForm.rights.$error" role="alert"
+                         ng-if="roleRightForm.rights.$dirty">
+                        <span ng-message="requred" class="help-block">Please select right.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"><h6>Description: ({{selected.id}})</h6></div>
+        <div class="col-sm-10"><h5>{{selected.description}}</h5></div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">Cancel</button>
+    <button class="btn btn-primary" ng-click="update()" ng-disabled="roleRightForm.$invalid">Save</button>
+</div>

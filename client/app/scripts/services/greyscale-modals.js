@@ -35,6 +35,18 @@ angular.module('greyscaleApp')
                         org: _org
                     }
                 });
+            },
+            addRoleRight: function (_role) {
+                var _instance = $uibModal.open({
+                    templateUrl: "views/modals/role-right-form.html",
+                    controller: 'RoleRightFormCtrl',
+                    size: 'md',
+                    windowClass: 'modal fade in',
+                    resolve: {
+                        role: _role
+                    }
+                });
+                return _instance.result;
             }
         };
     });

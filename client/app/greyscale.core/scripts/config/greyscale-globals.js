@@ -59,13 +59,21 @@ angular.module('greyscale.core')
                         {
                             field: 'id',
                             title: 'ID',
-                            show: true
+                            show: true,
+                            sortable:'id'
                         },
                         {
                             field: 'name',
                             title: 'Name',
                             show: true,
-                            sortable: false
+                            sortable: 'name'
+                        },
+                        {
+                            field: 'isSystem',
+                            title: 'System Role',
+                            show: true,
+                            sortable: 'isSystem',
+                            dataFormat:'boolean'
                         }
                     ]
                 },
