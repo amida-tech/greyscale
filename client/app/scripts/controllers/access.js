@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('AccessCtrl', function ($scope, NgTableParams, $filter, greyscaleProfileSrv, greyscaleRoleSrv,
-                                        greyscaleUserSrv, greyscaleGlobals, greyscaleModalsSrv, _, $log) {
+                                        greyscaleUserSrv, greyscaleGlobals, greyscaleModalsSrv, _) {
         var _getRoleRigths = function () {
             return greyscaleRoleSrv.listRights($scope.model.roles.current.id);
         };
@@ -41,7 +41,6 @@ angular.module('greyscaleApp')
             {
                 counts: [],
                 getData: function ($defer, params) {
-                    $log.debug($scope.model.roles.current);
                     if ($scope.model.roles.current) {
                         _getRoleRigths($scope.model.roles.current.id).then(function (roleRights) {
                             _proceedData(roleRights, $defer, params);
@@ -49,6 +48,29 @@ angular.module('greyscaleApp')
                     }
                 }
             });
+
+        var _roleRights = angular.copy(greyscaleGlobals.tables.roleRights.cols);
+        _roleRights.push({
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [
+                {
+                    title: 'Delete',
+                    class: 'danger',
+                    handler: function (roleRight) {
+                        greyscaleRoleSrv.delRight($scope.model.roles.current.id,roleRight.id)
+                            .then(function () {
+                                _roleRightsTableParams.reload();
+                            })
+                            .catch(function (err) {
+                                inform.add('Role right delete error: ' + err);
+                            });
+                    }
+                }
+            ]
+        });
 
         $scope.model = {
             roles: {
@@ -74,7 +96,7 @@ angular.module('greyscaleApp')
             roleRights: {
                 title: 'role rights',
                 icon: 'fa-icon',
-                cols: greyscaleGlobals.tables.roleRights.cols,
+                cols: _roleRights,
                 dataPromise: _getRoleRigths,
                 tableParams: _roleRightsTableParams,
                 add: {

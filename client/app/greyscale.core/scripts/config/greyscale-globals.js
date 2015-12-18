@@ -93,14 +93,14 @@ angular.module('greyscale.core')
                         },
                         {
                             field: 'description',
-                            title: 'Right description',
+                            title: 'Description',
                             show: true,
                             sortable:'description'
                         },
                         {
                             field: 'essenceId',
                             title: 'Entry Type',
-                            show: true,
+                            show: false,
                             sortable:'essenceId'
                         }
 

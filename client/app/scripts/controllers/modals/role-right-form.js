@@ -13,15 +13,19 @@ angular.module('greyscaleApp')
         });
 
         $scope.close = function () {
-            $uibModalInstance.close();
+            $uibModalInstance.close(false);
         };
 
         $scope.update = function () {
             return greyscaleRoleSrv.addRight(role.id, $scope.selected.id)
+                .then(function(resp){
+                    $uibModalInstance.close(true);
+                })
                 .catch(function (err) {
                     if (err.data) {
                         inform.add(err.data.message);
                     }
+                    $uibModalInstance.close(false);
                 });
         };
     });
