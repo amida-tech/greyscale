@@ -3,8 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('RoleRightFormCtrl', function ($scope, $uibModalInstance, greyscaleRightSrv,
-                                               inform, role) {
+    .controller('RoleRightFormCtrl', function ($scope, $uibModalInstance, greyscaleRightSrv, role) {
         $scope.model = angular.copy(role);
         $scope.view = {};
         greyscaleRightSrv.list().then(function (rights) {
