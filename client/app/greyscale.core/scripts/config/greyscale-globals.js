@@ -138,6 +138,34 @@ angular.module('greyscale.core')
                             sortable: 'nbr'
                         }
                     ]
+                },
+                rights: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true,
+                            sortable:'id'
+                        },
+                        {
+                            field: 'action',
+                            title: 'Action',
+                            show: true,
+                            sortable: 'action'
+                        },
+                        {
+                            field: 'description',
+                            title: 'Description',
+                            show: true,
+                            sortable: false
+                        },
+                        {
+                            field: 'essenceId',
+                            title: 'essenceId',
+                            show: true,
+                            sortable: false
+                        }
+                    ]
                 }
             }
         };

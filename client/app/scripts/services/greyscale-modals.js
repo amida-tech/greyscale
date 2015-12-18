@@ -47,6 +47,18 @@ angular.module('greyscaleApp')
                     }
                 });
                 return _instance.result;
+            },
+            editRight: function (_right) {
+                var _instance = $uibModal.open({
+                    templateUrl: "views/modals/right-form.html",
+                    controller: 'RightFormCtrl',
+                    size: 'md',
+                    windowClass: 'modal fade in',
+                    resolve: {
+                        right: _right
+                    }
+                });
+                return _instance.result;
             }
         };
     });

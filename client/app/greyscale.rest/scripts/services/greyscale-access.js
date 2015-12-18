@@ -6,10 +6,6 @@
 angular.module('greyscale.rest')
     .factory('greyscaleAccessSrv', function (greyscaleRestSrv) {
 
-        var _listRigths = function () {
-            return greyscaleRestSrv().one('rights').get();
-        };
-
         var _listMartices = function () {
             return greyscaleRestSrv().one('access_matrices').get();
         };
@@ -19,8 +15,7 @@ angular.module('greyscale.rest')
         };
 
         return {
-            rights: _listRigths,
             matrices: _listMartices,
-            createMatrix: _createMartix
+            addMatrix: _createMartix
         };
     });

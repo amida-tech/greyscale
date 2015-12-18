@@ -15,7 +15,7 @@
                             id="right" name="right"
                             ng-options="item.action for item in view.rights track by item.id"
                             ng-model="selected"
-                            ng-required="true" convert-to-string></select>
+                            ng-required="true"></select>
 
                     <div class="text-center" ng-messages="roleRightForm.rights.$error" role="alert"
                          ng-if="roleRightForm.rights.$dirty">

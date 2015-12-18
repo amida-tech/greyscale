@@ -1,0 +1,45 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button">
+        <span>×</span>
+    </button>
+    <h3 class="modal-title"><span ng-show="model.right">Edit</span><span ng-hide="model.right">Add</span> right</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div name="rightForm" class="form-horizontal" ng-form="rightForm">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">ID:</label>
+
+                <div class="col-sm-9">
+                    <div class="col-sm-9"><p class="form-control-static">{{model.right.id||'new'}}</p></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="action" class="col-sm-3 control-label">Action:</label>
+
+                <div class="col-sm-9">
+                    <input class="form-control" id="action" name="action" type="text" ng-required="true" ng-minlength="1" ng-model="model.right.action"/>
+                    <div class="text-center" ng-messages="rightForm.action.$error" role="alert"
+                         ng-if="rightForm.action.$dirty">
+                        <span ng-message="requred" class="help-block">Please enter action.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="descr" class="col-sm-3 control-label">Description:</label>
+
+                <div class="col-sm-9">
+                    <input class="form-control" id="descr" name="descr" type="text" ng-required="true" ng-minlength="1" ng-model="model.right.description"/>
+                    <div class="text-center" ng-messages="rightForm.descr.$error" role="alert"
+                         ng-if="rightForm.descr.$dirty">
+                        <span ng-message="requred" class="help-block">Please enter description.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">Cancel</button>
+    <button class="btn btn-primary" ng-click="save()" ng-disabled="rightForm.$invalid || !rightForm.$dirty">Save</button>
+</div>

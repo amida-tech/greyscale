@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (NgTableParams, $filter, $log) {
+    .directive('widgetTable', function (NgTableParams, $filter) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
                     $scope.model.current = null;
                 }
 
-                if (!$scope.model.tableParams || !$scope.model.tableParams instanceof NgTableParams) {
+                if (!$scope.model.tableParams || !($scope.model.tableParams instanceof NgTableParams)) {
                     $scope.model.tableParams = new NgTableParams(
                         {
                             page: 1,
