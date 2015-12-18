@@ -121,21 +121,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             }
         })
-        .state('countries', {
+        .state('uoas', {
             parent:'home',
-            url: 'countries',
+            url: 'uoas',
             views:{
                 'header@dashboard' : {
                     templateUrl: 'views/controllers/dashboard-header.html',
                     controller: 'DashboardHeaderCtrl'
                 },
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/countries.html',
-                    controller: 'CountriesCtrl'
+                    templateUrl: 'views/controllers/uoas.html',
+                    controller: 'UoasCtrl'
                 }
             },
             data: {
-                name: 'Countries',
+                name: 'Units of Analysis Maintenance',
                 isPublic: false
             }
         })

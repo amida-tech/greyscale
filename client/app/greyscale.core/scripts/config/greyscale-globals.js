@@ -166,6 +166,33 @@ angular.module('greyscale.core')
                             sortable: false
                         }
                     ]
+                },
+                UnitOfAnalysisType: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true
+                        },
+                        {
+                            field: 'name',
+                            title: 'Name',
+                            show: true,
+                            sortable: 'name'
+                        },
+                        {
+                            field: 'description',
+                            title: 'Description',
+                            show: true,
+                            sortable: 'description'
+                        },
+                        {
+                            field: 'langId',
+                            title: 'Language ID',
+                            show: true,
+                            sortable: 'langId'
+                        }
+                    ]
                 }
             }
         };

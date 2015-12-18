@@ -19,17 +19,17 @@ angular.module('greyscale.rest')
         }
 
         function _deleteCountry(country) {
-            return _api().remove(country);
+            return _api().one(country.id+'').remove(country);
         }
 
-        var _update = function(country) {
+        var _updateCountry = function(country) {
             return _api().one(country.id+'').customPUT(country);
         };
 
         return {
             list: _countries,
             add: _addCountry,
-            update: _update,
+            update: _updateCountry,
             delete: _deleteCountry
         };
     });

@@ -84,7 +84,7 @@ app.on('start', function () {
         }
     }
     logger.error(err.stack);
-    res.send(500);
+    res.sendStatus(500);
 
   });
 

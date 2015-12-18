@@ -205,12 +205,27 @@ router.route('/v0.2/users/:id')
 var countries = require('app/controllers/countries');
 
 router.route('/v0.2/countries')
-    .get(authenticate('token').always, countries.select);
+    .get(authenticate('token').always, countries.select)
+    .post(authenticate('token').always, checkRight('countries_insert_one'), countries.insertOne);
 
-router.route('/v0.2/countries')
-    .post(authenticate('token').always, checkRight('countries_insert_one'), countries.insertOne)
+router.route('/v0.2/countries/:id')
+    .put(authenticate('token').always, checkRight('countries_update_one'), countries.updateOne)
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
+//----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisType = require('app/controllers/uoatypes');
+
+router.route('/v0.2/uoatypes')
+    .get(authenticate('token').always, UnitOfAnalysisType.select)
+    .post(authenticate('token').always, checkRight('unitofanalysistype_insert_one'), UnitOfAnalysisType.insertOne);
+
+router.route('/v0.2/uoatypes/:id')
+    .put(authenticate('token').always, checkRight('unitofanalysistype_update_one'), UnitOfAnalysisType.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysistype_delete_one'), UnitOfAnalysisType.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 module.exports = router;
 
 

@@ -16,9 +16,21 @@ angular.module('greyscaleApp')
                     }
                 }).result;
             },
+            editUoaType: function (_uoaType) {
+                var _instance= $uibModal.open({
+                    templateUrl: 'views/modals/uoatype-form.html',
+                    controller: 'SimpleFormCtrl',
+                    size: 'md',
+                    windowClass: 'modal fade in',
+                    resolve: {
+                        formData: _uoaType
+                    }
+                });
+                return _instance.result;
+            },
             inviteUser: function () {
                 return $uibModal.open({
-                    templateUrl: "views/modals/user-invite.html",
+                    templateUrl: 'views/modals/user-invite.html',
                     controller: 'UserInviteCtrl',
                     size: 'md',
                     windowClass: 'modal fade in'
@@ -26,7 +38,7 @@ angular.module('greyscaleApp')
             },
             editUserOrganization: function (_org) {
                 return $uibModal.open({
-                    templateUrl: "views/modals/user-organization-form.html",
+                    templateUrl: 'views/modals/user-organization-form.html',
                     controller: 'UserOrganizationFormCtrl',
                     size: 'md',
                     windowClass: 'modal fade in',
@@ -37,7 +49,7 @@ angular.module('greyscaleApp')
             },
             addRoleRight: function (_role) {
                 return $uibModal.open({
-                    templateUrl: "views/modals/role-right-form.html",
+                    templateUrl: 'views/modals/role-right-form.html',
                     controller: 'RoleRightFormCtrl',
                     size: 'md',
                     windowClass: 'modal fade in',
@@ -48,7 +60,7 @@ angular.module('greyscaleApp')
             },
             editRight: function (_right) {
                 return $uibModal.open({
-                    templateUrl: "views/modals/right-form.html",
+                    templateUrl: 'views/modals/right-form.html',
                     controller: 'SimpleFormCtrl',
                     size: 'md',
                     windowClass: 'modal fade in',
