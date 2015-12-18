@@ -18,9 +18,9 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
+    console.log(req.lang);
     co(function* (){
-      var langId = yield* detectLanguage(req);
-      return yield thunkQuery(getTranslateQuery(langId, Product));
+      return yield thunkQuery(getTranslateQuery(req.lang.id, Product));
     }).then(function(data){
       res.json(data);
     },function(err){
@@ -29,7 +29,7 @@ module.exports = {
   },
 
   selectOne: function (req, res, next) {
-    var q = getTranslateQuery(req, Product, Product.id.equals(req.params.id));
+    var q = getTranslateQuery(req.lang.id, Product, Product.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -55,7 +55,7 @@ module.exports = {
       if (!_.first(isExistMatrix)) {
           throw new HttpError(403, 'Matrix with this id does not exist');
       }
-    
+      req.body.originalLangId = req.lang.id;
       var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
 
       return result;

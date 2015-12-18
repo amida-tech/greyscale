@@ -4,7 +4,8 @@ var columns =  [
   'id', 
   'title', 
   'description', 
-  'matrixId'
+  'matrixId',
+  'originalLangId'
 ];
 
 var translate = [

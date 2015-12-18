@@ -110,6 +110,7 @@ exports.detectLanguage = function* (req){
     languages[result[i].code] = result[i];
   }
   acceptLanguage.languages(Object.keys(languages));
+
   var code = acceptLanguage.get(req.headers['accept-language']);
   var detectedLang = languages[code].id;
 

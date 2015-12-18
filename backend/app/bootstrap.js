@@ -41,11 +41,43 @@ app.on('start', function () {
 
   // Set headers for CORS
   app.use(function (req, res, next) {
+    req.lang = {id : 1};
     res.header('Access-Control-Allow-Origin', config.allowedDomains);
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Content-Length,Authorization,token');
     res.header('Access-Control-Expose-Headers', 'X-Total-Count');
     next();
+  });
+
+  app.all('*', function(req, res, next){
+    var 
+    acceptLanguage = require('accept-language');
+    Query = require('app/util').Query,
+    query = new Query(),
+    thunkify = require('thunkify'),
+    _ = require('underscore'),
+    Language = require('app/models/languages'),
+    thunkQuery = thunkify(query),
+    config = require('config');
+
+    if(req.headers['accept-language'] == 'null'){ // get 'null' if accept language not set
+      query(Language.select().from(Language).where(Language.id.equals(config.default_lang_id)), function(err, data) {
+        req.lang = _.first(data);
+        next();
+      });
+    }else{
+      var languages = {};
+      query(Language.select().from(Language), function(err, data) {
+        for (var i in data){
+          languages[data[i].code] = data[i];
+        }
+        acceptLanguage.languages(Object.keys(languages));
+        var code = acceptLanguage.get(req.headers['accept-language']);
+        req.lang = languages[code];
+        next();
+      });
+    }
+    
   });
 
   // Route requests to controllers/actions
@@ -60,6 +92,8 @@ app.on('start', function () {
       next(err);
     }
   });
+
+  
 
   // Setup error handlers
   app.use(function (err, req, res, next) {
