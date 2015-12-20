@@ -16,6 +16,18 @@ angular.module('greyscaleApp')
                     }
                 }).result;
             },
+            editUoa: function (_uoa) {
+                var _instance= $uibModal.open({
+                    templateUrl: 'views/modals/uoa-form.html',
+                    controller: 'SimpleFormCtrl',
+                    size: 'md',
+                    windowClass: 'modal fade in',
+                    resolve: {
+                        formData: _uoa
+                    }
+                });
+                return _instance.result;
+            },
             editUoaType: function (_uoaType) {
                 var _instance= $uibModal.open({
                     templateUrl: 'views/modals/uoatype-form.html',

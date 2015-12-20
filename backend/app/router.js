@@ -213,7 +213,20 @@ router.route('/v0.2/countries/:id')
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    Unit of Analysis
+//    Units of Analysis
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysis = require('app/controllers/uoas');
+
+router.route('/v0.2/uoas')
+    .get(authenticate('token').always, UnitOfAnalysis.select)
+    .post(authenticate('token').always, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insertOne);
+
+router.route('/v0.2/uoas/:id')
+    .put(authenticate('token').always, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis Types
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysisType = require('app/controllers/uoatypes');
 

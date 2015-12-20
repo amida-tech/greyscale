@@ -6,15 +6,15 @@
 </div>
 <div class="modal-body">
     <div class="row">
-        <div name="UoaTypeForm" class="form-horizontal" ng-form="UoaTypeForm">
+        <div name="UoaForm" class="form-horizontal" ng-form="UoaForm">
                 <div class="form-group">
                     <label for="name" class="col-sm-4 control-label">Name</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
                                ng-required="true" ng-minlength="1" focus="true">
-                        <div class="text-center" ng-messages="UoaTypeForm.name.$error" role="alert"
-                             ng-if="UoaTypeForm.name.$dirty">
-                            <span ng-message="required, minlength" class="help-block">Name of `Unit of Analysis Type` is required.</span>
+                        <div class="text-center" ng-messages="UoaForm.name.$error" role="alert"
+                             ng-if="UoaForm.name.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Name of `Unit of Analysis` is required.</span>
                         </div>
                     </div>
                 </div>
@@ -23,19 +23,19 @@
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="description" id="description" ng-model="model.description"
                                ng-required="false" ng-minlength="0" focus="true">
-                        <div class="text-center" ng-messages="UoaTypeForm.description.$error" role="alert"
-                             ng-if="UoaTypeForm.description.$dirty">
+                        <div class="text-center" ng-messages="UoaForm.description.$error" role="alert"
+                             ng-if="UoaForm.description.$dirty">
                             <span ng-message="required, minlength" class="help-block">Description of `Unit of Analysis Type` is required.</span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="name" class="col-sm-4 control-label">Short Name</label>
+                    <label for="name" class="col-sm-4 control-label">Language ID</label>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" name="langId" id="langId" ng-model="model.langId"
+                        <input type="text" class="form-control" name="shortName" id="shortName" ng-model="model.shortName"
                                ng-required="true" ng-minlength="1" focus="true">
-                        <div class="text-center" ng-messages="UoaTypeForm.langId.$error" role="alert"
-                             ng-if="UoaTypeForm.langId.$dirty">
+                        <div class="text-center" ng-messages="UoaForm.shortName.$error" role="alert"
+                             ng-if="UoaForm.shortName.$dirty">
                             <span ng-message="required, minlength" class="help-block">Language ID is required.</span>
                         </div>
                     </div>
@@ -45,5 +45,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()">Cancel</button>
-    <button class="btn btn-primary" ng-click="save()" ng-disabled="UoaTypeForm.$invalid || !UoaTypeForm.$dirty">Save</button>
+    <button class="btn btn-primary" ng-click="save()" ng-disabled="UoaForm.$invalid || !UoaForm.$dirty">Save</button>
 </div>

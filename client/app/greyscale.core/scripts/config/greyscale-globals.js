@@ -167,7 +167,136 @@ angular.module('greyscale.core')
                         }
                     ]
                 },
-                UnitOfAnalysisType: {
+                uoas: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true
+                        },
+                        {
+                            field: 'gadmId0',
+                            title: 'gadmId0',
+                            show: true,
+                            sortable: 'gadmId0'
+                        },
+                        {
+                            field: 'gadmId1',
+                            title: 'gadmId1',
+                            show: true,
+                            sortable: 'gadmId1'
+                        },
+                        {
+                            field: 'gadmId2',
+                            title: 'gadmId2',
+                            show: true,
+                            sortable: 'gadmId2'
+                        },
+                        {
+                            field: 'gadmId3',
+                            title: 'gadmId3',
+                            show: true,
+                            sortable: 'gadmId3'
+                        },
+                        {
+                            field: 'gadmObjectId',
+                            title: 'gadmObjectId',
+                            show: true,
+                            sortable: 'gadmObjectId'
+                        },
+                        {
+                            field: 'ISO',
+                            title: 'ISO',
+                            show: true,
+                            sortable: 'ISO'
+                        },
+                        {
+                            field: 'ISO2',
+                            title: 'ISO2',
+                            show: true,
+                            sortable: 'ISO2'
+                        },
+                        {
+                            field: 'nameISO',
+                            title: 'nameISO',
+                            show: true,
+                            sortable: 'nameISO'
+                        },
+                        {
+                            field: 'name',
+                            title: 'name',
+                            show: true,
+                            sortable: 'name'
+                        },
+                        {
+                            field: 'description',
+                            title: 'description',
+                            show: true,
+                            sortable: 'description'
+                        },
+                        {
+                            field: 'shortName',
+                            title: 'shortName',
+                            show: true,
+                            sortable: 'shortName'
+                        },
+                        {
+                            field: 'HASC',
+                            title: 'HASC',
+                            show: true,
+                            sortable: 'HASC'
+                        },
+                        {
+                            field: 'unitOfAnalysisType',
+                            title: 'unitOfAnalysisType',
+                            show: true,
+                            sortable: 'unitOfAnalysisType'
+                        },
+                        {
+                            field: 'parentId',
+                            title: 'parentId',
+                            show: true,
+                            sortable: 'parentId'
+                        },
+                        {
+                            field: 'creatorId',
+                            title: 'creatorId',
+                            show: true,
+                            sortable: 'creatorId'
+                        },
+                        {
+                            field: 'ownerId',
+                            title: 'ownerId',
+                            show: true,
+                            sortable: 'ownerId'
+                        },
+                        {
+                            field: 'visibility',
+                            title: 'visibility',
+                            show: true,
+                            sortable: 'visibility'
+                        },
+                        {
+                            field: 'status',
+                            title: 'status',
+                            show: true,
+                            sortable: 'status'
+                        },
+                        {
+                            field: 'createTime',
+                            title: 'createTime',
+                            show: true,
+                            sortable: 'createTime'
+                        },
+                        {
+                            field: 'deleteTime',
+                            title: 'deleteTime',
+                            show: true,
+                            sortable: 'deleteTime'
+                        }
+                    ]
+                },
+                uoaTypes: {
                     cols: [
                         {
                             field: 'id',
@@ -191,6 +320,33 @@ angular.module('greyscale.core')
                             title: 'Language ID',
                             show: true,
                             sortable: 'langId'
+                        }
+                    ]
+                },
+                languages: {
+                    cols: [
+                        {
+                            field: 'id',
+                            title: 'ID',
+                            show: true
+                        },
+                        {
+                            field: 'name',
+                            title: 'Name',
+                            show: true,
+                            sortable: 'name'
+                        },
+                        {
+                            field: 'nativeName',
+                            title: 'Native name',
+                            show: true,
+                            sortable: 'nativeName'
+                        },
+                        {
+                            field: 'code',
+                            title: 'Code',
+                            show: true,
+                            sortable: 'code'
                         }
                     ]
                 }
