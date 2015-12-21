@@ -73,7 +73,7 @@ angular.module('greyscaleApp')
                             return greyscaleRightSrv.add(_right);
                         }
                     })
-                    .then(_reloadRights)
+                    .then(_reloadRights);
             })
                 .catch(function (err) {
                     $log.debug(err);
@@ -140,7 +140,7 @@ angular.module('greyscaleApp')
                                         .then(function (right) {
                                             return greyscaleRoleSrv.addRight($scope.model.roles.current.id, right.id);
                                         })
-                                        .then(_reloadRoleRights)
+                                        .then(_reloadRoleRights);
                                 })
                                 .catch(function (err) {
                                     if (err && err.data) {
