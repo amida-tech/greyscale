@@ -4,7 +4,7 @@
             <strong><span class="glyphicon glyphicon-th"></span> Invite new client</strong>
         </div>
         <div class="panel-body">
-            <div name="registerForm" class="form-horizontal" ng-form="registerForm">
+            <div name="dataForm" class="form-horizontal" ng-form="dataForm">
                 <div class="form-group">
                     <label for="email" class="col-sm-4 control-label">E-m@il</label>
 
@@ -12,8 +12,8 @@
                         <input type="text" class="form-control" name="email" id="email" ng-model="model.email"
                                ng-required="true" ng-minlength="1" focus="true">
 
-                        <div class="text-center" ng-messages="registerForm.email.$error" role="alert"
-                             ng-if="registerForm.email.$dirty">
+                        <div class="text-center" ng-messages="dataForm.email.$error" role="alert"
+                             ng-if="dataForm.email.$dirty">
                             <span ng-message="required, minlength" class="help-block">e-mail is required.</span>
                         </div>
                     </div>
@@ -25,8 +25,8 @@
                         <input type="text" class="form-control" name="name" id="name" ng-model="model.firstName"
                                ng-required="true" ng-minlength="1">
 
-                        <div class="text-center" ng-messages="registerForm.name.$error" role="alert"
-                             ng-if="registerForm.name.$dirty">
+                        <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
+                             ng-if="dataForm.name.$dirty">
                             <span ng-message="requred, minlength" class="help-block">Please input your name.</span>
                         </div>
                     </div>
@@ -38,8 +38,8 @@
                         <input type="text" class="form-control" name="last_name" id="last_name" ng-model="model.lastName"
                                ng-required="true" ng-minlength="1">
 
-                        <div class="text-center" ng-messages="registerForm.name.$error" role="alert"
-                             ng-if="registerForm.name.$dirty">
+                        <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
+                             ng-if="dataForm.name.$dirty">
                             <span ng-message="requred, minlength" class="help-block">Please input your name.</span>
                         </div>
                     </div>
@@ -53,7 +53,7 @@
                     <div class="col-sm-2">
                         <button id="main-login-btn" type="submit" class="btn btn-primary pull-right"
                                 ng-click="invite()"
-                                ng-disabled="registerForm.$invalid">Invite
+                                ng-disabled="dataForm.$invalid">Invite
                         </button>
                     </div>
                 </div>

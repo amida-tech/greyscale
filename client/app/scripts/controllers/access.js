@@ -4,52 +4,41 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('AccessCtrl', function ($scope, NgTableParams, $filter, inform, greyscaleProfileSrv, greyscaleRoleSrv,
-                                        greyscaleUserSrv, greyscaleGlobals, greyscaleModalsSrv, greyscaleRightSrv, _) {
+    .controller('AccessCtrl', function ($scope, _, $log, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
+                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntryTypeSrv) {
+
+        var _getEntryTypes = function () {
+            return greyscaleEntryTypeSrv.list();
+        };
+
+        var _decodeEntryTypes = function (data) {
+            return _getEntryTypes().then(function (entryTypes) {
+                for (var q = 0; q < data.length; q++) {
+                    data[q].entryType = _.get(_.find(entryTypes, {id: data[q].essenceId}), 'name');
+                }
+                return data;
+            });
+        };
+
         var _getRoleRigths = function () {
-            return greyscaleRoleSrv.listRights($scope.model.roles.current.id);
+            if ($scope.model.roles.current) {
+                return greyscaleRoleSrv.listRights($scope.model.roles.current.id)
+                    .then(_decodeEntryTypes);
+            } else {
+                return $q.reject('no data');
+            }
         };
 
         var _getRoles = function () {
-            return greyscaleProfileSrv.getProfile().then(greyscaleRoleSrv.list);
+            return greyscaleRoleSrv.list();
         };
 
-        var _getUsers = function () {
-            return _getRoles().then(function (roles) {
-                return greyscaleUserSrv.list().then(function (users) {
-                    for (var l = 0; l < users.length; l++) {
-                        users[l].roleID = _.get(_.find(roles, {id: users[l].roleID}), 'name');
-                    }
-                    return users;
-                });
-            });
+        var _reloadRoleRights = function () {
+            $scope.model.roleRights.tableParams.reload();
         };
 
-        var _proceedData = function (data, $defer, params) {
-            params.total(data.length);
-            var orderedData = params.sorting() ?
-                $filter('orderBy')(data, params.orderBy()) : data;
-            $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-        };
+        var _roleRights = angular.copy(greyscaleGlobals.tables.rights.cols);
 
-        var _roleRightsTableParams = new NgTableParams(
-            {
-                page: 1,
-                count: 5,
-                sorting: {id: 'asc'}
-            },
-            {
-                counts: [],
-                getData: function ($defer, params) {
-                    if ($scope.model.roles.current) {
-                        _getRoleRigths($scope.model.roles.current.id).then(function (roleRights) {
-                            _proceedData(roleRights, $defer, params);
-                        });
-                    }
-                }
-            });
-
-        var _roleRights = angular.copy(greyscaleGlobals.tables.roleRights.cols);
         _roleRights.push({
             field: '',
             title: '',
@@ -61,9 +50,7 @@ angular.module('greyscaleApp')
                     class: 'danger',
                     handler: function (roleRight) {
                         greyscaleRoleSrv.delRight($scope.model.roles.current.id, roleRight.id)
-                            .then(function () {
-                                _roleRightsTableParams.reload();
-                            })
+                            .then(_reloadRoleRights)
                             .catch(function (err) {
                                 inform.add('Role right delete error: ' + err);
                             });
@@ -73,20 +60,23 @@ angular.module('greyscaleApp')
         });
 
         var _getRights = function () {
-            return greyscaleRightSrv.list();
+            return greyscaleRightSrv.list().then(_decodeEntryTypes);
         };
 
         var _edtRight = function (_right) {
-            greyscaleModalsSrv.editRight(_right) //
-                .then(function (_right) {
-                    if (_right.id) {
-                        return greyscaleRightSrv.update(_right);
-                    } else {
-                        return greyscaleRightSrv.add(_right);
-                    }
-                })
-                .then(_reloadRights)
+            _getEntryTypes().then(function (entryTypes) {
+                return greyscaleModalsSrv.editRight(_right, {entryTypes: entryTypes})
+                    .then(function (_right) {
+                        if (_right.id) {
+                            return greyscaleRightSrv.update(_right);
+                        } else {
+                            return greyscaleRightSrv.add(_right);
+                        }
+                    })
+                    .then(_reloadRights)
+            })
                 .catch(function (err) {
+                    $log.debug(err);
                     if (err) {
                         inform.add('Role right update error: ' + err);
                     }
@@ -97,7 +87,7 @@ angular.module('greyscaleApp')
             $scope.model.rights.tableParams.reload();
         };
 
-        var _rights = angular.copy(greyscaleGlobals.tables.roleRights.cols);
+        var _rights = angular.copy(greyscaleGlobals.tables.rights.cols);
         _rights.push({
             field: '',
             title: '',
@@ -132,40 +122,32 @@ angular.module('greyscaleApp')
                 sorting: {'id': 'asc'},
                 dataPromise: _getRoles
             },
-            users: {
-                editable: true,
-                title: 'Users',
-                icon: 'fa-users',
-                cols: greyscaleGlobals.tables.users.cols,
-                dataPromise: _getUsers,
-                add: {
-                    title: 'Invite',
-                    handler: greyscaleModalsSrv.inviteUser
-                }
-
-            },
             roleRights: {
                 title: 'Role Rights',
                 icon: 'fa-tasks',
                 cols: _roleRights,
                 dataPromise: _getRoleRigths,
-                tableParams: _roleRightsTableParams,
                 add: {
                     title: 'add',
                     handler: function () {
                         if ($scope.model.roles.current) {
-                            greyscaleModalsSrv.addRoleRight($scope.model.roles.current)
-                                .then(function (rightId) {
-                                    return greyscaleRoleSrv.addRight($scope.model.roles.current.id, rightId);
-                                })
-                                .then(function() {
-                                    _roleRightsTableParams.reload();
+                            _getRights()
+                                .then(function (rights) {
+                                    return greyscaleModalsSrv.addRoleRight({right: null}, {
+                                        rights: rights,
+                                        role: $scope.model.roles.current
+                                    })
+                                        .then(function (right) {
+                                            return greyscaleRoleSrv.addRight($scope.model.roles.current.id, right.id);
+                                        })
+                                        .then(_reloadRoleRights)
                                 })
                                 .catch(function (err) {
                                     if (err && err.data) {
                                         inform.add(err.data.message);
                                     }
                                 });
+
                         }
                     }
                 }
@@ -184,7 +166,7 @@ angular.module('greyscaleApp')
 
         $scope.selectRole = function (role) {
             if (typeof role !== 'undefined') {
-                _roleRightsTableParams.reload();
+                _reloadRoleRights();
             }
             return $scope.model.roles.current;
         };

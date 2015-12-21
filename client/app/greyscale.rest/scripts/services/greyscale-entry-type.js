@@ -3,15 +3,22 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .service('greyscaleEntryTypeSrv', function (greysaleRestSrv) {
+    .service('greyscaleEntryTypeSrv', function (greyscaleRestSrv) {
 
         var _api = function () {
-            return greysaleRestSrv().one('essences');
+            return greyscaleRestSrv().one('essences');
+        };
+
+        var _list = function() {
+            return _api().get();
+        };
+
+        var _add = function(data) {
+            return _api().customPOST(data);
         };
 
         return {
-            list: function () {
-                return _api().get();
-            }
+            list: _list,
+            add: _add
         };
     });

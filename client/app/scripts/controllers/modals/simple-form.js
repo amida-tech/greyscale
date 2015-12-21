@@ -3,8 +3,12 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('SimpleFormCtrl', function ($scope, $uibModalInstance, formData) {
+    .controller('SimpleFormCtrl', function ($scope, $uibModalInstance, formData, extData) {
         $scope.model = angular.copy(formData);
+
+        if (extData) {
+            $scope.view = angular.copy(extData);
+        }
 
         $scope.close = function () {
             $uibModalInstance.dismiss();

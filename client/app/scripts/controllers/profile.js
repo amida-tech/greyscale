@@ -37,7 +37,22 @@ angular.module('greyscaleApp')
         };
 
         $scope.editOrg = function () {
-            greyscaleModalsSrv.editUserOrganization($scope.org);
+            greyscaleModalsSrv.editUserOrganization($scope.org)
+                .then(function (_org) {
+                    if (typeof _org.isActive === 'undefined') {
+                        _org.isActive = true;
+                    }
+                    return greyscaleUserSrv.saveOrganization(_org)
+                        .then(function(resp){
+                            $scope.org = _org;
+                            return resp;
+                        });
+                })
+                .catch(function (err) {
+                    if (err && err.data) {
+                        inform.add(err.data.message);
+                    }
+                });
         };
     });
 
