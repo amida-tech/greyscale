@@ -3,11 +3,15 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-.service('greyscaleEntryTypeSrv',function(greysaleRestSrv){
+    .service('greyscaleEntryTypeSrv', function (greysaleRestSrv) {
+
+        var _api = function () {
+            return greysaleRestSrv().one('essences');
+        };
 
         return {
-            list: function(){
-                return greysaleRestSrv.one('essences')
+            list: function () {
+                return _api().get();
             }
         };
     });

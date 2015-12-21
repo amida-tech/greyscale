@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoa(uoa) {
-            return _api().one(uoa.id+'').remove(uoa);
+            return _api().one(uoa.id+'').remove();
         }
 
         var _updateUoa = function(uoa) {

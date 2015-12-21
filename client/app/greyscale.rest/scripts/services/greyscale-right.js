@@ -5,28 +5,28 @@
 
 angular.module('greyscale.rest')
 .service('greyscaleRightSrv', function(greyscaleRestSrv){
-        var _rights = function () {
+        var _api = function () {
             return greyscaleRestSrv().one('rights');
         };
 
         var _listRigths = function () {
-            return _rights().get();
+            return _api().get();
         };
 
         var _addRight = function(body) {
-            return _rights().customPOST(body);
+            return _api().customPOST(body);
         };
 
         var _getOne = function (id) {
-            return _rights().one(id+'').get();
+            return _api().one(id+'').get();
         };
 
         var _update = function(body) {
-            return _rights().one(body.id+'').customPUT(body);
+            return _api().one(body.id+'').customPUT(body);
         };
 
         var _delete = function(id) {
-            return _rights().one(id + '').remove().then(function (){return true;});
+            return _api().one(id + '').remove();
         };
 
         return {

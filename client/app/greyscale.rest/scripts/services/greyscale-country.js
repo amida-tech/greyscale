@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _deleteCountry(country) {
-            return _api().one(country.id+'').remove(country);
+            return _api().one(country.id+'').remove();
         }
 
         var _updateCountry = function(country) {

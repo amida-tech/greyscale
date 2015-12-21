@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoaType(uoaType) {
-            return _api().one(uoaType.id+'').remove(uoaType);
+            return _api().one(uoaType.id+'').remove();
         }
 
         var _updateUoaType = function(uoaType) {

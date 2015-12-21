@@ -22,27 +22,9 @@ angular.module('greyscaleApp')
 
         // <editor-fold desc="Country">
         var _colsCountry = angular.copy(greyscaleGlobals.tables.countries.cols);
-
-        var _tableParamsCountry = new NgTableParams(
-            {
-                page: 1,
-                count: 2,
-                sorting: {id: 'asc'}
-            },
-            {
-                counts: [],
-                getData: function ($defer, params) {
-                    greyscaleCountrySrv.list().then(function (list) {
-                        params.total(list.length);
-                        var orderedData = params.sorting() ? $filter('orderBy')(list, params.orderBy()) : list;
-                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                    });
-                }
-            });
-
+        var _countryPromise = greyscaleCountrySrv.list;
         var _updateTableCountry = function () {
-            _tableParamsCountry.reload();
-            return true;
+            $scope.model.countries.tableParams.reload();
         };
 
         var _updateCountry = function(_country) {
@@ -78,9 +60,7 @@ angular.module('greyscaleApp')
                     class: 'danger',
                     handler: function (country) {
                         greyscaleCountrySrv.delete(country)
-                            .then(function(){
-                                _updateTableCountry(true);
-                            })
+                            .then(_updateTableCountry)
                             .catch(function (err) {
                                 inform.add('country delete error: ' + err);
                             });
@@ -94,8 +74,7 @@ angular.module('greyscaleApp')
         var _colsUoa = angular.copy(greyscaleGlobals.tables.uoas.cols);
 
         var _updateTableUoa = function () {
-            _tableParamsUoa.reload();
-            return true;
+            $scope.model.uoas.tableParams.reload();
         };
 
         var _updateUoa = function(_uoa) {
@@ -115,22 +94,7 @@ angular.module('greyscaleApp')
                 });
         };
 
-        var _tableParamsUoa = new NgTableParams(
-            {
-                page: 1,
-                count: 5,
-                sorting: {id: 'asc'}
-            },
-            {
-                counts: [],
-                getData: function ($defer, params) {
-                    greyscaleUoaSrv.list().then(function (list) {
-                        params.total(list.length);
-                        var orderedData = params.sorting() ? $filter('orderBy')(list, params.orderBy()) : list;
-                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                    });
-                }
-            });
+        var _uoaPromise = greyscaleUoaSrv.list;
 
         _colsUoa.push({
             field: '',
@@ -148,9 +112,7 @@ angular.module('greyscaleApp')
                     class: 'danger',
                     handler: function (UnitOfAnalysis) {
                         greyscaleUoaSrv.delete(UnitOfAnalysis)
-                            .then(function(){
-                                _updateTableUoa(true);
-                            })
+                            .then(_updateTableUoa)
                             .catch(function (err) {
                                 inform.add('Unit Of Analysis delete error: ' + err);
                             });
@@ -164,8 +126,7 @@ angular.module('greyscaleApp')
         var _colsUoaType = angular.copy(greyscaleGlobals.tables.uoaTypes.cols);
 
         var _updateTableUoaType = function () {
-            _tableParamsUoaType.reload();
-            return true;
+            $scope.model.uoaTypes.tableParams.reload();
         };
 
         var _updateUoaType = function(_uoaType) {
@@ -185,22 +146,7 @@ angular.module('greyscaleApp')
                 });
         };
 
-        var _tableParamsUoaType = new NgTableParams(
-            {
-                page: 1,
-                count: 5,
-                sorting: {id: 'asc'}
-            },
-            {
-                counts: [],
-                getData: function ($defer, params) {
-                    greyscaleUoaTypeSrv.list().then(function (list) {
-                        params.total(list.length);
-                        var orderedData = params.sorting() ? $filter('orderBy')(list, params.orderBy()) : list;
-                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                    });
-                }
-            });
+        var _uoaTypePromise = greyscaleUoaTypeSrv.list;
 
         _colsUoaType.push({
             field: '',
@@ -218,9 +164,7 @@ angular.module('greyscaleApp')
                     class: 'danger',
                     handler: function (UnitOfAnalysisType) {
                         greyscaleUoaTypeSrv.delete(UnitOfAnalysisType)
-                            .then(function(){
-                                _updateTableUoaType(true);
-                            })
+                            .then(_updateTableUoaType)
                             .catch(function (err) {
                                 inform.add('UnitOfAnalysisType delete error: ' + err);
                             });
@@ -232,23 +176,8 @@ angular.module('greyscaleApp')
 
         // <editor-fold desc="Language">
         var _colsLanguage = angular.copy(greyscaleGlobals.tables.languages.cols);
+        var _langPromise = greyscaleLanguageSrv.list;
 
-        var _tableParamsLanguage = new NgTableParams(
-            {
-                page: 1,
-                count: 5,
-                sorting: {id: 'asc'}
-            },
-            {
-                counts: [],
-                getData: function ($defer, params) {
-                    greyscaleLanguageSrv.list().then(function (list) {
-                        params.total(list.length);
-                        var orderedData = params.sorting() ? $filter('orderBy')(list, params.orderBy()) : list;
-                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                    });
-                }
-            });
         // </editor-fold desc="Language">
 
         $scope.model = {
@@ -257,7 +186,7 @@ angular.module('greyscaleApp')
                 title: 'Countries',
                 icon: 'fa-table',
                 cols: _colsCountry,
-                tableParams: _tableParamsCountry,
+                dataPromise: _countryPromise,
                 add: {
                     title: 'Add',
                     handler: _updateCountry
@@ -268,7 +197,7 @@ angular.module('greyscaleApp')
                 title: 'Unit of Analysis',
                 icon: 'fa-table',
                 cols: _colsUoa,
-                tableParams: _tableParamsUoa,
+                dataPromise: _uoaPromise,
                 add: {
                     title: 'Add',
                     handler: _updateUoa
@@ -279,7 +208,7 @@ angular.module('greyscaleApp')
                 title: 'Unit of Analysis Types',
                 icon: 'fa-table',
                 cols: _colsUoaType,
-                tableParams: _tableParamsUoaType,
+                dataPromise: _uoaTypePromise,
                 add: {
                     title: 'Add',
                     handler: _updateUoaType
@@ -290,7 +219,7 @@ angular.module('greyscaleApp')
                 title: 'Languages',
                 icon: 'fa-table',
                 cols: _colsLanguage,
-                tableParams: _tableParamsLanguage
+                dataPromise: _langPromise
             }
         };
     });

@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _deleteLanguage(language) {
-            return _api().one(language.id+'').remove(language);
+            return _api().one(language.id+'').remove();
         }
 
         var _updateLanguage = function(language) {
