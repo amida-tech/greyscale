@@ -55,6 +55,17 @@ router.route('/v0.2/essences')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.select)
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
 
+
+//----------------------------------------------------------------------------------------------------------------------
+//    PROJECTS
+//----------------------------------------------------------------------------------------------------------------------
+var projects = require('app/controllers/projects');
+
+router.route('/v0.2/essences')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select);
+  //.post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------

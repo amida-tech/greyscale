@@ -61,7 +61,7 @@ app.on('start', function () {
     config = require('config');
 
     if(req.headers['accept-language'] == 'null'){ // get 'null' if accept language not set
-      query(Language.select().from(Language).where(Language.id.equals(config.default_lang_id)), function(err, data) {
+      query(Language.select().from(Language).where(Language.code.equals(config.default_lang)), function(err, data) {
         req.lang = _.first(data);
         next();
       });
