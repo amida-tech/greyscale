@@ -18,3 +18,12 @@
         padding-top: 4px;
     }
 }
+
+.widget-table {
+    tr.selected {
+        @extend .bg-info;
+    }
+    tr.selected:hover {
+        background-color: #C2D6E0;
+    }
+}

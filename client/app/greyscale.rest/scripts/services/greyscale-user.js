@@ -3,12 +3,22 @@
  */
 'use strict';
 
-angular.module('greyscale.core')
-    .factory('greyscaleAccessSrv', function (greyscaleRestSrv, Restangular) {
+angular.module('greyscale.rest')
+    .factory('greyscaleUserSrv', function (greyscaleRestSrv, Restangular) {
 
-        var _listRoles = function () {
-            return greyscaleRestSrv().one('roles').get();
+        var _organization = function() {
+            return greyscaleRestSrv()
+                .one('users','self')
+                .one('organization');
         };
+
+        function _getOrg() {
+            return _organization().get();
+        }
+
+        function _saveOrg(data) {
+            return _organization().customPUT(data);
+        }
 
         function _self() {
             return greyscaleRestSrv().one('users', 'self').get()
@@ -38,14 +48,14 @@ angular.module('greyscale.core')
             return greyscaleRestSrv().one('users').one('invite').customPOST(user_data);
         };
 
-
         return {
-            user: _self,
-            roles: _listRoles,
-            users: _listUsers,
-            activateUser: _activate,
-            registerUser: _register,
+            get: _self,
+            list: _listUsers,
+            register: _register,
             invite: _inviteUser,
-            checkActivationToken: _checkActivationToken
+            activate: _activate,
+            checkActivationToken: _checkActivationToken,
+            getOrganization: _getOrg,
+            saveOrganization: _saveOrg
         };
     });

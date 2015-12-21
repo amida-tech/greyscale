@@ -3,12 +3,12 @@
  */
 "use strict";
 
-angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleProfileSrv) {
+angular.module('greyscale.rest')
+    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv) {
         return function (headers) {
             return Restangular.withConfig(function (RestangularConfigurer) {
                 headers = headers || {};
-                var token = greyscaleProfileSrv.token();
+                var token = greyscaleTokenSrv();
                 if (token) {
                     angular.extend(headers, {token: token});
                 }
