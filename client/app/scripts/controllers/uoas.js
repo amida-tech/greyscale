@@ -20,6 +20,18 @@ angular.module('greyscaleApp')
                                       greyscaleLanguageSrv,
                                       greyscaleGlobals) {
 
+        // <editor-fold desc="Constants">
+        var visibility = [
+            {id: 1, name: 'public'},
+            {id: 2, name: 'private'}
+        ];
+        var status = [
+            {id: 1, name: 'active'},
+            {id: 2, name: 'inactive'},
+            {id: 3, name: 'deleted'}
+        ];
+        // </editor-fold desc="Constants">
+
         // <editor-fold desc="Country">
         var _colsCountry = angular.copy(greyscaleGlobals.tables.countries.cols);
         var _countryPromise = greyscaleCountrySrv.list;
@@ -76,10 +88,31 @@ angular.module('greyscaleApp')
         var _updateTableUoa = function () {
             $scope.model.uoas.tableParams.reload();
         };
+        var _getUoa = function (_uoa) {
+            return greyscaleUoaSrv.get(_uoa);
+        };
 
         var _updateUoa = function(_uoa) {
-            greyscaleModalsSrv.editUoa(_uoa)
+            var uoaTypes;
+            var languages;
+            return _getLanguages()
+                .then(function(res){
+                    languages = res;
+                    return _getUoaTypes();
+                })
+                .then(function(res){
+                    uoaTypes = res;
+                    if (_uoa) return _getUoa(_uoa);
+                    else return _uoa;
+                })
+                .then(function (uoa) {
+                    return greyscaleModalsSrv.editUoa(uoa, {languages: languages, uoaTypes: uoaTypes, visibility: visibility, status: status})
+                })
                 .then(function(uoa){
+                    delete uoa.langCode;
+                    delete uoa.typeName;
+                    delete uoa.visibilityName;
+                    delete uoa.statusName;
                     if (_uoa && uoa.id) {
                         return greyscaleUoaSrv.update(uoa);
                     } else {
@@ -87,14 +120,26 @@ angular.module('greyscaleApp')
                     }
                 })
                 .then(_updateTableUoa)
-                .catch(function(err){
+                .catch(function (err) {
+                    $log.debug(err);
                     if (err) {
-                        inform.add(err, {type: 'danger'});
+                        inform.add('_updateUoa error: ' + err);
                     }
                 });
         };
 
-        var _uoaPromise = greyscaleUoaSrv.list;
+        var _uoaPromise = function () {
+            return _getUoaTypes().then(function (uoaTypes) {
+                return greyscaleUoaSrv.list().then(function (uoas) {
+                    for (var l = 0; l < uoas.length; l++) {
+                        uoas[l].typeName = _.get(_.find(uoaTypes, {id: uoas[l].unitOfAnalysisType}), 'name');
+                        uoas[l].visibilityName = _.get(_.find(visibility, {id: uoas[l].visibility}), 'name');
+                        uoas[l].statusName = _.get(_.find(status, {id: uoas[l].status}), 'name');
+                    }
+                    return uoas;
+                });
+            });
+        };
 
         _colsUoa.push({
             field: '',
@@ -140,6 +185,9 @@ angular.module('greyscaleApp')
 
         var _getUoaType = function (_uoaType) {
             return greyscaleUoaTypeSrv.get(_uoaType);
+        };
+        var _getUoaTypes = function () {
+            return greyscaleUoaTypeSrv.list();
         };
 
         var _updateUoaType = function (_uoaType) {

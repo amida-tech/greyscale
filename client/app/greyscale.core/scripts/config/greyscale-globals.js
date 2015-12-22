@@ -151,6 +151,7 @@ angular.module('greyscale.core')
                             title: 'ID',
                             show: true
                         },
+/*
                         {
                             field: 'gadmId0',
                             title: 'gadmId0',
@@ -199,36 +200,48 @@ angular.module('greyscale.core')
                             show: true,
                             sortable: 'nameISO'
                         },
+*/
                         {
                             field: 'name',
-                            title: 'name',
+                            title: 'Name',
                             show: true,
                             sortable: 'name'
                         },
                         {
                             field: 'description',
-                            title: 'description',
+                            title: 'Description',
                             show: true,
                             sortable: 'description'
                         },
                         {
                             field: 'shortName',
-                            title: 'shortName',
+                            title: 'Short Name',
                             show: true,
                             sortable: 'shortName'
                         },
+/*
                         {
                             field: 'HASC',
                             title: 'HASC',
                             show: true,
                             sortable: 'HASC'
                         },
+*/
+/*
                         {
                             field: 'unitOfAnalysisType',
-                            title: 'unitOfAnalysisType',
+                            title: 'Type',
                             show: true,
                             sortable: 'unitOfAnalysisType'
                         },
+*/
+                        {
+                            field: 'typeName',
+                            title: 'Type',
+                            show: true,
+                            sortable: 'typeName'
+                        },
+/*
                         {
                             field: 'parentId',
                             title: 'parentId',
@@ -247,29 +260,48 @@ angular.module('greyscale.core')
                             show: true,
                             sortable: 'ownerId'
                         },
+*/
+/*
                         {
                             field: 'visibility',
-                            title: 'visibility',
+                            title: 'Visibility',
                             show: true,
                             sortable: 'visibility'
                         },
+*/
+                        {
+                            field: 'visibilityName',
+                            title: 'Visibility',
+                            show: true,
+                            sortable: 'visibilityName'
+                        },
+/*
                         {
                             field: 'status',
-                            title: 'status',
+                            title: 'Status',
                             show: true,
                             sortable: 'status'
                         },
+*/
+                        {
+                            field: 'statusName',
+                            title: 'Status',
+                            show: true,
+                            sortable: 'statusName'
+                        },
                         {
                             field: 'createTime',
-                            title: 'createTime',
+                            title: 'Created',
                             show: true,
                             sortable: 'createTime'
+/*
                         },
                         {
                             field: 'deleteTime',
                             title: 'deleteTime',
                             show: true,
                             sortable: 'deleteTime'
+*/
                         }
                     ]
                 },

@@ -247,6 +247,7 @@ router.route('/v0.2/uoas')
     .post(authenticate('token').always, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insertOne);
 
 router.route('/v0.2/uoas/:id')
+    .get(authenticate('token').always, UnitOfAnalysis.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
 

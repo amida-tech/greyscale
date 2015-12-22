@@ -17,7 +17,7 @@ var client = require('app/db_bootstrap'),
 
 module.exports = {
 
-    select: function (req, res, next) {
+    selectOrigLanguage: function (req, res, next) {
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var uoa = thunkQuery(UnitOfAnalysis.select(), req.query);
@@ -30,7 +30,7 @@ module.exports = {
         });
     },
 
-    selectTranslated: function (req, res, next) {
+    select: function (req, res, next) {
         co(function* (){
             var langId = yield* detectLanguage(req);
             return yield thunkQuery(getTranslateQuery(langId, UnitOfAnalysis));
@@ -42,17 +42,20 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var q = getTranslateQuery(req, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* (){
+            return yield thunkQuery(getTranslateQuery(req.params.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+        }).then(function(data){
             res.json(_.first(data));
-        });
+        },function(err){
+            next(err);
+        })
     },
 
     insertOne: function (req, res, next) {
         co(function* () {
+            req.body.creatorId = req.user.id;
+            req.body.ownerId = req.user.id;
+            req.body.createTime = new Date();
             return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -63,6 +66,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* (){
+            delete req.body.createTime;
             return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.body.id)));
         }).then(function(){
             res.status(202).end();
