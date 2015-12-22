@@ -9,7 +9,11 @@ angular.module('greyscale.core')
         return function (val) {
             if (typeof val !== 'undefined') {
                 _token = val;
-                $cookieStore.put('token', val);
+                if (val) {
+                    $cookieStore.put('token', val);
+                } else {
+                    $cookieStore.remove('token');
+                }
             } else {
                 if (!_token) {
                     _token = $cookieStore.get('token');

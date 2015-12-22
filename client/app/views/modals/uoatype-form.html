@@ -33,7 +33,7 @@
                     <label for="origLang" class="col-sm-4 control-label">Original language:</label>
 
                     <div class="col-sm-8">
-                        <select ng-disabled="model.langId" class="form-control"
+                        <select ng-disabled="model.id" class="form-control"
                             id="origLang" name="origName"
                             ng-options="item.id as item.code for item in view.languages"
                             ng-model="model.langId"

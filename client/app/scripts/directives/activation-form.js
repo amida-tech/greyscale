@@ -4,12 +4,12 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('activateForm', function ($state, greyscaleAuthSrv, $log, inform) {
+    .directive('activateForm', function ($state, greyscaleUserSrv, $log, inform) {
         return {
             templateUrl: 'views/directives/activation-form.html',
             restrict: 'AE',
             scope: {
-                model : '=activateForm'
+                model: '=activateForm'
             },
             link: function (scope, elem, attr) {
                 scope.activate = function () {
@@ -20,14 +20,17 @@ angular.module('greyscaleApp')
                         "firstName": scope.model.firstName,
                         "lastName": scope.model.lastName
                     };
-                    greyscaleAuthSrv.activate(scope.model.activationToken, data).then(function(resp){
-                        greyscaleAuthSrv.login(scope.model.email, scope.model.password)
-                        .then(function(){
+                    greyscaleUserSrv.activate(scope.model.activationToken, data)
+                        .then(function (resp) {
+                            return greyscaleUserSrv.login(scope.model.email, scope.model.password);
+                        })
+                        .then(function () {
                             $state.go('main.profile');
+
+                        })
+                        .catch(function (err) {
+                            inform.add(err.data.message, {type: 'danger'});
                         });
-                    },function(err){
-                        inform.add(err.data.message, {type:'danger'});
-                    });
                 };
             }
         };

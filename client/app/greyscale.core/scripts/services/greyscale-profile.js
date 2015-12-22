@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv) {
+    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log) {
         var _profile = null;
         var _profilePromise = null;
 
@@ -34,10 +34,33 @@ angular.module('greyscale.core')
             return res;
         };
 
+        //todo: re-factor method isAdmin
+        this.getAccessLevel = function () {
+            return this.getProfile()
+                .then(function (profileData) {
+                    var res = 0x7ffe; //any logged in user
+                    switch (profileData.roleID) {
+                        case 1:
+                            res = 0x8000; //admin user
+                            break;
+                    }
+                    return res; //while no other way
+                })
+                .catch(function (err) {
+                    $log.debug('getAccessLevel says:', err);
+                    return 1;
+                });
+        };
+
+        this.login = function () {
+            return this.getProfile(true);
+        };
+
         this.logout = function () {
-            greyscaleTokenSrv(null);
-            $cookieStore.remove('token');
-            $rootScope.$emit('logout');
-            return this;
+            return greyscaleUserSrv.logout().finally(function(){
+                greyscaleTokenSrv(null);
+                _profile = null;
+                _profilePromise = null;
+            });
         };
     });

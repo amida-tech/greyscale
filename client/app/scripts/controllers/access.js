@@ -5,16 +5,16 @@
 
 angular.module('greyscaleApp')
     .controller('AccessCtrl', function ($scope, _, $log, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
-                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntryTypeSrv) {
+                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv) {
 
-        var _getEntryTypes = function () {
-            return greyscaleEntryTypeSrv.list();
+        var _getEntityTypes = function () {
+            return greyscaleEntityTypeSrv.list();
         };
 
-        var _decodeEntryTypes = function (data) {
-            return _getEntryTypes().then(function (entryTypes) {
+        var _decodeEntityTypes = function (data) {
+            return _getEntityTypes().then(function (entityTypes) {
                 for (var q = 0; q < data.length; q++) {
-                    data[q].entryType = _.get(_.find(entryTypes, {id: data[q].essenceId}), 'name');
+                    data[q].entityType = _.get(_.find(entityTypes, {id: data[q].essenceId}), 'name');
                 }
                 return data;
             });
@@ -23,7 +23,7 @@ angular.module('greyscaleApp')
         var _getRoleRigths = function () {
             if ($scope.model.roles.current) {
                 return greyscaleRoleSrv.listRights($scope.model.roles.current.id)
-                    .then(_decodeEntryTypes);
+                    .then(_decodeEntityTypes);
             } else {
                 return $q.reject('no data');
             }
@@ -60,12 +60,12 @@ angular.module('greyscaleApp')
         });
 
         var _getRights = function () {
-            return greyscaleRightSrv.list().then(_decodeEntryTypes);
+            return greyscaleRightSrv.list().then(_decodeEntityTypes);
         };
 
         var _edtRight = function (_right) {
-            _getEntryTypes().then(function (entryTypes) {
-                return greyscaleModalsSrv.editRight(_right, {entryTypes: entryTypes})
+            _getEntityTypes().then(function (entityTypes) {
+                return greyscaleModalsSrv.editRight(_right, {entityTypes: entityTypes})
                     .then(function (_right) {
                         if (_right.id) {
                             return greyscaleRightSrv.update(_right);

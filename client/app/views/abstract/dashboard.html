@@ -1,8 +1,38 @@
 <div id="page-wrapper" ng-class="{'open': model.toggle}" ng-cloak>
-    <sidebar toggle="model.toggle"></sidebar>
+    <sidebar toggle="model.toggle" menu="model.menu"></sidebar>
     <div id="content-wrapper">
         <div class="page-content">
-            <div ui-view="header"></div>
+            <div class="row header">
+                <div class="col-xs-12">
+                    <div class="user pull-right">
+                        <div class="item dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown"><img src="images/avatar.jpg"></a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li class="dropdown-header">Joe Bloggs</li>
+                                <li class="divider"></li>
+                                <li class="link">
+                                    <a ui-sref="profile">Profile</a>
+                                </li>
+                                <li class="divider"></li>
+                                <li class="link">
+                                    <a href="#" ng-click="logout()">Logout</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="item dropdown disabled">
+                            <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell-o"></i></a>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li class="dropdown-header">Notifications</li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="#">Server Down!</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <headerbar></headerbar>
+                </div>
+            </div>
             <div ui-view="body"></div>
         </div>
     </div>

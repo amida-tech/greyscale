@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('UserInviteCtrl', function ($scope, $uibModalInstance, inform) {
+    .controller('UserInviteCtrl', function ($scope, $uibModalInstance, inform, greyscaleUserSrv) {
         $scope.model = {
             'firstName': '',
             'lastName': '',
@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
             $uibModalInstance.close();
         };
         $scope.invite = function () {
-            greyscaleAuthSrv.inviteUser($scope.model)
+            greyscaleUserSrv.invite($scope.model)
                 .then(function () {
                     inform.add('User invited', {type: 'success'});
                 })

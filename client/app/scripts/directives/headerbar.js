@@ -28,10 +28,12 @@ angular.module('greyscaleApp')
                     return path;
                 };
 
-                $scope.model = {
-                    title: $state.current.data.name,
-                    path: _getPath($state.$current.parent)
-                };
+                $scope.$on('$stateChangeSuccess', function () {
+                    $scope.model = {
+                        title: $state.current.data.name,
+                        path: _getPath($state.$current.parent)
+                    };
+                });
             }
         };
     });

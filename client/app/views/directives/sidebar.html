@@ -1,23 +1,17 @@
 <!-- Sidebar -->
-<div id="sidebar-wrapper">
+<div id="sidebar-wrapper" ng-show="menu.title">
     <ul class="sidebar">
-        <li class="sidebar-main">
-            <a ng-click="toggleSidebar()">Greyscale <span class="menu-icon glyphicon glyphicon-transfer"></span></a>
+        <li class="sidebar-main text-capitalize">
+            <a ng-click="toggleSidebar()">{{menu.title}} <span
+                class="menu-icon glyphicon glyphicon-transfer"></span></a>
         </li>
-        <li class="sidebar-title"><span class="text-uppercase">Administration</span></li>
-        <li class="sidebar-list">
-            <a ui-sref="access">Access Control <span class="menu-icon fa fa-compass"></span></a>
+        <li class="sidebar-title" ng-repeat-start="group in menu.groups">
+            <span class="text-uppercase">{{group.title}}</span>
         </li>
-        <li class="sidebar-list">
-            <a ui-sref="uoas">Units of Analysis<span class="menu-icon fa fa-table"></span></a>
+        <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
+            <a ui-sref="{{item.sref}}">{{item.title}} <span class="menu-icon fa {{item.icon}}"></span></a>
         </li>
-        <li class="sidebar-list">
-            <a ui-sref="users">Users <span class="menu-icon fa fa-group"></span></a>
-        </li>
-        <li class="sidebar-title"><span class="text-uppercase">your content</span></li>
-
     </ul>
-    <div class="sidebar-footer">
-    </div>
+    <div class="sidebar-footer"></div>
 </div>
 <!-- End Sidebar -->
