@@ -6,6 +6,8 @@ var client = require('app/db_bootstrap'),
   Translation = require('app/models/translations'),
   Language = require('app/models/languages'),
   Essence = require('app/models/essences'),
+  Organization = require('app/models/organizations'),
+  User = require('app/models/users'),
   co = require('co'),
   Query = require('app/util').Query,
   getTranslateQuery = require('app/util').getTranslateQuery,
@@ -18,9 +20,8 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
-    console.log(req.lang);
     co(function* (){
-      return yield thunkQuery(getTranslateQuery(req.lang.id, Product));
+      return yield thunkQuery(Project.select().from(Project));
     }).then(function(data){
       res.json(data);
     },function(err){
@@ -55,8 +56,19 @@ module.exports = {
       if (!_.first(isExistMatrix)) {
           throw new HttpError(403, 'Matrix with this id does not exist');
       }
-      req.body.originalLangId = req.lang.id;
-      var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
+
+      var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
+      if (!_.first(isExistOrg)) {
+          throw new HttpError(403, 'Organization with this id does not exist');
+      }
+
+      var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)));
+      if (!_.first(isExistAdmin)) {
+          throw new HttpError(403, 'User with this id does not exist (admin user id)');
+      }
+
+      // req.body.originalLangId = req.lang.id;
+      var result = yield thunkQuery(Project.insert(req.body).returning(Project.id));
 
       return result;
     }).then(function (data) {

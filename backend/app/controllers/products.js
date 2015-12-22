@@ -55,7 +55,7 @@ module.exports = {
       if (!_.first(isExistMatrix)) {
           throw new HttpError(403, 'Matrix with this id does not exist');
       }
-      req.body.originalLangId = req.lang.id;
+    
       var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
 
       return result;

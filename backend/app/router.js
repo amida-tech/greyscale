@@ -61,10 +61,23 @@ router.route('/v0.2/essences')
 //----------------------------------------------------------------------------------------------------------------------
 var projects = require('app/controllers/projects');
 
-router.route('/v0.2/essences')
-  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select);
-  //.post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
+router.route('/v0.2/projects')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
+//----------------------------------------------------------------------------------------------------------------------
+//    USER DATA
+//----------------------------------------------------------------------------------------------------------------------
+var user_data = require('app/controllers/user_data');
+
+router.route('/v0.2/user_data')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.insertOne);
+
+router.route('/v0.2/user_data/:id')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.selectOne)
+  .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.editOne)
+  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
