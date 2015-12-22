@@ -30,7 +30,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $locationProvider.html5Mode(false);
 
     $stateProvider
-        .state('main', {
+        .state('main',
+        {
             templateUrl: 'views/abstract/main.html',
             abstract: true
         })
@@ -45,7 +46,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Activate',
-                isPublic: true
+                accessLevel: 0xffff
             }
         })
         .state('register', {
@@ -59,7 +60,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Register',
-                isPublic: true
+                accessLevel: 0xffff
             }
         })
         .state('login', {
@@ -73,31 +74,28 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Login',
-                isPublic: true
+                accessLevel: 0xffff
             }
         })
         .state('dashboard', {
-            url:'/',
+            url: '/?returnTo',
             parent: 'main',
             abstract: true,
             views: {
-                'body@main':{
-                    templateUrl: 'views/abstract/dashboard.html'
+                'body@main': {
+                    templateUrl: 'views/abstract/dashboard.html',
+                    controller: 'DashboardCtrl'
                 }
             }
         })
-        .state('home',{
-            parent:'dashboard',
-            url:'',
+        .state('home', {
+            parent: 'dashboard',
+            url: '',
             data: {
                 name: 'Home',
-                isPublic: false
+                accessLevel: 0xfffe
             },
             views: {
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
                 'body@dashboard': {
                     template: ''
                 }
@@ -108,13 +106,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'access',
             data: {
                 name: 'Access management',
-                isPublic: false
+                accessLevel: 0x8000
             },
             views: {
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/access.html',
                     controller: 'AccessCtrl'
@@ -126,13 +120,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'users',
             data: {
                 name: 'Users',
-                isPublic: false
+                accessLevel: 0x8000
             },
             views: {
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/users.html',
                     controller: 'UsersCtrl'
@@ -140,31 +130,23 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('uoas', {
-            parent:'home',
+            parent: 'home',
             url: 'uoas',
-            views:{
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
+            views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/uoas.html',
                     controller: 'UoasCtrl'
                 }
             },
             data: {
-                name: 'Units of Analysis Maintenance',
-                isPublic: false
+                name: 'Units of Analysis',
+                accessLevel: 0x8000
             }
         })
         .state('profile', {
-            parent:'home',
+            parent: 'home',
             url: 'profile',
             views: {
-                'header@dashboard' : {
-                    templateUrl: 'views/controllers/dashboard-header.html',
-                    controller: 'DashboardHeaderCtrl'
-                },
                 'body@dashboard': {
                     templateUrl: 'views/controllers/profile.html',
                     controller: 'ProfileCtrl'
@@ -172,39 +154,42 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Profile',
-                isPublic: false
+                accessLevel: 0xfffe
             }
         });
 
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleAuthSrv) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-        //if rule not defined
-        if (!angular.isDefined(toState.data.isPublic)) {
-            return;
-        }
-        //Check auth
-        greyscaleAuthSrv.isAuthenticated().then(function (isAuthenticated) {
-            //if private state and user is not authenticated
-            if (!toState.data.isPublic) {
-                if (!isAuthenticated) {
+        if (toState.data && toState.data.accessLevel !== 0xffff ) {
+            greyscaleProfileSrv.getAccessLevel().then(function (_level) {
+                if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
-                    $stateParams.returnTo = toState.name;
-                    $state.go('login');
+                    if ((_level & 0xfffe) !== 0) { //if not admin accessing admin level page
+                        $state.go('home');
+                        inform.add('Access restricted to "' + toState.data.name + '"!', {type: 'danger'});
+                    } else {
+                        $stateParams.returnTo = toState.name;
+                        $state.go('login');
+                    }
                 } else {
                     if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
                         $state.go(fromParams.returnTo, {reload: true});
                     }
                 }
-            }
-        });
+            });
+        }
     });
 
     $rootScope.$on('logout', function () {
-        $state.go('login');
+        greyscaleProfileSrv.logout()
+            .finally(function(){
+                $state.go('login');
+            });
     });
+
     $rootScope.$on('login', function () {
         $state.go('home');
     });

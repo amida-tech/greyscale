@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .service('greyscaleEntryTypeSrv', function (greyscaleRestSrv) {
+    .service('greyscaleEntityTypeSrv', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('essences');

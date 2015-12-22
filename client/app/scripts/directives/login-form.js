@@ -1,7 +1,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('loginForm', function (greyscaleAuthSrv, greyscaleEnv, $log) {
+    .directive('loginForm', function (greyscaleUserSrv, greyscaleEnv, $log) {
         return {
             templateUrl: 'views/directives/login-form.html',
             restrict: 'AE',
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
 
                 $scope.submitLogin = function () {
                     if ($scope.loginForm.$valid) {
-                        greyscaleAuthSrv.login($scope.model.login.value, $scope.model.password.value)
+                        greyscaleUserSrv.login($scope.model.login.value, $scope.model.password.value)
                             .then(function () {
                                 $rootScope.$emit('login');
                             }).catch(function (err) {

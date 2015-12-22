@@ -132,15 +132,15 @@ angular.module('greyscale.core')
                         },
                         {
                             field: 'essenceId',
-                            title: 'Entry Type ID',
+                            title: 'Entity Type ID',
                             show: false,
                             sortable: 'essenceId'
                         },
                         {
-                            field: 'entryType',
-                            title: 'Entry Type',
+                            field: 'entityType',
+                            title: 'Entity Type',
                             show: true,
-                            sortable:'entryType'
+                            sortable:'entityType'
                         }
                     ]
                 },

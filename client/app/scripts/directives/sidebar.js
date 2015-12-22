@@ -4,22 +4,22 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('sidebar',function(){
+    .directive('sidebar', function ($log, $cookieStore) {
         return {
             templateUrl: 'views/directives/sidebar.html',
             scope: {
                 toggle: '=',
-                items: '='
+                menu: '='
             },
             restrict: 'AE',
-            controller: function($scope, $cookieStore) {
+            link: function ($scope) {
+                $log.debug('scope', $scope.menu);
                 $scope.toggle = $cookieStore.get('toggle') || false;
 
-                $scope.toggleSidebar = function() {
+                $scope.toggleSidebar = function () {
                     $scope.toggle = !$scope.toggle;
                     $cookieStore.put('toggle', $scope.toggle);
                 };
-
             }
         };
     });
