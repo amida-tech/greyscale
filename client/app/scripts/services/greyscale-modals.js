@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
                 });
                 return _instance.result;
             },
-            editUoaType: function (_uoaType) {
+            editUoaType: function (_uoaType, _languages) {
                 var _instance = $uibModal.open({
                     templateUrl: 'views/modals/uoatype-form.html',
                     controller: 'SimpleFormCtrl',
@@ -38,7 +38,7 @@ angular.module('greyscaleApp')
                     windowClass: 'modal fade in',
                     resolve: {
                         formData: _uoaType,
-                        extData: null
+                        extData: _languages
                     }
                 });
                 return _instance.result;

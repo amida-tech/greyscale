@@ -30,13 +30,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="shortName" class="col-sm-4 control-label">Language ID</label>
+                    <label for="shortName" class="col-sm-4 control-label">Short name</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="shortName" id="shortName" ng-model="model.shortName"
                                ng-required="true" ng-minlength="1" focus="true">
                         <div class="text-center" ng-messages="dataForm.shortName.$error" role="alert"
                              ng-if="dataForm.shortName.$dirty">
-                            <span ng-message="required, minlength" class="help-block">Language ID is required.</span>
+                            <span ng-message="required, minlength" class="help-block">Short name is required.</span>
                         </div>
                     </div>
                 </div>

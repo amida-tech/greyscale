@@ -283,20 +283,17 @@ angular.module('greyscale.core')
                         {
                             field: 'name',
                             title: 'Name',
-                            show: true,
-                            sortable: 'name'
+                            show: true
                         },
                         {
                             field: 'description',
                             title: 'Description',
-                            show: true,
-                            sortable: 'description'
+                            show: true
                         },
                         {
-                            field: 'langId',
-                            title: 'Language ID',
-                            show: true,
-                            sortable: 'langId'
+                            field: 'langCode',
+                            title: 'Original language',
+                            show: true
                         }
                     ]
                 },

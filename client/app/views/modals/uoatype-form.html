@@ -8,7 +8,7 @@
     <div class="row">
         <div name="dataForm" class="form-horizontal" ng-form="dataForm">
                 <div class="form-group">
-                    <label for="name" class="col-sm-4 control-label">Name</label>
+                    <label for="name" class="col-sm-4 control-label">Name:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
                                ng-required="true" ng-minlength="1" focus="true">
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="description" class="col-sm-4 control-label">Description</label>
+                    <label for="description" class="col-sm-4 control-label">Description:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="description" id="description" ng-model="model.description"
                                ng-required="false" ng-minlength="0" focus="true">
@@ -30,13 +30,18 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="langId" class="col-sm-4 control-label">Short Name</label>
+                    <label for="origLang" class="col-sm-4 control-label">Original language:</label>
+
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" name="langId" id="langId" ng-model="model.langId"
-                               ng-required="true" ng-minlength="1" focus="true">
+                        <select ng-disabled="model.langId" class="form-control"
+                            id="origLang" name="origName"
+                            ng-options="item.id as item.code for item in view.languages"
+                            ng-model="model.langId"
+                            ng-required="true">
+                        </select>
                         <div class="text-center" ng-messages="dataForm.langId.$error" role="alert"
                              ng-if="dataForm.langId.$dirty">
-                            <span ng-message="required, minlength" class="help-block">Language ID is required.</span>
+                            <span ng-message="required, minlength" class="help-block">Original language is required.</span>
                         </div>
                     </div>
                 </div>
