@@ -138,31 +138,36 @@ angular.module('greyscaleApp')
             $scope.model.uoaTypes.tableParams.reload();
         };
 
-        var _updateUoaType = function(_uoaType) {
+        var _getUoaType = function (_uoaType) {
+            return greyscaleUoaTypeSrv.get(_uoaType);
+        };
+
+        var _updateUoaType = function (_uoaType) {
+            var languages;
             return _getLanguages()
-                .then(function(languages){
-                    return greyscaleModalsSrv.editUoaType(_uoaType, {languages: languages})
-                        .then(function(uoaType){
-                            delete uoaType.langCode;
-                            if (_uoaType && uoaType.id) {
-                                return greyscaleUoaTypeSrv.update(uoaType);
-                            } else {
-                                return greyscaleUoaTypeSrv.add(uoaType);
-                            }
-                        })
-                        .then(_updateTableUoaType)
-                        .catch(function(err){
-                            if (err) {
-                                inform.add(err, {type: 'danger'});
-                            }
-                        });
+                .then(function(res){
+                    languages = res;
+                    if (_uoaType) return _getUoaType(_uoaType);
+                    else return _uoaType;
                 })
-            .catch(function (err) {
-                $log.debug(err);
-                if (err) {
-                    inform.add('Get languages error: ' + err);
-                }
-            });
+                .then(function (res) {
+                    return greyscaleModalsSrv.editUoaType(res, {languages: languages});
+                })
+                .then(function (uoaType) {
+                    delete uoaType.langCode;
+                    if (_uoaType && uoaType.id) {
+                        return greyscaleUoaTypeSrv.update(uoaType);
+                    } else {
+                        return greyscaleUoaTypeSrv.add(uoaType);
+                    }
+                })
+                .then(_updateTableUoaType)
+                .catch(function (err) {
+                    $log.debug(err);
+                    if (err) {
+                        inform.add('_updateUoaType error: ' + err);
+                    }
+                });
         };
 
         //var _uoaTypePromise = greyscaleUoaTypeSrv.list;

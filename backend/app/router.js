@@ -257,6 +257,7 @@ router.route('/v0.2/uoatypes')
     .post(authenticate('token').always, checkRight('unitofanalysistype_insert_one'), UnitOfAnalysisType.insertOne);
 
 router.route('/v0.2/uoatypes/:id')
+    .get(authenticate('token').always, UnitOfAnalysisType.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysistype_update_one'), UnitOfAnalysisType.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysistype_delete_one'), UnitOfAnalysisType.deleteOne);
 

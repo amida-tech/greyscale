@@ -17,7 +17,7 @@ var client = require('app/db_bootstrap'),
 
 module.exports = {
 
-    select: function (req, res, next) {
+    selectOrigLanguage: function (req, res, next) {
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var uoaType = thunkQuery(UnitOfAnalysisType.select(), req.query);
@@ -30,7 +30,7 @@ module.exports = {
         });
     },
 
-    selectTranslated: function (req, res, next) {
+    select: function (req, res, next) {
         co(function* (){
             var langId = yield* detectLanguage(req);
             return yield thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType));
@@ -42,13 +42,13 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var q = getTranslateQuery(req, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* (){
+            return yield thunkQuery(getTranslateQuery(req.params.langId, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id)));
+        }).then(function(data){
             res.json(_.first(data));
-        });
+        },function(err){
+            next(err);
+        })
     },
 
     insertOne: function (req, res, next) {
