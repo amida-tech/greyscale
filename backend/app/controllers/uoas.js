@@ -65,7 +65,7 @@ module.exports = {
         co(function* (){
             return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.body.id)));
         }).then(function(){
-            res.status(200).end();
+            res.status(202).end();
         },function(err){
             next(err);
         });

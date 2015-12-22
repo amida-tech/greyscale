@@ -122,6 +122,15 @@ angular.module('greyscaleApp')
         });
         // </editor-fold desc="Unit of Analysis">
 
+        // <editor-fold desc="Language">
+        var _getLanguages = function () {
+            return greyscaleLanguageSrv.list();
+        };
+        var _colsLanguage = angular.copy(greyscaleGlobals.tables.languages.cols);
+        var _langPromise = greyscaleLanguageSrv.list;
+
+        // </editor-fold desc="Language">
+
         // <editor-fold desc="Unit of Analysis Type">
         var _colsUoaType = angular.copy(greyscaleGlobals.tables.uoaTypes.cols);
 
@@ -130,23 +139,43 @@ angular.module('greyscaleApp')
         };
 
         var _updateUoaType = function(_uoaType) {
-            greyscaleModalsSrv.editUoaType(_uoaType)
-                .then(function(uoaType){
-                    if (_uoaType && uoaType.id) {
-                        return greyscaleUoaTypeSrv.update(uoaType);
-                    } else {
-                        return greyscaleUoaTypeSrv.add(uoaType);
-                    }
+            return _getLanguages()
+                .then(function(languages){
+                    return greyscaleModalsSrv.editUoaType(_uoaType, {languages: languages})
+                        .then(function(uoaType){
+                            delete uoaType.langCode;
+                            if (_uoaType && uoaType.id) {
+                                return greyscaleUoaTypeSrv.update(uoaType);
+                            } else {
+                                return greyscaleUoaTypeSrv.add(uoaType);
+                            }
+                        })
+                        .then(_updateTableUoaType)
+                        .catch(function(err){
+                            if (err) {
+                                inform.add(err, {type: 'danger'});
+                            }
+                        });
                 })
-                .then(_updateTableUoaType)
-                .catch(function(err){
-                    if (err) {
-                        inform.add(err, {type: 'danger'});
-                    }
-                });
+            .catch(function (err) {
+                $log.debug(err);
+                if (err) {
+                    inform.add('Get languages error: ' + err);
+                }
+            });
         };
 
-        var _uoaTypePromise = greyscaleUoaTypeSrv.list;
+        //var _uoaTypePromise = greyscaleUoaTypeSrv.list;
+        var _uoaTypePromise = function () {
+            return _getLanguages().then(function (languages) {
+                return greyscaleUoaTypeSrv.list().then(function (uoaTypes) {
+                    for (var l = 0; l < uoaTypes.length; l++) {
+                        uoaTypes[l].langCode = _.get(_.find(languages, {id: uoaTypes[l].langId}), 'code');
+                    }
+                    return uoaTypes;
+                });
+            });
+        };
 
         _colsUoaType.push({
             field: '',
@@ -174,11 +203,6 @@ angular.module('greyscaleApp')
         });
         // </editor-fold desc="Unit of Analysis Type">
 
-        // <editor-fold desc="Language">
-        var _colsLanguage = angular.copy(greyscaleGlobals.tables.languages.cols);
-        var _langPromise = greyscaleLanguageSrv.list;
-
-        // </editor-fold desc="Language">
 
         $scope.model = {
             countries: {
@@ -187,6 +211,8 @@ angular.module('greyscaleApp')
                 icon: 'fa-table',
                 cols: _colsCountry,
                 dataPromise: _countryPromise,
+                pageLength: 3,
+                sorting: {name: 'asc'},
                 add: {
                     title: 'Add',
                     handler: _updateCountry
@@ -203,23 +229,24 @@ angular.module('greyscaleApp')
                     handler: _updateUoa
                 }
             },
-            uoaTypes: {
-                editable: true,
-                title: 'Unit of Analysis Types',
-                icon: 'fa-table',
-                cols: _colsUoaType,
-                dataPromise: _uoaTypePromise,
-                add: {
-                    title: 'Add',
-                    handler: _updateUoaType
-                }
-            },
             languages: {
                 editable: false,
                 title: 'Languages',
                 icon: 'fa-table',
                 cols: _colsLanguage,
                 dataPromise: _langPromise
+            },
+            uoaTypes: {
+                editable: true,
+                title: 'Unit of Analysis Types',
+                icon: 'fa-table',
+                cols: _colsUoaType,
+                dataPromise: _uoaTypePromise,
+                sorting: {id: 'asc'},
+                add: {
+                    title: 'Add',
+                    handler: _updateUoaType
+                }
             }
         };
     });

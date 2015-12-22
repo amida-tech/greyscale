@@ -121,6 +121,24 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             }
         })
+        .state('users', {
+            parent: 'home',
+            url: 'users',
+            data: {
+                name: 'Users',
+                isPublic: false
+            },
+            views: {
+                'header@dashboard' : {
+                    templateUrl: 'views/controllers/dashboard-header.html',
+                    controller: 'DashboardHeaderCtrl'
+                },
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/users.html',
+                    controller: 'UsersCtrl'
+                }
+            }
+        })
         .state('uoas', {
             parent:'home',
             url: 'uoas',

@@ -77,35 +77,6 @@ angular.module('greyscale.core')
                         }
                     ]
                 },
-                roleRights: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: true,
-                            sortable:'id'
-                        },
-                        {
-                            field: 'action',
-                            title: 'Action',
-                            show: true,
-                            sortable:'action'
-                        },
-                        {
-                            field: 'description',
-                            title: 'Description',
-                            show: true,
-                            sortable:'description'
-                        },
-                        {
-                            field: 'essenceId',
-                            title: 'Entry Type',
-                            show: false,
-                            sortable:'essenceId'
-                        }
-
-                    ]
-                },
                 countries: {
                     cols: [
                         {
@@ -144,7 +115,7 @@ angular.module('greyscale.core')
                         {
                             field: 'id',
                             title: 'ID',
-                            show: true,
+                            show: false,
                             sortable:'id'
                         },
                         {
@@ -161,9 +132,15 @@ angular.module('greyscale.core')
                         },
                         {
                             field: 'essenceId',
-                            title: 'essenceId',
+                            title: 'Entry Type ID',
+                            show: false,
+                            sortable: 'essenceId'
+                        },
+                        {
+                            field: 'entryType',
+                            title: 'Entry Type',
                             show: true,
-                            sortable: false
+                            sortable:'entryType'
                         }
                     ]
                 },
@@ -306,20 +283,17 @@ angular.module('greyscale.core')
                         {
                             field: 'name',
                             title: 'Name',
-                            show: true,
-                            sortable: 'name'
+                            show: true
                         },
                         {
                             field: 'description',
                             title: 'Description',
-                            show: true,
-                            sortable: 'description'
+                            show: true
                         },
                         {
-                            field: 'langId',
-                            title: 'Language ID',
-                            show: true,
-                            sortable: 'langId'
+                            field: 'langCode',
+                            title: 'Original language',
+                            show: true
                         }
                     ]
                 },
