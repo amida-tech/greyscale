@@ -18,7 +18,6 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
-    console.log(req.lang);
     co(function* (){
       return yield thunkQuery(getTranslateQuery(req.lang.id, Product));
     }).then(function(data){

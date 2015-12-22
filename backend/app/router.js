@@ -166,6 +166,9 @@ var organizations = require('app/controllers/organizations');
 router.route('/v0.2/organizations')
   .post(authenticate('token').always,organizations.insertOne);
 
+router.route('/v0.2/organizations/:id')
+  .get(authenticate('token').always,organizations.selectOne);
+
 router.route('/v0.2/users/self/organization')
   .get(authenticate('token').always, users.selfOrganization)
   .put(authenticate('token').always, users.selfOrganizationUpdate);

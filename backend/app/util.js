@@ -74,6 +74,7 @@ exports.Query = function () {
       console.log(queryObject.toQuery());
 
       client.query(queryObject.toQuery(), function (err, result) {
+        // client.end();
         if (err) {
           return cb ? cb(err) : err;
         }

@@ -14,6 +14,20 @@ var _ = require('underscore'),
 
 module.exports = {
 
+  selectOne: function (req, res, next) {
+    var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
+    query(q, function (err, data) {
+      if (err) {
+        return next(err);
+      }
+      if(_.first(data)){
+        res.json(_.first(data));  
+      }else{
+        next(new HttpError(404, 'Not found'));
+      }
+    });
+  },
+
   insertOne: function (req, res, next) {
     co(function* (){
       if(!req.body.adminUserId){
