@@ -28,7 +28,12 @@ module.exports = {
       if (err) {
         return next(err);
       }
-      res.json(_.first(data));
+      if(_.first(data)){
+        res.json(_.first(data));  
+      }else{
+        return next(new HttpError(404, 'Not found'));
+      }
+      
     });
   },
 
@@ -43,13 +48,17 @@ module.exports = {
   },
 
   editOne: function (req, res, next) {
-    var q = UserData.update(req.body).where(UserData.id.equals(req.params.id));
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
-      }
-      res.status(202).end();
-    });
+    if(req.body.data){
+      var q = UserData.update(req.body).where(UserData.id.equals(req.params.id));
+      query(q, function (err, data) {
+        if (err) {
+          return next(err);
+        }
+        res.status(202).end();
+      });
+    }else{
+      return next(new HttpError(400, 'No data to update'));
+    }
   },
 
   insertOne: function (req, res, next) {
