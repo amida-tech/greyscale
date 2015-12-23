@@ -23,7 +23,8 @@ var UnitOfAnalysis = sql.define({
         'visibility',
         'status',
         'createTime',
-        'deleteTime'
+        'deleteTime',
+        'langId'
     ]
 });
 var translate = [

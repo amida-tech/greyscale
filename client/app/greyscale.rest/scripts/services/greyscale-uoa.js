@@ -14,6 +14,10 @@ angular.module('greyscale.rest')
             return _api().get();
         }
 
+        function _uoaOne(uoa) {
+            return _api().one(uoa.id+'').get();
+        }
+
         function _addUoa(uoa) {
             return _api().customPOST(uoa);
         }
@@ -28,6 +32,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _uoa,
+            get: _uoaOne,
             add: _addUoa,
             update: _updateUoa,
             delete: _deleteUoa

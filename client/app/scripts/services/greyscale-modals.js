@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
                     }
                 }).result;
             },
-            editUoa: function (_uoa) {
+            editUoa: function (_uoa, extData) {
                 var _instance = $uibModal.open({
                     templateUrl: 'views/modals/uoa-form.html',
                     controller: 'SimpleFormCtrl',
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                     windowClass: 'modal fade in',
                     resolve: {
                         formData: _uoa,
-                        extData: null
+                        extData: extData
                     }
                 });
                 return _instance.result;

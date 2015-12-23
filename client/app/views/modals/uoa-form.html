@@ -2,24 +2,24 @@
     <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button">
         <span>×</span>
     </button>
-    <h4 class="modal-title"><span ng-show="model">Edit</span><span ng-hide="model">Add new</span> unit of analysis type</h4>
+    <h4 class="modal-title"><span ng-show="model">Edit</span><span ng-hide="model">Add new</span> unit of analysis</h4>
 </div>
 <div class="modal-body">
     <div class="row">
         <div name="dataForm" class="form-horizontal" ng-form="dataForm">
                 <div class="form-group">
-                    <label for="name" class="col-sm-4 control-label">Name</label>
+                    <label for="name" class="col-sm-4 control-label">Name:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
                                ng-required="true" ng-minlength="1" focus="true">
                         <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
                              ng-if="dataForm.name.$dirty">
-                            <span ng-message="required, minlength" class="help-block">Name of `Unit of Analysis` is required.</span>
+                            <span ng-message="required, minlength" class="help-block">Name of `Unit of Analysis Type` is required.</span>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="description" class="col-sm-4 control-label">Description</label>
+                    <label for="description" class="col-sm-4 control-label">Description:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="description" id="description" ng-model="model.description"
                                ng-required="false" ng-minlength="0" focus="true">
@@ -30,13 +30,74 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="shortName" class="col-sm-4 control-label">Short name</label>
+                    <label for="shortName" class="col-sm-4 control-label">Short name:</label>
                     <div class="col-sm-8">
                         <input type="text" class="form-control" name="shortName" id="shortName" ng-model="model.shortName"
                                ng-required="true" ng-minlength="1" focus="true">
                         <div class="text-center" ng-messages="dataForm.shortName.$error" role="alert"
                              ng-if="dataForm.shortName.$dirty">
                             <span ng-message="required, minlength" class="help-block">Short name is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="uoaType" class="col-sm-4 control-label">Type:</label>
+                    <div class="col-sm-8">
+                        <select class="form-control"
+                                id="uoaType" name="uoaType"
+                                ng-options="item.id as item.name for item in view.uoaTypes"
+                                ng-model="model.unitOfAnalysisType"
+                                ng-required="true">
+                        </select>
+                        <div class="text-center" ng-messages="dataForm.uoaType.$error" role="alert"
+                             ng-if="dataForm.uoaType.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Unit of Analysis Type is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="visibility" class="col-sm-4 control-label">Visibility:</label>
+                    <div class="col-sm-8">
+                        <select class="form-control"
+                                id="visibility" name="visibility"
+                                ng-options="item.id as item.name for item in view.visibility"
+                                ng-model="model.visibility"
+                                ng-required="true">
+                        </select>
+                        <div class="text-center" ng-messages="dataForm.visibility.$error" role="alert"
+                             ng-if="dataForm.visibility.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Visibility is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="status" class="col-sm-4 control-label">Status:</label>
+                    <div class="col-sm-8">
+                        <select class="form-control"
+                                id="status" name="status"
+                                ng-options="item.id as item.name for item in view.status"
+                                ng-model="model.status"
+                                ng-required="true">
+                        </select>
+                        <div class="text-center" ng-messages="dataForm.status.$error" role="alert"
+                             ng-if="dataForm.status.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Visibility is required.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="origLang" class="col-sm-4 control-label">Original language:</label>
+
+                    <div class="col-sm-8">
+                        <select ng-disabled="model.id" class="form-control"
+                                id="origLang" name="origName"
+                                ng-options="item.id as item.code for item in view.languages"
+                                ng-model="model.langId"
+                                ng-required="true">
+                        </select>
+                        <div class="text-center" ng-messages="dataForm.origLang.$error" role="alert"
+                             ng-if="dataForm.origLang.$dirty">
+                            <span ng-message="required, minlength" class="help-block">Original language is required.</span>
                         </div>
                     </div>
                 </div>
