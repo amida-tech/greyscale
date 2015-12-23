@@ -267,6 +267,20 @@ router.route('/v0.2/uoatypes/:id')
     .delete(authenticate('token').always, checkRight('unitofanalysistype_delete_one'), UnitOfAnalysisType.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis Classification Types
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisClassType = require('app/controllers/uoaclasstypes');
+
+router.route('/v0.2/uoaclasstypes')
+    .get(authenticate('token').always, UnitOfAnalysisClassType.select)
+    .post(authenticate('token').always, checkRight('unitofanalysisclasstype_insert_one'), UnitOfAnalysisClassType.insertOne);
+
+router.route('/v0.2/uoaclasstypes/:id')
+    .get(authenticate('token').always, UnitOfAnalysisClassType.selectOne)
+    .put(authenticate('token').always, checkRight('unitofanalysisclasstype_update_one'), UnitOfAnalysisClassType.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysisclasstype_delete_one'), UnitOfAnalysisClassType.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 module.exports = router;
 
 
