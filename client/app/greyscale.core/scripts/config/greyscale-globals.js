@@ -5,62 +5,21 @@
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
         var self = {
+            project_states: [
+                {id: 0, name: 'waiting'},
+                {id: 1, name: 'in-flight'},
+                {id: 2, name: 'completed'},
+                {id: 3, name: 'suspended'},
+                {id: 4, name: 'abandoned'}
+            ],
             tables: {
-                users: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: false,
-                            sortable: 'id'
-                        },
-                        {
-                            field: 'email',
-                            title: 'E-mail',
-                            show: true,
-                            sortable: 'email'
-                        },
-                        {
-                            field: 'firstName',
-                            title: 'First name',
-                            show: true,
-                            sortable: 'firstName'
-                        },
-                        {
-                            field: 'lastName',
-                            title: 'Last name',
-                            show: true,
-                            sortable: 'lastName'
-                        },
-                        {
-                            field: 'roleID',
-                            title: 'Role',
-                            show: true,
-                            sortable: 'roleID'
-                        },
-                        {
-                            field: 'created',
-                            title: 'Created',
-                            show: true,
-                            sortable: 'created',
-                            dataFormat: 'date'
-                        },
-                        {
-                            field: 'isActive',
-                            title: 'Is Active',
-                            show: true,
-                            sortable: 'isActive',
-                            dataFormat: 'boolean'
-                        }
-                    ]
-                },
                 roles: {
                     cols: [
                         {
                             field: 'id',
                             title: 'ID',
                             show: true,
-                            sortable:'id'
+                            sortable: 'id'
                         },
                         {
                             field: 'name',
@@ -73,7 +32,7 @@ angular.module('greyscale.core')
                             title: 'System Role',
                             show: true,
                             sortable: 'isSystem',
-                            dataFormat:'boolean'
+                            dataFormat: 'boolean'
                         }
                     ]
                 },
@@ -116,7 +75,7 @@ angular.module('greyscale.core')
                             field: 'id',
                             title: 'ID',
                             show: false,
-                            sortable:'id'
+                            sortable: 'id'
                         },
                         {
                             field: 'action',
@@ -140,7 +99,7 @@ angular.module('greyscale.core')
                             field: 'entityType',
                             title: 'Entity Type',
                             show: true,
-                            sortable:'entityType'
+                            sortable: 'entityType'
                         }
                     ]
                 },
@@ -151,56 +110,56 @@ angular.module('greyscale.core')
                             title: 'ID',
                             show: true
                         },
-/*
-                        {
-                            field: 'gadmId0',
-                            title: 'gadmId0',
-                            show: true,
-                            sortable: 'gadmId0'
-                        },
-                        {
-                            field: 'gadmId1',
-                            title: 'gadmId1',
-                            show: true,
-                            sortable: 'gadmId1'
-                        },
-                        {
-                            field: 'gadmId2',
-                            title: 'gadmId2',
-                            show: true,
-                            sortable: 'gadmId2'
-                        },
-                        {
-                            field: 'gadmId3',
-                            title: 'gadmId3',
-                            show: true,
-                            sortable: 'gadmId3'
-                        },
-                        {
-                            field: 'gadmObjectId',
-                            title: 'gadmObjectId',
-                            show: true,
-                            sortable: 'gadmObjectId'
-                        },
-                        {
-                            field: 'ISO',
-                            title: 'ISO',
-                            show: true,
-                            sortable: 'ISO'
-                        },
-                        {
-                            field: 'ISO2',
-                            title: 'ISO2',
-                            show: true,
-                            sortable: 'ISO2'
-                        },
-                        {
-                            field: 'nameISO',
-                            title: 'nameISO',
-                            show: true,
-                            sortable: 'nameISO'
-                        },
-*/
+                        /*
+                         {
+                         field: 'gadmId0',
+                         title: 'gadmId0',
+                         show: true,
+                         sortable: 'gadmId0'
+                         },
+                         {
+                         field: 'gadmId1',
+                         title: 'gadmId1',
+                         show: true,
+                         sortable: 'gadmId1'
+                         },
+                         {
+                         field: 'gadmId2',
+                         title: 'gadmId2',
+                         show: true,
+                         sortable: 'gadmId2'
+                         },
+                         {
+                         field: 'gadmId3',
+                         title: 'gadmId3',
+                         show: true,
+                         sortable: 'gadmId3'
+                         },
+                         {
+                         field: 'gadmObjectId',
+                         title: 'gadmObjectId',
+                         show: true,
+                         sortable: 'gadmObjectId'
+                         },
+                         {
+                         field: 'ISO',
+                         title: 'ISO',
+                         show: true,
+                         sortable: 'ISO'
+                         },
+                         {
+                         field: 'ISO2',
+                         title: 'ISO2',
+                         show: true,
+                         sortable: 'ISO2'
+                         },
+                         {
+                         field: 'nameISO',
+                         title: 'nameISO',
+                         show: true,
+                         sortable: 'nameISO'
+                         },
+                         */
                         {
                             field: 'name',
                             title: 'Name',
@@ -219,70 +178,70 @@ angular.module('greyscale.core')
                             show: true,
                             sortable: 'shortName'
                         },
-/*
-                        {
-                            field: 'HASC',
-                            title: 'HASC',
-                            show: true,
-                            sortable: 'HASC'
-                        },
-*/
-/*
-                        {
-                            field: 'unitOfAnalysisType',
-                            title: 'Type',
-                            show: true,
-                            sortable: 'unitOfAnalysisType'
-                        },
-*/
+                        /*
+                         {
+                         field: 'HASC',
+                         title: 'HASC',
+                         show: true,
+                         sortable: 'HASC'
+                         },
+                         */
+                        /*
+                         {
+                         field: 'unitOfAnalysisType',
+                         title: 'Type',
+                         show: true,
+                         sortable: 'unitOfAnalysisType'
+                         },
+                         */
                         {
                             field: 'typeName',
                             title: 'Type',
                             show: true,
                             sortable: 'typeName'
                         },
-/*
-                        {
-                            field: 'parentId',
-                            title: 'parentId',
-                            show: true,
-                            sortable: 'parentId'
-                        },
-                        {
-                            field: 'creatorId',
-                            title: 'creatorId',
-                            show: true,
-                            sortable: 'creatorId'
-                        },
-                        {
-                            field: 'ownerId',
-                            title: 'ownerId',
-                            show: true,
-                            sortable: 'ownerId'
-                        },
-*/
-/*
-                        {
-                            field: 'visibility',
-                            title: 'Visibility',
-                            show: true,
-                            sortable: 'visibility'
-                        },
-*/
+                        /*
+                         {
+                         field: 'parentId',
+                         title: 'parentId',
+                         show: true,
+                         sortable: 'parentId'
+                         },
+                         {
+                         field: 'creatorId',
+                         title: 'creatorId',
+                         show: true,
+                         sortable: 'creatorId'
+                         },
+                         {
+                         field: 'ownerId',
+                         title: 'ownerId',
+                         show: true,
+                         sortable: 'ownerId'
+                         },
+                         */
+                        /*
+                         {
+                         field: 'visibility',
+                         title: 'Visibility',
+                         show: true,
+                         sortable: 'visibility'
+                         },
+                         */
                         {
                             field: 'visibilityName',
                             title: 'Visibility',
                             show: true,
                             sortable: 'visibilityName'
                         },
-/*
-                        {
-                            field: 'status',
-                            title: 'Status',
-                            show: true,
-                            sortable: 'status'
-                        },
-*/
+                        /*
+                         {
+                         field: 'status',
+                         title: 'Status',
+                         show: true,
+                         sortable: 'status'
+                         },
+                         */
                         {
                             field: 'statusName',
                             title: 'Status',
@@ -294,14 +253,14 @@ angular.module('greyscale.core')
                             title: 'Created',
                             show: true,
                             sortable: 'createTime'
-/*
-                        },
-                        {
-                            field: 'deleteTime',
-                            title: 'deleteTime',
-                            show: true,
-                            sortable: 'deleteTime'
-*/
+                            /*
+                             },
+                             {
+                             field: 'deleteTime',
+                             title: 'deleteTime',
+                             show: true,
+                             sortable: 'deleteTime'
+                             */
                         }
                     ]
                 },

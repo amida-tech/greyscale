@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .service('greyscaleRoleSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleRoleSrv', function (greyscaleRestSrv) {
         var _roleRights = function (roleId) {
-            return greyscaleRestSrv().one('roles', roleId+'').one('rights');
+            return greyscaleRestSrv().one('roles', roleId + '').one('rights');
         };
 
         return {
@@ -14,13 +14,13 @@ angular.module('greyscale.rest')
                 return greyscaleRestSrv().one('roles').get();
             },
             listRights: function (roleId) {
-                return _roleRights(roleId+'').get();
+                return _roleRights(roleId + '').get();
             },
             addRight: function (roleId, rightId) {
-                return _roleRights(roleId+'').one(rightId+'').customPOST();
+                return _roleRights(roleId + '').one(rightId + '').customPOST();
             },
             delRight: function (roleId, rightId) {
-                return _roleRights(roleId+'').one(rightId+'').remove();
+                return _roleRights(roleId + '').one(rightId + '').remove();
             }
         };
     });

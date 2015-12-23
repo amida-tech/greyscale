@@ -20,7 +20,12 @@ angular.module('greyscale.core')
                         {
                             state: 'users',
                             icon: 'fa-group'
+                        },
+                        {
+                            state: 'projects',
+                            icon: 'fa-paper-plane'
                         }
+
                     ]
                 },
                 {

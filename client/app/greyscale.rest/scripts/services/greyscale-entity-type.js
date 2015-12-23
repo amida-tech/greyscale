@@ -3,17 +3,17 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .service('greyscaleEntityTypeSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleEntityTypeSrv', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('essences');
         };
 
-        var _list = function() {
+        var _list = function () {
             return _api().get();
         };
 
-        var _add = function(data) {
+        var _add = function (data) {
             return _api().customPOST(data);
         };
 

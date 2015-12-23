@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .factory('greyscaleBase64Srv', function () {
+    .service('greyscaleBase64Srv', function () {
         var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
         var _utf8_encode = function (string) {

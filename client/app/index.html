@@ -63,6 +63,7 @@
 <script src="greyscale.core/scripts/services/greyscale-base64.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-token.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-profile.js"></script>
+<script src="greyscale.core/scripts/services/greyscale-utils.js"></script>
 <!-- end greyscale.core -->
 <!-- endbuild -->
 
@@ -79,7 +80,17 @@
 <script src="greyscale.rest/scripts/services/greyscale-role.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-user.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-right.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-project.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-organization.js"></script>
 <!-- end greyscale.user -->
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/greyscale.tables.js -->
+<!-- greyscale.tables -->
+<script src="greyscale.tables/scripts/greyscale.tables.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-projects.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-users.js"></script>
+<!-- end greyscale.tables -->
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/scripts.js -->
@@ -94,6 +105,7 @@
 <script src="scripts/controllers/access.js"></script>
 <script src="scripts/controllers/users.js"></script>
 <script src="scripts/controllers/dashboard.js"></script>
+<script src="scripts/controllers/projects.js"></script>
 <script src="scripts/controllers/modals/user-invite.js"></script>
 <script src="scripts/controllers/modals/simple-form.js"></script>
 <!-- end controllers -->
@@ -109,5 +121,6 @@
 <script src="scripts/directives/modal-footer.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
+
 </body>
 </html>

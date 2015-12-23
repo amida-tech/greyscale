@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-.service('greyscaleRightSrv', function(greyscaleRestSrv){
+    .factory('greyscaleRightSrv', function (greyscaleRestSrv) {
         var _api = function () {
             return greyscaleRestSrv().one('rights');
         };
@@ -13,19 +13,19 @@ angular.module('greyscale.rest')
             return _api().get();
         };
 
-        var _addRight = function(body) {
+        var _addRight = function (body) {
             return _api().customPOST(body);
         };
 
         var _getOne = function (id) {
-            return _api().one(id+'').get();
+            return _api().one(id + '').get();
         };
 
-        var _update = function(body) {
-            return _api().one(body.id+'').customPUT(body);
+        var _update = function (body) {
+            return _api().one(body.id + '').customPUT(body);
         };
 
-        var _delete = function(id) {
+        var _delete = function (id) {
             return _api().one(id + '').remove();
         };
 
