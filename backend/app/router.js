@@ -281,6 +281,20 @@ router.route('/v0.2/uoaclasstypes/:id')
     .delete(authenticate('token').always, checkRight('unitofanalysisclasstype_delete_one'), UnitOfAnalysisClassType.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis Tags
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisTag = require('app/controllers/uoatags');
+
+router.route('/v0.2/uoatags')
+    .get(authenticate('token').always, UnitOfAnalysisTag.select)
+    .post(authenticate('token').always, checkRight('unitofanalysistag_insert_one'), UnitOfAnalysisTag.insertOne);
+
+router.route('/v0.2/uoatags/:id')
+    .get(authenticate('token').always, UnitOfAnalysisTag.selectOne)
+    .put(authenticate('token').always, checkRight('unitofanalysistag_update_one'), UnitOfAnalysisTag.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysistag_delete_one'), UnitOfAnalysisTag.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 module.exports = router;
 
 
