@@ -9,12 +9,14 @@ var ClientPG = function() {
     logger.error(util.format('Connection error: %s', err));
   });
 
-  client.connect(function (err, client) {
-    console.log('connection!')
-     if (err) {
-       console.log(err);
-     }
-  });
+  // client.on('drain', client.end.bind(client));
+
+  // client.connect(function (err, client) {
+  //    console.log('connection');
+  //    if (err) {
+  //      console.log(err);
+  //    }
+  // });
 
   return client;
 };
