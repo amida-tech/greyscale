@@ -164,6 +164,7 @@ var users = require('app/controllers/users');
 var organizations = require('app/controllers/organizations');
 
 router.route('/v0.2/organizations')
+  .get(authenticate('token').always,organizations.select)
   .post(authenticate('token').always,organizations.insertOne);
 
 router.route('/v0.2/organizations/:id')

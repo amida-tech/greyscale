@@ -28,6 +28,17 @@ module.exports = {
     });
   },
 
+  select: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(Organization.select().from(Organization));
+    }).then(function(data){
+      res.json(data);
+    },function(err){
+      next(err);
+    });
+    
+  },
+
   insertOne: function (req, res, next) {
     co(function* (){
       if(!req.body.adminUserId){
