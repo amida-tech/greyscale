@@ -22,29 +22,6 @@ angular.module('greyscale.core')
                 {id: 3, name: 'deleted'}
             ],
             tables: {
-                roles: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: true,
-                            sortable:'id'
-                        },
-                        {
-                            field: 'name',
-                            title: 'Name',
-                            show: true,
-                            sortable: 'name'
-                        },
-                        {
-                            field: 'isSystem',
-                            title: 'System Role',
-                            show: true,
-                            sortable: 'isSystem',
-                            dataFormat:'boolean'
-                        }
-                    ]
-                },
                 countries: {
                     cols: [
                         {

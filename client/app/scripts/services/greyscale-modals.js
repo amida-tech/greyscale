@@ -45,7 +45,7 @@ angular.module('greyscaleApp')
                 return _simpleForm('views/modals/role-right-form.html', _role, _ext);
             },
             editRight: function (_right, _ext) {
-                return _simpleForm('views/modals/role-right-form.html', _right, _ext);
+                return _simpleForm('views/modals/right-form.html', _right, _ext);
             },
             editProject: function (prj, data) {
                 return _simpleForm('views/modals/project-form.html', prj, data);
