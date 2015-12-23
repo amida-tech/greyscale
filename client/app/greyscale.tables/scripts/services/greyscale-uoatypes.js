@@ -9,7 +9,7 @@ angular.module('greyscale.tables')
                                             greyscaleModalsSrv, $log) {
 
         var _updateTableUoaType = function () {
-            //tableParams.reload(); // ToDo: reload
+            _UoaTypes.tableParams.reload();
         };
 
         var _editUoaType = function (_uoaType) {
@@ -58,7 +58,7 @@ angular.module('greyscale.tables')
             });
         };
 
-        return {
+        var _UoaTypes = {
             title: 'Unit of Analysis Types',
             icon: 'fa-table',
             sorting: {id: 'asc'},
@@ -115,4 +115,7 @@ angular.module('greyscale.tables')
             }
 
         };
+
+        return _UoaTypes;
+
     });

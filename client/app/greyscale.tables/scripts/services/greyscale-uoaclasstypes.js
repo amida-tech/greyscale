@@ -9,7 +9,7 @@ angular.module('greyscale.tables')
                                             greyscaleModalsSrv, $log) {
 
         var _updateTableUoaClassType = function () {
-            _table.tableParams.reload(); // ToDo: reload
+            _uoaClassTypes.tableParams.reload();
         };
 
         var _editUoaClassType = function (_uoaClassType) {
@@ -58,7 +58,7 @@ angular.module('greyscale.tables')
             });
         };
 
-        return {
+        var _uoaClassTypes = {
             title: 'Unit of Analysis Classification Types',
             icon: 'fa-table',
             sorting: {id: 'asc'},
@@ -98,7 +98,7 @@ angular.module('greyscale.tables')
                             title: 'Delete',
                             class: 'danger',
                             handler: function (UnitOfAnalysisClassType) {
-                                greyscaleUoaTypeSrv.delete(UnitOfAnalysisClassType)
+                                greyscaleUoaClassTypeSrv.delete(UnitOfAnalysisClassType)
                                     .then(_updateTableUoaClassType)
                                     .catch(function (err) {
                                         $log.debug(err);
@@ -115,4 +115,5 @@ angular.module('greyscale.tables')
             }
 
         };
+        return _uoaClassTypes;
     });

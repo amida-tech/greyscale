@@ -9,7 +9,7 @@ angular.module('greyscale.tables')
                                             greyscaleModalsSrv, $log) {
 
         var _updateTableUoa = function () {
-            //$scope.model.uoas.tableParams.reload(); // ToDo: reload
+            _uoas.tableParams.reload();
         };
 
         var _editUoa = function (_uoa) {
@@ -71,7 +71,7 @@ angular.module('greyscale.tables')
             });
         };
 
-        return {
+        var _uoas = {
             title: 'Unit of Analysis',
             icon: 'fa-table',
             sorting: {id: 'asc'},
@@ -264,6 +264,6 @@ angular.module('greyscale.tables')
                 title: 'Add',
                 handler: _addUoa
             }
-
         };
+        return _uoas;
     });
