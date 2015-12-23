@@ -8,6 +8,11 @@ var HttpError = require('app/error').HttpError,
 exports.Query = function () {
   return function (queryObject, options, cb) {
     var client = new ClientPG();
+
+    if (arguments.length == 2) {
+      cb = options;
+    }
+    
     client.connect(function(err){
       if(err) {
         return console.error('could not connect to postgres', err);
@@ -15,11 +20,12 @@ exports.Query = function () {
       //START
         if (typeof queryObject == 'string') {
           client.query(queryObject, options, function (err, result) {
-            // client.end();
+            client.end();
+            var cbfunc = (typeof cb == 'function');
             if (err) {
-              return cb ? cb(err) : err;
+              return cbfunc ? cb(err) : err;
             }
-            return cb ? cb(null, result.rows) : result.rows;
+            return cbfunc ? cb(null, result.rows) : result.rows;
           });
         }
         else {
@@ -73,16 +79,15 @@ exports.Query = function () {
             }
 
           }
-          if (arguments.length == 2) {
-            cb = options;
-          }
-
+          
+          console.log('query=');
           console.log(queryObject.toQuery());
 
           client.query(queryObject.toQuery(), function (err, result) {
-            // client.end();
+            client.end();
+            var cbfunc = (typeof cb == 'function');
             if (err) {
-              return cb ? cb(err) : err;
+              return cbfunc ? cb(err) : err;
             }
             if (options.fields) {
               var fields = (options.fields).split(',')
@@ -95,7 +100,7 @@ exports.Query = function () {
                 return _.omit(i, queryObject.table.hideCol);
               });
             }
-            return cb ? cb(null, result.rows) : result.rows;
+            return cbfunc ? cb(null, result.rows) : result.rows;
           });
         }
       // END
@@ -117,6 +122,7 @@ exports.detectLanguage = function* (req){
   
   var languages = {};
   var result =  yield thunkQuery(Language.select().from(Language));
+  console.log(result);
   for (var i in result){
     languages[result[i].code] = result[i];
   }
