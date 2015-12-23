@@ -15,7 +15,18 @@ angular.module('greyscale.core')
             return res;
         };
 
+        var _purify = function (cols, data) {
+            var res = {};
+            for (var c = 0; c < cols.length; c++) {
+                if (data.hasOwnProperty(cols[c].field) && !cols[c].internal) {
+                    res[cols[c].field] = data[cols[c].field];
+                }
+            }
+            return res;
+        };
+
         return {
-            decode: _decode
+            decode: _decode,
+            removeInternal: _purify
         };
     });

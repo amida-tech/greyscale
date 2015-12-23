@@ -38,97 +38,108 @@ angular.module('greyscale.tables')
         };
 
         var _editProject = function (prj) {
-            greyscaleModalsSrv.editProject(prj, dicts).then(function(_prj){
-               $log.debug(_prj);
+            greyscaleModalsSrv.editProject(prj, dicts).then(function (_prj) {
+                _prj = greyscaleUtilsSrv.removeInternal(_cols, _prj);
+                $log.debug(_prj);
             });
         };
+
+        var _cols = [
+            {
+                field: 'id',
+                show: false,
+                sortable: 'id',
+                title: 'id'
+            },
+            {
+                field: 'organizationId',
+                show: false,
+                sortable: 'organizationId',
+                title: 'organizationId'
+            },
+            {
+                internal: true,
+                field: 'organization',
+                show: true,
+                sortable: 'organization',
+                title: 'Organization'
+            },
+            {
+                field: 'codeName',
+                show: true,
+                sortable: 'codeName',
+                title: 'Code Name'
+            },
+            {
+                field: 'description',
+                show: true,
+                sortable: false,
+                title: 'Description'
+            },
+            {
+                internal: true,
+                field: 'statusText',
+                show: true,
+                sortable: 'status',
+                title: 'Status'
+            },
+            {
+                field: 'created',
+                dataFormat: 'date',
+                show: true,
+                sortable: 'created',
+                title: 'Created'
+            },
+            {
+                field: 'matrixId',
+                show: false,
+                sortable: 'matrixId',
+                title: 'matrixId'
+            },
+            {
+                field: 'startTime',
+                dataFormat: 'date',
+                show: true,
+                sortable: 'startTime',
+                title: 'Start Time'
+            },
+            {
+                field: 'status',
+                show: false,
+                sortable: 'status',
+                title: 'status'
+            },
+            {
+                field: 'adminUserId',
+                show: false,
+                sortable: 'adminUserId',
+                title: 'adminUserId',
+                dataFormat: 'options',
+                dataSource: dicts.users,
+                dataSourceKey: 'id',
+                dataSourceField: 'email'
+
+            },
+            {
+                internal: true,
+                field: 'admin',
+                show: true,
+                sortable: 'admin',
+                title: 'Admin'
+            },
+            {
+                field: 'closeTime',
+                sortable: 'closeTime',
+                show: true,
+                title: 'Close Time',
+                dataFormat: 'date'
+            }
+        ];
 
         return {
             title: 'Projects',
             icon: 'fa-paper-plane',
-            cols: [
-                {
-                    field: 'id',
-                    show: false,
-                    sortable: 'id',
-                    title: 'id'
-                },
-                {
-                    field: 'organizationId',
-                    show: false,
-                    sortable: 'organizationId',
-                    title: 'organizationId'
-                },
-                {
-                    field: 'organization',
-                    show: true,
-                    sortable: 'organization',
-                    title: 'Organization'
-                },
-                {
-                    field: 'codeName',
-                    show: true,
-                    sortable: 'codeName',
-                    title: 'Code Name'
-                },
-                {
-                    field: 'description',
-                    show: true,
-                    sortable: false,
-                    title: 'Description'
-                },
-                {
-                    field: 'statusText',
-                    show: true,
-                    sortable: 'status',
-                    title: 'Status'
-                },
-                {
-                    field: 'created',
-                    dataFormat: 'date',
-                    show: true,
-                    sortable: 'created',
-                    title: 'Created'
-                },
-                {
-                    field: 'matrixId',
-                    show: false,
-                    sortable: 'matrixId',
-                    title: 'matrixId'
-                },
-                {
-                    field: 'startTime',
-                    dataFormat: 'date',
-                    show: true,
-                    sortable: 'startTime',
-                    title: 'Start Time'
-                },
-                {
-                    field: 'status',
-                    show: false,
-                    sortable: 'status',
-                    title: 'status'
-                },
-                {
-                    field: 'adminUserId',
-                    show: false,
-                    sortable: 'adminUserId',
-                    title: 'adminUserId'
-                },
-                {
-                    field: 'admin',
-                    show: true,
-                    sortable: 'admin',
-                    title: 'Admin'
-                },
-                {
-                    field: 'closeTime',
-                    dataFormat: 'date',
-                    show: true,
-                    sortable: 'closeTime',
-                    title: 'Close Time'
-                }
-            ],
+            cols: _cols,
             dataPromise: _getData,
             add: {
                 title: 'Add',
