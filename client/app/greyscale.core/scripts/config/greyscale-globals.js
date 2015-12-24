@@ -12,30 +12,16 @@ angular.module('greyscale.core')
                 {id: 3, name: 'suspended'},
                 {id: 4, name: 'abandoned'}
             ],
+            uoa_visibility: [
+                {id: 1, name: 'public'},
+                {id: 2, name: 'private'}
+            ],
+            uoa_status: [
+                {id: 1, name: 'active'},
+                {id: 2, name: 'inactive'},
+                {id: 3, name: 'deleted'}
+            ],
             tables: {
-                roles: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: true,
-                            sortable: 'id'
-                        },
-                        {
-                            field: 'name',
-                            title: 'Name',
-                            show: true,
-                            sortable: 'name'
-                        },
-                        {
-                            field: 'isSystem',
-                            title: 'System Role',
-                            show: true,
-                            sortable: 'isSystem',
-                            dataFormat: 'boolean'
-                        }
-                    ]
-                },
                 countries: {
                     cols: [
                         {
@@ -75,7 +61,7 @@ angular.module('greyscale.core')
                             field: 'id',
                             title: 'ID',
                             show: false,
-                            sortable: 'id'
+                            sortable:'id'
                         },
                         {
                             field: 'action',
@@ -99,172 +85,11 @@ angular.module('greyscale.core')
                             field: 'entityType',
                             title: 'Entity Type',
                             show: true,
-                            sortable: 'entityType'
+                            sortable:'entityType'
                         }
                     ]
                 },
-                uoas: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: true
-                        },
-                        /*
-                         {
-                         field: 'gadmId0',
-                         title: 'gadmId0',
-                         show: true,
-                         sortable: 'gadmId0'
-                         },
-                         {
-                         field: 'gadmId1',
-                         title: 'gadmId1',
-                         show: true,
-                         sortable: 'gadmId1'
-                         },
-                         {
-                         field: 'gadmId2',
-                         title: 'gadmId2',
-                         show: true,
-                         sortable: 'gadmId2'
-                         },
-                         {
-                         field: 'gadmId3',
-                         title: 'gadmId3',
-                         show: true,
-                         sortable: 'gadmId3'
-                         },
-                         {
-                         field: 'gadmObjectId',
-                         title: 'gadmObjectId',
-                         show: true,
-                         sortable: 'gadmObjectId'
-                         },
-                         {
-                         field: 'ISO',
-                         title: 'ISO',
-                         show: true,
-                         sortable: 'ISO'
-                         },
-                         {
-                         field: 'ISO2',
-                         title: 'ISO2',
-                         show: true,
-                         sortable: 'ISO2'
-                         },
-                         {
-                         field: 'nameISO',
-                         title: 'nameISO',
-                         show: true,
-                         sortable: 'nameISO'
-                         },
-                         */
-                        {
-                            field: 'name',
-                            title: 'Name',
-                            show: true,
-                            sortable: 'name'
-                        },
-                        {
-                            field: 'description',
-                            title: 'Description',
-                            show: true,
-                            sortable: 'description'
-                        },
-                        {
-                            field: 'shortName',
-                            title: 'Short Name',
-                            show: true,
-                            sortable: 'shortName'
-                        },
-                        /*
-                         {
-                         field: 'HASC',
-                         title: 'HASC',
-                         show: true,
-                         sortable: 'HASC'
-                         },
-                         */
-                        /*
-                         {
-                         field: 'unitOfAnalysisType',
-                         title: 'Type',
-                         show: true,
-                         sortable: 'unitOfAnalysisType'
-                         },
-                         */
-                        {
-                            field: 'typeName',
-                            title: 'Type',
-                            show: true,
-                            sortable: 'typeName'
-                        },
-                        /*
-                         {
-                         field: 'parentId',
-                         title: 'parentId',
-                         show: true,
-                         sortable: 'parentId'
-                         },
-                         {
-                         field: 'creatorId',
-                         title: 'creatorId',
-                         show: true,
-                         sortable: 'creatorId'
-                         },
-                         {
-                         field: 'ownerId',
-                         title: 'ownerId',
-                         show: true,
-                         sortable: 'ownerId'
-                         },
-                         */
-                        /*
-                         {
-                         field: 'visibility',
-                         title: 'Visibility',
-                         show: true,
-                         sortable: 'visibility'
-                         },
-                         */
-                        {
-                            field: 'visibilityName',
-                            title: 'Visibility',
-                            show: true,
-                            sortable: 'visibilityName'
-                        },
-                        /*
-                         {
-                         field: 'status',
-                         title: 'Status',
-                         show: true,
-                         sortable: 'status'
-                         },
-                         */
-                        {
-                            field: 'statusName',
-                            title: 'Status',
-                            show: true,
-                            sortable: 'statusName'
-                        },
-                        {
-                            field: 'createTime',
-                            title: 'Created',
-                            show: true,
-                            sortable: 'createTime'
-                            /*
-                             },
-                             {
-                             field: 'deleteTime',
-                             title: 'deleteTime',
-                             show: true,
-                             sortable: 'deleteTime'
-                             */
-                        }
-                    ]
-                },
-                uoaTypes: {
+                uoaClassTypes: {
                     cols: [
                         {
                             field: 'id',

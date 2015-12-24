@@ -27,6 +27,12 @@ angular.module('greyscaleApp')
             editUoaType: function (_uoaType, _languages) {
                 return _simpleForm('views/modals/uoatype-form.html', _uoaType, _languages);
             },
+            editUoaTag: function (_uoaType, extData) {
+                return _simpleForm('views/modals/uoatag-form.html', _uoaType, extData);
+            },
+            editUoaClassType: function (_uoaClassType, _languages) {
+                return _simpleForm('views/modals/uoaclasstype-form.html', _uoaClassType, _languages);
+            },
             inviteUser: function () {
                 return $uibModal.open({
                     templateUrl: 'views/modals/user-invite.html',
@@ -42,7 +48,7 @@ angular.module('greyscaleApp')
                 return _simpleForm('views/modals/role-right-form.html', _role, _ext);
             },
             editRight: function (_right, _ext) {
-                return _simpleForm('views/modals/role-right-form.html', _right, _ext);
+                return _simpleForm('views/modals/right-form.html', _right, _ext);
             },
             editProject: function (prj, data) {
                 return _simpleForm('views/modals/project-form.html', prj, data);

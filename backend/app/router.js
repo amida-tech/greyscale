@@ -65,6 +65,10 @@ router.route('/v0.2/projects')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
+router.route('/v0.2/projects/:id')
+    .get(authenticate('token').always, projects.selectOne)
+    .delete(authenticate('token').always, projects.delete)
+    .put(authenticate('token').always, projects.editOne);
 //----------------------------------------------------------------------------------------------------------------------
 //    USER DATA
 //----------------------------------------------------------------------------------------------------------------------
@@ -265,6 +269,34 @@ router.route('/v0.2/uoatypes/:id')
     .get(authenticate('token').always, UnitOfAnalysisType.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysistype_update_one'), UnitOfAnalysisType.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysistype_delete_one'), UnitOfAnalysisType.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis Classification Types
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisClassType = require('app/controllers/uoaclasstypes');
+
+router.route('/v0.2/uoaclasstypes')
+    .get(authenticate('token').always, UnitOfAnalysisClassType.select)
+    .post(authenticate('token').always, checkRight('unitofanalysisclasstype_insert_one'), UnitOfAnalysisClassType.insertOne);
+
+router.route('/v0.2/uoaclasstypes/:id')
+    .get(authenticate('token').always, UnitOfAnalysisClassType.selectOne)
+    .put(authenticate('token').always, checkRight('unitofanalysisclasstype_update_one'), UnitOfAnalysisClassType.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysisclasstype_delete_one'), UnitOfAnalysisClassType.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis Tags
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisTag = require('app/controllers/uoatags');
+
+router.route('/v0.2/uoatags')
+    .get(authenticate('token').always, UnitOfAnalysisTag.select)
+    .post(authenticate('token').always, checkRight('unitofanalysistag_insert_one'), UnitOfAnalysisTag.insertOne);
+
+router.route('/v0.2/uoatags/:id')
+    .get(authenticate('token').always, UnitOfAnalysisTag.selectOne)
+    .put(authenticate('token').always, checkRight('unitofanalysistag_update_one'), UnitOfAnalysisTag.updateOne)
+    .delete(authenticate('token').always, checkRight('unitofanalysistag_delete_one'), UnitOfAnalysisTag.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 module.exports = router;

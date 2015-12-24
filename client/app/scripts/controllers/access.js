@@ -5,7 +5,8 @@
 
 angular.module('greyscaleApp')
     .controller('AccessCtrl', function ($scope, _, $log, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
-                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv) {
+                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv,
+                                        greyscaleRoles, greyscaleRights) {
 
         var _getEntityTypes = function () {
             return greyscaleEntityTypeSrv.list();
@@ -27,10 +28,6 @@ angular.module('greyscaleApp')
             } else {
                 return $q.reject('no data');
             }
-        };
-
-        var _getRoles = function () {
-            return greyscaleRoleSrv.list();
         };
 
         var _reloadRoleRights = function () {
@@ -63,65 +60,8 @@ angular.module('greyscaleApp')
             return greyscaleRightSrv.list().then(_decodeEntityTypes);
         };
 
-        var _edtRight = function (_right) {
-            _getEntityTypes().then(function (entityTypes) {
-                return greyscaleModalsSrv.editRight(_right, {entityTypes: entityTypes})
-                    .then(function (_right) {
-                        if (_right.id) {
-                            return greyscaleRightSrv.update(_right);
-                        } else {
-                            return greyscaleRightSrv.add(_right);
-                        }
-                    })
-                    .then(_reloadRights);
-            })
-                .catch(function (err) {
-                    $log.debug(err);
-                    if (err) {
-                        inform.add('Role right update error: ' + err);
-                    }
-                });
-        };
-
-        var _reloadRights = function () {
-            $scope.model.rights.tableParams.reload();
-        };
-
-        var _rights = angular.copy(greyscaleGlobals.tables.rights.cols);
-        _rights.push({
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [
-                {
-                    title: 'Edit',
-                    class: 'info',
-                    handler: _edtRight
-                },
-                {
-                    title: 'Delete',
-                    class: 'danger',
-                    handler: function (right) {
-                        greyscaleRightSrv.delete(right.id)
-                            .then(_reloadRights)
-                            .catch(function (err) {
-                                inform.add('Right right delete error: ' + err);
-                            });
-                    }
-                }
-            ]
-        });
-
         $scope.model = {
-            roles: {
-                editable: false,
-                title: 'Roles',
-                icon: 'fa-users',
-                cols: greyscaleGlobals.tables.roles.cols,
-                sorting: {'id': 'asc'},
-                dataPromise: _getRoles
-            },
+            roles: greyscaleRoles,
             roleRights: {
                 title: 'Role Rights',
                 icon: 'fa-tasks',
@@ -152,16 +92,7 @@ angular.module('greyscaleApp')
                     }
                 }
             },
-            rights: {
-                title: 'Rights',
-                icon: 'fa-tasks',
-                cols: _rights,
-                dataPromise: _getRights,
-                add: {
-                    title: 'add',
-                    handler: _edtRight
-                }
-            }
+            rights: greyscaleRights
         };
 
         $scope.selectRole = function (role) {

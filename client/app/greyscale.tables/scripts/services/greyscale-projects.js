@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleUtilsSrv, greyscaleProjectSrv,
                                             greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-                                            greyscaleModalsSrv, $log) {
+                                            greyscaleModalsSrv, inform, $log) {
 
         var dicts = {
             matrices: [],
@@ -15,36 +15,7 @@ angular.module('greyscale.tables')
             states: greyscaleGlobals.project_states
         };
 
-        var _getData = function () {
-            var req = {
-                prjs: greyscaleProjectSrv.list(),
-                orgs: greyscaleOrganizationSrv.list(),
-                usrs: greyscaleUserSrv.list(),
-                matrices: greyscaleAccessSrv.matrices()
-            };
-
-            return $q.all(req).then(function (promises) {
-                for (var p = 0; p < promises.prjs.length; p++) {
-                    promises.prjs[p].organization = greyscaleUtilsSrv.decode(promises.orgs, 'id', promises.prjs[p].organizationId, 'name');
-                    promises.prjs[p].statusText = greyscaleUtilsSrv.decode(greyscaleGlobals.project_states, 'id', promises.prjs[p].status, 'name');
-                    promises.prjs[p].admin = greyscaleUtilsSrv.decode(promises.usrs, 'id', promises.prjs[p].adminUserId, 'email');
-                }
-                dicts.matrices = promises.matrices;
-                dicts.orgs = promises.orgs;
-                dicts.users = promises.users;
-
-                return promises.prjs;
-            });
-        };
-
-        var _editProject = function (prj) {
-            greyscaleModalsSrv.editProject(prj, dicts).then(function (_prj) {
-                _prj = greyscaleUtilsSrv.removeInternal(_cols, _prj);
-                $log.debug(_prj);
-            });
-        };
-
-        var _cols = [
+        var recDescr = [
             {
                 field: 'id',
                 show: false,
@@ -58,7 +29,6 @@ angular.module('greyscale.tables')
                 title: 'organizationId'
             },
             {
-                internal: true,
                 field: 'organization',
                 show: true,
                 sortable: 'organization',
@@ -77,7 +47,6 @@ angular.module('greyscale.tables')
                 title: 'Description'
             },
             {
-                internal: true,
                 field: 'statusText',
                 show: true,
                 sortable: 'status',
@@ -113,15 +82,9 @@ angular.module('greyscale.tables')
                 field: 'adminUserId',
                 show: false,
                 sortable: 'adminUserId',
-                title: 'adminUserId',
-                dataFormat: 'options',
-                dataSource: dicts.users,
-                dataSourceKey: 'id',
-                dataSourceField: 'email'
-
+                title: 'adminUserId'
             },
             {
-                internal: true,
                 field: 'admin',
                 show: true,
                 sortable: 'admin',
@@ -129,22 +92,110 @@ angular.module('greyscale.tables')
             },
             {
                 field: 'closeTime',
-                sortable: 'closeTime',
+                dataFormat: 'date',
                 show: true,
-                title: 'Close Time',
-                dataFormat: 'date'
-            }
-        ];
+                sortable: 'closeTime',
+                title: 'Close Time'
+            },
+            {
+                field: '',
+                title: '',
+                show: true,
+                dataFormat: 'action',
+                actions: [
+                    {
+                        title: 'Edit',
+                        class: 'info',
+                        handler: _editProject
+                    },
+                    {
+                        title: 'Delete',
+                        class: 'danger',
+                        handler: function (item) {
+                            greyscaleProjectSrv.delete(item.id)
+                                .then(reloadTable)
+                                .catch(function (err) {
+                                    errHandler(err, 'deleting');
+                                });
+                        }
+                    }
+                ]
+            }];
 
-        return {
+        var _table = {
             title: 'Projects',
             icon: 'fa-paper-plane',
-            cols: _cols,
+            cols: recDescr,
             dataPromise: _getData,
             add: {
                 title: 'Add',
                 handler: _editProject
             }
-
         };
+
+        function _getData() {
+            var req = {
+                prjs: greyscaleProjectSrv.list(),
+                orgs: greyscaleOrganizationSrv.list(),
+                usrs: greyscaleUserSrv.list(),
+                matrices: greyscaleAccessSrv.matrices()
+            };
+
+            return $q.all(req).then(function (promises) {
+                for (var p = 0; p < promises.prjs.length; p++) {
+                    var prj = promises.prjs[p];
+
+                    prj.created = prj.created?new Date(prj.created):null;
+                    prj.startTime = prj.startTime?new Date(prj.startTime):null;
+                    prj.closeTime = prj.closeTime?new Date(prj.closeTime):null;
+
+                    prj.organization = greyscaleUtilsSrv.decode(promises.orgs, 'id', prj.organizationId, 'name');
+                    prj.statusText = greyscaleUtilsSrv.decode(greyscaleGlobals.project_states, 'id', prj.status, 'name');
+                    prj .admin = greyscaleUtilsSrv.decode(promises.usrs, 'id', prj.adminUserId, 'email');
+                }
+                dicts.matrices = promises.matrices;
+                dicts.orgs = promises.orgs;
+                dicts.users = promises.usrs;
+
+                $log.debug(promises.prjs);
+                return promises.prjs;
+            });
+        }
+
+        function _editProject(prj) {
+            var op = 'editing';
+            greyscaleModalsSrv.editProject(prj, dicts)
+                .then(function (newPrj) {
+                    delete newPrj.organization;
+                    delete newPrj.statusText;
+                    delete newPrj.admin;
+                    if (newPrj.id) {
+                        return greyscaleProjectSrv.update(newPrj);
+                    } else {
+                        op = 'adding';
+                        return greyscaleProjectSrv.add(newPrj);
+                    }
+                })
+                .then(reloadTable)
+                .catch(function (err) {
+                    return errHandler(err, op);
+                });
+        }
+
+        function reloadTable() {
+            _table.tableParams.reload();
+        }
+
+        function errHandler(err, operation) {
+            if (err) {
+                var msg = 'Project ' + operation + ' error';
+                $log.debug(err);
+                if (err.data && err.data.message) {
+                    msg += ': ' + err.data.message;
+                }
+                inform.add(msg, {type: 'danger'});
+            }
+        }
+
+        return _table;
     });

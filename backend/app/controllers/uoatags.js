@@ -1,7 +1,7 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
-    UnitOfAnalysis = require('app/models/uoas'),
+    UnitOfAnalysisTag = require('app/models/uoatags'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
     Language = require('app/models/languages'),
@@ -19,9 +19,9 @@ module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
         co(function* () {
-            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var uoa = thunkQuery(UnitOfAnalysis.select(), req.query);
-            return yield [_counter, uoa];
+            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            var uoaTag = thunkQuery(UnitOfAnalysisTag.select(), req.query);
+            return yield [_counter, uoaTag];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
             res.json(_.last(data));
@@ -32,10 +32,10 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* (){
-            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var langId = yield* detectLanguage(req);
-            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis));
-            return yield [_counter, uoa];
+            var uoaTag = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisTag));
+            return yield [_counter, uoaTag];
         }).then(function(data){
             res.set('X-Total-Count', _.first(data[0]).counter);
             res.json(_.last(data));
@@ -46,7 +46,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* (){
-            return yield thunkQuery(getTranslateQuery(req.param.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(getTranslateQuery(req.params.langId, UnitOfAnalysisTag, UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function(data){
             res.json(_.first(data));
         },function(err){
@@ -56,10 +56,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            req.body.creatorId = req.user.id;
-            req.body.ownerId = req.user.id;
-            req.body.createTime = new Date();
-            return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
+            return yield thunkQuery(UnitOfAnalysisTag.insert(req.body).returning(UnitOfAnalysisTag.id));
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -69,8 +66,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* (){
-            delete req.body.createTime;
-            return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.body.id)));
+            return yield thunkQuery(UnitOfAnalysisTag.update(req.body).where(UnitOfAnalysisTag.id.equals(req.body.id)));
         }).then(function(){
             res.status(202).end();
         },function(err){
@@ -80,7 +76,7 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* (){
-            return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(UnitOfAnalysisTag.delete().where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function(){
             res.status(204).end();
         },function(err){
