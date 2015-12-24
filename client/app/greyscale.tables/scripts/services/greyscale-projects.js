@@ -143,13 +143,21 @@ angular.module('greyscale.tables')
 
             return $q.all(req).then(function (promises) {
                 for (var p = 0; p < promises.prjs.length; p++) {
-                    promises.prjs[p].organization = greyscaleUtilsSrv.decode(promises.orgs, 'id', promises.prjs[p].organizationId, 'name');
-                    promises.prjs[p].statusText = greyscaleUtilsSrv.decode(greyscaleGlobals.project_states, 'id', promises.prjs[p].status, 'name');
-                    promises.prjs[p].admin = greyscaleUtilsSrv.decode(promises.usrs, 'id', promises.prjs[p].adminUserId, 'email');
+                    var prj = promises.prjs[p];
+
+                    prj.created = prj.created?new Date(prj.created):null;
+                    prj.startTime = prj.startTime?new Date(prj.startTime):null;
+                    prj.closeTime = prj.closeTime?new Date(prj.closeTime):null;
+
+                    prj.organization = greyscaleUtilsSrv.decode(promises.orgs, 'id', prj.organizationId, 'name');
+                    prj.statusText = greyscaleUtilsSrv.decode(greyscaleGlobals.project_states, 'id', prj.status, 'name');
+                    prj .admin = greyscaleUtilsSrv.decode(promises.usrs, 'id', prj.adminUserId, 'email');
                 }
                 dicts.matrices = promises.matrices;
                 dicts.orgs = promises.orgs;
                 dicts.users = promises.usrs;
+
+                $log.debug(promises.prjs);
                 return promises.prjs;
             });
         }
@@ -161,7 +169,6 @@ angular.module('greyscale.tables')
                     delete newPrj.organization;
                     delete newPrj.statusText;
                     delete newPrj.admin;
-                    $log.debug('edited project body',newPrj);
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
                     } else {
