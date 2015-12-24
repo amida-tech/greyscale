@@ -65,6 +65,10 @@ router.route('/v0.2/projects')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
+router.route('/v0.2/projects/:id')
+    .get(authenticate('token').always, projects.selectOne)
+    .delete(authenticate('token').always, projects.delete)
+    .put(authenticate('token').always, projects.editOne);
 //----------------------------------------------------------------------------------------------------------------------
 //    USER DATA
 //----------------------------------------------------------------------------------------------------------------------

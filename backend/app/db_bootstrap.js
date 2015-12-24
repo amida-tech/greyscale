@@ -4,6 +4,7 @@ var config = require('config'),
   Client = require('pg').Client;
 
 var ClientPG = function() {
+
   var client = new Client(config.pgConnect);
   client.on('error', function (err) {
     logger.error(util.format('Connection error: %s', err));
