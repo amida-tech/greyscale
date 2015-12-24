@@ -4,7 +4,7 @@
 "use strict";
 
 angular.module('greyscaleApp')
-    .directive('sidebar', function ($log, $cookieStore) {
+    .directive('sidebar', function ($cookieStore) {
         return {
             templateUrl: 'views/directives/sidebar.html',
             scope: {
@@ -13,7 +13,6 @@ angular.module('greyscaleApp')
             },
             restrict: 'AE',
             link: function ($scope) {
-                $log.debug('scope', $scope.menu);
                 $scope.toggle = $cookieStore.get('toggle') || false;
 
                 $scope.toggleSidebar = function () {

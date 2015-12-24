@@ -1,0 +1,40 @@
+/**
+ * Created by dTseytlin on 23.12.15.
+ */
+'use strict';
+
+angular.module('greyscale.rest')
+    .factory('greyscaleUoaClassTypeSrv', function (greyscaleRestSrv) {
+
+        var _api = function(){
+            return greyscaleRestSrv().one('uoaclasstypes');
+        };
+
+        function _uoaClassType() {
+            return _api().get();
+        }
+
+        function _uoaClassTypeOne(uoaClassType) {
+            return _api().one(uoaClassType.id+'').get();
+        }
+
+        function _addUoaClassType(uoaClassType) {
+            return _api().customPOST(uoaClassType);
+        }
+
+        function _deleteUoaClassType(uoaClassType) {
+            return _api().one(uoaClassType.id+'').remove();
+        }
+
+        var _updateUoaClassType = function(uoaClassType) {
+            return _api().one(uoaClassType.id+'').customPUT(uoaClassType);
+        };
+
+        return {
+            list: _uoaClassType,
+            get: _uoaClassTypeOne,
+            add: _addUoaClassType,
+            update: _updateUoaClassType,
+            delete: _deleteUoaClassType
+        };
+    });

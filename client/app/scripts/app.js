@@ -19,6 +19,7 @@ var _app = angular.module('greyscaleApp', [
     'RDash',
     'greyscale.core',
     'greyscale.rest',
+    'greyscale.tables',
     'inform',
     'lodashAngularWrapper'
 ]);
@@ -141,6 +142,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Units of Analysis',
                 accessLevel: 0x8000
+            }
+        })
+        .state('projects', {
+            parent: 'home',
+            url: 'projects',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/projects.html',
+                    controller: 'ProjectsCtrl'
+                }
+            },
+            data: {
+                name: 'Projects Management',
+                accessLevel: 0xC000
             }
         })
         .state('profile', {

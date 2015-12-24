@@ -3,45 +3,35 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .service('greyscaleModalsSrv', function ($uibModal) {
+    .factory('greyscaleModalsSrv', function ($uibModal) {
+        var _simpleForm = function (tmplUrl, data, ext) {
+            return $uibModal.open({
+                templateUrl: tmplUrl,
+                controller: 'SimpleFormCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    formData: data,
+                    extData: ext
+                }
+            }).result;
+        };
+
         return {
             editCountry: function (_country) {
-                return $uibModal.open({
-                    templateUrl: 'views/modals/country-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _country,
-                        extData: null
-                    }
-                }).result;
+                return _simpleForm('views/modals/country-form.html', _country, null);
             },
             editUoa: function (_uoa, extData) {
-                var _instance = $uibModal.open({
-                    templateUrl: 'views/modals/uoa-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _uoa,
-                        extData: extData
-                    }
-                });
-                return _instance.result;
+                return _simpleForm('views/modals/uoa-form.html', _uoa, extData);
             },
             editUoaType: function (_uoaType, _languages) {
-                var _instance = $uibModal.open({
-                    templateUrl: 'views/modals/uoatype-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _uoaType,
-                        extData: _languages
-                    }
-                });
-                return _instance.result;
+                return _simpleForm('views/modals/uoatype-form.html', _uoaType, _languages);
+            },
+            editUoaTag: function (_uoaType, extData) {
+                return _simpleForm('views/modals/uoatag-form.html', _uoaType, extData);
+            },
+            editUoaClassType: function (_uoaClassType, _languages) {
+                return _simpleForm('views/modals/uoaclasstype-form.html', _uoaClassType, _languages);
             },
             inviteUser: function () {
                 return $uibModal.open({
@@ -52,40 +42,16 @@ angular.module('greyscaleApp')
                 }).result;
             },
             editUserOrganization: function (_org) {
-                return $uibModal.open({
-                    templateUrl: 'views/modals/user-organization-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _org,
-                        extData: null
-                    }
-                }).result;
+                return _simpleForm('views/modals/user-organization-form.html', _org, null);
             },
             addRoleRight: function (_role, _ext) {
-                return $uibModal.open({
-                    templateUrl: 'views/modals/role-right-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _role,
-                        extData: _ext
-                    }
-                }).result;
+                return _simpleForm('views/modals/role-right-form.html', _role, _ext);
             },
             editRight: function (_right, _ext) {
-                return $uibModal.open({
-                    templateUrl: 'views/modals/right-form.html',
-                    controller: 'SimpleFormCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in',
-                    resolve: {
-                        formData: _right,
-                        extData: _ext
-                    }
-                }).result;
+                return _simpleForm('views/modals/right-form.html', _right, _ext);
+            },
+            editProject: function (prj, data) {
+                return _simpleForm('views/modals/project-form.html', prj, data);
             }
         };
     });
