@@ -17,6 +17,7 @@ angular.module('greyscale.tables')
                 eTypes: greyscaleEntityTypeSrv.list()
             };
             return $q.all(_reqs).then(function (promises) {
+                promises.eTypes.unshift({'id':null,'name':''});
                 for (var r = 0; r < promises.rights.length; r++) {
                     promises.rights[r].entityType = greyscaleUtilsSrv.decode(promises.eTypes, 'id', promises.rights[r].essenceId, 'name');
                 }
@@ -28,6 +29,7 @@ angular.module('greyscale.tables')
         var _edtRight = function (_right) {
             return greyscaleModalsSrv.editRight(_right, _dicts)
                 .then(function (newRight) {
+                    delete newRight.entityType;
                     if (newRight.id) {
                         return greyscaleRightSrv.update(newRight);
                     } else {
