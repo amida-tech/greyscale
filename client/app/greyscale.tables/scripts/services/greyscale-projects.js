@@ -42,7 +42,7 @@ angular.module('greyscale.tables')
             },
             {
                 field: 'description',
-                show: true,
+                show: false,
                 sortable: false,
                 title: 'Description'
             },
@@ -104,20 +104,14 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 actions: [
                     {
-                        title: 'Edit',
+                        icon: 'fa-pencil',
                         class: 'info',
                         handler: _editProject
                     },
                     {
-                        title: 'Delete',
+                        icon: 'fa-trash',
                         class: 'danger',
-                        handler: function (item) {
-                            greyscaleProjectSrv.delete(item.id)
-                                .then(reloadTable)
-                                .catch(function (err) {
-                                    errHandler(err, 'deleting');
-                                });
-                        }
+                        handler: _delRecord
                     }
                 ]
             }];
@@ -160,6 +154,14 @@ angular.module('greyscale.tables')
                 $log.debug(promises.prjs);
                 return promises.prjs;
             });
+        }
+
+        function _delRecord(item) {
+            greyscaleProjectSrv.delete(item.id)
+                .then(reloadTable)
+                .catch(function (err) {
+                    errHandler(err, 'deleting');
+                });
         }
 
         function _editProject(prj) {
