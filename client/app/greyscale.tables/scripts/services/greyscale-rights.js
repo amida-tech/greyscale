@@ -17,7 +17,7 @@ angular.module('greyscale.tables')
                 eTypes: greyscaleEntityTypeSrv.list()
             };
             return $q.all(_reqs).then(function (promises) {
-                promises.eTypes.unshift({'id':null,'name':''});
+                promises.eTypes.unshift({'id': null, 'name': ''});
                 for (var r = 0; r < promises.rights.length; r++) {
                     promises.rights[r].entityType = greyscaleUtilsSrv.decode(promises.eTypes, 'id', promises.rights[r].essenceId, 'name');
                 }
@@ -40,7 +40,11 @@ angular.module('greyscale.tables')
                 .catch(function (err) {
                     if (err) {
                         $log.debug(err);
-                        inform.add('Role right update error: ' + err);
+                        var msg = 'Role right update error';
+                        if (err.data && err.data.message) {
+                            msg += ': ' + err.data.message;
+                        }
+                        inform.add(msg, {type: 'danger'});
                     }
                 });
         };
