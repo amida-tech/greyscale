@@ -32,10 +32,13 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* (){
+            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var langId = yield* detectLanguage(req);
-            return yield thunkQuery(getTranslateQuery(langId, UnitOfAnalysis));
+            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis));
+            return yield [_counter, uoa];
         }).then(function(data){
-            res.json(data);
+            res.set('X-Total-Count', _.first(data[0]).counter);
+            res.json(_.last(data));
         },function(err){
             next(err);
         })
@@ -43,7 +46,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* (){
-            return yield thunkQuery(getTranslateQuery(req.params.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(getTranslateQuery(req.param.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function(data){
             res.json(_.first(data));
         },function(err){

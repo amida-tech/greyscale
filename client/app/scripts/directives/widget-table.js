@@ -73,7 +73,7 @@ angular.module('greyscaleApp')
                     case 'action':
                         elem.addClass('text-right');
                         elem.append('<button ng-repeat="act in widgetCell.actions" class="btn btn-xs btn-{{act.class}}" ' +
-                            'ng-click="act.handler(rowValue)">{{act.title}}</button>');
+                            'ng-click="act.handler(rowValue)"><i class="fa {{act.icon}}" ng-show="act.icon"> </i>{{act.title}}</button>');
                         $compile(elem.contents())($scope);
                         break;
                     case 'boolean':
