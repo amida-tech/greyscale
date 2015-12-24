@@ -32,10 +32,13 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* (){
+            var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var langId = yield* detectLanguage(req);
-            return yield thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType));
+            var uoaType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType));
+            return yield [_counter, uoaType];
         }).then(function(data){
-            res.json(data);
+            res.set('X-Total-Count', _.first(data[0]).counter);
+            res.json(_.last(data));
         },function(err){
             next(err);
         })
