@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .factory('greyscaleModalsSrv', function ($uibModal) {
-        var _simpleForm = function (tmplUrl, data, ext) {
+        function _simpleForm (tmplUrl, data, ext) {
             return $uibModal.open({
                 templateUrl: tmplUrl,
                 controller: 'SimpleFormCtrl',
@@ -15,7 +15,20 @@ angular.module('greyscaleApp')
                     extData: ext
                 }
             }).result;
-        };
+        }
+
+        function modalForm(data, recDescr) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-form.html',
+                controller: 'ModalFormCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    recordData: data,
+                    recordForm: recDescr
+                }
+            }).result;
+        }
 
         return {
             editCountry: function (_country) {
@@ -50,8 +63,8 @@ angular.module('greyscaleApp')
             editRight: function (_right, _ext) {
                 return _simpleForm('views/modals/right-form.html', _right, _ext);
             },
-            editProject: function (prj, data) {
-                return _simpleForm('views/modals/project-form.html', prj, data);
+            editProject: function (prj, form) {
+                return modalForm(prj, form);
             }
         };
     });

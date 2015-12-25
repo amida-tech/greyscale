@@ -3,7 +3,7 @@
  */
 "use strict";
 angular.module('greyscaleApp')
-    .directive('selectDate', function ($log) {
+    .directive('selectDate', function () {
         return {
             template: '<p class="input-group"><input type="date" class="form-control" id="{{dataId}}" name="{{dataId}}" ' +
             'uib-datepicker-popup ng-model="result" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
