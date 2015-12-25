@@ -191,8 +191,6 @@ angular.module('greyscale.tables')
             var op = 'editing';
             greyscaleModalsSrv.editProject(prj, _table)
                 .then(function (newPrj) {
-                    $log.debug(newPrj);
-                    return true;
 
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
