@@ -12,7 +12,9 @@ exports.Query = function () {
     if (arguments.length == 2) {
       cb = options;
     }
-    
+
+    var arlen = arguments.length;
+
     client.connect(function(err){
       if(err) {
         return console.error('could not connect to postgres', err);
@@ -27,9 +29,8 @@ exports.Query = function () {
             }
             return cbfunc ? cb(null, result.rows) : result.rows;
           });
-        }
-        else {
-          if (arguments.length == 3) {
+        } else {
+          if (arlen == 3) {
             var optWhere = _.pick(options, queryObject.table.whereCol);
             if (Object.keys(optWhere).length) {
               var whereObj = {};

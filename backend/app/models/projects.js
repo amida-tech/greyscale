@@ -29,6 +29,7 @@ var Project = sql.define({
   columns: columns
 });
 
+Project.whereCol = columns;
 
 module.exports = Project;
 
