@@ -80,7 +80,6 @@ exports.Query = function () {
 
           }
           
-          console.log('query=');
           console.log(queryObject.toQuery());
 
           client.query(queryObject.toQuery(), function (err, result) {
@@ -122,7 +121,7 @@ exports.detectLanguage = function* (req){
   
   var languages = {};
   var result =  yield thunkQuery(Language.select().from(Language));
-  console.log(result);
+
   for (var i in result){
     languages[result[i].code] = result[i];
   }

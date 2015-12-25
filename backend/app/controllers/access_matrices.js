@@ -26,16 +26,17 @@ module.exports = {
   },
 
   insertOne: function (req, res, next) {
-    var q = AccessMatrix.insert(req.body).returning(AccessMatrix.id);
-    query(q, function (err, data) {
-        if (!err) {
-          res.status(201).json(_.first(data));
-        }
-        else {
-          next(err);
-        }
+    co(function* (){
+      if(!req.body.name){
+        throw new HttpError(403, 'Name field is required');
       }
-    );
+      return yield thunkQuery(AccessMatrix.insert(req.body).returning(AccessMatrix.id));
+    }).then(function(data){
+      res.status(201).json(_.first(data));
+    },function(err){
+      next(err);
+    });
+
   },
 
   permissionsSelect: function (req, res, next) {

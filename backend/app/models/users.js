@@ -43,7 +43,7 @@ User.validPassword = function (pas, checkpas) {
   return pas == this.hashPassword(checkpas);
 };
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
 User.whereCol = columns;
 
 module.exports = User;

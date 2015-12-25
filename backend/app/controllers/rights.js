@@ -28,25 +28,32 @@ module.exports = {
   },
 
   insertOne: function (req, res, next) {
-    query(Right.insert(req.body).returning(Right.id),
-      function (err, data) {
-        if (!err) {
-          res.status(201).json(_.first(data));
+    co(function*(){
+        if(!req.body.action){
+            throw new HttpError(403, 'Action field is required');
         }
-        else {
-          next(err);
-        }
-      });
+        return yield thunkQuery(Right.insert(req.body).returning(Right.id));
+    }).then(function(data){
+        res.status(201).json(_.first(data));
+    },function(err){
+        next(err);
+    });
+
   },
 
   selectOne: function (req, res, next) {
-    query(Right.select().where(req.params), function (err, user) {
-      if (!err) {
-        res.json(_.first(user));
-      } else {
+    co(function*(){
+        var right =  yield thunkQuery(Right.select().where(req.params));
+        if(!_.first(right)){
+            throw new HttpError(404, 'Not found');
+        }
+        return right;
+    }).then(function(data){
+        res.json(_.first(data));
+    },function(err){
         next(err);
-      }
     });
+
   },
 
   updateOne: function (req, res, next) {
