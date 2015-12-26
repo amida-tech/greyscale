@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
         }
 
         function _uoaClassTypeOne(uoaClassType) {
-            return _api().one(uoaClassType.id+'').get();
+            return _api().one(uoaClassType.id+'').get({langId:uoaClassType.langId});
         }
 
         function _addUoaClassType(uoaClassType) {

@@ -46,7 +46,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* (){
-            return yield thunkQuery(getTranslateQuery(req.param.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function(data){
             res.json(_.first(data));
         },function(err){

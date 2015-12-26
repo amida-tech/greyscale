@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
         }
 
         function _uoaOne(uoa) {
-            return _api().one(uoa.id+'').get();
+            return _api().one(uoa.id+'').get({langId:uoa.langId});
         }
 
         function _addUoa(uoa) {
