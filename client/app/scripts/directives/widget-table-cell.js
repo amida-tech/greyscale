@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
                             if (_data.length > 0) {
                                 elem.append(_data[0][_set.valField]);
                             } else {
-                                elem.append(_set.valField);
+                                elem.append($scope.rowValue[_field]);
                             }
                             break;
 

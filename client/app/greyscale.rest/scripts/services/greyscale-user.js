@@ -4,18 +4,32 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function (greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv,$log) {
+    .factory('greyscaleUserSrv', function (greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
 
-        var _auth_err_handler = function (err) {
-            $log.debug(err);
-            return $q.reject(err);
+        return {
+            login: _login,
+            logout: _logout,
+            isAuthenticated: _isAuthenticated,
+            get: _self,
+            list: _listUsers,
+            register: _register,
+            invite: _inviteUser,
+            activate: _activate,
+            checkActivationToken: _checkActivationToken,
+            getOrganization: _getOrg,
+            saveOrganization: _saveOrg
         };
 
-        var _organization = function () {
+        function _auth_err_handler(err) {
+            $log.debug(err);
+            return $q.reject(err);
+        }
+
+        function _organization() {
             return greyscaleRestSrv()
                 .one('users', 'self')
                 .one('organization');
-        };
+        }
 
         function _self() {
             return greyscaleRestSrv().one('users', 'self').get()
@@ -42,13 +56,9 @@ angular.module('greyscale.rest')
             return Restangular.one('users').one('activate', token).customPOST(data);
         }
 
-        var _listUsers = function (roleId) {
-            var _param = {};
-            if (roleId) {
-                _param.roleID = roleId;
-            }
-            return greyscaleRestSrv().one('users').get(_param);
-        };
+        function _listUsers(params) {
+            return greyscaleRestSrv().one('users').get(params);
+        }
 
         function _login(user, passwd) {
             return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)})
@@ -80,21 +90,7 @@ angular.module('greyscale.rest')
                 .catch(_auth_err_handler);
         }
 
-        var _inviteUser = function (user_data) {
+        function _inviteUser(user_data) {
             return greyscaleRestSrv().one('users').one('invite').customPOST(user_data);
-        };
-
-        return {
-            login: _login,
-            logout: _logout,
-            isAuthenticated: _isAuthenticated,
-            get: _self,
-            list: _listUsers,
-            register: _register,
-            invite: _inviteUser,
-            activate: _activate,
-            checkActivationToken: _checkActivationToken,
-            getOrganization: _getOrg,
-            saveOrganization: _saveOrg
-        };
+        }
     });

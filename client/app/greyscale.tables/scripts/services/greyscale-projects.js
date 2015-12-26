@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv,
+    .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
                                             greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
                                             greyscaleModalsSrv, inform, $log) {
 
@@ -130,6 +130,7 @@ angular.module('greyscale.tables')
             formTitle: 'Project',
             title: 'Projects',
             icon: 'fa-paper-plane',
+            pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
             add: {
@@ -155,27 +156,30 @@ angular.module('greyscale.tables')
         }
 
         function _getData() {
-            var req = {
-                prjs: greyscaleProjectSrv.list(),
-                orgs: greyscaleOrganizationSrv.list(),
-                usrs: greyscaleUserSrv.list(),
-                matrices: greyscaleAccessSrv.matrices()
-            };
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+                var req = {
+                    prjs: greyscaleProjectSrv.list({organizationId: profile.organizationId}),
+                    orgs: greyscaleOrganizationSrv.list({adminUserId: profile.id}),
+                    usrs: greyscaleUserSrv.list({organizationId: profile.organizationId}),
+                    matrices: greyscaleAccessSrv.matrices()
+                };
 
-            return $q.all(req).then(function (promises) {
-                for (var p = 0; p < promises.prjs.length; p++) {
-                    var prj = promises.prjs[p];
-                    for (var f=0; f<recDescr.length; f++) {
-                        if (recDescr[f].dataFormat === 'date' && prj[recDescr[f].field]) {
-                            prj[recDescr[f].field] = new Date(prj[recDescr[f].field]);
+                return $q.all(req).then(function (promises) {
+                    for (var p = 0; p < promises.prjs.length; p++) {
+                        var prj = promises.prjs[p];
+                        for (var f = 0; f < recDescr.length; f++) {
+                            if (recDescr[f].dataFormat === 'date' && prj[recDescr[f].field]) {
+                                prj[recDescr[f].field] = new Date(prj[recDescr[f].field]);
+                            }
                         }
                     }
-                }
-                dicts.matrices = promises.matrices;
-                dicts.orgs = promises.orgs;
-                dicts.users = promises.usrs;
+                    dicts.matrices = promises.matrices;
+                    dicts.orgs = promises.orgs;
+                    dicts.users = promises.usrs;
 
-                return promises.prjs;
+                    return promises.prjs;
+                });
+
             });
         }
 
@@ -211,7 +215,7 @@ angular.module('greyscale.tables')
 
         function errHandler(err, operation) {
             if (err) {
-                var msg = _table.formTitle + operation + ' error';
+                var msg = _table.formTitle + ' ' + operation + ' error';
                 $log.debug(err);
                 if (err.data && err.data.message) {
                     msg += ': ' + err.data.message;
