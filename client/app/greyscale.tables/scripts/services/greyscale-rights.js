@@ -11,7 +11,7 @@ angular.module('greyscale.tables')
             entityTypes: []
         };
 
-        var _getRights = function () {
+        function _getRights () {
             var _reqs = {
                 rights: greyscaleRightSrv.list(),
                 eTypes: greyscaleEntityTypeSrv.list()
@@ -24,7 +24,7 @@ angular.module('greyscale.tables')
                 _dicts.entityTypes = promises.eTypes;
                 return promises.rights;
             });
-        };
+        }
 
         var _edtRight = function (_right) {
             return greyscaleModalsSrv.editRight(_right, _dicts)

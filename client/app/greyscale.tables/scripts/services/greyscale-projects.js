@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
                                             greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-                                            greyscaleModalsSrv, inform, $log) {
+                                            greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var dicts = {
             matrices: [],
@@ -165,14 +165,8 @@ angular.module('greyscale.tables')
                 };
 
                 return $q.all(req).then(function (promises) {
-                    for (var p = 0; p < promises.prjs.length; p++) {
-                        var prj = promises.prjs[p];
-                        for (var f = 0; f < recDescr.length; f++) {
-                            if (recDescr[f].dataFormat === 'date' && prj[recDescr[f].field]) {
-                                prj[recDescr[f].field] = new Date(prj[recDescr[f].field]);
-                            }
-                        }
-                    }
+                    greyscaleUtilsSrv.prepareFields(promises.prjs, recDescr);
+
                     dicts.matrices = promises.matrices;
                     dicts.orgs = promises.orgs;
                     dicts.users = promises.usrs;
@@ -214,14 +208,8 @@ angular.module('greyscale.tables')
         }
 
         function errHandler(err, operation) {
-            if (err) {
-                var msg = _table.formTitle + ' ' + operation + ' error';
-                $log.debug(err);
-                if (err.data && err.data.message) {
-                    msg += ': ' + err.data.message;
-                }
-                inform.add(msg, {type: 'danger'});
-            }
+            var msg = _table.formTitle + ' ' + operation + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;
