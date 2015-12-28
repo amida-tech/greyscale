@@ -5,13 +5,14 @@
         class="text-lowercase">{{view.formTitle}}</span></h3>
 </div>
 <div class="modal-body">
-    <div class="row">
+    <div class="row modal-form">
         <div class="form-horizontal" name="dataForm" ng-form="dataForm">
             <div class="form-group"
+                 modal-form-rec-id="model.id"
                  modal-form-field="item"
                  modal-form-field-model="model[item.field]"
                  ng-repeat="item in view.cols"
-                 ng-show="!item.dataReadOnly || item.dataReadOnly ==='edit' && !model.id || model.id && item.dataReadOnly !=='edit'"
+                 ng-show="!item.dataReadOnly || item.dataReadOnly ==='edit' && !model.id || model.id"
                 ></div>
         </div>
     </div>

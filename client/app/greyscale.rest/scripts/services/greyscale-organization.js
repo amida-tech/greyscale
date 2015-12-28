@@ -8,7 +8,9 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
-            get: _get
+            get: _get,
+            update: _update,
+            delete: _delete
         };
 
         function api(){
@@ -21,5 +23,13 @@ angular.module('greyscale.rest')
 
         function _get (id) {
             return api().one(id).get();
+        }
+
+        function _update(org) {
+            return api().one(org.id+'').customPUT(org);
+        }
+
+        function _delete (id) {
+            return api().one(id + '').remove();
         }
     });

@@ -1,67 +1,58 @@
 /**
- * Created by igi on 23.12.15.
+ * Created by igi on 28.12.15.
  */
-'use strict';
-
+"use strict";
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv) {
-        var dicts = {
-            roles: []
+    .factory('greyscaleOrganizations', function ($q, greyscaleUtilsSrv, greyscaleOrganizationSrv, greyscaleUserSrv,
+                                                 greyscaleProfileSrv, greyscaleModalsSrv) {
+        var _dicts = {
+            users: []
         };
-
         var _fields = [
             {
                 field: 'id',
-                title: 'ID',
                 show: false,
-                sortable: 'id',
+                title: 'ID',
                 dataReadOnly: 'both'
             },
             {
-                field: 'email',
-                title: 'E-mail',
+                field: 'name',
                 show: true,
-                sortable: 'email'
+                sortable: 'name',
+                title: 'Name'
             },
             {
-                field: 'firstName',
-                title: 'First name',
+                field: 'address',
                 show: true,
-                sortable: 'firstName'
+                title: 'Address'
             },
             {
-                field: 'lastName',
-                title: 'Last name',
+                field: 'adminUserId',
                 show: true,
-                sortable: 'lastName'
-            },
-            {
-                field: 'roleID',
-                title: 'Role',
-                show: true,
-                sortable: 'roleID',
+                sortable: 'adminUserId',
+                title: 'Admin user',
                 dataFormat: 'option',
                 dataSet: {
-                    getData: _getRoles,
                     keyField: 'id',
-                    valField: 'name'
-                },
-                dataReadOnly: 'add'
-
+                    valField: 'email',
+                    getData: getUsers
+                }
             },
             {
-                field: 'created',
-                title: 'Created',
+                field: 'url',
                 show: true,
-                sortable: 'created',
-                dataFormat: 'date',
+                title: 'Site URL'
+            },
+            {
+                field: 'enforceApiSecurity',
+                show: false,
                 dataReadOnly: 'both'
             },
             {
                 field: 'isActive',
-                title: 'Is Active',
                 show: true,
                 sortable: 'isActive',
+                title: 'Is active',
                 dataFormat: 'boolean',
                 dataReadOnly: 'both'
             },
@@ -86,27 +77,28 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            formTitle: 'user',
-            title: 'Users',
-            icon: 'fa-users',
+            formTitle: 'organization',
+            title: 'Organizations',
+            icon: 'fa-university',
             cols: _fields,
-            dataPromise: _getUsers,
+            dataPromise: getData,
             pageLength: 10,
             add: {
-                title: 'Invite',
+                title: 'Add',
                 handler: _editRecord
             }
+
         };
 
-        function _getRoles() {
-            return dicts.roles;
+        function getUsers() {
+            return _dicts.users;
         }
 
         function _delRecord(rec) {
-            greyscaleUserSrv.delete(rec.id)
+            greyscaleOrganizationSrv.delete(rec.id)
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,'deleting');
+                .catch(function (err) {
+                    errorHandler(err, 'deleting');
                 });
         }
 
@@ -116,33 +108,36 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleUserSrv.update(newRec);
+                        return greyscaleOrganizationSrv.update(newRec);
                     } else {
-                        return greyscaleUserSrv.invite(newRec);
+                        return greyscaleOrganizationSrv.invite(newRec);
                     }
                 })
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,action);
+                .catch(function (err) {
+                    errorHandler(err, action);
                 });
+        }
+
+        function getData() {
+            return greyscaleProfileSrv.getProfile()
+                .then(function (profile) {
+                    var reqs = {
+                        orgs: greyscaleOrganizationSrv.list(),
+                        users: greyscaleUserSrv.list({organizationId: profile.organizationId})
+                    };
+
+                    return $q.all(reqs).then(function (promises) {
+                        _dicts.users = promises.users;
+                        greyscaleUtilsSrv.prepareFields(promises.orgs, _fields);
+                        return promises.orgs;
+                    });
+                })
+                .catch(errorHandler);
         }
 
         function reloadTable() {
             _table.tableParams.reload();
-        }
-
-        function _getUsers() {
-            var reqs = {
-                users: greyscaleUserSrv.list(),
-                roles: greyscaleRoleSrv.list()
-            };
-
-            return $q.all(reqs).then(function (promises) {
-                dicts.roles = promises.roles;
-                greyscaleUtilsSrv.prepareFields(promises.users, _fields);
-                return promises.users;
-            })
-                .catch(errorHandler);
         }
 
         function errorHandler(err, action) {
