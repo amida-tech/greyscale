@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
         }
 
         function _uoaTagOne(uoaTag) {
-            return _api().one(uoaTag.id+'').get();
+            return _api().one(uoaTag.id+'').get({langId:uoaTag.langId});
         }
 
         function _addUoaTag(uoaTag) {

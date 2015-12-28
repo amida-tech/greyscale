@@ -4,15 +4,17 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv,
+    .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
                                             greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-                                            greyscaleModalsSrv, inform, $log) {
+                                            greyscaleModalsSrv, greyscaleUtilsSrv, $log) {
 
         var dicts = {
             matrices: [],
             orgs: [],
             users: []
         };
+
+        var user;
 
         var recDescr = [
             {
@@ -21,7 +23,7 @@ angular.module('greyscale.tables')
                 sortable: 'id',
                 title: 'ID',
                 dataFormat: 'text',
-                dataReadOnly: true
+                dataReadOnly: 'both'
             },
             {
                 field: 'organizationId',
@@ -29,7 +31,7 @@ angular.module('greyscale.tables')
                 sortable: 'organizationId',
                 title: 'Organization',
                 dataFormat: 'option',
-                dataReadOnly: true,
+                dataReadOnly: 'both',
                 dataSet: {
                     getData: getOrgs,
                     keyField: 'id',
@@ -55,7 +57,7 @@ angular.module('greyscale.tables')
                 show: true,
                 sortable: 'created',
                 title: 'Created',
-                dataReadOnly: true
+                dataReadOnly: 'both'
             },
             {
                 field: 'matrixId',
@@ -130,6 +132,7 @@ angular.module('greyscale.tables')
             formTitle: 'Project',
             title: 'Projects',
             icon: 'fa-paper-plane',
+            pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
             add: {
@@ -155,27 +158,25 @@ angular.module('greyscale.tables')
         }
 
         function _getData() {
-            var req = {
-                prjs: greyscaleProjectSrv.list(),
-                orgs: greyscaleOrganizationSrv.list(),
-                usrs: greyscaleUserSrv.list(),
-                matrices: greyscaleAccessSrv.matrices()
-            };
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+                user = profile;
+                var req = {
+                    prjs: greyscaleProjectSrv.list({organizationId: profile.organizationId}),
+                    orgs: greyscaleOrganizationSrv.list({organizationId: profile.organizationId}),
+                    usrs: greyscaleUserSrv.list({organizationId: profile.organizationId}),
+                    matrices: greyscaleAccessSrv.matrices()
+                };
 
-            return $q.all(req).then(function (promises) {
-                for (var p = 0; p < promises.prjs.length; p++) {
-                    var prj = promises.prjs[p];
-                    for (var f=0; f<recDescr.length; f++) {
-                        if (recDescr[f].dataFormat === 'date' && prj[recDescr[f].field]) {
-                            prj[recDescr[f].field] = new Date(prj[recDescr[f].field]);
-                        }
-                    }
-                }
-                dicts.matrices = promises.matrices;
-                dicts.orgs = promises.orgs;
-                dicts.users = promises.usrs;
+                return $q.all(req).then(function (promises) {
+                    greyscaleUtilsSrv.prepareFields(promises.prjs, recDescr);
 
-                return promises.prjs;
+                    dicts.matrices = promises.matrices;
+                    dicts.orgs = promises.orgs;
+                    dicts.users = promises.usrs;
+
+                    return promises.prjs;
+                });
+
             });
         }
 
@@ -189,8 +190,10 @@ angular.module('greyscale.tables')
 
         function _editProject(prj) {
             var op = 'editing';
-            greyscaleModalsSrv.editProject(prj, _table)
+            greyscaleModalsSrv.editRec(prj, _table)
                 .then(function (newPrj) {
+
+                    $log.debug("projects ", prj, newPrj);
 
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
@@ -210,14 +213,8 @@ angular.module('greyscale.tables')
         }
 
         function errHandler(err, operation) {
-            if (err) {
-                var msg = _table.formTitle + operation + ' error';
-                $log.debug(err);
-                if (err.data && err.data.message) {
-                    msg += ': ' + err.data.message;
-                }
-                inform.add(msg, {type: 'danger'});
-            }
+            var msg = _table.formTitle + ' ' + operation + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

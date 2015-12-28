@@ -5,60 +5,20 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleRights', function ($q, greyscaleRightSrv, greyscaleModalsSrv, greyscaleEntityTypeSrv,
-                                          greyscaleUtilsSrv, $log, inform) {
+                                          greyscaleUtilsSrv) {
 
         var _dicts = {
             entityTypes: []
         };
 
-        var _getRights = function () {
-            var _reqs = {
-                rights: greyscaleRightSrv.list(),
-                eTypes: greyscaleEntityTypeSrv.list()
-            };
-            return $q.all(_reqs).then(function (promises) {
-                promises.eTypes.unshift({'id': null, 'name': ''});
-                for (var r = 0; r < promises.rights.length; r++) {
-                    promises.rights[r].entityType = greyscaleUtilsSrv.decode(promises.eTypes, 'id', promises.rights[r].essenceId, 'name');
-                }
-                _dicts.entityTypes = promises.eTypes;
-                return promises.rights;
-            });
-        };
-
-        var _edtRight = function (_right) {
-            return greyscaleModalsSrv.editRight(_right, _dicts)
-                .then(function (newRight) {
-                    delete newRight.entityType;
-                    if (newRight.id) {
-                        return greyscaleRightSrv.update(newRight);
-                    } else {
-                        return greyscaleRightSrv.add(newRight);
-                    }
-                })
-                .then(_reloadRights)
-                .catch(function (err) {
-                    if (err) {
-                        $log.debug(err);
-                        var msg = 'Role right update error';
-                        if (err.data && err.data.message) {
-                            msg += ': ' + err.data.message;
-                        }
-                        inform.add(msg, {type: 'danger'});
-                    }
-                });
-        };
-
-        var _reloadRights = function () {
-            _greyscaleRights.tableParams.reload();
-        };
-
-        var _rights = [
+        var _fields = [
             {
                 field: 'id',
                 title: 'ID',
                 show: false,
-                sortable: 'id'
+                sortable: 'id',
+                dataFormat: 'text',
+                dataReadOnly: 'both'
             },
             {
                 field: 'action',
@@ -70,19 +30,20 @@ angular.module('greyscale.tables')
                 field: 'description',
                 title: 'Description',
                 show: true,
-                sortable: false
+                sortable: false,
+                dataFromat: 'textarea'
             },
             {
                 field: 'essenceId',
-                title: 'Entity Type ID',
-                show: false,
-                sortable: 'essenceId'
-            },
-            {
-                field: 'entityType',
                 title: 'Entity Type',
                 show: true,
-                sortable: 'entityType'
+                sortable: false,
+                dataFormat: 'option',
+                dataSet: {
+                    getData: getEntityTypes,
+                    keyField: 'id',
+                    valField: 'name'
+                }
             },
             {
                 field: '',
@@ -98,22 +59,17 @@ angular.module('greyscale.tables')
                     {
                         title: 'Delete',
                         class: 'danger',
-                        handler: function (right) {
-                            greyscaleRightSrv.delete(right.id)
-                                .then(_reloadRights)
-                                .catch(function (err) {
-                                    inform.add('Right right delete error: ' + err);
-                                });
-                        }
+                        handler: delRigth
                     }
                 ]
             }
         ];
 
-        var _greyscaleRights = {
+        var _table = {
+            formTitle: 'right',
             title: 'Rights',
             icon: 'fa-tasks',
-            cols: _rights,
+            cols: _fields,
             dataPromise: _getRights,
             add: {
                 title: 'add',
@@ -121,5 +77,57 @@ angular.module('greyscale.tables')
             }
         };
 
-        return _greyscaleRights;
+        function _getRights() {
+            var _reqs = {
+                rights: greyscaleRightSrv.list(),
+                eTypes: greyscaleEntityTypeSrv.list({fields: 'id, name'})
+            };
+            return $q.all(_reqs).then(function (promises) {
+                promises.eTypes.unshift({'id': null, 'name': ''});
+                _dicts.entityTypes = promises.eTypes;
+                greyscaleUtilsSrv.prepareFields(promises.rights, _fields);
+                return promises.rights;
+            });
+        }
+
+        function getEntityTypes() {
+            return _dicts.entityTypes;
+        }
+
+        function _edtRight(_right) {
+            var action = 'adding';
+            return greyscaleModalsSrv.editRec(_right, _table)
+                .then(function (newRight) {
+                    delete newRight.entityType;
+                    if (newRight.id) {
+                        action = 'editing';
+                        return greyscaleRightSrv.update(newRight);
+                    } else {
+                        return greyscaleRightSrv.add(newRight);
+                    }
+                })
+                .then(_reloadRights)
+                .catch(function (err) {
+                    errHandler(err, action);
+                });
+        }
+
+        function _reloadRights() {
+            _table.tableParams.reload();
+        }
+
+        function delRigth(right) {
+            greyscaleRightSrv.delete(right.id)
+                .then(_reloadRights)
+                .catch(function (err) {
+                    errHandler(err, 'deleting');
+                });
+        }
+
+        function errHandler(err, action) {
+            var msg = _table.formTitle + ' ' + action + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg)
+        }
+
+        return _table;
     });

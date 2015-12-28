@@ -158,6 +158,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: 0xC000
             }
         })
+        .state('orgs', {
+            parent: 'home',
+            url: 'organizations',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/organizations.html',
+                    controller: 'OrganizationsCtrl'
+                }
+            },
+            data: {
+                name: 'Organizations',
+                accessLevel: 0xC000
+            }
+        })
         .state('profile', {
             parent: 'home',
             url: 'profile',

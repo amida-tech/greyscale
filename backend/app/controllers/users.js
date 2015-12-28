@@ -151,9 +151,15 @@ module.exports = {
         };
 
         var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
+
+        console.log(_.first(organizationId).id);
+
+        yield thunkQuery(User.update({organizationId: _.first(organizationId).id}).where({id: _.first(userId).id}));
       }
 
       var userId = isExistUser ? isExistUser.id : _.first(userId).id;
+
+
 
       var options = {
         to : {

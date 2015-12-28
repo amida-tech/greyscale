@@ -69,19 +69,34 @@ router.route('/v0.2/projects/:id')
     .get(authenticate('token').always, projects.selectOne)
     .delete(authenticate('token').always, projects.delete)
     .put(authenticate('token').always, projects.editOne);
-//----------------------------------------------------------------------------------------------------------------------
-//    USER DATA
-//----------------------------------------------------------------------------------------------------------------------
-var user_data = require('app/controllers/user_data');
 
-router.route('/v0.2/user_data')
-  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.select)
-  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.insertOne);
+//----------------------------------------------------------------------------------------------------------------------
+//    SURVEYS
+//----------------------------------------------------------------------------------------------------------------------
+var surveys = require('app/controllers/surveys');
 
-router.route('/v0.2/user_data/:id')
-  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.selectOne)
-  .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.editOne)
-  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ user_data.delete);
+router.route('/v0.2/surveys')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.insertOne);
+
+router.route('/v0.2/surveys/:id')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
+  .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.editOne)
+  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    SURVEY ANSWERS
+//----------------------------------------------------------------------------------------------------------------------
+var survey_answers = require('app/controllers/survey_answers');
+
+router.route('/v0.2/survey_answers')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.insertOne);
+
+router.route('/v0.2/survey_answers/:id')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.selectOne)
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.editOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES

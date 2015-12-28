@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
         }).result;
     }
     
-    function modalForm(data, recDescr) {
+        function modalForm(data, tableDescription) {
         return $uibModal.open({
             templateUrl: 'views/modals/modal-form.html',
             controller: 'ModalFormCtrl',
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
             windowClass: 'modal fade in',
             resolve: {
                 recordData: data,
-                recordForm: recDescr
+                    recordForm: tableDescription
             }
         }).result;
     }
@@ -46,20 +46,13 @@ angular.module('greyscaleApp')
         editUoaClassType: function (_uoaClassType, _languages) {
             return _simpleForm('views/modals/uoaclasstype-form.html', _uoaClassType, _languages);
         },
-        inviteUser: function () {
-            return $uibModal.open({
-                templateUrl: 'views/modals/user-invite.html',
-                controller: 'UserInviteCtrl',
-                size: 'md',
-                windowClass: 'modal fade in'
-            }).result;
-        },
         editUserOrganization: function (_org) {
             return _simpleForm('views/modals/user-organization-form.html', _org, null);
         },
         addRoleRight: function (_role, _ext) {
             return _simpleForm('views/modals/role-right-form.html', _role, _ext);
         },
+            editRec: modalForm
         editRight: function (_right, _ext) {
             return _simpleForm('views/modals/right-form.html', _right, _ext);
         },

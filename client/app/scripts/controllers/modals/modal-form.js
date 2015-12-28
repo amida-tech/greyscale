@@ -4,6 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('ModalFormCtrl', function ($scope, $uibModalInstance, recordData, recordForm) {
+        recordData = recordData || {};
+
         $scope.model = angular.copy(recordData);
 
         $scope.view = recordForm;

@@ -9,8 +9,8 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('rights');
         };
 
-        var _listRigths = function () {
-            return _api().get();
+        var _listRigths = function (params) {
+            return _api().get(params);
         };
 
         var _addRight = function (body) {

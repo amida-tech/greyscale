@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
         }
 
         function _uoaTypeOne(uoaType) {
-            return _api().one(uoaType.id+'').get();
+            return _api().one(uoaType.id+'').get({langId:uoaType.langId});
         }
 
         function _addUoaType(uoaType) {

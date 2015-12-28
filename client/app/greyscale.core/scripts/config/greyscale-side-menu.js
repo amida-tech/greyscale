@@ -22,6 +22,10 @@ angular.module('greyscale.core')
                             icon: 'fa-group'
                         },
                         {
+                            state: 'orgs',
+                            icon: 'fa-university'
+                        },
+                        {
                             state: 'projects',
                             icon: 'fa-paper-plane'
                         }

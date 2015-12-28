@@ -4,30 +4,31 @@ var client = require('app/db_bootstrap'),
 // tables
   Role = require('app/models/roles');
 
-var co = require('co');
-//var query = thunkify(client.query);
-var Query = require('app/util').Query,
-  query = new Query();
+var co = require('co'),
+Query = require('app/util').Query,
+query = new Query(),
+thunkify = require('thunkify'),
+thunkQuery = thunkify(query);
 
 module.exports = {
 
   select: function (req, res, next) {
-    var q = Role.select().from(Role);
+    //var q = Role.select().from(Role);
     //console.log('query',query)
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
-      }
-      res.json(data);
-    });
+    //query(q, function (err, data) {
+    //  if (err) {
+    //    return next(err);
+    //  }
+    //  res.json(data);
+    //});
 
-    /*co(function *(){
-     var roles = yield query(Role.select().from(Role).toQuery());
-     var roles_count = yield query(Role.select().from(Role).toQuery());
-     return [roles, roles_count];
-     })(function(err, result) {
-     console.log(arguments)
-     });*/
+    co(function* (){
+      return yield thunkQuery(Role.select().from(Role), _.omit(req.query, 'offset', 'limit', 'order'));
+    }).then(function(data) {
+      res.json(data);
+    }, function(err) {
+      next(err);
+    });
 
   },
   selectOne: function (req, res, next) {
@@ -62,15 +63,4 @@ module.exports = {
       }
     );
   },
-
-
-
-  /*updateOne: function (req, res, next) {
-
-   },*/
-
-  /*deleteOne: function (req, res, next) {
-
-   }*/
-
 };

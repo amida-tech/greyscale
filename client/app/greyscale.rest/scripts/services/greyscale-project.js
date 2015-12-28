@@ -5,22 +5,24 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleProjectSrv', function (greyscaleRestSrv) {
-        var _api = greyscaleRestSrv().one('projects');
+        function api (){
+            return greyscaleRestSrv().one('projects');
+        }
 
-        function _list() {
-            return _api.get();
+        function _list(params) {
+            return api().get(params);
         }
 
         function _add(project) {
-            return _api.customPOST(project);
+            return api().customPOST(project);
         }
 
         function _upd(project) {
-            return _api.one(project.id + '').customPUT(project);
+            return api().one(project.id + '').customPUT(project);
         }
 
         function _del(projectId) {
-            return _api.one(projectId + '').remove();
+            return api().one(projectId + '').remove();
         }
 
         return {

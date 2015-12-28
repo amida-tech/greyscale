@@ -32,15 +32,15 @@ angular.module('greyscaleApp')
                             if (_data.length > 0) {
                                 elem.append(_data[0][_set.valField]);
                             } else {
-                                elem.append(_set.valField);
+                                elem.append($scope.rowValue[_field]);
                             }
                             break;
 
                         case 'boolean':
                             elem.addClass('text-center');
-                            if ($scope.rowValue[_field]) {
+                            if ($scope.rowValue[_field] === true) {
                                 elem.append('<span class="text-success"><i class="fa fa-check"></i></span>');
-                            } else {
+                            } else if ($scope.rowValue[_field] === false) {
                                 elem.append('<span class="text-danger"><i class="fa fa-warning"></i></span>');
                             }
                             break;
