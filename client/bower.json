@@ -2,6 +2,7 @@
   "name": "greyscale-client",
   "version": "0.0.0",
   "dependencies": {
+    "formbuilder": "~0.2.1",
     "angular": "^1.4.0",
     "bootstrap-sass-official": "^3.2.0",
     "angular-cookies": "^1.4.0",
@@ -29,6 +30,12 @@
         "dist/css/bootstrap.css",
         "dist/js/bootstrap.js"
       ]
+    },
+    "backbone-deep-model": {
+        "main": "src/deep-model.js"
+    },
+    "rivets": {
+        "main": "dist/rivets.js"
     }
   },
   "resolutions": {

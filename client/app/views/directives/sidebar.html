@@ -11,7 +11,10 @@
         <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
             <a ui-sref="{{item.sref}}">{{item.title}} <span class="menu-icon fa {{item.icon}}"></span></a>
         </li>
+        <li class="sidebar-list">
+            <a ui-sref="survey">Surveys <span class="menu-icon fa fa-list"></span></a>
+        </li>
     </ul>
     <div class="sidebar-footer"></div>
-</div>
+    </div>
 <!-- End Sidebar -->
