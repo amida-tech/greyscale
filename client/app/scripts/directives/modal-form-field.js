@@ -19,7 +19,7 @@ angular.module('greyscaleApp')
 
                     var field = '<div class="col-sm-9">';
 
-                    if (clmn.dataReadOnly) {
+                    if (clmn.dataReadOnly && clmn.dataReadOnly === 'both') {
                         field += '<p class="form-control-static">';
                         switch (clmn.dataFormat) {
                             case 'date':

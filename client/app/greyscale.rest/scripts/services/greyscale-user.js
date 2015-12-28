@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function (greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
+    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
 
         return {
             login: _login,
@@ -17,13 +17,10 @@ angular.module('greyscale.rest')
             activate: _activate,
             checkActivationToken: _checkActivationToken,
             getOrganization: _getOrg,
-            saveOrganization: _saveOrg
+            saveOrganization: _saveOrg,
+            update: updateUser,
+            delete: delUser
         };
-
-        function _auth_err_handler(err) {
-            $log.debug(err);
-            return $q.reject(err);
-        }
 
         function _organization() {
             return greyscaleRestSrv()
@@ -31,8 +28,12 @@ angular.module('greyscale.rest')
                 .one('organization');
         }
 
+        function userAPI() {
+            return greyscaleRestSrv().one('users');
+        }
+
         function _self() {
-            return greyscaleRestSrv().one('users', 'self').get()
+            return userAPI().one('self').get()
         }
 
         function _getOrg() {
@@ -57,7 +58,7 @@ angular.module('greyscale.rest')
         }
 
         function _listUsers(params) {
-            return greyscaleRestSrv().one('users').get(params);
+            return userAPI().get(params);
         }
 
         function _login(user, passwd) {
@@ -66,15 +67,14 @@ angular.module('greyscale.rest')
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
                     return resp;
-                })
-                .catch(_auth_err_handler);
+                });
         }
 
         function _isAuthenticated() {
             var _token = greyscaleTokenSrv();
             var res = $q.resolve(false);
             if (_token) {
-                res = greyscaleRestSrv().one('users', 'checkToken').one(_token).get()
+                res = userAPI().one('checkToken', _token).get()
                     .then(function () {
                         return true;
                     })
@@ -86,11 +86,18 @@ angular.module('greyscale.rest')
         }
 
         function _logout() {
-            return greyscaleRestSrv().one('users', 'logout').post()
-                .catch(_auth_err_handler);
+            return userAPI().one('logout').post();
         }
 
         function _inviteUser(user_data) {
-            return greyscaleRestSrv().one('users').one('invite').customPOST(user_data);
+            return userAPI().one('invite').customPOST(user_data);
+        }
+
+        function updateUser(data) {
+            return userAPI().one(data.id + '').customPUT(data);
+        }
+
+        function delUser(id) {
+            return userAPI().one(id + '').remove();
         }
     });
