@@ -89,30 +89,6 @@ angular.module('greyscale.core')
                         }
                     ]
                 },
-                uoaClassTypes: {
-                    cols: [
-                        {
-                            field: 'id',
-                            title: 'ID',
-                            show: true
-                        },
-                        {
-                            field: 'name',
-                            title: 'Name',
-                            show: true
-                        },
-                        {
-                            field: 'description',
-                            title: 'Description',
-                            show: true
-                        },
-                        {
-                            field: 'langCode',
-                            title: 'Original language',
-                            show: true
-                        }
-                    ]
-                },
                 languages: {
                     cols: [
                         {

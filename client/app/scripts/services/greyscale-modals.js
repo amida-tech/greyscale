@@ -16,7 +16,7 @@ angular.module('greyscaleApp')
             }
         }).result;
     }
-    
+
         function modalForm(data, tableDescription) {
         return $uibModal.open({
             templateUrl: 'views/modals/modal-form.html',
@@ -29,22 +29,22 @@ angular.module('greyscaleApp')
             }
         }).result;
     }
-    
+
     return {
         editCountry: function (_country) {
             return _simpleForm('views/modals/country-form.html', _country, null);
         },
-        editUoa: function (_uoa, extData) {
-            return _simpleForm('views/modals/uoa-form.html', _uoa, extData);
+        editUoa: function (_uoa, form) {
+            return modalForm(_uoa, form);
         },
-        editUoaType: function (_uoaType, _languages) {
-            return _simpleForm('views/modals/uoatype-form.html', _uoaType, _languages);
+        editUoaType: function (_uoaType, form) {
+            return modalForm(_uoaType, form);
         },
-        editUoaTag: function (_uoaType, extData) {
-            return _simpleForm('views/modals/uoatag-form.html', _uoaType, extData);
+        editUoaTag: function (_uoaTag, form) {
+            return modalForm(_uoaTag, form);
         },
-        editUoaClassType: function (_uoaClassType, _languages) {
-            return _simpleForm('views/modals/uoaclasstype-form.html', _uoaClassType, _languages);
+        editUoaClassType: function (_uoaClassType, form) {
+            return modalForm(_uoaClassType, form);
         },
         editUserOrganization: function (_org) {
             return _simpleForm('views/modals/user-organization-form.html', _org, null);
@@ -52,7 +52,6 @@ angular.module('greyscaleApp')
         addRoleRight: function (_role, _ext) {
             return _simpleForm('views/modals/role-right-form.html', _role, _ext);
         },
-            editRec: modalForm
         editRight: function (_right, _ext) {
             return _simpleForm('views/modals/right-form.html', _right, _ext);
         },

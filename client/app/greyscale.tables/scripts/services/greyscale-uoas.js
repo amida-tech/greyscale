@@ -4,45 +4,12 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoas', function ($q, greyscaleGlobals, greyscaleUtilsSrv, greyscaleUoaTypeSrv,
-                                            greyscaleLanguageSrv, greyscaleUoaSrv,
-                                            greyscaleModalsSrv, $log) {
+    .factory('greyscaleUoas', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
+                                        greyscaleProfileSrv, greyscaleModalsSrv,
+                                        greyscaleLanguageSrv, greyscaleUoaSrv,
+                                        greyscaleUoaTypeSrv,
+                                        $log) {
 
-        var _updateTableUoa = function () {
-            _uoas.tableParams.reload();
-        };
-
-        var _editUoa = function (_uoa) {
-            return greyscaleUoaSrv.get(_uoa)
-                .then(function (uoa) {
-                    return greyscaleModalsSrv.editUoa(uoa, {languages: dicts.languages, uoaTypes: dicts.uoaTypes, visibility: dicts.visibility, status: dicts.status})
-                })
-                .then(function(uoa){
-                    delete uoa.langCode;
-                    delete uoa.typeName;
-                    delete uoa.visibilityName;
-                    delete uoa.statusName;
-                    return greyscaleUoaSrv.update(uoa);
-                })
-                .then(_updateTableUoa)
-                .catch(function (err) {
-                    $log.debug(err);
-                });
-        };
-        var _addUoa = function () {
-            return greyscaleModalsSrv.editUoa(null, {languages: dicts.languages, uoaTypes: dicts.uoaTypes, visibility: dicts.visibility, status: dicts.status})
-                .then(function (uoa) {
-                    delete uoa.langCode;
-                    delete uoa.typeName;
-                    delete uoa.visibilityName;
-                    delete uoa.statusName;
-                    return greyscaleUoaSrv.add(uoa);
-                })
-                .then(_updateTableUoa)
-                .catch(function (err) {
-                    $log.debug(err);
-                });
-        };
 
         var dicts = {
             languages: [],
@@ -51,219 +18,217 @@ angular.module('greyscale.tables')
             status: greyscaleGlobals.uoa_status
         };
 
-        var _getData = function () {
-            var req = {
-                uoas: greyscaleUoaSrv.list(),
-                uoaTypes: greyscaleUoaTypeSrv.list(),
-                languages: greyscaleLanguageSrv.list()
-            };
-
-            return $q.all(req).then(function (promises) {
-                for (var p = 0; p < promises.uoas.length; p++) {
-                    promises.uoas[p].typeName = greyscaleUtilsSrv.decode(promises.uoaTypes, 'id', promises.uoas[p].unitOfAnalysisType, 'name');
-                    promises.uoas[p].visibilityName = greyscaleUtilsSrv.decode(greyscaleGlobals.uoa_visibility, 'id', promises.uoas[p].visibility, 'name');
-                    promises.uoas[p].statusName = greyscaleUtilsSrv.decode(greyscaleGlobals.uoa_status, 'id', promises.uoas[p].status, 'name');
+        var resDescr = [
+            {
+                field: 'id',
+                title: 'ID',
+                show: true,
+                sortable: 'id',
+                dataFormat: 'text',
+                dataRequired: true,
+                dataReadOnly: 'both'
+            },
+            /*
+             field: 'gadmId0',
+             field: 'gadmId1',
+             field: 'gadmId2',
+             field: 'gadmId3',
+             field: 'gadmObjectId',
+             field: 'ISO',
+             field: 'ISO2',
+             field: 'nameISO',
+             */
+            {
+                field: 'name',
+                title: 'Name',
+                show: true,
+                sortable: 'name',
+                dataFormat: 'text',
+                dataRequired: true
+            },
+            {
+                field: 'description',
+                title: 'Description',
+                show: true,
+                dataFormat: 'text',
+                dataRequired: true
+            },
+            {
+                field: 'shortName',
+                title: 'Short Name',
+                show: true,
+                dataFormat: 'text',
+                dataRequired: true,
+                sortable: 'shortName'
+            },
+            /*
+             field: 'HASC',
+             */
+            {
+                field: 'unitOfAnalysisType',
+                title: 'Type',
+                show: true,
+                sortable: 'unitOfAnalysisType',
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getUoaTypes,
+                    keyField: 'id',
+                    valField: 'name'
                 }
-                dicts.languages = promises.languages;
-                dicts.uoaTypes = promises.uoaTypes;
+            },
+            /*
+             field: 'parentId',
+             field: 'creatorId',
+             field: 'ownerId',
+             */
+            {
+                field: 'visibility',
+                title: 'Visibility',
+                show: true,
+                sortable: 'visibility',
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getVisibilities,
+                    keyField: 'id',
+                    valField: 'name'
+                }
+            },
+            {
+                field: 'status',
+                title: 'Status',
+                show: true,
+                sortable: 'status',
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getStatuses,
+                    keyField: 'id',
+                    valField: 'name'
+                }
+            },
+            {
+                field: 'createTime',
+                title: 'Created',
+                show: true,
+                dataFormat: 'date',
+                sortable: 'createTime',
+                dataRequired: true,
+                dataReadOnly: 'both'
+                /*
+                 field: 'deleteTime',
+                 */
+            },
+            {
+                field: '',
+                title: '',
+                show: true,
+                dataFormat: 'action',
+                actions: [
+                    {
+                        icon: 'fa-pencil',
+                        class: 'info',
+                        handler: _editUoa
+                    },
+                    {
+                        icon: 'fa-trash',
+                        class: 'danger',
+                        handler: _delRecord
+                    }
+                ]
+            }
+        ];
 
-                return promises.uoas;
-            });
-        };
-
-        var _uoas = {
+        var _table = {
             title: 'Unit of Analysis',
             icon: 'fa-table',
             sorting: {id: 'asc'},
-            cols: [
-                {
-                    field: 'id',
-                    title: 'ID',
-                    show: true
-                },
-                /*
-                 {
-                 field: 'gadmId0',
-                 title: 'gadmId0',
-                 show: true,
-                 sortable: 'gadmId0'
-                 },
-                 {
-                 field: 'gadmId1',
-                 title: 'gadmId1',
-                 show: true,
-                 sortable: 'gadmId1'
-                 },
-                 {
-                 field: 'gadmId2',
-                 title: 'gadmId2',
-                 show: true,
-                 sortable: 'gadmId2'
-                 },
-                 {
-                 field: 'gadmId3',
-                 title: 'gadmId3',
-                 show: true,
-                 sortable: 'gadmId3'
-                 },
-                 {
-                 field: 'gadmObjectId',
-                 title: 'gadmObjectId',
-                 show: true,
-                 sortable: 'gadmObjectId'
-                 },
-                 {
-                 field: 'ISO',
-                 title: 'ISO',
-                 show: true,
-                 sortable: 'ISO'
-                 },
-                 {
-                 field: 'ISO2',
-                 title: 'ISO2',
-                 show: true,
-                 sortable: 'ISO2'
-                 },
-                 {
-                 field: 'nameISO',
-                 title: 'nameISO',
-                 show: true,
-                 sortable: 'nameISO'
-                 },
-                 */
-                {
-                    field: 'name',
-                    title: 'Name',
-                    show: true,
-                    sortable: 'name'
-                },
-                {
-                    field: 'description',
-                    title: 'Description',
-                    show: true
-                    //sortable: 'description'
-                },
-                {
-                    field: 'shortName',
-                    title: 'Short Name',
-                    show: true,
-                    sortable: 'shortName'
-                },
-                /*
-                 {
-                 field: 'HASC',
-                 title: 'HASC',
-                 show: true,
-                 sortable: 'HASC'
-                 },
-                 */
-                /*
-                 {
-                 field: 'unitOfAnalysisType',
-                 title: 'Type',
-                 show: true,
-                 sortable: 'unitOfAnalysisType'
-                 },
-                 */
-                {
-                    field: 'typeName',
-                    title: 'Type',
-                    show: true,
-                    sortable: 'typeName'
-                },
-                /*
-                 {
-                 field: 'parentId',
-                 title: 'parentId',
-                 show: true,
-                 sortable: 'parentId'
-                 },
-                 {
-                 field: 'creatorId',
-                 title: 'creatorId',
-                 show: true,
-                 sortable: 'creatorId'
-                 },
-                 {
-                 field: 'ownerId',
-                 title: 'ownerId',
-                 show: true,
-                 sortable: 'ownerId'
-                 },
-                 */
-                /*
-                 {
-                 field: 'visibility',
-                 title: 'Visibility',
-                 show: true,
-                 sortable: 'visibility'
-                 },
-                 */
-                {
-                    field: 'visibilityName',
-                    title: 'Visibility',
-                    show: true,
-                    sortable: 'visibilityName'
-                },
-                /*
-                 {
-                 field: 'status',
-                 title: 'Status',
-                 show: true,
-                 sortable: 'status'
-                 },
-                 */
-                {
-                    field: 'statusName',
-                    title: 'Status',
-                    show: true,
-                    sortable: 'statusName'
-                },
-                {
-                    field: 'createTime',
-                    title: 'Created',
-                    show: true,
-                    dataFormat: 'date',
-                    sortable: 'createTime'
-                    /*
-                     },
-                     {
-                     field: 'deleteTime',
-                     title: 'deleteTime',
-                     show: true,
-                     sortable: 'deleteTime'
-                     */
-                },
-                {
-                    field: '',
-                    title: '',
-                    show: true,
-                    dataFormat: 'action',
-                    actions: [
-                        {
-                            title: 'Edit',
-                            class: 'info',
-                            handler: _editUoa
-                        },
-                        {
-                            title: 'Delete',
-                            class: 'danger',
-                            handler: function (UnitOfAnalysis) {
-                                greyscaleUoaSrv.delete(UnitOfAnalysis)
-                                    .then(_updateTableUoa)
-                                    .catch(function (err) {
-                                        $log.debug(err);
-                                    });
-                            }
-                        }
-                    ]
-                }
-            ],
+            cols: resDescr,
             dataPromise: _getData,
             add: {
                 title: 'Add',
                 handler: _addUoa
             }
         };
-        return _uoas;
+
+        function _editUoa(_uoa) {
+            var op = 'editing';
+            return greyscaleUoaSrv.get(_uoa)
+                .then(function (uoa) {
+                    return greyscaleModalsSrv.editUoa(uoa, _table)
+                })
+                .then(function(uoa){
+                    return greyscaleUoaSrv.update(uoa);
+                })
+                .then(reloadTable)
+                .catch(function (err) {
+                    return errHandler(err, op);
+                });
+        }
+        function _addUoa() {
+            var op = 'adding';
+            return greyscaleModalsSrv.editUoa(null, _table)
+                .then(function (uoa) {
+                    return greyscaleUoaSrv.add(uoa);
+                })
+                .then(reloadTable)
+                .catch(function (err) {
+                    return errHandler(err, op);
+                });
+        }
+
+        function _getData() {
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+                var req = {
+                    uoas: greyscaleUoaSrv.list(),
+                    uoaTypes: greyscaleUoaTypeSrv.list(),
+                    languages: greyscaleLanguageSrv.list()
+                };
+                return $q.all(req).then(function (promises) {
+                    for (var p = 0; p < promises.uoas.length; p++) {
+                        greyscaleUtilsSrv.prepareFields(promises.uoas, resDescr);
+                    }
+                    dicts.languages = promises.languages;
+                    dicts.uoaTypes = promises.uoaTypes;
+
+                    return promises.uoas;
+                });
+            });
+        }
+
+        function _delRecord(item) {
+            greyscaleUoaSrv.delete(item.id)
+                .then(reloadTable)
+                .catch(function (err) {
+                    errHandler(err, 'deleting');
+                });
+        }
+
+        function getLanguages() {
+            return dicts.languages;
+        }
+
+        function getVisibilities() {
+            return dicts.visibility;
+        }
+
+        function getStatuses() {
+            return dicts.status;
+        }
+
+        function getUoaTypes() {
+            return dicts.uoaTypes;
+        }
+
+        function reloadTable() {
+            _table.tableParams.reload();
+        }
+
+        function errHandler(err, operation) {
+            var msg = _table.formTitle + ' ' + operation + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        return _table;
     });

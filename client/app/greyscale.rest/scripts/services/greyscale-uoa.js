@@ -22,13 +22,13 @@ angular.module('greyscale.rest')
             return _api().customPOST(uoa);
         }
 
-        function _deleteUoa(uoa) {
-            return _api().one(uoa.id+'').remove();
+        function _deleteUoa(uoaId) {
+            return _api().one(uoaId+'').remove();
         }
 
-        var _updateUoa = function(uoa) {
+        function _updateUoa(uoa) {
             return _api().one(uoa.id+'').customPUT(uoa);
-        };
+        }
 
         return {
             list: _uoa,
