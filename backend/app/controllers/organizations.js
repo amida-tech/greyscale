@@ -30,7 +30,7 @@ module.exports = {
 
   select: function (req, res, next) {
     co(function* (){
-      return yield thunkQuery(Organization.select().from(Organization));
+      return yield thunkQuery(Organization.select().from(Organization),  _.omit(req.query, 'offset', 'limit', 'order'));
     }).then(function(data){
       res.json(data);
     },function(err){

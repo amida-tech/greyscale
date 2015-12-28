@@ -1,8 +1,12 @@
 var sql = require('sql');
 
+var columns = ['id', 'tableName', 'name', 'fileName'];
+
 var Essence = sql.define({
   name: 'Essences',
-  columns: ['id', 'tableName', 'name', 'fileName']
+  columns: columns
 });
+
+Essence.whereCol = columns;
 
 module.exports = Essence;

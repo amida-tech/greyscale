@@ -12,13 +12,14 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
-        var q = Essence.select().from(Essence);
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* (){
+            return yield thunkQuery(Essence.select().from(Essence), _.omit(req.query, 'offset', 'limit', 'order'));
+        }).then(function(data) {
             res.json(data);
+        }, function(err) {
+            next(err);
         });
+
     },
 
     insertOne: function (req, res, next) {
