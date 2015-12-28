@@ -63,10 +63,10 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* (){
-            //var survey = yield thunkQuery(Survey.select().from(Survey).where(Survey.id.equals(req.body.surveyId)));
-            //if(!_.first(survey)){
-            //    throw new HttpError(403, 'Survey with this id does not exist');
-            //}
+            var survey = yield thunkQuery(Survey.select().from(Survey).where(Survey.id.equals(req.body.surveyId)));
+            if(!_.first(survey)){
+                throw new HttpError(403, 'Survey with this id does not exist');
+            }
             console.log('1');
             req.body.userId = req.user.id;
             return yield thunkQuery(SurveyAnswer.insert(req.body).returning(SurveyAnswer.id));
@@ -75,13 +75,7 @@ module.exports = {
         }, function (err){
             next(err);
         });
-        //var q = Survey.insert(req.body).returning(Survey.id);
-        //query(q, function (err, data) {
-        //    if (err) {
-        //        return next(err);
-        //    }
-        //    res.status(201).json(_.first(data));
-        //});
+
     }
 
 };

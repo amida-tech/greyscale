@@ -7,4 +7,6 @@ var SurveyAnswer = sql.define({
     columns: columns
 });
 
+SurveyAnswer.whereCol = columns;
+
 module.exports = SurveyAnswer;
