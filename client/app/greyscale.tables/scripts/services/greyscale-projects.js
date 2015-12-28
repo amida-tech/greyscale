@@ -6,13 +6,15 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
                                             greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-                                            greyscaleModalsSrv, greyscaleUtilsSrv) {
+                                            greyscaleModalsSrv, greyscaleUtilsSrv, $log) {
 
         var dicts = {
             matrices: [],
             orgs: [],
             users: []
         };
+
+        var user;
 
         var recDescr = [
             {
@@ -157,6 +159,7 @@ angular.module('greyscale.tables')
 
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
+                user = profile;
                 var req = {
                     prjs: greyscaleProjectSrv.list({organizationId: profile.organizationId}),
                     orgs: greyscaleOrganizationSrv.list({adminUserId: profile.id}),
@@ -189,6 +192,8 @@ angular.module('greyscale.tables')
             var op = 'editing';
             greyscaleModalsSrv.editProject(prj, _table)
                 .then(function (newPrj) {
+
+                    $log.debug("projects ", prj, newPrj);
 
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
