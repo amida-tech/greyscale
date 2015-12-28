@@ -1,10 +1,8 @@
-var client = require('app/db_bootstrap'),
+var
   _ = require('underscore'),
-  config = require('config'),
-  UserData = require('app/models/user_data'),
+  Survey = require('app/models/surveys'),
   co = require('co'),
   Query = require('app/util').Query,
-  getTranslateQuery = require('app/util').getTranslateQuery,
   query = new Query(),
   thunkify = require('thunkify'),
   HttpError = require('app/error').HttpError,
@@ -13,17 +11,18 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
   select: function (req, res, next) {
-    var q = UserData.select().from(UserData);
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
-      }
+    co(function* (){
+      return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
+    }).then(function(data){
       res.json(data);
+    }, function(err){
+      next(err);
     });
+
   },
 
   selectOne: function (req, res, next) {
-    var q = UserData.select().from(UserData).where(UserData.id.equals(req.params.id));
+    var q = Survey.select().from(Survey).where(Survey.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -38,7 +37,7 @@ module.exports = {
   },
 
   delete: function (req, res, next) {
-    var q = UserData.delete().where(UserData.id.equals(req.params.id));
+    var q = Survey.delete().where(Survey.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
@@ -49,7 +48,7 @@ module.exports = {
 
   editOne: function (req, res, next) {
     if(req.body.data){
-      var q = UserData.update(req.body).where(UserData.id.equals(req.params.id));
+      var q = Survey.update(req.body).where(Survey.id.equals(req.params.id));
       query(q, function (err, data) {
         if (err) {
           return next(err);
@@ -62,7 +61,7 @@ module.exports = {
   },
 
   insertOne: function (req, res, next) {
-    var q = UserData.insert(req.body).returning(UserData.id);
+    var q = Survey.insert(req.body).returning(Survey.id);
     query(q, function (err, data) {
       if (err) {
         return next(err);
