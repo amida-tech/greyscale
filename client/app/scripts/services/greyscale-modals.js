@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function modalForm(data, recDescr) {
+        function modalForm(data, tableDescription) {
             return $uibModal.open({
                 templateUrl: 'views/modals/modal-form.html',
                 controller: 'ModalFormCtrl',
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     recordData: data,
-                    recordForm: recDescr
+                    recordForm: tableDescription
                 }
             }).result;
         }
@@ -60,11 +60,6 @@ angular.module('greyscaleApp')
             addRoleRight: function (_role, _ext) {
                 return _simpleForm('views/modals/role-right-form.html', _role, _ext);
             },
-            editRight: function (_right, _ext) {
-                return _simpleForm('views/modals/right-form.html', _right, _ext);
-            },
-            editProject: function (prj, form) {
-                return modalForm(prj, form);
-            }
+            editRec: modalForm
         };
     });

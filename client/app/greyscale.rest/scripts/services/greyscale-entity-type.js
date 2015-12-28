@@ -9,8 +9,8 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('essences');
         };
 
-        var _list = function () {
-            return _api().get();
+        var _list = function (params) {
+            return _api().get(params);
         };
 
         var _add = function (data) {

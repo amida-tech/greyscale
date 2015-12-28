@@ -190,7 +190,7 @@ angular.module('greyscale.tables')
 
         function _editProject(prj) {
             var op = 'editing';
-            greyscaleModalsSrv.editProject(prj, _table)
+            greyscaleModalsSrv.editRec(prj, _table)
                 .then(function (newPrj) {
 
                     $log.debug("projects ", prj, newPrj);
