@@ -18,7 +18,7 @@ angular.module('greyscale.tables')
                 show: false,
                 sortable: 'id',
                 dataFormat: 'text',
-                dataReadOnly: true
+                dataReadOnly: 'both'
             },
             {
                 field: 'action',

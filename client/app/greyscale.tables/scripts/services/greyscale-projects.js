@@ -23,7 +23,7 @@ angular.module('greyscale.tables')
                 sortable: 'id',
                 title: 'ID',
                 dataFormat: 'text',
-                dataReadOnly: true
+                dataReadOnly: 'both'
             },
             {
                 field: 'organizationId',
@@ -31,7 +31,7 @@ angular.module('greyscale.tables')
                 sortable: 'organizationId',
                 title: 'Organization',
                 dataFormat: 'option',
-                dataReadOnly: true,
+                dataReadOnly: 'both',
                 dataSet: {
                     getData: getOrgs,
                     keyField: 'id',
@@ -57,7 +57,7 @@ angular.module('greyscale.tables')
                 show: true,
                 sortable: 'created',
                 title: 'Created',
-                dataReadOnly: true
+                dataReadOnly: 'both'
             },
             {
                 field: 'matrixId',
@@ -162,7 +162,7 @@ angular.module('greyscale.tables')
                 user = profile;
                 var req = {
                     prjs: greyscaleProjectSrv.list({organizationId: profile.organizationId}),
-                    orgs: greyscaleOrganizationSrv.list({adminUserId: profile.id}),
+                    orgs: greyscaleOrganizationSrv.list({organizationId: profile.organizationId}),
                     usrs: greyscaleUserSrv.list({organizationId: profile.organizationId}),
                     matrices: greyscaleAccessSrv.matrices()
                 };

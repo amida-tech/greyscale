@@ -46,14 +46,6 @@ angular.module('greyscaleApp')
             editUoaClassType: function (_uoaClassType, _languages) {
                 return _simpleForm('views/modals/uoaclasstype-form.html', _uoaClassType, _languages);
             },
-            inviteUser: function () {
-                return $uibModal.open({
-                    templateUrl: 'views/modals/user-invite.html',
-                    controller: 'UserInviteCtrl',
-                    size: 'md',
-                    windowClass: 'modal fade in'
-                }).result;
-            },
             editUserOrganization: function (_org) {
                 return _simpleForm('views/modals/user-organization-form.html', _org, null);
             },
