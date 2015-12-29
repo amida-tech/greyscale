@@ -1,0 +1,18 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
+    <h3 class="modal-title"><span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> right</h3>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div name="dataForm" class="form-horizontal" ng-form="dataForm">
+            <div class="form-group" ng-show="model.id">
+                <label class="col-sm-3 control-label">ID:</label>
+                <div class="col-sm-9">
+                    <p class="form-control-static">{{model.id}}</p>
+                </div>
+            </div>
+            <form-builder ng-model="model"></form-builder>
+        </div>
+    </div>
+</div>
+<div class="modal-footer"></div>

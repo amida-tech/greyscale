@@ -1,0 +1,155 @@
+﻿body {
+    font-family: Tahoma, Arial, sans-serif;
+    font-size: 12px;
+}
+
+fieldset {
+    border: none;
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+input, textarea, select {
+    border: 1px solid rgba(127, 127, 127, 0.25);
+}
+
+    input:focus, textarea:focus, select:focus {
+        border: 1px solid rgba(127, 127, 127, 1);
+    }
+
+
+    input[type='text'] {
+        width: 100%;
+        max-width: 300px;
+    }
+
+        input[type='text'].small {
+            max-width: 130px;
+        }
+
+
+        input[type='text'].medium {
+            max-width: 300px;
+        }
+
+        input[type='text'].large {
+            max-width: 100%;
+        }
+
+select {
+    width: 100%;
+    max-width: 300px;
+}
+
+textarea {
+    width: 100%;
+    max-width: 300px;
+    min-height: 100px;
+}
+
+    textarea.small {
+        max-width: 130px;
+        min-height: 60px;
+    }
+
+    textarea.medium {
+        max-width: 300px;
+        min-height: 100px;
+    }
+
+    textarea.large {
+        max-width: 100%;
+        min-height: 200px;
+    }
+
+.field {
+    display: block;
+    margin: 20px 0;
+    position: relative;
+}
+
+    .field.invalid input, .field.invalid textarea, .field.invalid select {
+        border: 1px solid rgba(255, 127, 127, 0.25);
+    }
+
+        .field.invalid input:focus, .field.invalid textarea:focus, .field.invalid select:focus {
+            border: 1px solid rgba(255, 127, 127, 1);
+        }
+
+    .field.valid input, .field.valid textarea, .field.valid select {
+        border: 1px solid rgba(0, 191, 127, 0.25);
+    }
+
+        .field.valid input:focus, .field.valid textarea:focus, .field.valid select:focus {
+            border: 1px solid rgba(0, 191, 127, 1);
+        }
+
+    .field.checkboxes.valid input, .field.checkboxes.invalid input, .field.radio.valid input, .field.radio.invalid input {
+        border: 1px solid rgba(127, 127, 127, 0.25);
+    }
+
+        .field.checkboxes.valid input:focus, .field.checkboxes.invalid input:focus, .field.radio.valid input:focus, .field.radio.invalid input:focus {
+            border: 1px solid rgba(127, 127, 127, 1);
+        }
+
+.section_break {
+    border-top: 1px solid darkgray;
+    border-bottom: 1px solid darkgray;
+    padding: 5px 0;
+}
+
+.variant {
+    display: block;
+}
+
+.required {
+    color: red;
+}
+
+.error {
+    color: red;
+}
+
+.description {
+    font-size: 10px;
+    color: darkgray;
+}
+
+input[type='text'].hours, input[type='text'].minutes, input[type='text'].seconds, input[type='text'].year, input[type='text'].month, input[type='text'].day {
+    margin: 0 5px;
+    width: 40px;
+}
+
+.address, .city, .region, .zipcode, .country {
+    font-size: 10px;
+    color: darkgray;
+    width: 190px;
+    padding-top: 20px;
+    display: block;
+    margin-top: 5px;
+}
+
+.address {
+    width: 400px;
+}
+
+.city, .zipcode {
+    position: absolute;
+}
+
+.region, .country {
+    position: relative;
+    left: 210px;
+}
+
+input.address-val, input.city-val, input.region-val, input.zipcode-val, input.country-val {
+    position: absolute;
+    left: 0;
+    margin-top: -20px;
+    width: 186px;
+}
+
+input.address-val {
+    width: 396px;
+}

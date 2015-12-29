@@ -22,7 +22,16 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       // bower:js
-      'bower_components/jquery/dist/jquery.js',
+      'bower_components/jquery/jquery.js',
+      'bower_components/ie8-node-enum/index.js',
+      'bower_components/jquery-ui/ui/jquery-ui.js',
+      'bower_components/jquery.scrollWindowTo/index.js',
+      'bower_components/underscore/underscore.js',
+      'bower_components/underscore.mixin.deepExtend/index.js',
+      'bower_components/backbone/backbone.js',
+      'bower_components/backbone-deep-model/src/deep-model.js',
+      'bower_components/rivets/dist/rivets.js',
+      'bower_components/formbuilder/dist/formbuilder.js',
       'bower_components/angular/angular.js',
       'bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js',
       'bower_components/angular-cookies/angular-cookies.js',

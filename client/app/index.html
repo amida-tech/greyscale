@@ -8,6 +8,7 @@
     <!-- Place apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/formbuilder/dist/formbuilder.css" />
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
     <link rel="stylesheet" href="bower_components/angular-inform/dist/angular-inform.css" />
@@ -27,7 +28,16 @@
 <div ui-view></div>
 <!-- build:js(.) scripts/vendor.js -->
 <!-- bower:js -->
-<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/ie8-node-enum/index.js"></script>
+<script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
+<script src="bower_components/jquery.scrollWindowTo/index.js"></script>
+<script src="bower_components/underscore/underscore.js"></script>
+<script src="bower_components/underscore.mixin.deepExtend/index.js"></script>
+<script src="bower_components/backbone/backbone.js"></script>
+<script src="bower_components/backbone-deep-model/src/deep-model.js"></script>
+<script src="bower_components/rivets/dist/rivets.js"></script>
+<script src="bower_components/formbuilder/dist/formbuilder.js"></script>
 <script src="bower_components/angular/angular.js"></script>
 <script src="bower_components/bootstrap-sass-official/assets/javascripts/bootstrap.js"></script>
 <script src="bower_components/angular-cookies/angular-cookies.js"></script>
@@ -80,6 +90,7 @@
 <script src="greyscale.rest/scripts/services/greyscale-language.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-entity-type.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-role.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-survey.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-user.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-right.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-project.js"></script>
@@ -99,6 +110,7 @@
 <script src="greyscale.tables/scripts/services/greyscale-roles.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-rights.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-organizations.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-surveys.js"></script>
 <!-- end greyscale.tables -->
 <!-- endbuild -->
 
@@ -116,6 +128,7 @@
 <script src="scripts/controllers/dashboard.js"></script>
 <script src="scripts/controllers/projects.js"></script>
 <script src="scripts/controllers/organizations.js"></script>
+<script src="scripts/controllers/survey.js"></script>
 <script src="scripts/controllers/modals/simple-form.js"></script>
 <script src="scripts/controllers/modals/modal-form.js"></script>
 <!-- end controllers -->
@@ -130,6 +143,7 @@
 <script src="scripts/directives/widget-table.js"></script>
 <script src="scripts/directives/widget-table-cell.js"></script>
 <script src="scripts/directives/modal-footer.js"></script>
+<script src="scripts/directives/form-builder.js"></script>
 <script src="scripts/directives/select-date.js"></script>
 <script src="scripts/directives/modal-form-field.js"></script>
 <!-- end directives -->

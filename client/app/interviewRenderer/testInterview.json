@@ -1,0 +1,212 @@
+﻿{
+    "fields": [{
+        "label": "Text title",
+        "field_type": "text",
+        "required": true,
+        "field_options": {
+            "size": "medium",
+            "description": "Text info",
+            "minlength": "5",
+            "maxlength": "20",
+            "min_max_length_units": "characters"
+        },
+        "cid": "c2"
+    }, {
+        "label": "Checkbox title",
+        "field_type": "checkboxes",
+        "required": true,
+        "field_options": {
+            "options": [{
+                "label": "Select 1",
+                "checked": true
+            }, {
+                "label": "Select 2",
+                "checked": true
+            }, {
+                "label": "Select 3",
+                "checked": false
+            }],
+            "description": "Checkbox info",
+            "include_other_option": true
+        },
+        "cid": "c6"
+    }, {
+        "label": "Date title",
+        "field_type": "date",
+        "required": true,
+        "field_options": {
+            "description": "Date info"
+        },
+        "cid": "c10"
+    }, {
+        "label": "Time title",
+        "field_type": "time",
+        "required": true,
+        "field_options": {
+            "description": "Time info"
+        },
+        "cid": "c14"
+    }, {
+        "label": "Website title",
+        "field_type": "website",
+        "required": true,
+        "field_options": {
+            "description": "Website info"
+        },
+        "cid": "c18"
+    }, {
+        "label": "Price title",
+        "field_type": "price",
+        "required": true,
+        "field_options": {
+            "description": "Price info"
+        },
+        "cid": "c22"
+    }, {
+        "label": "Paragraph title",
+        "field_type": "paragraph",
+        "required": true,
+        "field_options": {
+            "size": "medium",
+            "description": "Paragraph info",
+            "minlength": "20",
+            "maxlength": "50",
+            "min_max_length_units": "words"
+        },
+        "cid": "c26"
+    }, {
+        "label": "rewerew",
+        "field_type": "section_break",
+        "required": true,
+        "field_options": {
+            "description": "rwerew"
+        },
+        "cid": "c59"
+    }, {
+        "label": "Radio title",
+        "field_type": "radio",
+        "required": true,
+        "field_options": {
+            "options": [{
+                "label": "Select 1",
+                "checked": false
+            }, {
+                "label": "Select 2",
+                "checked": false
+            }, {
+                "label": "Select 3",
+                "checked": true
+            }, {
+                "label": "Select 4",
+                "checked": false
+            }],
+            "description": "Radio info"
+        },
+        "cid": "c30"
+    }, {
+        "label": "Radio title 2",
+        "field_type": "radio",
+        "required": false,
+        "field_options": {
+            "options": [{
+                "label": "Select 1",
+                "checked": false
+            }, {
+                "label": "Select 2",
+                "checked": false
+            }, {
+                "label": "Select 3",
+                "checked": true
+            }, {
+                "label": "Select 4",
+                "checked": false
+            }],
+            "description": "Radio info 2",
+            "include_other_option": true
+        },
+        "cid": "c302"
+    }, {
+        "label": "Dropdown title",
+        "field_type": "dropdown",
+        "required": true,
+        "field_options": {
+            "options": [{
+                "label": "Var 1",
+                "checked": false
+            }, {
+                "label": "Var 2",
+                "checked": false
+            }, {
+                "label": "Var 3",
+                "checked": false
+            }],
+            "include_blank_option": true,
+            "description": "Dropdown info"
+        },
+        "cid": "c34"
+    }, {
+        "label": "Dropdown title 2",
+        "field_type": "dropdown",
+        "required": true,
+        "field_options": {
+            "options": [{
+                "label": "Var 1",
+                "checked": false
+            }, {
+                "label": "Var 2",
+                "checked": true
+            }, {
+                "label": "Var 3",
+                "checked": false
+            }],
+            "include_blank_option": false,
+            "description": "Dropdown info 2"
+        },
+        "cid": "c341"
+    }, {
+        "label": "Number title",
+        "field_type": "number",
+        "required": true,
+        "field_options": {
+            "description": "Number info",
+            "min": "20",
+            "max": "600",
+            "units": "px",
+            "integer_only": true
+        },
+        "cid": "c38"
+    }, {
+        "label": "Numer title 2",
+        "field_type": "number",
+        "required": true,
+        "field_options": {
+            "description": "Numer info 2",
+            "units": "%"
+        },
+        "cid": "c42"
+    }, {
+        "label": "Email title",
+        "field_type": "email",
+        "required": true,
+        "field_options": {
+            "description": "Email info"
+        },
+        "cid": "c46"
+    }, {
+        "label": "Address title",
+        "field_type": "address",
+        "required": true,
+        "field_options": {
+            "description": "Address info"
+        },
+        "cid": "c50"
+    }, {
+        "label": "Section",
+        "field_type": "section_break",
+        "required": true,
+        "field_options": {
+            "description": "Section info"
+        },
+        "cid": "c54"
+    }]
+}
