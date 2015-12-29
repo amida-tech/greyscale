@@ -109,6 +109,7 @@ router.route('/v0.2/essence_roles')
 
 router.route('/v0.2/essence_roles/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.selectOne)
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.updateOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
