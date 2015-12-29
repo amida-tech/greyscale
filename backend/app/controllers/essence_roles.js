@@ -16,12 +16,36 @@ var Query = require('app/util').Query,
 module.exports = {
 
   select: function (req, res, next) {
-    var q = EssenceRole.select().from(EssenceRole);
+    co(function* (){
+      return yield thunkQuery(EssenceRole.select().from(EssenceRole), _.omit(req.query, 'limit', 'offset', 'order'));
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
+
+  },
+
+  selectOne: function (req, res, next){
+    var q = EssenceRole.select().from(EssenceRole).where(EssenceRole.id.equals(req.params.id));
     query(q, function (err, data) {
       if (err) {
         return next(err);
       }
-      res.json(data);
+      if(!_.first(data)){
+        return next(new HttpError(404, 'Not found'));
+      }
+      res.json(_.first(data));
+    });
+  },
+
+  delete: function (req, res, next){
+    var q = EssenceRole.delete().where(EssenceRole.id.equals(req.params.id));
+    query(q, function (err, data) {
+      if (err) {
+        return next(err);
+      }
+      res.status(204).end();
     });
   },
 
@@ -30,6 +54,17 @@ module.exports = {
       existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)));
       if(!_.first(existEssence)){
         throw new HttpError(403, 'Essence with this id does not exist (' + req.body.essenceId + ')');
+      }
+
+      try{
+        var model = require('app/models/'+_.first(existEssence).fileName);
+      }catch(err){
+        throw new HttpError(403, "Cannot find model file: " + _.first(existEssence).fileName);
+      }
+
+      var existEntity = yield thunkQuery(model.select().from(model).where(model.id.equals(req.body.entityId)));
+      if(!_.first(existEntity)){
+        throw new HttpError(403, 'Entity with this id does not exist (' + req.body.entityId + ')');
       }
 
       existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
@@ -55,14 +90,5 @@ module.exports = {
     });
   },
 
-  selectEntityRoles: function (req, res, next) {
-    var q = EssenceRole.select().from(EssenceRole).where(req.params);
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
-      }
-      res.json(data);
-    });
-  }
 
 };

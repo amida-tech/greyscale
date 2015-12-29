@@ -107,8 +107,9 @@ router.route('/v0.2/essence_roles')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.select)
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.insertOne);
 
-router.route('/v0.2/essence_roles/:essenceId/:entityId')
-  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.selectEntityRoles);
+router.route('/v0.2/essence_roles/:id')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.selectOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_MATRICES

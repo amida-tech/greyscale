@@ -67,7 +67,6 @@ module.exports = {
             if(!_.first(survey)){
                 throw new HttpError(403, 'Survey with this id does not exist');
             }
-            console.log('1');
             req.body.userId = req.user.id;
             return yield thunkQuery(SurveyAnswer.insert(req.body).returning(SurveyAnswer.id));
         }).then(function (data){
