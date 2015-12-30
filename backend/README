@@ -3,7 +3,7 @@ Installation
 1. Install node.js (on Debian/Ubuntu: "apt-get install nodejs").
 2. Run "npm i" in project root to install dependencies. ("sudo npm i" can be required, depending on node.js installation)
 3. Install postgres on your machine
-3. Restore database from last backup (/db_dump/indaba{mmdd}.backup)
-4. Configure application (see config.js)
-5. Run application "node --harmony app.js". We use generators, so you need to use "--harmony" flag.
+4. Create database and restore it from last backup (/db_dump/indaba{mmdd}.backup)
+5. Configure application (rename config_etalon.js to config.js)
+6. Run application "node --harmony app.js". We use generators, so you need to use "--harmony" flag.
 
