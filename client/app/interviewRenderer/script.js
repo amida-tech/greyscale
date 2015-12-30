@@ -410,7 +410,7 @@ function save() {
     }).catch(function (error) { console.error(error); });
 
 }
-function autosave() { setTimeout(function () { save(); }, 5000); }
+function autosave() { setTimeout(function () { save(); autosave(); }, 5000); }
 
 $.ready().then(function () {
     readySurvey();
