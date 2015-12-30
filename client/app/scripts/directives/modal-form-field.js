@@ -63,6 +63,11 @@ angular.module('greyscaleApp')
                         }
                     }
 
+                    if(clmn.dataRequired === true) {
+                        field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>';
+                        // console.log('<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>');
+                    }
+
                     field += '</div>';
 
                     elem.append(field);
