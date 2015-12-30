@@ -10,8 +10,8 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('uoataglinks');
         };
 
-        function _uoaTagLink() {
-            return _api().get();
+        function _getUoaTagLink(query) {
+            return _api().get(query);
         }
 
         function _addUoaTagLink(uoaTagLink) {
@@ -22,14 +22,9 @@ angular.module('greyscale.rest')
             return _api().one(uoaTagLinkId+'').remove();
         }
 
-        function _updateUoaTagLink(uoaTagLink) {
-            return _api().one(uoaTagLink.id+'').customPUT(uoaTagLink);
-        }
-
         return {
-            list: _uoaTagLink,
+            list: _getUoaTagLink,
             add: _addUoaTagLink,
-            update: _updateUoaTagLink,
             delete: _deleteUoaTagLink
         };
     });

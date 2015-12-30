@@ -149,8 +149,7 @@ angular.module('greyscale.tables')
             add: {
                 title: 'Add',
                 handler: _addUoa
-            },
-            selectRow: selectUoa
+            }
         };
 
         function _editUoa(_uoa) {
@@ -225,15 +224,6 @@ angular.module('greyscale.tables')
         function reloadTable() {
             _table.tableParams.reload();
         }
-
-        function selectUoa(uoa) {
-            if (typeof uoa !== 'undefined') {
-                $log.debug('selectUoa - select: '+uoa.name);
-                //reloadTable();
-            }
-            return _table.current;
-        }
-
 
         function errHandler(err, operation) {
             var msg = _table.formTitle + ' ' + operation + ' error';

@@ -19,7 +19,6 @@ angular.module('greyscale.tables')
                 show: true,
                 sortable: 'id',
                 dataFormat: 'text',
-                dataRequired: true,
                 dataReadOnly: true
             },
             {
@@ -71,7 +70,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Unit of Analysis Classification Types',
+            title: 'Tag Classification Types',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             pageLength: 5,
