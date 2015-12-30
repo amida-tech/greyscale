@@ -11,12 +11,19 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('UoasCtrl', function ($scope, greyscaleUoaTypes, greyscaleUoas, greyscaleUoaClassTypes, greyscaleUoaTags) {
+    .controller('UoasCtrl', function ($scope,
+                                      greyscaleUoaTypes,
+                                      greyscaleUoas,
+                                      greyscaleUoaClassTypes,
+                                      greyscaleUoaTags,
+                                      greyscaleUoaTagLinks) {
 
         $scope.model = {
             uoas: greyscaleUoas,
             uoaTypes: greyscaleUoaTypes,
             uoaTags: greyscaleUoaTags,
+            uoaTagLinks: greyscaleUoaTagLinks,
             uoaClassTypes: greyscaleUoaClassTypes
         };
+
     });

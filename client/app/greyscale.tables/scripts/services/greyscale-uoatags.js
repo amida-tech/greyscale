@@ -91,7 +91,7 @@ angular.module('greyscale.tables')
             var op = 'editing';
             return greyscaleUoaTagSrv.get(_uoaTag)
                 .then(function (uoaTag) {
-                    return greyscaleModalsSrv.editUoaTag(uoaTag, _table)
+                    return greyscaleModalsSrv.editRec(uoaTag, _table)
                 })
                 .then(function(uoaTag){
                     return greyscaleUoaTagSrv.update(uoaTag);
@@ -103,7 +103,7 @@ angular.module('greyscale.tables')
         }
         function _addUoaTag() {
             var op = 'adding';
-            return greyscaleModalsSrv.editUoaTag(null, _table)
+            return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaTag) {
                     return greyscaleUoaTagSrv.add(uoaTag);
                 })
