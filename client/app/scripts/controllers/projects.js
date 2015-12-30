@@ -4,19 +4,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, greyscaleProjects, greyscaleEntityRoles, greyscaleEntityTypeSrv, _) {
-
-        var prjRoles = angular.copy();
-
-
-        var prjs = angular.copy(greyscaleProjects);
-
-        prjs.pageLength = 5;
-
+    .controller('ProjectsCtrl', function ($scope, greyscaleProjects, greyscaleEntityRoles) {
         $scope.model = {
             projects: greyscaleProjects,
             entRoles: greyscaleEntityRoles
         };
-
-
     });
