@@ -316,6 +316,22 @@ router.route('/v0.2/uoatags/:id')
     .delete(authenticate('token').always, checkRight('unitofanalysistag_delete_one'), UnitOfAnalysisTag.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    Unit of Analysis to Tags Link
+//----------------------------------------------------------------------------------------------------------------------
+var UnitOfAnalysisTagLink = require('app/controllers/uoataglinks');
+
+router.route('/v0.2/uoataglinks')
+    .get(authenticate('token').always, UnitOfAnalysisTagLink.select)
+    .post(authenticate('token').always, checkRight('uoataglink_insert_one'), UnitOfAnalysisTagLink.insertOne);
+
+router.route('/v0.2/uoataglinks/:id')
+    .put(authenticate('token').always, checkRight('uoataglink_update_one'), UnitOfAnalysisTagLink.updateOne)
+    .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
+
+router.route('/v0.2/uoas/:id/tags')
+    .get(authenticate('token').always, UnitOfAnalysisTagLink.selectTags);
+
+//----------------------------------------------------------------------------------------------------------------------
 module.exports = router;
 
 

@@ -149,14 +149,15 @@ angular.module('greyscale.tables')
             add: {
                 title: 'Add',
                 handler: _addUoa
-            }
+            },
+            selectRow: selectUoa
         };
 
         function _editUoa(_uoa) {
             var op = 'editing';
             return greyscaleUoaSrv.get(_uoa)
                 .then(function (uoa) {
-                    return greyscaleModalsSrv.editUoa(uoa, _table)
+                    return greyscaleModalsSrv.editRec(uoa, _table)
                 })
                 .then(function(uoa){
                     return greyscaleUoaSrv.update(uoa);
@@ -168,7 +169,7 @@ angular.module('greyscale.tables')
         }
         function _addUoa() {
             var op = 'adding';
-            return greyscaleModalsSrv.editUoa(null, _table)
+            return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoa) {
                     return greyscaleUoaSrv.add(uoa);
                 })
@@ -224,6 +225,15 @@ angular.module('greyscale.tables')
         function reloadTable() {
             _table.tableParams.reload();
         }
+
+        function selectUoa(uoa) {
+            if (typeof uoa !== 'undefined') {
+                $log.debug('selectUoa - select: '+uoa.name);
+                //reloadTable();
+            }
+            return _table.current;
+        }
+
 
         function errHandler(err, operation) {
             var msg = _table.formTitle + ' ' + operation + ' error';

@@ -87,7 +87,7 @@ angular.module('greyscale.tables')
             var op = 'editing';
             return greyscaleUoaClassTypeSrv.get(_uoaClassType)
                 .then(function (uoaClassType) {
-                    return greyscaleModalsSrv.editUoaClassType(uoaClassType, _table);
+                    return greyscaleModalsSrv.editRec(uoaClassType, _table);
                 })
                 .then(function (uoaClassType) {
                     return greyscaleUoaClassTypeSrv.update(uoaClassType);
@@ -100,7 +100,7 @@ angular.module('greyscale.tables')
 
         function _addUoaClassType(_uoaClassType) {
             var op = 'adding';
-            return greyscaleModalsSrv.editUoaClassType(_uoaClassType, _table)
+            return greyscaleModalsSrv.editRec(_uoaClassType, _table)
                 .then(function (uoaClassType) {
                     return greyscaleUoaClassTypeSrv.add(uoaClassType);
                 })

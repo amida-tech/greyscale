@@ -4,8 +4,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, greyscaleProjects) {
+    .controller('ProjectsCtrl', function ($scope, greyscaleProjects, greyscaleEntityRoles) {
         $scope.model = {
-            projects: greyscaleProjects
+            projects: greyscaleProjects,
+            entRoles: greyscaleEntityRoles
         };
     });

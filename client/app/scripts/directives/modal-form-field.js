@@ -46,21 +46,26 @@ angular.module('greyscaleApp')
                         switch (clmn.dataFormat) {
                             case 'textarea':
                                 field += '<textarea class="form-control" type="text"  id="' + clmn.field +
-                                    '" name="' + clmn.field + '" ng-model="modalFormFieldModel"></textarea>';
+                                    '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></textarea>';
                                 break;
                             case 'date':
-                                field += '<select-date data-id="' + clmn.field + '" result="modalFormFieldModel"></select-date>';
+                                field += '<select-date data-id="' + clmn.field + '" result="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select-date>';
                                 break;
                             case 'option':
                                 field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
                                     '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select>';
                                 break;
                             case 'boolean':
-                                field += '<input type="checkbox" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel"/>';
+                                field += '<input type="checkbox" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
                                 break;
                             default:
-                                field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel"/>';
+                                field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
                         }
+                    }
+
+                    if(clmn.dataRequired === true) {
+                        field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>';
+                        // console.log('<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>');
                     }
 
                     field += '</div>';
