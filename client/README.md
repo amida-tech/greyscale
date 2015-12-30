@@ -14,7 +14,7 @@
 
 ## Get source code
 
- Get [sources from github](https://github.com/amida-tech/dre-frontend/)
+ Get [sources from github](https://github.com/amida-tech/greyscale/)
  
 ## Install [Compass](http://compass-style.org/) SCSS compiller
 
