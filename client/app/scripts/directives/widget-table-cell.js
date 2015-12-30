@@ -5,6 +5,20 @@
 
 angular.module('greyscaleApp')
     .directive('widgetTableCell', function ($filter, $compile) {
+
+        function decode(_set, dict, value) {
+            var res = value;
+            var _expr = {};
+            _expr[_set.keyField] = value;
+            var _data = $filter('filter')(dict, _expr);
+
+            if (_data.length > 0) {
+                res = _data[0][_set.valField];
+            }
+
+            return res;
+        }
+
         return {
             restrict: 'A',
             scope: {
@@ -15,6 +29,7 @@ angular.module('greyscaleApp')
                 var cell = $scope.widgetCell;
                 if (cell.show) {
                     var _field = cell.field;
+                    $scope.model = $scope.rowValue[_field];
 
                     switch (cell.dataFormat) {
                         case 'action':
@@ -26,13 +41,14 @@ angular.module('greyscaleApp')
 
                         case 'option':
                             var _set = cell.dataSet;
-                            var _expr = {};
-                            _expr[_set.keyField] = $scope.rowValue[_field];
-                            var _data = $filter('filter')(_set.getData(), _expr);
-                            if (_data.length > 0) {
-                                elem.append(_data[0][_set.valField]);
-                            } else {
-                                elem.append($scope.rowValue[_field]);
+                            if (_set.getData) {
+                                elem.append(decode(_set, _set.getData($scope.rowValue), $scope.rowValue[_field]));
+                            } else if (_set.dataPromise) {
+                                elem.append('{{model}}');
+                                $compile(elem.contents())($scope);
+                                _set.dataPromise($scope.rowValue).then(function (dict) {
+                                    $scope.model = decode(_set, dict, $scope.model);
+                                });
                             }
                             break;
 

@@ -3,13 +3,14 @@
  */
 "use strict";
 angular.module('greyscale.tables')
-    .factory('greyscaleEntityRoles', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleEntityRoles', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
                                                greyscaleEntityTypeRoleSrv, greyscaleUserSrv, greyscaleRoleSrv,
-                                               greyscaleEntityTypeSrv) {
+                                               greyscaleEntityTypeSrv, greyscaleRestSrv) {
         var _dicts = {
             users: [],
             roles: [],
-            entTypes: []
+            entTypes: [],
+            ents: {}
         };
 
         var _tableRestSrv = greyscaleEntityTypeRoleSrv;
@@ -19,6 +20,7 @@ angular.module('greyscale.tables')
                 field: 'roleId',
                 show: true,
                 title: 'Role',
+                dataRequired: true,
                 dataFormat: 'option',
                 dataSet: {
                     keyField: 'id',
@@ -30,6 +32,7 @@ angular.module('greyscale.tables')
                 field: 'userId',
                 show: true,
                 title: 'User',
+                dataRequired: true,
                 dataFormat: 'option',
                 dataSet: {
                     keyField: 'id',
@@ -41,6 +44,8 @@ angular.module('greyscale.tables')
                 field: 'essenceId',
                 show: true,
                 title: 'Entity Type',
+                dataReadOnly: 'both',
+                dataRequired: true,
                 dataFormat: 'option',
                 dataSet: {
                     keyField: 'id',
@@ -51,7 +56,14 @@ angular.module('greyscale.tables')
             {
                 field: 'entityId',
                 show: true,
-                title: 'Entity Title'
+                title: 'Entity Title',
+                dataRequired: true,
+                dataFormat: 'option',
+                dataSet: {
+                    keyField: 'id',
+                    valField: 'title',
+                    dataPromise: getEntity
+                }
             },
             {
                 field: '',
@@ -74,9 +86,14 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            formTitle: 'entity role',
-            title: 'Entity roles',
-            icon: 'fa-university',
+            dataFilter: {},
+            title: 'Project roles',
+            formTitle: 'project role',
+            /*
+             formTitle: 'entity role',
+             title: 'Entity roles',
+             */
+            icon: 'fa-group',
             cols: _fields,
             dataPromise: getData,
             pageLength: 10,
@@ -99,6 +116,46 @@ angular.module('greyscale.tables')
             return _dicts.entTypes;
         }
 
+        function getEntity(rec) {
+            var dicId = rec.essenceId;
+            var res = [];
+            if (!_dicts.ents[dicId]) {
+                _dicts.ents[dicId] = {
+                    promise: greyscaleEntityTypeSrv.get(rec.essenceId)
+                        .then(function (eType) {
+                            var apiName = eType[0].fileName;
+                            var fieldName = eType[0].nameField;
+                            var params = {
+                                fields: 'id,' + fieldName
+                            };
+
+                            return greyscaleRestSrv().one(apiName)
+                                .get(params)
+                                .then(function (items) {
+                                    var res = [];
+                                    for (var i = 0; i < items.length; i++) {
+                                        res.push(
+                                            {
+                                                id: items[i].id,
+                                                title: items[i][fieldName]
+                                            }
+                                        );
+                                    }
+                                    _dicts.ents[dicId].data = res;
+                                    return _dicts.ents[dicId].data;
+                                });
+                        }),
+                    data: null
+                };
+                res = _dicts.ents[dicId].promise;
+            } else if (!_dicts.ents[dicId].data) {
+                res = _dicts.ents[dicId].promise;
+            } else {
+                res = $q.resolve(_dicts.ents[dicId].data);
+            }
+            return res;
+        }
+
         function _delRecord(rec) {
             _tableRestSrv.delete(rec.id)
                 .then(reloadTable)
@@ -107,9 +164,13 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _editRecord(user) {
-            var action = (typeof user === 'undefined') ? 'adding' : 'editing';
-            return greyscaleModalsSrv.editRec(user, _table)
+        function _editRecord(rec) {
+            var action = (typeof rec === 'undefined') ? 'adding' : 'editing';
+            if (!rec) {
+                rec = {};
+            }
+            rec = angular.extend(rec, _table.dataFilter);
+            return greyscaleModalsSrv.editRec(rec, _table)
                 .then(function (newRec) {
                     if (action === 'editing') {
                         return _tableRestSrv.update(newRec);
@@ -124,25 +185,28 @@ angular.module('greyscale.tables')
         }
 
         function getData() {
-            return greyscaleProfileSrv.getProfile()
-                .then(function (profile) {
-                    var reqs = {
-                        data: _tableRestSrv.list(),
-                        users: greyscaleUserSrv.list({organizationId: profile.organizationId}),
-                        roles: greyscaleRoleSrv.list(),
-                        entTypes: greyscaleEntityTypeSrv.list()
-                    };
+            return greyscaleEntityTypeSrv.list({fields: 'id,name'}).then(function (types) {
+                _table.dataFilter = {essenceId: _.get(_.find(types, {name: 'projects'}), 'id')};
+                return greyscaleProfileSrv.getProfile()
+                    .then(function (profile) {
+                        var reqs = {
+                            data: _tableRestSrv.list(_table.dataFilter),
+                            users: greyscaleUserSrv.list({organizationId: profile.organizationId}),
+                            roles: greyscaleRoleSrv.list(),
+                            entTypes: greyscaleEntityTypeSrv.list()
+                        };
 
-                    return $q.all(reqs).then(function (promises) {
-                        _dicts.users = promises.users;
-                        _dicts.roles = promises.roles;
-                        _dicts.entTypes = promises.entTypes;
+                        return $q.all(reqs).then(function (promises) {
+                            _dicts.users = promises.users;
+                            _dicts.roles = promises.roles;
+                            _dicts.entTypes = promises.entTypes;
 
-                        greyscaleUtilsSrv.prepareFields(promises.data, _fields);
-                        return promises.data;
-                    });
-                })
-                .catch(errorHandler);
+                            greyscaleUtilsSrv.prepareFields(promises.data, _fields);
+                            return promises.data;
+                        });
+                    })
+                    .catch(errorHandler);
+            });
         }
 
         function reloadTable() {
