@@ -192,7 +192,7 @@ angular.module('greyscale.tables')
                         var reqs = {
                             data: _tableRestSrv.list(_table.dataFilter),
                             users: greyscaleUserSrv.list({organizationId: profile.organizationId}),
-                            roles: greyscaleRoleSrv.list(),
+                            roles: greyscaleRoleSrv.list({isSystem: false}),
                             entTypes: greyscaleEntityTypeSrv.list()
                         };
 

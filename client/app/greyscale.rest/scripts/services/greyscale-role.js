@@ -10,8 +10,8 @@ angular.module('greyscale.rest')
         };
 
         return {
-            list: function () {
-                return greyscaleRestSrv().one('roles').get();
+            list: function (params) {
+                return greyscaleRestSrv().one('roles').get(params);
             },
             listRights: function (roleId) {
                 return _roleRights(roleId + '').get();
