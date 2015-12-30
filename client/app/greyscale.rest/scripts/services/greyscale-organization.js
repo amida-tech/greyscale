@@ -9,6 +9,7 @@ angular.module('greyscale.rest')
         return {
             list: _list,
             get: _get,
+            add: _add,
             update: _update,
             delete: _delete
         };
@@ -19,6 +20,10 @@ angular.module('greyscale.rest')
 
         function _list (param) {
             return api().get(param);
+        }
+
+        function _add (org) {
+            return api().customPOST(org);
         }
 
         function _get (id) {

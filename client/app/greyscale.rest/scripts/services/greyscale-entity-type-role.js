@@ -3,24 +3,25 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleEntityTypeSrv', function ($q, greyscaleRestSrv) {
+    .factory('greyscaleEntityTypeRoleSrv', function (greyscaleRestSrv) {
 
         return {
             list: _list,
             add: _add,
             get: _get,
-            listEntities: listItems
+            delete: _del,
+            update: _update
         };
 
         function _api() {
-            return greyscaleRestSrv().one('essences');
+            return greyscaleRestSrv().one('essence_roles');
         }
 
         function _list(params) {
             return _api().get(params);
         }
 
-        function _get (id) {
+        function _get(id) {
             return _list({id: id});
         }
 
@@ -28,9 +29,11 @@ angular.module('greyscale.rest')
             return _api().customPOST(data);
         }
 
-        function listItems(id) {
-            return _get(id).then(function(entityType){
-                return $.reject('not implemented');
-            });
+        function _update(rec) {
+            return _api().one(rec.id + '').customPUT(rec);
+        }
+
+        function _del(id) {
+            return _api().one(id + '').remove();
         }
     });
