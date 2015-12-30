@@ -8,13 +8,13 @@ angular.module('greyscaleApp')
         return {
             restrict: 'A',
             scope: {
-                modalFormRecId: '=',
+                modalFormRec: '=',
                 modalFormField: '=',
                 modalFormFieldModel: '='
             },
             link: function (scope, elem) {
                 var clmn = scope.modalFormField;
-                var editMode = !!(scope.modalFormRecId);
+                var editMode = !!(scope.modalFormRec.id);
 
                 if (clmn.title) {
                     elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
@@ -64,8 +64,7 @@ angular.module('greyscaleApp')
                     }
 
                     if(clmn.dataRequired === true) {
-                        field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>';
-                        // console.log('<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="dataForm.' + clmn.field + '.$dirty"><span ng-message="required" class="help-block">This field is required.</span></div>');
+                        field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && !$parent.dataForm.' + clmn.field + '.$viewValue"><span class="help-block">This field is required.</span></div>';
                     }
 
                     field += '</div>';
@@ -76,19 +75,26 @@ angular.module('greyscaleApp')
             },
             controller: function formFieldController($scope) {
                 var clmn = $scope.modalFormField;
+                $scope.model = {
+                    options: []
+                };
                 var _options = [];
                 if (clmn.dataFormat === 'option') {
-                    var data = clmn.dataSet.getData();
-                    for (var d = 0; d < data.length; d++) {
-                        _options.push({
-                            id: data[d][clmn.dataSet.keyField],
-                            title: data[d][clmn.dataSet.valField]
-                        });
+                    if (clmn.dataSet.getData) {
+                        var data = clmn.dataSet.getData();
+                        for (var d = 0; d < data.length; d++) {
+                            _options.push({
+                                id: data[d][clmn.dataSet.keyField],
+                                title: data[d][clmn.dataSet.valField]
+                            });
+                        }
+                        $scope.model.options = _options;
+                    } else if (clmn.dataSet.dataPromise) {
+                        clmn.dataSet.dataPromise($scope.modalFormRec).then(function(data){
+                            $scope.model.options = data;
+                        })
                     }
                 }
-                $scope.model = {
-                    options: _options
-                };
             }
         };
     });
