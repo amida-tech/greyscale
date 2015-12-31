@@ -70,7 +70,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function* (){
             delete req.body.createTime;
-            return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.body.id)));
+            return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function(){
             res.status(202).end();
         },function(err){

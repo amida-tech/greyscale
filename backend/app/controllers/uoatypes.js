@@ -66,7 +66,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* (){
-            return yield thunkQuery(UnitOfAnalysisType.update(req.body).where(UnitOfAnalysisType.id.equals(req.body.id)));
+            return yield thunkQuery(UnitOfAnalysisType.update(req.body).where(UnitOfAnalysisType.id.equals(req.params.id)));
         }).then(function(){
             res.status(202).end();
         },function(err){
