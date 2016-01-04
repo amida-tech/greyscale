@@ -92,7 +92,7 @@ angular.module('greyscaleApp')
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function(data){
                             $scope.model.options = data;
-                        })
+                        });
                     }
                 }
             }

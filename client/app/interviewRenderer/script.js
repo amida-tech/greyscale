@@ -10,11 +10,14 @@ function readySurvey() {
     //var url = './testInterview.json';
     var url = 'http://indaba.ntrlab.ru:83/v0.2/surveys/' + window.location.hash.replace('#', '');
     var token = getCookie('token').replace('%22', '').replace('%22', '');
-    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
+    $.fetch(url, {method: 'GET', responseType: 'json', headers: {token: token}}).then(function (request) {
         //generateSurvey(request.response);
         generateSurvey(JSON.parse(request.response.data));
         load();
-    }).catch(function (error) { console.error(error); });
+    }).catch(function (error) {
+        console.error(error);
+        console.log(error.stack)
+    });
 }
 
 var data;
@@ -24,19 +27,29 @@ function generateSurvey(json) {
     for (var i = 0; i < data.length; i++) fieldCreate(data[i], survey);
 }
 
-function getField(cid) { return $('#' + cid); }
-function getData(cid) { for (var i = 0; i < data.length; i++) if (data[i].cid === cid) return data[i]; }
+function getField(cid) {
+    return $('#' + cid);
+}
+function getData(cid) {
+    for (var i = 0; i < data.length; i++) if (data[i].cid === cid) return data[i];
+}
 
 function fieldCreate(data, survey) {
     var type = data.field_type;
     if (type === 'date' || type === 'time' || type === 'website' || type === 'address') return;
-    
+
     var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'address' ? 'div' : 'label';
-    var field = $.create(tag, { id: data.cid, contents: [data.label], className: 'field ' + type, 'data-type': type });
-    if (data.required && type !== 'section_break') $.inside($.create('span', { contents: ['*'], className: 'required' }), field);
-    if (data.field_options && data.field_options.description) $.inside($.create('div', { contents: [data.field_options.description], className: 'description' }), field);
+    var field = $.create(tag, {id: data.cid, contents: [data.label], className: 'field ' + type, 'data-type': type});
+    if (data.required && type !== 'section_break') $.inside($.create('span', {
+        contents: ['*'],
+        className: 'required'
+    }), field);
+    if (data.field_options && data.field_options.description) $.inside($.create('div', {
+        contents: [data.field_options.description],
+        className: 'description'
+    }), field);
     if (field) $.inside(field, survey);
-    
+
     switch (type) {
         case 'text':
         case 'email':
@@ -44,63 +57,80 @@ function fieldCreate(data, survey) {
             break
         case 'price':
             fieldText(data);
-            $.before($.create('span', { contents: ['$: '] }), $('input', field));
+            $.before($.create('span', {contents: ['$: ']}), $('input', field));
             break;
         case 'number':
             fieldText(data);
-            $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
+            $.after($.create('span', {contents: [' ', data.field_options.units]}), $('input', field));
             break;
         case 'checkboxes':
         case 'radio':
             fieldRadioCheckboxes(data);
             break;
         case 'paragraph':
-            $.inside($.create('textarea', { className: data.field_options.size, name: data.cid }), field);
+            $.inside($.create('textarea', {className: data.field_options.size, name: data.cid}), field);
             break;
         case 'dropdown':
             fieldDropdown(data);
             break;
-        default: return;
+        default:
+            return;
     }
     validationRule(data);
 };
-function fieldText(data) { $.inside($.create('input', { type: 'text', className: data.field_options.size ? data.field_options.size : '', name: data.cid }), getField(data.cid)); }
+function fieldText(data) {
+    $.inside($.create('input', {
+        type: 'text',
+        className: data.field_options.size ? data.field_options.size : '',
+        name: data.cid
+    }), getField(data.cid));
+}
 function fieldRadioCheckboxes(data) {
     var type = data.field_type === 'radio' ? 'radio' : 'checkbox';
     if (!data.field_options || !data.field_options.options || !data.field_options.options.length) return;
     var fieldSet = $.create('fieldset');
     $.inside(fieldSet, getField(data.cid));
     for (var i = 0; i < data.field_options.options.length; i++) {
-        var checkboxLabel = $.create('label', { className: 'variant' });
+        var checkboxLabel = $.create('label', {className: 'variant'});
         $.inside(checkboxLabel, fieldSet);
-        
-        var input = $.create('input', { type: type, value: data.field_options.options[i].label, checked: data.field_options.options[i].checked, name: data.cid, className: 'option' });
+
+        var input = $.create('input', {
+            type: type,
+            value: data.field_options.options[i].label,
+            checked: data.field_options.options[i].checked,
+            name: data.cid,
+            className: 'option'
+        });
         $.inside(input, checkboxLabel);
-        
-        $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
+
+        $.inside($.create('span', {contents: [data.field_options.options[i].label]}), checkboxLabel);
     }
-    
+
     if (data.field_options.include_other_option) {
-        var block = $.create('div', { className: 'variant' });
+        var block = $.create('div', {className: 'variant'});
         $.inside(block, fieldSet);
-        var input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other' });
+        var input = $.create('input', {type: type, value: 'Other', name: data.cid, className: 'other'});
         $.inside(input, block);
-        var inputVariant = $.create('input', { type: 'text', name: data.cid, className: 'other-text' });
+        var inputVariant = $.create('input', {type: 'text', name: data.cid, className: 'other-text'});
         $.inside(inputVariant, block);
     }
 }
 function fieldDropdown(data) {
     if (!data.field_options || !data.field_options.options || !data.field_options.options.length) return;
-    var select = $.create('select', { name: data.cid });
+    var select = $.create('select', {name: data.cid});
     $.inside(select, getField(data.cid));
-    
+
     if (data.field_options.include_blank_option) {
-        var option = $.create('option', { text: ' ', value: ' ' });
+        var option = $.create('option', {text: ' ', value: ' '});
         $.inside(option, select);
     }
-    
+
     for (var i = 0; i < data.field_options.options.length; i++) {
-        var option = $.create('option', { text: data.field_options.options[i].label, value: data.field_options.options[i].label, selected: data.field_options.options[i].checked });
+        var option = $.create('option', {
+            text: data.field_options.options[i].label,
+            value: data.field_options.options[i].label,
+            selected: data.field_options.options[i].checked
+        });
         $.inside(option, select);
     }
 }
@@ -110,8 +140,8 @@ function showErrors(data) {
     var error = $('.error', field);
     error.innerHTML = '';
     for (var i = 0; i < data.errors.length; i++)
-        $.inside($.create('div', { contents: [data.errors[i].text] }), error);
-    field.classList.add(data.errors.length ?'invalid' : 'valid');
+        $.inside($.create('div', {contents: [data.errors[i].text]}), error);
+    field.classList.add(data.errors.length ? 'invalid' : 'valid');
     field.classList.remove(data.errors.length ? 'valid' : 'invalid');
 }
 function addRemoveError(data, error, mustHaveError) {
@@ -135,11 +165,11 @@ function validateAll(data) {
 }
 function validateRequired(data) {
     if (!data.required) return;
-    
+
     var field = getField(data.cid);
     var errorText = 'It\'s a required field. It\'s must have value.';
     if (!data.errors) data.errors = [];
-    
+
     var mustHaveError = false;
     switch (data.field_type) {
         case 'text':
@@ -151,7 +181,9 @@ function validateRequired(data) {
         case 'checkboxes':
         case 'radio':
             mustHaveError = true;
-            $$('.option', field).forEach(function (input) { if (input.checked) mustHaveError = false; });
+            $$('.option', field).forEach(function (input) {
+                if (input.checked) mustHaveError = false;
+            });
             if (mustHaveError && $('.other', field).checked && $('.other-text', field).value.length > 0) mustHaveError = false;
             break;
         case 'paragraph':
@@ -160,18 +192,19 @@ function validateRequired(data) {
         case 'dropdown':
             mustHaveError = !$('select', field).value.trim();
             break;
-        default: return;
+        default:
+            return;
     }
-    addRemoveError(data, { type: 'required', text: errorText }, mustHaveError);
+    addRemoveError(data, {type: 'required', text: errorText}, mustHaveError);
 }
 function validateLength(data) {
     if (data.field_type !== 'text' && data.field_type !== 'paragraph') return;
-    
+
     var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
     var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
     if (!minlength && !maxlength) return;
     if (maxlength && minlength > maxlength) return;
-    
+
     var errorText;
     var errorTextMin = 'Text is too short. It must be ' + minlength + ' ' + data.field_options.min_max_length_units + ' at least.';
     var errorTextMax = 'Text is too long. It must be less then ' + maxlength + ' ' + data.field_options.min_max_length_units + '.';
@@ -196,11 +229,11 @@ function validateLength(data) {
             mustHaveError = true;
         }
     }
-    addRemoveError(data, { type: 'length', text: errorText }, mustHaveError);
+    addRemoveError(data, {type: 'length', text: errorText}, mustHaveError);
 }
 function validateNumber(data) {
     if (data.field_type !== 'number' && data.field_type !== 'price') return;
-    
+
     var val = $('input', getField(data.cid)).value.trim();
     var mustHaveError = false;
     var errorText;
@@ -211,7 +244,7 @@ function validateNumber(data) {
         mustHaveError = isNaN(val);
         errorText = 'Value must be number.'
     }
-    
+
     if (!mustHaveError) {
         var number = parseFloat(val);
         if (data.field_options.min !== undefined && number < data.field_options.min) {
@@ -222,18 +255,18 @@ function validateNumber(data) {
             errorText = 'Value must be less then ' + data.field_options.max + '.';
         }
     }
-    
-    addRemoveError(data, { type: 'number', text: errorText }, mustHaveError);
+
+    addRemoveError(data, {type: 'number', text: errorText}, mustHaveError);
 }
 function validateEmail(data) {
     if (data.field_type !== 'email') return;
     var re = /^(([^<>()[\]\.,;:\s@\']+(\.[^<>()[\]\.,;:\s@\']+)*)|(\'.+\'))@(([^<>()[\]\.,;:\s@\']+\.)+[^<>()[\]\.,;:\s@\']{2,})$/i;
     var mustHaveError = !re.test($('input', getField(data.cid)).value.trim());
-    addRemoveError(data, { type: 'email', text: 'Email address is not correct.' }, mustHaveError);
+    addRemoveError(data, {type: 'email', text: 'Email address is not correct.'}, mustHaveError);
 }
 
 function validationRule(data) {
-    var error = $.create('div', { className: 'error' });
+    var error = $.create('div', {className: 'error'});
     $.inside(error, getField(data.cid));
     validationRuleRequired(data);
     validationRuleLength(data);
@@ -242,59 +275,88 @@ function validationRule(data) {
 }
 function validationRuleRequired(data) {
     if (!data.required) return;
-    
+
     var field = getField(data.cid);
     var errorText = 'It\'s a required field. It\'s must have value.';
     if (!data.errors) data.errors = [];
-    
+
     switch (data.field_type) {
         case 'text':
         case 'price':
         case 'number':
         case 'email':
-            $('input', field)._.events({ 'blur': function () { validateRequired(data); } });
+            $('input', field)._.events({
+                'blur': function () {
+                    validateRequired(data);
+                }
+            });
             break;
         case 'checkboxes':
         case 'radio':
             $$('input', field)._.events({
-                'change': function () { validateRequired(data); },
-                'blur': function () { validateRequired(data); }
+                'change': function () {
+                    validateRequired(data);
+                },
+                'blur': function () {
+                    validateRequired(data);
+                }
             });
             break;
         case 'paragraph':
-            $('textarea', field)._.events({ 'blur': function () { validateRequired(data); } });
+            $('textarea', field)._.events({
+                'blur': function () {
+                    validateRequired(data);
+                }
+            });
             break;
         case 'dropdown':
             $('select', field)._.events({
-                'change': function () { validateRequired(data); },
-                'blur': function () { validateRequired(data); }
+                'change': function () {
+                    validateRequired(data);
+                },
+                'blur': function () {
+                    validateRequired(data);
+                }
             });
             break;
-        default: return;
+        default:
+            return;
     }
 }
 function validationRuleLength(data) {
     if (data.field_type !== 'text' && data.field_type !== 'paragraph') return;
-    
+
     var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
     var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
     if (!minlength && !maxlength) return;
     if (maxlength && minlength > maxlength) return;
-    
+
     var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
-    input._.events({ 'blur': function () { validateLength(data); } });
+    input._.events({
+        'blur': function () {
+            validateLength(data);
+        }
+    });
 }
 function validationRuleNumber(data) {
     if (data.field_type !== 'number' && data.field_type !== 'price') return;
-    $('input', getField(data.cid))._.events({ 'blur': function () { validateNumber(data); } });
+    $('input', getField(data.cid))._.events({
+        'blur': function () {
+            validateNumber(data);
+        }
+    });
 }
 function validationRuleEmail(data) {
     if (data.field_type !== 'email') return;
-    $('input', getField(data.cid))._.events({ 'blur': function () { validateEmail(data); } });
+    $('input', getField(data.cid))._.events({
+        'blur': function () {
+            validateEmail(data);
+        }
+    });
 }
 
 function getValues() {
-    var fields = $$('.field');
+    var fields = $('.field');
     var vals = {};
     for (var i = 0; i < fields.length; i++) {
         var id = fields[i].id;
@@ -330,9 +392,10 @@ function getValues() {
     return vals;
 }
 function setValues(vals) {
-    var fields = $$('.field');
+    var fields = $('.field');
     for (var i = 0; i < fields.length; i++) {
         var id = fields[i].id;
+
         if (vals[id] === null || vals[id] === undefined) continue;
         switch (fields[i]._.getAttribute('data-type')) {
             case 'text':
@@ -370,7 +433,8 @@ function setValues(vals) {
                     break;
                 }
                 break;
-            default: return;
+            default:
+                return;
         }
         validateAll(getData(id));
     }
@@ -378,7 +442,7 @@ function setValues(vals) {
 
 function load() {
     if (!data) return;
-    
+
     var id = window.location.hash.replace('#', '');
     //user/self - узнать свой ID
     //указать surveyId и userId
@@ -401,16 +465,28 @@ function save() {
     localStorage.clear();
     for (var i in vals) localStorage.setItem(i, vals[i]);
     console.log('saved');
-    
+
     var id = window.location.hash.replace('#', '');
     var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers/';
     var token = getCookie('token').replace('%22', '').replace('%22', '');
-    $.fetch(url, { method: 'POST', data: JSON.stringify({ 'surveyId': id,  'data': JSON.stringify(vals) }), responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
+    $.fetch(url, {
+        method: 'POST',
+        data: JSON.stringify({'surveyId': id, 'data': JSON.stringify(vals)}),
+        responseType: 'json',
+        headers: {token: token, 'Content-type': 'application/json'}
+    }).then(function (request) {
         console.log('saved to server');
-    }).catch(function (error) { console.error(error); });
+    }).catch(function (error) {
+        console.error(error);
+    });
 
 }
-function autosave() { setTimeout(function () { save(); autosave(); }, 5000); }
+function autosave() {
+    setTimeout(function () {
+        save();
+        autosave();
+    }, 5000);
+}
 
 $.ready().then(function () {
     readySurvey();
