@@ -1,7 +1,8 @@
 /**
  * Created by igi on 14.11.15.
  */
-"use strict";
+'use strict';
+
 angular.module('greyscaleApp')
     .directive('isEqual', function () {
         return {

@@ -1,7 +1,7 @@
 /**
  * Created by sbabushkin on 26.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, inform, greyscaleModalsSrv) {

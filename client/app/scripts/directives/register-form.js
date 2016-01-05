@@ -1,7 +1,7 @@
 /**
  * Created by igi on 14.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('registerForm', function ($state, greyscaleUserSrv, greyscaleRoleSrv, $log) {
@@ -16,7 +16,7 @@ angular.module('greyscaleApp')
                     lastName: '',
                     roleId: '5',
                     password: '',
-                    password_conf: '',
+                    passwordConf: '',
                     err: null,
                     roles: []
                 };
@@ -33,11 +33,11 @@ angular.module('greyscaleApp')
                 $scope.register = function () {
                     $scope.model.err = null;
                     greyscaleUserSrv.register({
-                        "email": $scope.model.email,
-                        "password": $scope.model.password,
-                        "firstName": $scope.model.name,
-                        "lastName": $scope.model.lastName,
-                        "roleID": $scope.model.roleId
+                        'email': $scope.model.email,
+                        'password': $scope.model.password,
+                        'firstName': $scope.model.name,
+                        'lastName': $scope.model.lastName,
+                        'roleID': $scope.model.roleId
                     })
                         .then($scope.cancel)
                         .catch(function (err) {
@@ -45,7 +45,7 @@ angular.module('greyscaleApp')
                             if (err.data && err.data.message) {
                                 $scope.model.err = err.data.message;
                             } else {
-                                $scope.model.err = "Register error.";
+                                $scope.model.err = 'Register error.';
                             }
                         });
                 };
