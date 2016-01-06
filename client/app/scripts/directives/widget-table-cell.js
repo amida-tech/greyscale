@@ -1,7 +1,7 @@
 /**
  * Created by igi on 25.12.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('widgetTableCell', function ($filter, $compile) {

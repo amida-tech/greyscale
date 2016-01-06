@@ -1,7 +1,7 @@
 /**
  * Created by sbabushkin on 01.12.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('activateForm', function ($state, greyscaleUserSrv, $log, inform) {
@@ -16,9 +16,9 @@ angular.module('greyscaleApp')
                     scope.model.err = null;
 
                     var data = {
-                        "password": scope.model.password,
-                        "firstName": scope.model.firstName,
-                        "lastName": scope.model.lastName
+                        'password': scope.model.password,
+                        'firstName': scope.model.firstName,
+                        'lastName': scope.model.lastName
                     };
                     greyscaleUserSrv.activate(scope.model.activationToken, data)
                         .then(function () {

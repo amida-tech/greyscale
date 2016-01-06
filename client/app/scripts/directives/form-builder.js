@@ -1,7 +1,7 @@
 ﻿/**
  * Created by vkopytov on 21.12.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('formBuilder', function () {
@@ -33,9 +33,9 @@ angular.module('greyscaleApp')
         };
         /*
          var a = {
-         " fields ": [
-         { " label ": " Untitled ", " field_type ": " text ", " required ": true, " field_options ": { " size ": " small " }, " cid ": " c2 " },
-         { " label ": " Untitled ", " field_type ": " price ", " required ": true, " field_options ": {}, " cid ": " c6 " }
+         ' fields ': [
+         { ' label ': ' Untitled ', ' field_type ': ' text ', ' required ': true, ' field_options ': { ' size ': ' small ' }, ' cid ': ' c2 ' },
+         { ' label ': ' Untitled ', ' field_type ': ' price ', ' required ': true, ' field_options ': {}, ' cid ': ' c6 ' }
          ]};
          */
     });
