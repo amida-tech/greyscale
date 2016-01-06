@@ -116,6 +116,14 @@ module.exports = function (grunt) {
                     open: true,
                     base: '<%= yeoman.dist %>'
                 }
+            },
+            docker: {
+                options: {
+                    open: true,
+                    base: '<%= yeoman.dist %>',
+                    port: 8081,
+                    hostname: '0.0.0.0',
+                }
             }
         },
 
@@ -519,6 +527,10 @@ module.exports = function (grunt) {
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
         if (target === 'dist') {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
+        }
+
+        if (target === 'docker') {
+            return grunt.task.run(['connect:docker:keepalive']);
         }
 
         grunt.task.run([
