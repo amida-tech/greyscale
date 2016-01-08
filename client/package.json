@@ -39,6 +39,7 @@
         "node": ">=0.10.0"
     },
     "scripts": {
+        "start": "grunt serve",
         "test": "grunt test"
     }
 }
