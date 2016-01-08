@@ -8,6 +8,11 @@
 // 'test/spec/**/*.js'
 
 module.exports = function (grunt) {
+	
+	  //variables used on OS X boot to docker for docker functions
+	  var caPath   = path.resolve(utils.getUserHome(), '.boot2docker/certs/boot2docker-vm/', 'ca.pem'),
+      certPath = path.resolve(utils.getUserHome(), '.boot2docker/certs/boot2docker-vm/', 'cert.pem'),
+      keyPath  = path.resolve(utils.getUserHome(), '.boot2docker/certs/boot2docker-vm/', 'key.pem');
 
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
@@ -542,7 +547,14 @@ module.exports = function (grunt) {
 		  },
           osx: {
         	  options: {
-        		  
+        		  // By default, Boot2Docker only accepts secure connection.
+                  protocol: 'https',
+                  host: '192.168.59.103',
+                  port: '2376',
+
+                  ca: fs.readFileSync(caPath),
+                  cert: fs.readFileSync(certPath),
+                  key: fs.readFileSync(keyPath) 
         	  }
           }
         },
