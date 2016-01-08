@@ -20,6 +20,8 @@ module.exports = function (grunt) {
     ngconstant: 'grunt-ng-constant'
     });
 
+//    require('grunt-dock')(grunt);
+    
     // Configurable paths for the application
     var appConfig = {
         app: require('./bower.json').appPath || 'app',
@@ -512,6 +514,39 @@ module.exports = function (grunt) {
             }
         },
 
+        dock: {   
+    	  options: {  
+		    docker: {
+		      // docker connection 
+		      // See Dockerode for options 
+		      socketPath: '/var/run/docker.sock'
+		    },
+          
+		    // It is possible to define images in the 'default' grunt option 
+		    // The command will look like 'grunt dock:build' 
+		    images: {
+		      'greyscale-client': { // Name to use for Docker 
+		        dockerfile: './',
+		        options: { 
+		          build:   { /* extra options to docker build   */ },
+		          create:  { /* extra options to docker create  */ },
+		          start:   { /* extra options to docker start   */ },
+		          stop:    { /* extra options to docker stop    */ },
+		          kill:    { /* extra options to docker kill    */ },
+		          logs:    { /* extra options to docker logs    */ },
+		          pause:   { /* extra options to docker pause   */ },
+		          unpause: { /* extra options to docker unpause */ }
+		        }
+		      }
+		    }
+		  },
+          osx: {
+        	  options: {
+        		  
+        	  }
+          }
+        },
+        
             // Test settings
         karma: {
             unit: {
