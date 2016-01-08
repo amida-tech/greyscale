@@ -530,7 +530,7 @@ module.exports = function (grunt) {
 		    // It is possible to define images in the 'default' grunt option 
 		    // The command will look like 'grunt dock:build' 
 		    images: {
-		      'greyscale-client': { // Name to use for Docker 
+		      'amidatech/greyscale-client': { // Name to use for Docker 
 		        dockerfile: './',
 		        options: { 
 		          build:   { /* extra options to docker build   */ },
