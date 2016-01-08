@@ -445,6 +445,12 @@ module.exports = function (grunt) {
                 cwd: '<%= yeoman.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            docker: {
+                expand: true,
+                cwd: '',
+                dest: 'app/greyscale.core/scripts/config/',
+                src: 'greyscale-env.js'
             }
         },
 
@@ -571,6 +577,11 @@ module.exports = function (grunt) {
     grunt.registerTask('buildLocal', [
         'ngconstant:local',
         'build'
+    ]);
+    
+    grunt.registerTask('buildDocker', [
+        'copy:docker',                             
+        'build'                               
     ]);
 
     grunt.registerTask('buildEnv', [
