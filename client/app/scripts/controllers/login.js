@@ -1,7 +1,7 @@
 /**
  * Created by igi on 09.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .controller('LoginCtrl', function ($state, greyscaleProfileSrv) {

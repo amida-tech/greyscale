@@ -1,7 +1,7 @@
 /**
  * Created by igi on 24.12.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('modalFormField', function ($compile, greyscaleUtilsSrv) {
@@ -92,7 +92,7 @@ angular.module('greyscaleApp')
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function(data){
                             $scope.model.options = data;
-                        })
+                        });
                     }
                 }
             }

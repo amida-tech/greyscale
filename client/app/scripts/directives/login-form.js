@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 angular.module('greyscaleApp')
     .directive('loginForm', function (greyscaleUserSrv, greyscaleEnv, $log) {
@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.restorePasswd = function () {
-                    $log.debug("need API call");
+                    $log.debug('need API call');
                 };
 
                 $scope.submitLogin = function () {

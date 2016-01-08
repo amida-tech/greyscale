@@ -1,7 +1,8 @@
 /**
  * Created by igi on 24.12.15.
  */
-"use strict";
+'use strict';
+
 angular.module('greyscaleApp')
     .directive('selectDate', function () {
         return {
