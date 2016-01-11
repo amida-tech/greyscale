@@ -1,6 +1,11 @@
 {
     "name": "indaba-client",
-    "private": true,
+    "version": "0.2.0",
+    "description": "Client code for Indaba app",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/amida-tech/greyscale.git"
+    },
     "devDependencies": {
         "autoprefixer-core": "^5.2.1",
         "grunt": "^0.4.5",
@@ -36,7 +41,7 @@
         "karma-phantomjs-launcher": "*"
     },
     "engines": {
-        "node": ">=0.10.0"
+        "node": "~0.12.0"
     },
     "scripts": {
         "start": "grunt serve",
