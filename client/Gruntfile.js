@@ -124,7 +124,7 @@ module.exports = function (grunt) {
         // Make sure there are no obvious mistakes
         jshint: {
             options: {
-                jshintrc: '.jshintrc',
+                jshintrc: '../.jshintrc',
                 reporter: require('jshint-stylish')
             },
             all: {
@@ -146,7 +146,7 @@ module.exports = function (grunt) {
         // Make sure code styles are up to par
         jscs: {
             options: {
-                config: '.jscsrc',
+                config: '../.jscsrc',
                 verbose: true
             },
             all: {
@@ -159,6 +159,32 @@ module.exports = function (grunt) {
             },
             test: {
                 src: ['test/spec/{,*/}*.js']
+            }
+        },
+        
+        jsbeautifier: {
+            beautify: {
+                src: [
+                    'Gruntfile.js',
+                    '<%= yeoman.app %>/scripts/{,*/}*.js',
+                    '<%= yeoman.app %>/vendors/{,*/}*.js',
+                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                ],
+                options: {
+                    config: '../.jsbeautifyrc'
+                }
+            },
+            check: {
+                src: [
+                    'Gruntfile.js',
+                    '<%= yeoman.app %>/scripts/{,*/}*.js',
+                    '<%= yeoman.app %>/vendors/{,*/}*.js',
+                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                ],
+                options: {
+                    mode: 'VERIFY_ONLY',
+                    config: '../.jsbeautifyrc'
+                }
             }
         },
 
@@ -642,6 +668,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         'newer:jshint',
         'newer:jscs',
+        'jsbeautifier:check',
         'test',
         'build'
     ]);

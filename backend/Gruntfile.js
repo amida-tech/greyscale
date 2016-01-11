@@ -11,6 +11,43 @@ module.exports = function (grunt) {
     // Define the configuration for all the tasks
     grunt.initConfig({
 
+        // Make sure there are no obvious mistakes
+        jshint: {
+            options: {
+                jshintrc: '../.jshintrc',
+                reporter: require('jshint-stylish')
+            },
+            all: {
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js']
+            }
+        },
+
+        // Make sure code styles are up to par
+        jscs: {
+            options: {
+                config: '../.jscsrc',
+                verbose: true
+            },
+            all: {
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js']
+            }
+        },
+
+        jsbeautifier: {
+            beautify: {
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js'],
+                options: {
+                    config: '../.jsbeautifyrc'
+                }
+            },
+            check: {
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js'],
+                options: {
+                    mode: 'VERIFY_ONLY',
+                    config: '../.jsbeautifyrc'
+                }
+            }
+        },
 
         dock: {
             options: {
@@ -66,6 +103,8 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('default', [
-        'buildDocker'
+        'jshint',
+        'jscs',
+        'jsbeautifier:check'
     ]);
 };
