@@ -42,7 +42,8 @@ angular.module('greyscale.tables')
                 field: 'codeName',
                 show: true,
                 sortable: 'codeName',
-                title: 'Code Name'
+                title: 'Code Name',
+                dataRequired: true
             },
             {
                 field: 'description',

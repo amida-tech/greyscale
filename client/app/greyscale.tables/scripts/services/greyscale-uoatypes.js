@@ -73,7 +73,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Unit of Analysis Types',
+            title: 'Unit Types',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             pageLength: 5,

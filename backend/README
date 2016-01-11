@@ -1,7 +1,10 @@
 Installation
 ------------
-1. Install node.js (on Debian/Ubuntu: "apt-get install nodejs").
+1. Install node.js (on Debian/Ubuntu: "apt-get install nodejs"). We recommend to use node version manager (https://github.com/creationix/nvm)
+We use js generators, so you have to use node version >= 0.11 (nvm install 0.12.7)
 2. Run "npm i" in project root to install dependencies. ("sudo npm i" can be required, depending on node.js installation)
-3. Configure application (see config.js)
-4. Run application "node --harmony app.js". We use generators, so you need to use "--harmony" flag.
+3. Install postgres and pgAdmin on your machine
+4. Create database and restore it from last backup (/db_dump/indaba{mmdd}.backup), using pgAdmin restore
+5. Configure application (rename config_etalon.js to config.js)
+6. Run application "node --harmony app.js". We use generators, so you need to use "--harmony" flag.
 

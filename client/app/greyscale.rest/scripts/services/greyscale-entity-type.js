@@ -3,13 +3,12 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleEntityTypeSrv', function ($q, greyscaleRestSrv) {
+    .factory('greyscaleEntityTypeSrv', function (greyscaleRestSrv) {
 
         return {
             list: _list,
             add: _add,
-            get: _get,
-            listEntities: listItems
+            get: _get
         };
 
         function _api() {
@@ -26,11 +25,5 @@ angular.module('greyscale.rest')
 
         function _add(data) {
             return _api().customPOST(data);
-        }
-
-        function listItems(id) {
-            return _get(id).then(function(entityType){
-                return $.reject('not implemented');
-            });
         }
     });

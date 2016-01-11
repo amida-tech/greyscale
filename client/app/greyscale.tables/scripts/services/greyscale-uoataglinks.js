@@ -30,19 +30,29 @@ angular.module('greyscale.tables')
             },
             {
                 field: 'uoaId',
-                title: 'Unit ID',
+                title: 'Unit',
                 show: true,
                 sortable: 'uoaId',
-                dataFormat: 'text',
-                dataRequired: true
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getUoas,
+                    keyField: 'id',
+                    valField: 'name'
+                }
             },
             {
                 field: 'uoaTagId',
-                title: 'Tag ID',
+                title: 'Tag',
                 show: true,
                 sortable: 'uoaTagId',
-                dataFormat: 'text',
-                dataRequired: true
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getUoaTags,
+                    keyField: 'id',
+                    valField: 'name'
+                }
             },
             {
                 field: '',
@@ -50,11 +60,6 @@ angular.module('greyscale.tables')
                 show: true,
                 dataFormat: 'action',
                 actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editUoaTagLink
-                    },
                     {
                         icon: 'fa-trash',
                         class: 'danger',
@@ -65,7 +70,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Unit of Analysis to Tag link',
+            title: 'Unit to Tag link',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             cols: resDescr,
@@ -73,20 +78,10 @@ angular.module('greyscale.tables')
             add: {
                 title: 'Add',
                 handler: _addUoaTagLink
-            }
+            },
+            query: {}
         };
 
-        function _editUoaTagLink(_uoaTagLink) {
-            var op = 'editing';
-            return greyscaleModalsSrv.editRec(_uoaTagLink, _table)
-                .then(function(uoaTagLink){
-                    return greyscaleUoaTagLinkSrv.update(uoaTagLink);
-                })
-                .then(reloadTable)
-                .catch(function (err) {
-                    return errHandler(err, op);
-                });
-        }
         function _addUoaTagLink() {
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
@@ -108,9 +103,10 @@ angular.module('greyscale.tables')
         }
 
         function _getData() {
+            $log.debug('UoaTagLink query: ', _table.query);
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaTagLinks: greyscaleUoaTagLinkSrv.list(),
+                    uoaTagLinks: greyscaleUoaTagLinkSrv.list(_table.query),
                     uoas: greyscaleUoaSrv.list(),
                     uoaTags: greyscaleUoaTagSrv.list(),
                     uoaClassTypes: greyscaleUoaClassTypeSrv.list()

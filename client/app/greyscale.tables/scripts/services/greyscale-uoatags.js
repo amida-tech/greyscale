@@ -76,7 +76,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Unit of Analysis Tag',
+            title: 'Tags',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             cols: resDescr,

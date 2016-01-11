@@ -26,7 +26,7 @@ var rights = require('app/controllers/rights');
 
 router.route('/v0.2/rights')
   .get(authenticate('token').always, checkRight('rights_view_all'), rights.select)
-  .post(authenticate('token').always, checkRight('rights_add_one'), rights.insertOne);
+  .post(authenticate('token').always, checkRight('rights_add_one'),  rights.insertOne);
 
 router.route('/v0.2/rights/:id')
   .get(authenticate('token').always, checkRight('rights_view_one'), rights.selectOne)
@@ -322,14 +322,10 @@ var UnitOfAnalysisTagLink = require('app/controllers/uoataglinks');
 
 router.route('/v0.2/uoataglinks')
     .get(authenticate('token').always, UnitOfAnalysisTagLink.select)
-    .post(authenticate('token').always, checkRight('uoataglink_insert_one'), UnitOfAnalysisTagLink.insertOne);
+    .post(authenticate('token').always, checkRight('uoataglink_insert_one'), UnitOfAnalysisTagLink.checkInsert, UnitOfAnalysisTagLink.insertOne);
 
 router.route('/v0.2/uoataglinks/:id')
-    .put(authenticate('token').always, checkRight('uoataglink_update_one'), UnitOfAnalysisTagLink.updateOne)
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
-
-router.route('/v0.2/uoas/:id/tags')
-    .get(authenticate('token').always, UnitOfAnalysisTagLink.selectTags);
 
 //----------------------------------------------------------------------------------------------------------------------
 module.exports = router;
