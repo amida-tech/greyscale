@@ -35,6 +35,9 @@ angular.module('greyscaleApp')
             editCountry: function (_country) {
                 return _simpleForm('views/modals/country-form.html', _country, null);
             },
+            editUserProfile: function (_user) {
+                return _simpleForm('views/modals/user-profile-form.html', _user, null);
+            },
             editUserOrganization: function (_org) {
                 return _simpleForm('views/modals/user-organization-form.html', _org, null);
             },
