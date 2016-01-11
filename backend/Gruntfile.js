@@ -26,7 +26,9 @@ module.exports = function (grunt) {
                     'amidatech/greyscale-backend': { // Name to use for Docker 
                         dockerfile: './',
                         options: {
-                            build: { /* extra options to docker build   */ },
+                            build: { 
+                                q: true
+                            },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
                             stop: { /* extra options to docker stop    */ },
