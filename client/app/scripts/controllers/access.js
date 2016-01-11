@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('AccessCtrl', function ($scope, _, $log, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
+    .controller('AccessCtrl', function ($scope, _, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
                                         greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv,
                                         greyscaleRoles, greyscaleRights) {
 
