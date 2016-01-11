@@ -1,8 +1,11 @@
 {
-    "name": "greyscale-backend",
-    "description": "",
+    "name": "indaba-backend",
     "version": "0.2.0",
-    "private": true,
+    "description": "Backend code for Indaba app",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/amida-tech/greyscale.git"
+    },
     "dependencies": {
         "express": "4.10.2",
         "body-parser": "1.9.2",
@@ -36,6 +39,9 @@
         "grunt": "^0.4.5",
         "grunt-dock": "1.1.1",
         "jit-grunt": "^0.9.1"
+    },
+    "engines": {
+        "node": "~0.12.0"
     },
     "scripts": {
         "start": "node --harmony app.js"
