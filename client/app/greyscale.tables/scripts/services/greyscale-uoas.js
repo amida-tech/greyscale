@@ -7,8 +7,7 @@ angular.module('greyscale.tables')
     .factory('greyscaleUoas', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
                                         greyscaleProfileSrv, greyscaleModalsSrv,
                                         greyscaleLanguageSrv, greyscaleUoaSrv,
-                                        greyscaleUoaTypeSrv,
-                                        $log) {
+                                        greyscaleUoaTypeSrv) {
 
 
         var dicts = {
