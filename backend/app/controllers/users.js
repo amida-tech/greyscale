@@ -353,10 +353,8 @@ module.exports = {
   },
 
   updateOne: function (req, res, next) {
-    // dont allow users to update password like this, move to another procedure
-    delete req.body.password;
     query(
-      User.update(req.body).where(User.id.equals(req.params.id)),
+      User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.params.id)),
       function (err, data) {
         if (!err) {
           res.status(202).end();
@@ -380,7 +378,6 @@ module.exports = {
   },
 
   selectSelf: function (req, res, next) {
-    
     var request = 'ARRAY(' +
       ' SELECT "Rights"."action" FROM "RolesRights" ' +
       ' LEFT JOIN "Rights"' +
@@ -398,7 +395,7 @@ module.exports = {
 
   updateSelf: function (req, res, next) {
     query(
-      User.update(req.body).where(User.id.equals(req.user.id)),
+      User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.user.id)),
       function (err, data) {
         if (!err) {
           res.status(202).end();
@@ -494,24 +491,7 @@ module.exports = {
     }, function (err) {
       next(err);
     });
-  },
-  orders: function (req, res, next) {
-    co(function* () {
-      if (req.user.id != req.params.id && req.user.role != 'admin' && !req.user.rights.orders_view_all) {
-        throw new HttpError(403, 'You do not have permission to perform this action');
-      }
-
-
-      var _counter = thunkQuery(Order.select(Order.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-      var order = thunkQuery(Order.select().where(Order.clientID.equals(req.params.id)), req.query);
-      return yield [_counter, order];
-    }).then(function (data) {
-      res.set('X-Total-Count', _.first(data[0]).counter);
-      res.json(_.last(data));
-    }, function (err) {
-      next(err);
-    });
-  },
+  }
 
 };
 
