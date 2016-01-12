@@ -9,8 +9,6 @@ angular.module('greyscale.tables')
     greyscaleModalsSrv,
     inform
 ) {
-    var _getCurrentRole = function(){ throw "greyscaleRoleRights: 'getRole' required"; },
-        _onUpdate = function(){};
 
     var _fields = angular.copy(greyscaleGlobals.tables.rights.cols);
     _fields.push({
@@ -23,10 +21,10 @@ angular.module('greyscale.tables')
                 title: 'Delete',
                 class: 'danger',
                 handler: function (roleRight) {
-                    var currentRole = _getCurrentRole();
-                    if (currentRole && currentRole.id) {
-                        greyscaleRoleSrv.delRight(currentRole.id, roleRight.id)
-                        .then(_onUpdate)
+                    var role = _table.dataFilter.role;
+                    if (role) {
+                        greyscaleRoleSrv.delRight(role.id, roleRight.id)
+                        .then(_reloadTable)
                         .catch(function (err) {
                             inform.add('Role right delete error: ' + err);
                         });
@@ -37,6 +35,7 @@ angular.module('greyscale.tables')
     });
 
     var _table = {
+        dataFilter: {},
         title: 'Role Rights',
         icon: 'fa-tasks',
         cols: _fields,
@@ -44,18 +43,18 @@ angular.module('greyscale.tables')
         add: {
             title: 'add',
             handler: function () {
-                var currentRole = _getCurrentRole();
-                if (currentRole && currentRole.id) {
+                var role = _table.dataFilter.role;
+                if (role) {
                     _getRights()
                     .then(function (rights) {
                         return greyscaleModalsSrv.addRoleRight({right: null}, {
                             rights: rights,
-                            role: currentRole
+                            role: role
                         })
                         .then(function (right) {
-                            return greyscaleRoleSrv.addRight(currentRole.id, right.id);
+                            return greyscaleRoleSrv.addRight(role.id, right.id);
                         })
-                        .then(_onUpdate);
+                        .then(_reloadTable);
                     })
                     .catch(function (err) {
                         if (err && err.data) {
@@ -68,14 +67,18 @@ angular.module('greyscale.tables')
         }
     };
 
+    function _reloadTable() {
+        _table.tableParams.reload();
+    }
+
     function _getRights() {
         return greyscaleRightSrv.list().then(_decodeEntityTypes);
     }
 
     function _getRoleRights() {
-        var currentRole = _getCurrentRole();
-        if (currentRole && currentRole.id) {
-            return greyscaleRoleSrv.listRights(currentRole.id)
+        var role = _table.dataFilter.role;
+        if (role) {
+            return greyscaleRoleSrv.listRights(role.id)
             .then(_decodeEntityTypes);
         } else {
             return $q.reject('no data');
@@ -95,15 +98,5 @@ angular.module('greyscale.tables')
         return greyscaleEntityTypeSrv.list();
     }
 
-    return function(config){
-        config = config || {};
-        if (typeof config.getRole === 'function') {
-            _getCurrentRole = config.getRole;
-        }
-        if (typeof config.onUpdate === 'function') {
-            _onUpdate = config.onUpdate;
-        }
-
-        return _table;
-    };
+    return _table;
 });

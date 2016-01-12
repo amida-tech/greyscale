@@ -6,24 +6,16 @@
 angular.module('greyscaleApp')
     .controller('AccessCtrl', function ($scope, greyscaleRoles, greyscaleRights, greyscaleRoleRights) {
 
-        var _reloadRoleRights = function() {
-            $scope.model.roleRights.tableParams.reload();
-        };
-
         $scope.model = {
             roles: greyscaleRoles,
             rights: greyscaleRights,
-            roleRights: greyscaleRoleRights({
-                getRole: function () {
-                    return $scope.model.roles.current;
-                },
-                onUpdate: _reloadRoleRights
-            })
+            roleRights: greyscaleRoleRights
         };
 
         $scope.selectRole = function (role) {
             if (typeof role !== 'undefined') {
-                _reloadRoleRights();
+                greyscaleRoleRights.dataFilter.role = role;
+                greyscaleRoleRights.tableParams.reload();
             }
             return role;
         };
