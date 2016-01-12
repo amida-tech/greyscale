@@ -7,8 +7,7 @@ angular.module('greyscale.tables')
     .factory('greyscaleUoaTags', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
                                            greyscaleProfileSrv, greyscaleModalsSrv,
                                            greyscaleLanguageSrv, greyscaleUoaTagSrv,
-                                           greyscaleUoaClassTypeSrv,
-                                           $log) {
+                                           greyscaleUoaClassTypeSrv) {
 
 
 
