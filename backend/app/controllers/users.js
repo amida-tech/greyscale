@@ -496,25 +496,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },
-    orders: function (req, res, next) {
-        co(function* () {
-            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-            if (req.user.id !== req.params.id && req.user.role !== 'admin' && !req.user.rights.orders_view_all) {
-                throw new HttpError(403, 'You do not have permission to perform this action');
-            }
-            // jscs:enable requireCamelCaseOrUpperCaseIdentifiers
-
-            var _counter = thunkQuery(Order.select(Order.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var order = thunkQuery(Order.select().where(Order.clientID.equals(req.params.id)), req.query);
-            return yield [_counter, order];
-        }).then(function (data) {
-            res.set('X-Total-Count', _.first(data[0]).counter);
-            res.json(_.last(data));
-        }, function (err) {
-            next(err);
-        });
-    },
+    }
 
 };
 
