@@ -35,14 +35,14 @@ router.route('/:realm/v0.2/rights/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    ROLE RIGHTS
 //----------------------------------------------------------------------------------------------------------------------
-var role_rights = require('app/controllers/role_rights');
+var roleRights = require('app/controllers/role_rights');
 
 router.route('/:realm/v0.2/roles/:roleID/rights')
-    .get(authenticate('token').always, checkRight('role_rights_view_one'), role_rights.select);
+    .get(authenticate('token').always, checkRight('role_rights_view_one'), roleRights.select);
 
 router.route('/:realm/v0.2/roles/:roleID/rights/:rightID')
-    .post(authenticate('token').always, checkRight('role_rights_add'), role_rights.insertOne)
-    .delete(authenticate('token').always, checkRight('role_rights_delete'), role_rights.deleteOne);
+    .post(authenticate('token').always, checkRight('role_rights_add'), roleRights.insertOne)
+    .delete(authenticate('token').always, checkRight('role_rights_delete'), roleRights.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCES
@@ -84,51 +84,51 @@ router.route('/:realm/v0.2/surveys/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS
 //----------------------------------------------------------------------------------------------------------------------
-var survey_answers = require('app/controllers/survey_answers');
+var surveyAnswers = require('app/controllers/survey_answers');
 
 router.route('/:realm/v0.2/survey_answers')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.select)
-    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.insertOne);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.insertOne);
 
 router.route('/:realm/v0.2/survey_answers/:id')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.selectOne)
-    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.editOne)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ survey_answers.delete);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.editOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------
-var essence_roles = require('app/controllers/essence_roles');
+var essenceRoles = require('app/controllers/essence_roles');
 
 router.route('/:realm/v0.2/essence_roles')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.select)
-    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.insertOne);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.insertOne);
 
 router.route('/:realm/v0.2/essence_roles/:id')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.selectOne)
-    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.updateOne)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essence_roles.delete);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.selectOne)
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.updateOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_MATRICES
 //----------------------------------------------------------------------------------------------------------------------
-var access_matrices = require('app/controllers/access_matrices');
+var accessMatrices = require('app/controllers/access_matrices');
 
 router.route('/:realm/v0.2/access_matrices')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.select)
-    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.insertOne);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.insertOne);
 
 router.route('/:realm/v0.2/access_matrices/:id/permissions')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsSelect);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsSelect);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_PERMISSIONS
 //----------------------------------------------------------------------------------------------------------------------
 router.route('/:realm/v0.2/access_permissions')
-    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsInsertOne);
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsInsertOne);
 
 router.route('/:realm/v0.2/access_permissions/:id')
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ access_matrices.permissionsDeleteOne);
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsDeleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    LANGUAGES

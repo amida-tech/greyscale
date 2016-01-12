@@ -66,7 +66,7 @@ module.exports = {
                 'entityId': req.body.entityId,
                 'field': req.body.field,
                 'langId': req.body.langId,
-            }
+            };
             var item = yield thunkQuery(Translations.select().from(Translations).where(condition));
             if (_.first(item)) {
                 throw new HttpError(400, 'This translation item has already exist');
@@ -84,12 +84,13 @@ module.exports = {
                 throw new HttpError(403, 'Essence with this id does not exist');
             }
 
+            var model;
             try {
-                var model = require('app/models/' + EssenceOne.fileName);
+                model = require('app/models/' + EssenceOne.fileName);
             } catch (err) {
-                throw new HttpError(403, "Cannot find model file: " + EssenceOne.fileName);
+                throw new HttpError(403, 'Cannot find model file: ' + EssenceOne.fileName);
             }
-            if (typeof model.translate == 'undefined' || model.translate.indexOf(req.body.field) == -1) {
+            if (typeof model.translate === 'undefined' || model.translate.indexOf(req.body.field) === -1) {
                 throw new HttpError(400, 'Field "' + req.body.field + '" in ' + model._name + ' is not tranlstable');
             }
 

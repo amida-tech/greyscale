@@ -8,7 +8,7 @@ exports.Query = function () {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
 
-        if (arguments.length == 2) {
+        if (arguments.length === 2) {
             cb = options;
         }
 
@@ -19,40 +19,40 @@ exports.Query = function () {
                 return console.error('could not connect to postgres', err);
             }
             //START
-            if (typeof queryObject == 'string') {
+            if (typeof queryObject === 'string') {
                 client.query(queryObject, options, function (err, result) {
                     client.end();
-                    var cbfunc = (typeof cb == 'function');
+                    var cbfunc = (typeof cb === 'function');
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
-                if (arlen == 3) {
+                if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
                     if (Object.keys(optWhere).length) {
                         var whereObj = {};
                         for (var property in optWhere) {
-
-                            if (optWhere[property].indexOf('>') == 0) {
-                                var condition = queryObject.table[property].gt(optWhere[property].replace('>', '').trim());
-                            } else if (optWhere[property].indexOf('<') == 0) {
-                                var condition = queryObject.table[property].lt(optWhere[property].replace('<', '').trim());
-                            } else if (moment(optWhere[property], "YYYY-MM-DD", true).isValid()) {
+                            var condition;
+                            if (optWhere[property].indexOf('>') === 0) {
+                                condition = queryObject.table[property].gt(optWhere[property].replace('>', '').trim());
+                            } else if (optWhere[property].indexOf('<') === 0) {
+                                condition = queryObject.table[property].lt(optWhere[property].replace('<', '').trim());
+                            } else if (moment(optWhere[property], 'YYYY-MM-DD', true).isValid()) {
                                 var startDate = new Date(optWhere[property]);
                                 var endDate = new Date(optWhere[property]);
                                 endDate.setDate(endDate.getDate() + 1);
-                                var condition = queryObject.table[property]
+                                condition = queryObject.table[property]
                                     .gte(startDate.toISOString())
                                     .and(queryObject.table[property].lt(endDate.toISOString()));
                             } else {
                                 if (optWhere[property].indexOf('|') > 0) {
                                     // where field in ()
-                                    var condition = queryObject.table[property].in(optWhere[property].split('|'));
+                                    condition = queryObject.table[property].in(optWhere[property].split('|'));
                                 } else {
                                     // where field = value
-                                    var condition = queryObject.table[property].equals(optWhere[property]);
+                                    condition = queryObject.table[property].equals(optWhere[property]);
                                 }
                             }
                             Object.keys(whereObj).length ? (whereObj = whereObj.and(condition)) : (whereObj = condition);
@@ -65,7 +65,7 @@ exports.Query = function () {
                         var sorted = options.order.split(',');
                         for (var i = 0; i < sorted.length; i++) {
                             var sort = sorted[i];
-                            queryObject.order(queryObject.table[sort.replace('-', '').trim()][sort.indexOf('-') == 0 ? 'descending' : 'ascending']);
+                            queryObject.order(queryObject.table[sort.replace('-', '').trim()][sort.indexOf('-') === 0 ? 'descending' : 'ascending']);
                         }
                     }
 
@@ -83,12 +83,12 @@ exports.Query = function () {
 
                 client.query(queryObject.toQuery(), function (err, result) {
                     client.end();
-                    var cbfunc = (typeof cb == 'function');
+                    var cbfunc = (typeof cb === 'function');
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
                     if (options.fields) {
-                        var fields = (options.fields).split(',')
+                        var fields = (options.fields).split(',');
                         result.rows = _.map(result.rows, function (i) {
                             return _.pick(i, fields);
                         });
@@ -104,14 +104,13 @@ exports.Query = function () {
             // END
         });
 
-    }
+    };
 };
 
 exports.detectLanguage = function* (req) {
-    var
-        acceptLanguage = require('accept-language');
-    Query = require('app/util').Query,
-        query = new Query(),
+    var acceptLanguage = require('accept-language'),
+        Query = require('app/util').Query;
+    var query = new Query(),
         thunkify = require('thunkify'),
         _ = require('underscore'),
         Language = require('app/models/languages'),
@@ -144,23 +143,23 @@ exports.getTranslateQuery = function (langId, model, condition) {
     if ((typeof model.translate !== 'undefined')) {
         var translate = model.translate;
         from = from
-            .leftJoin(Essence).on(Essence.tableName.equals(model._name)) // Join Essence Table
+            .leftJoin(Essence).on(Essence.tableName.equals(model._name)); // Join Essence Table
 
         for (var i in model.table.columns) {
-            if (model.translate.indexOf(model.table.columns[i].name) == -1) {
+            if (model.translate.indexOf(model.table.columns[i].name) === -1) {
                 query = query.select(model[model.table.columns[i].name]);
             }
         }
 
-        for (var i in translate) {
-            var field = translate[i];
-            var alias = 't_' + i;
+        for (var j in translate) {
+            var field = translate[j];
+            var alias = 't_' + j;
             from = from.leftJoin(Translation.as(alias)).on(
                 Translation.as(alias).essenceId.equals(Essence.id)
                 .and(Translation.as(alias).entityId.equals(model.id))
                 .and(Translation.as(alias).field.equals(field))
                 .and(Translation.as(alias).langId.equals(langId))
-            )
+            );
             query = query.select(model[field].case([Translation.as(alias).value.isNotNull()], [Translation.as(alias).value], model[field]).as(field));
         }
 
@@ -173,4 +172,4 @@ exports.getTranslateQuery = function (langId, model, condition) {
         query = query.where(condition);
     }
     return query;
-}
+};

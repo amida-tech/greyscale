@@ -425,8 +425,9 @@ Factory.define = function (name, constructor) {
  * @return {*}
  */
 Factory.build = function (name, attributes, options) {
-    if (!this.factories[name])
+    if (!this.factories[name]) {
         throw new Error('The "' + name + '" factory is not defined.');
+    }
     return this.factories[name].build(attributes, options);
 };
 
@@ -459,6 +460,6 @@ Factory.attributes = function (name, attributes, options) {
     return this.factories[name].attributes(attributes, options);
 };
 
-if (typeof exports != "undefined") {
+if (typeof exports !== 'undefined') {
     exports.Factory = Factory;
 }

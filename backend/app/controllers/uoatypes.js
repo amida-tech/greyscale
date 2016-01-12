@@ -41,7 +41,7 @@ module.exports = {
             res.json(_.last(data));
         }, function (err) {
             next(err);
-        })
+        });
     },
 
     selectOne: function (req, res, next) {
@@ -51,7 +51,7 @@ module.exports = {
             res.json(_.first(data));
         }, function (err) {
             next(err);
-        })
+        });
     },
 
     insertOne: function (req, res, next) {

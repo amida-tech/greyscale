@@ -43,7 +43,7 @@ module.exports = {
                 return yield thunkQuery(Token.insert({
                     'userID': req.user.id,
                     'body': token
-                }).returning(Token.body))
+                }).returning(Token.body));
             } else {
                 return data;
             }
@@ -131,6 +131,7 @@ module.exports = {
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
+            var userId;
 
             if (!isExistUser) {
 
@@ -144,7 +145,7 @@ module.exports = {
                     'activationToken': activationToken
                 };
 
-                var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+                userId = yield thunkQuery(User.insert(newClient).returning(User.id));
 
                 var newOrganization = {
                     'name': OrgNameTemp,
@@ -163,7 +164,7 @@ module.exports = {
                 }));
             }
 
-            var userId = isExistUser ? isExistUser.id : _.first(userId).id;
+            userId = isExistUser ? isExistUser.id : _.first(userId).id;
 
             var options = {
                 to: {
@@ -177,7 +178,7 @@ module.exports = {
             var data = {
                 name: firstName,
                 surname: lastName,
-                company_name: OrgNameTemp,
+                companyName: OrgNameTemp,
                 login: req.body.email,
                 password: pass,
                 token: activationToken
@@ -196,7 +197,7 @@ module.exports = {
         co(function* () {
             var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
             if (!_.first(isExist)) {
-                throw new HttpError(400, 'Token is not valid')
+                throw new HttpError(400, 'Token is not valid');
             }
             return isExist;
         }).then(function (data) {
@@ -221,7 +222,7 @@ module.exports = {
                 password: User.hashPassword(req.body.password),
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
-            }
+            };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             return updated;
         }).then(function (data) {
@@ -236,7 +237,7 @@ module.exports = {
             if (req.user.roleID !== 2) {
                 throw new HttpError(400, 'Your role is not "client". Only clients can have organization');
             }
-            Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)));
+            var Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)));
             if (!_.first(Org)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -258,7 +259,7 @@ module.exports = {
                 address: req.body.address,
                 url: req.body.url,
                 isActive: true
-            }
+            };
             var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id));
             if (!_.first(updated)) {
                 throw new HttpError(404, 'Not found');
@@ -295,9 +296,10 @@ module.exports = {
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
+            var newClient;
 
             if (!isExistUser) {
-                var newClient = {
+                newClient = {
                     'firstName': req.body.firstName,
                     'lastName': req.body.lastName,
                     'email': req.body.email,
@@ -331,7 +333,7 @@ module.exports = {
             };
             var mailer = new Emailer(options, data);
             mailer.send(function (data) {
-                console.log("EMAIL RESULT --->>>");
+                console.log('EMAIL RESULT --->>>');
                 console.log(data);
 
             });
@@ -380,6 +382,7 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
+
         var request = 'ARRAY(' +
             ' SELECT "Rights"."action" FROM "RolesRights" ' +
             ' LEFT JOIN "Rights"' +
@@ -480,7 +483,7 @@ module.exports = {
                 'password': User.hashPassword(req.body.password),
                 'resetPasswordToken': null,
                 'resetPasswordExpires': null
-            }
+            };
 
             return yield thunkQuery(User.update(data)
                 .where(User.resetPasswordToken.equals(req.body.token))
@@ -516,8 +519,8 @@ function* insertOne(req, res, next) {
     req.body.password = User.hashPassword(req.body.password);
 
     //check user role
-    if (req.body.roleID == 1 /* || req.body.roleID == 2 */ ) { // new user is admin or client
-        if (!req.user || req.user.role != 'admin') {
+    if (req.body.roleID === 1 /* || req.body.roleID == 2 */ ) { // new user is admin or client
+        if (!req.user || req.user.role !== 'admin') {
             throw new HttpError(403, 'You don\'t have necessary rights to create this kind of user'); // Admin and client can be created only by admin
         }
     }

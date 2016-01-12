@@ -3,11 +3,13 @@ var passport = require('passport'),
     logger = require('app/logger');
 
 function Strategy(options, verify) {
-    if (typeof options == 'function') {
+    if (typeof options === 'function') {
         verify = options;
         options = {};
     }
-    if (!verify) throw new Error('Token strategy requires a verify function');
+    if (!verify) {
+        throw new Error('Token strategy requires a verify function');
+    }
 
     this._tokenHeader = options.tokenHeader || 'token';
 

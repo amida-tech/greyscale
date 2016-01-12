@@ -124,7 +124,7 @@ module.exports = function (grunt) {
         // Make sure there are no obvious mistakes
         jshint: {
             options: {
-                jshintrc: '.jshintrc',
+                jshintrc: '../.jshintrc',
                 reporter: require('jshint-stylish')
             },
             all: {
@@ -146,7 +146,7 @@ module.exports = function (grunt) {
         // Make sure code styles are up to par
         jscs: {
             options: {
-                config: '.jscsrc',
+                config: '../.jscsrc',
                 verbose: true
             },
             all: {

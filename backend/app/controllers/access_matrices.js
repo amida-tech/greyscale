@@ -61,17 +61,17 @@ module.exports = {
 
     permissionsInsertOne: function (req, res, next) {
         co(function* () {
-            existMatrix = yield thunkQuery(AccessMatrix.select().from(AccessMatrix).where(AccessMatrix.id.equals(req.body.matrixId)));
+            var existMatrix = yield thunkQuery(AccessMatrix.select().from(AccessMatrix).where(AccessMatrix.id.equals(req.body.matrixId)));
             if (!_.first(existMatrix)) {
                 throw new HttpError(403, 'Matrix with this id does not exist');
             }
 
-            existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
+            var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
             if (!_.first(existRole)) {
                 throw new HttpError(403, 'Role with this id does not exist');
             }
 
-            existRight = yield thunkQuery(Right.select().from(Right).where(Right.id.equals(req.body.rightId)));
+            var existRight = yield thunkQuery(Right.select().from(Right).where(Right.id.equals(req.body.rightId)));
             if (!_.first(existRight)) {
                 throw new HttpError(403, 'Right with this id does not exist');
             }

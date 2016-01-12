@@ -14,8 +14,10 @@ RequestLoggerMixin.prototype.getRequestId = function () {
 
 // Add request related metadata to log entry
 RequestLoggerMixin.prototype.addMetadata = function (meta) {
-    if (!meta) meta = {};
-    meta['requestId'] = this.getRequestId();
+    if (!meta) {
+        meta = {};
+    }
+    meta.requestId = this.getRequestId();
     return meta;
 };
 

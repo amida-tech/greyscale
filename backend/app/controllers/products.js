@@ -24,7 +24,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     },
 
     selectOne: function (req, res, next) {

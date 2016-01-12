@@ -25,7 +25,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     },
 
     selectOne: function (req, res, next) {
@@ -40,7 +40,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     },
 
     delete: function (req, res, next) {
@@ -81,13 +81,14 @@ module.exports = {
 
 function* checkProjectData(req) {
     var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    var isExistCode;
     if (!_.first(isExistMatrix)) {
         throw new HttpError(403, 'Matrix with this id does not exist');
     }
 
     if (req.params.id) { // update
         if (req.body.codeName) {
-            var isExistCode = yield thunkQuery(
+            isExistCode = yield thunkQuery(
                 Project.select().from(Project)
                 .where(Project.codeName.equals(req.body.codeName)
                     .and(Project.id.notEquals(req.params.id)))
@@ -98,7 +99,7 @@ function* checkProjectData(req) {
         }
     } else { // create
         if (req.body.codeName) {
-            var isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)));
+            isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)));
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
             }
@@ -115,8 +116,8 @@ function* checkProjectData(req) {
         throw new HttpError(403, 'User with this id does not exist (admin user id)');
     }
 
-    if (_.first(isExistAdmin).organizationId != req.user.organizationId) {
-        throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization')
+    if (_.first(isExistAdmin).organizationId !== req.user.organizationId) {
+        throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization');
     }
 
     req.body.organizationId = req.user.organizationId;

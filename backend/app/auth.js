@@ -118,19 +118,19 @@ module.exports = {
             if (Array.isArray(role)) {
                 success = role.indexOf(req.user.role) > -1;
             } else {
-                success = req.user.role == role;
+                success = req.user.role === role;
             }
             if (success) {
                 req.debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
                 next();
             } else {
                 req.debug(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
-                next(new HttpError(401, "User's role has not permission for this action")); // Unauthorized.
+                next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
             }
-        }
+        };
     },
     checkUserRight: function (action, user) {
-        if (user.role == config.admin_role) {
+        if (user.role === config.adminRole) {
             return true;
         } else if (_.indexOf(user.rights, action) > -1) {
             return true;
@@ -145,20 +145,20 @@ module.exports = {
             co(function* () {
                 var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
                 Action = _.first(Action);
-                if (typeof Action == 'undefined') {
+                if (typeof Action === 'undefined') {
                     return true;
                 }
 
                 var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)));
                 Essence = _.first(Essence);
                 if (!Essence) {
-                    throw new HttpError(403, "Essence does not exist: " + Action.essenceId);
+                    throw new HttpError(403, 'Essence does not exist: ' + Action.essenceId);
                 }
-
+                var model;
                 try {
-                    var model = require('app/models/' + Essence.fileName);
+                    model = require('app/models/' + Essence.fileName);
                 } catch (err) {
-                    throw new HttpError(403, "Cannot find model file: " + Essence.fileName);
+                    throw new HttpError(403, 'Cannot find model file: ' + Essence.fileName);
                 }
 
                 var Membership = yield thunkQuery(
@@ -174,7 +174,7 @@ module.exports = {
                 Membership = _.first(Membership);
 
                 if (!Membership) {
-                    throw new HttpError(403, "This user does not have membership on this entity");
+                    throw new HttpError(403, 'This user does not have membership on this entity');
                 }
 
                 var Matrix = yield thunkQuery(model.select(model.matrixId).where(model.id.equals(req.params.id))); // TODO subquery
@@ -191,7 +191,7 @@ module.exports = {
                     )
                 );
                 if (!_.first(Permissions)) {
-                    throw new HttpError(401, "User's role has not permission for this action");
+                    throw new HttpError(401, 'User\'s role has not permission for this action');
                 }
                 return Permissions;
             }).then(function (data) {
@@ -199,16 +199,16 @@ module.exports = {
             }, function (err) {
                 next(err);
             });
-        }
+        };
     },
 
     checkRight: function (action) {
         return function (req, res, next) {
 
             if (!action) {
-                next(new HttpError(400, "Bad action!"));
+                next(new HttpError(400, 'Bad action!'));
             }
-            if (req.user.role == config.admin_role) {
+            if (req.user.role === config.adminRole) {
                 return next();
             }
 
@@ -217,11 +217,11 @@ module.exports = {
                     .select(RoleRights.star())
                     .from(
                         Right.leftJoin(RoleRights).on(Right.id.equals(RoleRights.rightID))
-                    )
+                    );
                 var strAction = action;
                 if (Array.isArray(action)) {
                     query.where(Right.action.in(action), RoleRights.roleID.equals(req.user.roleID));
-                    strAction = action.join(", ");
+                    strAction = action.join(', ');
                 } else {
                     query.where(Right.action.equals(action), RoleRights.roleID.equals(req.user.roleID));
                 }
@@ -229,8 +229,7 @@ module.exports = {
                 var data = yield thunkQuery(query);
 
                 if (!data.length) {
-                    throw new HttpError(401, "User's role has not permission for this action(s): " + strAction);
-                    next(err);
+                    next(new HttpError(401, 'User\'s role has not permission for this action(s): ' + strAction));
                 } else {
                     return data;
                 }
@@ -240,6 +239,6 @@ module.exports = {
             }, function (err) {
                 next(err);
             });
-        }
+        };
     }
 };

@@ -35,14 +35,15 @@ module.exports = {
                 throw new HttpError(403, 'record with this tableName or(and) fileName has already exist');
             }
 
+            var model;
             try {
-                var model = require('app/models/' + req.body.fileName);
+                model = require('app/models/' + req.body.fileName);
             } catch (err) {
-                throw new HttpError(403, "Cannot find model file: " + req.body.fileName);
+                throw new HttpError(403, 'Cannot find model file: ' + req.body.fileName);
             }
 
-            if (model.table._initialConfig.columns.indexOf(req.body.nameField) == -1) {
-                throw new HttpError(403, "Essence does not have \"" + req.body.nameField + "\" field");
+            if (model.table._initialConfig.columns.indexOf(req.body.nameField) === -1) {
+                throw new HttpError(403, 'Essence does not have \"' + req.body.nameField + '\" field');
             }
 
             var result = yield thunkQuery(Essence.insert(req.body).returning(Essence.id));

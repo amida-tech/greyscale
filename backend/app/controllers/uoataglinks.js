@@ -53,19 +53,19 @@ module.exports = {
     checkInsert: function (req, res, next) {
         co(function* () {
 
-            var data_classTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
+            var dataClassTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
                 .where(UnitOfAnalysisTag.id.equals(req.body.uoaTagId)));
-            var classTypeId = data_classTypeId[0] ? data_classTypeId[0].classTypeId : null;
-            var query_classTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
-            if (data_classTypeId[0]) {
-                query_classTypeName = query_classTypeName.where(UnitOfAnalysisClassType.id.equals(data_classTypeId[0].classTypeId));
+            var classTypeId = dataClassTypeId[0] ? dataClassTypeId[0].classTypeId : null;
+            var queryClassTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
+            if (dataClassTypeId[0]) {
+                queryClassTypeName = queryClassTypeName.where(UnitOfAnalysisClassType.id.equals(dataClassTypeId[0].classTypeId));
             }
-            var classTypeName = thunkQuery(query_classTypeName);
+            var classTypeName = thunkQuery(queryClassTypeName);
 
             var query = UnitOfAnalysisTagLink.select(UnitOfAnalysisTag.classTypeId)
                 .from(UnitOfAnalysisTagLink.leftJoin(UnitOfAnalysisTag).on(UnitOfAnalysisTagLink.uoaTagId.equals(UnitOfAnalysisTag.id)));
             query.where(UnitOfAnalysisTagLink.uoaId.equals(req.body.uoaId));
-            query.where(UnitOfAnalysisTag.classTypeId.equals(data_classTypeId[0].classTypeId));
+            query.where(UnitOfAnalysisTag.classTypeId.equals(dataClassTypeId[0].classTypeId));
 
             var uoaTagLink = thunkQuery(query);
             return yield [classTypeId, classTypeName, uoaTagLink];

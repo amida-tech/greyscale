@@ -1,4 +1,4 @@
-if (process.env.NODE_ENV == 'production') {
+if (process.env.NODE_ENV === 'production') {
     require('newrelic');
 }
 
@@ -54,18 +54,17 @@ app.on('start', function () {
     });
 
     app.all('*', function (req, res, next) {
-        var
-            acceptLanguage = require('accept-language');
-        Query = require('app/util').Query,
-            query = new Query(),
+        var acceptLanguage = require('accept-language'),
+            Query = require('app/util').Query;
+        var query = new Query(),
             thunkify = require('thunkify'),
             _ = require('underscore'),
             Language = require('app/models/languages'),
             thunkQuery = thunkify(query),
             config = require('config');
 
-        if (req.headers['accept-language'] == 'null') { // get 'null' if accept language not set
-            query(Language.select().from(Language).where(Language.code.equals(config.default_lang)), function (err, data) {
+        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
+            query(Language.select().from(Language).where(Language.code.equals(config.defaultLang)), function (err, data) {
                 console.log(data);
                 req.lang = _.first(data);
                 next();
@@ -90,7 +89,7 @@ app.on('start', function () {
 
     // Error number
     app.use(function (err, req, res, next) {
-        if (typeof err == 'number') {
+        if (typeof err === 'number') {
             next(new HttpError(err));
         } else {
             next(err);
@@ -99,31 +98,32 @@ app.on('start', function () {
 
     // Setup error handlers
     app.use(function (err, req, res, next) {
-        console.log(err)
-        if (err) switch (err.name) {
-        case 'HttpError':
-            res.status(400).json(err.message);
-            return;
-        case 'error':
-            res.status(400).json({
-                "!": 0,
-                "e": err.code,
-                "message": err.message
-            });
-            return;
-        case 'SyntaxError':
-            if (err.status == 400) {
-                var msg = 'Malformed JSON';
-                req.debug(msg);
-                res.json(400, {
-                    error: msg
-                }); // Bad request
+        console.log(err);
+        if (err) {
+            switch (err.name) {
+            case 'HttpError':
+                res.status(400).json(err.message);
                 return;
+            case 'error':
+                res.status(400).json({
+                    '!': 0,
+                    'e': err.code,
+                    'message': err.message
+                });
+                return;
+            case 'SyntaxError':
+                if (err.status === 400) {
+                    var msg = 'Malformed JSON';
+                    req.debug(msg);
+                    res.json(400, {
+                        error: msg
+                    }); // Bad request
+                    return;
+                }
             }
         }
         logger.error(err.stack);
         res.sendStatus(500);
-
     });
 
     var pgUser = config.pgConnect.user,
@@ -132,7 +132,7 @@ app.on('start', function () {
         pgPort = config.pgConnect.port,
         pgDbName = config.pgConnect.database;
 
-    var pgConString = "postgres://" + pgUser + ":" + pgPassword + "@" + pgHost + ":" + pgPort;
+    var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString();
 
@@ -142,9 +142,9 @@ app.on('start', function () {
             return;
         }
         // Create the DB if it is not there
-        client.query("CREATE DATABASE " + pgDbName, function (err) {
+        client.query('CREATE DATABASE ' + pgDbName, function (err) {
             if (err) {
-                console.log("Database " + pgDbName + " already exists");
+                console.log('Database ' + pgDbName + ' already exists');
             }
             client.end();
 
@@ -156,10 +156,10 @@ app.on('start', function () {
                 }
                 client.query(sql, function (err) {
                     if (err) {
-                        console.log("Schema already initialized");
+                        console.log('Schema already initialized');
                     }
                     client.end();
-                })
+                });
             });
 
         });

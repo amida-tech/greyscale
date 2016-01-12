@@ -1,10 +1,10 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
-    EssenceRole = require('app/models/essence_roles');
-Essence = require('app/models/essences');
-Role = require('app/models/roles');
-User = require('app/models/users');
+    EssenceRole = require('app/models/essence_roles'),
+    Essence = require('app/models/essences'),
+    Role = require('app/models/roles'),
+    User = require('app/models/users');
 
 var co = require('co');
 var Query = require('app/util').Query,
@@ -75,15 +75,16 @@ module.exports = {
 };
 
 function* checkData(req) {
-    existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)));
+    var existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)));
     if (!_.first(existEssence)) {
         throw new HttpError(403, 'Essence with this id does not exist (' + req.body.essenceId + ')');
     }
 
+    var model;
     try {
-        var model = require('app/models/' + _.first(existEssence).fileName);
+        model = require('app/models/' + _.first(existEssence).fileName);
     } catch (err) {
-        throw new HttpError(403, "Cannot find model file: " + _.first(existEssence).fileName);
+        throw new HttpError(403, 'Cannot find model file: ' + _.first(existEssence).fileName);
     }
 
     var existEntity = yield thunkQuery(model.select().from(model).where(model.id.equals(req.body.entityId)));
@@ -91,12 +92,12 @@ function* checkData(req) {
         throw new HttpError(403, 'Entity with this id does not exist (' + req.body.entityId + ')');
     }
 
-    existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
+    var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
     if (!_.first(existRole)) {
         throw new HttpError(403, 'Role with this id does not exist');
     }
 
-    existUser = yield thunkQuery(User.select().from(User).where(User.id.equals(req.body.userId)));
+    var existUser = yield thunkQuery(User.select().from(User).where(User.id.equals(req.body.userId)));
     if (!_.first(existUser)) {
         throw new HttpError(403, 'User with this id does not exist');
     }

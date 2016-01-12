@@ -3,7 +3,7 @@ var vl = require('validator'),
     HttpError = require('app/error').HttpError,
     config = require('config'),
     crypto = require('crypto'),
-    util = require('util')
+    util = require('util');
 
 var sql = require('sql');
 
@@ -33,14 +33,14 @@ var User = sql.define({
 
 User.hashPassword = function (password) {
     var hash = crypto.createHash('sha256');
-    hash.update(util.format("%s+%s", config.auth.salt, password));
+    hash.update(util.format('%s+%s', config.auth.salt, password));
     var temp = hash.digest('hex');
     hash = crypto.createHash('sha256');
     hash.update(temp);
     return hash.digest('hex');
 };
 User.validPassword = function (pas, checkpas) {
-    return pas == this.hashPassword(checkpas);
+    return pas === this.hashPassword(checkpas);
 };
 User.editCols = ['firstName', 'lastName', 'mobile', 'birthday', 'updated'];
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];

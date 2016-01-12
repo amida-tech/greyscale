@@ -206,6 +206,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== 0xffff) {
+            /*jshint bitwise: false*/
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
@@ -226,6 +227,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                     }
                 }
             });
+            /*jshint bitwise: true*/
         }
     });
 

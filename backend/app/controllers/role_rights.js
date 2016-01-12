@@ -1,5 +1,5 @@
 var _ = require('underscore'),
-    Role_rights = require('app/models/role_rights'),
+    RoleRights = require('app/models/RoleRights'),
     Roles = require('app/models/roles'),
     Rights = require('app/models/rights'),
     vl = require('validator'),
@@ -16,10 +16,10 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            var _counter = thunkQuery(Role_rights.select(Role_rights.count('counter')).where(req.params), _.omit(req.query, 'offset', 'limit', 'order'));
-            var role_right = thunkQuery(Role_rights.select(Rights.star()).from(Role_rights.leftJoin(Rights).on(Role_rights.rightID.equals(Rights.id))).where(req.params), req.query);
+            var _counter = thunkQuery(RoleRights.select(RoleRights.count('counter')).where(req.params), _.omit(req.query, 'offset', 'limit', 'order'));
+            var roleRight = thunkQuery(RoleRights.select(Rights.star()).from(RoleRights.leftJoin(Rights).on(RoleRights.rightID.equals(Rights.id))).where(req.params), req.query);
 
-            return yield [_counter, role_right];
+            return yield [_counter, roleRight];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
             res.json(_.last(data));
@@ -29,7 +29,7 @@ module.exports = {
     },
     insertOne: function (req, res, next) {
         co(function* () {
-            var isExists = yield thunkQuery(Role_rights.select().where(req.params));
+            var isExists = yield thunkQuery(RoleRights.select().where(req.params));
             if (_.first(isExists)) {
                 throw new HttpError(403, 106);
             }
@@ -50,7 +50,7 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(Role_rights.insert(req.params));
+            var result = yield thunkQuery(RoleRights.insert(req.params));
 
             return result;
         }).then(function (data) {
@@ -62,7 +62,7 @@ module.exports = {
     },
     deleteOne: function (req, res, next) {
         query(
-            Role_rights.delete().where(req.params),
+            RoleRights.delete().where(req.params),
             function (err) {
                 if (!err) {
                     res.status(204).end();
