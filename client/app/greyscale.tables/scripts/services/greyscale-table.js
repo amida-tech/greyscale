@@ -79,7 +79,8 @@ angular.module('greyscale.tables')
         };
 
         GreyscaleTable.prototype.errorHandler = function (err, action) {
-            var msg = _table.formTitle;
+            var self = this;
+            var msg = self._table.formTitle;
             if (action) {
                 msg += ' ' + action;
             }
