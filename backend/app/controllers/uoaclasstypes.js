@@ -31,25 +31,25 @@ module.exports = {
     },
 
     select: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             var _counter = thunkQuery(UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var langId = yield* detectLanguage(req);
+            var langId = yield * detectLanguage(req);
             var uoaClassType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisClassType));
             return yield [_counter, uoaClassType];
-        }).then(function(data){
+        }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
             res.json(_.last(data));
-        },function(err){
+        }, function (err) {
             next(err);
         })
     },
 
     selectOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisClassType, UnitOfAnalysisClassType.id.equals(req.params.id)));
-        }).then(function(data){
+        }).then(function (data) {
             res.json(_.first(data));
-        },function(err){
+        }, function (err) {
             next(err);
         })
     },
@@ -65,21 +65,21 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(UnitOfAnalysisClassType.update(req.body).where(UnitOfAnalysisClassType.id.equals(req.params.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(202).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     deleteOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(UnitOfAnalysisClassType.delete().where(UnitOfAnalysisClassType.id.equals(req.params.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(204).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     }

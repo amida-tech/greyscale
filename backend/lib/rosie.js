@@ -6,382 +6,398 @@
  * @param {Function=} constructor
  * @class
  */
-var Factory = function(constructor) {
-  this.construct = constructor;
-  this.attrs = {};
-  this.opts = {};
-  this.sequences = {};
-  this.callbacks = [];
+var Factory = function (constructor) {
+    this.construct = constructor;
+    this.attrs = {};
+    this.opts = {};
+    this.sequences = {};
+    this.callbacks = [];
 };
 
 Factory.prototype = {
-  /**
-   * Define an attribute on this factory. Attributes can optionally define a
-   * default value, either as a value (e.g. a string or number) or as a builder
-   * function. For example:
-   *
-   *   // no default value for age
-   *   Factory.define('Person').attr('age')
-   *
-   *   // static default value for age
-   *   Factory.define('Person').attr('age', 18)
-   *
-   *   // dynamic default value for age
-   *   Factory.define('Person').attr('age', function() {
-   *      return Math.random() * 100;
-   *   })
-   *
-   * Attributes with dynamic default values can depend on options or other
-   * attributes:
-   *
-   *   Factory.define('Person').attr('age', ['name'], function(name) {
-   *     return name === 'Brian' ? 30 : 18;
-   *   });
-   *
-   * By default if the consumer of your factory provides a value for an
-   * attribute your builder function will not be called. You can override this
-   * behavior by declaring that your attribute depends on itself:
-   *
-   *   Factory.define('Person').attr('spouse', ['spouse'], function(spouse) {
-   *     return Factory.build('Person', spouse);
-   *   });
-   *
-   * As in the example above, this can be a useful way to fill in
-   * partially-specified child objects.
-   *
-   * @param {string} attr
-   * @param {Array.<string>=} dependencies
-   * @param {*} value
-   * @return {Factory}
-   */
-  attr: function(attr, dependencies, value) {
-    var builder;
-    if (arguments.length === 2) {
-      value = dependencies;
-      dependencies = null;
+    /**
+     * Define an attribute on this factory. Attributes can optionally define a
+     * default value, either as a value (e.g. a string or number) or as a builder
+     * function. For example:
+     *
+     *   // no default value for age
+     *   Factory.define('Person').attr('age')
+     *
+     *   // static default value for age
+     *   Factory.define('Person').attr('age', 18)
+     *
+     *   // dynamic default value for age
+     *   Factory.define('Person').attr('age', function() {
+     *      return Math.random() * 100;
+     *   })
+     *
+     * Attributes with dynamic default values can depend on options or other
+     * attributes:
+     *
+     *   Factory.define('Person').attr('age', ['name'], function(name) {
+     *     return name === 'Brian' ? 30 : 18;
+     *   });
+     *
+     * By default if the consumer of your factory provides a value for an
+     * attribute your builder function will not be called. You can override this
+     * behavior by declaring that your attribute depends on itself:
+     *
+     *   Factory.define('Person').attr('spouse', ['spouse'], function(spouse) {
+     *     return Factory.build('Person', spouse);
+     *   });
+     *
+     * As in the example above, this can be a useful way to fill in
+     * partially-specified child objects.
+     *
+     * @param {string} attr
+     * @param {Array.<string>=} dependencies
+     * @param {*} value
+     * @return {Factory}
+     */
+    attr: function (attr, dependencies, value) {
+        var builder;
+        if (arguments.length === 2) {
+            value = dependencies;
+            dependencies = null;
+        }
+
+        builder = typeof value === 'function' ? value : function () {
+            return value;
+        };
+        this.attrs[attr] = {
+            dependencies: dependencies || [],
+            builder: builder
+        };
+        return this;
+    },
+
+    /**
+     * Define an option for this factory. Options are values that may inform
+     * dynamic attribute behavior but are not included in objects built by the
+     * factory. Like attributes, options may have dependencies. Unlike
+     * attributes, options may only depend on other options.
+     *
+     *   Factory.define('Person')
+     *     .option('includeRelationships', false)
+     *     .attr(
+     *       'spouse',
+     *       ['spouse', 'includeRelationships'],
+     *       function(spouse, includeRelationships) {
+     *         return includeRelationships ?
+     *           Factory.build('Person', spouse) :
+     *           null;
+     *       });
+     *
+     *   Factory.build('Person', null, { includeRelationships: true });
+     *
+     * Options may have either static or dynamic default values, just like
+     * attributes. Options without default values must have a value specified
+     * when building.
+     *
+     * @param {string} attr
+     * @param {Array.<string>=} dependencies
+     * @param {*=} value
+     * @return {Factory}
+     */
+    option: function (opt, dependencies, value) {
+        var builder;
+        if (arguments.length === 2) {
+            value = dependencies;
+            dependencies = null;
+        }
+        if (arguments.length > 1) {
+            builder = typeof value === 'function' ? value : function () {
+                return value;
+            };
+        }
+        this.opts[opt] = {
+            dependencies: dependencies || [],
+            builder: builder
+        };
+        return this;
+    },
+
+    /**
+     * Defines an attribute that, by default, simply has an auto-incrementing
+     * numeric value starting at 1. You can provide your own builder function
+     * that accepts the number of the sequence and returns whatever value you'd
+     * like it to be.
+     *
+     * Sequence values are inherited such that a factory derived from another
+     * with a sequence will share the state of that sequence and they will never
+     * conflict.
+     *
+     *   Factory.define('Person').sequence('id');
+     *
+     * @param {string} attr
+     * @param {function(number): *=} builder
+     * @return {Factory}
+     */
+    sequence: function (attr, builder) {
+        var factory = this;
+        builder = builder || function (i) {
+            return i;
+        };
+        return this.attr(attr, function () {
+            factory.sequences[attr] = factory.sequences[attr] || 0;
+            return builder(++factory.sequences[attr]);
+        });
+    },
+
+    /**
+     * Sets a post-processor callback that will receive built objects and the
+     * options for the build just before they are returned from the #build
+     * function.
+     *
+     * @param {function(object, ?object)} callback
+     * @return {Factory}
+     */
+    after: function (callback) {
+        this.callbacks.push(callback);
+        return this;
+    },
+
+    /**
+     * Sets the constructor for this factory to be another factory. This can be
+     * used to create more specific sub-types of factories.
+     *
+     * @param {Factory}
+     * @return {Factory}
+     */
+    inherits: function (parentFactory) {
+        this.construct = function (attributes, options) {
+            return Factory.build(parentFactory, attributes, options);
+        };
+        return this;
+    },
+
+    /**
+     * Builds a plain object containing values for each of the declared
+     * attributes. The result of this is the same as the result when using #build
+     * when there is no constructor registered.
+     *
+     * @param {object=} attributes
+     * @param {object=} options
+     * @return {object}
+     */
+    attributes: function (attributes, options) {
+        attributes = Factory.util.extend({}, attributes);
+        options = this.options(options);
+        for (var attr in this.attrs) {
+            this._attrValue(attr, attributes, options, [attr]);
+        }
+        return attributes;
+    },
+
+    /**
+     * Generates a value for the given named attribute and adds the result to the
+     * given attributes list.
+     *
+     * @private
+     * @param {string} attr
+     * @param {object} attributes
+     * @param {object} options
+     * @param {Array.<string>} stack
+     * @return {*}
+     */
+    _attrValue: function (attr, attributes, options, stack) {
+        if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
+            return attributes[attr];
+        }
+
+        var value = this._buildWithDependencies(this.attrs[attr], function (dep) {
+            if (Factory.util.hasOwnProp(options, dep)) {
+                return options[dep];
+            } else if (dep === attr) {
+                return attributes[dep];
+            } else if (stack.indexOf(dep) >= 0) {
+                throw new Error('detected a dependency cycle: ' + stack.concat([dep]).join(' -> '));
+            } else {
+                return this._attrValue(dep, attributes, options, stack.concat([dep]));
+            }
+        });
+        attributes[attr] = value;
+        return value;
+    },
+
+    /**
+     * Determines whether the given named attribute has listed itself as a
+     * dependency.
+     *
+     * @private
+     * @param {string} attr
+     * @return {boolean}
+     */
+    _alwaysCallBuilder: function (attr) {
+        var attrMeta = this.attrs[attr];
+        return attrMeta.dependencies.indexOf(attr) >= 0;
+    },
+
+    /**
+     * Generates values for all the registered options using the values given.
+     *
+     * @private
+     * @param {object} options
+     * @return {object}
+     */
+    options: function (options) {
+        options = options || {};
+        for (var opt in this.opts) {
+            options[opt] = this._optionValue(opt, options);
+        }
+        return options;
+    },
+
+    /**
+     * Generates a value for the given named option and adds the result to the
+     * given options list.
+     *
+     * @private
+     * @param {string}
+     * @param {object} options
+     * @return {*}
+     */
+    _optionValue: function (opt, options) {
+        if (Factory.util.hasOwnProp(options, opt)) {
+            return options[opt];
+        }
+
+        var optMeta = this.opts[opt];
+        if (!optMeta.builder) {
+            throw new Error('option `' + opt + '` has no default value and none was provided');
+        }
+
+        return this._buildWithDependencies(optMeta, function (dep) {
+            return this._optionValue(dep, options);
+        });
+    },
+
+    /**
+     * Calls the builder function with its dependencies as determined by the
+     * given dependency resolver.
+     *
+     * @private
+     * @param {{builder: function(...[*]): *, dependencies: Array.<string>}} meta
+     * @param {function(string): *} getDep
+     * @return {*}
+     */
+    _buildWithDependencies: function (meta, getDep) {
+        var deps = meta.dependencies;
+        var self = this;
+        var args = deps.map(function () {
+            return getDep.apply(self, arguments);
+        });
+        return meta.builder.apply(this, args);
+    },
+
+    /**
+     * Build objects by getting values for all attributes and passing
+     * the result to a constructor function. In case of mongoose, instance is not saved to DB.
+     *
+     * @param {object} attributes
+     * @param {object} options
+     * @return {object}
+     */
+    build: function (attributes, options) {
+        var attrs = this.attributes(attributes, options);
+        var retval = null;
+
+        if (this.construct) {
+            retval = new this.construct(attrs);
+        } else {
+            throw new Error('Constructor function expected');
+        }
+
+        for (var i = 0; i < this.callbacks.length; i++) {
+            this.callbacks[i](retval, this.options(options));
+        }
+        return retval;
+    },
+
+    /**
+     * Create objects by getting values for all attributes and passing
+     * the result to a constructor function. In case if mongoose, instance is saved to DB.
+     *
+     * @param {object} attributes
+     * @param {object} options
+     * @return {Promise}
+     */
+    create: function (attributes, options) {
+        var attrs = this.attributes(attributes, options);
+        var retval = null;
+
+        if (this.construct && typeof this.construct.create === 'function') {
+            retval = this.construct.create(attrs);
+        } else {
+            throw new Error('Create function expected');
+        }
+
+        for (var i = 0; i < this.callbacks.length; i++) {
+            this.callbacks[i](retval, this.options(options));
+        }
+        return retval;
+    },
+
+    /**
+     * Extends a given factory by copying over its attributes, options,
+     * callbacks, and constructor. This can be useful when you want to make
+     * different types which all share certain attributes.
+     *
+     * @param {string} name The factory to extend.
+     * @return {Factory}
+     */
+    extend: function (name) {
+        var factory = Factory.factories[name];
+        // Copy the parent's constructor
+        if (this.construct === undefined) {
+            this.construct = factory.construct;
+        }
+        Factory.util.extend(this.attrs, factory.attrs);
+        Factory.util.extend(this.opts, factory.opts);
+        // Copy the parent's callbacks
+        this.callbacks = factory.callbacks.slice();
+        return this;
     }
-
-    builder = typeof value === 'function' ? value : function() { return value; };
-    this.attrs[attr] = { dependencies: dependencies || [], builder: builder };
-    return this;
-  },
-
-  /**
-   * Define an option for this factory. Options are values that may inform
-   * dynamic attribute behavior but are not included in objects built by the
-   * factory. Like attributes, options may have dependencies. Unlike
-   * attributes, options may only depend on other options.
-   *
-   *   Factory.define('Person')
-   *     .option('includeRelationships', false)
-   *     .attr(
-   *       'spouse',
-   *       ['spouse', 'includeRelationships'],
-   *       function(spouse, includeRelationships) {
-   *         return includeRelationships ?
-   *           Factory.build('Person', spouse) :
-   *           null;
-   *       });
-   *
-   *   Factory.build('Person', null, { includeRelationships: true });
-   *
-   * Options may have either static or dynamic default values, just like
-   * attributes. Options without default values must have a value specified
-   * when building.
-   *
-   * @param {string} attr
-   * @param {Array.<string>=} dependencies
-   * @param {*=} value
-   * @return {Factory}
-   */
-  option: function(opt, dependencies, value) {
-    var builder;
-    if (arguments.length === 2) {
-      value = dependencies;
-      dependencies = null;
-    }
-    if (arguments.length > 1) {
-      builder = typeof value === 'function' ? value : function() { return value; };
-    }
-    this.opts[opt] = { dependencies: dependencies || [], builder: builder };
-    return this;
-  },
-
-  /**
-   * Defines an attribute that, by default, simply has an auto-incrementing
-   * numeric value starting at 1. You can provide your own builder function
-   * that accepts the number of the sequence and returns whatever value you'd
-   * like it to be.
-   *
-   * Sequence values are inherited such that a factory derived from another
-   * with a sequence will share the state of that sequence and they will never
-   * conflict.
-   *
-   *   Factory.define('Person').sequence('id');
-   *
-   * @param {string} attr
-   * @param {function(number): *=} builder
-   * @return {Factory}
-   */
-  sequence: function(attr, builder) {
-    var factory = this;
-    builder = builder || function(i) { return i; };
-    return this.attr(attr, function() {
-      factory.sequences[attr] = factory.sequences[attr] || 0;
-      return builder(++factory.sequences[attr]);
-    });
-  },
-
-  /**
-   * Sets a post-processor callback that will receive built objects and the
-   * options for the build just before they are returned from the #build
-   * function.
-   *
-   * @param {function(object, ?object)} callback
-   * @return {Factory}
-   */
-  after: function(callback) {
-    this.callbacks.push(callback);
-    return this;
-  },
-
-  /**
-   * Sets the constructor for this factory to be another factory. This can be
-   * used to create more specific sub-types of factories.
-   *
-   * @param {Factory}
-   * @return {Factory}
-   */
-  inherits: function(parentFactory) {
-    this.construct = function(attributes, options) {
-      return Factory.build(parentFactory, attributes, options);
-    };
-    return this;
-  },
-
-  /**
-   * Builds a plain object containing values for each of the declared
-   * attributes. The result of this is the same as the result when using #build
-   * when there is no constructor registered.
-   *
-   * @param {object=} attributes
-   * @param {object=} options
-   * @return {object}
-   */
-  attributes: function(attributes, options) {
-    attributes = Factory.util.extend({}, attributes);
-    options = this.options(options);
-    for (var attr in this.attrs) {
-      this._attrValue(attr, attributes, options, [attr]);
-    }
-    return attributes;
-  },
-
-  /**
-   * Generates a value for the given named attribute and adds the result to the
-   * given attributes list.
-   *
-   * @private
-   * @param {string} attr
-   * @param {object} attributes
-   * @param {object} options
-   * @param {Array.<string>} stack
-   * @return {*}
-   */
-  _attrValue: function(attr, attributes, options, stack) {
-    if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
-      return attributes[attr];
-    }
-
-    var value = this._buildWithDependencies(this.attrs[attr], function(dep) {
-      if (Factory.util.hasOwnProp(options, dep)) {
-        return options[dep];
-      } else if (dep === attr) {
-        return attributes[dep];
-      } else if (stack.indexOf(dep) >= 0) {
-        throw new Error('detected a dependency cycle: '+stack.concat([dep]).join(' -> '));
-      } else {
-        return this._attrValue(dep, attributes, options, stack.concat([dep]));
-      }
-    });
-    attributes[attr] = value;
-    return value;
-  },
-
-  /**
-   * Determines whether the given named attribute has listed itself as a
-   * dependency.
-   *
-   * @private
-   * @param {string} attr
-   * @return {boolean}
-   */
-  _alwaysCallBuilder: function(attr) {
-    var attrMeta = this.attrs[attr];
-    return attrMeta.dependencies.indexOf(attr) >= 0;
-  },
-
-  /**
-   * Generates values for all the registered options using the values given.
-   *
-   * @private
-   * @param {object} options
-   * @return {object}
-   */
-  options: function(options) {
-    options = options || {};
-    for (var opt in this.opts) {
-      options[opt] = this._optionValue(opt, options);
-    }
-    return options;
-  },
-
-  /**
-   * Generates a value for the given named option and adds the result to the
-   * given options list.
-   *
-   * @private
-   * @param {string}
-   * @param {object} options
-   * @return {*}
-   */
-  _optionValue: function(opt, options) {
-    if (Factory.util.hasOwnProp(options, opt)) {
-      return options[opt];
-    }
-
-    var optMeta = this.opts[opt];
-    if (!optMeta.builder) {
-      throw new Error('option `'+opt+'` has no default value and none was provided');
-    }
-
-    return this._buildWithDependencies(optMeta, function(dep) {
-      return this._optionValue(dep, options);
-    });
-  },
-
-  /**
-   * Calls the builder function with its dependencies as determined by the
-   * given dependency resolver.
-   *
-   * @private
-   * @param {{builder: function(...[*]): *, dependencies: Array.<string>}} meta
-   * @param {function(string): *} getDep
-   * @return {*}
-   */
-  _buildWithDependencies: function(meta, getDep) {
-    var deps = meta.dependencies;
-    var self = this;
-    var args = deps.map(function(){ return getDep.apply(self, arguments); });
-    return meta.builder.apply(this, args);
-  },
-
-  /**
-   * Build objects by getting values for all attributes and passing
-   * the result to a constructor function. In case of mongoose, instance is not saved to DB.
-   *
-   * @param {object} attributes
-   * @param {object} options
-   * @return {object}
-   */
-  build: function(attributes, options) {
-    var attrs = this.attributes(attributes, options);
-    var retval = null;
-
-    if (this.construct) {
-      retval = new this.construct(attrs);
-    } else {
-      throw new Error('Constructor function expected');
-    }
-
-    for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](retval, this.options(options));
-    }
-    return retval;
-  },
-
-  /**
-   * Create objects by getting values for all attributes and passing
-   * the result to a constructor function. In case if mongoose, instance is saved to DB.
-   *
-   * @param {object} attributes
-   * @param {object} options
-   * @return {Promise}
-   */
-  create: function(attributes, options) {
-    var attrs = this.attributes(attributes, options);
-    var retval = null;
-
-    if (this.construct && typeof this.construct.create === 'function') {
-      retval = this.construct.create(attrs);
-    } else {
-      throw new Error('Create function expected');
-    }
-
-    for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](retval, this.options(options));
-    }
-    return retval;
-  },
-
-  /**
-   * Extends a given factory by copying over its attributes, options,
-   * callbacks, and constructor. This can be useful when you want to make
-   * different types which all share certain attributes.
-   *
-   * @param {string} name The factory to extend.
-   * @return {Factory}
-   */
-  extend: function(name) {
-    var factory = Factory.factories[name];
-    // Copy the parent's constructor
-    if (this.construct === undefined) { this.construct = factory.construct; }
-    Factory.util.extend(this.attrs, factory.attrs);
-    Factory.util.extend(this.opts, factory.opts);
-    // Copy the parent's callbacks
-    this.callbacks = factory.callbacks.slice();
-    return this;
-  }
 };
 
 /**
  * @private
  */
-Factory.util = (function() {
-  var hasOwnProp = Object.prototype.hasOwnProperty;
+Factory.util = (function () {
+    var hasOwnProp = Object.prototype.hasOwnProperty;
 
-  return {
-    /**
-     * Determines whether `object` has its own property named `prop`.
-     *
-     * @private
-     * @param {object} object
-     * @param {string} prop
-     * @return {boolean}
-     */
-    hasOwnProp: function(object, prop) {
-      return hasOwnProp.call(object, prop);
-    },
+    return {
+        /**
+         * Determines whether `object` has its own property named `prop`.
+         *
+         * @private
+         * @param {object} object
+         * @param {string} prop
+         * @return {boolean}
+         */
+        hasOwnProp: function (object, prop) {
+            return hasOwnProp.call(object, prop);
+        },
 
-    /**
-     * Extends `dest` with all of own properties of `source`.
-     *
-     * @private
-     * @param {object} dest
-     * @param {object=} source
-     * @return {object}
-     */
-    extend: function(dest, source) {
-      if (source) {
-        for (var key in source) {
-          if (hasOwnProp.call(source, key)) {
-            dest[key] = source[key];
-          }
+        /**
+         * Extends `dest` with all of own properties of `source`.
+         *
+         * @private
+         * @param {object} dest
+         * @param {object=} source
+         * @return {object}
+         */
+        extend: function (dest, source) {
+            if (source) {
+                for (var key in source) {
+                    if (hasOwnProp.call(source, key)) {
+                        dest[key] = source[key];
+                    }
+                }
+            }
+            return dest;
         }
-      }
-      return dest;
-    }
-  };
+    };
 })();
 
 Factory.factories = {};
@@ -394,10 +410,10 @@ Factory.factories = {};
  * @param {function(object): *=} constructor
  * @return {Factory}
  */
-Factory.define = function(name, constructor) {
-  var factory = new Factory(constructor);
-  this.factories[name] = factory;
-  return factory;
+Factory.define = function (name, constructor) {
+    var factory = new Factory(constructor);
+    this.factories[name] = factory;
+    return factory;
 };
 
 /**
@@ -408,10 +424,10 @@ Factory.define = function(name, constructor) {
  * @param {object} options
  * @return {*}
  */
-Factory.build = function(name, attributes, options) {
-  if (!this.factories[name])
-    throw new Error('The "'+name+'" factory is not defined.');
-  return this.factories[name].build(attributes, options);
+Factory.build = function (name, attributes, options) {
+    if (!this.factories[name])
+        throw new Error('The "' + name + '" factory is not defined.');
+    return this.factories[name].build(attributes, options);
 };
 
 /**
@@ -423,12 +439,12 @@ Factory.build = function(name, attributes, options) {
  * @param {object} options
  * @return {Array.<*>}
  */
-Factory.buildList = function(name, size, attributes, options) {
-  var objs = [];
-  for (var i = 0; i < size; i++) {
-    objs.push(Factory.build(name, attributes, options));
-  }
-  return objs;
+Factory.buildList = function (name, size, attributes, options) {
+    var objs = [];
+    for (var i = 0; i < size; i++) {
+        objs.push(Factory.build(name, attributes, options));
+    }
+    return objs;
 };
 
 /**
@@ -439,10 +455,10 @@ Factory.buildList = function(name, size, attributes, options) {
  * @param {object} options
  * @return {object}
  */
-Factory.attributes = function(name, attributes, options) {
-  return this.factories[name].attributes(attributes, options);
+Factory.attributes = function (name, attributes, options) {
+    return this.factories[name].attributes(attributes, options);
 };
 
 if (typeof exports != "undefined") {
-  exports.Factory = Factory;
+    exports.Factory = Factory;
 }

@@ -12,11 +12,11 @@
 
 angular.module('greyscaleApp')
     .controller('UoasCtrl', function ($scope,
-                                      greyscaleUoaTypes,
-                                      greyscaleUoas,
-                                      greyscaleUoaClassTypes,
-                                      greyscaleUoaTags,
-                                      greyscaleUoaTagLinks) {
+        greyscaleUoaTypes,
+        greyscaleUoas,
+        greyscaleUoaClassTypes,
+        greyscaleUoaTags,
+        greyscaleUoaTagLinks) {
 
         $scope.model = {
             uoas: greyscaleUoas,
@@ -28,7 +28,9 @@ angular.module('greyscaleApp')
 
         $scope.selectUoa = function (uoa) {
             if (typeof uoa !== 'undefined') {
-                $scope.model.uoaTagLinks.query = {uoaId: uoa.id};
+                $scope.model.uoaTagLinks.query = {
+                    uoaId: uoa.id
+                };
                 $scope.model.uoaTagLinks.tableParams.reload();
             }
             return $scope.model.uoas.current;

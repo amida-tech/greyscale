@@ -23,29 +23,32 @@ angular.module('greyscaleApp')
                             $scope.org.loaded = true;
                         })
                         .catch(function (err) {
-                            inform.add(err.data.message, {type: 'danger'});
+                            inform.add(err.data.message, {
+                                type: 'danger'
+                            });
                         });
                 }
             })
             .catch(function (err) {
-                inform.add(err.data.message, {type: 'danger'});
+                inform.add(err.data.message, {
+                    type: 'danger'
+                });
             });
-
 
         $scope.editProfile = function () {
             greyscaleModalsSrv.editUserProfile($scope.user)
-            .then(function (_user) {
-                return greyscaleUserSrv.save(_user)
-                .then(function(resp){
-                    $scope.user = _user;
-                    return resp;
+                .then(function (_user) {
+                    return greyscaleUserSrv.save(_user)
+                        .then(function (resp) {
+                            $scope.user = _user;
+                            return resp;
+                        });
+                })
+                .catch(function (err) {
+                    if (err && err.data) {
+                        inform.add(err.data.message);
+                    }
                 });
-            })
-            .catch(function (err) {
-                if (err && err.data) {
-                    inform.add(err.data.message);
-                }
-            });
         };
 
         $scope.editOrg = function () {
@@ -55,7 +58,7 @@ angular.module('greyscaleApp')
                         _org.isActive = true;
                     }
                     return greyscaleUserSrv.saveOrganization(_org)
-                        .then(function(resp){
+                        .then(function (resp) {
                             $scope.org = _org;
                             return resp;
                         });
@@ -67,4 +70,3 @@ angular.module('greyscaleApp')
                 });
         };
     });
-

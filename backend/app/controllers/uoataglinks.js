@@ -10,10 +10,10 @@ var client = require('app/db_bootstrap'),
     Essence = require('app/models/essences'),
     co = require('co'),
     Query = require('app/util').Query,
-/*
-    getTranslateQuery = require('app/util').getTranslateQuery,
-    detectLanguage = require('app/util').detectLanguage,
-*/
+    /*
+        getTranslateQuery = require('app/util').getTranslateQuery,
+        detectLanguage = require('app/util').detectLanguage,
+    */
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
@@ -71,7 +71,7 @@ module.exports = {
             return yield [classTypeId, classTypeName, uoaTagLink];
         }).then(function (data) {
             if ((data[2]).length > 0) {
-                next( new HttpError(401, 'Could not add tag with the same classification type: `'+data[1][0].name+'`'));
+                next(new HttpError(401, 'Could not add tag with the same classification type: `' + data[1][0].name + '`'));
             }
             next();
         }, function (err) {
@@ -79,24 +79,23 @@ module.exports = {
         });
     },
 
-/*
-    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-if (!_.first(isExistMatrix)) {
-    throw new HttpError(403, 'Matrix with this id does not exist');
-}
+    /*
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    if (!_.first(isExistMatrix)) {
+        throw new HttpError(403, 'Matrix with this id does not exist');
+    }
 
-var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
+    var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
 
-return result;
-}).then(function (data) {
-    res.status(201).json(_.first(data));
-}, function (err) {
-    next(err);
-});
-*/
+    return result;
+    }).then(function (data) {
+        res.status(201).json(_.first(data));
+    }, function (err) {
+        next(err);
+    });
+    */
 
-
-insertOne: function (req, res, next) {
+    insertOne: function (req, res, next) {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
         }).then(function (data) {
@@ -107,14 +106,13 @@ insertOne: function (req, res, next) {
     },
 
     deleteOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(204).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     }
-
 
 };

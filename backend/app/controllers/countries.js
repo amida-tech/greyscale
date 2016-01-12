@@ -11,7 +11,6 @@ var _ = require('underscore'),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query);
 
-
 module.exports = {
 
     select: function (req, res, next) {
@@ -28,34 +27,33 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(Country.insert(req.body).returning(Country.id));
-        }).then(function(data){
+        }).then(function (data) {
             res.status(201).json(_.first(data));
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     updateOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.body.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(200).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     deleteOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(Country.delete().where(Country.id.equals(req.query.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(204).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     }
 
 };
-
