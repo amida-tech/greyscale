@@ -6,7 +6,7 @@
 angular.module('greyscale.rest')
     .factory('greyscaleUoaSrv', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('uoas');
         };
 
@@ -15,7 +15,9 @@ angular.module('greyscale.rest')
         }
 
         function _uoaOne(uoa) {
-            return _api().one(uoa.id+'').get({langId:uoa.langId});
+            return _api().one(uoa.id + '').get({
+                langId: uoa.langId
+            });
         }
 
         function _addUoa(uoa) {
@@ -23,11 +25,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoa(uoaId) {
-            return _api().one(uoaId+'').remove();
+            return _api().one(uoaId + '').remove();
         }
 
         function _updateUoa(uoa) {
-            return _api().one(uoa.id+'').customPUT(uoa);
+            return _api().one(uoa.id + '').customPUT(uoa);
         }
 
         return {

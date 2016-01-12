@@ -1,7 +1,7 @@
 /**
  * Created by igi on 16.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log) {
@@ -40,9 +40,9 @@ angular.module('greyscale.core')
                 .then(function (profileData) {
                     var res = 0x7ffe; //any logged in user
                     switch (profileData.roleID) {
-                        case 1:
-                            res = 0x8000; //admin user
-                            break;
+                    case 1:
+                        res = 0x8000; //admin user
+                        break;
                     }
                     return res; //while no other way
                 })
@@ -57,7 +57,7 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserSrv.logout().finally(function(){
+            return greyscaleUserSrv.logout().finally(function () {
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;

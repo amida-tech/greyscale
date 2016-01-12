@@ -34,7 +34,7 @@ angular.module('greyscale.rest')
         }
 
         function _self() {
-            return userAPI().one('self').get()
+            return userAPI().one('self').get();
         }
 
         function _save(data) {
@@ -49,9 +49,8 @@ angular.module('greyscale.rest')
             return _organization().customPUT(data);
         }
 
-
-        function _register(user_data) {
-            return Restangular.one('users').customPOST(user_data);
+        function _register(userData) {
+            return Restangular.one('users').customPOST(userData);
         }
 
         function _checkActivationToken(token) {
@@ -67,7 +66,9 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
-            return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)})
+            return greyscaleRestSrv({
+                    'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
+                })
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
@@ -94,8 +95,8 @@ angular.module('greyscale.rest')
             return userAPI().one('logout').post();
         }
 
-        function _inviteUser(user_data) {
-            return userAPI().one('invite').customPOST(user_data);
+        function _inviteUser(userData) {
+            return userAPI().one('invite').customPOST(userData);
         }
 
         function updateUser(data) {

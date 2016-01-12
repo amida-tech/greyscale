@@ -5,79 +5,70 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTags', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                           greyscaleProfileSrv, greyscaleModalsSrv,
-                                           greyscaleLanguageSrv, greyscaleUoaTagSrv,
-                                           greyscaleUoaClassTypeSrv) {
-
-
+        greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleLanguageSrv, greyscaleUoaTagSrv,
+        greyscaleUoaClassTypeSrv) {
 
         var dicts = {
             languages: [],
             uoaClassTypes: []
         };
 
-        var resDescr = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: true,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataRequired: true,
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'name',
-                title: 'Name',
-                show: true,
-                sortable: 'name',
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'classTypeId',
-                title: 'Classification Type',
-                show: true,
-                sortable: 'classTypeId',
-                dataFormat: 'option',
-                dataRequired: true,
-                dataSet: {
-                    getData: getClassTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editUoaTag
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
+        var resDescr = [{
+            field: 'id',
+            title: 'ID',
+            show: true,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataRequired: true,
+            dataReadOnly: 'both'
+        }, {
+            field: 'name',
+            title: 'Name',
+            show: true,
+            sortable: 'name',
+            dataFormat: 'text',
+            dataRequired: true
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            dataFormat: 'text',
+            dataRequired: true
+        }, {
+            field: 'classTypeId',
+            title: 'Classification Type',
+            show: true,
+            sortable: 'classTypeId',
+            dataFormat: 'option',
+            dataRequired: true,
+            dataSet: {
+                getData: getClassTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editUoaTag
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             title: 'Tags',
             icon: 'fa-table',
-            sorting: {id: 'asc'},
+            sorting: {
+                id: 'asc'
+            },
             cols: resDescr,
             dataPromise: _getData,
             add: {
@@ -90,9 +81,9 @@ angular.module('greyscale.tables')
             var op = 'editing';
             return greyscaleUoaTagSrv.get(_uoaTag)
                 .then(function (uoaTag) {
-                    return greyscaleModalsSrv.editRec(uoaTag, _table)
+                    return greyscaleModalsSrv.editRec(uoaTag, _table);
                 })
-                .then(function(uoaTag){
+                .then(function (uoaTag) {
                     return greyscaleUoaTagSrv.update(uoaTag);
                 })
                 .then(reloadTable)
@@ -100,6 +91,7 @@ angular.module('greyscale.tables')
                     return errHandler(err, op);
                 });
         }
+
         function _addUoaTag() {
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)

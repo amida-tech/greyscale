@@ -5,73 +5,66 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaClassTypes', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                                 greyscaleProfileSrv, greyscaleModalsSrv,
-                                                 greyscaleLanguageSrv, greyscaleUoaClassTypeSrv) {
+        greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleLanguageSrv, greyscaleUoaClassTypeSrv) {
 
         var dicts = {
             languages: []
         };
-        var recDescr = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: true,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataReadOnly: true
-            },
-            {
-                field: 'name',
-                title: 'Name',
-                show: true,
-                sortable: 'name',
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                dataFormat: 'text'
-            },
-            {
-                field: 'langId',
-                title: 'Original language',
-                show: true,
-                sortable: 'langId',
-                dataFormat: 'option',
-                dataReadOnly: 'edit',
-                dataRequired: true,
-                dataSet: {
-                    getData: getLanguages,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editUoaClassType
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
+        var recDescr = [{
+            field: 'id',
+            title: 'ID',
+            show: true,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataReadOnly: true
+        }, {
+            field: 'name',
+            title: 'Name',
+            show: true,
+            sortable: 'name',
+            dataFormat: 'text',
+            dataRequired: true
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            dataFormat: 'text'
+        }, {
+            field: 'langId',
+            title: 'Original language',
+            show: true,
+            sortable: 'langId',
+            dataFormat: 'option',
+            dataReadOnly: 'edit',
+            dataRequired: true,
+            dataSet: {
+                getData: getLanguages,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editUoaClassType
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             title: 'Tag Classification Types',
             icon: 'fa-table',
-            sorting: {id: 'asc'},
+            sorting: {
+                id: 'asc'
+            },
             pageLength: 5,
             cols: recDescr,
             dataPromise: _getData,

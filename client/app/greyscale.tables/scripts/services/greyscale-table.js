@@ -25,10 +25,10 @@ angular.module('greyscale.tables')
             for (var c = 0; this.cols.length; c++) {
                 var field = this.cols[c];
                 switch (field.dataFormat) {
-                    case 'option':
-                        break;
-                    case 'action':
-                        break;
+                case 'option':
+                    break;
+                case 'action':
+                    break;
                 }
                 if (field) {
 
@@ -69,7 +69,6 @@ angular.module('greyscale.tables')
                 });
         };
 
-
         GreyscaleTable.prototype.deleteRecord = function (rec) {
             var self = this;
             self.dataService.delete(rec.id)
@@ -85,7 +84,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         };
 
         return GreyscaleTable;

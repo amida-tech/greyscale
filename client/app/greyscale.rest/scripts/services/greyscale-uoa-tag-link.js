@@ -6,7 +6,7 @@
 angular.module('greyscale.rest')
     .factory('greyscaleUoaTagLinkSrv', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('uoataglinks');
         };
 
@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoaTagLink(uoaTagLinkId) {
-            return _api().one(uoaTagLinkId+'').remove();
+            return _api().one(uoaTagLinkId + '').remove();
         }
 
         return {

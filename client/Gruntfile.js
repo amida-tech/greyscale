@@ -132,7 +132,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
@@ -154,7 +156,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
@@ -168,7 +172,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ],
                 options: {
                     config: '../.jsbeautifyrc'
@@ -179,7 +185,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ],
                 options: {
                     mode: 'VERIFY_ONLY',

@@ -5,7 +5,7 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleProjectSrv', function (greyscaleRestSrv) {
-        function api (){
+        function api() {
             return greyscaleRestSrv().one('projects');
         }
 
