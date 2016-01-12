@@ -1,21 +1,21 @@
 var sql = require('sql');
 
-var columns =  [
-  'id', 
-  'title', 
-  'description', 
-  'matrixId',
-  'originalLangId'
+var columns = [
+    'id',
+    'title',
+    'description',
+    'matrixId',
+    'originalLangId'
 ];
 
 var translate = [
-	'title',
-	'description'
+    'title',
+    'description'
 ];
 
 var Product = sql.define({
-  name: 'Products',
-  columns: columns
+    name: 'Products',
+    columns: columns
 });
 
 Product.translate = translate;
