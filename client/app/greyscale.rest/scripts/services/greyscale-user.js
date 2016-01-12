@@ -18,6 +18,7 @@ angular.module('greyscale.rest')
             checkActivationToken: _checkActivationToken,
             getOrganization: _getOrg,
             saveOrganization: _saveOrg,
+            save: _save,
             update: updateUser,
             delete: delUser
         };
@@ -34,6 +35,10 @@ angular.module('greyscale.rest')
 
         function _self() {
             return userAPI().one('self').get()
+        }
+
+        function _save(data) {
+            return userAPI().one('self').customPUT(data);
         }
 
         function _getOrg() {

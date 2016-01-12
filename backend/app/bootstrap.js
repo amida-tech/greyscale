@@ -9,6 +9,8 @@ var config = require('config'),
     passport = require('passport'),
     app = require('express')(),
     util = require('util'),
+    pg = require('pg'),
+    fs = require('fs'),
     HttpError = require('app/error').HttpError;
 
 // Init mongoose connection and set event listeners
@@ -122,7 +124,45 @@ app.on('start', function () {
         }
         logger.error(err.stack);
         res.sendStatus(500);
+    });
 
+    var pgUser = config.pgConnect.user,
+        pgPassword = config.pgConnect.password,
+        pgHost = config.pgConnect.host,
+        pgPort = config.pgConnect.port,
+        pgDbName = config.pgConnect.database;
+
+    var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
+
+    var sql = fs.readFileSync('db_dump/schema.sql').toString();
+
+    pg.connect(pgConString, function (err, client, done) {
+        if (err) {
+            console.log(err);
+            return;
+        }
+        // Create the DB if it is not there
+        client.query('CREATE DATABASE ' + pgDbName, function (err) {
+            if (err) {
+                console.log('Database ' + pgDbName + ' already exists');
+            }
+            client.end();
+
+            // Load the schema if it is not there   
+            pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                client.query(sql, function (err) {
+                    if (err) {
+                        console.log('Schema already initialized');
+                    }
+                    client.end();
+                });
+            });
+
+        });
     });
 
     // Start server

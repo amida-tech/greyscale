@@ -36,9 +36,19 @@ angular.module('greyscaleApp')
             });
 
         $scope.editProfile = function () {
-            inform.add('editProfile', {
-                type: 'success'
-            });
+            greyscaleModalsSrv.editUserProfile($scope.user)
+                .then(function (_user) {
+                    return greyscaleUserSrv.save(_user)
+                        .then(function (resp) {
+                            $scope.user = _user;
+                            return resp;
+                        });
+                })
+                .catch(function (err) {
+                    if (err && err.data) {
+                        inform.add(err.data.message);
+                    }
+                });
         };
 
         $scope.editOrg = function () {

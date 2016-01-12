@@ -357,10 +357,8 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
-        // dont allow users to update password like this, move to another procedure
-        delete req.body.password;
         query(
-            User.update(req.body).where(User.id.equals(req.params.id)),
+            User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.params.id)),
             function (err, data) {
                 if (!err) {
                     res.status(202).end();
@@ -402,7 +400,7 @@ module.exports = {
 
     updateSelf: function (req, res, next) {
         query(
-            User.update(req.body).where(User.id.equals(req.user.id)),
+            User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.user.id)),
             function (err, data) {
                 if (!err) {
                     res.status(202).end();

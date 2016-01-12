@@ -186,7 +186,7 @@ angular.module('greyscale.tables')
 
         function getData() {
             return greyscaleEntityTypeSrv.list({fields: 'id,name'}).then(function (types) {
-                _table.dataFilter = {essenceId: _.get(_.find(types, {name: 'projects'}), 'id')};
+                angular.extend(_table.dataFilter, {essenceId: _.get(_.find(types, {name: 'projects'}), 'id')});
                 return greyscaleProfileSrv.getProfile()
                     .then(function (profile) {
                         var reqs = {
