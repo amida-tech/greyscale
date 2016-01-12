@@ -25,14 +25,13 @@ var _app = angular.module('greyscaleApp', [
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {
-    
+
     $logProvider.debugEnabled(true);
     $urlMatcherFactoryProvider.strictMode(false);
     $locationProvider.html5Mode(false);
-    
+
     $stateProvider
-        .state('main',
-        {
+        .state('main', {
             templateUrl: 'views/abstract/main.html',
             abstract: true
         })
@@ -138,7 +137,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                     templateUrl: 'views/controllers/uoas.html',
                     controller: 'UoasCtrl'
                 }
-                },
+            },
             data: {
                 name: 'Units of Analysis',
                 accessLevel: 0x8000
@@ -200,37 +199,43 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         });
-    
+
     $urlRouterProvider.otherwise('/');
 });
 
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-        if (toState.data && toState.data.accessLevel !== 0xffff ) {
+        if (toState.data && toState.data.accessLevel !== 0xffff) {
+            /*jshint bitwise: false*/
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
                     if ((_level & 0xfffe) !== 0) { //if not admin accessing admin level page
                         $state.go('home');
-                        inform.add('Access restricted to "' + toState.data.name + '"!', {type: 'danger'});
+                        inform.add('Access restricted to "' + toState.data.name + '"!', {
+                            type: 'danger'
+                        });
                     } else {
-                    $stateParams.returnTo = toState.name;
-                    $state.go('login');
+                        $stateParams.returnTo = toState.name;
+                        $state.go('login');
                     }
                 } else {
                     if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, { reload: true });
+                        $state.go(fromParams.returnTo, {
+                            reload: true
+                        });
                     }
                 }
             });
-            }
-        });
-    
+            /*jshint bitwise: true*/
+        }
+    });
+
     $rootScope.$on('logout', function () {
         greyscaleProfileSrv.logout()
-            .finally(function(){
-        $state.go('login');
-    });
+            .finally(function () {
+                $state.go('login');
+            });
     });
 
     $rootScope.$on('login', function () {

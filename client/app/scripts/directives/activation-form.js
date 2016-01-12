@@ -28,7 +28,9 @@ angular.module('greyscaleApp')
                             $state.go('main.profile');
                         })
                         .catch(function (err) {
-                            inform.add(err.data.message, {type: 'danger'});
+                            inform.add(err.data.message, {
+                                type: 'danger'
+                            });
                         });
                 };
             }

@@ -17,6 +17,8 @@
         "done": true,
         "it": true,
         "Promise": true,
+        "window": true,
+        "document": true,
         "xdescribe": true,
         "xit": true
     },

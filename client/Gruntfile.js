@@ -10,18 +10,18 @@ var fs = require('fs');
 var homeDir = process.env.HOME;
 
 module.exports = function (grunt) {
-	
+
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
 
     // Automatically load required Grunt tasks
     require('jit-grunt')(grunt, {
         useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates',
-         //cdnify: 'grunt-google-cdn',
-    ngconstant: 'grunt-ng-constant'
+        ngtemplates: 'grunt-angular-templates',
+        //cdnify: 'grunt-google-cdn',
+        ngconstant: 'grunt-ng-constant'
     });
-    
+
     // Configurable paths for the application
     var appConfig = {
         app: require('./bower.json').appPath || 'app',
@@ -161,7 +161,7 @@ module.exports = function (grunt) {
                 src: ['test/spec/{,*/}*.js']
             }
         },
-        
+
         jsbeautifier: {
             beautify: {
                 src: [
@@ -207,7 +207,9 @@ module.exports = function (grunt) {
         postcss: {
             options: {
                 processors: [
-                    require('autoprefixer-core')({browsers: ['last 1 version']})
+                    require('autoprefixer-core')({
+                        browsers: ['last 1 version']
+                    })
                 ]
             },
             server: {
@@ -331,7 +333,9 @@ module.exports = function (grunt) {
                     '<%= yeoman.dist %>/styles'
                 ],
                 patterns: {
-                    js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
+                    js: [
+                        [/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']
+                    ]
                 }
             }
         },
@@ -366,9 +370,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                     expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
+                    cwd: '<%= yeoman.app %>/images',
+                    src: '{,*/}*.{png,jpg,jpeg,gif}',
+                    dest: '<%= yeoman.dist %>/images'
                 }]
             }
         },
@@ -547,7 +551,7 @@ module.exports = function (grunt) {
                     // See Dockerode for options 
                     socketPath: '/var/run/docker.sock'
                 },
-          
+
                 // It is possible to define images in the 'default' grunt option 
                 // The command will look like 'grunt dock:build' 
                 images: {
@@ -580,8 +584,8 @@ module.exports = function (grunt) {
                 }
             }
         },
-        
-            // Test settings
+
+        // Test settings
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
@@ -589,7 +593,6 @@ module.exports = function (grunt) {
             }
         }
     });
-
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
         if (target === 'dist') {
@@ -647,17 +650,17 @@ module.exports = function (grunt) {
         'ngconstant:local',
         'build'
     ]);
-    
+
     grunt.registerTask('buildDocker', [
-        'copy:docker',                             
+        'copy:docker',
         'build',
-        'dock:build'                               
+        'dock:build'
     ]);
-    
+
     grunt.registerTask('buildDockerMac', [
-        'copy:docker',                             
+        'copy:docker',
         'build',
-        'dock:osx:build'                               
+        'dock:osx:build'
     ]);
 
     grunt.registerTask('buildEnv', [

@@ -5,8 +5,8 @@
 
 angular.module('greyscaleApp')
     .controller('AccessCtrl', function ($scope, _, $log, $q, inform, greyscaleRoleSrv, greyscaleGlobals,
-                                        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv,
-                                        greyscaleRoles, greyscaleRights) {
+        greyscaleModalsSrv, greyscaleRightSrv, greyscaleEntityTypeSrv,
+        greyscaleRoles, greyscaleRights) {
 
         var _getEntityTypes = function () {
             return greyscaleEntityTypeSrv.list();
@@ -15,7 +15,9 @@ angular.module('greyscaleApp')
         var _decodeEntityTypes = function (data) {
             return _getEntityTypes().then(function (entityTypes) {
                 for (var q = 0; q < data.length; q++) {
-                    data[q].entityType = _.get(_.find(entityTypes, {id: data[q].essenceId}), 'name');
+                    data[q].entityType = _.get(_.find(entityTypes, {
+                        id: data[q].essenceId
+                    }), 'name');
                 }
                 return data;
             });
@@ -41,19 +43,17 @@ angular.module('greyscaleApp')
             title: '',
             show: true,
             dataFormat: 'action',
-            actions: [
-                {
-                    title: 'Delete',
-                    class: 'danger',
-                    handler: function (roleRight) {
-                        greyscaleRoleSrv.delRight($scope.model.roles.current.id, roleRight.id)
-                            .then(_reloadRoleRights)
-                            .catch(function (err) {
-                                inform.add('Role right delete error: ' + err);
-                            });
-                    }
+            actions: [{
+                title: 'Delete',
+                class: 'danger',
+                handler: function (roleRight) {
+                    greyscaleRoleSrv.delRight($scope.model.roles.current.id, roleRight.id)
+                        .then(_reloadRoleRights)
+                        .catch(function (err) {
+                            inform.add('Role right delete error: ' + err);
+                        });
                 }
-            ]
+            }]
         });
 
         var _getRights = function () {
@@ -73,10 +73,12 @@ angular.module('greyscaleApp')
                         if ($scope.model.roles.current) {
                             _getRights()
                                 .then(function (rights) {
-                                    return greyscaleModalsSrv.addRoleRight({right: null}, {
-                                        rights: rights,
-                                        role: $scope.model.roles.current
-                                    })
+                                    return greyscaleModalsSrv.addRoleRight({
+                                            right: null
+                                        }, {
+                                            rights: rights,
+                                            role: $scope.model.roles.current
+                                        })
                                         .then(function (right) {
                                             return greyscaleRoleSrv.addRight($scope.model.roles.current.id, right.id);
                                         })

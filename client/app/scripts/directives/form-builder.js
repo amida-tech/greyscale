@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Created by vkopytov on 21.12.15.
  */
 'use strict';
@@ -19,7 +19,10 @@ angular.module('greyscaleApp')
                         //delete formbuilder;
                     }
                     if (window.Formbuilder) {
-                        formbuilder = new window.Formbuilder({selector: '#formbuilder', bootstrapData: data});
+                        formbuilder = new window.Formbuilder({
+                            selector: '#formbuilder',
+                            bootstrapData: data
+                        });
                         formbuilder.on('save', function (json) {
                             document.getElementById('data').value = json;
                             scope.dataForm.data.$setViewValue(json);

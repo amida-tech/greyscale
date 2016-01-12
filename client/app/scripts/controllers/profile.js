@@ -23,17 +23,22 @@ angular.module('greyscaleApp')
                             $scope.org.loaded = true;
                         })
                         .catch(function (err) {
-                            inform.add(err.data.message, {type: 'danger'});
+                            inform.add(err.data.message, {
+                                type: 'danger'
+                            });
                         });
                 }
             })
             .catch(function (err) {
-                inform.add(err.data.message, {type: 'danger'});
+                inform.add(err.data.message, {
+                    type: 'danger'
+                });
             });
 
-
         $scope.editProfile = function () {
-            inform.add('editProfile', {type: 'success'});
+            inform.add('editProfile', {
+                type: 'success'
+            });
         };
 
         $scope.editOrg = function () {
@@ -43,7 +48,7 @@ angular.module('greyscaleApp')
                         _org.isActive = true;
                     }
                     return greyscaleUserSrv.saveOrganization(_org)
-                        .then(function(resp){
+                        .then(function (resp) {
                             $scope.org = _org;
                             return resp;
                         });
@@ -55,4 +60,3 @@ angular.module('greyscaleApp')
                 });
         };
     });
-
