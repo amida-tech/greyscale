@@ -19,5 +19,5 @@ angular.module('greyscaleApp')
                 entityRoles.tableParams.reload();
             }
             return row;
-        }
+        };
     });
