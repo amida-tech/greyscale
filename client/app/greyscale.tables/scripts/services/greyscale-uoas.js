@@ -13,8 +13,8 @@ angular.module('greyscale.tables')
         var dicts = {
             languages: [],
             uoaTypes: [],
-            visibility: greyscaleGlobals.uoa_visibility,
-            status: greyscaleGlobals.uoa_status
+            visibility: greyscaleGlobals.uoaVisibility,
+            status: greyscaleGlobals.uoaStatus
         };
 
         var resDescr = [

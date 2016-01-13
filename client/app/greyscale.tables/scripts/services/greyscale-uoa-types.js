@@ -4,8 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTypes', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                            greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleUoaTypes', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
                                             greyscaleUoaTypeSrv, greyscaleLanguageSrv) {
 
         var dicts = {

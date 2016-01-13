@@ -155,7 +155,7 @@ angular.module('greyscale.tables')
         }
 
         function getStatus() {
-            return greyscaleGlobals.project_states;
+            return greyscaleGlobals.projectStates;
         }
 
         function _getData() {

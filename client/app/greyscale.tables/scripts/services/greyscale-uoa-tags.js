@@ -4,12 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTags', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                           greyscaleProfileSrv, greyscaleModalsSrv,
-                                           greyscaleLanguageSrv, greyscaleUoaTagSrv,
-                                           greyscaleUoaClassTypeSrv) {
-
-
+    .factory('greyscaleUoaTags', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+                                           greyscaleLanguageSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv) {
 
         var dicts = {
             languages: [],
@@ -92,7 +88,7 @@ angular.module('greyscale.tables')
                 .then(function (uoaTag) {
                     return greyscaleModalsSrv.editRec(uoaTag, _table)
                 })
-                .then(function(uoaTag){
+                .then(function (uoaTag) {
                     return greyscaleUoaTagSrv.update(uoaTag);
                 })
                 .then(reloadTable)
@@ -100,6 +96,7 @@ angular.module('greyscale.tables')
                     return errHandler(err, op);
                 });
         }
+
         function _addUoaTag() {
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
