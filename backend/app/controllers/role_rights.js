@@ -1,5 +1,5 @@
 var _ = require('underscore'),
-    RoleRights = require('app/models/RoleRights'),
+    RoleRights = require('app/models/role_rights'),
     Roles = require('app/models/roles'),
     Rights = require('app/models/rights'),
     vl = require('validator'),
