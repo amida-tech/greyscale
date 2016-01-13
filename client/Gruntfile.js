@@ -27,6 +27,18 @@ module.exports = function (grunt) {
         app: require('./bower.json').appPath || 'app',
         dist: 'dist'
     };
+    
+    var dockerConfig = {
+        ca: '',
+        cert: '',
+        key: ''
+    };
+    
+    if (process.platform === 'darwin') {
+        dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+        dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+        dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+    }
 
     // Define the configuration for all the tasks
     grunt.initConfig({
@@ -585,9 +597,9 @@ module.exports = function (grunt) {
                         host: '192.168.99.100',
                         port: '2376',
 
-                        ca: fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem'),
-                        cert: fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem'),
-                        key: fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem')
+                        ca: dockerConfig.ca,
+                        cert: dockerConfig.cert,
+                        key: dockerConfig.pem
                     }
                 }
             }
