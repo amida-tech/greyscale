@@ -7,15 +7,14 @@ angular.module('greyscale.tables')
     .factory('greyscaleUoas', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
                                         greyscaleProfileSrv, greyscaleModalsSrv,
                                         greyscaleLanguageSrv, greyscaleUoaSrv,
-                                        greyscaleUoaTypeSrv,
-                                        $log) {
+                                        greyscaleUoaTypeSrv) {
 
 
         var dicts = {
             languages: [],
             uoaTypes: [],
-            visibility: greyscaleGlobals.uoa_visibility,
-            status: greyscaleGlobals.uoa_status
+            visibility: greyscaleGlobals.uoaVisibility,
+            status: greyscaleGlobals.uoaStatus
         };
 
         var resDescr = [

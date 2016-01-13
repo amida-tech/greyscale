@@ -1,20 +1,18 @@
 /**
- * Created by DTseytlin on 23.12.15.
+ * Created by DTseytlin on 29.12.15.
  */
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTags', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                           greyscaleProfileSrv, greyscaleModalsSrv,
-                                           greyscaleLanguageSrv, greyscaleUoaTagSrv,
-                                           greyscaleUoaClassTypeSrv,
-                                           $log) {
-
+    .factory('greyscaleUoaTagLinks', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+                                               greyscaleUoaSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv,
+                                               greyscaleUoaTagLinkSrv, $log) {
 
 
         var dicts = {
-            languages: [],
-            uoaClassTypes: []
+            uoas: [],
+            uoaTags: [],
+            uoaClassType: []
         };
 
         var resDescr = [
@@ -28,29 +26,27 @@ angular.module('greyscale.tables')
                 dataReadOnly: 'both'
             },
             {
-                field: 'name',
-                title: 'Name',
+                field: 'uoaId',
+                title: 'Unit',
                 show: true,
-                sortable: 'name',
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'classTypeId',
-                title: 'Classification Type',
-                show: true,
-                sortable: 'classTypeId',
+                sortable: 'uoaId',
                 dataFormat: 'option',
                 dataRequired: true,
                 dataSet: {
-                    getData: getClassTypes,
+                    getData: getUoas,
+                    keyField: 'id',
+                    valField: 'name'
+                }
+            },
+            {
+                field: 'uoaTagId',
+                title: 'Tag',
+                show: true,
+                sortable: 'uoaTagId',
+                dataFormat: 'option',
+                dataRequired: true,
+                dataSet: {
+                    getData: getUoaTags,
                     keyField: 'id',
                     valField: 'name'
                 }
@@ -62,11 +58,6 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 actions: [
                     {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editUoaTag
-                    },
-                    {
                         icon: 'fa-trash',
                         class: 'danger',
                         handler: _delRecord
@@ -76,36 +67,23 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Tags',
+            title: 'Unit to Tag link',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             cols: resDescr,
             dataPromise: _getData,
             add: {
                 title: 'Add',
-                handler: _addUoaTag
-            }
+                handler: _addUoaTagLink
+            },
+            query: {}
         };
 
-        function _editUoaTag(_uoaTag) {
-            var op = 'editing';
-            return greyscaleUoaTagSrv.get(_uoaTag)
-                .then(function (uoaTag) {
-                    return greyscaleModalsSrv.editRec(uoaTag, _table)
-                })
-                .then(function(uoaTag){
-                    return greyscaleUoaTagSrv.update(uoaTag);
-                })
-                .then(reloadTable)
-                .catch(function (err) {
-                    return errHandler(err, op);
-                });
-        }
-        function _addUoaTag() {
+        function _addUoaTagLink() {
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
-                .then(function (uoaTag) {
-                    return greyscaleUoaTagSrv.add(uoaTag);
+                .then(function (uoaTagLink) {
+                    return greyscaleUoaTagLinkSrv.add(uoaTagLink);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -114,7 +92,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaTagSrv.delete(item.id)
+            greyscaleUoaTagLinkSrv.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -122,30 +100,38 @@ angular.module('greyscale.tables')
         }
 
         function _getData() {
+            $log.debug('UoaTagLink query: ', _table.query);
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
+                    uoaTagLinks: greyscaleUoaTagLinkSrv.list(_table.query),
+                    uoas: greyscaleUoaSrv.list(),
                     uoaTags: greyscaleUoaTagSrv.list(),
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaClassTypes: greyscaleUoaClassTypeSrv.list()
                 };
                 return $q.all(req).then(function (promises) {
-                    for (var p = 0; p < promises.uoaTags.length; p++) {
-                        greyscaleUtilsSrv.prepareFields(promises.uoaTags, resDescr);
+                    for (var p = 0; p < promises.uoaTagLinks.length; p++) {
+                        greyscaleUtilsSrv.prepareFields(promises.uoaTagLinks, resDescr);
                     }
-                    dicts.languages = promises.languages;
+                    dicts.uoas = promises.uoas;
+                    dicts.uoaTags = promises.uoaTags;
                     dicts.uoaClassTypes = promises.uoaClassTypes;
 
-                    return promises.uoaTags;
+                    return promises.uoaTagLinks;
                 });
             });
         }
 
-        function getLanguages() {
-            return dicts.languages;
-        }
 
         function getClassTypes() {
             return dicts.uoaClassTypes;
+        }
+
+        function getUoas() {
+            return dicts.uoas;
+        }
+
+        function getUoaTags() {
+            return dicts.uoaTags;
         }
 
         function reloadTable() {

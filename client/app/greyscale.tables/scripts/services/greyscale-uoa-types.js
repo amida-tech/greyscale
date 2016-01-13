@@ -4,14 +4,13 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaClassTypes', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-                                                 greyscaleProfileSrv, greyscaleModalsSrv,
-                                                 greyscaleLanguageSrv, greyscaleUoaClassTypeSrv,
-                                                 $log) {
+    .factory('greyscaleUoaTypes', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+                                            greyscaleUoaTypeSrv, greyscaleLanguageSrv) {
 
         var dicts = {
             languages: []
         };
+
         var recDescr = [
             {
                 field: 'id',
@@ -19,6 +18,7 @@ angular.module('greyscale.tables')
                 show: true,
                 sortable: 'id',
                 dataFormat: 'text',
+                dataRequired: true,
                 dataReadOnly: true
             },
             {
@@ -33,7 +33,8 @@ angular.module('greyscale.tables')
                 field: 'description',
                 title: 'Description',
                 show: true,
-                dataFormat: 'text'
+                dataFormat: 'text',
+                dataRequired: true
             },
             {
                 field: 'langId',
@@ -58,7 +59,7 @@ angular.module('greyscale.tables')
                     {
                         icon: 'fa-pencil',
                         class: 'info',
-                        handler: _editUoaClassType
+                        handler: _editUoaType
                     },
                     {
                         icon: 'fa-trash',
@@ -70,7 +71,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Tag Classification Types',
+            title: 'Unit Types',
             icon: 'fa-table',
             sorting: {id: 'asc'},
             pageLength: 5,
@@ -78,18 +79,18 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             add: {
                 title: 'Add',
-                handler: _addUoaClassType
+                handler: _addUoaType
             }
         };
 
-        function _editUoaClassType(_uoaClassType) {
+        function _editUoaType(_uoaType) {
             var op = 'editing';
-            return greyscaleUoaClassTypeSrv.get(_uoaClassType)
-                .then(function (uoaClassType) {
-                    return greyscaleModalsSrv.editRec(uoaClassType, _table);
+            return greyscaleUoaTypeSrv.get(_uoaType)
+                .then(function (uoaType) {
+                    return greyscaleModalsSrv.editRec(uoaType, _table);
                 })
-                .then(function (uoaClassType) {
-                    return greyscaleUoaClassTypeSrv.update(uoaClassType);
+                .then(function (uoaType) {
+                    return greyscaleUoaTypeSrv.update(uoaType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -97,11 +98,11 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _addUoaClassType(_uoaClassType) {
+        function _addUoaType() {
             var op = 'adding';
-            return greyscaleModalsSrv.editRec(_uoaClassType, _table)
-                .then(function (uoaClassType) {
-                    return greyscaleUoaClassTypeSrv.add(uoaClassType);
+            return greyscaleModalsSrv.editRec(null, _table)
+                .then(function (uoaType) {
+                    return greyscaleUoaTypeSrv.add(uoaType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -110,7 +111,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaClassTypeSrv.delete(item.id)
+            greyscaleUoaTypeSrv.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -120,16 +121,16 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
+                    uoaTypes: greyscaleUoaTypeSrv.list(),
                     languages: greyscaleLanguageSrv.list()
                 };
                 return $q.all(req).then(function (promises) {
-                    for (var p = 0; p < promises.uoaClassTypes.length; p++) {
-                        greyscaleUtilsSrv.prepareFields(promises.uoaClassTypes, recDescr);
+                    for (var p = 0; p < promises.uoaTypes.length; p++) {
+                        greyscaleUtilsSrv.prepareFields(promises.uoaTypes, recDescr);
                     }
                     dicts.languages = promises.languages;
 
-                    return promises.uoaClassTypes;
+                    return promises.uoaTypes;
                 });
             });
         }
@@ -148,4 +149,5 @@ angular.module('greyscale.tables')
         }
 
         return _table;
+
     });
