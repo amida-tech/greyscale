@@ -260,6 +260,20 @@ router.route('/v0.2/countries/:id')
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    WORKFLOWS
+//----------------------------------------------------------------------------------------------------------------------
+var workflows = require('app/controllers/workflows');
+
+router.route('/v0.2/workflows')
+    .get(authenticate('token').always, workflows.select)
+    .post(authenticate('token').always, /*checkRight('countries_insert_one'),*/ workflows.insertOne);
+
+router.route('/v0.2/workflows/:id')
+    .get(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.selectOne)
+    .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
+    .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysis = require('app/controllers/uoas');
