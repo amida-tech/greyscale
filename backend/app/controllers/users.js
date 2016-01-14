@@ -269,8 +269,8 @@ module.exports = {
 
   selfOrganizationInvite: function(req, res, next){
     co(function* (){
-      if(!req.body.email || !req.body.firstName || !req.body.lastName){
-        throw new HttpError(400, 'Email, First name and Last name fields are required');
+      if(!req.body.email || !req.body.firstName){
+        throw new HttpError(400, 'Email and First name fields are required');
       }
       if (!vl.isEmail(req.body.email)) {
         throw new HttpError(400, 101);
@@ -354,7 +354,7 @@ module.exports = {
 
   updateOne: function (req, res, next) {
     query(
-      User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.params.id)),
+      User.update(_.pick(req.body, User.whereCol)).where(User.id.equals(req.params.id)),
       function (err, data) {
         if (!err) {
           res.status(202).end();
