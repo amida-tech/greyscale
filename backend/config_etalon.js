@@ -2,30 +2,30 @@ var environments = {
   development: {
     port: 3001, // Port for incoming HTTP. Can be overriden by env. variable PORT
     encoding: 'utf8',
-    domain: 'http://localhost:3001',
+    domain: 'http://localhost:3005',
     authToken: {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: 'semyon',
-      password: 'aw34res',
-      database: 'indaba',
-      host: 'localhost',
-      port: 5432
+      user: process.env.RDS_USERNAME || 'semyon',
+      password: process.env.RDS_PASSWORD || 'aw34res',
+      database: process.env.INDABA_PG_DB || 'indaba',
+      host: process.env.RDS_HOSTNAME || 'localhost',
+      port: process.env.INDABA_PG_PORT || 5432
     },
     admin_role: 'admin',
     auth: {
-      salt: 'nMsDo)_1fh'
+      salt: process.env.AUTH_SALT || 'nMsDo)_1fh'
     },
     allowedDomains: '*', // for CORS
     email: {
       transport: {
         opts: {
-          host: 'smtp.gmail.com',
-          port: 465,
+          host: process.env.MAIL_HOST || 'smtp.gmail.com',
+          port: process.env.MAIL_PORT || 465,
           auth: {
-            user: 'indaba.msk2015@gmail.com',
-            pass: 'indabamsk2015'
+            user: process.env.MAIL_USER || 'indaba.msk2015@gmail.com',
+            pass: process.env.MAIL_PASS || 'indabamsk2015'
           },
           secure: true
         }
