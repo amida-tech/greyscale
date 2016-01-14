@@ -492,6 +492,13 @@ module.exports = function (grunt) {
                     dest: '<%= yeoman.dist %>'
                 }]
             },
+            // temporary while imagemin is broken
+            images: {
+                expand: true,
+                cwd: '<%= yeoman.app %>/images',
+                src: '{,*/}*.{png,jpg,jpeg,gif}',
+                dest: '<%= yeoman.dist %>/images'
+            },
             styles: {
                 expand: true,
                 cwd: '<%= yeoman.app %>/styles',
@@ -653,6 +660,7 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'copy:dist',
+        'copy:images',
         //'cdnify',
         'cssmin',
         'uglify',
