@@ -33,6 +33,7 @@ function getData(cid) {
     for (var i = 0; i < data.length; i++) if (data[i].cid === cid) return data[i];
 }
 
+var hasChanges = false;
 function fieldCreate(data, survey) {
     var type = data.field_type;
     if (type === 'date' || type === 'time' || type === 'website' || type === 'address') return;
@@ -67,7 +68,7 @@ function fieldCreate(data, survey) {
             fieldRadioCheckboxes(data);
             break;
         case 'paragraph':
-            $.inside($.create('textarea', { className: data.field_options.size, name: data.cid }), field);
+            fieldTextarea(data);
             break;
         case 'dropdown':
             fieldDropdown(data);
@@ -80,11 +81,28 @@ function fieldCreate(data, survey) {
 function fieldText(data) {
     var div = $.create('div');
     $.inside(div, getField(data.cid));
-    $.inside($.create('input', {
+    var input = $.create('input', {
         type: 'text',
         className: data.field_options.size ? data.field_options.size : '',
         name: data.cid
-    }), div);
+    });
+    $.inside(input, div);
+    
+    input._.events({
+        'change': function () { hasChanges = true; },
+        'keypress': function () { hasChanges = true; }
+    });
+}
+function fieldTextarea(data) {
+    var div = $.create('div');
+    $.inside(div, getField(data.cid));
+    var input = $.create('textarea', { className: data.field_options.size, name: data.cid })
+    $.inside(input, div);
+    
+    input._.events({
+        'change': function () { hasChanges = true; },
+        'keypress': function () { hasChanges = true; }
+    });
 }
 function fieldRadioCheckboxes(data) {
     var type = data.field_type === 'radio' ? 'radio' : 'checkbox';
@@ -103,6 +121,7 @@ function fieldRadioCheckboxes(data) {
             className: 'option'
         });
         $.inside(input, checkboxLabel);
+        input._.events({ 'change': function () { hasChanges = true; } });
         
         $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
     }
@@ -112,8 +131,13 @@ function fieldRadioCheckboxes(data) {
         $.inside(block, fieldSet);
         var input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other' });
         $.inside(input, block);
+        input._.events({ 'change': function () { hasChanges = true; } });
         var inputVariant = $.create('input', { type: 'text', name: data.cid, className: 'other-text' });
         $.inside(inputVariant, block);
+        inputVariant._.events({
+            'change': function () { hasChanges = true; },
+            'keypress': function () { hasChanges = true; }
+        });
     }
 }
 function fieldDropdown(data) {
@@ -122,6 +146,7 @@ function fieldDropdown(data) {
     $.inside(div, getField(data.cid));
     var select = $.create('select', { name: data.cid });
     $.inside(select, div);
+    select._.events({ 'change': function () { hasChanges = true; } });
     
     if (data.field_options.include_blank_option) {
         var option = $.create('option', { text: ' ', value: ' ' });
@@ -455,11 +480,14 @@ function setCurrentAnswers() {
     autosave();
 }
 
-function save() {
+function save(callback) {
+    if (!hasChanges) {
+        if (callback) callback();
+        return;
+    }
     var vals = getValues();
     localStorage.clear();
     for (var i in vals) localStorage.setItem(i, vals[i]);
-    console.log('saved');
     
     var surveyId = parseInt(window.location.hash.replace('#', ''));
     var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers';
@@ -472,15 +500,15 @@ function save() {
     }
     $.fetch(url, { method: method, data: data, responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
         console.log('saved to server');
+        hasChanges = false;
+        if (callback) callback();
     }).catch(function (error) {
         console.error(error);
+        if (callback) callback();
     });
 }
 function autosave() {
-    setTimeout(function () {
-        save();
-        autosave();
-    }, 5000);
+    setTimeout(function () { save(function () { autosave(); }); }, 5000);
 }
 
 $.ready().then(function () { readySurvey(); });
