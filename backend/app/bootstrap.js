@@ -136,7 +136,7 @@ app.on('start', function () {
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString();
 
-    pg.connect(pgConString, function (err, client, done) {
+    pg.connect(pgConString+'/postgres', function (err, client, done) {
         if (err) {
             console.log(err);
             return;
