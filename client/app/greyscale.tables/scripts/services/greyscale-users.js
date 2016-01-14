@@ -4,7 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv) {
+    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
+                                         greyscaleProfileSrv, greyscaleGlobals) {
         var dicts = {
             roles: []
         };
@@ -21,13 +22,15 @@ angular.module('greyscale.tables')
                 field: 'email',
                 title: 'E-mail',
                 show: true,
-                sortable: 'email'
+                sortable: 'email',
+                dataRequired: true
             },
             {
                 field: 'firstName',
                 title: 'First name',
                 show: true,
-                sortable: 'firstName'
+                sortable: 'firstName',
+                dataRequired: true
             },
             {
                 field: 'lastName',
@@ -86,6 +89,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
+            dataFilter: {},
             formTitle: 'user',
             title: 'Users',
             icon: 'fa-users',
@@ -105,8 +109,8 @@ angular.module('greyscale.tables')
         function _delRecord(rec) {
             greyscaleUserSrv.delete(rec.id)
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,'deleting');
+                .catch(function (err) {
+                    errorHandler(err, 'deleting');
                 });
         }
 
@@ -118,12 +122,19 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserSrv.update(newRec);
                     } else {
-                        return greyscaleUserSrv.invite(newRec);
+                        return greyscaleProfileSrv.getProfile().then(function (profile) {
+                            var accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+                            if (accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask) {
+                                return greyscaleUserSrv.inviteAdmin(newRec);
+                            } else if (accessLevel === greyscaleGlobals.systemRoles.admin.mask) {
+                                return greyscaleUserSrv.inviteUser(newRec);
+                            }
+                        });
                     }
                 })
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,action);
+                .catch(function (err) {
+                    errorHandler(err, action);
                 });
         }
 
@@ -132,17 +143,27 @@ angular.module('greyscale.tables')
         }
 
         function _getUsers() {
-            var reqs = {
-                users: greyscaleUserSrv.list(),
-                roles: greyscaleRoleSrv.list()
-            };
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+                var roleMask = greyscaleProfileSrv.getAccessLevelMask();
 
-            return $q.all(reqs).then(function (promises) {
-                dicts.roles = promises.roles;
-                greyscaleUtilsSrv.prepareFields(promises.users, _fields);
-                return promises.users;
-            })
-                .catch(errorHandler);
+                if (roleMask === greyscaleGlobals.systemRoles.admin.mask) {
+                    _table.dataFilter.organizationId = profile.organizationId;
+                } else {
+                    delete _table.dataFilter.organizationId;
+                }
+
+                var reqs = {
+                    users: greyscaleUserSrv.list(_table.dataFilter),
+                    roles: greyscaleRoleSrv.list()
+                };
+
+                return $q.all(reqs).then(function (promises) {
+                    dicts.roles = promises.roles;
+                    greyscaleUtilsSrv.prepareFields(promises.users, _fields);
+                    return promises.users;
+                })
+
+            }).catch(errorHandler);
         }
 
         function errorHandler(err, action) {

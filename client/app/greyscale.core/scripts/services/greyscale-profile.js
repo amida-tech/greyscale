@@ -4,11 +4,14 @@
 "use strict";
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log) {
+    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log,
+                                              greyscaleGlobals, _) {
         var _profile = null;
         var _profilePromise = null;
+        var _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
 
         this.getProfile = function (force) {
+            var self = this;
             var res;
             if (!greyscaleTokenSrv()) {
                 _profile = null;
@@ -22,7 +25,8 @@ angular.module('greyscale.core')
                         _profilePromise = greyscaleUserSrv.get()
                             .then(function (profileData) {
                                 _profile = profileData;
-                                return profileData;
+                                self._setAccessLevel();
+                                return _profile;
                             })
                             .finally(function () {
                                 _profilePromise = null;
@@ -34,21 +38,23 @@ angular.module('greyscale.core')
             return res;
         };
 
-        //todo: re-factor method isAdmin
+        this._setAccessLevel = function () {
+            if (_profile) {
+                _accessLevel = _.get(_.find(greyscaleGlobals.systemRoles, {id: _profile.roleID}), 'mask') ||
+                    greyscaleGlobals.systemRoles.user.mask;
+            }
+        };
+
+        this.getAccessLevelMask =function () {
+            return _accessLevel;
+        };
+
         this.getAccessLevel = function () {
             return this.getProfile()
-                .then(function (profileData) {
-                    var res = 0x7ffe; //any logged in user
-                    switch (profileData.roleID) {
-                        case 1:
-                            res = 0x8000; //admin user
-                            break;
-                    }
-                    return res; //while no other way
-                })
+                .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     $log.debug('getAccessLevel says:', err);
-                    return 1;
+                    return greyscaleGlobals.systemRoles.nobody.mask;
                 });
         };
 
@@ -57,10 +63,11 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserSrv.logout().finally(function(){
+            return greyscaleUserSrv.logout().finally(function () {
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
+                _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
             });
         };
     });
