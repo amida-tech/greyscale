@@ -20,7 +20,29 @@ angular.module('greyscale.core')
                 {id: 1, name: 'active'},
                 {id: 2, name: 'inactive'},
                 {id: 3, name: 'deleted'}
-            ]
+            ],
+            systemRoles: {
+                superAdmin: {
+                    id: 1,
+                    mask: 0x8000
+                },
+                admin: {
+                    id: 2,
+                    mask: 0x4000
+                },
+                user: {
+                    id: 3,
+                    mask: 0x3000
+                },
+                nobody: {
+                    id: null,
+                    mask: 1
+                },
+                any: {
+                    id: null,
+                    mask: 0xffff
+                }
+            }
             /*
              ,
              tables: {
