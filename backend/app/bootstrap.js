@@ -136,7 +136,7 @@ app.on('start', function () {
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
 
-    pg.connect(pgConString+'/'+pgDbName, function (err, client, done) {
+    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
 
         if (err) {
             //If the DB already exists then do not attempt to connect to postgres.
@@ -144,9 +144,9 @@ app.on('start', function () {
             //to the postgres admin database.  Odds are high however if they do not have access
             //to the admin database they also will not have access to create new databases.
 
-        	//we failed to connect to the database, so attempt to connect to 
-        	//the admin database
-            pg.connect(pgConString+'/postgres', function (err, client, done) {
+            //we failed to connect to the database, so attempt to connect to 
+            //the admin database
+            pg.connect(pgConString + '/postgres', function (err, client, done) {
                 if (err) {
                     console.log(err);
                     return;
@@ -175,18 +175,18 @@ app.on('start', function () {
 
                 });
             });
-        }else {
-        	//database already exists so try to initialize the schema.
+        } else {
+            //database already exists so try to initialize the schema.
             client.query(sql, function (err) {
                 if (err) {
-                	console.log(err);
+                    console.log(err);
                     console.log('Schema already initialized');
                 }
                 client.end();
             });
         }
     });
-    
+
     // Start server
     var server = app.listen(process.env.PORT || config.port || 3000, function () {
         logger.info(util.format('Listening on port %d', server.address().port));

@@ -7,13 +7,13 @@ module.exports = function (grunt) {
 
     // Automatically load required Grunt tasks
     require('jit-grunt')(grunt);
-    
+
     var dockerConfig = {
         ca: '',
         cert: '',
         key: ''
     };
-    
+
     if (process.platform === 'darwin') {
         dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
         dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
