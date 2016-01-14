@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, inform, greyscaleModalsSrv,
-                                         greyscaleGlobals, $log, greyscaleUtilsSrv) {
+    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, greyscaleModalsSrv,
+                                         greyscaleGlobals, greyscaleUtilsSrv) {
 
         $scope.org = {
             loaded: false,
