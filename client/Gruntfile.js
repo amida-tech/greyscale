@@ -27,13 +27,13 @@ module.exports = function (grunt) {
         app: require('./bower.json').appPath || 'app',
         dist: 'dist'
     };
-    
+
     var dockerConfig = {
         ca: '',
         cert: '',
         key: ''
     };
-    
+
     if (process.platform === 'darwin') {
         dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
         dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
@@ -516,7 +516,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'compass:dist',
-                'imagemin',
+                // 'imagemin',
                 'svgmin'
             ]
         },
