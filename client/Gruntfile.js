@@ -515,6 +515,10 @@ module.exports = function (grunt) {
                 cwd: '',
                 dest: 'app/greyscale.core/scripts/config/',
                 src: 'greyscale-env.js'
+            },
+            dev: {
+                src: 'dev-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
             }
         },
 
@@ -623,7 +627,34 @@ module.exports = function (grunt) {
                 configFile: 'test/karma.conf.js',
                 singleRun: true
             }
+        },
+
+        compress: {
+            main: {
+                options: {
+                    archive: 'latest-client.zip'
+                },
+                src: 'Dockerrun.aws.json'
+            }
+        },
+
+        awsebtdeploy: {
+            dev: {
+                options: {
+                    region: 'us-west-2',
+                    applicationName: 'greyscale',
+                    environmentName: 'greyscale-client-dev',
+                    sourceBundle: 'latest-client.zip',
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    versionLabel: 'client-' + Date.now(),
+                    s3: {
+                        bucket: 'amida-greyscale'
+                    }
+                }
+            }
         }
+
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
@@ -699,6 +730,12 @@ module.exports = function (grunt) {
     grunt.registerTask('buildEnv', [
         'ngconstant:dev',
         'build'
+    ]);
+
+    grunt.registerTask('ebsDev', [
+        'copy:dev',
+        'compress',
+        'awsebtdeploy:dev'
     ]);
 
     grunt.registerTask('default', [

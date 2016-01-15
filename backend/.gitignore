@@ -1,1 +1,3 @@
 config
+Dockerrun.aws.json
+latest-backend.zip

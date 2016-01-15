@@ -104,6 +104,39 @@ module.exports = function (grunt) {
             }
         },
 
+        copy: {
+            dev: {
+                src: 'dev-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
+        },
+
+        compress: {
+            main: {
+                options: {
+                    archive: 'latest-backend.zip'
+                },
+                src: 'Dockerrun.aws.json'
+            }
+        },
+
+        awsebtdeploy: {
+            dev: {
+                options: {
+                    region: 'us-west-2',
+                    applicationName: 'greyscale',
+                    environmentName: 'greyscale-backend-dev',
+                    sourceBundle: 'latest-backend.zip',
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    versionLabel: 'backend-' + Date.now(),
+                    s3: {
+                        bucket: 'amida-greyscale'
+                    }
+                }
+            }
+        }
+
     });
 
     grunt.registerTask('buildDocker', [
@@ -112,6 +145,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildDockerMac', [
         'dock:osx:build'
+    ]);
+
+    grunt.registerTask('ebsDev', [
+        'copy:dev',
+        'compress',
+        'awsebtdeploy:dev'
     ]);
 
     grunt.registerTask('default', [
