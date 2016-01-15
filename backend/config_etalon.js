@@ -7,10 +7,10 @@ var environments = {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: process.env.RDS_USERNAME     || process.env.INDABA_USERNAME || 'semyon',
-      password: process.env.RDS_PASSWORD || process.env.INDABA_PASSWORD || 'aw34res',
+      user: process.env.RDS_USERNAME     || process.env.INDABA_PG_USERNAME || 'semyon',
+      password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'aw34res',
       database: process.env.INDABA_PG_DB || 'indaba',
-      host: process.env.RDS_HOSTNAME     || process.env.INDABA_HOSTNAME || 'localhost',
+      host: process.env.RDS_HOSTNAME     || process.env.INDABA_PG_HOSTNAME || 'localhost',
       port: process.env.INDABA_PG_PORT   || 5432
     },
     admin_role: 'admin',

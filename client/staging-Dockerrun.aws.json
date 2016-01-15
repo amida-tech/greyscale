@@ -1,12 +1,12 @@
 {
   "AWSEBDockerrunVersion": "1",
   "Image": {
-    "Name": "amidatech/greyscale-backend",
+    "Name": "amidatech/greyscale-client:stable",
     "Update": "true"
   },
   "Ports": [
     {
-      "ContainerPort": "3005"
+      "ContainerPort": "80"
     }
   ],
   "Logging": "/var/log/nginx"
