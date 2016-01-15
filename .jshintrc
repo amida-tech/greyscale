@@ -16,8 +16,9 @@
         "describe": true,
         "done": true,
         "it": true,
-        "moment": false,
         "Promise": true,
+        "window": true,
+        "document": true,
         "xdescribe": true,
         "xit": true
     },

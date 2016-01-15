@@ -15,9 +15,9 @@ module.exports = function (grunt) {
     // Automatically load required Grunt tasks
     require('jit-grunt')(grunt, {
         useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates',
-         //cdnify: 'grunt-google-cdn',
-    ngconstant: 'grunt-ng-constant'
+        ngtemplates: 'grunt-angular-templates',
+        //cdnify: 'grunt-google-cdn',
+        ngconstant: 'grunt-ng-constant'
     });
 
     // Configurable paths for the application
@@ -130,7 +130,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
@@ -152,21 +154,25 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
                 src: ['test/spec/{,*/}*.js']
             }
         },
-        
+
         jsbeautifier: {
             beautify: {
                 src: [
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ],
                 options: {
                     config: '../.jsbeautifyrc'
@@ -177,7 +183,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ],
                 options: {
                     mode: 'VERIFY_ONLY',
@@ -205,7 +213,9 @@ module.exports = function (grunt) {
         postcss: {
             options: {
                 processors: [
-                    require('autoprefixer-core')({browsers: ['last 1 version']})
+                    require('autoprefixer-core')({
+                        browsers: ['last 1 version']
+                    })
                 ]
             },
             server: {
@@ -329,7 +339,9 @@ module.exports = function (grunt) {
                     '<%= yeoman.dist %>/styles'
                 ],
                 patterns: {
-                    js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
+                    js: [
+                        [/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']
+                    ]
                 }
             }
         },
@@ -364,9 +376,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                     expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
+                    cwd: '<%= yeoman.app %>/images',
+                    src: '{,*/}*.{png,jpg,jpeg,gif}',
+                    dest: '<%= yeoman.dist %>/images'
                 }]
             }
         },
@@ -532,7 +544,7 @@ module.exports = function (grunt) {
             }
         },
 
-            // Test settings
+        // Test settings
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',

@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 
     // Automatically load required Grunt tasks
     require('jit-grunt')(grunt);
-    
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -52,18 +52,18 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
-          
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-backend': { // Name to use for Docker 
+                    'amidatech/greyscale-backend': { // Name to use for Docker
                         dockerfile: './',
                         options: {
-                            build: { 
+                            build: {
                                 q: true
                             },
                             create: { /* extra options to docker create  */ },
@@ -93,13 +93,13 @@ module.exports = function (grunt) {
         },
 
     });
-    
+
     grunt.registerTask('buildDocker', [
-        'dock:build'                               
+        'dock:build'
     ]);
 
     grunt.registerTask('buildDockerMac', [
-        'dock:osx:build'                               
+        'dock:osx:build'
     ]);
 
     grunt.registerTask('default', [
