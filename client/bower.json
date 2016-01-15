@@ -13,6 +13,7 @@
     "angular-bootstrap": "~0.14.3",
     "font-awesome": "fontawesome#~4.0.3",
     "restangular": "~1.5.1",
+    "lodash": "^3.10.1",
     "lodash-angular-wrapper": "*",
     "angular-messages": "~1.4.7",
     "angular-inform": "~0.0.18",
@@ -40,6 +41,6 @@
   },
   "resolutions": {
     "angular": "^1.4.0",
-      "font-awesome": "~4.5.0"
+    "font-awesome": "~4.5.0"
   }
 }
