@@ -146,15 +146,14 @@ angular.module('greyscale.tables')
 
                 _setAccessLevel(profile);
 
-                var roleFilter = {};
+                var roleFilter = {
+                    isSystem: true
+                };
 
                 if (_isAdmin()) {
                     _table.dataFilter.organizationId = profile.organizationId;
                 } else {
                     delete _table.dataFilter.organizationId;
-                    roleFilter = {
-                        isSystem: true
-                    };
                 }
 
                 var reqs = {
