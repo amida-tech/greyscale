@@ -1,6 +1,3 @@
-/**
- * Created by igi on 12/23/15.
- */
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleSurveys', function (greyscaleSurveySrv, greyscaleModalsSrv, inform, $log, $location) {

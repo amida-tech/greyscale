@@ -4,7 +4,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv) {
+    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
+        greyscaleProfileSrv, greyscaleGlobals) {
+        var accessLevel;
+
         var dicts = {
             roles: []
         };
@@ -19,12 +22,14 @@ angular.module('greyscale.tables')
             field: 'email',
             title: 'E-mail',
             show: true,
-            sortable: 'email'
+            sortable: 'email',
+            dataRequired: true
         }, {
             field: 'firstName',
             title: 'First name',
             show: true,
-            sortable: 'firstName'
+            sortable: 'firstName',
+            dataRequired: true
         }, {
             field: 'lastName',
             title: 'Last name',
@@ -74,6 +79,7 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
+            dataFilter: {},
             formTitle: 'user',
             title: 'Users',
             icon: 'fa-users',
@@ -106,7 +112,11 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserSrv.update(newRec);
                     } else {
-                        return greyscaleUserSrv.invite(newRec);
+                        if (_isSuperAdmin()) {
+                            return greyscaleUserSrv.inviteAdmin(newRec);
+                        } else if (_isAdmin()) {
+                            return greyscaleUserSrv.inviteUser(newRec);
+                        }
                     }
                 })
                 .then(reloadTable)
@@ -119,18 +129,59 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function _getUsers() {
-            var reqs = {
-                users: greyscaleUserSrv.list(),
-                roles: greyscaleRoleSrv.list()
-            };
+        function _isSuperAdmin() {
+            return accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask;
+        }
 
-            return $q.all(reqs).then(function (promises) {
-                    dicts.roles = promises.roles;
+        function _isAdmin() {
+            return accessLevel === greyscaleGlobals.systemRoles.admin.mask;
+        }
+
+        function _setAccessLevel() {
+            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        }
+
+        function _getUsers() {
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+
+                _setAccessLevel(profile);
+
+                var roleFilter = {
+                    isSystem: true
+                };
+
+                if (_isAdmin()) {
+                    _table.dataFilter.organizationId = profile.organizationId;
+                } else {
+                    delete _table.dataFilter.organizationId;
+                }
+
+                var reqs = {
+                    users: greyscaleUserSrv.list(_table.dataFilter),
+                    roles: greyscaleRoleSrv.list(roleFilter)
+                };
+
+                return $q.all(reqs).then(function (promises) {
+                    dicts.roles = _filterRolesByAccessLevel(promises.roles);
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
-                })
-                .catch(errorHandler);
+                });
+
+            }).catch(errorHandler);
+        }
+
+        function _filterRolesByAccessLevel(roles) {
+            var filteredRoles = [];
+            if (_isAdmin()) {
+                angular.forEach(roles, function (role, i) {
+                    if (role.id !== greyscaleGlobals.systemRoles.superAdmin.id) {
+                        filteredRoles.push(role);
+                    }
+                });
+            } else {
+                filteredRoles = roles;
+            }
+            return filteredRoles;
         }
 
         function errorHandler(err, action) {

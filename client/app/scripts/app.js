@@ -24,11 +24,16 @@ var _app = angular.module('greyscaleApp', [
     'lodashAngularWrapper'
 ]);
 
-_app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider) {
+_app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
+    greyscaleEnv, greyscaleGlobalsProvider) {
 
-    $logProvider.debugEnabled(true);
+    var globals = greyscaleGlobalsProvider.$get();
+
+    $logProvider.debugEnabled(greyscaleEnv.enableDebugLog);
     $urlMatcherFactoryProvider.strictMode(false);
     $locationProvider.html5Mode(false);
+
+    var systemRoles = globals.systemRoles;
 
     $stateProvider
         .state('main', {
@@ -46,7 +51,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Activate',
-                accessLevel: 0xffff
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('register', {
@@ -60,7 +65,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Register',
-                accessLevel: 0xffff
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('login', {
@@ -74,7 +79,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Login',
-                accessLevel: 0xffff
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('dashboard', {
@@ -93,7 +98,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: '',
             data: {
                 name: 'Home',
-                accessLevel: 0xfffe
+                accessLevel: systemRoles.admin.mask | systemRoles.superAdmin.mask | systemRoles.user.mask
             },
             views: {
                 'body@dashboard': {
@@ -106,7 +111,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'access',
             data: {
                 name: 'Access management',
-                accessLevel: 0x8000
+                accessLevel: systemRoles.superAdmin.mask
             },
             views: {
                 'body@dashboard': {
@@ -120,7 +125,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'users',
             data: {
                 name: 'Users',
-                accessLevel: 0x8000
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             },
             views: {
                 'body@dashboard': {
@@ -140,7 +145,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Units of Analysis',
-                accessLevel: 0x8000
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('projects', {
@@ -154,7 +159,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Projects Management',
-                accessLevel: 0xC000
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('projects.setup', {
+            url: '/:projectId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/project-setup.html',
+                    controller: 'ProjectSetupCtrl'
+                }
+            },
+            data: {
+                name: 'Project Setup',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('orgs', {
@@ -168,7 +186,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Organizations',
-                accessLevel: 0xC000
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('profile', {
@@ -182,7 +200,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Profile',
-                accessLevel: 0xfffe
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('survey', {
@@ -206,7 +224,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== 0xffff) {
-            /*jshint bitwise: false*/
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
@@ -227,7 +244,6 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                     }
                 }
             });
-            /*jshint bitwise: true*/
         }
     });
 

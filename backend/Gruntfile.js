@@ -64,15 +64,15 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-backend': { // Name to use for Docker 
+                    'amidatech/greyscale-backend': { // Name to use for Docker
                         dockerfile: './',
                         options: {
                             build: {

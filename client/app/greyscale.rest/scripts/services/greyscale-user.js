@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
+    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
 
         return {
             login: _login,
@@ -13,7 +13,8 @@ angular.module('greyscale.rest')
             get: _self,
             list: _listUsers,
             register: _register,
-            invite: _inviteUser,
+            inviteAdmin: _inviteAdmin,
+            inviteUser: _inviteUser,
             activate: _activate,
             checkActivationToken: _checkActivationToken,
             getOrganization: _getOrg,
@@ -23,14 +24,16 @@ angular.module('greyscale.rest')
             delete: delUser
         };
 
-        function _organization() {
-            return greyscaleRestSrv()
-                .one('users', 'self')
-                .one('organization');
+        function orgAPI() {
+            return selfAPI().one('organization');
         }
 
         function userAPI() {
             return greyscaleRestSrv().one('users');
+        }
+
+        function selfAPI() {
+            return userAPI().one('self');
         }
 
         function _self() {
@@ -38,15 +41,15 @@ angular.module('greyscale.rest')
         }
 
         function _save(data) {
-            return userAPI().one('self').customPUT(data);
+            return selfAPI().customPUT(data);
         }
 
         function _getOrg() {
-            return _organization().get();
+            return orgAPI().get();
         }
 
         function _saveOrg(data) {
-            return _organization().customPUT(data);
+            return orgAPI().customPUT(data);
         }
 
         function _register(userData) {
@@ -95,8 +98,12 @@ angular.module('greyscale.rest')
             return userAPI().one('logout').post();
         }
 
-        function _inviteUser(userData) {
+        function _inviteAdmin(userData) {
             return userAPI().one('invite').customPOST(userData);
+        }
+
+        function _inviteUser(userData) {
+            return orgAPI().one('invite').customPOST(userData);
         }
 
         function updateUser(data) {

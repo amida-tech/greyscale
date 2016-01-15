@@ -67,6 +67,9 @@ router.route('/:realm/v0.2/projects/:id')
     .delete(authenticate('token').always, projects.delete)
     .put(authenticate('token').always, projects.editOne);
 
+router.route('/v0.2/projects/:id/uoa')
+    .get(authenticate('token').always, projects.uoaList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -231,7 +234,7 @@ router.route('/:realm/v0.2/users/logout/:id')
 
 router.route('/:realm/v0.2/users/self')
     .get(authenticate('token').always, /*checkRight('users_view_self'), */ users.selectSelf)
-    .put(authenticate('token').always, checkRight('users_edit_self'), users.updateSelf);
+    .put(authenticate('token').always, /*checkRight('users_edit_self'), */ users.updateSelf);
 
 router.route('/:realm/v0.2/users/:id')
     .get(authenticate('token').always, checkRight('users_view_one'), users.selectOne)
@@ -250,6 +253,20 @@ router.route('/:realm/v0.2/countries')
 router.route('/:realm/v0.2/countries/:id')
     .put(authenticate('token').always, checkRight('countries_update_one'), countries.updateOne)
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    WORKFLOWS
+//----------------------------------------------------------------------------------------------------------------------
+var workflows = require('app/controllers/workflows');
+
+router.route('/v0.2/workflows')
+    .get(authenticate('token').always, workflows.select)
+    .post(authenticate('token').always, /*checkRight('countries_insert_one'),*/ workflows.insertOne);
+
+router.route('/v0.2/workflows/:id')
+    .get(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.selectOne)
+    .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
+    .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis

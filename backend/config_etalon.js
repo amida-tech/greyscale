@@ -1,6 +1,6 @@
 var environments = {
   development: {
-    port: 3001, // Port for incoming HTTP. Can be overriden by env. variable PORT
+    port: 3005, // Port for incoming HTTP. Can be overriden by env. variable PORT
     encoding: 'utf8',
     domain: 'http://localhost:3005',
     authToken: {

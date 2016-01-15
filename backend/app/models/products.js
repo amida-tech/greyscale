@@ -2,22 +2,28 @@ var sql = require('sql');
 
 var columns = [
     'id',
-    'title',
+    'workflowId',
+    'name',
     'description',
+    'projectId',
     'matrixId',
-    'originalLangId'
+    'productConfigId',
+    'contentType',
+    'mode',
+    'reportUrl',
+    'analyticsUrl'
 ];
 
-var translate = [
-    'title',
-    'description'
-];
+//var translate = [
+//	'title',
+//	'description'
+//];
 
 var Product = sql.define({
     name: 'Products',
     columns: columns
 });
 
-Product.translate = translate;
+//Product.translate = translate;
 
 module.exports = Product;

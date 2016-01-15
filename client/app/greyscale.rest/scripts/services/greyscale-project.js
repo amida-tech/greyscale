@@ -13,6 +13,10 @@ angular.module('greyscale.rest')
             return api().get(params);
         }
 
+        function _get(id, params) {
+            return api().one(id + '').get(params);
+        }
+
         function _add(project) {
             return api().customPOST(project);
         }
@@ -27,6 +31,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
+            get: _get,
             add: _add,
             update: _upd,
             delete: _del

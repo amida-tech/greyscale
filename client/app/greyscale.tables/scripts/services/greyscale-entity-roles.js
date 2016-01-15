@@ -16,80 +16,83 @@ angular.module('greyscale.tables')
         var _tableRestSrv = greyscaleEntityTypeRoleSrv;
 
         var _fields = [{
-            field: 'roleId',
-            show: true,
-            title: 'Role',
-            dataRequired: true,
-            dataFormat: 'option',
-            dataSet: {
-                keyField: 'id',
-                valField: 'name',
-                getData: getRoles
-            }
-        }, {
-            field: 'userId',
-            show: true,
-            title: 'User',
-            dataRequired: true,
-            dataFormat: 'option',
-            dataSet: {
-                keyField: 'id',
-                valField: 'email',
-                getData: getUsers
-            }
-        }, {
-            field: 'essenceId',
-            show: true,
-            title: 'Entity Type',
-            dataReadOnly: 'both',
-            dataRequired: true,
-            dataFormat: 'option',
-            dataSet: {
-                keyField: 'id',
-                valField: 'name',
-                getData: getEntityTypes
-            }
-        }, {
-            field: 'entityId',
-            show: true,
-            title: 'Entity Title',
-            dataRequired: true,
-            dataFormat: 'option',
-            dataSet: {
-                keyField: 'id',
-                valField: 'title',
-                dataPromise: getEntity
-            }
-        }, {
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                icon: 'fa-pencil',
-                class: 'info',
-                handler: _editRecord
+                field: 'userId',
+                show: true,
+                title: 'User',
+                sortable: 'userId',
+                dataRequired: true,
+                dataFormat: 'option',
+                dataSet: {
+                    keyField: 'id',
+                    valField: 'email',
+                    getData: getUsers
+                }
             }, {
-                icon: 'fa-trash',
-                class: 'danger',
-                handler: _delRecord
-            }]
-        }];
+                field: 'roleId',
+                show: true,
+                title: 'Role',
+                sortable: 'roleId',
+                dataRequired: true,
+                dataFormat: 'option',
+                dataSet: {
+                    keyField: 'id',
+                    valField: 'name',
+                    getData: getRoles
+                }
+            },
+
+            //{
+            //    field: 'essenceId',
+            //    show: true,
+            //    title: 'Entity Type',
+            //    dataReadOnly: 'both',
+            //    dataRequired: true,
+            //    dataFormat: 'option',
+            //    dataSet: {
+            //        keyField: 'id',
+            //        valField: 'name',
+            //        getData: getEntityTypes
+            //    }
+            //},
+            //{
+            //    field: 'entityId',
+            //    show: true,
+            //    title: 'Entity Title',
+            //    dataReadOnly: 'both',
+            //    dataRequired: true,
+            //    dataFormat: 'option',
+            //    dataSet: {
+            //        keyField: 'id',
+            //        valField: 'title',
+            //        dataPromise: getEntity
+            //    }
+            //},
+            {
+                field: '',
+                title: '',
+                show: true,
+                dataFormat: 'action',
+                actions: [{
+                    icon: 'fa-pencil',
+                    class: 'info',
+                    handler: _editRecord
+                }, {
+                    icon: 'fa-trash',
+                    class: 'danger',
+                    handler: _delRecord
+                }]
+            }
+        ];
 
         var _table = {
             dataFilter: {},
-            title: 'Project roles',
+            title: '',
             formTitle: 'project role',
-            /*
-             formTitle: 'entity role',
-             title: 'Entity roles',
-             */
-            icon: 'fa-group',
             cols: _fields,
             dataPromise: getData,
             pageLength: 10,
             add: {
-                title: 'Add',
+                title: 'Assign',
                 handler: _editRecord
             }
 

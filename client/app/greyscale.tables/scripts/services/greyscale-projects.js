@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
         greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-        greyscaleModalsSrv, greyscaleUtilsSrv, $log) {
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var dicts = {
             matrices: [],
@@ -14,7 +14,7 @@ angular.module('greyscale.tables')
             users: []
         };
 
-        var user;
+        var accessLevel;
 
         var recDescr = [{
             field: 'id',
@@ -25,7 +25,7 @@ angular.module('greyscale.tables')
             dataReadOnly: 'both'
         }, {
             field: 'organizationId',
-            show: true,
+            show: _isSuperAdmin,
             sortable: 'organizationId',
             title: 'Organization',
             dataFormat: 'option',
@@ -84,7 +84,7 @@ angular.module('greyscale.tables')
             }
         }, {
             field: 'adminUserId',
-            show: true,
+            show: _isSuperAdmin,
             sortable: false,
             title: 'Admin',
             dataFormat: 'option',
@@ -92,7 +92,8 @@ angular.module('greyscale.tables')
                 getData: getUsers,
                 keyField: 'id',
                 valField: 'email'
-            }
+            },
+            dataReadOnly: 'both'
         }, {
             field: 'closeTime',
             dataFormat: 'date',
@@ -144,9 +145,19 @@ angular.module('greyscale.tables')
             return greyscaleGlobals.projectStates;
         }
 
+        function _isSuperAdmin() {
+            return accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask;
+        }
+
+        function _setAccessLevel() {
+            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        }
+
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
-                user = profile;
+
+                _setAccessLevel();
+
                 var req = {
                     prjs: greyscaleProjectSrv.list({
                         organizationId: profile.organizationId
@@ -185,9 +196,6 @@ angular.module('greyscale.tables')
             var op = 'editing';
             greyscaleModalsSrv.editRec(prj, _table)
                 .then(function (newPrj) {
-
-                    $log.debug('projects ', prj, newPrj);
-
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
                     } else {

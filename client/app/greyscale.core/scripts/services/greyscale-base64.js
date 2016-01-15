@@ -2,11 +2,10 @@
  * Created by igi on 17.11.15.
  */
 'use strict';
-/*jshint bitwise: false*/
 
 angular.module('greyscale.core')
     .service('greyscaleBase64Srv', function () {
-        var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
         var _utf8Encode = function (string) {
             string = string.replace(/\r\n/g, '\n');
@@ -32,7 +31,7 @@ angular.module('greyscale.core')
             return utftext;
         };
 
-        var _utf8Decode = function (utftext) {
+        var utf8Decode = function (utftext) {
             var string = '';
             var i = 0;
             var c, c1, c2, c3;
@@ -86,8 +85,8 @@ angular.module('greyscale.core')
                 }
 
                 output = output +
-                    _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-                    _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
+                    keyStr.charAt(enc1) + keyStr.charAt(enc2) +
+                    keyStr.charAt(enc3) + keyStr.charAt(enc4);
 
             }
 
@@ -104,10 +103,10 @@ angular.module('greyscale.core')
 
             while (i < input.length) {
 
-                enc1 = _keyStr.indexOf(input.charAt(i++));
-                enc2 = _keyStr.indexOf(input.charAt(i++));
-                enc3 = _keyStr.indexOf(input.charAt(i++));
-                enc4 = _keyStr.indexOf(input.charAt(i++));
+                enc1 = keyStr.indexOf(input.charAt(i++));
+                enc2 = keyStr.indexOf(input.charAt(i++));
+                enc3 = keyStr.indexOf(input.charAt(i++));
+                enc4 = keyStr.indexOf(input.charAt(i++));
 
                 chr1 = (enc1 << 2) | (enc2 >> 4);
                 chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
@@ -124,7 +123,7 @@ angular.module('greyscale.core')
 
             }
 
-            output = _utf8Decode(output);
+            output = utf8Decode(output);
 
             return output;
 

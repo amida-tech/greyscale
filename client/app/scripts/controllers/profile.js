@@ -4,7 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, inform, greyscaleModalsSrv) {
+    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, greyscaleModalsSrv,
+        greyscaleGlobals, greyscaleUtilsSrv) {
 
         $scope.org = {
             loaded: false,
@@ -16,24 +17,15 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
                 $scope.user = user;
-                if (user.roleID === 2) {
-                    greyscaleUserSrv.getOrganization()
+                if (user.roleID === greyscaleGlobals.systemRoles.admin.id) {
+                    return greyscaleUserSrv.getOrganization()
                         .then(function (resp) {
                             $scope.org = resp;
                             $scope.org.loaded = true;
-                        })
-                        .catch(function (err) {
-                            inform.add(err.data.message, {
-                                type: 'danger'
-                            });
                         });
                 }
             })
-            .catch(function (err) {
-                inform.add(err.data.message, {
-                    type: 'danger'
-                });
-            });
+            .catch(greyscaleUtilsSrv.errorMsg);
 
         $scope.editProfile = function () {
             greyscaleModalsSrv.editUserProfile($scope.user)
@@ -44,11 +36,7 @@ angular.module('greyscaleApp')
                             return resp;
                         });
                 })
-                .catch(function (err) {
-                    if (err && err.data) {
-                        inform.add(err.data.message);
-                    }
-                });
+                .catch(greyscaleUtilsSrv.errorMsg);
         };
 
         $scope.editOrg = function () {
@@ -63,10 +51,6 @@ angular.module('greyscaleApp')
                             return resp;
                         });
                 })
-                .catch(function (err) {
-                    if (err && err.data) {
-                        inform.add(err.data.message);
-                    }
-                });
+                .catch(greyscaleUtilsSrv.errorMsg);
         };
     });

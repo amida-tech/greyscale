@@ -45,7 +45,7 @@ angular.module('greyscale.core')
         }
 
         function addErrMsg(err, prefix) {
-            var msg = prefix + ': ' || '';
+            var msg = prefix ? prefix + ': ' : '';
             if (err) {
                 if (err.data) {
                     if (err.data.message) {

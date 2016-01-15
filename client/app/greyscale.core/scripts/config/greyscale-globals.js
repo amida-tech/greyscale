@@ -38,85 +38,93 @@ angular.module('greyscale.core')
                 id: 3,
                 name: 'deleted'
             }],
-            tables: {
-                countries: {
-                    cols: [{
-                        field: 'id',
-                        title: 'ID',
-                        show: true
-                    }, {
-                        field: 'name',
-                        title: 'Name',
-                        show: true,
-                        sortable: 'name'
-                    }, {
-                        field: 'alpha2',
-                        title: 'Alpha2',
-                        show: true,
-                        sortable: 'alpha2'
-                    }, {
-                        field: 'alpha3',
-                        title: 'Alpha3',
-                        show: true,
-                        sortable: 'alpha3'
-                    }, {
-                        field: 'nbr',
-                        title: 'Nbr',
-                        show: true,
-                        sortable: 'nbr'
-                    }]
+            systemRoles: {
+                superAdmin: {
+                    id: 1,
+                    mask: 0x8000
                 },
-                rights: {
-                    cols: [{
-                        field: 'id',
-                        title: 'ID',
-                        show: false,
-                        sortable: 'id'
-                    }, {
-                        field: 'action',
-                        title: 'Action',
-                        show: true,
-                        sortable: 'action'
-                    }, {
-                        field: 'description',
-                        title: 'Description',
-                        show: true,
-                        sortable: false
-                    }, {
-                        field: 'essenceId',
-                        title: 'Entity Type ID',
-                        show: false,
-                        sortable: 'essenceId'
-                    }, {
-                        field: 'entityType',
-                        title: 'Entity Type',
-                        show: true,
-                        sortable: 'entityType'
-                    }]
+                admin: {
+                    id: 2,
+                    mask: 0x4000
                 },
-                languages: {
-                    cols: [{
-                        field: 'id',
-                        title: 'ID',
-                        show: true
-                    }, {
-                        field: 'name',
-                        title: 'Name',
-                        show: true,
-                        sortable: 'name'
-                    }, {
-                        field: 'nativeName',
-                        title: 'Native name',
-                        show: true,
-                        sortable: 'nativeName'
-                    }, {
-                        field: 'code',
-                        title: 'Code',
-                        show: true,
-                        sortable: 'code'
-                    }]
+                user: {
+                    id: 3,
+                    mask: 0x3000
+                },
+                nobody: {
+                    id: null,
+                    mask: 1
+                },
+                any: {
+                    id: null,
+                    mask: 0xffff
                 }
             }
+            /*
+             ,
+             tables: {
+             countries: {
+             cols: [
+             {
+             field: 'id',
+             title: 'ID',
+             show: true
+             },
+             {
+             field: 'name',
+             title: 'Name',
+             show: true,
+             sortable: 'name'
+             },
+             {
+             field: 'alpha2',
+             title: 'Alpha2',
+             show: true,
+             sortable: 'alpha2'
+             },
+             {
+             field: 'alpha3',
+             title: 'Alpha3',
+             show: true,
+             sortable: 'alpha3'
+             },
+             {
+             field: 'nbr',
+             title: 'Nbr',
+             show: true,
+             sortable: 'nbr'
+             }
+             ]
+             },
+             languages: {
+             cols: [
+             {
+             field: 'id',
+             title: 'ID',
+             show: true
+             },
+             {
+             field: 'name',
+             title: 'Name',
+             show: true,
+             sortable: 'name'
+             },
+             {
+             field: 'nativeName',
+             title: 'Native name',
+             show: true,
+             sortable: 'nativeName'
+             },
+             {
+             field: 'code',
+             title: 'Code',
+             show: true,
+             sortable: 'code'
+             }
+             ]
+             }
+             }
+             */
         };
 
         return {

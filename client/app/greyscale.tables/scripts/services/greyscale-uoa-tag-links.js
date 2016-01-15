@@ -4,11 +4,9 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTagLinks', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaSrv, greyscaleUoaTagSrv,
-        greyscaleUoaClassTypeSrv, greyscaleUoaTagLinkSrv,
-        $log) {
+    .factory('greyscaleUoaTagLinks', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleUoaSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv,
+        greyscaleUoaTagLinkSrv, $log) {
 
         var dicts = {
             uoas: [],

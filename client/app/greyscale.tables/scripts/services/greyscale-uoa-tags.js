@@ -4,10 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTags', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaTagSrv,
-        greyscaleUoaClassTypeSrv) {
+    .factory('greyscaleUoaTags', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleLanguageSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv) {
 
         var dicts = {
             languages: [],
