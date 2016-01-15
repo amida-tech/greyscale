@@ -4,19 +4,18 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, greyscaleProjects, greyscaleEntityRoles) {
+    .controller('ProjectsCtrl', function ($scope, $state, greyscaleProjects) {
         var projects = greyscaleProjects;
-        var entityRoles = greyscaleEntityRoles;
 
         $scope.model = {
             projects: projects,
-            entRoles: entityRoles
         };
 
         $scope.projectSelect = function (row) {
             if (typeof row !== 'undefined') {
-                entityRoles.dataFilter.entityId = row.id;
-                entityRoles.tableParams.reload();
+                $state.go('projects.setup', {
+                    projectId: row.id
+                });
             }
             return row;
         };

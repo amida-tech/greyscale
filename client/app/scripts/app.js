@@ -162,6 +162,19 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('projects.setup', {
+            url: '/:projectId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/project-setup.html',
+                    controller: 'ProjectSetupCtrl'
+                }
+            },
+            data: {
+                name: 'Project Setup',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('orgs', {
             parent: 'home',
             url: 'organizations',
