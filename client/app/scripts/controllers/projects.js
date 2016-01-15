@@ -13,9 +13,9 @@ angular.module('greyscaleApp')
             entRoles: entityRoles
         };
 
-        $scope.projectSelect = function (row){
+        $scope.projectSelect = function (row) {
             if (typeof row !== 'undefined') {
-                entityRoles.dataFilter.entityId= row.id;
+                entityRoles.dataFilter.entityId = row.id;
                 entityRoles.tableParams.reload();
             }
             return row;

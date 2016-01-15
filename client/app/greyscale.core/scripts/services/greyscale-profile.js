@@ -1,11 +1,11 @@
 /**
  * Created by igi on 16.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log,
-                                              greyscaleGlobals, _) {
+        greyscaleGlobals, _) {
         var _profile = null;
         var _profilePromise = null;
         var _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
@@ -40,12 +40,14 @@ angular.module('greyscale.core')
 
         this._setAccessLevel = function () {
             if (_profile) {
-                _accessLevel = _.get(_.find(greyscaleGlobals.systemRoles, {id: _profile.roleID}), 'mask') ||
+                _accessLevel = _.get(_.find(greyscaleGlobals.systemRoles, {
+                        id: _profile.roleID
+                    }), 'mask') ||
                     greyscaleGlobals.systemRoles.user.mask;
             }
         };
 
-        this.getAccessLevelMask =function () {
+        this.getAccessLevelMask = function () {
             return _accessLevel;
         };
 

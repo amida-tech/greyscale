@@ -6,7 +6,7 @@
 angular.module('greyscale.rest')
     .factory('greyscaleLanguageSrv', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('languages');
         };
 
@@ -19,11 +19,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteLanguage(language) {
-            return _api().one(language.id+'').remove();
+            return _api().one(language.id + '').remove();
         }
 
-        var _updateLanguage = function(language) {
-            return _api().one(language.id+'').customPUT(language);
+        var _updateLanguage = function (language) {
+            return _api().one(language.id + '').customPUT(language);
         };
 
         return {

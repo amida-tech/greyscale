@@ -5,22 +5,39 @@
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
         var self = {
-            projectStates: [
-                {id: 0, name: 'waiting'},
-                {id: 1, name: 'in-flight'},
-                {id: 2, name: 'completed'},
-                {id: 3, name: 'suspended'},
-                {id: 4, name: 'abandoned'}
-            ],
-            uoaVisibility: [
-                {id: 1, name: 'public'},
-                {id: 2, name: 'private'}
-            ],
-            uoaStatus: [
-                {id: 1, name: 'active'},
-                {id: 2, name: 'inactive'},
-                {id: 3, name: 'deleted'}
-            ],
+            projectStates: [{
+                id: 0,
+                name: 'waiting'
+            }, {
+                id: 1,
+                name: 'in-flight'
+            }, {
+                id: 2,
+                name: 'completed'
+            }, {
+                id: 3,
+                name: 'suspended'
+            }, {
+                id: 4,
+                name: 'abandoned'
+            }],
+            uoaVisibility: [{
+                id: 1,
+                name: 'public'
+            }, {
+                id: 2,
+                name: 'private'
+            }],
+            uoaStatus: [{
+                id: 1,
+                name: 'active'
+            }, {
+                id: 2,
+                name: 'inactive'
+            }, {
+                id: 3,
+                name: 'deleted'
+            }],
             systemRoles: {
                 superAdmin: {
                     id: 1,
@@ -114,5 +131,5 @@ angular.module('greyscale.core')
             $get: function () {
                 return self;
             }
-        }
+        };
     });

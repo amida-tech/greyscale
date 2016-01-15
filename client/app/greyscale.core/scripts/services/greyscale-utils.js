@@ -57,7 +57,9 @@ angular.module('greyscale.core')
                     msg += err;
                 }
                 $log.debug(msg);
-                inform.add(msg, {type: 'danger'});
+                inform.add(msg, {
+                    type: 'danger'
+                });
             }
         }
 

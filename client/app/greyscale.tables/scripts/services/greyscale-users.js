@@ -5,88 +5,76 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
-                                         greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals) {
         var dicts = {
             roles: []
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id',
-                dataReadOnly: 'both'
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataReadOnly: 'both'
+        }, {
+            field: 'email',
+            title: 'E-mail',
+            show: true,
+            sortable: 'email',
+            dataRequired: true
+        }, {
+            field: 'firstName',
+            title: 'First name',
+            show: true,
+            sortable: 'firstName',
+            dataRequired: true
+        }, {
+            field: 'lastName',
+            title: 'Last name',
+            show: true,
+            sortable: 'lastName'
+        }, {
+            field: 'roleID',
+            title: 'Role',
+            show: true,
+            sortable: 'roleID',
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getRoles,
+                keyField: 'id',
+                valField: 'name'
             },
-            {
-                field: 'email',
-                title: 'E-mail',
-                show: true,
-                sortable: 'email',
-                dataRequired: true
-            },
-            {
-                field: 'firstName',
-                title: 'First name',
-                show: true,
-                sortable: 'firstName',
-                dataRequired: true
-            },
-            {
-                field: 'lastName',
-                title: 'Last name',
-                show: true,
-                sortable: 'lastName'
-            },
-            {
-                field: 'roleID',
-                title: 'Role',
-                show: true,
-                sortable: 'roleID',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: _getRoles,
-                    keyField: 'id',
-                    valField: 'name'
-                },
-                dataReadOnly: 'add'
+            dataReadOnly: 'add'
 
-            },
-            {
-                field: 'created',
-                title: 'Created',
-                show: true,
-                sortable: 'created',
-                dataFormat: 'date',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'isActive',
-                title: 'Is Active',
-                show: true,
-                sortable: 'isActive',
-                dataFormat: 'boolean',
-                dataReadOnly: 'both'
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editRecord
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
-            }
-        ];
+        }, {
+            field: 'created',
+            title: 'Created',
+            show: true,
+            sortable: 'created',
+            dataFormat: 'date',
+            dataReadOnly: 'both'
+        }, {
+            field: 'isActive',
+            title: 'Is Active',
+            show: true,
+            sortable: 'isActive',
+            dataFormat: 'boolean',
+            dataReadOnly: 'both'
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editRecord
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             dataFilter: {},
@@ -161,7 +149,7 @@ angular.module('greyscale.tables')
                     dicts.roles = promises.roles;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
-                })
+                });
 
             }).catch(errorHandler);
         }
@@ -172,7 +160,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

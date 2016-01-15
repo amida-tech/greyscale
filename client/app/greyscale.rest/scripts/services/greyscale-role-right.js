@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleRoleRightSrv', function (greyscaleRestSrv){
+    .factory('greyscaleRoleRightSrv', function (greyscaleRestSrv) {
         return {
             list: _list
         };

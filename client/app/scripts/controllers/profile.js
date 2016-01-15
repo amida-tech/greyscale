@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, greyscaleModalsSrv,
-                                         greyscaleGlobals, greyscaleUtilsSrv) {
+        greyscaleGlobals, greyscaleUtilsSrv) {
 
         $scope.org = {
             loaded: false,

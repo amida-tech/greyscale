@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest', ['restangular'])
-    .config(function (greyscaleEnv,RestangularProvider) {
+    .config(function (greyscaleEnv, RestangularProvider) {
         RestangularProvider.setBaseUrl(greyscaleEnv.baseServerUrl);
         RestangularProvider.setDefaultHttpFields({
             cache: false,

@@ -1,62 +1,54 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleRoleRights', function ($q,
-                                              greyscaleRightSrv,
-                                              greyscaleRoleSrv,
-                                              greyscaleEntityTypeSrv,
-                                              greyscaleModalsSrv,
-                                              greyscaleUtilsSrv) {
+        greyscaleRightSrv,
+        greyscaleRoleSrv,
+        greyscaleEntityTypeSrv,
+        greyscaleModalsSrv,
+        greyscaleUtilsSrv) {
 
         var _dicts = {
             rights: null,
             entityTypes: null
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id'
-            },
-            {
-                field: 'action',
-                title: 'Action',
-                show: true,
-                sortable: 'action'
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                sortable: false
-            },
-            {
-                field: 'essenceId',
-                title: 'Entity Type',
-                show: true,
-                sortable: 'essenceId',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: _getEntityTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        title: 'Delete',
-                        class: 'danger',
-                        handler: _deleteRoleRight
-                    }
-                ]
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id'
+        }, {
+            field: 'action',
+            title: 'Action',
+            show: true,
+            sortable: 'action'
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            sortable: false
+        }, {
+            field: 'essenceId',
+            title: 'Entity Type',
+            show: true,
+            sortable: 'essenceId',
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getEntityTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                title: 'Delete',
+                class: 'danger',
+                handler: _deleteRoleRight
+            }]
+        }];
 
         var _table = {
             dataFilter: {},
@@ -85,10 +77,12 @@ angular.module('greyscale.tables')
         function _addRoleRight() {
             var role = _table.dataFilter.role;
             if (role) {
-                return greyscaleModalsSrv.addRoleRight({right: null}, {
-                    rights: _getRights(),
-                    role: role
-                })
+                return greyscaleModalsSrv.addRoleRight({
+                        right: null
+                    }, {
+                        rights: _getRights(),
+                        role: role
+                    })
                     .then(function (right) {
                         return greyscaleRoleSrv.addRight(role.id, right.id);
                     })
@@ -125,7 +119,9 @@ angular.module('greyscale.tables')
             var req = {};
             if (!_dicts.rights) {
                 req.rights = greyscaleRightSrv.list();
-                req.entityTypes = greyscaleEntityTypeSrv.list({fields: 'id,name'});
+                req.entityTypes = greyscaleEntityTypeSrv.list({
+                    fields: 'id,name'
+                });
             }
 
             return $q.all(req).then(function (promises) {
@@ -151,7 +147,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;
