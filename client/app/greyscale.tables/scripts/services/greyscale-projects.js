@@ -146,7 +146,7 @@ angular.module('greyscale.tables')
         }
 
         function _isSuperAdmin() {
-            return accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask;
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
         }
 
         function _setAccessLevel() {

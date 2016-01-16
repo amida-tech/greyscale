@@ -130,11 +130,11 @@ angular.module('greyscale.tables')
         }
 
         function _isSuperAdmin() {
-            return accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask;
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
         }
 
         function _isAdmin() {
-            return accessLevel === greyscaleGlobals.systemRoles.admin.mask;
+            return accessLevel === greyscaleGlobals.userRoles.admin.mask;
         }
 
         function _setAccessLevel() {
@@ -174,7 +174,7 @@ angular.module('greyscale.tables')
             var filteredRoles = [];
             if (_isAdmin()) {
                 angular.forEach(roles, function (role, i) {
-                    if (role.id !== greyscaleGlobals.systemRoles.superAdmin.id) {
+                    if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
                         filteredRoles.push(role);
                     }
                 });

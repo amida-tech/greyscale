@@ -8,7 +8,7 @@ angular.module('greyscale.core')
         greyscaleGlobals, _) {
         var _profile = null;
         var _profilePromise = null;
-        var _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
+        var _accessLevel = greyscaleGlobals.userRoles.nobody.mask;
 
         this.getProfile = function (force) {
             var self = this;
@@ -40,10 +40,10 @@ angular.module('greyscale.core')
 
         this._setAccessLevel = function () {
             if (_profile) {
-                _accessLevel = _.get(_.find(greyscaleGlobals.systemRoles, {
+                _accessLevel = _.get(_.find(greyscaleGlobals.userRoles, {
                         id: _profile.roleID
                     }), 'mask') ||
-                    greyscaleGlobals.systemRoles.user.mask;
+                    greyscaleGlobals.userRoles.user.mask;
             }
         };
 
@@ -56,7 +56,7 @@ angular.module('greyscale.core')
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     $log.debug('getAccessLevel says:', err);
-                    return greyscaleGlobals.systemRoles.nobody.mask;
+                    return greyscaleGlobals.userRoles.nobody.mask;
                 });
         };
 
@@ -69,7 +69,7 @@ angular.module('greyscale.core')
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
-                _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
+                _accessLevel = greyscaleGlobals.userRoles.nobody.mask;
             });
         };
     });
