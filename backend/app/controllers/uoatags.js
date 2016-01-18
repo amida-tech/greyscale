@@ -19,8 +19,8 @@ module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
         co(function* () {
-            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var uoaTag = thunkQuery(UnitOfAnalysisTag.select(), req.query);
+            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')));
+            var uoaTag = thunkQuery(UnitOfAnalysisTag.select(), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoaTag];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -32,9 +32,9 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* (){
-            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')));
             var langId = yield* detectLanguage(req);
-            var uoaTag = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisTag));
+            var uoaTag = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisTag), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoaTag];
         }).then(function(data){
             res.set('X-Total-Count', _.first(data[0]).counter);
