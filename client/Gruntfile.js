@@ -728,7 +728,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('buildEnv', [
-        'ngconstant:dev',
+        'ngconstant:env',
         'build'
     ]);
 
