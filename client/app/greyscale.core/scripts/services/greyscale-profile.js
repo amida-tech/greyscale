@@ -4,11 +4,12 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log,
-        greyscaleGlobals, _) {
+    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserSrv, $log,
+        greyscaleEntityTypeRoleSrv, greyscaleUtilsSrv) {
         var _profile = null;
         var _profilePromise = null;
-        var _accessLevel = greyscaleGlobals.userRoles.nobody.mask;
+        var _userRoles = [];
+        var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
 
         this.getProfile = function (force) {
             var self = this;
@@ -40,10 +41,15 @@ angular.module('greyscale.core')
 
         this._setAccessLevel = function () {
             if (_profile) {
-                _accessLevel = _.get(_.find(greyscaleGlobals.userRoles, {
-                        id: _profile.roleID
-                    }), 'mask') ||
-                    greyscaleGlobals.userRoles.user.mask;
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
+                greyscaleEntityTypeRoleSrv.list({
+                    userId: _profile.id
+                }).then(function (usrRoles) {
+                    for (var r = 0; r < usrRoles.length; r++) {
+                        _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                    }
+                    _userRoles = usrRoles;
+                });
             }
         };
 
@@ -56,7 +62,7 @@ angular.module('greyscale.core')
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     $log.debug('getAccessLevel says:', err);
-                    return greyscaleGlobals.userRoles.nobody.mask;
+                    return greyscaleUtilsSrv.getRoleMask(-1, true);
                 });
         };
 
@@ -69,7 +75,7 @@ angular.module('greyscale.core')
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
-                _accessLevel = greyscaleGlobals.userRoles.nobody.mask;
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
         };
     });
