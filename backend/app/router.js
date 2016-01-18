@@ -247,6 +247,13 @@ router.route('/v0.2/users/:id')
   .put(authenticate('token').always, checkRight('users_edit_one'), users.updateOne)
   .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
 
+router.route('/v0.2/users/:id/uoa')
+    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect);
+
+router.route('/v0.2/users/:id/uoa/:uoaid')
+    .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdelete)
+    .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    COUNTRIES
 //----------------------------------------------------------------------------------------------------------------------
