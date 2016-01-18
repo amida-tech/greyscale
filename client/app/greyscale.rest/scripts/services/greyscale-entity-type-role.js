@@ -22,7 +22,9 @@ angular.module('greyscale.rest')
         }
 
         function _get(id) {
-            return _list({id: id});
+            return _list({
+                id: id
+            });
         }
 
         function _add(data) {

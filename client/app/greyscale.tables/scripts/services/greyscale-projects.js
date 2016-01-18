@@ -5,8 +5,8 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectSrv, greyscaleProfileSrv,
-                                            greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
-                                            greyscaleModalsSrv, greyscaleUtilsSrv, $log) {
+        greyscaleOrganizationSrv, greyscaleUserSrv, greyscaleAccessSrv,
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var dicts = {
             matrices: [],
@@ -14,120 +14,107 @@ angular.module('greyscale.tables')
             users: []
         };
 
-        var user;
+        var accessLevel;
 
-        var recDescr = [
-            {
-                field: 'id',
-                show: false,
-                sortable: 'id',
-                title: 'ID',
-                dataFormat: 'text',
-                dataReadOnly: 'both'
+        var recDescr = [{
+            field: 'id',
+            show: false,
+            sortable: 'id',
+            title: 'ID',
+            dataFormat: 'text',
+            dataReadOnly: 'both'
+        }, {
+            field: 'organizationId',
+            show: _isSuperAdmin,
+            sortable: 'organizationId',
+            title: 'Organization',
+            dataFormat: 'option',
+            dataReadOnly: 'both',
+            dataSet: {
+                getData: getOrgs,
+                keyField: 'id',
+                valField: 'name'
+            }
+        }, {
+            field: 'codeName',
+            show: true,
+            sortable: 'codeName',
+            title: 'Code Name',
+            dataRequired: true
+        }, {
+            field: 'description',
+            show: false,
+            sortable: false,
+            title: 'Description',
+            dataFormat: 'textarea'
+        }, {
+            field: 'created',
+            dataFormat: 'date',
+            show: true,
+            sortable: 'created',
+            title: 'Created',
+            dataReadOnly: 'both'
+        }, {
+            field: 'matrixId',
+            show: false,
+            sortable: 'matrixId',
+            title: 'Access matrix',
+            dataFormat: 'option',
+            dataSet: {
+                getData: getMatrices,
+                keyField: 'id',
+                valField: 'name'
+            }
+        }, {
+            field: 'startTime',
+            dataFormat: 'date',
+            show: true,
+            sortable: 'startTime',
+            title: 'Start Time'
+        }, {
+            field: 'status',
+            show: true,
+            sortable: 'status',
+            title: 'Status',
+            dataFormat: 'option',
+            dataSet: {
+                getData: getStatus,
+                keyField: 'id',
+                valField: 'name'
+            }
+        }, {
+            field: 'adminUserId',
+            show: _isSuperAdmin,
+            sortable: false,
+            title: 'Admin',
+            dataFormat: 'option',
+            dataSet: {
+                getData: getUsers,
+                keyField: 'id',
+                valField: 'email'
             },
-            {
-                field: 'organizationId',
-                show: true,
-                sortable: 'organizationId',
-                title: 'Organization',
-                dataFormat: 'option',
-                dataReadOnly: 'both',
-                dataSet: {
-                    getData: getOrgs,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: 'codeName',
-                show: true,
-                sortable: 'codeName',
-                title: 'Code Name',
-                dataRequired: true
-            },
-            {
-                field: 'description',
-                show: false,
-                sortable: false,
-                title: 'Description',
-                dataFormat: 'textarea'
-            },
-            {
-                field: 'created',
-                dataFormat: 'date',
-                show: true,
-                sortable: 'created',
-                title: 'Created',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'matrixId',
-                show: false,
-                sortable: 'matrixId',
-                title: 'Access matrix',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getMatrices,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: 'startTime',
-                dataFormat: 'date',
-                show: true,
-                sortable: 'startTime',
-                title: 'Start Time'
-            },
-            {
-                field: 'status',
-                show: true,
-                sortable: 'status',
-                title: 'Status',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getStatus,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: 'adminUserId',
-                show: true,
-                sortable: false,
-                title: 'Admin',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getUsers,
-                    keyField: 'id',
-                    valField: 'email'
-                }
-            },
-            {
-                field: 'closeTime',
-                dataFormat: 'date',
-                show: true,
-                sortable: 'closeTime',
-                title: 'Close Time'
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editProject
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
-            }];
+            dataReadOnly: 'both'
+        }, {
+            field: 'closeTime',
+            dataFormat: 'date',
+            show: true,
+            sortable: 'closeTime',
+            title: 'Close Time'
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editProject
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             formTitle: 'Project',
@@ -158,13 +145,29 @@ angular.module('greyscale.tables')
             return greyscaleGlobals.projectStates;
         }
 
+        function _isSuperAdmin() {
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
+
+        function _setAccessLevel() {
+            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        }
+
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
-                user = profile;
+
+                _setAccessLevel();
+
                 var req = {
-                    prjs: greyscaleProjectSrv.list({organizationId: profile.organizationId}),
-                    orgs: greyscaleOrganizationSrv.list({organizationId: profile.organizationId}),
-                    usrs: greyscaleUserSrv.list({organizationId: profile.organizationId}),
+                    prjs: greyscaleProjectSrv.list({
+                        organizationId: profile.organizationId
+                    }),
+                    orgs: greyscaleOrganizationSrv.list({
+                        organizationId: profile.organizationId
+                    }),
+                    usrs: greyscaleUserSrv.list({
+                        organizationId: profile.organizationId
+                    }),
                     matrices: greyscaleAccessSrv.matrices()
                 };
 
@@ -193,9 +196,6 @@ angular.module('greyscale.tables')
             var op = 'editing';
             greyscaleModalsSrv.editRec(prj, _table)
                 .then(function (newPrj) {
-
-                    $log.debug("projects ", prj, newPrj);
-
                     if (newPrj.id) {
                         return greyscaleProjectSrv.update(newPrj);
                     } else {

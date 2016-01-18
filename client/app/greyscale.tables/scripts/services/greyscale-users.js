@@ -5,88 +5,78 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
-                                         greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals) {
+        var accessLevel;
+
         var dicts = {
             roles: []
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id',
-                dataReadOnly: 'both'
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataReadOnly: 'both'
+        }, {
+            field: 'email',
+            title: 'E-mail',
+            show: true,
+            sortable: 'email',
+            dataRequired: true
+        }, {
+            field: 'firstName',
+            title: 'First name',
+            show: true,
+            sortable: 'firstName',
+            dataRequired: true
+        }, {
+            field: 'lastName',
+            title: 'Last name',
+            show: true,
+            sortable: 'lastName'
+        }, {
+            field: 'roleID',
+            title: 'Role',
+            show: true,
+            sortable: 'roleID',
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getRoles,
+                keyField: 'id',
+                valField: 'name'
             },
-            {
-                field: 'email',
-                title: 'E-mail',
-                show: true,
-                sortable: 'email',
-                dataRequired: true
-            },
-            {
-                field: 'firstName',
-                title: 'First name',
-                show: true,
-                sortable: 'firstName',
-                dataRequired: true
-            },
-            {
-                field: 'lastName',
-                title: 'Last name',
-                show: true,
-                sortable: 'lastName'
-            },
-            {
-                field: 'roleID',
-                title: 'Role',
-                show: true,
-                sortable: 'roleID',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: _getRoles,
-                    keyField: 'id',
-                    valField: 'name'
-                },
-                dataReadOnly: 'add'
+            dataReadOnly: 'add'
 
-            },
-            {
-                field: 'created',
-                title: 'Created',
-                show: true,
-                sortable: 'created',
-                dataFormat: 'date',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'isActive',
-                title: 'Is Active',
-                show: true,
-                sortable: 'isActive',
-                dataFormat: 'boolean',
-                dataReadOnly: 'both'
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editRecord
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
-            }
-        ];
+        }, {
+            field: 'created',
+            title: 'Created',
+            show: true,
+            sortable: 'created',
+            dataFormat: 'date',
+            dataReadOnly: 'both'
+        }, {
+            field: 'isActive',
+            title: 'Is Active',
+            show: true,
+            sortable: 'isActive',
+            dataFormat: 'boolean',
+            dataReadOnly: 'both'
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editRecord
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             dataFilter: {},
@@ -122,14 +112,11 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserSrv.update(newRec);
                     } else {
-                        return greyscaleProfileSrv.getProfile().then(function (profile) {
-                            var accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-                            if (accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask) {
-                                return greyscaleUserSrv.inviteAdmin(newRec);
-                            } else if (accessLevel === greyscaleGlobals.systemRoles.admin.mask) {
-                                return greyscaleUserSrv.inviteUser(newRec);
-                            }
-                        });
+                        if (_isSuperAdmin()) {
+                            return greyscaleUserSrv.inviteAdmin(newRec);
+                        } else if (_isAdmin()) {
+                            return greyscaleUserSrv.inviteUser(newRec);
+                        }
                     }
                 })
                 .then(reloadTable)
@@ -142,11 +129,28 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
+        function _isSuperAdmin() {
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
+
+        function _isAdmin() {
+            return accessLevel === greyscaleGlobals.userRoles.admin.mask;
+        }
+
+        function _setAccessLevel() {
+            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        }
+
         function _getUsers() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
-                var roleMask = greyscaleProfileSrv.getAccessLevelMask();
 
-                if (roleMask === greyscaleGlobals.systemRoles.admin.mask) {
+                _setAccessLevel(profile);
+
+                var roleFilter = {
+                    isSystem: true
+                };
+
+                if (_isAdmin()) {
                     _table.dataFilter.organizationId = profile.organizationId;
                 } else {
                     delete _table.dataFilter.organizationId;
@@ -154,16 +158,30 @@ angular.module('greyscale.tables')
 
                 var reqs = {
                     users: greyscaleUserSrv.list(_table.dataFilter),
-                    roles: greyscaleRoleSrv.list()
+                    roles: greyscaleRoleSrv.list(roleFilter)
                 };
 
                 return $q.all(reqs).then(function (promises) {
-                    dicts.roles = promises.roles;
+                    dicts.roles = _filterRolesByAccessLevel(promises.roles);
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
-                })
+                });
 
             }).catch(errorHandler);
+        }
+
+        function _filterRolesByAccessLevel(roles) {
+            var filteredRoles = [];
+            if (_isAdmin()) {
+                angular.forEach(roles, function (role, i) {
+                    if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
+                        filteredRoles.push(role);
+                    }
+                });
+            } else {
+                filteredRoles = roles;
+            }
+            return filteredRoles;
         }
 
         function errorHandler(err, action) {
@@ -172,7 +190,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

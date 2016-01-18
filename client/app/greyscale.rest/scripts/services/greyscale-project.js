@@ -5,12 +5,16 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleProjectSrv', function (greyscaleRestSrv) {
-        function api (){
+        function api() {
             return greyscaleRestSrv().one('projects');
         }
 
         function _list(params) {
             return api().get(params);
+        }
+
+        function _get(id, params) {
+            return api().one(id + '').get(params);
         }
 
         function _add(project) {
@@ -27,6 +31,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
+            get: _get,
             add: _add,
             update: _upd,
             delete: _del

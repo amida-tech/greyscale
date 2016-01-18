@@ -5,9 +5,8 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTagLinks', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-                                               greyscaleUoaSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv,
-                                               greyscaleUoaTagLinkSrv, $log) {
-
+        greyscaleUoaSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv,
+        greyscaleUoaTagLinkSrv, $log) {
 
         var dicts = {
             uoas: [],
@@ -15,61 +14,56 @@ angular.module('greyscale.tables')
             uoaClassType: []
         };
 
-        var resDescr = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: true,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataRequired: true,
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'uoaId',
-                title: 'Unit',
-                show: true,
-                sortable: 'uoaId',
-                dataFormat: 'option',
-                dataRequired: true,
-                dataSet: {
-                    getData: getUoas,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: 'uoaTagId',
-                title: 'Tag',
-                show: true,
-                sortable: 'uoaTagId',
-                dataFormat: 'option',
-                dataRequired: true,
-                dataSet: {
-                    getData: getUoaTags,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
+        var resDescr = [{
+            field: 'id',
+            title: 'ID',
+            show: true,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataRequired: true,
+            dataReadOnly: 'both'
+        }, {
+            field: 'uoaId',
+            title: 'Unit',
+            show: true,
+            sortable: 'uoaId',
+            dataFormat: 'option',
+            dataRequired: true,
+            dataSet: {
+                getData: getUoas,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: 'uoaTagId',
+            title: 'Tag',
+            show: true,
+            sortable: 'uoaTagId',
+            dataFormat: 'option',
+            dataRequired: true,
+            dataSet: {
+                getData: getUoaTags,
+                keyField: 'id',
+                valField: 'name'
+            }
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             title: 'Unit to Tag link',
             icon: 'fa-table',
-            sorting: {id: 'asc'},
+            sorting: {
+                id: 'asc'
+            },
             cols: resDescr,
             dataPromise: _getData,
             add: {
@@ -120,7 +114,6 @@ angular.module('greyscale.tables')
                 });
             });
         }
-
 
         function getClassTypes() {
             return dicts.uoaClassTypes;

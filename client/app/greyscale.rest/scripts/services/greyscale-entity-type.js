@@ -19,8 +19,10 @@ angular.module('greyscale.rest')
             return _api().get(params);
         }
 
-        function _get (id) {
-            return _list({id: id});
+        function _get(id) {
+            return _list({
+                id: id
+            });
         }
 
         function _add(data) {

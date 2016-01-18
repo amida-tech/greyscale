@@ -33,12 +33,12 @@ angular.module('greyscaleApp')
                 $scope.register = function () {
                     $scope.model.err = null;
                     greyscaleUserSrv.register({
-                        'email': $scope.model.email,
-                        'password': $scope.model.password,
-                        'firstName': $scope.model.name,
-                        'lastName': $scope.model.lastName,
-                        'roleID': $scope.model.roleId
-                    })
+                            'email': $scope.model.email,
+                            'password': $scope.model.password,
+                            'firstName': $scope.model.name,
+                            'lastName': $scope.model.lastName,
+                            'roleID': $scope.model.roleId
+                        })
                         .then($scope.cancel)
                         .catch(function (err) {
                             $log.debug(err);

@@ -8,7 +8,9 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 $scope.user = resp;
             }, function (err) {
-                inform.add(err.data.message, {type: 'danger'});
+                inform.add(err.data.message, {
+                    type: 'danger'
+                });
                 $state.go('login');
             });
     });

@@ -11,7 +11,7 @@
 'use strict';
 
 angular.module('greyscaleApp').controller('SurveyCtrl', function ($scope, greyscaleSurveys) {
-    
+
     $scope.model = {
         surveys: greyscaleSurveys
     };

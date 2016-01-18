@@ -5,65 +5,56 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleRights', function ($q, greyscaleRightSrv, greyscaleModalsSrv, greyscaleEntityTypeSrv,
-                                          greyscaleUtilsSrv) {
+        greyscaleUtilsSrv) {
 
         var _dicts = {
             entityTypes: []
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'action',
-                title: 'Action',
-                show: true,
-                sortable: 'action'
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                sortable: false,
-                dataFromat: 'textarea'
-            },
-            {
-                field: 'essenceId',
-                title: 'Entity Type',
-                show: true,
-                sortable: false,
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getEntityTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        title: 'Edit',
-                        class: 'info',
-                        handler: _edtRight
-                    },
-                    {
-                        title: 'Delete',
-                        class: 'danger',
-                        handler: delRigth
-                    }
-                ]
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataReadOnly: 'both'
+        }, {
+            field: 'action',
+            title: 'Action',
+            show: true,
+            sortable: 'action'
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            sortable: false,
+            dataFromat: 'textarea'
+        }, {
+            field: 'essenceId',
+            title: 'Entity Type',
+            show: true,
+            sortable: false,
+            dataFormat: 'option',
+            dataSet: {
+                getData: getEntityTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                title: 'Edit',
+                class: 'info',
+                handler: _edtRight
+            }, {
+                title: 'Delete',
+                class: 'danger',
+                handler: delRigth
+            }]
+        }];
 
         var _table = {
             formTitle: 'right',
@@ -80,10 +71,15 @@ angular.module('greyscale.tables')
         function _getRights() {
             var _reqs = {
                 rights: greyscaleRightSrv.list(),
-                eTypes: greyscaleEntityTypeSrv.list({fields: 'id, name'})
+                eTypes: greyscaleEntityTypeSrv.list({
+                    fields: 'id, name'
+                })
             };
             return $q.all(_reqs).then(function (promises) {
-                promises.eTypes.unshift({'id': null, 'name': ''});
+                promises.eTypes.unshift({
+                    'id': null,
+                    'name': ''
+                });
                 _dicts.entityTypes = promises.eTypes;
                 greyscaleUtilsSrv.prepareFields(promises.rights, _fields);
                 return promises.rights;
@@ -126,7 +122,7 @@ angular.module('greyscale.tables')
 
         function errHandler(err, action) {
             var msg = _table.formTitle + ' ' + action + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;
