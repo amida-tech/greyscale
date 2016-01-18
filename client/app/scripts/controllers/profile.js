@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
                 $scope.user = user;
-                if (user.roleID === greyscaleGlobals.systemRoles.admin.id) {
+                if (user.roleID === greyscaleGlobals.userRoles.admin.id) {
                     return greyscaleUserSrv.getOrganization()
                         .then(function (resp) {
                             $scope.org = resp;

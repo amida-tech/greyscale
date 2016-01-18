@@ -4,13 +4,14 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleUtilsSrv', function (_, $log, inform) {
+    .factory('greyscaleUtilsSrv', function (_, greyscaleGlobals, greyscaleRolesSrv, $log, inform) {
 
         return {
             decode: _decode,
             removeInternal: _purify,
             prepareFields: _preProcess,
-            errorMsg: addErrMsg
+            errorMsg: addErrMsg,
+            getRoleMask: _getRoleMask
         };
 
         function _decode(dict, key, code, name) {
@@ -63,4 +64,16 @@ angular.module('greyscale.core')
             }
         }
 
+        function _getRoleMask(roleId, withDefault) {
+            withDefault = !!withDefault;
+
+            var res = _.get(_.find(greyscaleGlobals.userRoles, {
+                id: roleId
+            }), 'mask');
+
+            if (withDefault) {
+                res = res || greyscaleGlobals.userRoles.nobody.mask;
+            }
+            return res;
+        }
     });

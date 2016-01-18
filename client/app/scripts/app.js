@@ -33,7 +33,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $urlMatcherFactoryProvider.strictMode(false);
     $locationProvider.html5Mode(false);
 
-    var systemRoles = globals.systemRoles;
+    var systemRoles = globals.userRoles;
 
     $stateProvider
         .state('main', {
