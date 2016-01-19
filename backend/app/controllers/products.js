@@ -34,7 +34,11 @@ module.exports = {
       if (err) {
         return next(err);
       }
-      res.json(_.first(data));
+      if(_.first(data)){
+        res.json(_.first(data));
+      }else{
+        return next(new HttpError(404, 'Not found'));
+      }
     });
   },
 
@@ -51,7 +55,7 @@ module.exports = {
   updateOne: function (req, res, next) {
     co(function* (){
       yield *checkProductData(req);
-      return yield thunkQuery(Product.update(req.body).where(Product.id.equals(req.params.id)));
+      return yield thunkQuery(Product.update(_.pick(req.body,Product.editCols)).where(Product.id.equals(req.params.id)));
     }).then(function(data){
       res.status(202).end();
     },function(err){
