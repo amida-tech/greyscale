@@ -15,4 +15,6 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($scope)
     $scope.model = {
 
     };
+    //Clean denormalized data into specified format
+    //Add isoa2 country codes
 });
