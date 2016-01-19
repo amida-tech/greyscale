@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProjectSetupCtrl', function ($scope, $state, $stateParams, inform,
-        greyscaleProjectSrv, greyscaleUsers, greyscaleEntityRoles) {
+        greyscaleProjectApi, greyscaleUsers, greyscaleEntityRoles) {
 
         var entityRoles = greyscaleEntityRoles;
 
@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
             entRoles: entityRoles
         };
 
-        greyscaleProjectSrv.get($stateParams.projectId)
+        greyscaleProjectApi.get($stateParams.projectId)
             .then(function (data) {
                 $scope.model.project = data;
 

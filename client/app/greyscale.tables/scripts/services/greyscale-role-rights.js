@@ -1,9 +1,9 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleRoleRights', function ($q,
-        greyscaleRightSrv,
-        greyscaleRoleSrv,
-        greyscaleEntityTypeSrv,
+        greyscaleRightApi,
+        greyscaleRoleApi,
+        greyscaleEntityTypeApi,
         greyscaleModalsSrv,
         greyscaleUtilsSrv) {
 
@@ -66,7 +66,7 @@ angular.module('greyscale.tables')
         function _deleteRoleRight(roleRight) {
             var role = _table.dataFilter.role;
             if (role) {
-                greyscaleRoleSrv.delRight(role.id, roleRight.id)
+                greyscaleRoleApi.delRight(role.id, roleRight.id)
                     .then(_reloadTable)
                     .catch(function (err) {
                         _errorHandler(err, 'deleting');
@@ -84,7 +84,7 @@ angular.module('greyscale.tables')
                         role: role
                     })
                     .then(function (right) {
-                        return greyscaleRoleSrv.addRight(role.id, right.id);
+                        return greyscaleRoleApi.addRight(role.id, right.id);
                     })
                     .then(_reloadTable)
                     .catch(function (err) {
@@ -108,7 +108,7 @@ angular.module('greyscale.tables')
         function _getData() {
             var role = _table.dataFilter.role;
             if (role) {
-                return greyscaleRoleSrv.listRights(role.id)
+                return greyscaleRoleApi.listRights(role.id)
                     .then(_loadDicts);
             } else {
                 return $q.reject('no data');
@@ -118,8 +118,8 @@ angular.module('greyscale.tables')
         function _loadDicts(roles) {
             var req = {};
             if (!_dicts.rights) {
-                req.rights = greyscaleRightSrv.list();
-                req.entityTypes = greyscaleEntityTypeSrv.list({
+                req.rights = greyscaleRightApi.list();
+                req.entityTypes = greyscaleEntityTypeApi.list({
                     fields: 'id,name'
                 });
             }

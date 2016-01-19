@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('activateForm', function ($state, greyscaleUserSrv, $log, inform) {
+    .directive('activateForm', function ($state, greyscaleUserApi, $log, inform) {
         return {
             templateUrl: 'views/directives/activation-form.html',
             restrict: 'AE',
@@ -20,9 +20,9 @@ angular.module('greyscaleApp')
                         'firstName': scope.model.firstName,
                         'lastName': scope.model.lastName
                     };
-                    greyscaleUserSrv.activate(scope.model.activationToken, data)
+                    greyscaleUserApi.activate(scope.model.activationToken, data)
                         .then(function () {
-                            return greyscaleUserSrv.login(scope.model.email, scope.model.password);
+                            return greyscaleUserApi.login(scope.model.email, scope.model.password);
                         })
                         .then(function () {
                             $state.go('main.profile');

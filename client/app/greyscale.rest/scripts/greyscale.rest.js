@@ -10,6 +10,6 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
             cache: false,
             withCredentials: false
         });
-        var greyscaleRoleSrv = greyscaleRoleSrvProvider.$get();
-        greyscaleRoleSrv.list().then(greyscaleGlobalsProvider.initRoles);
+        var greyscaleRoleApi = greyscaleRoleSrvProvider.$get();
+        greyscaleRoleApi.list().then(greyscaleGlobalsProvider.initRoles);
     });

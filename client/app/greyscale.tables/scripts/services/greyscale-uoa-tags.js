@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTags', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv) {
+        greyscaleLanguageSrv, greyscaleUoaTagApi, greyscaleUoaClassTypeApi) {
 
         var dicts = {
             languages: [],
@@ -77,12 +77,12 @@ angular.module('greyscale.tables')
 
         function _editUoaTag(_uoaTag) {
             var op = 'editing';
-            return greyscaleUoaTagSrv.get(_uoaTag)
+            return greyscaleUoaTagApi.get(_uoaTag)
                 .then(function (uoaTag) {
                     return greyscaleModalsSrv.editRec(uoaTag, _table);
                 })
                 .then(function (uoaTag) {
-                    return greyscaleUoaTagSrv.update(uoaTag);
+                    return greyscaleUoaTagApi.update(uoaTag);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -94,7 +94,7 @@ angular.module('greyscale.tables')
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaTag) {
-                    return greyscaleUoaTagSrv.add(uoaTag);
+                    return greyscaleUoaTagApi.add(uoaTag);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -103,7 +103,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaTagSrv.delete(item.id)
+            greyscaleUoaTagApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -113,8 +113,8 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaTags: greyscaleUoaTagSrv.list(),
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
+                    uoaTags: greyscaleUoaTagApi.list(),
+                    uoaClassTypes: greyscaleUoaClassTypeApi.list(),
                     languages: greyscaleLanguageSrv.list()
                 };
                 return $q.all(req).then(function (promises) {

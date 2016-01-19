@@ -1,16 +1,16 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleSurveys', function (greyscaleSurveySrv, greyscaleModalsSrv, inform, $log, $location) {
+    .factory('greyscaleSurveys', function (greyscaleSurveyApi, greyscaleModalsSrv, inform, $log, $location) {
         var _getSurveys = function () {
-            return greyscaleSurveySrv.list();
+            return greyscaleSurveyApi.list();
         };
 
         var _editSurvey = function (_survey) {
             return greyscaleModalsSrv.editSurvey(_survey).then(function (newSurvey) {
                 if (newSurvey.id) {
-                    return greyscaleSurveySrv.update(newSurvey);
+                    return greyscaleSurveyApi.update(newSurvey);
                 } else {
-                    return greyscaleSurveySrv.add(newSurvey);
+                    return greyscaleSurveyApi.add(newSurvey);
                 }
             }).then(_reload).catch(function (err) {
                 if (!err) {
@@ -57,7 +57,7 @@ angular.module('greyscale.tables')
                         title: 'Delete',
                         class: 'danger',
                         handler: function (_survey) {
-                            greyscaleSurveySrv.delete(_survey).then(_reload).catch(function (err) {
+                            greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
                                 inform.add('Survey delete error: ' + err);
                             });
                         }

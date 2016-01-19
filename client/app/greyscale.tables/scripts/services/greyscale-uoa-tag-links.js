@@ -5,8 +5,8 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTagLinks', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv,
-        greyscaleUoaTagLinkSrv, $log) {
+        greyscaleUoaApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi,
+        greyscaleUoaTagLinkApi, $log) {
 
         var dicts = {
             uoas: [],
@@ -77,7 +77,7 @@ angular.module('greyscale.tables')
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaTagLink) {
-                    return greyscaleUoaTagLinkSrv.add(uoaTagLink);
+                    return greyscaleUoaTagLinkApi.add(uoaTagLink);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -86,7 +86,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaTagLinkSrv.delete(item.id)
+            greyscaleUoaTagLinkApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -97,10 +97,10 @@ angular.module('greyscale.tables')
             $log.debug('UoaTagLink query: ', _table.query);
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaTagLinks: greyscaleUoaTagLinkSrv.list(_table.query),
-                    uoas: greyscaleUoaSrv.list(),
-                    uoaTags: greyscaleUoaTagSrv.list(),
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list()
+                    uoaTagLinks: greyscaleUoaTagLinkApi.list(_table.query),
+                    uoas: greyscaleUoaApi.list(),
+                    uoaTags: greyscaleUoaTagApi.list(),
+                    uoaClassTypes: greyscaleUoaClassTypeApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaTagLinks.length; p++) {
