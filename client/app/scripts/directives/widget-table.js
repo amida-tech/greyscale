@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (NgTableParams, $filter) {
+    .directive('widgetTable', function (NgTableParams, $filter, $q) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -21,6 +21,9 @@ angular.module('greyscaleApp')
                 }
 
                 if (!$scope.model.tableParams || !($scope.model.tableParams instanceof NgTableParams)) {
+
+                    _parseColumns($scope.model);
+
                     $scope.model.tableParams = new NgTableParams({
                         page: 1,
                         count: $scope.model.pageLength || 5,
@@ -30,6 +33,7 @@ angular.module('greyscaleApp')
                         getData: function ($defer, params) {
                             if (typeof $scope.model.dataPromise === 'function') {
                                 $scope.model.dataPromise().then(function (data) {
+                                    $scope.model.dataMap = _getDataMap(data);
                                     if (data) {
                                         params.total(data.length);
                                         var orderedData = params.sorting() ?
@@ -53,6 +57,75 @@ angular.module('greyscaleApp')
                         $scope.rowSelector = row;
                     }
                 };
+
+                $scope.$on('$destroy', function(){
+                   if ($scope.model.selectable && $scope.model.selectable.reset) {
+                       $scope.model.selectable.reset();
+                   }
+                });
             }
         };
+
+        function _getDataMap(data) {
+            var map = [];
+            angular.forEach(data,function(item){
+                map.push(item.id);
+            });
+            return map;
+        }
+
+        function _parseColumns(model) {
+            var setSelectable;
+            angular.forEach(model.cols, function(col){
+                if (!setSelectable && col.selectable) {
+                    col.headerTemplateURL = function(){
+                        return 'ng-table/headers/check-all.html';
+                    };
+                    setSelectable = true;
+                    _selectableSetModel(model);
+                }
+            });
+        }
+
+        function _selectableSetModel(model) {
+            model.selectable = angular.extend({
+                selected: {},
+                selectAllState: false,
+                selectAll: _selectableSelectAll(model),
+                fireChange: _selectableFireChange(model),
+                reset: _selectableReset,
+                onChange: function(){}
+            }, model.selectable||{});
+        }
+
+        function _selectableSelectAll(model) {
+            return function(){
+                var state = this.selectAllState;
+                angular.forEach(model.dataMap, function(id){
+                    model.selectable.selected[id] = state;
+                });
+            }
+        }
+
+        function _selectableFireChange(model) {
+            return function(){
+                return _selectableFireChangeHandler(model);
+            };
+        }
+
+        function _selectableFireChangeHandler(model){
+            var selected = [];
+            angular.forEach(model.dataMap, function(id){
+                if (model.selectable.selected[id]) {
+                    selected.push(id);
+                }
+            });
+            model.selectable.onChange(selected);
+        }
+
+        function _selectableReset() {
+            this.selected = {};
+            this.selectAllState = false;
+        }
+
     });

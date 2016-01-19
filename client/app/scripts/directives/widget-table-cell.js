@@ -23,8 +23,10 @@ angular.module('greyscaleApp')
             restrict: 'A',
             scope: {
                 widgetCell: '=widgetTableCell',
-                rowValue: '='
+                rowValue: '=',
+                modelSelectable: '='
             },
+            controllerAs: '',
             link: function ($scope, elem) {
                 var cell = $scope.widgetCell;
                 if (cell.show) {
@@ -67,7 +69,12 @@ angular.module('greyscaleApp')
                         break;
 
                     default:
-                        elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
+                        if (cell.selectable) {
+                            elem.append('<div class="text-center"><input type="checkbox" ng-model="modelSelectable.selected[rowValue.id]" ng-change="modelSelectable.fireChange($event)" /></div>');
+                            $compile(elem.contents())($scope);
+                        } else {
+                            elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
+                        }
                     }
                 }
             }

@@ -171,8 +171,40 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Project Setup',
+                name: '',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('projects.setup.roles', {
+            url: '/roles',
+            templateUrl: 'views/controllers/project-setup-roles.html',
+            controller: 'ProjectSetupRolesCtrl',
+            data: {
+                name: 'User Roles'
+            }
+        })
+        .state('projects.setup.surveys', {
+            url: '/surveys',
+            templateUrl: 'views/controllers/project-setup-surveys.html',
+            controller: 'ProjectSetupSurveysCtrl',
+            data: {
+                name: 'Surveys'
+            }
+        })
+        .state('projects.setup.products', {
+            url: '/products',
+            templateUrl: 'views/controllers/project-setup-products.html',
+            controller: 'ProjectSetupProductsCtrl',
+            data: {
+                name: 'Products'
+            }
+        })
+        .state('projects.setup.tasks', {
+            url: '/tasks',
+            templateUrl: 'views/controllers/project-setup-tasks.html',
+            controller: 'ProjectSetupTasksCtrl',
+            data: {
+                name: 'Tasks'
             }
         })
         .state('orgs', {

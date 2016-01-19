@@ -30,6 +30,30 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _surveyUoas(surveyId) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/survey-uoas.html',
+                controller: 'ModalSurveyUoasCtrl',
+                size: 'lg',
+                windowClass: 'modal fade in',
+                resolve: {
+                    surveyId: surveyId
+                }
+            }).result;
+        }
+
+        function _uoasFilter() {
+            return $uibModal.open({
+                templateUrl: 'views/modals/uoas-filter.html',
+                controller: 'ModalUoasFilterCtrl',
+                size: 'max',
+                windowClass: 'modal fade in',
+                resolve: {
+
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             editCountry: function (_country) {
@@ -46,6 +70,8 @@ angular.module('greyscaleApp')
             },
             editSurvey: function (_right, _ext) {
                 return _simpleForm('views/modals/survey-form.html', _right, _ext);
-            }
+            },
+            uoasFilter: _uoasFilter,
+            surveyUoas: _surveyUoas
         };
     });

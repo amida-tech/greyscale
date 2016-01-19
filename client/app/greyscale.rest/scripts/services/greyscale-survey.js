@@ -10,8 +10,8 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('surveys');
         };
 
-        function _surveys() {
-            return _api().get();
+        function _getSurvey(surveyId) {
+            return _api().one(surveyId + '');
         }
 
         function _addSurvey(survey) {
@@ -27,7 +27,7 @@ angular.module('greyscale.rest')
         };
 
         return {
-            list: _surveys,
+            get: _getSurvey,
             add: _addSurvey,
             update: _updateSurvey,
             delete: _deleteSurvey
