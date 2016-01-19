@@ -73,6 +73,9 @@ router.route('/v0.2/projects/:id')
 router.route('/v0.2/projects/:id/uoa')
     .get(authenticate('token').always, projects.uoaList);
 
+router.route('/v0.2/projects/:id/products')
+    .get(authenticate('token').always, projects.productList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------

@@ -2,16 +2,17 @@ var sql = require('sql');
 
 var columns =  [
     'id',
-    'workflowId',
     'name',
     'description',
     'projectId',
     'matrixId',
-    'productConfigId',
-    'contentType',
-    'mode',
-    'reportUrl',
-    'analyticsUrl'
+
+    //'workflowId',
+    //'productConfigId',
+    //'contentType',
+    //'mode',
+    //'reportUrl',
+    //'analyticsUrl'
 ];
 
 //var translate = [
