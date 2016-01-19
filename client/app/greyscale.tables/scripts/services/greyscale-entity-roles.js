@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleEntityRoles', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleEntityRolesTbl', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleEntityTypeRoleApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleEntityTypeApi, greyscaleRestSrv) {
         var _dicts = {

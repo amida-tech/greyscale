@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleLanguageSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleLanguageApi', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('languages');

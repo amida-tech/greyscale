@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
+    .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals) {
         var accessLevel;
 

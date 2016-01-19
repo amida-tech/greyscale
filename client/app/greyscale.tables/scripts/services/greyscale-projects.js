@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProjects', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
+    .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
         greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
         greyscaleModalsSrv, greyscaleUtilsSrv) {
 

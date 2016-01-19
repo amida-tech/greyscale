@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleRoleRights', function ($q,
+    .factory('greyscaleRoleRightsTbl', function ($q,
         greyscaleRightApi,
         greyscaleRoleApi,
         greyscaleEntityTypeApi,

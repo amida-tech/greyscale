@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTagLinks', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleUoaTagLinksTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleUoaApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi,
         greyscaleUoaTagLinkApi, $log) {
 

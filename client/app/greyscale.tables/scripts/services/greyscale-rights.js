@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleRights', function ($q, greyscaleRightApi, greyscaleModalsSrv, greyscaleEntityTypeApi,
+    .factory('greyscaleRightsTbl', function ($q, greyscaleRightApi, greyscaleModalsSrv, greyscaleEntityTypeApi,
         greyscaleUtilsSrv) {
 
         var _dicts = {

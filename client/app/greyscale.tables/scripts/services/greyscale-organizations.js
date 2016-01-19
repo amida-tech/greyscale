@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleOrganizations', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
+    .factory('greyscaleOrganizationsTbl', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
         greyscaleProfileSrv, greyscaleModalsSrv) {
         var _dicts = {
             users: []

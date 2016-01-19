@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleSurveys', function (greyscaleSurveyApi, greyscaleModalsSrv, inform, $log, $location) {
+    .factory('greyscaleSurveysTbl', function (greyscaleSurveyApi, greyscaleModalsSrv, inform, $log, $location) {
         var _getSurveys = function () {
             return greyscaleSurveyApi.list();
         };

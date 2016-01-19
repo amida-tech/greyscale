@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTypes', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaTypeApi, greyscaleLanguageSrv) {
+    .factory('greyscaleUoaTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleUoaTypeApi, greyscaleLanguageApi) {
 
         var dicts = {
             languages: []
@@ -115,7 +115,7 @@ angular.module('greyscale.tables')
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
                     uoaTypes: greyscaleUoaTypeApi.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaTypes.length; p++) {
