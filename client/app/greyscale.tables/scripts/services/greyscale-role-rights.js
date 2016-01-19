@@ -1,62 +1,54 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleRoleRights', function ($q,
-                                              greyscaleRightSrv,
-                                              greyscaleRoleSrv,
-                                              greyscaleEntityTypeSrv,
-                                              greyscaleModalsSrv,
-                                              greyscaleUtilsSrv) {
+    .factory('greyscaleRoleRightsTbl', function ($q,
+        greyscaleRightApi,
+        greyscaleRoleApi,
+        greyscaleEntityTypeApi,
+        greyscaleModalsSrv,
+        greyscaleUtilsSrv) {
 
         var _dicts = {
             rights: null,
             entityTypes: null
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id'
-            },
-            {
-                field: 'action',
-                title: 'Action',
-                show: true,
-                sortable: 'action'
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                sortable: false
-            },
-            {
-                field: 'essenceId',
-                title: 'Entity Type',
-                show: true,
-                sortable: 'essenceId',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: _getEntityTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        title: 'Delete',
-                        class: 'danger',
-                        handler: _deleteRoleRight
-                    }
-                ]
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id'
+        }, {
+            field: 'action',
+            title: 'Action',
+            show: true,
+            sortable: 'action'
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            sortable: false
+        }, {
+            field: 'essenceId',
+            title: 'Entity Type',
+            show: true,
+            sortable: 'essenceId',
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getEntityTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                title: 'Delete',
+                class: 'danger',
+                handler: _deleteRoleRight
+            }]
+        }];
 
         var _table = {
             dataFilter: {},
@@ -74,7 +66,7 @@ angular.module('greyscale.tables')
         function _deleteRoleRight(roleRight) {
             var role = _table.dataFilter.role;
             if (role) {
-                greyscaleRoleSrv.delRight(role.id, roleRight.id)
+                greyscaleRoleApi.delRight(role.id, roleRight.id)
                     .then(_reloadTable)
                     .catch(function (err) {
                         _errorHandler(err, 'deleting');
@@ -85,12 +77,14 @@ angular.module('greyscale.tables')
         function _addRoleRight() {
             var role = _table.dataFilter.role;
             if (role) {
-                return greyscaleModalsSrv.addRoleRight({right: null}, {
-                    rights: _getRights(),
-                    role: role
-                })
+                return greyscaleModalsSrv.addRoleRight({
+                        right: null
+                    }, {
+                        rights: _getRights(),
+                        role: role
+                    })
                     .then(function (right) {
-                        return greyscaleRoleSrv.addRight(role.id, right.id);
+                        return greyscaleRoleApi.addRight(role.id, right.id);
                     })
                     .then(_reloadTable)
                     .catch(function (err) {
@@ -114,7 +108,7 @@ angular.module('greyscale.tables')
         function _getData() {
             var role = _table.dataFilter.role;
             if (role) {
-                return greyscaleRoleSrv.listRights(role.id)
+                return greyscaleRoleApi.listRights(role.id)
                     .then(_loadDicts);
             } else {
                 return $q.reject('no data');
@@ -124,8 +118,10 @@ angular.module('greyscale.tables')
         function _loadDicts(roles) {
             var req = {};
             if (!_dicts.rights) {
-                req.rights = greyscaleRightSrv.list();
-                req.entityTypes = greyscaleEntityTypeSrv.list({fields: 'id,name'});
+                req.rights = greyscaleRightApi.list();
+                req.entityTypes = greyscaleEntityTypeApi.list({
+                    fields: 'id,name'
+                });
             }
 
             return $q.all(req).then(function (promises) {
@@ -151,7 +147,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

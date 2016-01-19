@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUoaClassTypeSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleUoaClassTypeApi', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('uoaclasstypes');
         };
 
@@ -15,7 +15,9 @@ angular.module('greyscale.rest')
         }
 
         function _uoaClassTypeOne(uoaClassType) {
-            return _api().one(uoaClassType.id+'').get({langId:uoaClassType.langId});
+            return _api().one(uoaClassType.id + '').get({
+                langId: uoaClassType.langId
+            });
         }
 
         function _addUoaClassType(uoaClassType) {
@@ -23,11 +25,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoaClassType(uoaClassTypeId) {
-            return _api().one(uoaClassTypeId+'').remove();
+            return _api().one(uoaClassTypeId + '').remove();
         }
 
         function _updateUoaClassType(uoaClassType) {
-            return _api().one(uoaClassType.id+'').customPUT(uoaClassType);
+            return _api().one(uoaClassType.id + '').customPUT(uoaClassType);
         }
 
         return {

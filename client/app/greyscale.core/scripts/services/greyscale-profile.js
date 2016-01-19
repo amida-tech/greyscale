@@ -1,14 +1,18 @@
 /**
  * Created by igi on 16.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log) {
+    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv) {
         var _profile = null;
         var _profilePromise = null;
+        var _userRoles = [];
+        var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
 
         this.getProfile = function (force) {
+            var self = this;
             var res;
             if (!greyscaleTokenSrv()) {
                 _profile = null;
@@ -19,10 +23,11 @@ angular.module('greyscale.core')
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {
-                        _profilePromise = greyscaleUserSrv.get()
+                        _profilePromise = greyscaleUserApi.get()
                             .then(function (profileData) {
                                 _profile = profileData;
-                                return profileData;
+                                self._setAccessLevel();
+                                return _profile;
                             })
                             .finally(function () {
                                 _profilePromise = null;
@@ -34,21 +39,30 @@ angular.module('greyscale.core')
             return res;
         };
 
-        //todo: re-factor method isAdmin
+        this._setAccessLevel = function () {
+            if (_profile) {
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
+                greyscaleEntityTypeRoleApi.list({
+                    userId: _profile.id
+                }).then(function (usrRoles) {
+                    for (var r = 0; r < usrRoles.length; r++) {
+                        _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                    }
+                    _userRoles = usrRoles;
+                });
+            }
+        };
+
+        this.getAccessLevelMask = function () {
+            return _accessLevel;
+        };
+
         this.getAccessLevel = function () {
             return this.getProfile()
-                .then(function (profileData) {
-                    var res = 0x7ffe; //any logged in user
-                    switch (profileData.roleID) {
-                        case 1:
-                            res = 0x8000; //admin user
-                            break;
-                    }
-                    return res; //while no other way
-                })
+                .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     $log.debug('getAccessLevel says:', err);
-                    return 1;
+                    return greyscaleUtilsSrv.getRoleMask(-1, true);
                 });
         };
 
@@ -57,10 +71,11 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserSrv.logout().finally(function(){
+            return greyscaleUserApi.logout().finally(function () {
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
         };
     });

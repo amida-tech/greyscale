@@ -2,6 +2,7 @@ var client = require('app/db_bootstrap'),
   _ = require('underscore'),
   config = require('config'),
   Project = require('app/models/projects'),
+  Product = require('app/models/products'),
   AccessMatrix = require('app/models/access_matrices'),
   Translation = require('app/models/translations'),
   Language = require('app/models/languages'),
@@ -65,7 +66,19 @@ module.exports = {
         });
     },
 
+    productList: function (req, res, next) {
+        var q = getTranslateQuery(req.lang.id, Product, Product.projectId.equals(req.params.id));
+        query(q, function (err, data) {
+            if (err) {
+                return next(err);
+            }
+            res.json(data);
+        });
+    },
 
+    uoaList: function (req, res, next) {
+      next();
+    },
 
     insertOne: function (req, res, next) {
         co(function* () {

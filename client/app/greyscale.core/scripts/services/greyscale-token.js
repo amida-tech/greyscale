@@ -1,7 +1,7 @@
 /**
  * Created by igi on 16.11.15.
  */
-"use strict";
+'use strict';
 
 angular.module('greyscale.core')
     .factory('greyscaleTokenSrv', function ($cookieStore) {

@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUoaTagSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleUoaTagApi', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('uoatags');
         };
 
@@ -15,7 +15,9 @@ angular.module('greyscale.rest')
         }
 
         function _uoaTagOne(uoaTag) {
-            return _api().one(uoaTag.id+'').get({langId:uoaTag.langId});
+            return _api().one(uoaTag.id + '').get({
+                langId: uoaTag.langId
+            });
         }
 
         function _addUoaTag(uoaTag) {
@@ -23,11 +25,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoaTag(uoaTagId) {
-            return _api().one(uoaTagId+'').remove();
+            return _api().one(uoaTagId + '').remove();
         }
 
         function _updateUoaTag(uoaTag) {
-            return _api().one(uoaTag.id+'').customPUT(uoaTag);
+            return _api().one(uoaTag.id + '').customPUT(uoaTag);
         }
 
         return {

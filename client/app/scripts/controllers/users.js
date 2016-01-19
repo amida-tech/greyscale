@@ -3,8 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersCtrl', function ($scope, greyscaleUsers) {
+    .controller('UsersCtrl', function ($scope, greyscaleUsersTbl) {
         $scope.model = {
-            users: greyscaleUsers
+            users: greyscaleUsersTbl
         };
     });

@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleEntityTypeSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleEntityTypeApi', function (greyscaleRestSrv) {
 
         return {
             list: _list,
@@ -19,8 +19,10 @@ angular.module('greyscale.rest')
             return _api().get(params);
         }
 
-        function _get (id) {
-            return _list({id: id});
+        function _get(id) {
+            return _list({
+                id: id
+            });
         }
 
         function _add(data) {

@@ -26,4 +26,9 @@
     tr.selected:hover {
         background-color: #C2D6E0;
     }
+    .table-hover {
+        tr td {
+            cursor: pointer;
+        }
+    }
 }

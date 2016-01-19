@@ -4,76 +4,69 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTypes', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-                                            greyscaleUoaTypeSrv, greyscaleLanguageSrv) {
+    .factory('greyscaleUoaTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleUoaTypeApi, greyscaleLanguageApi) {
 
         var dicts = {
             languages: []
         };
 
-        var recDescr = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: true,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataRequired: true,
-                dataReadOnly: true
-            },
-            {
-                field: 'name',
-                title: 'Name',
-                show: true,
-                sortable: 'name',
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                dataFormat: 'text',
-                dataRequired: true
-            },
-            {
-                field: 'langId',
-                title: 'Original language',
-                show: true,
-                sortable: 'langId',
-                dataFormat: 'option',
-                dataReadOnly: 'edit',
-                dataRequired: true,
-                dataSet: {
-                    getData: getLanguages,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editUoaType
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
+        var recDescr = [{
+            field: 'id',
+            title: 'ID',
+            show: true,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataRequired: true,
+            dataReadOnly: true
+        }, {
+            field: 'name',
+            title: 'Name',
+            show: true,
+            sortable: 'name',
+            dataFormat: 'text',
+            dataRequired: true
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            dataFormat: 'text',
+            dataRequired: true
+        }, {
+            field: 'langId',
+            title: 'Original language',
+            show: true,
+            sortable: 'langId',
+            dataFormat: 'option',
+            dataReadOnly: 'edit',
+            dataRequired: true,
+            dataSet: {
+                getData: getLanguages,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editUoaType
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
             title: 'Unit Types',
             icon: 'fa-table',
-            sorting: {id: 'asc'},
+            sorting: {
+                id: 'asc'
+            },
             pageLength: 5,
             cols: recDescr,
             dataPromise: _getData,
@@ -85,12 +78,12 @@ angular.module('greyscale.tables')
 
         function _editUoaType(_uoaType) {
             var op = 'editing';
-            return greyscaleUoaTypeSrv.get(_uoaType)
+            return greyscaleUoaTypeApi.get(_uoaType)
                 .then(function (uoaType) {
                     return greyscaleModalsSrv.editRec(uoaType, _table);
                 })
                 .then(function (uoaType) {
-                    return greyscaleUoaTypeSrv.update(uoaType);
+                    return greyscaleUoaTypeApi.update(uoaType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -102,7 +95,7 @@ angular.module('greyscale.tables')
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoaType) {
-                    return greyscaleUoaTypeSrv.add(uoaType);
+                    return greyscaleUoaTypeApi.add(uoaType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -111,7 +104,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaTypeSrv.delete(item.id)
+            greyscaleUoaTypeApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -121,8 +114,8 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaTypes: greyscaleUoaTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaTypes: greyscaleUoaTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaTypes.length; p++) {

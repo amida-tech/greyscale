@@ -4,16 +4,17 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleUtilsSrv', function (_, $log, inform) {
+    .factory('greyscaleUtilsSrv', function (_, greyscaleGlobals, greyscaleRolesSrv, $log, inform) {
 
         return {
             decode: _decode,
             removeInternal: _purify,
             prepareFields: _preProcess,
-            errorMsg: addErrMsg
+            errorMsg: addErrMsg,
+            getRoleMask: _getRoleMask
         };
 
-        function _decode (dict, key, code, name) {
+        function _decode(dict, key, code, name) {
             var req = {};
             req[key] = code;
             var res = _.get(_.find(dict, req), name);
@@ -23,7 +24,7 @@ angular.module('greyscale.core')
             return res;
         }
 
-        function _purify (cols, data) {
+        function _purify(cols, data) {
             var res = {};
             for (var c = 0; c < cols.length; c++) {
                 if (data.hasOwnProperty(cols[c].field) && !cols[c].internal) {
@@ -33,7 +34,7 @@ angular.module('greyscale.core')
             return res;
         }
 
-        function _preProcess (dataSet, fields) {
+        function _preProcess(dataSet, fields) {
             for (var p = 0; p < dataSet.length; p++) {
                 var dataRec = dataSet[p];
                 for (var f = 0; f < fields.length; f++) {
@@ -45,7 +46,7 @@ angular.module('greyscale.core')
         }
 
         function addErrMsg(err, prefix) {
-            var msg = prefix +': ' || '';
+            var msg = prefix ? prefix + ': ' : '';
             if (err) {
                 if (err.data) {
                     if (err.data.message) {
@@ -57,8 +58,22 @@ angular.module('greyscale.core')
                     msg += err;
                 }
                 $log.debug(msg);
-                inform.add(msg, {type: 'danger'});
+                inform.add(msg, {
+                    type: 'danger'
+                });
             }
         }
 
+        function _getRoleMask(roleId, withDefault) {
+            withDefault = !!withDefault;
+
+            var res = _.get(_.find(greyscaleGlobals.userRoles, {
+                id: roleId
+            }), 'mask');
+
+            if (withDefault) {
+                res = res || greyscaleGlobals.userRoles.nobody.mask;
+            }
+            return res;
+        }
     });

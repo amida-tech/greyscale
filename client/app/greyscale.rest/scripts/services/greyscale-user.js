@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
 
         return {
             login: _login,
@@ -13,7 +13,8 @@ angular.module('greyscale.rest')
             get: _self,
             list: _listUsers,
             register: _register,
-            invite: _inviteUser,
+            inviteAdmin: _inviteAdmin,
+            inviteUser: _inviteUser,
             activate: _activate,
             checkActivationToken: _checkActivationToken,
             getOrganization: _getOrg,
@@ -23,35 +24,36 @@ angular.module('greyscale.rest')
             delete: delUser
         };
 
-        function _organization() {
-            return greyscaleRestSrv()
-                .one('users', 'self')
-                .one('organization');
+        function orgAPI() {
+            return selfAPI().one('organization');
         }
 
         function userAPI() {
             return greyscaleRestSrv().one('users');
         }
 
+        function selfAPI() {
+            return userAPI().one('self');
+        }
+
         function _self() {
-            return userAPI().one('self').get()
+            return userAPI().one('self').get();
         }
 
         function _save(data) {
-            return userAPI().one('self').customPUT(data);
+            return selfAPI().customPUT(data);
         }
 
         function _getOrg() {
-            return _organization().get();
+            return orgAPI().get();
         }
 
         function _saveOrg(data) {
-            return _organization().customPUT(data);
+            return orgAPI().customPUT(data);
         }
 
-
-        function _register(user_data) {
-            return Restangular.one('users').customPOST(user_data);
+        function _register(userData) {
+            return Restangular.one('users').customPOST(userData);
         }
 
         function _checkActivationToken(token) {
@@ -67,7 +69,9 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
-            return greyscaleRestSrv({'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)})
+            return greyscaleRestSrv({
+                    'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
+                })
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
@@ -94,8 +98,12 @@ angular.module('greyscale.rest')
             return userAPI().one('logout').post();
         }
 
-        function _inviteUser(user_data) {
-            return userAPI().one('invite').customPOST(user_data);
+        function _inviteAdmin(userData) {
+            return userAPI().one('invite').customPOST(userData);
+        }
+
+        function _inviteUser(userData) {
+            return orgAPI().one('invite').customPOST(userData);
         }
 
         function updateUser(data) {

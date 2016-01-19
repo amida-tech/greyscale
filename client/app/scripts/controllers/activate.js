@@ -3,12 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ActivateCtrl', function ($scope, greyscaleUserSrv, $state, $stateParams, inform) {
-        greyscaleUserSrv.checkActivationToken($stateParams.token)
+    .controller('ActivateCtrl', function ($scope, greyscaleUserApi, $state, $stateParams, inform) {
+        greyscaleUserApi.checkActivationToken($stateParams.token)
             .then(function (resp) {
                 $scope.user = resp;
             }, function (err) {
-                inform.add(err.data.message, {type: 'danger'});
+                inform.add(err.data.message, {
+                    type: 'danger'
+                });
                 $state.go('login');
             });
     });

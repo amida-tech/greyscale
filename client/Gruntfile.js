@@ -15,9 +15,9 @@ module.exports = function (grunt) {
     // Automatically load required Grunt tasks
     require('jit-grunt')(grunt, {
         useminPrepare: 'grunt-usemin',
-    ngtemplates: 'grunt-angular-templates',
-         //cdnify: 'grunt-google-cdn',
-    ngconstant: 'grunt-ng-constant'
+        ngtemplates: 'grunt-angular-templates',
+        //cdnify: 'grunt-google-cdn',
+        ngconstant: 'grunt-ng-constant'
     });
 
     // Configurable paths for the application
@@ -39,7 +39,12 @@ module.exports = function (grunt) {
                 tasks: ['wiredep']
             },
             js: {
-                files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
+                files: [
+                    '<%= yeoman.app %>/scripts/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
                     livereload: '<%= connect.options.livereload %>'
@@ -122,7 +127,7 @@ module.exports = function (grunt) {
         // Make sure there are no obvious mistakes
         jshint: {
             options: {
-                jshintrc: '.jshintrc',
+                jshintrc: '../.jshintrc',
                 reporter: require('jshint-stylish')
             },
             all: {
@@ -130,7 +135,9 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
@@ -144,7 +151,7 @@ module.exports = function (grunt) {
         // Make sure code styles are up to par
         jscs: {
             options: {
-                config: '.jscsrc',
+                config: '../.jscsrc',
                 verbose: true
             },
             all: {
@@ -152,11 +159,43 @@ module.exports = function (grunt) {
                     'Gruntfile.js',
                     '<%= yeoman.app %>/scripts/{,*/}*.js',
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,*/}*.js'
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
                 ]
             },
             test: {
                 src: ['test/spec/{,*/}*.js']
+            }
+        },
+
+        jsbeautifier: {
+            beautify: {
+                src: [
+                    'Gruntfile.js',
+                    '<%= yeoman.app %>/scripts/{,*/}*.js',
+                    '<%= yeoman.app %>/vendors/{,*/}*.js',
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                ],
+                options: {
+                    config: '../.jsbeautifyrc'
+                }
+            },
+            check: {
+                src: [
+                    'Gruntfile.js',
+                    '<%= yeoman.app %>/scripts/{,*/}*.js',
+                    '<%= yeoman.app %>/vendors/{,*/}*.js',
+                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                ],
+                options: {
+                    mode: 'VERIFY_ONLY',
+                    config: '../.jsbeautifyrc'
+                }
             }
         },
 
@@ -179,7 +218,9 @@ module.exports = function (grunt) {
         postcss: {
             options: {
                 processors: [
-                    require('autoprefixer-core')({browsers: ['last 1 version']})
+                    require('autoprefixer-core')({
+                        browsers: ['last 1 version']
+                    })
                 ]
             },
             server: {
@@ -303,7 +344,9 @@ module.exports = function (grunt) {
                     '<%= yeoman.dist %>/styles'
                 ],
                 patterns: {
-                    js: [[/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']]
+                    js: [
+                        [/(images\/[^''""]*\.(png|jpg|jpeg|gif|webp|svg))/g, 'Replacing references to images']
+                    ]
                 }
             }
         },
@@ -338,9 +381,9 @@ module.exports = function (grunt) {
             dist: {
                 files: [{
                     expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
+                    cwd: '<%= yeoman.app %>/images',
+                    src: '{,*/}*.{png,jpg,jpeg,gif}',
+                    dest: '<%= yeoman.dist %>/images'
                 }]
             }
         },
@@ -506,7 +549,7 @@ module.exports = function (grunt) {
             }
         },
 
-            // Test settings
+        // Test settings
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
@@ -514,7 +557,6 @@ module.exports = function (grunt) {
             }
         }
     });
-
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
         if (target === 'dist') {
@@ -581,6 +623,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', [
         'newer:jshint',
         'newer:jscs',
+        'jsbeautifier:check',
         'test',
         'build'
     ]);

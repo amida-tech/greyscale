@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleCountrySrv', function (greyscaleRestSrv) {
+    .factory('greyscaleCountryApi', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('countries');
         };
 
@@ -19,11 +19,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteCountry(country) {
-            return _api().one(country.id+'').remove();
+            return _api().one(country.id + '').remove();
         }
 
-        var _updateCountry = function(country) {
-            return _api().one(country.id+'').customPUT(country);
+        var _updateCountry = function (country) {
+            return _api().one(country.id + '').customPUT(country);
         };
 
         return {

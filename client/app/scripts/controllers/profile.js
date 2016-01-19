@@ -4,7 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, inform, greyscaleModalsSrv) {
+    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserApi, greyscaleModalsSrv,
+        greyscaleGlobals, greyscaleUtilsSrv) {
 
         $scope.org = {
             loaded: false,
@@ -16,36 +17,26 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
                 $scope.user = user;
-                if (user.roleID === 2) {
-                    greyscaleUserSrv.getOrganization()
+                if (user.roleID === greyscaleGlobals.userRoles.admin.id) {
+                    return greyscaleUserApi.getOrganization()
                         .then(function (resp) {
                             $scope.org = resp;
                             $scope.org.loaded = true;
-                        })
-                        .catch(function (err) {
-                            inform.add(err.data.message, {type: 'danger'});
                         });
                 }
             })
-            .catch(function (err) {
-                inform.add(err.data.message, {type: 'danger'});
-            });
-
+            .catch(greyscaleUtilsSrv.errorMsg);
 
         $scope.editProfile = function () {
             greyscaleModalsSrv.editUserProfile($scope.user)
-            .then(function (_user) {
-                return greyscaleUserSrv.save(_user)
-                .then(function(resp){
-                    $scope.user = _user;
-                    return resp;
-                });
-            })
-            .catch(function (err) {
-                if (err && err.data) {
-                    inform.add(err.data.message);
-                }
-            });
+                .then(function (_user) {
+                    return greyscaleUserApi.save(_user)
+                        .then(function (resp) {
+                            $scope.user = _user;
+                            return resp;
+                        });
+                })
+                .catch(greyscaleUtilsSrv.errorMsg);
         };
 
         $scope.editOrg = function () {
@@ -54,17 +45,12 @@ angular.module('greyscaleApp')
                     if (typeof _org.isActive === 'undefined') {
                         _org.isActive = true;
                     }
-                    return greyscaleUserSrv.saveOrganization(_org)
-                        .then(function(resp){
+                    return greyscaleUserApi.saveOrganization(_org)
+                        .then(function (resp) {
                             $scope.org = _org;
                             return resp;
                         });
                 })
-                .catch(function (err) {
-                    if (err && err.data) {
-                        inform.add(err.data.message);
-                    }
-                });
+                .catch(greyscaleUtilsSrv.errorMsg);
         };
     });
-

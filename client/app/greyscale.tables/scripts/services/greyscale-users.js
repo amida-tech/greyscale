@@ -4,88 +4,82 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv) {
+    .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
+        greyscaleProfileSrv, greyscaleGlobals) {
+        var accessLevel;
+
         var dicts = {
             roles: []
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id',
-                dataReadOnly: 'both'
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataReadOnly: 'both'
+        }, {
+            field: 'email',
+            title: 'E-mail',
+            show: true,
+            sortable: 'email',
+            dataRequired: true
+        }, {
+            field: 'firstName',
+            title: 'First name',
+            show: true,
+            sortable: 'firstName',
+            dataRequired: true
+        }, {
+            field: 'lastName',
+            title: 'Last name',
+            show: true,
+            sortable: 'lastName'
+        }, {
+            field: 'roleID',
+            title: 'Role',
+            show: true,
+            sortable: 'roleID',
+            dataFormat: 'option',
+            dataSet: {
+                getData: _getRoles,
+                keyField: 'id',
+                valField: 'name'
             },
-            {
-                field: 'email',
-                title: 'E-mail',
-                show: true,
-                sortable: 'email'
-            },
-            {
-                field: 'firstName',
-                title: 'First name',
-                show: true,
-                sortable: 'firstName'
-            },
-            {
-                field: 'lastName',
-                title: 'Last name',
-                show: true,
-                sortable: 'lastName'
-            },
-            {
-                field: 'roleID',
-                title: 'Role',
-                show: true,
-                sortable: 'roleID',
-                dataFormat: 'option',
-                dataSet: {
-                    getData: _getRoles,
-                    keyField: 'id',
-                    valField: 'name'
-                },
-                dataReadOnly: 'add'
+            dataReadOnly: 'add'
 
-            },
-            {
-                field: 'created',
-                title: 'Created',
-                show: true,
-                sortable: 'created',
-                dataFormat: 'date',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'isActive',
-                title: 'Is Active',
-                show: true,
-                sortable: 'isActive',
-                dataFormat: 'boolean',
-                dataReadOnly: 'both'
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        icon: 'fa-pencil',
-                        class: 'info',
-                        handler: _editRecord
-                    },
-                    {
-                        icon: 'fa-trash',
-                        class: 'danger',
-                        handler: _delRecord
-                    }
-                ]
-            }
-        ];
+        }, {
+            field: 'created',
+            title: 'Created',
+            show: true,
+            sortable: 'created',
+            dataFormat: 'date',
+            dataReadOnly: 'both'
+        }, {
+            field: 'isActive',
+            title: 'Is Active',
+            show: true,
+            sortable: 'isActive',
+            dataFormat: 'boolean',
+            dataReadOnly: 'both'
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-pencil',
+                class: 'info',
+                handler: _editRecord
+            }, {
+                icon: 'fa-trash',
+                class: 'danger',
+                handler: _delRecord
+            }]
+        }];
 
         var _table = {
+            dataFilter: {},
             formTitle: 'user',
             title: 'Users',
             icon: 'fa-users',
@@ -103,10 +97,10 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleUserSrv.delete(rec.id)
+            greyscaleUserApi.delete(rec.id)
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,'deleting');
+                .catch(function (err) {
+                    errorHandler(err, 'deleting');
                 });
         }
 
@@ -116,14 +110,18 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleUserSrv.update(newRec);
+                        return greyscaleUserApi.update(newRec);
                     } else {
-                        return greyscaleUserSrv.invite(newRec);
+                        if (_isSuperAdmin()) {
+                            return greyscaleUserApi.inviteAdmin(newRec);
+                        } else if (_isAdmin()) {
+                            return greyscaleUserApi.inviteUser(newRec);
+                        }
                     }
                 })
                 .then(reloadTable)
-                .catch(function(err){
-                    errorHandler(err,action);
+                .catch(function (err) {
+                    errorHandler(err, action);
                 });
         }
 
@@ -131,18 +129,59 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function _getUsers() {
-            var reqs = {
-                users: greyscaleUserSrv.list(),
-                roles: greyscaleRoleSrv.list()
-            };
+        function _isSuperAdmin() {
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
 
-            return $q.all(reqs).then(function (promises) {
-                dicts.roles = promises.roles;
-                greyscaleUtilsSrv.prepareFields(promises.users, _fields);
-                return promises.users;
-            })
-                .catch(errorHandler);
+        function _isAdmin() {
+            return accessLevel === greyscaleGlobals.userRoles.admin.mask;
+        }
+
+        function _setAccessLevel() {
+            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        }
+
+        function _getUsers() {
+            return greyscaleProfileSrv.getProfile().then(function (profile) {
+
+                _setAccessLevel(profile);
+
+                var roleFilter = {
+                    isSystem: true
+                };
+
+                if (_isAdmin()) {
+                    _table.dataFilter.organizationId = profile.organizationId;
+                } else {
+                    delete _table.dataFilter.organizationId;
+                }
+
+                var reqs = {
+                    users: greyscaleUserApi.list(_table.dataFilter),
+                    roles: greyscaleRoleApi.list(roleFilter)
+                };
+
+                return $q.all(reqs).then(function (promises) {
+                    dicts.roles = _filterRolesByAccessLevel(promises.roles);
+                    greyscaleUtilsSrv.prepareFields(promises.users, _fields);
+                    return promises.users;
+                });
+
+            }).catch(errorHandler);
+        }
+
+        function _filterRolesByAccessLevel(roles) {
+            var filteredRoles = [];
+            if (_isAdmin()) {
+                angular.forEach(roles, function (role, i) {
+                    if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
+                        filteredRoles.push(role);
+                    }
+                });
+            } else {
+                filteredRoles = roles;
+            }
+            return filteredRoles;
         }
 
         function errorHandler(err, action) {
@@ -151,7 +190,7 @@ angular.module('greyscale.tables')
                 msg += ' ' + action;
             }
             msg += ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

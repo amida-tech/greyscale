@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUoaTypeSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleUoaTypeApi', function (greyscaleRestSrv) {
 
-        var _api = function(){
+        var _api = function () {
             return greyscaleRestSrv().one('uoatypes');
         };
 
@@ -15,7 +15,9 @@ angular.module('greyscale.rest')
         }
 
         function _uoaTypeOne(uoaType) {
-            return _api().one(uoaType.id+'').get({langId:uoaType.langId});
+            return _api().one(uoaType.id + '').get({
+                langId: uoaType.langId
+            });
         }
 
         function _addUoaType(uoaType) {
@@ -23,11 +25,11 @@ angular.module('greyscale.rest')
         }
 
         function _deleteUoaType(uoaTypeId) {
-            return _api().one(uoaTypeId+'').remove();
+            return _api().one(uoaTypeId + '').remove();
         }
 
         function _updateUoaType(uoaType) {
-            return _api().one(uoaType.id+'').customPUT(uoaType);
+            return _api().one(uoaType.id + '').customPUT(uoaType);
         }
 
         return {

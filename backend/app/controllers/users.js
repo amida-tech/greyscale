@@ -13,7 +13,9 @@ var client = require('app/db_bootstrap'),
   HttpError = require('app/error').HttpError,
   util = require('util'),
   async = require('async'),
-  Emailer = require('lib/mailer');
+  Emailer = require('lib/mailer'),
+  UserUOA = require('app/models/user_uoa'),
+  UOA = require('app/models/uoas');
 
 var Role = require('app/models/roles');
 var Query = require('app/util').Query,
@@ -269,8 +271,8 @@ module.exports = {
 
   selfOrganizationInvite: function(req, res, next){
     co(function* (){
-      if(!req.body.email || !req.body.firstName || !req.body.lastName){
-        throw new HttpError(400, 'Email, First name and Last name fields are required');
+      if(!req.body.email || !req.body.firstName){
+        throw new HttpError(400, 'Email and First name fields are required');
       }
       if (!vl.isEmail(req.body.email)) {
         throw new HttpError(400, 101);
@@ -342,6 +344,44 @@ module.exports = {
     });
   },
 
+  UOAselect: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(
+          UserUOA.select(UOA.star())
+          .from(
+              UserUOA
+              .leftJoin(UOA)
+              .on(UserUOA.UOAid.equals(UOA.id))
+          )
+          .where(UserUOA.UserId.equals(req.params.id))
+      );
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
+  },
+
+  UOAadd: function (req, res, next) {
+    query(UserUOA.insert({UserId : req.params.id, UOAid : req.params.uoaid}), function (err, user) {
+      if (!err) {
+        res.status(201).end();
+      } else {
+        next(err);
+      }
+    });
+  },
+
+  UOAdelete: function (req, res, next) {
+    query(UserUOA.delete().where({UserId : req.params.id, UOAid : req.params.uoaid}), function (err, user) {
+      if (!err) {
+        res.status(204).end();
+      } else {
+        next(err);
+      }
+    });
+  },
+
   selectOne: function (req, res, next) {
     query(User.select().where(req.params), function (err, user) {
       if (!err) {
@@ -354,7 +394,7 @@ module.exports = {
 
   updateOne: function (req, res, next) {
     query(
-      User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.params.id)),
+      User.update(_.pick(req.body, User.whereCol)).where(User.id.equals(req.params.id)),
       function (err, data) {
         if (!err) {
           res.status(202).end();

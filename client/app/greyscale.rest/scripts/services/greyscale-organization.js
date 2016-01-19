@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleOrganizationSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleOrganizationApi', function (greyscaleRestSrv) {
 
         return {
             list: _list,
@@ -14,27 +14,27 @@ angular.module('greyscale.rest')
             delete: _delete
         };
 
-        function api(){
+        function api() {
             return greyscaleRestSrv().one('organizations');
         }
 
-        function _list (param) {
+        function _list(param) {
             return api().get(param);
         }
 
-        function _add (org) {
+        function _add(org) {
             return api().customPOST(org);
         }
 
-        function _get (id) {
+        function _get(id) {
             return api().one(id).get();
         }
 
         function _update(org) {
-            return api().one(org.id+'').customPUT(org);
+            return api().one(org.id + '').customPUT(org);
         }
 
-        function _delete (id) {
+        function _delete(id) {
             return api().one(id + '').remove();
         }
     });

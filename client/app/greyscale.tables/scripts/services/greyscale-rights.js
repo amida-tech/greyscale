@@ -4,66 +4,57 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleRights', function ($q, greyscaleRightSrv, greyscaleModalsSrv, greyscaleEntityTypeSrv,
-                                          greyscaleUtilsSrv) {
+    .factory('greyscaleRightsTbl', function ($q, greyscaleRightApi, greyscaleModalsSrv, greyscaleEntityTypeApi,
+        greyscaleUtilsSrv) {
 
         var _dicts = {
             entityTypes: []
         };
 
-        var _fields = [
-            {
-                field: 'id',
-                title: 'ID',
-                show: false,
-                sortable: 'id',
-                dataFormat: 'text',
-                dataReadOnly: 'both'
-            },
-            {
-                field: 'action',
-                title: 'Action',
-                show: true,
-                sortable: 'action'
-            },
-            {
-                field: 'description',
-                title: 'Description',
-                show: true,
-                sortable: false,
-                dataFromat: 'textarea'
-            },
-            {
-                field: 'essenceId',
-                title: 'Entity Type',
-                show: true,
-                sortable: false,
-                dataFormat: 'option',
-                dataSet: {
-                    getData: getEntityTypes,
-                    keyField: 'id',
-                    valField: 'name'
-                }
-            },
-            {
-                field: '',
-                title: '',
-                show: true,
-                dataFormat: 'action',
-                actions: [
-                    {
-                        title: 'Edit',
-                        class: 'info',
-                        handler: _edtRight
-                    },
-                    {
-                        title: 'Delete',
-                        class: 'danger',
-                        handler: delRigth
-                    }
-                ]
+        var _fields = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataFormat: 'text',
+            dataReadOnly: 'both'
+        }, {
+            field: 'action',
+            title: 'Action',
+            show: true,
+            sortable: 'action'
+        }, {
+            field: 'description',
+            title: 'Description',
+            show: true,
+            sortable: false,
+            dataFromat: 'textarea'
+        }, {
+            field: 'essenceId',
+            title: 'Entity Type',
+            show: true,
+            sortable: false,
+            dataFormat: 'option',
+            dataSet: {
+                getData: getEntityTypes,
+                keyField: 'id',
+                valField: 'name'
             }
-        ];
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                title: 'Edit',
+                class: 'info',
+                handler: _edtRight
+            }, {
+                title: 'Delete',
+                class: 'danger',
+                handler: delRigth
+            }]
+        }];
 
         var _table = {
             formTitle: 'right',
@@ -79,11 +70,16 @@ angular.module('greyscale.tables')
 
         function _getRights() {
             var _reqs = {
-                rights: greyscaleRightSrv.list(),
-                eTypes: greyscaleEntityTypeSrv.list({fields: 'id, name'})
+                rights: greyscaleRightApi.list(),
+                eTypes: greyscaleEntityTypeApi.list({
+                    fields: 'id, name'
+                })
             };
             return $q.all(_reqs).then(function (promises) {
-                promises.eTypes.unshift({'id': null, 'name': ''});
+                promises.eTypes.unshift({
+                    'id': null,
+                    'name': ''
+                });
                 _dicts.entityTypes = promises.eTypes;
                 greyscaleUtilsSrv.prepareFields(promises.rights, _fields);
                 return promises.rights;
@@ -101,9 +97,9 @@ angular.module('greyscale.tables')
                     delete newRight.entityType;
                     if (newRight.id) {
                         action = 'editing';
-                        return greyscaleRightSrv.update(newRight);
+                        return greyscaleRightApi.update(newRight);
                     } else {
-                        return greyscaleRightSrv.add(newRight);
+                        return greyscaleRightApi.add(newRight);
                     }
                 })
                 .then(_reloadRights)
@@ -117,7 +113,7 @@ angular.module('greyscale.tables')
         }
 
         function delRigth(right) {
-            greyscaleRightSrv.delete(right.id)
+            greyscaleRightApi.delete(right.id)
                 .then(_reloadRights)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -126,7 +122,7 @@ angular.module('greyscale.tables')
 
         function errHandler(err, action) {
             var msg = _table.formTitle + ' ' + action + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg)
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;
