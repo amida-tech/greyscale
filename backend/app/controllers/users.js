@@ -13,7 +13,9 @@ var client = require('app/db_bootstrap'),
   HttpError = require('app/error').HttpError,
   util = require('util'),
   async = require('async'),
-  Emailer = require('lib/mailer');
+  Emailer = require('lib/mailer'),
+  UserUOA = require('app/models/user_uoa'),
+  UOA = require('app/models/uoas');
 
 var Role = require('app/models/roles');
 var Query = require('app/util').Query,
@@ -339,6 +341,44 @@ module.exports = {
       res.json(data);
     }, function(err){
       next(err);
+    });
+  },
+
+  UOAselect: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(
+          UserUOA.select(UOA.star())
+          .from(
+              UserUOA
+              .leftJoin(UOA)
+              .on(UserUOA.UOAid.equals(UOA.id))
+          )
+          .where(UserUOA.UserId.equals(req.params.id))
+      );
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
+  },
+
+  UOAadd: function (req, res, next) {
+    query(UserUOA.insert({UserId : req.params.id, UOAid : req.params.uoaid}), function (err, user) {
+      if (!err) {
+        res.status(201).end();
+      } else {
+        next(err);
+      }
+    });
+  },
+
+  UOAdelete: function (req, res, next) {
+    query(UserUOA.delete().where({UserId : req.params.id, UOAid : req.params.uoaid}), function (err, user) {
+      if (!err) {
+        res.status(204).end();
+      } else {
+        next(err);
+      }
     });
   },
 

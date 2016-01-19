@@ -38,22 +38,54 @@ angular.module('greyscale.core')
                 id: 3,
                 name: 'deleted'
             }],
-            systemRoles: {
+            userRoles: {
                 superAdmin: {
-                    id: 1,
+                    name: 'admin',
                     mask: 0x8000
                 },
                 admin: {
-                    id: 2,
+                    name: 'client',
                     mask: 0x4000
                 },
                 user: {
-                    id: 3,
-                    mask: 0x3000
+                    name: 'user',
+                    mask: 0x2000
+                },
+                projectManager: {
+                    name: 'project manager',
+                    mask: 0x1000
+                },
+                contributor: {
+                    name: 'contributor',
+                    mask: 0x0800
+                },
+                reviewer: {
+                    name: 'reviewer',
+                    mask: 0x0400
+                },
+                editor: {
+                    name: 'editor',
+                    mask: 0x0200
+                },
+                translator: {
+                    name: 'translator',
+                    mask: 0x0100
+                },
+                researcher: {
+                    name: 'researcher',
+                    mask: 0x0080
+                },
+                researchDirector: {
+                    name: 'research director',
+                    mask: 0x0040
+                },
+                decider: {
+                    name: 'decider',
+                    mask: 0x0020
                 },
                 nobody: {
                     id: null,
-                    mask: 1
+                    mask: 0x0001
                 },
                 any: {
                     id: null,
@@ -128,8 +160,22 @@ angular.module('greyscale.core')
         };
 
         return {
+            initRoles: _setRolesId,
             $get: function () {
                 return self;
             }
         };
+
+        function _setRolesId(roles) {
+            if (roles && roles.length) {
+                for (var r = 0; r < roles.length; r++) {
+                    var role = roles[r];
+                    for (var _role in self.userRoles) {
+                        if (self.userRoles.hasOwnProperty(_role) && self.userRoles[_role].name === role.name) {
+                            self.userRoles[_role].id = role.id;
+                        }
+                    }
+                }
+            }
+        }
     });

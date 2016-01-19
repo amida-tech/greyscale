@@ -3,9 +3,9 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleEntityRoles', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleEntityTypeRoleSrv, greyscaleUserSrv, greyscaleRoleSrv,
-        greyscaleEntityTypeSrv, greyscaleRestSrv) {
+    .factory('greyscaleEntityRolesTbl', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleEntityTypeRoleApi, greyscaleUserApi, greyscaleRoleApi,
+        greyscaleEntityTypeApi, greyscaleRestSrv) {
         var _dicts = {
             users: [],
             roles: [],
@@ -13,7 +13,7 @@ angular.module('greyscale.tables')
             ents: {}
         };
 
-        var _tableRestSrv = greyscaleEntityTypeRoleSrv;
+        var _tableRestSrv = greyscaleEntityTypeRoleApi;
 
         var _fields = [{
                 field: 'userId',
@@ -115,7 +115,7 @@ angular.module('greyscale.tables')
             var res = [];
             if (!_dicts.ents[dicId]) {
                 _dicts.ents[dicId] = {
-                    promise: greyscaleEntityTypeSrv.get(rec.essenceId)
+                    promise: greyscaleEntityTypeApi.get(rec.essenceId)
                         .then(function (eType) {
                             var apiName = eType[0].fileName;
                             var fieldName = eType[0].nameField;
@@ -177,7 +177,7 @@ angular.module('greyscale.tables')
         }
 
         function getData() {
-            return greyscaleEntityTypeSrv.list({
+            return greyscaleEntityTypeApi.list({
                 fields: 'id,name'
             }).then(function (types) {
                 if (!_table.dataFilter) {
@@ -192,13 +192,13 @@ angular.module('greyscale.tables')
                     .then(function (profile) {
                         var reqs = {
                             data: _tableRestSrv.list(_table.dataFilter),
-                            users: greyscaleUserSrv.list({
+                            users: greyscaleUserApi.list({
                                 organizationId: profile.organizationId
                             }),
-                            roles: greyscaleRoleSrv.list({
+                            roles: greyscaleRoleApi.list({
                                 isSystem: false
                             }),
-                            entTypes: greyscaleEntityTypeSrv.list()
+                            entTypes: greyscaleEntityTypeApi.list()
                         };
 
                         return $q.all(reqs).then(function (promises) {

@@ -73,6 +73,9 @@ router.route('/v0.2/projects/:id')
 router.route('/v0.2/projects/:id/uoa')
     .get(authenticate('token').always, projects.uoaList);
 
+router.route('/v0.2/projects/:id/products')
+    .get(authenticate('token').always, projects.productList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -246,6 +249,13 @@ router.route('/v0.2/users/:id')
   .get(authenticate('token').always, checkRight('users_view_one'), users.selectOne)
   .put(authenticate('token').always, checkRight('users_edit_one'), users.updateOne)
   .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
+
+router.route('/v0.2/users/:id/uoa')
+    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect);
+
+router.route('/v0.2/users/:id/uoa/:uoaid')
+    .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdelete)
+    .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    COUNTRIES

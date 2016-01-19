@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserSrv, greyscaleModalsSrv,
+    .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserApi, greyscaleModalsSrv,
         greyscaleGlobals, greyscaleUtilsSrv) {
 
         $scope.org = {
@@ -17,8 +17,8 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
                 $scope.user = user;
-                if (user.roleID === greyscaleGlobals.systemRoles.admin.id) {
-                    return greyscaleUserSrv.getOrganization()
+                if (user.roleID === greyscaleGlobals.userRoles.admin.id) {
+                    return greyscaleUserApi.getOrganization()
                         .then(function (resp) {
                             $scope.org = resp;
                             $scope.org.loaded = true;
@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
         $scope.editProfile = function () {
             greyscaleModalsSrv.editUserProfile($scope.user)
                 .then(function (_user) {
-                    return greyscaleUserSrv.save(_user)
+                    return greyscaleUserApi.save(_user)
                         .then(function (resp) {
                             $scope.user = _user;
                             return resp;
@@ -45,7 +45,7 @@ angular.module('greyscaleApp')
                     if (typeof _org.isActive === 'undefined') {
                         _org.isActive = true;
                     }
-                    return greyscaleUserSrv.saveOrganization(_org)
+                    return greyscaleUserApi.saveOrganization(_org)
                         .then(function (resp) {
                             $scope.org = _org;
                             return resp;

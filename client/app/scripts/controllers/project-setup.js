@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProjectSetupCtrl', function ($q, $scope, $state, $stateParams, inform,
-        greyscaleProjectSrv) {
+                                              greyscaleProjectApi) {
 
         var _parentState = 'projects.setup';
         var _defaultState = false;
@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
             $state.go(_parentState + '.' + state);
         };
 
-        greyscaleProjectSrv.get($stateParams.projectId)
+        greyscaleProjectApi.get($stateParams.projectId)
             .then(function (project) {
                 $scope.project = project;
                 if (_defaultState) {

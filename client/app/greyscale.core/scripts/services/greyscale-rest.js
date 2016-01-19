@@ -3,7 +3,7 @@
  */
 'use strict';
 
-angular.module('greyscale.rest')
+angular.module('greyscale.core')
     .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv) {
         return function (headers) {
             return Restangular.withConfig(function (RestangularConfigurer) {

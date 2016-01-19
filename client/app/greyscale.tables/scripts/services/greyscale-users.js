@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
+    .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals) {
         var accessLevel;
 
@@ -97,7 +97,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleUserSrv.delete(rec.id)
+            greyscaleUserApi.delete(rec.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errorHandler(err, 'deleting');
@@ -110,12 +110,12 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleUserSrv.update(newRec);
+                        return greyscaleUserApi.update(newRec);
                     } else {
                         if (_isSuperAdmin()) {
-                            return greyscaleUserSrv.inviteAdmin(newRec);
+                            return greyscaleUserApi.inviteAdmin(newRec);
                         } else if (_isAdmin()) {
-                            return greyscaleUserSrv.inviteUser(newRec);
+                            return greyscaleUserApi.inviteUser(newRec);
                         }
                     }
                 })
@@ -130,11 +130,11 @@ angular.module('greyscale.tables')
         }
 
         function _isSuperAdmin() {
-            return accessLevel === greyscaleGlobals.systemRoles.superAdmin.mask;
+            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
         }
 
         function _isAdmin() {
-            return accessLevel === greyscaleGlobals.systemRoles.admin.mask;
+            return accessLevel === greyscaleGlobals.userRoles.admin.mask;
         }
 
         function _setAccessLevel() {
@@ -146,20 +146,19 @@ angular.module('greyscale.tables')
 
                 _setAccessLevel(profile);
 
-                var roleFilter = {};
+                var roleFilter = {
+                    isSystem: true
+                };
 
                 if (_isAdmin()) {
                     _table.dataFilter.organizationId = profile.organizationId;
                 } else {
                     delete _table.dataFilter.organizationId;
-                    roleFilter = {
-                        isSystem: true
-                    };
                 }
 
                 var reqs = {
-                    users: greyscaleUserSrv.list(_table.dataFilter),
-                    roles: greyscaleRoleSrv.list(roleFilter)
+                    users: greyscaleUserApi.list(_table.dataFilter),
+                    roles: greyscaleRoleApi.list(roleFilter)
                 };
 
                 return $q.all(reqs).then(function (promises) {
@@ -175,7 +174,7 @@ angular.module('greyscale.tables')
             var filteredRoles = [];
             if (_isAdmin()) {
                 angular.forEach(roles, function (role, i) {
-                    if (role.id !== greyscaleGlobals.systemRoles.superAdmin.id) {
+                    if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
                         filteredRoles.push(role);
                     }
                 });

@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('OrganizationsCtrl', function ($scope, greyscaleOrganizations) {
+    .controller('OrganizationsCtrl', function ($scope, greyscaleOrganizationsTbl) {
         $scope.model = {
-            orgs: greyscaleOrganizations
+            orgs: greyscaleOrganizationsTbl
         };
     });

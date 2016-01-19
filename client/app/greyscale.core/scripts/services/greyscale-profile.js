@@ -4,11 +4,12 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($rootScope, $cookieStore, $q, greyscaleTokenSrv, greyscaleUserSrv, $log,
-        greyscaleGlobals, _) {
+    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv) {
         var _profile = null;
         var _profilePromise = null;
-        var _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
+        var _userRoles = [];
+        var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
 
         this.getProfile = function (force) {
             var self = this;
@@ -22,7 +23,7 @@ angular.module('greyscale.core')
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {
-                        _profilePromise = greyscaleUserSrv.get()
+                        _profilePromise = greyscaleUserApi.get()
                             .then(function (profileData) {
                                 _profile = profileData;
                                 self._setAccessLevel();
@@ -40,10 +41,15 @@ angular.module('greyscale.core')
 
         this._setAccessLevel = function () {
             if (_profile) {
-                _accessLevel = _.get(_.find(greyscaleGlobals.systemRoles, {
-                        id: _profile.roleID
-                    }), 'mask') ||
-                    greyscaleGlobals.systemRoles.user.mask;
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
+                greyscaleEntityTypeRoleApi.list({
+                    userId: _profile.id
+                }).then(function (usrRoles) {
+                    for (var r = 0; r < usrRoles.length; r++) {
+                        _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                    }
+                    _userRoles = usrRoles;
+                });
             }
         };
 
@@ -56,7 +62,7 @@ angular.module('greyscale.core')
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
                     $log.debug('getAccessLevel says:', err);
-                    return greyscaleGlobals.systemRoles.nobody.mask;
+                    return greyscaleUtilsSrv.getRoleMask(-1, true);
                 });
         };
 
@@ -65,11 +71,11 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserSrv.logout().finally(function () {
+            return greyscaleUserApi.logout().finally(function () {
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
-                _accessLevel = greyscaleGlobals.systemRoles.nobody.mask;
+                _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
         };
     });

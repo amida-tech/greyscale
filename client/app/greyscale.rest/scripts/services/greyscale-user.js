@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
 
         return {
             login: _login,
