@@ -10,9 +10,9 @@
 
 'use strict';
 
-angular.module('greyscaleApp').controller('SurveyCtrl', function ($scope, greyscaleSurveys) {
+angular.module('greyscaleApp').controller('SurveyCtrl', function ($scope, greyscaleSurveysTbl) {
 
     $scope.model = {
-        surveys: greyscaleSurveys
+        surveys: greyscaleSurveysTbl
     };
 });

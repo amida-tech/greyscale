@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsers', function ($q, greyscaleModalsSrv, greyscaleUserSrv, greyscaleRoleSrv, greyscaleUtilsSrv,
+    .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals) {
         var accessLevel;
 
@@ -97,7 +97,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleUserSrv.delete(rec.id)
+            greyscaleUserApi.delete(rec.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errorHandler(err, 'deleting');
@@ -110,12 +110,12 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleUserSrv.update(newRec);
+                        return greyscaleUserApi.update(newRec);
                     } else {
                         if (_isSuperAdmin()) {
-                            return greyscaleUserSrv.inviteAdmin(newRec);
+                            return greyscaleUserApi.inviteAdmin(newRec);
                         } else if (_isAdmin()) {
-                            return greyscaleUserSrv.inviteUser(newRec);
+                            return greyscaleUserApi.inviteUser(newRec);
                         }
                     }
                 })
@@ -157,8 +157,8 @@ angular.module('greyscale.tables')
                 }
 
                 var reqs = {
-                    users: greyscaleUserSrv.list(_table.dataFilter),
-                    roles: greyscaleRoleSrv.list(roleFilter)
+                    users: greyscaleUserApi.list(_table.dataFilter),
+                    roles: greyscaleRoleApi.list(roleFilter)
                 };
 
                 return $q.all(reqs).then(function (promises) {
