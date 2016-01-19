@@ -1,16 +1,14 @@
-var client = require('app/db_bootstrap'),
+var
   _ = require('underscore'),
   config = require('config'),
   Product = require('app/models/products'),
   Project = require('app/models/projects'),
   AccessMatrix = require('app/models/access_matrices'),
-  Translation = require('app/models/translations'),
-  Language = require('app/models/languages'),
-  Essence = require('app/models/essences'),
+  ProductUOA = require('app/models/product_uoa'),
+  UOA = require('app/models/uoas'),
   co = require('co'),
   Query = require('app/util').Query,
   getTranslateQuery = require('app/util').getTranslateQuery,
-  detectLanguage = require('app/util').detectLanguage,
   query = new Query(),
   thunkify = require('thunkify'),
   HttpError = require('app/error').HttpError,
@@ -73,7 +71,44 @@ module.exports = {
     }, function (err) {
       next(err);
     });
+  },
 
+  UOAselect: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(
+          ProductUOA.select(UOA.star())
+              .from(
+                  ProductUOA
+                      .leftJoin(UOA)
+                      .on(ProductUOA.UOAid.equals(UOA.id))
+              )
+              .where(ProductUOA.productId.equals(req.params.id))
+      );
+    }).then(function(data){
+      res.json(data);
+    }, function(err){
+      next(err);
+    });
+  },
+
+  UOAadd: function (req, res, next) {
+    query(ProductUOA.insert({productId : req.params.id, UOAid : req.params.uoaid}), function (err, data) {
+      if (!err) {
+        res.status(201).end();
+      } else {
+        next(err);
+      }
+    });
+  },
+
+  UOAdelete: function (req, res, next) {
+    query(ProductUOA.delete().where({productId : req.params.id, UOAid : req.params.uoaid}), function (err, data) {
+      if (!err) {
+        res.status(204).end();
+      } else {
+        next(err);
+      }
+    });
   }
 
 };

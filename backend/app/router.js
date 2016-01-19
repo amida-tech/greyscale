@@ -179,11 +179,17 @@ router.route('/v0.2/products')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ products.select)
   .post(authenticate('token').always, products.insertOne);
 
-
 router.route('/v0.2/products/:id')
   .get(authenticate('token').always,checkPermission('product_select','products'),products.selectOne)
   .put(authenticate('token').always,checkPermission('product_update','products'),products.updateOne)
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
+
+router.route('/v0.2/products/:id/uoa')
+    .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect);
+
+router.route('/v0.2/products/:id/uoa/:uoaid')
+    .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
