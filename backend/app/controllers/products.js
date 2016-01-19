@@ -2,6 +2,7 @@ var client = require('app/db_bootstrap'),
   _ = require('underscore'),
   config = require('config'),
   Product = require('app/models/products'),
+  Project = require('app/models/projects'),
   AccessMatrix = require('app/models/access_matrices'),
   Translation = require('app/models/translations'),
   Language = require('app/models/languages'),
@@ -47,16 +48,21 @@ module.exports = {
     });
   },
 
+  updateOne: function (req, res, next) {
+    co(function* (){
+      yield *checkProductData(req);
+      return yield thunkQuery(Product.update(req.body).where(Product.id.equals(req.params.id)));
+    }).then(function(data){
+      res.status(202).end();
+    },function(err){
+      next(err);
+    });
+  },
+
   insertOne: function (req, res, next) {
-
     co(function* () {
-      var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-      if (!_.first(isExistMatrix)) {
-          throw new HttpError(403, 'Matrix with this id does not exist');
-      }
-    
+      yield *checkProductData(req);
       var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
-
       return result;
     }).then(function (data) {
       res.status(201).json(_.first(data));
@@ -67,3 +73,26 @@ module.exports = {
   }
 
 };
+
+function* checkProductData (req){
+  if(!req.params.id){ // create
+    if(!req.body.matrixId || !req.body.projectId){
+      throw new HttpError(403, 'Matrix id and Project id fields are required');
+    }
+  }
+
+  if(req.body.matrixId){
+    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    if (!_.first(isExistMatrix)) {
+      throw new HttpError(403, 'Matrix with this id does not exist');
+    }
+  }
+
+  if(req.body.projectId){
+    var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
+    if (!_.first(isExistProject)) {
+      throw new HttpError(403, 'Project with this id does not exist');
+    }
+  }
+
+}

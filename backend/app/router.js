@@ -182,6 +182,7 @@ router.route('/v0.2/products')
 
 router.route('/v0.2/products/:id')
   .get(authenticate('token').always,checkPermission('product_select','products'),products.selectOne)
+  .put(authenticate('token').always,checkPermission('product_update','products'),products.updateOne)
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -2,7 +2,7 @@ var sql = require('sql');
 
 var columns =  [
     'id',
-    'name',
+    'title',
     'description',
     'projectId',
     'matrixId',
