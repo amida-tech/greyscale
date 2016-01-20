@@ -4,17 +4,26 @@
 'use strict';
 angular.module('greyscaleApp')
     .factory('greyscaleModalsSrv', function ($uibModal) {
-        function _simpleForm(tmplUrl, data, ext) {
+
+        function _simpleForm(tmplUrl, data, ext, size) {
             return $uibModal.open({
                 templateUrl: tmplUrl,
                 controller: 'SimpleFormCtrl',
-                size: 'md',
+                size: size,
                 windowClass: 'modal fade in',
                 resolve: {
                     formData: data,
                     extData: ext
                 }
             }).result;
+        }
+
+        function _simpleMiddleForm(tmplUrl, data, ext) {
+            _simpleForm(tmplUrl, data, ext, 'md');
+        }
+
+        function _simpleLargeForm(tmplUrl, data, ext) {
+            _simpleForm(tmplUrl, data, ext, 'lg');
         }
 
         function modalForm(data, tableDescription) {
@@ -66,19 +75,19 @@ angular.module('greyscaleApp')
         return {
             editRec: modalForm,
             editCountry: function (_country) {
-                return _simpleForm('views/modals/country-form.html', _country, null);
+                return _simpleMiddleForm('views/modals/country-form.html', _country, null);
             },
             editUserProfile: function (_user) {
-                return _simpleForm('views/modals/user-profile-form.html', _user, null);
+                return _simpleMiddleForm('views/modals/user-profile-form.html', _user, null);
             },
             editUserOrganization: function (_org) {
-                return _simpleForm('views/modals/user-organization-form.html', _org, null);
+                return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);
             },
             addRoleRight: function (_role, _ext) {
-                return _simpleForm('views/modals/role-right-form.html', _role, _ext);
+                return _simpleMiddleForm('views/modals/role-right-form.html', _role, _ext);
             },
             editSurvey: function (_right, _ext) {
-                return _simpleForm('views/modals/survey-form.html', _right, _ext);
+                return _simpleLargeForm('views/modals/survey-form.html', _right, _ext);
             },
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
