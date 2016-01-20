@@ -196,6 +196,41 @@ input.address-val {
     top: -6px;
 }
 
-.section_start.compact > .expand-button {
+.compact > .expand-button {
     background-color: green;
 }
+
+.content-container {
+    padding: 5px;
+    border: 1px solid black;
+    background-color: lightgray;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+    .content-container.compact .content {
+        display: none;
+    }
+
+    .content-title {
+        background-color: lightgray;
+        margin-left: 15px;
+        margin-top: -17px;
+        padding: 3px;
+        position: absolute;
+    }
+
+.content {
+    list-style: decimal inside;
+    padding: 0;
+    margin: 0;
+}
+
+    .content li {
+        cursor: pointer;
+        margin: 3px 0;
+    }
+
+        .content li:hover {
+            color: green;
+        }
