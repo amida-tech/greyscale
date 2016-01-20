@@ -551,7 +551,7 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'local',
-                        baseServerUrl: 'http://localhost:3005/v0.2',
+                        baseServerUrl: 'http://localhost:3005/local/v0.2',
                         enableDebugLog: true
                     }
                 }
@@ -728,7 +728,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('buildEnv', [
-        'ngconstant:dev',
+        'ngconstant:env',
         'build'
     ]);
 
