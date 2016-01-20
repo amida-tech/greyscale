@@ -185,7 +185,8 @@ router.route('/v0.2/products/:id')
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
 
 router.route('/v0.2/products/:id/uoa')
-    .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect);
+    .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);
 
 router.route('/v0.2/products/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
