@@ -10,8 +10,8 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('uoas');
         };
 
-        function _uoa() {
-            return _api().get();
+        function _uoa(params) {
+            return _api().get(params);
         }
 
         function _uoaOne(uoa) {
