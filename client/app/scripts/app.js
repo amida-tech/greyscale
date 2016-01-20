@@ -262,6 +262,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Form Builder',
                 isPublic: false
             }
+        })
+        .state('usersUoa', {
+            parent: 'home',
+            url: 'users-uoa',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/users-uoa.html',
+                    controller: 'UsersUoaCtrl'
+                }
+            },
+            data: {
+                name: 'Users units of analysis',
+                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+            }
         });
 
     $urlRouterProvider.otherwise('/');

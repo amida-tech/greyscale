@@ -1,0 +1,27 @@
+<div class="row">
+    <div class="col-sm-12">
+        <rd-widget>
+            <rd-widget-header icon="fa-map" title="Users units of analysis"></rd-widget-header>
+            <rd-widget-body loading="model.loading">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Users:</h5>
+                        <select multiple class="form-control">
+                            <option ng-repeat="usr in model.users">{{usr.email}}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Units of analysis:</h5>
+                        <uib-tabset>
+                            <uib-tab heading="Public"><checkbox-list list-items="model.pubUoa"></checkbox-list></uib-tab>
+                            <uib-tab heading="Private"><checkbox-list list-items="model.privUoa"></checkbox-list></uib-tab>
+                        </uib-tabset>
+                    </div>
+                </div>
+            </rd-widget-body>
+            <rd-widget-footer>
+
+            </rd-widget-footer>
+        </rd-widget>
+    </div>
+</div>

@@ -21,7 +21,10 @@ angular.module('greyscale.rest')
             saveOrganization: _saveOrg,
             save: _save,
             update: updateUser,
-            delete: delUser
+            delete: delUser,
+            listUoa: _listUoa,
+            addUoa: _addUoa,
+            delUoa: _delUoa
         };
 
         function orgAPI() {
@@ -112,5 +115,21 @@ angular.module('greyscale.rest')
 
         function delUser(id) {
             return userAPI().one(id + '').remove();
+        }
+
+        function _uoaAPI(userId) {
+            return userAPI().one(userId + '');
+        }
+
+        function _listUoa(userId) {
+            return _uoaAPI(userId).one('uoa').get();
+        }
+
+        function _addUoa(userId, uoaId) {
+            return _uoaAPI(userId).one('uoa', uoaId + '').customPOST();
+        }
+
+        function _delUoa(userId, uoaId) {
+            return _uoaAPI(userId).one('uoa', uoaId + '').remove();
         }
     });
