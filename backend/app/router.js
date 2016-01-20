@@ -292,6 +292,20 @@ router.route('/v0.2/workflows/:id')
     .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
 
+router.route('/v0.2/workflows/:id/steps')
+    .get(authenticate('token').always, workflows.steps)
+    .delete(authenticate('token').always, workflows.stepsDelete)
+    .post(authenticate('token').always, workflows.stepsAdd);
+
+router.route('/v0.2/workflow_steps')
+    .get(authenticate('token').always, workflows.stepListSelect)
+    .post(authenticate('token').always, workflows.stepListAdd);
+
+router.route('/v0.2/workflow_steps/:id')
+    .get(authenticate('token').always, workflows.stepListSelectOne)
+    .put(authenticate('token').always, workflows.stepListUpdateOne)
+    .delete(authenticate('token').always, workflows.stepListDelete);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
 //----------------------------------------------------------------------------------------------------------------------
