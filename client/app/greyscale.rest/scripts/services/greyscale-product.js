@@ -44,7 +44,7 @@ angular.module('greyscale.rest')
             }
         }
 
-        function _uoasAdd(productId) {
+        function _uoasAddBulk(productId) {
             return function(uoasIds){
                 return _productUoasApi(productId).customPOST(uoasIds);
             }
@@ -77,7 +77,7 @@ angular.module('greyscale.rest')
         var _productApi = function(productId){
             return {
                 uoasList: _uoasList(productId),
-                uoasAddBatch: _uoasAdd(productId),
+                uoasAddBulk: _uoasAddBulk(productId),
                 uoasDel: _uoasDel(productId),
                 workflowList: _workflowList(productId),
                 workflowUpdate: _workflowUpdate(productId)

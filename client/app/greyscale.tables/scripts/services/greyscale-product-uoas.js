@@ -134,7 +134,7 @@ angular.module('greyscale.tables')
 
         function _saveNewUoasToProduct(uoasIds) {
             var productId = _getProductId();
-            return greyscaleProductApi.product(productId).uoasAddBatch(uoasIds);
+            return greyscaleProductApi.product(productId).uoasAddBulk(uoasIds);
         }
 
         return _table;

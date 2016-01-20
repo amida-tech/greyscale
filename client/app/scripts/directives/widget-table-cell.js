@@ -70,14 +70,43 @@ angular.module('greyscaleApp')
 
                     default:
                         if (cell.multiselect) {
-                            elem.addClass('text-center');
-                            elem.append('<input type="checkbox" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
-                            $compile(elem.contents())($scope);
+                            _compileMultiselectCell()
                         } else {
-                            elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
+                            _compileDefaultCell();
                         }
                     }
+
+                    if (cell.link) {
+                        _compileLinkCell();
+                    }
                 }
+
+                function _compileMultiselectCell() {
+                    elem.addClass('text-center');
+                    elem.append('<input type="checkbox" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
+                    $compile(elem.contents())($scope);
+                }
+
+                function _compileDefaultCell() {
+                    elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
+                }
+
+                function _compileLinkCell() {
+                    var label = elem.text();
+                    var link = angular.element('<a>'+label+'</a>');
+                    if (cell.link.state) {
+                        link.attr('ui-sref', cell.link.state);
+                    } else if (cell.link.href) {
+                        link.attr('ng-href', cell.link.href);
+                    }
+                    if (cell.link.target) {
+                        link.attr('target', cell.link.target);
+                    }
+                    elem.html(link[0].outerHTML);
+                    $scope.item = $scope.rowValue;
+                    $compile(elem.contents())($scope);
+                }
+
             }
         };
     });

@@ -33,6 +33,11 @@ angular.module('greyscale.tables')
                 getData: _getSurveys,
                 keyField: 'id',
                 valField: 'name'
+            },
+            link: {
+                target: '_blank',
+                href: '/survey/{{item.id}}'
+                //state: 'projects.setup({projectId: item.id})'
             }
         }, {
             field: '',
