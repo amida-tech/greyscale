@@ -1,12 +1,17 @@
 'use strict';
 
+var exec = require('child_process').exec;
 var fs = require('fs');
 var homeDir = process.env.HOME;
+
+var sql = 'test/testdb.sql';
 
 module.exports = function (grunt) {
 
     // Automatically load required Grunt tasks
-    require('jit-grunt')(grunt);
+    require('jit-grunt')(grunt, {
+        express: 'grunt-express-server'
+    });
 
     var dockerConfig = {
         ca: '',
@@ -23,6 +28,38 @@ module.exports = function (grunt) {
     // Define the configuration for all the tasks
     grunt.initConfig({
 
+        env: {
+            test: {
+                NODE_ENV: 'test',
+            }
+        },
+
+        // run test server
+        express: {
+            test: {
+                options: {
+                    harmony: true,
+                    // jscs:disable
+                    node_env: 'test',
+                    // jscs:enable
+                    script: 'app.js',
+                    port: 3005
+                }
+            }
+        },
+
+        mochaTest: {
+            test: {
+                options: {
+                    reporter: 'spec',
+                    timeout: '10000'
+                },
+                src: [
+                    'test/**/*.js'
+                ]
+            }
+        },
+
         // Make sure there are no obvious mistakes
         jshint: {
             options: {
@@ -30,7 +67,7 @@ module.exports = function (grunt) {
                 reporter: require('jshint-stylish')
             },
             all: {
-                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js']
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js']
             }
         },
 
@@ -41,19 +78,19 @@ module.exports = function (grunt) {
                 verbose: true
             },
             all: {
-                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js']
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js']
             }
         },
 
         jsbeautifier: {
             beautify: {
-                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js'],
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js'],
                 options: {
                     config: '../.jsbeautifyrc'
                 }
             },
             check: {
-                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js'],
+                src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js'],
                 options: {
                     mode: 'VERIFY_ONLY',
                     config: '../.jsbeautifyrc'
@@ -139,6 +176,32 @@ module.exports = function (grunt) {
 
     });
 
+    grunt.registerTask('createDatabase', function () {
+        var done = this.async();
+        exec('createdb indabatest', function (err) {
+            if (err !== null) {
+                console.log('exec error: ' + err);
+                return done();
+            }
+            exec('psql -d indabatest -f ' + sql, function (err) {
+                if (err !== null) {
+                    console.log('exec error: ' + err);
+                }
+                done();
+            });
+        });
+    });
+
+    grunt.registerTask('dropDatabase', function () {
+        var done = this.async();
+        exec('dropdb indabatest', function (err) {
+            if (err !== null) {
+                console.log('exec error: ' + err);
+            }
+            done();
+        });
+    });
+
     grunt.registerTask('buildDocker', [
         'dock:build'
     ]);
@@ -147,15 +210,38 @@ module.exports = function (grunt) {
         'dock:osx:build'
     ]);
 
+    /*
+     * Used for deploying the dev version of Indaba
+     * to Elastic Beanstalk via Jenkins
+     * - Copy the dev-Dockerrun file to Dockerrun.aws.json
+     * - Zip the Dockerrun
+     * - Run the EBS deploy grunt task
+     */
     grunt.registerTask('ebsDev', [
         'copy:dev',
         'compress',
         'awsebtdeploy:dev'
     ]);
 
+    grunt.registerTask('test', [
+        'env:test',
+        'dropDatabase',
+        'createDatabase',
+        'express:test',
+        'mochaTest'
+    ]);
+
+    /*
+     * Default grunt task.
+     * - Run the linter
+     * - Run the style checker
+     * - Run the beautifier
+     * - Run unit tests
+     */
     grunt.registerTask('default', [
         'jshint',
         'jscs',
-        'jsbeautifier:check'
+        'jsbeautifier:check',
+        'test'
     ]);
 };
