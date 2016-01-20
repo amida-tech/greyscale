@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTagsFilter', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaTagSrv, greyscaleUoaClassTypeSrv) {
+        greyscaleLanguageApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi) {
 
         var dicts = {
             languages: [],
@@ -39,7 +39,7 @@ angular.module('greyscale.tables')
             }
         }, {
             show: true,
-            selectable: true
+            multiselect: true
         }];
 
         var _table = {
@@ -51,7 +51,7 @@ angular.module('greyscale.tables')
             },
             cols: resDescr,
             dataPromise: _getData,
-            selectable: {}
+            multiselect: {}
         };
 
         function _getSearchParam(name) {
@@ -64,8 +64,8 @@ angular.module('greyscale.tables')
 
                 var req = {
                     uoaTags: _resolveSearchResult(),
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaClassTypes: greyscaleUoaClassTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaTags.length; p++) {
@@ -86,7 +86,7 @@ angular.module('greyscale.tables')
                 params = {
                     classTypeId: typeIds
                 };
-                return greyscaleUoaTagSrv.list(params)
+                return greyscaleUoaTagApi.list(params)
             } else {
                 return $q.when([]);
             }

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (NgTableParams, $filter, $q) {
+    .directive('widgetTable', function (NgTableParams, $filter) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -59,8 +59,8 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.$on('$destroy', function(){
-                   if ($scope.model.selectable && $scope.model.selectable.reset) {
-                       $scope.model.selectable.reset();
+                   if ($scope.model.multiselect && $scope.model.multiselect.reset) {
+                       $scope.model.multiselect.reset();
                    }
                 });
             }
@@ -75,57 +75,79 @@ angular.module('greyscaleApp')
         }
 
         function _parseColumns(model) {
-            var setSelectable;
             angular.forEach(model.cols, function(col){
-                if (!setSelectable && col.selectable) {
-                    col.headerTemplateURL = function(){
-                        return 'ng-table/headers/check-all.html';
-                    };
-                    setSelectable = true;
-                    _selectableSetModel(model);
+                if (col.multiselect) {
+                    _setMultiselect(col, model);
+                }
+                if (col.actions) {
+                    col['class'] = 'header-actions';
                 }
             });
         }
 
-        function _selectableSetModel(model) {
-            model.selectable = angular.extend({
-                selected: {},
-                selectAllState: false,
-                selectAll: _selectableSelectAll(model),
-                fireChange: _selectableFireChange(model),
-                reset: _selectableReset,
-                onChange: function(){}
-            }, model.selectable||{});
-        }
+        function _setMultiselect(col, model) {
 
-        function _selectableSelectAll(model) {
-            return function(){
-                var state = this.selectAllState;
-                angular.forEach(model.dataMap, function(id){
-                    model.selectable.selected[id] = state;
-                });
-            }
-        }
+            if (model.multiselect && model.multiselect.init) return;
 
-        function _selectableFireChange(model) {
-            return function(){
-                return _selectableFireChangeHandler(model);
+            col.headerTemplateURL = function(){
+                return 'ng-table/headers/check-all.html';
             };
-        }
 
-        function _selectableFireChangeHandler(model){
-            var selected = [];
-            angular.forEach(model.dataMap, function(id){
-                if (model.selectable.selected[id]) {
-                    selected.push(id);
+            model.multiselect = angular.extend({
+                init: true,
+                selected: {},
+                selectedMap: [],
+                selectAllState: false,
+                selectAll: _selectAll(model),
+                fireChange: _fireChange(model),
+                reset: _reset,
+                onChange: function(){},
+                setSelected: _setSelected
+            }, model.multiselect||{});
+
+            function _selectAll(model) {
+                return function(){
+                    var state = this.selectAllState;
+                    angular.forEach(model.dataMap, function(id){
+                        model.multiselect.selected[id] = state;
+                    });
                 }
-            });
-            model.selectable.onChange(selected);
-        }
+            }
 
-        function _selectableReset() {
-            this.selected = {};
-            this.selectAllState = false;
+            function _fireChange(model) {
+                return function(){
+                    return _fireChangeHandler(model);
+                };
+            }
+
+            function _fireChangeHandler(model){
+                var selected = [];
+                angular.forEach(model.dataMap, function(id){
+                    if (model.multiselect.selected[id]) {
+                        selected.push(id);
+                    }
+                });
+                model.multiselect.selectedMap = selected;
+                if (typeof model.multiselect.onChange == 'function') {
+                    model.multiselect.onChange(selected);
+                }
+            }
+
+            function _reset() {
+                model.multiselect.selected = {};
+                model.multiselect.selectedMap = [];
+                model.multiselect.selectAllState = false;
+            }
+
+            function _setSelected(list) {
+                _reset();
+                angular.forEach(list, function(item){
+                    if (item && item.id) {
+                        model.multiselect.selectedMap.push(item.id);
+                        model.multiselect.selected[item.id] = true;
+                    }
+                })
+            }
         }
 
     });

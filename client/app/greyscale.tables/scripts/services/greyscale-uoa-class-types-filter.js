@@ -2,7 +2,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaClassTypesFilter', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaClassTypeSrv) {
+        greyscaleLanguageApi, greyscaleUoaClassTypeApi) {
 
         var dicts = {
             languages: []
@@ -34,7 +34,7 @@ angular.module('greyscale.tables')
             }
         }, {
             show: true,
-            selectable: true
+            multiselect: true
         }];
 
         var _table = {
@@ -46,14 +46,14 @@ angular.module('greyscale.tables')
             pageLength: 5,
             cols: recDescr,
             dataPromise: _getData,
-            selectable: {}
+            multiselect: {}
         };
 
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaClassTypes: greyscaleUoaClassTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaClassTypes.length; p++) {

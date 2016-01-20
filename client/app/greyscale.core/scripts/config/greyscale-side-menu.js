@@ -23,8 +23,10 @@ angular.module('greyscale.core')
                     }, {
                         state: 'projects',
                         icon: 'fa-paper-plane'
+                    }, {
+                        state: 'workflow',
+                        icon: 'fa-fast-forward'
                     }
-
                 ]
             }, {
                 title: 'Your Content',

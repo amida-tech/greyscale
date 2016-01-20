@@ -221,6 +221,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
+        .state('workflow', {
+            parent: 'home',
+            url: 'workflow',
+            data: {
+                name: 'Workflow Steps',
+                accessLevel: systemRoles.superAdmin.mask
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/workflow.html',
+                    controller: 'WorkflowCtrl'
+                }
+            }
+        })
         .state('profile', {
             parent: 'home',
             url: 'profile',

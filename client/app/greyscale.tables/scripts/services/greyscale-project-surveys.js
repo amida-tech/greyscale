@@ -1,18 +1,22 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectSurveys', function ($q, greyscaleSurveySrv,
-                                                  greyscaleProjectSrv, greyscaleModalsSrv,
+    .factory('greyscaleProjectSurveysTbl', function ($q, greyscaleSurveyApi,
+                                                  greyscaleProjectApi, greyscaleModalsSrv,
                                                   $rootScope, greyscaleUtilsSrv, inform, $log, $location) {
 
         var _cols = [{
             field: 'name',
             title: 'Name',
             show: true,
-            sortable: 'name'
+            sortable: 'name',
+            dataRequired: true,
+            dataFormat: 'text'
         }, {
             field: 'description',
             title: 'Description',
-            show: true
+            show: true,
+            dataRequired: false,
+            dataFormat: 'text'
         }, {
             field: '',
             title: '',
@@ -62,16 +66,17 @@ angular.module('greyscale.tables')
             if (!projectId) {
                 return $q.reject();
             } else {
-                return greyscaleProjectSrv.surveysList(projectId);
+                return greyscaleProjectApi.surveysList(projectId);
             }
         }
 
         function _editSurvey(survey) {
             var op = 'editing';
+            _table.formSaveButton = survey && survey.id ? null : 'Next';
             greyscaleModalsSrv.editRec(survey, _table)
                 .then(function (newSurvey) {
                     if (newSurvey.id) {
-                        return greyscaleSurveySrv.update(newSurvey);
+                        return greyscaleSurveyApi.update(newSurvey);
                     } else {
                         op = 'adding';
                         newSurvey.projectId = _getProjectId();
@@ -83,7 +88,7 @@ angular.module('greyscale.tables')
                         return _editSurveyFields(newSurvey)
                             .then(function(newSurveyWithFields){
                                 newSurvey = newSurveyWithFields;
-                                greyscaleSurveySrv.add(newSurvey);
+                                greyscaleSurveyApi.add(newSurvey);
                             });
                     } else {
                         return $q.when(newSurvey);
@@ -113,7 +118,7 @@ angular.module('greyscale.tables')
         }
 
         function _removeSurvey(_survey) {
-            greyscaleSurveySrv.delete(_survey).then(_reload).catch(function (err) {
+            greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
                 inform.add('Survey delete error: ' + err);
             });
         }

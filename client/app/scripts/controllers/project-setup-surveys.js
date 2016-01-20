@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ProjectSetupSurveysCtrl', function ($scope, $stateParams, greyscaleModalsSrv, greyscaleProjectSrv, greyscaleProjectSurveys) {
+.controller('ProjectSetupSurveysCtrl', function ($scope, $stateParams, greyscaleModalsSrv, greyscaleProjectApi, greyscaleProjectSurveysTbl) {
 
     $scope.addUoas = function () {
         return greyscaleModalsSrv.uoasFilter()
@@ -10,13 +10,13 @@ angular.module('greyscaleApp')
         });
     };
 
-    var surveys = greyscaleProjectSurveys;
+    var surveys = greyscaleProjectSurveysTbl;
 
     $scope.model = {
         surveys: surveys
     };
 
-    greyscaleProjectSrv.get($stateParams.projectId)
+    greyscaleProjectApi.get($stateParams.projectId)
         .then(function (project) {
             surveys.dataFilter.projectId = project.id;
             surveys.tableParams.reload();

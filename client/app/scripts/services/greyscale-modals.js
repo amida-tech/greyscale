@@ -30,14 +30,14 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _surveyUoas(surveyId) {
+        function _productUoas(product) {
             return $uibModal.open({
-                templateUrl: 'views/modals/survey-uoas.html',
-                controller: 'ModalSurveyUoasCtrl',
+                templateUrl: 'views/modals/product-uoas.html',
+                controller: 'ModalProductUoasCtrl',
                 size: 'lg',
                 windowClass: 'modal fade in',
                 resolve: {
-                    surveyId: surveyId
+                    product: product
                 }
             }).result;
         }
@@ -47,9 +47,18 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/uoas-filter.html',
                 controller: 'ModalUoasFilterCtrl',
                 size: 'max',
+                windowClass: 'modal fade in'
+            }).result;
+        }
+
+        function _productWorkflow(product) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/product-workflow.html',
+                controller: 'ModalProductWorkflowCtrl',
+                size: 'lg',
                 windowClass: 'modal fade in',
                 resolve: {
-
+                    product: product
                 }
             }).result;
         }
@@ -72,6 +81,7 @@ angular.module('greyscaleApp')
                 return _simpleForm('views/modals/survey-form.html', _right, _ext);
             },
             uoasFilter: _uoasFilter,
-            surveyUoas: _surveyUoas
+            productUoas: _productUoas,
+            productWorkflow: _productWorkflow
         };
     });

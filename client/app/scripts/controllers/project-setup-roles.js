@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ProjectSetupRolesCtrl', function ($scope, greyscaleEntityRoles, greyscaleProjectSrv, $stateParams) {
+.controller('ProjectSetupRolesCtrl', function ($scope, greyscaleEntityRoles, greyscaleProjectApi, $stateParams) {
 
     var entityRoles = greyscaleEntityRoles;
 
@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
         entRoles: entityRoles
     };
 
-    greyscaleProjectSrv.get($stateParams.projectId)
+    greyscaleProjectApi.get($stateParams.projectId)
     .then(function (project) {
         entityRoles.dataFilter.entityId = project.id;
         entityRoles.tableParams.reload();

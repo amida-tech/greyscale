@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleProductSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleProductApi', function (greyscaleRestSrv, $q) {
         function api() {
             return greyscaleRestSrv().one('products');
         }
@@ -25,10 +25,70 @@ angular.module('greyscale.rest')
             return api().one(id + '').remove();
         }
 
+        function _productUoasApi(productId) {
+            return api().one(productId + '').one('uoa');
+        }
+
+        function _productWorkflowApi(productId) {
+            return api().one(productId + '').one('workflow');
+        }
+
+        function _uoasList(productId) {
+            return function(params) {
+                return _productUoasApi(productId).get(params)
+                    .catch(function(){
+                        return $q.when([
+                            {id:1, name: '2222'}
+                        ]);
+                    });
+            }
+        }
+
+        function _uoasAdd(productId) {
+            return function(uoasIds){
+                return _productUoasApi(productId).customPOST(uoasIds);
+            }
+        }
+
+        function _uoasDel(productId) {
+            return function(uoaId){
+                return _productUoasApi(productId).one(uoaId + '').remove();
+            }
+        }
+
+        function _workflowList(productId) {
+            return function(params) {
+                return _productWorkflowApi(productId).get(params)
+                .catch(function(){
+                    return $q.when([
+                        {id:1, name: '2222'}
+                    ]);
+                });
+            }
+        }
+
+        function _workflowUpdate(productId) {
+            return function(stepIds){
+                return _productUoasApi(productId).customPOST(stepIds);
+            }
+        }
+
+
+        var _productApi = function(productId){
+            return {
+                uoasList: _uoasList(productId),
+                uoasAddBatch: _uoasAdd(productId),
+                uoasDel: _uoasDel(productId),
+                workflowList: _workflowList(productId),
+                workflowUpdate: _workflowUpdate(productId)
+            };
+        };
+
         return {
             get: _get,
             add: _add,
             update: _upd,
-            delete: _del
+            delete: _del,
+            product: _productApi
         };
     });

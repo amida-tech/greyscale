@@ -24,7 +24,7 @@ angular.module('greyscaleApp')
             scope: {
                 widgetCell: '=widgetTableCell',
                 rowValue: '=',
-                modelSelectable: '='
+                modelMultiselect: '='
             },
             controllerAs: '',
             link: function ($scope, elem) {
@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
 
                     switch (cell.dataFormat) {
                     case 'action':
-                        elem.addClass('text-right');
+                        elem.addClass('text-right row-actions');
                         elem.append('<button ng-repeat="act in widgetCell.actions" class="btn btn-xs btn-{{act.class}}" ' +
                             'ng-click="act.handler(rowValue);$event.stopPropagation();"><i class="fa {{act.icon}}" ng-show="act.icon"> </i>{{act.title}}</button>');
                         $compile(elem.contents())($scope);
@@ -69,8 +69,9 @@ angular.module('greyscaleApp')
                         break;
 
                     default:
-                        if (cell.selectable) {
-                            elem.append('<div class="text-center"><input type="checkbox" ng-model="modelSelectable.selected[rowValue.id]" ng-change="modelSelectable.fireChange($event)" /></div>');
+                        if (cell.multiselect) {
+                            elem.addClass('text-center');
+                            elem.append('<input type="checkbox" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
                             $compile(elem.contents())($scope);
                         } else {
                             elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);

@@ -1,13 +1,13 @@
 'use strict';
 angular.module('greyscaleApp')
-.controller('ModalUoasFilterCtrl', function ($scope, $uibModalInstance, greyscaleUoaTypesFilter,
+.controller('ModalUoasFilterCtrl', function ($scope, $uibModalInstance, greyscaleUoaTypesFilterTbl,
                                              greyscaleUoaClassTypesFilter, greyscaleUoaTagsFilter,
-                                             greyscaleUoasFilter) {
+                                             greyscaleUoasFilterTbl) {
 
-    var uoaTypes = greyscaleUoaTypesFilter;
+    var uoaTypes = greyscaleUoaTypesFilterTbl;
     var uoaClassTypes = greyscaleUoaClassTypesFilter;
     var uoaTags = greyscaleUoaTagsFilter;
-    var uoas = greyscaleUoasFilter;
+    var uoas = greyscaleUoasFilterTbl;
 
     $scope.model = {
         uoaTypes: uoaTypes,
@@ -18,27 +18,27 @@ angular.module('greyscaleApp')
 
     $scope.filterResult = [];
 
-    uoaTypes.selectable.onChange = function(selected){
+    uoaTypes.multiselect.onChange = function(selected){
         uoas.dataFilter.typeId = selected;
         uoas.tableParams.reload();
     };
 
-    uoaClassTypes.selectable.onChange = function(selected){
+    uoaClassTypes.multiselect.onChange = function(selected){
         uoaTags.dataFilter.classTypeId = selected;
         uoaTags.tableParams.reload();
     };
 
-    uoaTags.selectable.onChange = function(selected){
+    uoaTags.multiselect.onChange = function(selected){
         uoas.dataFilter.tagId = selected;
         uoas.tableParams.reload();
     };
 
-    uoas.selectable.onChange = function(selected){
+    uoas.multiselect.onChange = function(selected){
         $scope.filterResult = selected;
     };
 
     $scope.addSelectedUoas = function(){
-
+        $uibModalInstance.close($scope.filterResult);
     };
 
     $scope.close = function () {

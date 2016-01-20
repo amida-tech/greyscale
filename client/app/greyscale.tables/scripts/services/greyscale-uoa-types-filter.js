@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTypesFilter', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaTypeSrv, greyscaleLanguageSrv) {
+    .factory('greyscaleUoaTypesFilterTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleUoaTypeApi, greyscaleLanguageApi) {
 
         var dicts = {
             languages: []
@@ -39,7 +39,7 @@ angular.module('greyscale.tables')
             }
         }, {
             show: true,
-            selectable: true
+            multiselect: true
         }];
 
         var _table = {
@@ -51,14 +51,14 @@ angular.module('greyscale.tables')
             pageLength: 5,
             cols: recDescr,
             dataPromise: _getData,
-            selectable: {}
+            multiselect: {}
         };
 
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaTypes: greyscaleUoaTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaTypes: greyscaleUoaTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaTypes.length; p++) {

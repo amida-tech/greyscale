@@ -1,8 +1,11 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProducts', function ($q, greyscaleProjectSrv, greyscaleProductSrv,
-                                                   greyscaleModalsSrv, greyscaleUtilsSrv,
-                                                   inform, $log, $location) {
+    .factory('greyscaleProjectProductsTbl', function ($q,
+                                                      greyscaleProjectApi,
+                                                      greyscaleProductApi,
+                                                      greyscaleModalsSrv,
+                                                      greyscaleUtilsSrv,
+                                                      inform) {
 
         var _dicts = {
             surveys: []
@@ -39,15 +42,11 @@ angular.module('greyscale.tables')
             actions: [{
                 title: 'Workflow',
                 class: 'info',
-                handler: _editWorkflow
+                handler: _showProductWorkflow
             }, {
                 title: 'UoAs',
                 class: 'info',
-                handler: _editUoas
-            }, {
-                title: 'View',
-                class: 'info',
-                handler: _viewSurvey
+                handler: _showProductUoas
             }, {
                 title: '',
                 icon: 'fa-pencil',
@@ -57,7 +56,7 @@ angular.module('greyscale.tables')
                 title: '',
                 icon: 'fa-trash',
                 class: 'danger',
-                handler: _removeSurvey
+                handler: _removeProduct
             }]
         }];
 
@@ -86,8 +85,8 @@ angular.module('greyscale.tables')
                 return $q.reject();
             } else {
                 var req = {
-                    surveys: greyscaleProjectSrv.surveysList(projectId),
-                    products: greyscaleProjectSrv.productsList(projectId)
+                    surveys: greyscaleProjectApi.surveysList(projectId),
+                    products: greyscaleProjectApi.productsList(projectId)
                 };
                 return $q.all(req).then(function(promises){
                     _dicts.surveys = promises.surveys;
@@ -105,12 +104,12 @@ angular.module('greyscale.tables')
             greyscaleModalsSrv.editRec(product, _table)
                 .then(function (newProduct) {
                     if (newProduct.id) {
-                        return greyscaleProductSrv.update(newProduct);
+                        return greyscaleProductApi.update(newProduct);
                     } else {
                         op = 'adding';
                         newProduct.projectId = _getProjectId();
                         newProduct.matrixId = 4;
-                        return greyscaleProductSrv.add(newProduct);
+                        return greyscaleProductApi.add(newProduct);
                     }
                 })
                 .then(_reload)
@@ -119,28 +118,24 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _removeSurvey(_survey) {
-            //greyscaleSurveySrv.delete(_survey).then(_reload).catch(function (err) {
-            //    inform.add('Survey delete error: ' + err);
-            //});
-        }
-
-        function _viewSurvey(_survey) {
-            var url = $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/interviewRenderer/#' + _survey.id;
-            window.location = url;
+        function _removeProduct(product) {
+            greyscaleProductApi.delete(product.id)
+                .then(_reload)
+                .catch(function (err) {
+                    inform.add('Product delete error: ' + err);
+                });
         }
 
         function _reload() {
             _table.tableParams.reload();
         }
 
-        function _editUoas(survey) {
-            greyscaleModalsSrv.surveyUoas(survey.id)
-                ;
+        function _showProductUoas(product) {
+            return greyscaleModalsSrv.productUoas(product);
         }
 
-        function _editWorkflow() {
-
+        function _showProductWorkflow(product) {
+            greyscaleModalsSrv.productWorkflow(product);
         }
 
         function _errHandler(err, operation) {
