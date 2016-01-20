@@ -1629,6 +1629,9 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 18	rights_view_one	Can see one right	\N
 129	work	Have to work hard :)	\N
 17	rights_add_one	Can add rights	\N
+50	countries_insert_one	Can insert countries	\N
+51	countries_update_one	Can update countries	\N
+52	countries_delete_one	Can delete countries	\N
 \.
 
 
@@ -1667,6 +1670,9 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 1	16
 1	127
 1	29
+1	50
+1	51
+1	52
 2	129
 2	24
 2	16

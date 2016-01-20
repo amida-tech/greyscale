@@ -126,6 +126,9 @@ app.on('start', function () {
         res.sendStatus(500);
     });
 
+    /*
+     * Bootstrap the Postgres DB
+     */
     var pgUser = config.pgConnect.user,
         pgPassword = config.pgConnect.password,
         pgHost = config.pgConnect.host,
