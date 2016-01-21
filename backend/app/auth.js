@@ -138,6 +138,9 @@ module.exports = {
   checkPermission: function (action) {
     return function (req, res, next) {
       co(function* () {
+
+        if(req.user.roleID == 1) return true;
+
         var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
         Action = _.first(Action);
         if(typeof Action == 'undefined'){

@@ -179,11 +179,18 @@ router.route('/v0.2/products')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ products.select)
   .post(authenticate('token').always, products.insertOne);
 
-
 router.route('/v0.2/products/:id')
   .get(authenticate('token').always,checkPermission('product_select','products'),products.selectOne)
   .put(authenticate('token').always,checkPermission('product_update','products'),products.updateOne)
   .delete(authenticate('token').always,checkPermission('product_delete','products'),products.delete);
+
+router.route('/v0.2/products/:id/uoa')
+    .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);
+
+router.route('/v0.2/products/:id/uoa/:uoaid')
+    .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
@@ -284,6 +291,20 @@ router.route('/v0.2/workflows/:id')
     .get(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.selectOne)
     .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
+
+router.route('/v0.2/workflows/:id/steps')
+    .get(authenticate('token').always, workflows.steps)
+    .delete(authenticate('token').always, workflows.stepsDelete)
+    .post(authenticate('token').always, workflows.stepsAdd);
+
+router.route('/v0.2/workflow_steps')
+    .get(authenticate('token').always, workflows.stepListSelect)
+    .post(authenticate('token').always, workflows.stepListAdd);
+
+router.route('/v0.2/workflow_steps/:id')
+    .get(authenticate('token').always, workflows.stepListSelectOne)
+    .put(authenticate('token').always, workflows.stepListUpdateOne)
+    .delete(authenticate('token').always, workflows.stepListDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis

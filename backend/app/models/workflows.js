@@ -4,15 +4,12 @@ var columns =  [
     'id',
     'name',
     'description',
-    'created',
-    'ownerId',
-    'totalDuration'
+    'created'
 ];
 
 var Workflow = sql.define({
     name: 'Workflows',
     columns: columns
 });
-
 
 module.exports = Workflow;
