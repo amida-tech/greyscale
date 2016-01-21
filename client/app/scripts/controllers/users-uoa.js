@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
             users: [],
             pubUoa: [],
             privUoa: [],
-            selectedUsers:[],
+            selectedUsers: [],
             loading: true
         };
 
@@ -51,19 +51,19 @@ angular.module('greyscaleApp')
             }
         }
 
-        function onUserSelect(){
+        function onUserSelect() {
             var queries = [];
-            for (var u=0; u<$scope.model.selectedUsers.length; u++){
+            for (var u = 0; u < $scope.model.selectedUsers.length; u++) {
                 $log.debug($scope.model.selectedUsers[u]);
                 queries.push(greyscaleUserApi.listUoa($scope.model.selectedUsers[u]));
             }
 
-            $q.all(queries).then(function(resp){
+            $q.all(queries).then(function (resp) {
 
-                for (var r=0; r<resp.length; r++){
+                for (var r = 0; r < resp.length; r++) {
                     $log.debug(resp[r].plain());
                 }
-            })
+            });
         }
 
     });

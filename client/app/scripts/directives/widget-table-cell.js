@@ -70,7 +70,7 @@ angular.module('greyscaleApp')
 
                     default:
                         if (cell.multiselect) {
-                            _compileMultiselectCell()
+                            _compileMultiselectCell();
                         } else {
                             _compileDefaultCell();
                         }

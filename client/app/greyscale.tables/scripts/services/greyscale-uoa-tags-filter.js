@@ -86,7 +86,7 @@ angular.module('greyscale.tables')
                 params = {
                     classTypeId: typeIds
                 };
-                return greyscaleUoaTagApi.list(params)
+                return greyscaleUoaTagApi.list(params);
             } else {
                 return $q.when([]);
             }

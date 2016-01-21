@@ -620,6 +620,12 @@ module.exports = function (grunt) {
         'build'
     ]);
 
+    grunt.registerTask('brushIt', [
+        'jshint:all',
+        'jscs:all',
+        'jsbeautifier:beautify'
+    ]);
+
     grunt.registerTask('default', [
         'newer:jshint',
         'newer:jscs',

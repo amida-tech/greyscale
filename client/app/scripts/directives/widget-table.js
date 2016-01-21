@@ -87,7 +87,9 @@ angular.module('greyscaleApp')
 
         function _setMultiselect(col, model) {
 
-            if (model.multiselect && model.multiselect.init) return;
+            if (model.multiselect && model.multiselect.init) {
+                return;
+            }
 
             col.headerTemplateURL = function () {
                 return 'ng-table/headers/check-all.html';
@@ -111,7 +113,7 @@ angular.module('greyscaleApp')
                     angular.forEach(model.dataMap, function (id) {
                         model.multiselect.selected[id] = state;
                     });
-                }
+                };
             }
 
             function _fireChange(model) {
@@ -128,7 +130,7 @@ angular.module('greyscaleApp')
                     }
                 });
                 model.multiselect.selectedMap = selected;
-                if (typeof model.multiselect.onChange == 'function') {
+                if (typeof model.multiselect.onChange === 'function') {
                     model.multiselect.onChange(selected);
                 }
             }
@@ -146,7 +148,7 @@ angular.module('greyscaleApp')
                         model.multiselect.selectedMap.push(item.id);
                         model.multiselect.selected[item.id] = true;
                     }
-                })
+                });
             }
         }
 

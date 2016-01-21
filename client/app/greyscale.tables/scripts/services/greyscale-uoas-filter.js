@@ -106,7 +106,7 @@ angular.module('greyscale.tables')
                     unitOfAnalysisType: typeIds,
                     tagId: tagsIds
                 };
-                return greyscaleUoaApi.list(params)
+                return greyscaleUoaApi.list(params);
             } else {
                 return $q.when([]);
             }

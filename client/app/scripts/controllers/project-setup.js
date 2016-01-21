@@ -46,7 +46,7 @@ angular.module('greyscaleApp')
             });
 
         _onStateChange(function (state) {
-            if (state.name == _parentState) {
+            if (state.name === _parentState) {
                 _defaultState = true;
             } else {
                 _setActiveTab(state);
@@ -60,7 +60,7 @@ angular.module('greyscaleApp')
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState + '.', '');
             angular.forEach($scope.tabs, function (tab) {
-                tab.active = tab.state == activeState;
+                tab.active = (tab.state === activeState);
             });
         }
 

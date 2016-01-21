@@ -42,19 +42,19 @@ angular.module('greyscale.rest')
                             name: '2222'
                         }]);
                     });
-            }
+            };
         }
 
         function _uoasAddBulk(productId) {
             return function (uoasIds) {
                 return _productUoasApi(productId).customPOST(uoasIds);
-            }
+            };
         }
 
         function _uoasDel(productId) {
             return function (uoaId) {
                 return _productUoasApi(productId).one(uoaId + '').remove();
-            }
+            };
         }
 
         function _workflowList(productId) {
@@ -66,13 +66,13 @@ angular.module('greyscale.rest')
                             name: '2222'
                         }]);
                     });
-            }
+            };
         }
 
         function _workflowUpdate(productId) {
             return function (stepIds) {
                 return _productUoasApi(productId).customPOST(stepIds);
-            }
+            };
         }
 
         var _productApi = function (productId) {
