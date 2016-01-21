@@ -125,14 +125,14 @@ function* checkProjectData(req) {
         throw new HttpError(403, 'By some reason cannot find your organization');
     }
 
-    var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)));
-    if (!_.first(isExistAdmin)) {
-        throw new HttpError(403, 'User with this id does not exist (admin user id)');
-    }
-
-    if (_.first(isExistAdmin).organizationId != req.user.organizationId) {
-        throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization')
-    }
+    //var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)));
+    //if (!_.first(isExistAdmin)) {
+    //    throw new HttpError(403, 'User with this id does not exist (admin user id)');
+    //}
+    //
+    //if (_.first(isExistAdmin).organizationId != req.user.organizationId) {
+    //    throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization')
+    //}
 
     req.body.organizationId = req.user.organizationId;
 

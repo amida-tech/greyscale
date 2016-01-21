@@ -2,6 +2,7 @@ var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
     Workflow = require('app/models/workflows'),
+    Product = require('app/models/products'),
     WorkflowStep = require('app/models/workflow_steps'),
     WorkflowStepList = require('app/models/workflow_step_list'),
     co = require('co'),
@@ -38,6 +39,7 @@ module.exports = {
 
     updateOne: function(req, res, next){
         co(function* () {
+            yield *checkData(req);
             var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
             return result;
         }).then(function (data) {
@@ -58,6 +60,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
+            yield *checkData(req);
             var result = yield thunkQuery(Workflow.insert(req.body).returning(Workflow.id));
             return result;
         }).then(function (data) {
@@ -190,3 +193,27 @@ module.exports = {
     },
 
 };
+
+function* checkData(req){
+    var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)));
+    if(!_.first(product)){
+        throw new HttpError(403, 'Product with id = ' + req.body.productId + ' does not exist');
+    }
+
+    var relError = false;
+
+    if(req.params.id){ //update
+        if(req.body.productId){
+            var productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId).and(Workflow.id.notEquals(req.params.id))));
+            if(_.first(productRel)) relError = true;
+        }
+    }else{ //create
+        var productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId)));
+        if(_.first(productRel)) relError = true;
+    }
+
+    if(relError){
+        throw new HttpError(403, 'Product with id = ' + req.body.productId + ' has already assigned to another workflow');
+    }
+
+}

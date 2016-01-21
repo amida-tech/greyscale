@@ -3,6 +3,7 @@ var
   config = require('config'),
   Product = require('app/models/products'),
   Project = require('app/models/projects'),
+  Workflow = require('app/models/workflows'),
   AccessMatrix = require('app/models/access_matrices'),
   ProductUOA = require('app/models/product_uoa'),
   UOA = require('app/models/uoas'),
@@ -18,7 +19,8 @@ module.exports = {
 
   select: function (req, res, next) {
     co(function* (){
-      return yield thunkQuery(getTranslateQuery(req.lang.id, Product));
+      //return yield thunkQuery(Product.select(Product.star(), Workflow.select().where(Workflow.id.equals(Product.workflowId))));
+      return yield thunkQuery(Product.select());
     }).then(function(data){
       res.json(data);
     },function(err){
@@ -166,6 +168,7 @@ function* checkProductData (req){
       throw new HttpError(403, 'Matrix id and Project id fields are required');
     }
   }
+
 
   if(req.body.matrixId){
     var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));

@@ -7,7 +7,7 @@ var columns =  [
     'projectId',
     'matrixId',
     'originalLangId'
-    //'workflowId',
+    //'workflowId'
     //'productConfigId',
     //'contentType',
     //'mode',
@@ -25,7 +25,7 @@ var Product = sql.define({
   columns: columns
 });
 
-Product.editCols = ['title','description','projectId','matrixId',];
+Product.editCols = ['title','description','projectId','matrixId','workflowId'];
 
 //Product.translate = translate;
 

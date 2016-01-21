@@ -4,7 +4,8 @@ var columns =  [
     'id',
     'name',
     'description',
-    'created'
+    'created',
+    'productId'
 ];
 
 var Workflow = sql.define({
