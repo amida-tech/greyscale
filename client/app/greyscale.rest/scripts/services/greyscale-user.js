@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
 
         return {
             login: _login,
@@ -72,6 +72,7 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
+            $log.debug('do login');
             return greyscaleRestSrv({
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })

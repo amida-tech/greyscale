@@ -26,9 +26,9 @@ angular.module('greyscale.core')
                         _profilePromise = greyscaleUserApi.get()
                             .then(function (profileData) {
                                 _profile = profileData;
-                                self._setAccessLevel();
                                 return _profile;
                             })
+                            .then(self._setAccessLevel)
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -42,13 +42,14 @@ angular.module('greyscale.core')
         this._setAccessLevel = function () {
             if (_profile) {
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
-                greyscaleEntityTypeRoleApi.list({
+                return greyscaleEntityTypeRoleApi.list({
                     userId: _profile.id
                 }).then(function (usrRoles) {
                     for (var r = 0; r < usrRoles.length; r++) {
                         _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
                     }
                     _userRoles = usrRoles;
+                    return _profile;
                 });
             }
         };

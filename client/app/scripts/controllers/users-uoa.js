@@ -8,8 +8,11 @@ angular.module('greyscaleApp')
             users: [],
             pubUoa: [],
             privUoa: [],
+            selectedUsers:[],
             loading: true
         };
+
+        $scope.onUserSelect = onUserSelect;
 
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
@@ -47,5 +50,20 @@ angular.module('greyscaleApp')
                 _aUoa[u].checked = false;
             }
         }
-    });
 
+        function onUserSelect(){
+            var queries = [];
+            for (var u=0; u<$scope.model.selectedUsers.length; u++){
+                $log.debug($scope.model.selectedUsers[u]);
+                queries.push(greyscaleUserApi.listUoa($scope.model.selectedUsers[u]));
+            }
+
+            $q.all(queries).then(function(resp){
+
+                for (var r=0; r<resp.length; r++){
+                    $log.debug(resp[r].plain());
+                }
+            })
+        }
+
+    });

@@ -235,7 +235,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== 0xffff) {
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
@@ -243,9 +243,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                     e.preventDefault();
                     if ((_level & 0xfffe) !== 0) { //if not admin accessing admin level page
                         $state.go('home');
-                        inform.add('Access restricted to "' + toState.data.name + '"!', {
-                            type: 'danger'
-                        });
+                        greyscaleUtilsSrv.errorMsg('Access restricted to "' + toState.data.name + '"!');
                     } else {
                         $stateParams.returnTo = toState.name;
                         $state.go('login');
