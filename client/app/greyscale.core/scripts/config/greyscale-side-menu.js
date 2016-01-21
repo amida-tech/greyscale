@@ -9,26 +9,27 @@ angular.module('greyscale.core')
             groups: [{
                 title: 'Administration',
                 items: [{
-                        state: 'access',
-                        icon: 'fa-compass'
-                    }, {
-                        state: 'uoas',
-                        icon: 'fa-table'
-                    }, {
-                        state: 'users',
-                        icon: 'fa-group'
-                    }, {
-                        state: 'usersUoa',
-                        icon: 'fa-map'
-                    }, {
-                        state: 'orgs',
-                        icon: 'fa-university'
-                    }, {
-                        state: 'projects',
-                        icon: 'fa-paper-plane'
-                    }
-
-                ]
+                    state: 'access',
+                    icon: 'fa-compass'
+                }, {
+                    state: 'uoas',
+                    icon: 'fa-table'
+                }, {
+                    state: 'users',
+                    icon: 'fa-group'
+                }, {
+                    state: 'usersUoa',
+                    icon: 'fa-map'
+                }, {
+                    state: 'orgs',
+                    icon: 'fa-university'
+                }, {
+                    state: 'projects',
+                    icon: 'fa-paper-plane'
+                }, {
+                    state: 'workflow',
+                    icon: 'fa-fast-forward'
+                }]
             }, {
                 title: 'Your Content',
                 items: [{

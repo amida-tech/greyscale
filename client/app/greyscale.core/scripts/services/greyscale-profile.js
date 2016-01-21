@@ -20,6 +20,7 @@ angular.module('greyscale.core')
                 res = $q.reject('not logged in');
             } else {
                 if (_profile && !force) {
+                    self._setAccessLevel();
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {

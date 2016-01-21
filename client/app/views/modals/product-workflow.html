@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
+    <h3 class="modal-title">Workflow Steps <small>For "{{product.title}}" Product</small></h3>
+</div>
+<div class="modal-body">
+
+    <widget-table model="model.productWorkflow"></widget-table>
+    {{multiselect}}
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">Cancel</button>
+    <button class="btn btn-primary" ng-disabled="!model.productWorkflow.multiselect.selectedMap.length" ng-click="save()">Save</button>
+</div>
+
