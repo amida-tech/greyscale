@@ -3,8 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('WorkflowCtrl', function ($scope, greyscaleWorkflowTbl) {
+    .controller('WorkflowCtrl', function ($scope, greyscaleWorkflowStepsTbl) {
         $scope.model = {
-            workflow: greyscaleWorkflowTbl
+            workflow: greyscaleWorkflowStepsTbl
         };
     });

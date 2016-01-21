@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleWorkflowApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleWorkflowStepsApi', function (greyscaleRestSrv, $q) {
         var _api = function () {
-            return greyscaleRestSrv().one('workflow');
+            return greyscaleRestSrv().one('workflow_steps');
         };
 
         var _list = function (params) {

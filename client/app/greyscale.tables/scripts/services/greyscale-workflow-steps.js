@@ -4,20 +4,20 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleWorkflowTbl', function ($q, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleWorkflowApi) {
+    .factory('greyscaleWorkflowStepsTbl', function ($q, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleWorkflowStepsApi) {
 
         var recDescr = [{
             field: 'id',
-            show: false,
+            show: true,
             sortable: 'id',
             title: 'ID',
             dataFormat: 'text',
             dataReadOnly: 'both'
         }, {
-            field: 'name',
+            field: 'title',
             show: true,
-            sortable: 'name',
-            title: 'Name',
+            sortable: 'title',
+            title: 'Title',
             dataFormat: 'text'
         }, {
             field: 'description',
@@ -55,11 +55,11 @@ angular.module('greyscale.tables')
         };
 
         function _getData() {
-            return greyscaleWorkflowApi.list();
+            return greyscaleWorkflowStepsApi.list();
         }
 
         function _delRecord(item) {
-            greyscaleWorkflowApi.delete(item.id)
+            greyscaleWorkflowStepsApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -71,10 +71,10 @@ angular.module('greyscale.tables')
             greyscaleModalsSrv.editRec(step, _table)
                 .then(function (newPrj) {
                     if (newPrj.id) {
-                        return greyscaleWorkflowApi.update(newPrj);
+                        return greyscaleWorkflowStepsApi.update(newPrj);
                     } else {
                         op = 'adding';
-                        return greyscaleWorkflowApi.add(newPrj);
+                        return greyscaleWorkflowStepsApi.add(newPrj);
                     }
                 })
                 .then(reloadTable)

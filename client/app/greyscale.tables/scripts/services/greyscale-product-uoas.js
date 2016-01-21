@@ -56,6 +56,8 @@ angular.module('greyscale.tables')
             }];
 
         var _table = {
+            title: 'Product Units of Analysis',
+            icon: 'fa-table',
             dataFilter: {},
             sorting: {
                 id: 'asc'

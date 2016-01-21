@@ -4,13 +4,13 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProductWorkflowTbl', function ($q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv, greyscaleWorkflowApi) {
+    .factory('greyscaleProductWorkflowTbl', function ($q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv, greyscaleWorkflowStepsApi) {
 
 
         var recDescr = [{
-            field: 'name',
+            field: 'title',
             show: true,
-            title: 'Name'
+            title: 'Title'
         }, {
             field: 'description',
             show: true,
@@ -21,6 +21,8 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
+            title: 'Product Workflow Steps',
+            icon: 'fa-fast-forward',
             pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
@@ -37,7 +39,7 @@ angular.module('greyscale.tables')
             var productId = _getProductId();
             var req = {
                 productWorkflow: greyscaleProductApi.product(productId).workflowList(),
-                workflow: greyscaleWorkflowApi.list()
+                workflow: greyscaleWorkflowStepsApi.list()
             };
 
             return $q.all(req).then(function(promises){

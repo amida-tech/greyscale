@@ -16,5 +16,11 @@
 </rd-widget>
 
 <script type="text/ng-template" id="ng-table/headers/check-all.html">
-    <input type="checkbox" class="select-all" ng-model="model.multiselect.selectAllState" ng-show="model.dataMap.length" ng-click="model.multiselect.selectAll(); model.multiselect.fireChange()"/>
+    <input type="checkbox"
+           class="select-all"
+           ng-model="model.multiselect.selectAllState"
+           ng-show="model.dataMap.length"
+           ng-change="model.multiselect.selectAll(); model.multiselect.fireChange()"
+           title="Check/Uncheck All"
+    />
 </script>

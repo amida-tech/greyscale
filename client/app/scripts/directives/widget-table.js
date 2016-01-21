@@ -142,7 +142,7 @@ angular.module('greyscaleApp')
             function _setSelected(list) {
                 _reset();
                 angular.forEach(list, function(item){
-                    if (item && item.id) {
+                    if (item && item.id && _.indexOf(model.dataMap, item.id)>=0) {
                         model.multiselect.selectedMap.push(item.id);
                         model.multiselect.selected[item.id] = true;
                     }
