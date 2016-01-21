@@ -180,6 +180,9 @@ angular.module('greyscale.tables')
             return greyscaleEntityTypeApi.list({
                 fields: 'id,name'
             }).then(function (types) {
+                if (!_table.dataFilter) {
+                    return $q.reject();
+                }
                 angular.extend(_table.dataFilter, {
                     essenceId: _.get(_.find(types, {
                         name: 'projects'

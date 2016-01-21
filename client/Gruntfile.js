@@ -43,7 +43,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/scripts/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -137,7 +138,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ]
             },
             test: {
@@ -177,7 +179,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     config: '../.jsbeautifyrc'
@@ -190,7 +193,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     mode: 'VERIFY_ONLY',
@@ -521,7 +525,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'local',
                         baseServerUrl: 'http://localhost:3005/v0.2',
-                        enableDebugLog: true
+                        enableDebugLog: false
                     }
                 }
             },
@@ -531,7 +535,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'env',
                         baseServerUrl: 'http://' + process.env.SERVICE_HOST + ':3005/v0.2',
-                        enableDebugLog: true
+                        enableDebugLog: false
                     }
                 }
             },
@@ -541,7 +545,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'dev',
                         baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
-                        defaultUser: 'no@mail.net',
+                        defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
@@ -618,6 +622,12 @@ module.exports = function (grunt) {
     grunt.registerTask('buildEnv', [
         'ngconstant:dev',
         'build'
+    ]);
+
+    grunt.registerTask('brushIt', [
+        'jshint:all',
+        'jscs:all',
+        'jsbeautifier:beautify'
     ]);
 
     grunt.registerTask('default', [

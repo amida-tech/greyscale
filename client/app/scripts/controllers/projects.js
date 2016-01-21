@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
         var projects = greyscaleProjectsTbl;
 
         $scope.model = {
-            projects: projects,
+            projects: projects
         };
 
         $scope.projectSelect = function (row) {

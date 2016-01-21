@@ -19,11 +19,11 @@ angular.module('greyscaleApp')
         }
 
         function _simpleMiddleForm(tmplUrl, data, ext) {
-            _simpleForm(tmplUrl, data, ext, 'md');
+            return _simpleForm(tmplUrl, data, ext, 'md');
         }
 
         function _simpleLargeForm(tmplUrl, data, ext) {
-            _simpleForm(tmplUrl, data, ext, 'lg');
+            return _simpleForm(tmplUrl, data, ext, 'lg');
         }
 
         function modalForm(data, tableDescription) {
@@ -35,6 +35,39 @@ angular.module('greyscaleApp')
                 resolve: {
                     recordData: data,
                     recordForm: tableDescription
+                }
+            }).result;
+        }
+
+        function _productUoas(product) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/product-uoas.html',
+                controller: 'ModalProductUoasCtrl',
+                size: 'lg',
+                windowClass: 'modal fade in',
+                resolve: {
+                    product: product
+                }
+            }).result;
+        }
+
+        function _uoasFilter() {
+            return $uibModal.open({
+                templateUrl: 'views/modals/uoas-filter.html',
+                controller: 'ModalUoasFilterCtrl',
+                size: 'max',
+                windowClass: 'modal fade in'
+            }).result;
+        }
+
+        function _productWorkflow(product) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/product-workflow.html',
+                controller: 'ModalProductWorkflowCtrl',
+                size: 'lg',
+                windowClass: 'modal fade in',
+                resolve: {
+                    product: product
                 }
             }).result;
         }
@@ -55,6 +88,9 @@ angular.module('greyscaleApp')
             },
             editSurvey: function (_right, _ext) {
                 return _simpleLargeForm('views/modals/survey-form.html', _right, _ext);
-            }
+            },
+            uoasFilter: _uoasFilter,
+            productUoas: _productUoas,
+            productWorkflow: _productWorkflow
         };
     });
