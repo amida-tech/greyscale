@@ -521,7 +521,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'local',
                         baseServerUrl: 'http://localhost:3005/v0.2',
-                        enableDebugLog: true
+                        enableDebugLog: false
                     }
                 }
             },
@@ -531,7 +531,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'env',
                         baseServerUrl: 'http://' + process.env.SERVICE_HOST + ':3005/v0.2',
-                        enableDebugLog: true
+                        enableDebugLog: false
                     }
                 }
             },
@@ -541,7 +541,7 @@ module.exports = function (grunt) {
                     greyscaleEnv: {
                         name: 'dev',
                         baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
-                        defaultUser: 'no@mail.net',
+                        defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
