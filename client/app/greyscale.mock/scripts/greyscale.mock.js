@@ -5,8 +5,6 @@
 
 angular.module('greyscale.mock',['ngMockE2E'])
     .run(function($httpBackend, greyscaleUserUoaMock){
-        console.log('mocking...');
-
         greyscaleUserUoaMock();
 
         $httpBackend.whenGET(/.*/).passThrough();
