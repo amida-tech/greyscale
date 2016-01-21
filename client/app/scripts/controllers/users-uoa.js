@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('UsersUoaCtrl', function ($scope, $q, _, greyscaleUoaApi, greyscaleUserApi, greyscaleProfileSrv,
-    greyscaleUserUoaApi, $log) {
+        greyscaleUserUoaApi, $log) {
         $scope.model = {
             users: [],
             pubUoa: [],
@@ -15,7 +15,9 @@ angular.module('greyscaleApp')
 
         $scope.onUserSelect = onUserSelect;
 
-        greyscaleUserUoaApi.list({userId: 125});
+        greyscaleUserUoaApi.list({
+            userId: 125
+        });
 
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {

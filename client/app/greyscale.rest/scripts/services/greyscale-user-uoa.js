@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .service('greyscaleUserUoaApi',function(greyscaleRestSrv){
+    .service('greyscaleUserUoaApi', function (greyscaleRestSrv) {
         return {
             list: _list
         };

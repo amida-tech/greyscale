@@ -10,7 +10,9 @@ angular.module('greyscale.mock')
             $httpBackend.whenGET(/.+user-uoa.*/)
                 .respond(function (method, url, data) {
                     $log.debug(method, url, data);
-                    return [200, [{msg: 'testing user-uoa'}], {}];
+                    return [200, [{
+                        msg: 'testing user-uoa'
+                    }], {}];
                 });
         };
     });

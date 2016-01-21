@@ -3,8 +3,8 @@
  */
 'use strict';
 
-angular.module('greyscale.mock',['ngMockE2E'])
-    .run(function($httpBackend, greyscaleUserUoaMock){
+angular.module('greyscale.mock', ['ngMockE2E'])
+    .run(function ($httpBackend, greyscaleUserUoaMock) {
         greyscaleUserUoaMock();
 
         $httpBackend.whenGET(/.*/).passThrough();
