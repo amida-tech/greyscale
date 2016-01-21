@@ -19,11 +19,11 @@ angular.module('greyscaleApp')
         }
 
         function _simpleMiddleForm(tmplUrl, data, ext) {
-            _simpleForm(tmplUrl, data, ext, 'md');
+            return _simpleForm(tmplUrl, data, ext, 'md');
         }
 
         function _simpleLargeForm(tmplUrl, data, ext) {
-            _simpleForm(tmplUrl, data, ext, 'lg');
+            return _simpleForm(tmplUrl, data, ext, 'lg');
         }
 
         function modalForm(data, tableDescription) {
