@@ -17,6 +17,7 @@ var _app = angular.module('greyscaleApp', [
     'ui.bootstrap',
     'ui.router',
     'RDash',
+    'greyscale.mock',
     'greyscale.core',
     'greyscale.rest',
     'greyscale.tables',

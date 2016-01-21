@@ -43,7 +43,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/scripts/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -137,7 +138,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ]
             },
             test: {
@@ -177,7 +179,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     config: '../.jsbeautifyrc'
@@ -190,7 +193,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     mode: 'VERIFY_ONLY',
