@@ -58,24 +58,24 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                $scope.$on('$destroy', function(){
-                   if ($scope.model.multiselect && $scope.model.multiselect.reset) {
-                       $scope.model.multiselect.reset();
-                   }
+                $scope.$on('$destroy', function () {
+                    if ($scope.model.multiselect && $scope.model.multiselect.reset) {
+                        $scope.model.multiselect.reset();
+                    }
                 });
             }
         };
 
         function _getDataMap(data) {
             var map = [];
-            angular.forEach(data,function(item){
+            angular.forEach(data, function (item) {
                 map.push(item.id);
             });
             return map;
         }
 
         function _parseColumns(model) {
-            angular.forEach(model.cols, function(col){
+            angular.forEach(model.cols, function (col) {
                 if (col.multiselect) {
                     _setMultiselect(col, model);
                 }
@@ -89,7 +89,7 @@ angular.module('greyscaleApp')
 
             if (model.multiselect && model.multiselect.init) return;
 
-            col.headerTemplateURL = function(){
+            col.headerTemplateURL = function () {
                 return 'ng-table/headers/check-all.html';
             };
 
@@ -101,28 +101,28 @@ angular.module('greyscaleApp')
                 selectAll: _selectAll(model),
                 fireChange: _fireChange(model),
                 reset: _reset,
-                onChange: function(){},
+                onChange: function () {},
                 setSelected: _setSelected
-            }, model.multiselect||{});
+            }, model.multiselect || {});
 
             function _selectAll(model) {
-                return function(){
+                return function () {
                     var state = this.selectAllState;
-                    angular.forEach(model.dataMap, function(id){
+                    angular.forEach(model.dataMap, function (id) {
                         model.multiselect.selected[id] = state;
                     });
                 }
             }
 
             function _fireChange(model) {
-                return function(){
+                return function () {
                     return _fireChangeHandler(model);
                 };
             }
 
-            function _fireChangeHandler(model){
+            function _fireChangeHandler(model) {
                 var selected = [];
-                angular.forEach(model.dataMap, function(id){
+                angular.forEach(model.dataMap, function (id) {
                     if (model.multiselect.selected[id]) {
                         selected.push(id);
                     }
@@ -141,8 +141,8 @@ angular.module('greyscaleApp')
 
             function _setSelected(list) {
                 _reset();
-                angular.forEach(list, function(item){
-                    if (item && item.id && _.indexOf(model.dataMap, item.id)>=0) {
+                angular.forEach(list, function (item) {
+                    if (item && item.id && _.indexOf(model.dataMap, item.id) >= 0) {
                         model.multiselect.selectedMap.push(item.id);
                         model.multiselect.selected[item.id] = true;
                     }

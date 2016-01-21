@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProjectSetupCtrl', function ($q, $scope, $state, $stateParams, inform,
-                                              greyscaleProjectApi) {
+        greyscaleProjectApi) {
 
         var _parentState = 'projects.setup';
         var _defaultState = false;
@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
             icon: 'fa-tasks'
         }];
 
-        $scope.go = function(state){
+        $scope.go = function (state) {
             $state.go(_parentState + '.' + state);
         };
 
@@ -45,7 +45,7 @@ angular.module('greyscaleApp')
                 $state.go('home');
             });
 
-        _onStateChange(function(state){
+        _onStateChange(function (state) {
             if (state.name == _parentState) {
                 _defaultState = true;
             } else {
@@ -53,20 +53,19 @@ angular.module('greyscaleApp')
             }
         });
 
-
         function _getDefaultState(project) {
             return 'products';
         }
 
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState + '.', '');
-            angular.forEach($scope.tabs, function(tab){
-               tab.active = tab.state == activeState;
+            angular.forEach($scope.tabs, function (tab) {
+                tab.active = tab.state == activeState;
             });
         }
 
         function _onStateChange(handler) {
-            var stateChangeDisable = $scope.$on('$stateChangeSuccess', function(e,state){
+            var stateChangeDisable = $scope.$on('$stateChangeSuccess', function (e, state) {
                 handler(state);
             });
             $scope.$on('$destroy', stateChangeDisable);

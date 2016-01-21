@@ -93,7 +93,7 @@ angular.module('greyscaleApp')
 
                 function _compileLinkCell() {
                     var label = elem.text();
-                    var link = angular.element('<a>'+label+'</a>');
+                    var link = angular.element('<a>' + label + '</a>');
                     if (cell.link.state) {
                         link.attr('ui-sref', cell.link.state);
                     } else if (cell.link.href) {

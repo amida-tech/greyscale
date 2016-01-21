@@ -11,15 +11,32 @@ angular.module('greyscale.rest')
 
         var _list = function (params) {
             return _api().get(params)
-                .catch(function(){
-                    return $q.when([
-                        {id: 1, name: 'step1', description: 'Do step1!'},
-                        {id: 2, name: 'step2', description: 'Do step2!'},
-                        {id: 3, name: 'step3', description: 'Do step3!'},
-                        {id: 4, name: 'step4', description: 'Do step4!'},
-                        {id: 5, name: 'step5', description: 'Do step5!'},
-                        {id: 6, name: 'step6', description: 'Do step6!'}
-                    ]);
+                .catch(function () {
+                    return $q.when([{
+                        id: 1,
+                        name: 'step1',
+                        description: 'Do step1!'
+                    }, {
+                        id: 2,
+                        name: 'step2',
+                        description: 'Do step2!'
+                    }, {
+                        id: 3,
+                        name: 'step3',
+                        description: 'Do step3!'
+                    }, {
+                        id: 4,
+                        name: 'step4',
+                        description: 'Do step4!'
+                    }, {
+                        id: 5,
+                        name: 'step5',
+                        description: 'Do step5!'
+                    }, {
+                        id: 6,
+                        name: 'step6',
+                        description: 'Do step6!'
+                    }]);
                 });
         };
 

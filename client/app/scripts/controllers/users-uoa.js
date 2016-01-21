@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
                     })
                 };
 
-                return $q.all(req).then(function(resp){
+                return $q.all(req).then(function (resp) {
                     $scope.model.users = resp._users;
                     $scope.model.pubUoa = resp._pubUoa;
                     $scope.model.privUoa = resp._privUoa;
@@ -42,10 +42,9 @@ angular.module('greyscaleApp')
                 $scope.model.loading = false;
             });
 
-        function uncheckUoas(_aUoa){
-            for(var u=0; u<_aUoa.length; u++){
+        function uncheckUoas(_aUoa) {
+            for (var u = 0; u < _aUoa.length; u++) {
                 _aUoa[u].checked = false;
             }
         }
     });
-

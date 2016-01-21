@@ -1,11 +1,11 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q,
-                                                      greyscaleProjectApi,
-                                                      greyscaleProductApi,
-                                                      greyscaleModalsSrv,
-                                                      greyscaleUtilsSrv,
-                                                      inform) {
+        greyscaleProjectApi,
+        greyscaleProductApi,
+        greyscaleModalsSrv,
+        greyscaleUtilsSrv,
+        inform) {
 
         var _dicts = {
             surveys: []
@@ -37,7 +37,7 @@ angular.module('greyscale.tables')
             link: {
                 target: '_blank',
                 href: '/survey/{{item.id}}'
-                //state: 'projects.setup({projectId: item.id})'
+                    //state: 'projects.setup({projectId: item.id})'
             }
         }, {
             field: '',
@@ -93,7 +93,7 @@ angular.module('greyscale.tables')
                     surveys: greyscaleProjectApi.surveysList(projectId),
                     products: greyscaleProjectApi.productsList(projectId)
                 };
-                return $q.all(req).then(function(promises){
+                return $q.all(req).then(function (promises) {
                     _dicts.surveys = promises.surveys;
                     return promises.products;
                 });

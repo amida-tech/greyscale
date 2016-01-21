@@ -6,7 +6,6 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function ($q, greyscaleModalsSrv, greyscaleProductApi, greyscaleUtilsSrv, greyscaleWorkflowStepsApi) {
 
-
         var recDescr = [{
             field: 'title',
             show: true,
@@ -42,7 +41,7 @@ angular.module('greyscale.tables')
                 workflow: greyscaleWorkflowStepsApi.list()
             };
 
-            return $q.all(req).then(function(promises){
+            return $q.all(req).then(function (promises) {
                 _setTableMultiselect(promises.productWorkflow);
                 return promises.workflow;
             });

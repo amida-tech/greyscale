@@ -1,13 +1,13 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleProductUoasTbl', function ($q,
-                                                  _,
-                                                  greyscaleProfileSrv,
-                                                  greyscaleProductApi,
-                                                  greyscaleUoaTypeApi,
-                                                  greyscaleUtilsSrv,
-                                                  greyscaleModalsSrv,
-                                                  greyscaleLanguageApi) {
+        _,
+        greyscaleProfileSrv,
+        greyscaleProductApi,
+        greyscaleUoaTypeApi,
+        greyscaleUtilsSrv,
+        greyscaleModalsSrv,
+        greyscaleLanguageApi) {
 
         var dicts = {
             languages: [],
@@ -53,7 +53,8 @@ angular.module('greyscale.tables')
                     class: 'danger',
                     handler: _delRecord
                 }]
-            }];
+            }
+        ];
 
         var _table = {
             title: 'Product Units of Analysis',
@@ -72,11 +73,11 @@ angular.module('greyscale.tables')
 
         function _addUoa() {
             return greyscaleModalsSrv.uoasFilter()
-            .then(function(uoasIds){
-                uoasIds = _filterUoasDuplicates(uoasIds);
-                return _saveNewUoasToProduct(uoasIds);
-            })
-            .then(_reloadTable)    ;
+                .then(function (uoasIds) {
+                    uoasIds = _filterUoasDuplicates(uoasIds);
+                    return _saveNewUoasToProduct(uoasIds);
+                })
+                .then(_reloadTable);
         }
 
         function _getProductId() {

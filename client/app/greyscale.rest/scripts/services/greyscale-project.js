@@ -43,12 +43,20 @@ angular.module('greyscale.rest')
 
         function _surveysList(projectId, params) {
             return _surveysApi(projectId).get(params)
-                .catch(function(){
-                    return $q.when([
-                        {id: 1, name: 'One Sur', description: 'One Sur in nature'},
-                        {id: 2, name: 'Sur 2', description: 'Sur 2 in nature'},
-                        {id: 3, name: 'Sur 3', description: 'Sur 3 in nature'}
-                    ]);
+                .catch(function () {
+                    return $q.when([{
+                        id: 1,
+                        name: 'One Sur',
+                        description: 'One Sur in nature'
+                    }, {
+                        id: 2,
+                        name: 'Sur 2',
+                        description: 'Sur 2 in nature'
+                    }, {
+                        id: 3,
+                        name: 'Sur 3',
+                        description: 'Sur 3 in nature'
+                    }]);
                 });
         }
 

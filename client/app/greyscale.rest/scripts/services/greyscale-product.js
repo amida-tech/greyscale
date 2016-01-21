@@ -34,47 +34,48 @@ angular.module('greyscale.rest')
         }
 
         function _uoasList(productId) {
-            return function(params) {
+            return function (params) {
                 return _productUoasApi(productId).get(params)
-                    .catch(function(){
-                        return $q.when([
-                            {id:1, name: '2222'}
-                        ]);
+                    .catch(function () {
+                        return $q.when([{
+                            id: 1,
+                            name: '2222'
+                        }]);
                     });
             }
         }
 
         function _uoasAddBulk(productId) {
-            return function(uoasIds){
+            return function (uoasIds) {
                 return _productUoasApi(productId).customPOST(uoasIds);
             }
         }
 
         function _uoasDel(productId) {
-            return function(uoaId){
+            return function (uoaId) {
                 return _productUoasApi(productId).one(uoaId + '').remove();
             }
         }
 
         function _workflowList(productId) {
-            return function(params) {
+            return function (params) {
                 return _productWorkflowApi(productId).get(params)
-                .catch(function(){
-                    return $q.when([
-                        {id:1, name: '2222'}
-                    ]);
-                });
+                    .catch(function () {
+                        return $q.when([{
+                            id: 1,
+                            name: '2222'
+                        }]);
+                    });
             }
         }
 
         function _workflowUpdate(productId) {
-            return function(stepIds){
+            return function (stepIds) {
                 return _productUoasApi(productId).customPOST(stepIds);
             }
         }
 
-
-        var _productApi = function(productId){
+        var _productApi = function (productId) {
             return {
                 uoasList: _uoasList(productId),
                 uoasAddBulk: _uoasAddBulk(productId),

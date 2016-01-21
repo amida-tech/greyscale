@@ -75,7 +75,7 @@ angular.module('greyscale.tables')
 
         function _getSearchParam(name) {
             var ids = _table.dataFilter[name];
-            return ids && ids.length ?  ids.join('|') : null;
+            return ids && ids.length ? ids.join('|') : null;
         }
 
         function _getData() {

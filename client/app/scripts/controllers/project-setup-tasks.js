@@ -1,7 +1,6 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ProjectSetupTasksCtrl', function ($scope) {
+    .controller('ProjectSetupTasksCtrl', function ($scope) {
 
-
-});
+    });
