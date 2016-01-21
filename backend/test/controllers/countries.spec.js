@@ -8,7 +8,6 @@ var token;
 var config = require('../../config');
 var Client = require('pg').Client;
 
-
 describe('Countries Controller:', function () {
 
     it('get a token', function (done) {
@@ -126,9 +125,9 @@ describe('Countries Controller:', function () {
 
     describe('updateOne', function () {
 
-        it('updates a document in postgres', function(done) {
-           
-           var data = {
+        it('updates a document in postgres', function (done) {
+
+            var data = {
                 alpha2: 'AG',
             };
 
@@ -163,8 +162,8 @@ describe('Countries Controller:', function () {
 
     describe('deleteOne', function () {
 
-        it('removes a document from postgres', function(done) {
-            
+        it('removes a document from postgres', function (done) {
+
             api
                 .delete('/countries/2')
                 .set('token', token)
