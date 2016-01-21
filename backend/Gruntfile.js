@@ -135,7 +135,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.pem
+                        key: dockerConfig.key
                     }
                 }
             }

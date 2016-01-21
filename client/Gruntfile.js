@@ -39,7 +39,7 @@ module.exports = function (grunt) {
         dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
         dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
     }
-
+    
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -615,7 +615,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.pem
+                        key: dockerConfig.key
                     }
                 }
             }
