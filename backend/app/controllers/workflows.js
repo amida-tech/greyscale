@@ -78,7 +78,7 @@ module.exports = {
                     WorkflowStep
                     .leftJoin(WorkflowStepList)
                     .on(WorkflowStep.stepId.equals(WorkflowStepList.id))
-                )
+                ).where(WorkflowStep.workflowId.equals(req.params.id))
             );
         }).then(function(data){
             res.json(data);

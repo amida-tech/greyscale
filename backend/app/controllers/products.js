@@ -19,8 +19,8 @@ module.exports = {
 
   select: function (req, res, next) {
     co(function* (){
-      //return yield thunkQuery(Product.select(Product.star(), Workflow.select().where(Workflow.id.equals(Product.workflowId))));
-      return yield thunkQuery(Product.select());
+      return yield thunkQuery(Product.select(Product.star(), Workflow.select().where(Workflow.id.equals(Product.workflowId)).as('t')));
+      //return yield thunkQuery(Product.select());
     }).then(function(data){
       res.json(data);
     },function(err){
