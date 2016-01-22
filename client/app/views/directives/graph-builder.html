@@ -1,12 +1,19 @@
 <div id="graphbuilder"></div>
 <div class="form-group">
 
-        <select class="form-control">
+        <label for="survey">Select survey (not functional)</label>
+        <select id="survey" class="form-control">
             <option ng-repeat="survey in surveys">{{ survey.id }}</option>
         </select>
         
-        <svg width='850' height='200'></svg>
+        <label for="graphType">Select graph type</label>
+        <select id="graphType" class="form-control" ng-model="graphType">
+            <option value="bar">Bar</option>
+            <option value="line">Line</option>
+        </select>
         
-        <button class="btn btn-success" ng-click="drawGraph()">Graph</button>
+        <div id="viz"></div>
+        
+        <button class="btn btn-success" ng-click="drawGraph(graphType)">Graph</button>
 
 </div>
