@@ -38,7 +38,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.body.id)));
+            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.params.id)));
         }).then(function () {
             res.status(200).end();
         }, function (err) {
@@ -48,7 +48,7 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.delete().where(Country.id.equals(req.query.id)));
+            return yield thunkQuery(Country.delete().where(Country.id.equals(req.params.id)));
         }).then(function () {
             res.status(204).end();
         }, function (err) {

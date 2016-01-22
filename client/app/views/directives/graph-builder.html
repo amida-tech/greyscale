@@ -1,0 +1,12 @@
+<div id="graphbuilder"></div>
+<div class="form-group">
+
+        <select class="form-control">
+            <option ng-repeat="survey in surveys">{{ survey.id }}</option>
+        </select>
+        
+        <svg width='850' height='200'></svg>
+        
+        <button class="btn btn-success" ng-click="drawGraph()">Graph</button>
+
+</div>

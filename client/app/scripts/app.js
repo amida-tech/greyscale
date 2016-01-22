@@ -230,6 +230,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Visualization',
                 isPublic: false
             }
+        })
+        .state('graph', {
+            parent: 'home',
+            url: 'graph',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/graph.html',
+                    controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                isPublic: false
+            }
         });
 
     $urlRouterProvider.otherwise('/');
