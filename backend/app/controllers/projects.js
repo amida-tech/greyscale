@@ -80,7 +80,7 @@ module.exports = {
                             .leftJoin(Workflow)
                             .on(Product.id.equals(Workflow.productId))
                     )
-                .where(Product.id.equals(req.params.id))
+                .where(Product.projectId.equals(req.params.id))
             );
         }).then(function(data){
             res.json(data);
