@@ -19,8 +19,18 @@ module.exports = {
 
   select: function (req, res, next) {
     co(function* (){
-      return yield thunkQuery(Product.select(Product.star(), Workflow.select().where(Workflow.id.equals(Product.workflowId)).as('t')));
-      //return yield thunkQuery(Product.select());
+      return yield thunkQuery(
+          Product
+              .select(
+                  Product.star(),
+                  'row_to_json("Workflows".*) as workflow'
+              )
+              .from(
+                  Product
+                  .leftJoin(Workflow)
+                  .on(Product.id.equals(Workflow.productId))
+              )
+      );
     }).then(function(data){
       res.json(data);
     },function(err){
@@ -29,17 +39,29 @@ module.exports = {
   },
 
   selectOne: function (req, res, next) {
-    var q = getTranslateQuery(req.lang.id, Product, Product.id.equals(req.params.id));
-    query(q, function (err, data) {
-      if (err) {
-        return next(err);
+    co(function* (){
+      var product =  yield thunkQuery(
+          Product
+              .select(
+                  Product.star(),
+                  'row_to_json("Workflows".*) as workflow'
+              )
+              .from(
+                  Product
+                      .leftJoin(Workflow)
+                      .on(Product.id.equals(Workflow.productId))
+              )
+          .where(Product.id.equals(req.params.id))
+      );
+      if(!_.first(product)){
+        throw new HttpError(403, 'Not found');
       }
-      if(_.first(data)){
-        res.json(_.first(data));
-      }else{
-        return next(new HttpError(404, 'Not found'));
-      }
-    });
+      return _.first(product);
+    }).then(function(data){
+      res.json(data);
+    },function(err){
+      next(err);
+    })
   },
 
   delete: function (req, res, next) {
