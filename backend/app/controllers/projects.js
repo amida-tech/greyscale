@@ -3,6 +3,7 @@ var client = require('app/db_bootstrap'),
   config = require('config'),
   Project = require('app/models/projects'),
   Product = require('app/models/products'),
+  Workflow = require('app/models/workflows'),
   AccessMatrix = require('app/models/access_matrices'),
   Translation = require('app/models/translations'),
   Language = require('app/models/languages'),
@@ -67,13 +68,25 @@ module.exports = {
     },
 
     productList: function (req, res, next) {
-        var q = getTranslateQuery(req.lang.id, Product, Product.projectId.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* (){
+            return yield thunkQuery(
+                Product
+                    .select(
+                        Product.star(),
+                        'row_to_json("Workflows".*) as workflow'
+                    )
+                    .from(
+                        Product
+                            .leftJoin(Workflow)
+                            .on(Product.id.equals(Workflow.productId))
+                    )
+                .where(Product.id.equals(req.params.id))
+            );
+        }).then(function(data){
             res.json(data);
-        });
+        },function(err){
+            next(err);
+        })
     },
 
     uoaList: function (req, res, next) {
