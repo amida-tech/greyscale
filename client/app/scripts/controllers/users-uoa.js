@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('UsersUoaCtrl', function ($scope, $q, _, greyscaleUoaApi, greyscaleUserApi, greyscaleProfileSrv,
-        greyscaleUserUoaApi, $log) {
+        greyscaleUserUoaApi, greyscaleUtilsSrv) {
         $scope.model = {
             users: [],
             pubUoa: [],
@@ -22,6 +22,7 @@ angular.module('greyscaleApp')
 
         $scope.onUserSelect = onUserSelect;
         $scope.checkItem = onUoaCheck;
+        $scope.applyChanges = apply;
 
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
@@ -49,17 +50,21 @@ angular.module('greyscaleApp')
                     $scope.model.users = resp._users;
                     $scope.model.pubUoa = resp._pubUoa;
                     $scope.model.privUoa = resp._privUoa;
-                    checkUoas($scope.model.pubUoa);
-                    checkUoas($scope.model.privUoa);
+                    checkUoas();
                 });
             })
             .finally(function () {
                 $scope.model.loading = false;
             });
 
-        function checkUoas(uoas) {
-            for (var u = 0; u < uoas.length; u++) {
-                uoas[u].checked = _.includes(checks.current, uoas[u].id);
+        function checkUoas() {
+            _check($scope.model.pubUoa);
+            _check($scope.model.privUoa);
+
+            function _check(uoas) {
+                for (var u = 0; u < uoas.length; u++) {
+                    uoas[u].checked = _.includes(checks.current, uoas[u].id);
+                }
             }
         }
 
@@ -80,9 +85,7 @@ angular.module('greyscaleApp')
                             checks.current.push(uoaId * 1);
                         }
                     }
-                    checkUoas($scope.model.pubUoa);
-                    checkUoas($scope.model.privUoa);
-
+                    checkUoas();
                 });
             }
             /*
@@ -100,6 +103,10 @@ angular.module('greyscaleApp')
              */
         }
 
+        function isChanged() {
+            $scope.model.hasChanges = (checks.add.length + checks.del.length > 0 && $scope.model.selectedUsers.length > 0);
+        }
+
         function onUoaCheck(item) {
             var wasChecked = _.includes(checks.current, item.id);
             if (wasChecked) {
@@ -115,7 +122,45 @@ angular.module('greyscaleApp')
                     checks.add.push(item.id);
                 }
             }
-            $scope.model.hasChanges = (checks.add.length + checks.del.length + $scope.model.selectedUsers.length > 0);
+            isChanged();
         }
 
+        function prepareData(users, uoas) {
+            var res = [];
+            for (var u = 0; u < users.length; u++) {
+                for (var uu = 0; uu < uoas.length; uu++) {
+                    res.push({
+                        userId: users[u],
+                        uoaId: uoas[uu]
+                    });
+                }
+            }
+            return res;
+        }
+
+        function apply() {
+            var reqs = [];
+            if ($scope.model.selectedUsers.length > 0) {
+                if (checks.add.length > 0) {
+                    reqs.push(greyscaleUserUoaApi
+                        .addMocked(prepareData($scope.model.selectedUsers, checks.add))
+                        .then(function () {
+                            checks.add = [];
+                            return true;
+                        }));
+                }
+
+                if (checks.del.length > 0) {
+                    reqs.push(greyscaleUserUoaApi
+                        .delMocked(prepareData($scope.model.selectedUsers, checks.del))
+                        .then(function () {
+                            checks.del = [];
+                            return true;
+                        }));
+                }
+                $q.all(reqs)
+                    .then(isChanged)
+                    .catch(greyscaleUtilsSrv.errorMsg);
+            }
+        }
     });

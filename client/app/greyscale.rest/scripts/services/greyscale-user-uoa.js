@@ -7,7 +7,9 @@ angular.module('greyscale.rest')
         return {
             list: _list,
             add: _add,
-            del: _del
+            del: _del,
+            addMocked: _addMocked,
+            delMocked: _delMocked
         };
 
         function _resp(respObj) {
@@ -23,10 +25,18 @@ angular.module('greyscale.rest')
         }
 
         function _add(list) {
-            return _api().customPOST(list).then(_resp);
+            return _api().customPOST(list);
         }
 
         function _del(list) {
-            return _api().remove(list).then(_resp);
+            return _api().remove(list);
+        }
+
+        function _addMocked(list) {
+            return _api().one('mock').customPOST(list);
+        }
+
+        function _delMocked(list) {
+            return _api().one('mock').remove(list);
         }
     });

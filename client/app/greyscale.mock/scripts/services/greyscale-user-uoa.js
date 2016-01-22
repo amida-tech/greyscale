@@ -25,6 +25,7 @@ angular.module('greyscale.mock')
                     $log.debug('mocking ' + method + ':' + url);
                     var pUrl = greyscaleUtilsSrv.parseURL(url);
                     var res = userUoa;
+                    $log.debug(userUoa);
                     if (pUrl.params.userId) {
                         var ids = pUrl.params.userId.split('|');
                         res = _.filter(userUoa, function (uoa) {
@@ -34,30 +35,43 @@ angular.module('greyscale.mock')
                     return [200, res, {}];
                 });
 
-            $httpBackend.whenPOST(/user-uoa\?.*mock/)
+            $httpBackend.whenPOST(/user-uoa\/mock/)
                 .respond(function (method, url, data) {
                     $log.debug('mocking ' + method + ':' + url);
+                    data = JSON.parse(data);
                     $log.debug(data);
-
-                    for (var d = 0; d < data.length; d++) {
-                        if (data[d] && !_.find(userUoa, data[d])) {
-                            userUoa.push(userUoa, data[d]);
+                    if (data) {
+                        for (var d = 0; d < data.length; d++) {
+                            if (data[d] && !_.find(userUoa, data[d])) {
+                                $log.debug('adding', data[d]);
+                                userUoa.push(data[d]);
+                            }
                         }
+                        return [200, 'ok', {}];
+                    } else {
+                        return [401, 'incorrect data', {}];
                     }
-                    return [200, userUoa, {}];
                 });
 
-            $httpBackend.whenDELETE(/user-uoa\?.*mock/)
-                .respond(function (method, url, data) {
+            $httpBackend.whenDELETE(/user-uoa\/mock/)
+                .respond(function (method, url) {
                     $log.debug('mocking ' + method + ':' + url);
-                    $log.debug(data);
-
-                    for (var d = 0; d < data.length; d++) {
-                        if (data[d]) {
-                            _.remove(userUoa, data[d]);
+                    var pUrl = greyscaleUtilsSrv.parseURL(url);
+                    if (pUrl && pUrl.params) {
+                        for (var d in pUrl.params) {
+                            if (pUrl.params.hasOwnProperty(d) && pUrl.params[d]) {
+                                $log.debug(pUrl.params[d]);
+                                var obj = JSON.parse(pUrl.params[d]);
+                                if (obj) {
+                                    $log.debug('removing ', obj);
+                                    _.remove(userUoa, obj);
+                                }
+                            }
                         }
+                        return [200, 'ok', {}];
+                    } else {
+                        return [401, 'incorrect data', {}];
                     }
-                    return [200, userUoa, {}];
                 });
         };
     });

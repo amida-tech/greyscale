@@ -6,15 +6,20 @@
 angular.module('greyscale.core')
     .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv) {
         return function (headers) {
+            headers = headers || {};
+            var aHeaders = {
+                'Content-Type': 'application/json'
+            };
+            angular.extend(aHeaders, headers);
+
             return Restangular.withConfig(function (RestangularConfigurer) {
-                headers = headers || {};
                 var token = greyscaleTokenSrv();
                 if (token) {
-                    angular.extend(headers, {
+                    angular.extend(aHeaders, {
                         token: token
                     });
                 }
-                RestangularConfigurer.setDefaultHeaders(headers);
+                RestangularConfigurer.setDefaultHeaders(aHeaders);
             });
         };
     });
