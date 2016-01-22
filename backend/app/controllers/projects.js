@@ -89,10 +89,6 @@ module.exports = {
         })
     },
 
-    uoaList: function (req, res, next) {
-      next();
-    },
-
     insertOne: function (req, res, next) {
         co(function* () {
             yield* checkProjectData(req);

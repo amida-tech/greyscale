@@ -125,6 +125,7 @@ module.exports = {
     });
   },
 
+
   UOAaddMultiple: function (req, res, next) {
     co(function* (){
       if(!Array.isArray(req.body)){
@@ -162,14 +163,6 @@ module.exports = {
       next(err);
     });
 
-
-    //query(ProductUOA.insert({productId : req.params.id, UOAid : req.params.uoaid}), function (err, data) {
-    //  if (!err) {
-    //    res.status(201).end();
-    //  } else {
-    //    next(err);
-    //  }
-    //});
   },
 
   UOAdelete: function (req, res, next) {
