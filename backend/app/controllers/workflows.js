@@ -73,7 +73,7 @@ module.exports = {
     steps: function (req, res, next) {
         co(function* () {
             return yield thunkQuery(
-                WorkflowStep.select(WorkflowStepList.star())
+                WorkflowStep.select(WorkflowStepList.star(), WorkflowStep.star())
                 .from(
                     WorkflowStep
                     .leftJoin(WorkflowStepList)
