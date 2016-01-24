@@ -4,12 +4,12 @@
 'use strict';
 
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
-    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleSrvProvider) {
+    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
         RestangularProvider.setBaseUrl(greyscaleEnv.baseServerUrl);
         RestangularProvider.setDefaultHttpFields({
             cache: false,
             withCredentials: false
         });
-        var greyscaleRoleSrv = greyscaleRoleSrvProvider.$get();
-        greyscaleRoleSrv.list().then(greyscaleGlobalsProvider.initRoles);
+        var greyscaleRoleApi = greyscaleRoleApiProvider.$get();
+        greyscaleRoleApi.list().then(greyscaleGlobalsProvider.initRoles);
     });

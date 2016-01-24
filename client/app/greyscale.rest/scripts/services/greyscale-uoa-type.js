@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUoaTypeSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleUoaTypeApi', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('uoatypes');

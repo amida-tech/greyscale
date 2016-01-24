@@ -4,11 +4,11 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, $state, greyscaleProjects) {
-        var projects = greyscaleProjects;
+    .controller('ProjectsCtrl', function ($scope, $state, greyscaleProjectsTbl) {
+        var projects = greyscaleProjectsTbl;
 
         $scope.model = {
-            projects: projects,
+            projects: projects
         };
 
         $scope.projectSelect = function (row) {

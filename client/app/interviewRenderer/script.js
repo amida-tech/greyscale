@@ -20,27 +20,48 @@ function readySurvey() {
 }
 
 var data;
+var survey;
+var currentParent;
+
+//Generate Survey
+var content;
 function generateSurvey(json) {
-    var survey = $('#survey');
+    survey = $('#survey');
+    currentParent = survey;
     data = json.fields;
-    for (var i = 0; i < data.length; i++) fieldCreate(data[i], survey);
+    var contentDiv = $.create('div', { className: 'content-container compact' });
+    $.start(contentDiv, survey);
+    $.inside($.create('span', { contents: ['Content'], className: 'content-title' }), contentDiv);
+    var button = $.create('a', { className: 'expand-button' });
+    button._.events({ 'click': function () { contentDiv.classList.toggle('compact'); } });
+    $.inside(button, contentDiv);
+    content = $.create('ul', { className: 'content' });
+    $.inside(content, contentDiv);
+    for (var i = 0; i < data.length; i++) fieldCreate(data[i]);
 }
 
-function getField(cid) {
-    return $('#' + cid);
-}
+function getField(cid) { return $('#' + cid); }
 function getData(cid) {
     for (var i = 0; i < data.length; i++) if (data[i].cid === cid) return data[i];
 }
 
 var hasChanges = false;
-function fieldCreate(data, survey) {
+function fieldCreate(data) {
     var type = data.field_type;
     if (type === 'date' || type === 'time' || type === 'website' || type === 'address') return;
     
-    var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'address' ? 'div' : 'label';
-    var field = $.create(tag, { id: data.cid, contents: [data.label], className: 'field ' + type, 'data-type': type });
-    if (data.required && type !== 'section_break') $.inside($.create('span', {
+    if (type !== 'section_end') {
+        var contentElement = $.create('li', { contents: [data.label] });
+        contentElement._.events({ 'click': function () { getField(data.cid).scrollIntoView(); } });
+        $.inside(contentElement, content);
+    }
+    
+    var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'section_start' || type === 'section_end' ? 'div' : 'label';
+    
+    var field = $.create(tag, { id: data.cid, className: 'field ' + type, 'data-type': type });
+    $.inside($.create('span', { contents: [data.label], className: 'field-label' }), field);
+    
+    if (data.required && type !== 'section_break' && type !== 'section_start' && type !== 'section_end') $.inside($.create('span', {
         contents: ['*'],
         className: 'required'
     }), field);
@@ -48,9 +69,15 @@ function fieldCreate(data, survey) {
         contents: [data.field_options.description],
         className: 'description'
     }), field);
-    if (field) $.inside(field, survey);
+    if (field) $.inside(field, currentParent);
     
     switch (type) {
+        case 'section_start':
+            fieldSectionStart(data);
+            break;
+        case 'section_end':
+            fieldSectionEnd(data);
+            break;
         case 'text':
         case 'email':
             fieldText(data);
@@ -78,6 +105,18 @@ function fieldCreate(data, survey) {
     }
     validationRule(data);
 };
+function fieldSectionStart(data) {
+    currentParent = getField(data.cid);
+    var button = $.create('a', { className: 'expand-button' });
+    var cur = currentParent;
+    button._.events({ 'click': function () { cur.classList.toggle('compact'); } });
+    $.inside(button, currentParent);
+}
+function fieldSectionEnd(data) {
+    if (currentParent === survey) return;
+    
+    currentParent = currentParent.parentNode;
+}
 function fieldText(data) {
     var div = $.create('div');
     $.inside(div, getField(data.cid));
@@ -184,7 +223,9 @@ function addRemoveError(data, error, mustHaveError) {
     else if (index > -1 && mustHaveError) data.errors[index].text = error.text;
     showErrors(data);
 }
+//End Generate Survey
 
+//Validation
 function validateAll(data) {
     validateRequired(data);
     validateLength(data);
@@ -357,42 +398,44 @@ function validationRuleEmail(data) {
     if (data.field_type !== 'email') return;
     $('input', getField(data.cid))._.events({ 'blur': function () { validateEmail(data); } });
 }
+//Validation
 
-function getValues() {
-    var fields = $$('.field');
-    var vals = {};
-    for (var i = 0; i < fields.length; i++) {
-        var id = fields[i].id;
-        var type = fields[i]._.getAttribute('data-type');
-        switch (type) {
-            case 'text':
-            case 'price':
-            case 'number':
-            case 'email':
-                vals[id] = $('input', fields[i]).value;
-                break;
-            case 'checkboxes':
-            case 'radio':
-                var inputs = $$('input', fields[i]);
-                var list = [];
-                for (j = 0; j < inputs.length; j++) {
-                    if (!inputs[j].checked) continue;
-                    if (inputs[j].className.indexOf('other') === -1) list.push(inputs[j].value);
-                    else list.push($('.other-text', fields[i]).value);
-                }
-                vals[id] = list.join('|');
-                break;
-            case 'paragraph':
-                vals[id] = $('textarea', fields[i]).value;
-                break;
-            case 'dropdown':
-                vals[id] = $('select', fields[i]).value;
-                break;
-            case 'section_break':
-                break;
-        }
-    }
-    return vals;
+//Load
+var userId;
+var surveyAnswers;
+var surveyAnswersId;
+function load() {
+    if (!data) return;
+    getUser()
+}
+function getUser() {
+    var url = 'http://indaba.ntrlab.ru:83/v0.2/users/self';
+    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
+        userId = request.response.id;
+        getSurveyAnswers();
+    }).catch(function (error) {
+        setCurrentAnswers();
+        console.error(error);
+    });
+}
+function getSurveyAnswers() {
+    var surveyId = window.location.hash.replace('#', '');
+    var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers/?surveyId=' + surveyId + '&userId=' + userId;
+    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
+        surveyAnswers = JSON.parse(request.response[0].data);
+        surveyAnswersId = request.response[0].id;
+        setCurrentAnswers();
+    }).catch(function (error) {
+        setCurrentAnswers();
+        console.error(error);
+    });
+}
+function setCurrentAnswers() {
+    if (!surveyAnswersId)
+        for (var i = 0; i < data.length; i++)
+            surveyAnswers[data[i].cid] = localStorage.getItem(data[i].cid);
+    setValues(surveyAnswers);
+    autosave();
 }
 function setValues(vals) {
     var fields = $$('.field');
@@ -442,44 +485,9 @@ function setValues(vals) {
         validateAll(getData(id));
     }
 }
+//End Load
 
-var userId;
-var surveyAnswers;
-var surveyAnswersId;
-function load() {
-    if (!data) return;
-    getUser()
-}
-function getUser() {
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/users/self';
-    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        userId = request.response.id;
-        getSurveyAnswers();
-    }).catch(function (error) {
-        setCurrentAnswers();
-        console.error(error);
-    });
-}
-function getSurveyAnswers() {
-    var surveyId = window.location.hash.replace('#', '');
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers/?surveyId=' + surveyId + '&userId=' + userId;
-    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        surveyAnswers = JSON.parse(request.response[0].data);
-        surveyAnswersId = request.response[0].id;
-        setCurrentAnswers();
-    }).catch(function (error) {
-        setCurrentAnswers();
-        console.error(error);
-    });
-}
-function setCurrentAnswers() {
-    if (!surveyAnswersId)
-        for (var i = 0; i < data.length; i++)
-            surveyAnswers[data[i].cid] = localStorage.getItem(data[i].cid);
-    setValues(surveyAnswers);
-    autosave();
-}
-
+//Save
 function save(callback) {
     if (!hasChanges) {
         if (callback) callback();
@@ -507,8 +515,45 @@ function save(callback) {
         if (callback) callback();
     });
 }
+function getValues() {
+    var fields = $$('.field');
+    var vals = {};
+    for (var i = 0; i < fields.length; i++) {
+        var id = fields[i].id;
+        var type = fields[i]._.getAttribute('data-type');
+        switch (type) {
+            case 'text':
+            case 'price':
+            case 'number':
+            case 'email':
+                vals[id] = $('input', fields[i]).value;
+                break;
+            case 'checkboxes':
+            case 'radio':
+                var inputs = $$('input', fields[i]);
+                var list = [];
+                for (j = 0; j < inputs.length; j++) {
+                    if (!inputs[j].checked) continue;
+                    if (inputs[j].className.indexOf('other') === -1) list.push(inputs[j].value);
+                    else list.push($('.other-text', fields[i]).value);
+                }
+                vals[id] = list.join('|');
+                break;
+            case 'paragraph':
+                vals[id] = $('textarea', fields[i]).value;
+                break;
+            case 'dropdown':
+                vals[id] = $('select', fields[i]).value;
+                break;
+            case 'section_break':
+                break;
+        }
+    }
+    return vals;
+}
 function autosave() {
     setTimeout(function () { save(function () { autosave(); }); }, 5000);
 }
+//End Save
 
 $.ready().then(function () { readySurvey(); });

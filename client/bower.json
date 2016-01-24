@@ -17,7 +17,8 @@
     "lodash-angular-wrapper": "*",
     "angular-messages": "~1.4.7",
     "angular-inform": "~0.0.18",
-    "ng-table": "~0.8.3"
+    "ng-table": "~0.8.3",
+    "angular-mocks": "~1.4.8"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"
@@ -33,10 +34,10 @@
       ]
     },
     "backbone-deep-model": {
-        "main": "src/deep-model.js"
+      "main": "src/deep-model.js"
     },
     "rivets": {
-        "main": "dist/rivets.js"
+      "main": "dist/rivets.js"
     }
   },
   "resolutions": {

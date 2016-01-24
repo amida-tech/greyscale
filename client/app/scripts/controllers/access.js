@@ -4,18 +4,18 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('AccessCtrl', function ($scope, greyscaleRoles, greyscaleRights, greyscaleRoleRights) {
+    .controller('AccessCtrl', function ($scope, greyscaleRolesTbl, greyscaleRightsTbl, greyscaleRoleRightsTbl) {
 
         $scope.model = {
-            roles: greyscaleRoles,
-            rights: greyscaleRights,
-            roleRights: greyscaleRoleRights
+            roles: greyscaleRolesTbl,
+            rights: greyscaleRightsTbl,
+            roleRights: greyscaleRoleRightsTbl
         };
 
         $scope.selectRole = function (role) {
             if (typeof role !== 'undefined') {
-                greyscaleRoleRights.dataFilter.role = role;
-                greyscaleRoleRights.tableParams.reload();
+                greyscaleRoleRightsTbl.dataFilter.role = role;
+                greyscaleRoleRightsTbl.tableParams.reload();
             }
             return role;
         };

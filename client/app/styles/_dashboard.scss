@@ -31,4 +31,23 @@
             cursor: pointer;
         }
     }
+    .row-actions {
+        white-space: nowrap;
+        button {
+            margin-left: 4px;
+        }
+        button:first-child {
+            margin-left: 0;
+        }
+    }
+    th.header-actions {
+        width: 1%;
+    }
+    th.header {
+        .select-all {
+            margin: 0;
+            position: relative;
+            top: 2px;
+        }
+    }
 }

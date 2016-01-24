@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleCountrySrv', function (greyscaleRestSrv) {
+    .factory('greyscaleCountryApi', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('countries');
