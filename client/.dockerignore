@@ -1,5 +1,8 @@
-**
-!Dockerfile
-!docker-nginx.conf
-!start-nginx.sh
-!dist
+.*
+app
+bower_components
+node_modules
+test
+*.json
+*.js
+*.md
