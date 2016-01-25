@@ -28,9 +28,18 @@ angular.module('greyscaleApp')
             },
             controllerAs: '',
             link: function ($scope, elem) {
-                var cell = $scope.widgetCell;
-                if (cell.show) {
-                    var _field = cell.field;
+                var cell = angular.copy($scope.widgetCell);
+
+                _resolveDotNotation();
+
+                var _field = cell.field;
+
+                if (cell.showDataInput) {
+                    $scope.model = $scope.rowValue;
+                    _compileDataInput();
+
+                } else if (cell.show) {
+
                     $scope.model = $scope.rowValue[_field];
 
                     switch (cell.dataFormat) {
@@ -83,7 +92,7 @@ angular.module('greyscaleApp')
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<input type="checkbox" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
+                    elem.append('<input type="checkbox" class="multiselect-checkbox disable-control" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
                     $compile(elem.contents())($scope);
                 }
 
@@ -107,6 +116,28 @@ angular.module('greyscaleApp')
                     $compile(elem.contents())($scope);
                 }
 
+                function _resolveDotNotation() {
+                    if (cell.field && cell.field.match(/\w+\.\w+/)) {
+                        var parts = cell.field.split('.');
+                        $scope.rowValue = $scope.rowValue[parts[0]] || {};
+                        cell.field = parts[1];
+                    }
+                }
+
+                function _compileDataInput() {
+                    elem.addClass('input-cell');
+                    elem.append('<div class="form-group" ' +
+                        'modal-form-rec="model" ' +
+                        'embedded="true" modal-form-field="widgetCell" ' +
+                        'modal-form-field-model="model.' + _field + '" ' +
+                        '></div>');
+                    switch (cell.dataFormat) {
+                    case 'date':
+                        elem.addClass('auto-width');
+                        break;
+                    }
+                    $compile(elem.contents())($scope);
+                }
             }
         };
     });

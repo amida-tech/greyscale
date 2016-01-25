@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (NgTableParams, $filter) {
+    .directive('widgetTable', function (_, NgTableParams, $filter) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -49,7 +49,28 @@ angular.module('greyscaleApp')
                     return (typeof $scope.rowSelector !== 'undefined' && $scope.model.current === row);
                 };
 
-                $scope.select = function (row) {
+                $scope.isDisabled = function (row) {
+                    if (!$scope.model.multiselect) {
+                        return false;
+                    } else {
+                        return $scope.model.multiselect.disableOnUncheck && !$scope.model.multiselect.selected[row.id];
+                    }
+                };
+
+                $scope.select = function (row, e) {
+
+                    //if ($scope.model.multiselect) {
+                    //    var target = angular.element(e.target);
+                    //    var disabled = $scope.isDisabled(row);
+                    //    if (target.hasClass('multiselect-checkbox')) {
+                    //        return true;
+                    //    } else if (disabled) {
+                    //        e.preventDefault();
+                    //        e.stopPropagation();
+                    //        return;
+                    //    }
+                    //}
+
                     $scope.model.current = row;
                     if (typeof $scope.rowSelector === 'function') {
                         $scope.rowSelector(row);
@@ -91,6 +112,7 @@ angular.module('greyscaleApp')
                 return;
             }
 
+            col.class = 'header-multiselect';
             col.headerTemplateURL = function () {
                 return 'ng-table/headers/check-all.html';
             };
@@ -100,6 +122,7 @@ angular.module('greyscaleApp')
                 selected: {},
                 selectedMap: [],
                 selectAllState: false,
+                disableOnUncheck: col.multiselectDisableOnUncheck,
                 selectAll: _selectAll(model),
                 fireChange: _fireChange(model),
                 reset: _reset,
@@ -141,13 +164,12 @@ angular.module('greyscaleApp')
                 model.multiselect.selectAllState = false;
             }
 
-            function _setSelected(list) {
+            function _setSelected(list, field) {
                 _reset();
-                angular.forEach(list, function (item) {
-                    if (item && item.id && _.indexOf(model.dataMap, item.id) >= 0) {
-                        model.multiselect.selectedMap.push(item.id);
-                        model.multiselect.selected[item.id] = true;
-                    }
+                field = field || 'id';
+                angular.forEach(_.filter(list, field), function (item) {
+                    model.multiselect.selectedMap.push(item[field]);
+                    model.multiselect.selected[item[field]] = true;
                 });
             }
         }

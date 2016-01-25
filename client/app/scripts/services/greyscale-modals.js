@@ -64,6 +64,7 @@ angular.module('greyscaleApp')
             return $uibModal.open({
                 templateUrl: 'views/modals/product-workflow.html',
                 controller: 'ModalProductWorkflowCtrl',
+                controllerAs: 'ctrl',
                 size: 'lg',
                 windowClass: 'modal fade in',
                 resolve: {

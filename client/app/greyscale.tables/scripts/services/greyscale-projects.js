@@ -29,7 +29,8 @@ angular.module('greyscale.tables')
             sortable: 'organizationId',
             title: 'Organization',
             dataFormat: 'option',
-            dataReadOnly: 'both',
+            dataReadOnly: 'edit',
+            dataHide: _isNotSuperAdmin,
             dataSet: {
                 getData: getOrgs,
                 keyField: 'id',
@@ -83,18 +84,18 @@ angular.module('greyscale.tables')
                 valField: 'name'
             }
         }, {
-            field: 'adminUserId',
-            show: _isSuperAdmin,
-            sortable: false,
-            title: 'Admin',
-            dataFormat: 'option',
-            dataSet: {
-                getData: getUsers,
-                keyField: 'id',
-                valField: 'email'
-            },
-            dataReadOnly: 'both'
-        }, {
+            //    field: 'adminUserId',
+            //    show: _isSuperAdmin,
+            //    sortable: false,
+            //    title: 'Admin',
+            //    dataFormat: 'option',
+            //    dataSet: {
+            //        getData: getUsers,
+            //        keyField: 'id',
+            //        valField: 'email'
+            //    },
+            //    dataReadOnly: 'both'
+            //}, {
             field: 'closeTime',
             dataFormat: 'date',
             show: true,
@@ -147,6 +148,10 @@ angular.module('greyscale.tables')
 
         function _isSuperAdmin() {
             return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
+
+        function _isNotSuperAdmin() {
+            return !_isSuperAdmin();
         }
 
         function _setAccessLevel() {
