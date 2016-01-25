@@ -8,12 +8,22 @@
         
         <label for="graphType">Select graph type</label>
         <select id="graphType" class="form-control" ng-model="graphType">
-            <option value="bar">Bar</option>
-            <option value="line">Line</option>
+            <option ng-repeat="type in graphTypes" value="{{type}}">{{ type }}</option>
+        </select>
+        
+        <label for="graphType">Select X-axis variable</label>
+        <select id="graphType" class="form-control" ng-model="graphX">
+            <option ng-repeat="(key, value) in data[0]" value="{{key}}">{{ key }}</option>
+        </select>
+        
+        <label for="graphType">Select Y-axis variable</label>
+        <select id="graphType" class="form-control" ng-model="graphY">
+            <option ng-repeat="(key, value) in data[0]" value="{{key}}">{{ key }}</option>
         </select>
         
         <div id="viz"></div>
-        
-        <button class="btn btn-success" ng-click="drawGraph(graphType)">Graph</button>
 
+        <button class="btn btn-success"
+                style="position: absolute; bottom: 20px; right: 40px;"
+                ng-click="drawGraph(graphType)">Graph</button>
 </div>

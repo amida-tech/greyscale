@@ -11,10 +11,16 @@ angular
             restrict: 'E',
             link: function (scope, elem, attr) {
 
+                scope.graphTypes = [
+                  "Bar",
+                  "Line",
+                  "Scatter",
+                ];
+
                 /*
                  * Data variables
                  */
-                var data = [
+                scope.data = [
                     { 'country': 'United States', 'value': 'B' },
                     { 'country': 'Canada', 'value': 'B' },
                     { 'country': 'Australia', 'value': 'B' },
@@ -31,50 +37,69 @@ angular
                 });
 
                 /*
-                 * D3 functions
+                 * Plotly functions
                  */
-                scope.drawGraph = function(graphType) {
-                    
-                    function generateData(data, xVal, yVal) {
-                        var x = [];
-                        var y = [];
-                        
-                        var groups = _.groupBy(data, xVal);
+                var layout = {
+                    autosize: true,
+                    // width: 500,
+                    // height: 500,
+                    margin: {
+                        l: 50,
+                        r: 50,
+                        b: 100,
+                        t: 100,
+                        pad: 4
+                    },
+                };
+                
+                function generateData(data, xVal, yVal) {
+                    var x = [];
+                    var y = [];
 
-                        _.forEach(groups, function(g, key) {
-                            x.push(key);
-                            y.push(g.length);
-                        });
-                        
-                        // Sort the arrays dependently
-                        var zipped = _.zip(x, y);
-                        var sorted = _.sortBy(zipped, function(a) {
-                            return a[0];
-                        });
-                        var unzipped = _.unzip(sorted);
-                        
-                        return [{
-                            'x': unzipped[0],
-                            'y': unzipped[1],
-                        }];
-                    }
-                    
-                    var graphData = generateData(data, 'value', 'country');
+                    // Group the data into x-axis value buckets
+                    var groups = _.groupBy(data, xVal);
 
-                    switch(graphType) {
-                        case "line":
+                    // Count the number of entries for each x-axis bucket
+                    _.forEach(groups, function (g, key) {
+                        x.push(key);
+                        y.push(g.length);
+                    });
+                        
+                    // Sort the arrays dependently
+                    var zipped = _.zip(x, y);
+                    var sorted = _.sortBy(zipped, function (a) {
+                        return a[0];
+                    });
+                    var unzipped = _.unzip(sorted);
+
+                    return [{
+                        'x': unzipped[0],
+                        'y': unzipped[1],
+                    }];
+                }
+                
+                scope.drawGraph = function (graphType) {
+
+                    var graphData = generateData(scope.data, scope.graphX, scope.graphY);
+
+                    switch (graphType) {
+                        case "Scatter":
+                            graphData[0].type = 'scatter';
+                            graphData[0].mode = 'markers';
+                            break;
+                        case "Line":
                             graphData[0].type = 'scatter';
                             break;
-                        case "bar":
+                        case "Bar":
                             graphData[0].type = 'bar';
                             break;
                         default:
                             graphData[0].type = 'bar';
-                            break;     
+                            break;
                     }
 
-                    Plotly.newPlot('viz', graphData);
-                }
+                    Plotly.newPlot('viz', graphData, layout);
+                };
 
             }
         };
