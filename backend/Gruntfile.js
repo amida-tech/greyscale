@@ -146,6 +146,14 @@ module.exports = function (grunt) {
                 src: 'dev-Dockerrun.aws.json',
                 dest: 'Dockerrun.aws.json',
             },
+            stage: {
+                src: 'staging-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
+            prod: {
+                src: 'prod-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
         },
 
         compress: {
@@ -158,18 +166,30 @@ module.exports = function (grunt) {
         },
 
         awsebtdeploy: {
+            options: {
+                region: 'us-west-2',
+                applicationName: 'greyscale',
+                sourceBundle: 'latest-backend.zip',
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                versionLabel: 'backend-' + Date.now(),
+                s3: {
+                    bucket: 'amida-greyscale'
+                }
+            },
             dev: {
                 options: {
-                    region: 'us-west-2',
-                    applicationName: 'greyscale',
                     environmentName: 'greyscale-backend-dev',
-                    sourceBundle: 'latest-backend.zip',
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                    versionLabel: 'backend-' + Date.now(),
-                    s3: {
-                        bucket: 'amida-greyscale'
-                    }
+                }
+            },
+            stage: {
+                options: {
+                    environmentName: 'greyscale-backend-stage',
+                }
+            },
+            prod: {
+                options: {
+                    environmentName: 'greyscale-backend-prod',
                 }
             }
         }
@@ -221,6 +241,16 @@ module.exports = function (grunt) {
         'copy:dev',
         'compress',
         'awsebtdeploy:dev'
+    ]);
+    grunt.registerTask('ebsStage', [
+        'copy:stage',
+        'compress',
+        'awsebtdeploy:stage'
+    ]);
+    grunt.registerTask('ebsProd', [
+        'copy:prod',
+        'compress',
+        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('test', [
