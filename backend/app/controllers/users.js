@@ -382,6 +382,62 @@ module.exports = {
     });
   },
 
+  UOAdeleteMultiple: function (req, res, next) {
+    co(function* (){
+      if(!Array.isArray(req.body)){
+        throw new HttpError(403, 'You should pass an array of unit ids in request body');
+      }
+      var q = UserUOA.delete();
+      for (var i in req.body) {
+        q = q.or({UserId: req.params.id, UOAid: req.body[i]});
+      }
+      return yield thunkQuery(q);
+    }).then(function(data){
+      res.status(204).end();
+    }, function(err) {
+      next(err);
+    });
+  },
+
+  UOAaddMultiple: function (req, res, next) {
+    co(function* (){
+      if(!Array.isArray(req.body)){
+        throw new HttpError(403, 'You should pass an array of unit ids in request body');
+      }
+
+      var user = yield thunkQuery(User.select().where(User.id.equals(req.params.id)));
+      if(!_.first(user)){
+        throw new HttpError(403, 'User with id = ' + req.params.id + ' does not exist');
+      }
+
+      var result = yield thunkQuery(UserUOA.select(UserUOA.UOAid).from(UserUOA).where(UserUOA.UserId.equals(req.params.id)));
+      var exist_ids = result.map(function(value, key){
+        return value.UOAid;
+      });
+      var result = yield thunkQuery(UOA.select(UOA.id).from(UOA).where(UOA.id.in(req.body)));
+      var ids = result.map(function(value, key){
+        return value.id;
+      });
+      var insertArr = [];
+      for (var i in req.body) {
+        if (ids.indexOf(req.body[i]) == -1) {
+          throw new HttpError(403, 'Unit of Analisys with id = ' + req.body[i] + ' does not exist');
+        }
+        if (exist_ids.indexOf(req.body[i]) > -1){
+          throw new HttpError(403, 'Relation for Unit of Analisys with id = ' + req.body[i] + ' has already existed');
+        }
+        insertArr.push({UserId: req.params.id, UOAid: req.body[i]});
+      }
+
+      return yield thunkQuery(UserUOA.insert(insertArr));
+    }).then(function(data){
+      res.status(201).end();
+    }, function(err) {
+      next(err);
+    });
+
+  },
+
   selectOne: function (req, res, next) {
     query(User.select().where(req.params), function (err, user) {
       if (!err) {

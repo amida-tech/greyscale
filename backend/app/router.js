@@ -70,9 +70,6 @@ router.route('/v0.2/projects/:id')
     .delete(authenticate('token').always, projects.delete)
     .put(authenticate('token').always, projects.editOne);
 
-router.route('/v0.2/projects/:id/uoa')
-    .get(authenticate('token').always, projects.uoaList);
-
 router.route('/v0.2/projects/:id/products')
     .get(authenticate('token').always, projects.productList);
 
@@ -259,7 +256,9 @@ router.route('/v0.2/users/:id')
   .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
 
 router.route('/v0.2/users/:id/uoa')
-    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect);
+    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect)
+    .post(authenticate('token').always, checkRight('users_uoa'), users.UOAaddMultiple)
+    .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdeleteMultiple);
 
 router.route('/v0.2/users/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdelete)
