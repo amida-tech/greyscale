@@ -1,6 +1,6 @@
 var sql = require('sql');
 
-var columns =  [
+var columns = [
     'id',
     'workflowId',
     'stepId',

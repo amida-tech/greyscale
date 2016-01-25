@@ -10,10 +10,10 @@ var client = require('app/db_bootstrap'),
     Essence = require('app/models/essences'),
     co = require('co'),
     Query = require('app/util').Query,
-/*
-    getTranslateQuery = require('app/util').getTranslateQuery,
-    detectLanguage = require('app/util').detectLanguage,
-*/
+    /*
+        getTranslateQuery = require('app/util').getTranslateQuery,
+        detectLanguage = require('app/util').detectLanguage,
+    */
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
@@ -53,25 +53,25 @@ module.exports = {
     checkInsert: function (req, res, next) {
         co(function* () {
 
-            var data_classTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
+            var dataClassTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
                 .where(UnitOfAnalysisTag.id.equals(req.body.uoaTagId)));
-            var classTypeId = data_classTypeId[0] ? data_classTypeId[0].classTypeId : null;
-            var query_classTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
-            if (data_classTypeId[0]) {
-                query_classTypeName = query_classTypeName.where(UnitOfAnalysisClassType.id.equals(data_classTypeId[0].classTypeId));
+            var classTypeId = dataClassTypeId[0] ? dataClassTypeId[0].classTypeId : null;
+            var queryClassTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
+            if (dataClassTypeId[0]) {
+                queryClassTypeName = queryClassTypeName.where(UnitOfAnalysisClassType.id.equals(dataClassTypeId[0].classTypeId));
             }
-            var classTypeName = thunkQuery(query_classTypeName);
+            var classTypeName = thunkQuery(queryClassTypeName);
 
             var query = UnitOfAnalysisTagLink.select(UnitOfAnalysisTag.classTypeId)
                 .from(UnitOfAnalysisTagLink.leftJoin(UnitOfAnalysisTag).on(UnitOfAnalysisTagLink.uoaTagId.equals(UnitOfAnalysisTag.id)));
             query.where(UnitOfAnalysisTagLink.uoaId.equals(req.body.uoaId));
-            query.where(UnitOfAnalysisTag.classTypeId.equals(data_classTypeId[0].classTypeId));
+            query.where(UnitOfAnalysisTag.classTypeId.equals(dataClassTypeId[0].classTypeId));
 
             var uoaTagLink = thunkQuery(query);
             return yield [classTypeId, classTypeName, uoaTagLink];
         }).then(function (data) {
             if ((data[2]).length > 0) {
-                next( new HttpError(401, 'Could not add tag with the same classification type: `'+data[1][0].name+'`'));
+                next(new HttpError(401, 'Could not add tag with the same classification type: `' + data[1][0].name + '`'));
             }
             next();
         }, function (err) {
@@ -79,24 +79,23 @@ module.exports = {
         });
     },
 
-/*
-    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-if (!_.first(isExistMatrix)) {
-    throw new HttpError(403, 'Matrix with this id does not exist');
-}
+    /*
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    if (!_.first(isExistMatrix)) {
+        throw new HttpError(403, 'Matrix with this id does not exist');
+    }
 
-var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
+    var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
 
-return result;
-}).then(function (data) {
-    res.status(201).json(_.first(data));
-}, function (err) {
-    next(err);
-});
-*/
+    return result;
+    }).then(function (data) {
+        res.status(201).json(_.first(data));
+    }, function (err) {
+        next(err);
+    });
+    */
 
-
-insertOne: function (req, res, next) {
+    insertOne: function (req, res, next) {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
         }).then(function (data) {
@@ -107,14 +106,13 @@ insertOne: function (req, res, next) {
     },
 
     deleteOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
-        }).then(function(){
+        }).then(function () {
             res.status(204).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     }
-
 
 };

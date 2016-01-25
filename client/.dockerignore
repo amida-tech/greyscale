@@ -1,0 +1,8 @@
+.*
+app
+bower_components
+node_modules
+test
+*.json
+*.js
+*.md

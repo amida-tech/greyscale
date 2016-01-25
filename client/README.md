@@ -82,6 +82,7 @@ This is development server configuration. Log to the browser console debug infor
 grunt ngconstant:dev
 ```
 
+
 #### *Note about config switch*
 Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\app\greyscale.core\scripts\config\greyscale-env.js)
 Please do not update it manual.
@@ -89,6 +90,10 @@ Please do not update it manual.
 ## Build & development
 
 Run `grunt` for building and `grunt serve` for preview.
+
+### Build for docker deployment
+
+Run `grunt buildDocker` for building a deployment suitable for the docker image.
 
 ## Testing
 
