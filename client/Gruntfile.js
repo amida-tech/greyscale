@@ -737,7 +737,7 @@ module.exports = function (grunt) {
         'copy:images',
         //'cdnify',
         'cssmin',
-        'uglify',
+        //'uglify',
         'filerev',
         'usemin',
         'htmlmin'

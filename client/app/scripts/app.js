@@ -278,6 +278,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('graph', {
+            parent: 'home',
+            url: 'graph',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/graph.html',
+                    controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                isPublic: false
+            }
+        })
         .state('usersUoa', {
             parent: 'home',
             url: 'users-uoa',
