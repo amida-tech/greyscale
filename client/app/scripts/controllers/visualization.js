@@ -17,6 +17,16 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
     //   geoData : JSON.parse("scripts/directives/resources/world110-m3.json")
     // };
 
+    //Filter params
+    $scope.filterParams = {
+      topicSelected : null,
+      subtopicSelected : {
+        continent : null
+      },
+      questionSelected : null,
+      mapQuery : ""
+    }
+
     $http.get("scripts/directives/resources/doingbiz_agg.json")
       .success(function(viz_data) {
         $scope.vizData = viz_data;
