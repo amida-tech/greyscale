@@ -3,6 +3,7 @@ var client = require('app/db_bootstrap'),
     config = require('config'),
     Workflow = require('app/models/workflows'),
     Product = require('app/models/products'),
+    ProductUOA = require('app/models/product_uoa'),
     WorkflowStep = require('app/models/workflow_steps'),
     WorkflowStepList = require('app/models/workflow_step_list'),
     co = require('co'),
@@ -98,8 +99,8 @@ module.exports = {
     },
 
     stepsUpdate: function (req, res, next) {
-        co(function* (){
-            if(!Array.isArray(req.body)){
+        co(function* () {
+            if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
             }
 
@@ -110,7 +111,7 @@ module.exports = {
 
             var rels = yield thunkQuery(ProductUOA.select().where(ProductUOA.productId.equals(req.params.id)));
 
-            var relIds = rels.map(function(value){
+            var relIds = rels.map(function (value) {
                 return value.UOAid;
             });
 
@@ -121,28 +122,41 @@ module.exports = {
             for (var i in req.body) {
                 if (req.body[i].id) { // need update
                     var updateObj = {};
-                    if (req.body[i].startDate) updateObj.startDate = req.body[i].startDate;
-                    if (req.body[i].endDate)   updateObj.endDate   = req.body[i].endDate;
-                    if (req.body[i].roleId)    updateObj.roleId    = req.body[i].roleId;
+                    if (req.body[i].startDate) {
+                        updateObj.startDate = req.body[i].startDate;
+                    }
+                    if (req.body[i].endDate) {
+                        updateObj.endDate = req.body[i].endDate;
+                    }
+                    if (req.body[i].roleId) {
+                        updateObj.roleId = req.body[i].roleId;
+                    }
                     if (updateObj.length) {
                         console.log('update' + updateObj);
                         yield thunkQuery(ProductUOA.update().where(ProductUOA.id.equals(req.body[i].id)));
                     }
-                }else{
+                } else {
                     insertArr.push(req.body[i]);
                 }
-                if (relIds.indexOf(req.body[i].id) == -1) {
-                    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
+                if (relIds.indexOf(req.body[i].id) === -1) {
+                    deleteQ = deleteQ.or({
+                        productId: req.params.id,
+                        UOAid: req.body[i].id
+                    });
                     needDel = true;
                 }
             }
 
-            if(needDel) yield thunkQuery(deleteQ);
-            if(insertArr.length) yield thunkQuery(ProductUOA.insert(insertArr));
+            if (needDel) {
+                yield thunkQuery(deleteQ);
+            }
+            if (insertArr.length) {
+                yield thunkQuery(ProductUOA.insert(insertArr));
+            }
 
-        }).then(function(data){
+        }).then(function (data) {
             res.end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
