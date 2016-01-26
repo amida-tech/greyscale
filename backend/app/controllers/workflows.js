@@ -97,6 +97,57 @@ module.exports = {
         });
     },
 
+    stepsUpdate: function (req, res, next) {
+        co(function* (){
+            if(!Array.isArray(req.body)){
+                throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
+            }
+
+            var product = yield thunkQuery(Product.select().where(Product.id.equlas(req.params.id)));
+            if (_.first(product)) {
+                throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+            }
+
+            var rels = yield thunkQuery(ProductUOA.select().where(ProductUOA.productId.equals(req.params.id)));
+
+            var relIds = rels.map(function(value){
+                return value.UOAid;
+            });
+
+            var deleteQ = ProductUOA.delete();
+            var needDel = false;
+            var insertArr = [];
+
+            for (var i in req.body) {
+                if (req.body[i].id) { // need update
+                    var updateObj = {};
+                    if (req.body[i].startDate) updateObj.startDate = req.body[i].startDate;
+                    if (req.body[i].endDate)   updateObj.endDate   = req.body[i].endDate;
+                    if (req.body[i].roleId)    updateObj.roleId    = req.body[i].roleId;
+                    if (updateObj.length) {
+                        console.log('update' + updateObj);
+                        yield thunkQuery(ProductUOA.update().where(ProductUOA.id.equals(req.body[i].id)));
+                    }
+                }else{
+                    insertArr.push(req.body[i]);
+                }
+                if (relIds.indexOf(req.body[i].id) == -1) {
+                    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
+                    needDel = true;
+                }
+            }
+
+            if(needDel) yield thunkQuery(deleteQ);
+            if(insertArr.length) yield thunkQuery(ProductUOA.insert(insertArr));
+
+        }).then(function(data){
+            res.end();
+        }, function(err){
+            next(err);
+        });
+
+    },
+
     stepsAdd: function (req, res, next) {
         co(function* () {
             if(!Array.isArray(req.body)){

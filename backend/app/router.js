@@ -87,6 +87,14 @@ router.route('/v0.2/surveys/:id')
   .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.editOne)
   .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
 
+router.route('/v0.2/surveys/:id/questions')
+  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
+  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
+
+router.route('/v0.2/questions/:id')
+  .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
+  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS
 //----------------------------------------------------------------------------------------------------------------------
