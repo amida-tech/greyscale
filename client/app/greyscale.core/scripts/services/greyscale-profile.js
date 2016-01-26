@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-                                              greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessagesApi) {
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessagesApi) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
@@ -62,8 +62,10 @@ angular.module('greyscale.core')
 
         this._setAssociate = function () {
             if (_profile) {
-                return greyscaleUserApi.list({organizationId: _profile.organizationId})
-                    .then(function(associate){
+                return greyscaleUserApi.list({
+                        organizationId: _profile.organizationId
+                    })
+                    .then(function (associate) {
                         _associate = associate;
                         return _profile;
                     });

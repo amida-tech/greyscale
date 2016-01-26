@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
-                                            greyscaleProfileSrv, greyscaleGlobals, $log) {
+        greyscaleProfileSrv, greyscaleGlobals, $log) {
         var accessLevel;
 
         var dicts = {
@@ -148,7 +148,7 @@ angular.module('greyscale.tables')
 
                 accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
-                $log.debug(accessLevel, accessLevel & greyscaleGlobals.userRoles.admin.mask );
+                $log.debug(accessLevel, accessLevel & greyscaleGlobals.userRoles.admin.mask);
 
                 var roleFilter = {};
 
@@ -156,7 +156,7 @@ angular.module('greyscale.tables')
                     _table.dataFilter.organizationId = profile.organizationId;
                 } else {
                     delete _table.dataFilter.organizationId;
-                    roleFilter =  {
+                    roleFilter = {
                         isSystem: true
                     };
                 }

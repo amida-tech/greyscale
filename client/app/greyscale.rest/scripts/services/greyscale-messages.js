@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleMessagesApi', function(greyscaleRestSrv){
+    .factory('greyscaleMessagesApi', function (greyscaleRestSrv) {
         return {
             list: _list,
             edit: _edit,
@@ -12,7 +12,7 @@ angular.module('greyscale.rest')
         };
 
         function _api(userId) {
-            return greyscaleRestSrv().one('messages', userId+'');
+            return greyscaleRestSrv().one('messages', userId + '');
         }
 
         function _list(userId, params) {
