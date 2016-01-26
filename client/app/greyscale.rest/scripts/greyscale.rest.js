@@ -5,7 +5,13 @@
 
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
     .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
-        RestangularProvider.setBaseUrl(greyscaleEnv.baseServerUrl);
+        RestangularProvider.setBaseUrl(
+            greyscaleEnv.apiProtocol + '://' +
+            greyscaleEnv.apiHostname + ':' +
+            greyscaleEnv.apiPort + '/' +
+            greyscaleEnv.apiRealm + '/' +
+            greyscaleEnv.apiVersion
+        );
         RestangularProvider.setDefaultHttpFields({
             cache: false,
             withCredentials: false

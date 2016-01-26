@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals, $log) {
         var accessLevel;
 
         var dicts = {
@@ -62,6 +62,12 @@ angular.module('greyscale.tables')
             sortable: 'isActive',
             dataFormat: 'boolean',
             dataReadOnly: 'both'
+        }, {
+            field: 'isAnonym',
+            title: 'Anonymous',
+            show: false,
+            sortable: 'isAnonym',
+            dataFormat: 'boolean'
         }, {
             field: '',
             title: '',
@@ -130,30 +136,29 @@ angular.module('greyscale.tables')
         }
 
         function _isSuperAdmin() {
-            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
+            return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
 
         function _isAdmin() {
-            return accessLevel === greyscaleGlobals.userRoles.admin.mask;
-        }
-
-        function _setAccessLevel() {
-            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+            return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
 
         function _getUsers() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
-                _setAccessLevel(profile);
+                accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
-                var roleFilter = {
-                    isSystem: true
-                };
+                $log.debug(accessLevel, accessLevel & greyscaleGlobals.userRoles.admin.mask);
+
+                var roleFilter = {};
 
                 if (_isAdmin()) {
                     _table.dataFilter.organizationId = profile.organizationId;
                 } else {
                     delete _table.dataFilter.organizationId;
+                    roleFilter = {
+                        isSystem: true
+                    };
                 }
 
                 var reqs = {

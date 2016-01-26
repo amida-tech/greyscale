@@ -69,6 +69,10 @@ textarea {
     position: relative;
 }
 
+    .field.hidden {
+        display: none;
+    }
+
     .field.invalid input, .field.invalid textarea, .field.invalid select {
         border: 1px solid rgba(255, 127, 127, 0.25);
     }
@@ -212,13 +216,13 @@ input.address-val {
         display: none;
     }
 
-    .content-title {
-        background-color: lightgray;
-        margin-left: 15px;
-        margin-top: -17px;
-        padding: 3px;
-        position: absolute;
-    }
+.content-title {
+    background-color: lightgray;
+    margin-left: 15px;
+    margin-top: -17px;
+    padding: 3px;
+    position: absolute;
+}
 
 .content {
     list-style: decimal inside;
