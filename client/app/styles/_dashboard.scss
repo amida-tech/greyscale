@@ -20,6 +20,7 @@
 }
 
 .widget-table {
+    overflow: visible; // for datepicker in row
     tr.selected {
         @extend .bg-info;
     }
@@ -40,14 +41,25 @@
             margin-left: 0;
         }
     }
-    th.header-actions {
-        width: 1%;
-    }
     th.header {
+        &.header-actions, &.header-multiselect {
+            width: 1%;
+        }
         .select-all {
             margin: 0;
             position: relative;
             top: 2px;
+        }
+    }
+    td.input-cell {
+        .form-group {
+            margin: -6px 0;
+        }
+        &.auto-width {
+            width: 1%;
+        }
+        .input-group {
+            margin: 0;
         }
     }
 }

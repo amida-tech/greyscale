@@ -16,7 +16,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'title',
             show: true,
-            sortable: 'title',
+            sortable: false,
             title: 'Title',
             dataFormat: 'text'
         }, {

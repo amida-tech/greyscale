@@ -14,7 +14,7 @@ var columns = [
     'status',
     //'logoPath',
     //'msgboardId',
-    'adminUserId',
+    //'adminUserId',
     //'sponsorLogos',
     //'isActive',
     'closeTime',
@@ -25,13 +25,10 @@ var columns = [
 ];
 
 var Project = sql.define({
-  name: 'Projects',
-  columns: columns
+    name: 'Projects',
+    columns: columns
 });
 
 Project.whereCol = columns;
 
 module.exports = Project;
-
-
-

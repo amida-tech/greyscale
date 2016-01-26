@@ -1,8 +1,12 @@
 var sql = require('sql');
 
-var columns =  [
+var columns = [
+    'id',
     'workflowId',
-    'stepId'
+    'stepId',
+    'startDate',
+    'endDate',
+    'roleId'
 ];
 
 var WorkflowStep = sql.define({

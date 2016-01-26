@@ -16,6 +16,3 @@ var ProjectMembership = sql.define({
 });
 
 module.exports = ProjectMembership;
-
-
-

@@ -1,13 +1,13 @@
 var sql = require('sql');
 
-var columns =  [
+var columns = [
     'id',
     'title',
     'description',
     'projectId',
     'matrixId',
     'originalLangId'
-    //'workflowId',
+    //'workflowId'
     //'productConfigId',
     //'contentType',
     //'mode',
@@ -21,11 +21,11 @@ var columns =  [
 //];
 
 var Product = sql.define({
-  name: 'Products',
-  columns: columns
+    name: 'Products',
+    columns: columns
 });
 
-Product.editCols = ['title','description','projectId','matrixId',];
+Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId'];
 
 //Product.translate = translate;
 

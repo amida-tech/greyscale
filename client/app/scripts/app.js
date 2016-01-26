@@ -17,6 +17,7 @@ var _app = angular.module('greyscaleApp', [
     'ui.bootstrap',
     'ui.router',
     'RDash',
+    'greyscale.mock',
     'greyscale.core',
     'greyscale.rest',
     'greyscale.tables',
@@ -260,6 +261,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Form Builder',
+                isPublic: false
+            }
+        })
+        .state('visualization', {
+            parent: 'home',
+            url: 'visualization',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/visualization.html',
+                    controller: 'VisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'Visualization',
                 isPublic: false
             }
         })

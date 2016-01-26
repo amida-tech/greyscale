@@ -12,17 +12,30 @@ angular.module('greyscaleApp')
                 modalFormField: '=',
                 modalFormFieldModel: '='
             },
-            link: function (scope, elem) {
+            link: function (scope, elem, attr) {
+
                 var clmn = scope.modalFormField;
+
+                if (clmn.dataHide) {
+                    elem.remove();
+                    return;
+                }
+
                 var editMode = !!(scope.modalFormRec.id);
 
-                if (clmn.title) {
-                    elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
+                var _embedded = !!attr.embedded;
 
-                    var field = '<div class="col-sm-9';
+                if (clmn.title) {
+                    var field = '';
+                    if (!_embedded) {
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
+                        field += '<div class="col-sm-9';
+                    }
 
                     if (clmn.dataReadOnly === 'both' || editMode && clmn.dataReadOnly === 'edit') {
-                        field += '"><p class="form-control-static">';
+                        if (!_embedded) {
+                            field += '"><p class="form-control-static">';
+                        }
                         switch (clmn.dataFormat) {
                         case 'boolean':
                             if (scope.modalFormFieldModel === true) {
@@ -40,9 +53,14 @@ angular.module('greyscaleApp')
                         default:
                             field += '{{modalFormFieldModel}}';
                         }
-                        field += '</p>';
+                        if (!_embedded) {
+                            field += '</p>';
+                        }
                     } else {
-                        field += (clmn.dataFormat === 'boolean' ? ' checkbox' : '') + '">';
+                        if (!_embedded) {
+                            field += (clmn.dataFormat === 'boolean' ? ' checkbox' : '') + '">';
+                        }
+
                         switch (clmn.dataFormat) {
                         case 'textarea':
                             field += '<textarea class="form-control" type="text"  id="' + clmn.field +
@@ -64,20 +82,30 @@ angular.module('greyscaleApp')
                     }
 
                     if (clmn.dataRequired === true) {
-                        field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && !$parent.dataForm.' + clmn.field + '.$viewValue"><span class="help-block">This field is required.</span></div>';
+                        if (!_embedded) {
+                            field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && !$parent.dataForm.' + clmn.field + '.$viewValue"><span class="help-block">This field is required.</span></div>';
+                        }
                     }
 
-                    field += '</div>';
+                    if (!_embedded) {
+                        field += '</div>';
+                    }
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
                 }
             },
             controller: function formFieldController($scope) {
-                var clmn = $scope.modalFormField;
+                var clmn = $scope.modalFormField = _parseParams($scope.modalFormField);
+
+                if (clmn.dataHide) {
+                    return;
+                }
+
                 $scope.model = {
                     options: []
                 };
+
                 var _options = [];
                 if (clmn.dataFormat === 'option') {
                     if (clmn.dataSet.getData) {
@@ -94,6 +122,19 @@ angular.module('greyscaleApp')
                             $scope.model.options = data;
                         });
                     }
+                }
+
+                function _parseParams(params) {
+                    var parsedParams = angular.copy(params);
+
+                    var fnFields = ['dataReadOnly', 'dataHide'];
+                    angular.forEach(fnFields, function (field) {
+                        if (typeof params[field] === 'function') {
+                            parsedParams[field] = params[field]();
+                        }
+                    });
+
+                    return parsedParams;
                 }
             }
         };

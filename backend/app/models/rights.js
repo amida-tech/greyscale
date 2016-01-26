@@ -8,14 +8,10 @@ var columns = [
 ];
 
 var Right = sql.define({
-  name: 'Rights',
-  columns: columns
+    name: 'Rights',
+    columns: columns
 });
-
 
 Right.whereCol = columns;
 
 module.exports = Right;
-
-
-
