@@ -41,8 +41,6 @@ angular
                  */
                 var layout = {
                     autosize: true,
-                    // width: 500,
-                    // height: 500,
                     margin: {
                         l: 50,
                         r: 50,
@@ -50,6 +48,22 @@ angular
                         t: 100,
                         pad: 4
                     },
+                    xaxis: {
+                        title: '',
+                        titlefont: {
+                            family: 'Courier New, monospace',
+                            size: 18,
+                            color: '#7f7f7f'
+                        }
+                    },
+                    yaxis: {
+                        title: '',
+                        titlefont: {
+                            family: 'Courier New, monospace',
+                            size: 18,
+                            color: '#7f7f7f'
+                        }
+                    }
                 };
                 
                 function generateData(data, xVal, yVal) {
@@ -142,7 +156,8 @@ angular
                             graphData[0].type = 'bar';
                             break;
                     }
-                    console.log(graphData);
+                    layout.xaxis.title = scope.graphX;
+                    layout.yaxis.title = scope.graphY;
                     Plotly.newPlot('viz', graphData, layout);
                 };
 
