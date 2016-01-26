@@ -15,17 +15,17 @@
       </div>
       <div class="form-group">
         <label for="topicDropdown"> Subtopic </label>
-        <select class="form-control" id="subtopicDropdown" ng-model="filterParams.subtopicSelected" ng-options="st as st.name for st in subtopics track by st.id"><option value="st">--Choose subtopic--</option>
+        <select class="form-control" id="subtopicDropdown" ng-model="filterParams.subtopicSelected" ng-options="st as st.name for st in filterOptions.subtopics track by st.id"><option value="st">--Choose subtopic--</option>
         </select>
-        <div ng-show="filterParams.subtopicSelected == 'Continent'" class="ng-hide">
+        <div ng-show="filterParams.subtopicSelected == 111" class="ng-hide">
           <label for="continentDropdown"> Continent </label>
-          <select class="form-control" id="continentDropdown" ng-model="filterParams.subtopicSelected.continent" ng-options="ct as ct.name for ct in continents track by ct.isoa2"><option value="ct">--Choose continent--</option>
+          <select class="form-control" id="continentDropdown" ng-model="filterParams.subtopicSelected.continent" ng-options="ct as ct.name for ct in filterOptions.continents track by ct.isoa2"><option value="ct">--Choose continent--</option>
           </select>
         </div>
       </div>
       <div class="form-group">
         <label for="questionDropdown"> Question </label>
-        <select class="form-control" ng-model="filterParams.questionSelected" ng-options="question as question.qid for question in questions" id="questionDropdown" placeholder="Question..."><option value="">Question id</option></select>
+        <select class="form-control" ng-model="filterParams.questionSelected" ng-options="question as question.qid for question in surveys" id="questionDropdown" placeholder="Question..."><option value="question">Question id</option></select>
       </div>
       <div class="form-group">
         <label for="mapQueryInput"> Custom Query: </label>
