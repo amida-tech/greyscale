@@ -264,6 +264,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('visualization', {
+            parent: 'home',
+            url: 'visualization',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/visualization.html',
+                    controller: 'VisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'Visualization',
+                isPublic: false
+            }
+        })
         .state('usersUoa', {
             parent: 'home',
             url: 'users-uoa',

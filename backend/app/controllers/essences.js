@@ -12,11 +12,11 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(Essence.select().from(Essence), _.omit(req.query, 'offset', 'limit', 'order'));
-        }).then(function(data) {
+        }).then(function (data) {
             res.json(data);
-        }, function(err) {
+        }, function (err) {
             next(err);
         });
 
@@ -26,7 +26,7 @@ module.exports = {
 
         co(function* () {
 
-            if(!req.body.tableName || !req.body.name || !req.body.fileName || !req.body.nameField){
+            if (!req.body.tableName || !req.body.name || !req.body.fileName || !req.body.nameField) {
                 throw new HttpError(403, 'tableName, name, fileName and nameField fields are required');
             }
 
@@ -35,14 +35,15 @@ module.exports = {
                 throw new HttpError(403, 'record with this tableName or(and) fileName has already exist');
             }
 
-            try{
-                var model = require('app/models/'+req.body.fileName);
-            }catch(err){
-                throw new HttpError(403, "Cannot find model file: " + req.body.fileName);
+            var model;
+            try {
+                model = require('app/models/' + req.body.fileName);
+            } catch (err) {
+                throw new HttpError(403, 'Cannot find model file: ' + req.body.fileName);
             }
 
-            if(model.table._initialConfig.columns.indexOf(req.body.nameField) == -1){
-                throw new HttpError(403, "Essence does not have \"" + req.body.nameField + "\" field");
+            if (model.table._initialConfig.columns.indexOf(req.body.nameField) === -1) {
+                throw new HttpError(403, 'Essence does not have \"' + req.body.nameField + '\" field');
             }
 
             var result = yield thunkQuery(Essence.insert(req.body).returning(Essence.id));
@@ -53,7 +54,6 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-
 
     }
 

@@ -1,48 +1,48 @@
 var client = require('app/db_bootstrap'),
-  _ = require('underscore'),
-  config = require('config'),
-  Project = require('app/models/projects'),
-  Product = require('app/models/products'),
-  Workflow = require('app/models/workflows'),
-  AccessMatrix = require('app/models/access_matrices'),
-  Translation = require('app/models/translations'),
-  Language = require('app/models/languages'),
-  Essence = require('app/models/essences'),
-  Organization = require('app/models/organizations'),
-  User = require('app/models/users'),
-  co = require('co'),
-  Query = require('app/util').Query,
-  getTranslateQuery = require('app/util').getTranslateQuery,
-  query = new Query(),
-  thunkify = require('thunkify'),
-  HttpError = require('app/error').HttpError,
-  thunkQuery = thunkify(query);
+    _ = require('underscore'),
+    config = require('config'),
+    Project = require('app/models/projects'),
+    Product = require('app/models/products'),
+    Workflow = require('app/models/workflows'),
+    AccessMatrix = require('app/models/access_matrices'),
+    Translation = require('app/models/translations'),
+    Language = require('app/models/languages'),
+    Essence = require('app/models/essences'),
+    Organization = require('app/models/organizations'),
+    User = require('app/models/users'),
+    co = require('co'),
+    Query = require('app/util').Query,
+    getTranslateQuery = require('app/util').getTranslateQuery,
+    query = new Query(),
+    thunkify = require('thunkify'),
+    HttpError = require('app/error').HttpError,
+    thunkQuery = thunkify(query);
 
 module.exports = {
 
     select: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
-        })
+        });
     },
 
     selectOne: function (req, res, next) {
-        co(function* (){
-            var project =  yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
+        co(function* () {
+            var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
             if (!_.first(project)) {
                 throw new HttpError(404, 'Not found');
-            }else{
+            } else {
                 return _.first(project);
             }
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
-        })
+        });
     },
 
     delete: function (req, res, next) {
@@ -57,7 +57,7 @@ module.exports = {
 
     editOne: function (req, res, next) {
         co(function* () {
-            yield* checkProjectData(req);
+            yield * checkProjectData(req);
             var result = yield thunkQuery(Project.update(req.body).where(Project.id.equals(req.params.id)));
             return result;
         }).then(function () {
@@ -68,30 +68,30 @@ module.exports = {
     },
 
     productList: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(
                 Product
-                    .select(
-                        Product.star(),
-                        'row_to_json("Workflows".*) as workflow'
-                    )
-                    .from(
-                        Product
-                            .leftJoin(Workflow)
-                            .on(Product.id.equals(Workflow.productId))
-                    )
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Product.id.equals(Workflow.productId))
+                )
                 .where(Product.projectId.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
-        })
+        });
     },
 
     insertOne: function (req, res, next) {
         co(function* () {
-            yield* checkProjectData(req);
+            yield * checkProjectData(req);
             var result = yield thunkQuery(Project.insert(req.body).returning(Project.id));
             return result;
         }).then(function (data) {
@@ -105,25 +105,26 @@ module.exports = {
 
 function* checkProjectData(req) {
     var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    var isExistCode;
     if (!_.first(isExistMatrix)) {
         throw new HttpError(403, 'Matrix with this id does not exist');
     }
 
-    if (req.params.id){ // update
-        if(req.body.codeName){
-            var isExistCode = yield thunkQuery(
+    if (req.params.id) { // update
+        if (req.body.codeName) {
+            isExistCode = yield thunkQuery(
                 Project.select().from(Project)
                 .where(Project.codeName.equals(req.body.codeName)
-                .and(Project.id.notEquals(req.params.id)))
+                    .and(Project.id.notEquals(req.params.id)))
             );
-            if (_.first(isExistCode)){
+            if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
             }
         }
     } else { // create
-        if(req.body.codeName){
-            var isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)));
-            if (_.first(isExistCode)){
+        if (req.body.codeName) {
+            isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)));
+            if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
             }
         }

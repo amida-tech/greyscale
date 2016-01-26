@@ -6,6 +6,8 @@
 // 'test/spec/{,*/}*.js'
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
+var fs = require('fs');
+var homeDir = process.env.HOME;
 
 module.exports = function (grunt) {
 
@@ -25,6 +27,20 @@ module.exports = function (grunt) {
         app: require('./bower.json').appPath || 'app',
         dist: 'dist'
     };
+
+    var dockerConfig = {
+        ca: '',
+        cert: '',
+        key: ''
+    };
+
+    if (process.platform === 'darwin') {
+        try {
+            dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+            dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+            dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        } catch (error) {}
+    }
 
     // Define the configuration for all the tasks
     grunt.initConfig({
@@ -487,11 +503,28 @@ module.exports = function (grunt) {
                     dest: '<%= yeoman.dist %>'
                 }]
             },
+            // temporary while imagemin is broken
+            images: {
+                expand: true,
+                cwd: '<%= yeoman.app %>/images',
+                src: '{,*/}*.{png,jpg,jpeg,gif}',
+                dest: '<%= yeoman.dist %>/images'
+            },
             styles: {
                 expand: true,
                 cwd: '<%= yeoman.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            docker: {
+                expand: true,
+                cwd: '',
+                dest: 'app/greyscale.core/scripts/config/',
+                src: 'greyscale-env.js'
+            },
+            dev: {
+                src: 'dev-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
             }
         },
 
@@ -505,7 +538,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'compass:dist',
-                'imagemin',
+                // 'imagemin',
                 'svgmin'
             ]
         },
@@ -524,8 +557,8 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'local',
-                        baseServerUrl: 'http://localhost:3005/v0.2',
-                        enableDebugLog: false
+                        baseServerUrl: 'http://localhost:3005/local/v0.2',
+                        enableDebugLog: true
                     }
                 }
             },
@@ -553,13 +586,81 @@ module.exports = function (grunt) {
             }
         },
 
+        dock: {
+            options: {
+                docker: {
+                    // docker connection 
+                    // See Dockerode for options 
+                    socketPath: '/var/run/docker.sock'
+                },
+
+                // It is possible to define images in the 'default' grunt option 
+                // The command will look like 'grunt dock:build' 
+                images: {
+                    'amidatech/greyscale-client': { // Name to use for Docker 
+                        dockerfile: './',
+                        options: {
+                            build: { /* extra options to docker build   */ },
+                            create: { /* extra options to docker create  */ },
+                            start: { /* extra options to docker start   */ },
+                            stop: { /* extra options to docker stop    */ },
+                            kill: { /* extra options to docker kill    */ },
+                            logs: { /* extra options to docker logs    */ },
+                            pause: { /* extra options to docker pause   */ },
+                            unpause: { /* extra options to docker unpause */ }
+                        }
+                    }
+                }
+            },
+            osx: {
+                options: {
+                    docker: {
+                        protocol: 'https',
+                        host: '192.168.99.100',
+                        port: '2376',
+
+                        ca: dockerConfig.ca,
+                        cert: dockerConfig.cert,
+                        key: dockerConfig.key
+                    }
+                }
+            }
+        },
+
         // Test settings
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
                 singleRun: true
             }
+        },
+
+        compress: {
+            main: {
+                options: {
+                    archive: 'latest-client.zip'
+                },
+                src: 'Dockerrun.aws.json'
+            }
+        },
+
+        awsebtdeploy: {
+            dev: {
+                options: {
+                    region: 'us-west-2',
+                    applicationName: 'greyscale',
+                    environmentName: 'greyscale-client-dev',
+                    sourceBundle: 'latest-client.zip',
+                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    versionLabel: 'client-' + Date.now(),
+                    s3: {
+                        bucket: 'amida-greyscale'
+                    }
+                }
+            }
         }
+
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
@@ -601,6 +702,7 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'copy:dist',
+        'copy:images',
         //'cdnify',
         'cssmin',
         'uglify',
@@ -619,9 +721,27 @@ module.exports = function (grunt) {
         'build'
     ]);
 
+    grunt.registerTask('buildDocker', [
+        'copy:docker',
+        'build',
+        'dock:build'
+    ]);
+
+    grunt.registerTask('buildDockerMac', [
+        'copy:docker',
+        'build',
+        'dock:osx:build'
+    ]);
+
     grunt.registerTask('buildEnv', [
-        'ngconstant:dev',
+        'ngconstant:env',
         'build'
+    ]);
+
+    grunt.registerTask('ebsDev', [
+        'copy:dev',
+        'compress',
+        'awsebtdeploy:dev'
     ]);
 
     grunt.registerTask('brushIt', [

@@ -1,19 +1,19 @@
 var
-  _ = require('underscore'),
-  config = require('config'),
-  Product = require('app/models/products'),
-  Project = require('app/models/projects'),
-  Workflow = require('app/models/workflows'),
-  AccessMatrix = require('app/models/access_matrices'),
-  ProductUOA = require('app/models/product_uoa'),
-  UOA = require('app/models/uoas'),
-  co = require('co'),
-  Query = require('app/util').Query,
-  getTranslateQuery = require('app/util').getTranslateQuery,
-  query = new Query(),
-  thunkify = require('thunkify'),
-  HttpError = require('app/error').HttpError,
-  thunkQuery = thunkify(query);
+    _ = require('underscore'),
+    config = require('config'),
+    Product = require('app/models/products'),
+    Project = require('app/models/projects'),
+    Workflow = require('app/models/workflows'),
+    AccessMatrix = require('app/models/access_matrices'),
+    ProductUOA = require('app/models/product_uoa'),
+    UOA = require('app/models/uoas'),
+    co = require('co'),
+    Query = require('app/util').Query,
+    getTranslateQuery = require('app/util').getTranslateQuery,
+    query = new Query(),
+    thunkify = require('thunkify'),
+    HttpError = require('app/error').HttpError,
+    thunkQuery = thunkify(query);
 
 module.exports = {
 
@@ -178,26 +178,25 @@ module.exports = {
 
 };
 
-function* checkProductData (req){
-  if(!req.params.id){ // create
-    if(!req.body.matrixId || !req.body.projectId){
-      throw new HttpError(403, 'Matrix id and Project id fields are required');
+function* checkProductData(req) {
+    if (!req.params.id) { // create
+        if (!req.body.matrixId || !req.body.projectId) {
+            throw new HttpError(403, 'Matrix id and Project id fields are required');
+        }
     }
-  }
 
-
-  if(req.body.matrixId){
-    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-    if (!_.first(isExistMatrix)) {
-      throw new HttpError(403, 'Matrix with this id does not exist');
+    if (req.body.matrixId) {
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+        if (!_.first(isExistMatrix)) {
+            throw new HttpError(403, 'Matrix with this id does not exist');
+        }
     }
-  }
 
-  if(req.body.projectId){
-    var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-    if (!_.first(isExistProject)) {
-      throw new HttpError(403, 'Project with this id does not exist');
+    if (req.body.projectId) {
+        var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
+        if (!_.first(isExistProject)) {
+            throw new HttpError(403, 'Project with this id does not exist');
+        }
     }
-  }
 
 }

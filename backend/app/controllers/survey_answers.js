@@ -12,11 +12,11 @@ var
 module.exports = {
 
     select: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(SurveyAnswer.select().from(SurveyAnswer), _.omit(req.query));
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -28,9 +28,9 @@ module.exports = {
             if (err) {
                 return next(err);
             }
-            if(_.first(data)){
+            if (_.first(data)) {
                 res.json(_.first(data));
-            }else{
+            } else {
                 return next(new HttpError(404, 'Not found'));
             }
 
@@ -48,30 +48,32 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        if(req.body.data){
-            var q = SurveyAnswer.update({data: req.body.data}).where(SurveyAnswer.id.equals(req.params.id));
+        if (req.body.data) {
+            var q = SurveyAnswer.update({
+                data: req.body.data
+            }).where(SurveyAnswer.id.equals(req.params.id));
             query(q, function (err, data) {
                 if (err) {
                     return next(err);
                 }
                 res.status(202).end();
             });
-        }else{
+        } else {
             return next(new HttpError(400, 'No data to update'));
         }
     },
 
     insertOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             var survey = yield thunkQuery(Survey.select().from(Survey).where(Survey.id.equals(req.body.surveyId)));
-            if(!_.first(survey)){
+            if (!_.first(survey)) {
                 throw new HttpError(403, 'Survey with this id does not exist');
             }
             req.body.userId = req.user.id;
             return yield thunkQuery(SurveyAnswer.insert(req.body).returning(SurveyAnswer.id));
-        }).then(function (data){
+        }).then(function (data) {
             res.status(201).json(_.first(data));
-        }, function (err){
+        }, function (err) {
             next(err);
         });
 

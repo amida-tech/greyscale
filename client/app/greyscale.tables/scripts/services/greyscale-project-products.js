@@ -1,10 +1,11 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectProductsTbl', function ($q,
+    .factory('greyscaleProjectProductsTbl', function ($q, _,
         greyscaleProjectApi,
         greyscaleProductApi,
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
+        greyscaleProductWorkflowApi,
         inform) {
 
         var _dicts = {
@@ -13,7 +14,7 @@ angular.module('greyscale.tables')
 
         var _cols = [{
             field: 'title',
-            title: 'Name',
+            title: 'Title',
             show: true,
             sortable: 'title',
             dataRequired: true
@@ -21,7 +22,8 @@ angular.module('greyscale.tables')
             field: 'description',
             title: 'Description',
             show: true,
-            dataRequired: true
+            dataRequired: true,
+            dataFormat: 'textarea'
         }, {
             field: 'surveyId',
             title: 'Survey',
@@ -40,18 +42,23 @@ angular.module('greyscale.tables')
                     //state: 'projects.setup({projectId: item.id})'
             }
         }, {
-            field: '',
-            title: '',
+            field: 'workflow.name',
+            sortable: 'workflow.name',
+            title: 'Workflow',
+            show: true,
+            dataHide: true
+        }, {
+
             show: true,
             dataFormat: 'action',
             actions: [{
                 title: 'Workflow',
                 class: 'info',
-                handler: _showProductWorkflow
+                handler: _editProductWorkflow
             }, {
                 title: 'UoAs',
                 class: 'info',
-                handler: _showProductUoas
+                handler: _editProductUoas
             }, {
                 title: '',
                 icon: 'fa-pencil',
@@ -135,17 +142,48 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function _showProductUoas(product) {
+        function _editProductUoas(product) {
             return greyscaleModalsSrv.productUoas(product);
         }
 
-        function _showProductWorkflow(product) {
-            greyscaleModalsSrv.productWorkflow(product);
+        function _editProductWorkflow(product) {
+            greyscaleModalsSrv.productWorkflow(product)
+                .then(function (data) {
+                    return _saveWorkflowAndSteps(product, data);
+                })
+                .then(_reload);
         }
 
         function _errHandler(err, operation) {
             var msg = _table.formTitle + ' ' + operation + ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _saveWorkflowAndSteps(product, data) {
+            var promise = $q.when(data.workflow);
+            if (!_.isEqual(data.workflow, product.workflow)) {
+                promise = _saveProductWorkflow(data.workflow);
+            }
+            return promise.then(function (workflow) {
+                return _saveProductWorkflowSteps(workflow.id, data.steps);
+            });
+        }
+
+        function _saveProductWorkflow(workflow) {
+            if (workflow.id) {
+                return greyscaleProductWorkflowApi.update(workflow).then(function () {
+                    return $q.when(workflow);
+                });
+            } else {
+                return greyscaleProductWorkflowApi.add(workflow).then(function (response) {
+                    workflow.id = response.id;
+                    return $q.when(workflow);
+                });
+            }
+        }
+
+        function _saveProductWorkflowSteps(workflowId, steps) {
+            return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
         }
 
         return _table;

@@ -4,8 +4,10 @@
 'use strict';
 
 angular.module('greyscale.mock', ['ngMockE2E'])
-    .run(function ($httpBackend, greyscaleUserUoaMock) {
+    .run(function ($httpBackend, greyscaleUserUoaMock, greyscaleUoaMock, greyscaleUserMock) {
         greyscaleUserUoaMock();
+        greyscaleUoaMock();
+        greyscaleUserMock();
 
         $httpBackend.whenGET(/.*/).passThrough();
         $httpBackend.whenPOST(/.*/).passThrough();
