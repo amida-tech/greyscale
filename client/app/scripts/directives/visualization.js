@@ -1,13 +1,17 @@
 'use strict';
 
 angular.module('greyscaleApp')
-  .directive('mapViz', function ($window, greyscaleSurveySrv, d3Srv, d3plusSrv){
+  .directive('mapViz', function ($window, greyscaleSurveySrv){
     return {
       restrict: 'EA',
       template: "<svg style='width:100%;'></svg>",
       scope: {
         vizData: '=',
-        geoData: '=' //Figure out this design
+        geoData: '=',
+        surveys: '=',
+        filterParams: '&',
+        filterOptions: '&'
+         //Figure out this design
       },
       
       link: function(scope, element, attrs){
@@ -15,20 +19,21 @@ angular.module('greyscaleApp')
         var geoData = [];
         var filterParams = {};
 
-        var d3 = $window.d3;
+        //var d3 = $window.d3;
         var d3selectContainer = d3.select(element[0]);
+
 
         function parseQuery(){
 
         }
 
         function applyFilters(){
-          
+
         }
 
         function renderMap(){
           try{
-            var d3plus = $window.d3plus;
+            //var d3plus = $window.d3plus;
               d3plus.viz()
                 .container(d3selectContainer)        
                 .data(vizData)        

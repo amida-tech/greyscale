@@ -10,7 +10,7 @@
 
 'use strict';
 
-angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, $scope) {
+angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, $scope, greyscaleSurveySrv) {
 
     // $scope.model = {
     //   vizData : JSON.parse("scripts/directives/resources/doingbiz_agg.json"),
@@ -21,6 +21,13 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
       .success(function(viz_data) {
         $scope.vizData = viz_data;
         console.log($scope.vizData);
+
+        var countrySet = new Set(); //account for same country/multi-year duplicates
+        viz_data.agg.forEach(function(row){
+          countrySet.add({"name":row.country, "isoa2":row.isoa2});
+        });
+        $scope.topics = [...countrySet];
+        console.log($scope.topics);
 
         $http.get("scripts/directives/resources/world110-m3.json")
           .success(function(geo_data){
@@ -35,38 +42,15 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
         console.log(err);
       });
 
-    $scope.continents = [
-      {
-        "name":"Africa",
-        "isoa2":"AF"
-      },
-      {
-        "name":"Europe",
-        "isoa2":"EU"
-      },
-      {
-        "name":"North America",
-        "isoa2":"NA"
-      },
-      {
-        "name":"Asia",
-        "isoa2":"AS",
-      },
-      {
-        "name":"South America",
-        "isoa2":"SA"
-      },
-      {
-        "name":"Australia",
-        "isoa2":"AU"
-      },
-      {
-        "name":"Antartica",
-        "isoa2":"AQ"
-      }
-    ];
+    //Pull Indaba survey data
+    // greyscaleSurveySrv.list().then(function (data) {
+    //     scope.surveys = data;
+    // });
 
-    $scope.questions = [
+    //TODO: write function that pulls data from survey format into scope
+
+    //Mocked survey data
+    $scope.surveys = [
       {
         "qid":"1234",
         "text":"question1"
@@ -76,5 +60,51 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
         "text":"question2"
       }
     ];
-  }]);
-});
+
+    $scope.filterOptions = {
+      subtopics : [
+        {
+          "id":"3333",
+          "name":"Income"
+        },
+        {
+          "id":"424",
+          "name":"Region" //allow for user-specified region mapping
+        },
+        {
+          "id":"111",
+          "name":"Continent"
+        }
+      ],
+      continents : [
+        {
+          "name":"Africa",
+          "isoa2":"AF"
+        },
+        {
+          "name":"Europe",
+          "isoa2":"EU"
+        },
+        {
+          "name":"North America",
+          "isoa2":"NA"
+        },
+        {
+          "name":"Asia",
+          "isoa2":"AS",
+        },
+        {
+          "name":"South America",
+          "isoa2":"SA"
+        },
+        {
+          "name":"Australia",
+          "isoa2":"AU"
+        },
+        {
+          "name":"Antartica",
+          "isoa2":"AQ"
+        }
+      ]
+    };
+  });
