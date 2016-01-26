@@ -21,7 +21,8 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
     $scope.filterParams = {
       topicSelected : null,
       subtopicSelected : {
-        continent : null
+        subtopic : null,
+        category : null
       },
       questionSelected : null,
       mapQuery : ""
@@ -59,7 +60,7 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
 
     //TODO: write function that pulls data from survey format into scope
 
-    //Mocked survey data
+    //Mocked survey data --> look @ Mike's format
     $scope.surveys = [
       {
         "qid":"1234",
@@ -114,6 +115,21 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
         {
           "name":"Antartica",
           "isoa2":"AQ"
+        }
+      ],
+      //TODO: pull official groupings from somewhere
+      incomeLevels : [
+        {
+          "name":"Low-income",
+          "countries":["AF","DZ"]
+        },
+        {
+          "name":"Middle-income",
+          "countries": ["AZ","MX"]
+        },
+        {
+          "name":"High-income",
+          "countries":["US","FR","DE"]
         }
       ]
     };
