@@ -10,36 +10,41 @@ angular.module('greyscaleApp')
                 title: greyscaleSideMenu.title,
                 groups: []
             },
+            user: {
+                firstName: 'John',
+                lastName: 'Doe'
+            },
+            messages: [],
             toggle: false
         };
+        greyscaleProfileSrv.getProfile().then(function (profile) {
+            var _level = greyscaleProfileSrv.getAccessLevelMask();
+            var _groups = [];
 
-        greyscaleProfileSrv.getAccessLevel()
-            .then(function (_level) {
-                var _groups = [];
-                for (var g = 0; g < greyscaleSideMenu.groups.length; g++) {
-                    var _items = [];
-                    var _group = greyscaleSideMenu.groups[g];
-                    for (var i = 0; i < _group.items.length; i++) {
-                        var _state = $state.get(_group.items[i].state);
-                        var _accessLevel = _state.data.accessLevel & _level;
-                        if (_state.data && _state.data.accessLevel && _accessLevel !== 0) {
-                            _items.push({
-                                sref: _state.name,
-                                title: _state.data.name,
-                                icon: _group.items[i].icon
-                            });
-                        }
-                    }
-                    if (_items.length > 0) {
-                        _groups.push({
-                            title: _group.title,
-                            items: _items
+            $scope.model.user = profile;
+            for (var g = 0; g < greyscaleSideMenu.groups.length; g++) {
+                var _items = [];
+                var _group = greyscaleSideMenu.groups[g];
+                for (var i = 0; i < _group.items.length; i++) {
+                    var _state = $state.get(_group.items[i].state);
+                    var _accessLevel = (_state.data.accessLevel & _level);
+                    if (_state.data && _state.data.accessLevel && _accessLevel !== 0) {
+                        _items.push({
+                            sref: _state.name,
+                            title: _state.data.name,
+                            icon: _group.items[i].icon
                         });
                     }
                 }
-                $scope.model.menu.groups = _groups;
-            });
-
+                if (_items.length > 0) {
+                    _groups.push({
+                        title: _group.title,
+                        items: _items
+                    });
+                }
+            }
+            $scope.model.menu.groups = _groups;
+        });
         $scope.logout = function () {
             $rootScope.$emit('logout');
         };

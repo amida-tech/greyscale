@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleRights', function ($q, greyscaleRightSrv, greyscaleModalsSrv, greyscaleEntityTypeSrv,
+    .factory('greyscaleRightsTbl', function ($q, greyscaleRightApi, greyscaleModalsSrv, greyscaleEntityTypeApi,
         greyscaleUtilsSrv) {
 
         var _dicts = {
@@ -70,8 +70,8 @@ angular.module('greyscale.tables')
 
         function _getRights() {
             var _reqs = {
-                rights: greyscaleRightSrv.list(),
-                eTypes: greyscaleEntityTypeSrv.list({
+                rights: greyscaleRightApi.list(),
+                eTypes: greyscaleEntityTypeApi.list({
                     fields: 'id, name'
                 })
             };
@@ -97,9 +97,9 @@ angular.module('greyscale.tables')
                     delete newRight.entityType;
                     if (newRight.id) {
                         action = 'editing';
-                        return greyscaleRightSrv.update(newRight);
+                        return greyscaleRightApi.update(newRight);
                     } else {
-                        return greyscaleRightSrv.add(newRight);
+                        return greyscaleRightApi.add(newRight);
                     }
                 })
                 .then(_reloadRights)
@@ -113,7 +113,7 @@ angular.module('greyscale.tables')
         }
 
         function delRigth(right) {
-            greyscaleRightSrv.delete(right.id)
+            greyscaleRightApi.delete(right.id)
                 .then(_reloadRights)
                 .catch(function (err) {
                     errHandler(err, 'deleting');

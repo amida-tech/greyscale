@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleAccessSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleAccessApi', function (greyscaleRestSrv) {
 
         var _listMartices = function () {
             return greyscaleRestSrv().one('access_matrices').get();

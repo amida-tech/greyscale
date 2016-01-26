@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('registerForm', function ($state, greyscaleUserSrv, greyscaleRoleSrv, $log) {
+    .directive('registerForm', function ($state, greyscaleUserApi, greyscaleRoleApi, $log) {
         return {
             templateUrl: 'views/directives/register-form.html',
             restrict: 'AE',
@@ -21,7 +21,7 @@ angular.module('greyscaleApp')
                     roles: []
                 };
 
-                greyscaleRoleSrv.list()
+                greyscaleRoleApi.list()
                     .then(function (roles) {
                         $scope.model.roles = roles;
                     });
@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
 
                 $scope.register = function () {
                     $scope.model.err = null;
-                    greyscaleUserSrv.register({
+                    greyscaleUserApi.register({
                             'email': $scope.model.email,
                             'password': $scope.model.password,
                             'firstName': $scope.model.name,

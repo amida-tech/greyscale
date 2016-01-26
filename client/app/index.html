@@ -52,6 +52,7 @@
 <script src="bower_components/angular-inform/dist/angular-inform.js"></script>
 <script src="bower_components/ng-table/dist/ng-table.min.js"></script>
 <script src="bower_components/plotly.js/dist/plotly.min.js"></script>
+<script src="bower_components/angular-mocks/angular-mocks.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -76,13 +77,13 @@
 <script src="greyscale.core/scripts/services/greyscale-profile.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-utils.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-roles.js"></script>
+<script src="greyscale.core/scripts/services/greyscale-rest.js"></script>
 <!-- end greyscale.core -->
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/greyscale.rest.js -->
 <!-- greyscale.rest -->
 <script src="greyscale.rest/scripts/greyscale.rest.js"></script>
-<script src="greyscale.rest/scripts/services/greyscale-rest.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-access.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-country.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-uoa.js"></script>
@@ -98,7 +99,12 @@
 <script src="greyscale.rest/scripts/services/greyscale-user.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-right.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-project.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-product.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-organization.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-workflow-steps.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-user-uoa.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-product-workflow.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-message.js"></script>
 <!-- end greyscale.user -->
 <!-- endbuild -->
 
@@ -106,9 +112,15 @@
 <!-- greyscale.tables -->
 <script src="greyscale.tables/scripts/greyscale.tables.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-projects.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-project-products.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-project-surveys.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-users.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoas.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-uoas-filter.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoa-types.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-uoa-types-filter.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-uoa-class-types-filter.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-uoa-tags-filter.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoa-tags.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoa-tag-links.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoa-class-types.js"></script>
@@ -117,7 +129,19 @@
 <script src="greyscale.tables/scripts/services/greyscale-role-rights.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-organizations.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-surveys.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-product-uoas.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-product-workflow.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-entity-roles.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-workflow-steps.js"></script>
+<!-- end greyscale.tables -->
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/greyscale.mock.js -->
+<!-- greyscale.tables -->
+<script src="greyscale.mock/scripts/greyscale.mock.js"></script>
+<script src="greyscale.mock/scripts/services/greyscale-uoa.js"></script>
+<script src="greyscale.mock/scripts/services/greyscale-user-uoa.js"></script>
+<script src="greyscale.mock/scripts/services/greyscale-user.js"></script>
 <!-- end greyscale.tables -->
 <!-- endbuild -->
 
@@ -135,12 +159,21 @@
 <script src="scripts/controllers/dashboard.js"></script>
 <script src="scripts/controllers/projects.js"></script>
 <script src="scripts/controllers/project-setup.js"></script>
+<script src="scripts/controllers/project-setup-roles.js"></script>
+<script src="scripts/controllers/project-setup-surveys.js"></script>
+<script src="scripts/controllers/project-setup-products.js"></script>
+<script src="scripts/controllers/project-setup-tasks.js"></script>
 <script src="scripts/controllers/organizations.js"></script>
 <script src="scripts/controllers/survey.js"></script>
 <script src="scripts/controllers/visualization.js"></script>
 <script src="scripts/controllers/graph.js"></script>
+<script src="scripts/controllers/users-uoa.js"></script>
+<script src="scripts/controllers/workflow-steps.js"></script>
 <script src="scripts/controllers/modals/simple-form.js"></script>
 <script src="scripts/controllers/modals/modal-form.js"></script>
+<script src="scripts/controllers/modals/modal-product-uoas.js"></script>
+<script src="scripts/controllers/modals/modal-product-workflow.js"></script>
+<script src="scripts/controllers/modals/modal-uoas-filter.js"></script>
 <!-- end controllers -->
 
 <!-- directives -->
@@ -152,11 +185,13 @@
 <script src="scripts/directives/is-equal.js"></script>
 <script src="scripts/directives/widget-table.js"></script>
 <script src="scripts/directives/widget-table-cell.js"></script>
-<script src="scripts/directives/modal-footer.js"></script>
+<script src="scripts/directives/modal-form-footer.js"></script>
 <script src="scripts/directives/form-builder.js"></script>
 <script src="scripts/directives/graph-builder.js"></script>
 <script src="scripts/directives/select-date.js"></script>
 <script src="scripts/directives/modal-form-field.js"></script>
+<script src="scripts/directives/checkbox-list.js"></script>
+<script src="scripts/directives/propagate-disabled.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
 

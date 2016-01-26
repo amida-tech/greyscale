@@ -3,9 +3,9 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleRoles', function (greyscaleRoleSrv) {
+    .factory('greyscaleRolesTbl', function (greyscaleRoleApi) {
         var _getRoles = function () {
-            return greyscaleRoleSrv.list();
+            return greyscaleRoleApi.list();
         };
 
         return {

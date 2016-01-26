@@ -4,23 +4,40 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupCtrl', function ($scope, $state, $stateParams, inform,
-        greyscaleProjectSrv, greyscaleUsers, greyscaleEntityRoles) {
+    .controller('ProjectSetupCtrl', function ($q, $scope, $state, $stateParams, inform,
+        greyscaleProjectApi) {
 
-        var entityRoles = greyscaleEntityRoles;
+        var _parentState = 'projects.setup';
+        var _defaultState = false;
 
-        $scope.model = {
-            project: null,
-            users: greyscaleUsers,
-            entRoles: entityRoles
+        $scope.tabs = [{
+            state: 'roles',
+            title: 'User Roles',
+            icon: 'fa-users'
+        }, {
+            state: 'surveys',
+            title: 'Surveys',
+            icon: 'fa-list'
+        }, {
+            state: 'products',
+            title: 'Products',
+            icon: 'fa-briefcase'
+        }, {
+            state: 'tasks',
+            title: 'Tasks',
+            icon: 'fa-tasks'
+        }];
+
+        $scope.go = function (state) {
+            $state.go(_parentState + '.' + state);
         };
 
-        greyscaleProjectSrv.get($stateParams.projectId)
-            .then(function (data) {
-                $scope.model.project = data;
-
-                _initUserRolesTab();
-
+        greyscaleProjectApi.get($stateParams.projectId)
+            .then(function (project) {
+                $scope.project = project;
+                if (_defaultState) {
+                    $scope.go(_getDefaultState(project));
+                }
             }, function () {
                 inform.add('Project Not Found', {
                     type: 'danger'
@@ -28,9 +45,30 @@ angular.module('greyscaleApp')
                 $state.go('home');
             });
 
-        function _initUserRolesTab() {
-            entityRoles.dataFilter.entityId = $scope.model.project.id;
-            entityRoles.tableParams.reload();
+        _onStateChange(function (state) {
+            if (state.name === _parentState) {
+                _defaultState = true;
+            } else {
+                _setActiveTab(state);
+            }
+        });
+
+        function _getDefaultState(project) {
+            return 'products';
+        }
+
+        function _setActiveTab(state) {
+            var activeState = state.name.replace(_parentState + '.', '');
+            angular.forEach($scope.tabs, function (tab) {
+                tab.active = (tab.state === activeState);
+            });
+        }
+
+        function _onStateChange(handler) {
+            var stateChangeDisable = $scope.$on('$stateChangeSuccess', function (e, state) {
+                handler(state);
+            });
+            $scope.$on('$destroy', stateChangeDisable);
         }
 
     });

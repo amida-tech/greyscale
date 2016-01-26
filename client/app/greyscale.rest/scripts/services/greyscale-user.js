@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserSrv', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
 
         return {
             login: _login,
@@ -21,7 +21,10 @@ angular.module('greyscale.rest')
             saveOrganization: _saveOrg,
             save: _save,
             update: updateUser,
-            delete: delUser
+            delete: delUser,
+            listUoa: _listUoa,
+            addUoa: _addUoa,
+            delUoa: _delUoa
         };
 
         function orgAPI() {
@@ -69,6 +72,7 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
+            $log.debug('do login');
             return greyscaleRestSrv({
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
@@ -112,5 +116,21 @@ angular.module('greyscale.rest')
 
         function delUser(id) {
             return userAPI().one(id + '').remove();
+        }
+
+        function _uoaAPI(userId) {
+            return userAPI().one(userId + '');
+        }
+
+        function _listUoa(userId) {
+            return _uoaAPI(userId).one('uoa').get();
+        }
+
+        function _addUoa(userId, uoaId) {
+            return _uoaAPI(userId).one('uoa', uoaId + '').customPOST();
+        }
+
+        function _delUoa(userId, uoaId) {
+            return _uoaAPI(userId).one('uoa', uoaId + '').remove();
         }
     });

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleRoleSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleRoleApi', function (greyscaleRestSrv) {
         var _roleRights = function (roleId) {
             return greyscaleRestSrv().one('roles', roleId + '').one('rights');
         };

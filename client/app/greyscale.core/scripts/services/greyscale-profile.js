@@ -4,12 +4,14 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserSrv, $log,
-        greyscaleEntityTypeRoleSrv, greyscaleUtilsSrv) {
+    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
+        var _messages = [];
+        var _associate = [];
 
         this.getProfile = function (force) {
             var self = this;
@@ -20,15 +22,17 @@ angular.module('greyscale.core')
                 res = $q.reject('not logged in');
             } else {
                 if (_profile && !force) {
+                    self._setAccessLevel();
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {
-                        _profilePromise = greyscaleUserSrv.get()
+                        _profilePromise = greyscaleUserApi.get()
                             .then(function (profileData) {
                                 _profile = profileData;
-                                self._setAccessLevel();
                                 return _profile;
                             })
+                            .then(self._setAccessLevel)
+                            .then(self._setAssociate)
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -42,15 +46,40 @@ angular.module('greyscale.core')
         this._setAccessLevel = function () {
             if (_profile) {
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
-                greyscaleEntityTypeRoleSrv.list({
+                return greyscaleEntityTypeRoleApi.list({
                     userId: _profile.id
                 }).then(function (usrRoles) {
                     for (var r = 0; r < usrRoles.length; r++) {
                         _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
                     }
                     _userRoles = usrRoles;
+                    return _profile;
                 });
+            } else {
+                return $q.reject('no user data loaded');
             }
+        };
+
+        this._setAssociate = function () {
+            if (_profile) {
+                return greyscaleUserApi.list({
+                        organizationId: _profile.organizationId
+                    })
+                    .then(function (associate) {
+                        _associate = associate;
+                        return _profile;
+                    });
+            } else {
+                return $q.reject('no user data loaded');
+            }
+        };
+
+        this.recentMessages = function () {
+            return $q.reject('recentMessages is not implemented yet');
+        };
+
+        this.getMessages = function () {
+            return _messages;
         };
 
         this.getAccessLevelMask = function () {
@@ -71,7 +100,7 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserSrv.logout().finally(function () {
+            return greyscaleUserApi.logout().finally(function () {
                 greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;

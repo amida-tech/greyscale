@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleSurveySrv', function (greyscaleRestSrv) {
+    .factory('greyscaleSurveyApi', function (greyscaleRestSrv) {
 
         var _api = function () {
             return greyscaleRestSrv().one('surveys');
@@ -12,6 +12,10 @@ angular.module('greyscale.rest')
 
         function _surveys() {
             return _api().get();
+        }
+
+        function _getSurvey(surveyId) {
+            return _api().one(surveyId + '');
         }
 
         function _addSurvey(survey) {
@@ -28,6 +32,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _surveys,
+            get: _getSurvey,
             add: _addSurvey,
             update: _updateSurvey,
             delete: _deleteSurvey

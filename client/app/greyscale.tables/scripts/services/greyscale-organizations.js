@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleOrganizations', function ($q, greyscaleUtilsSrv, greyscaleOrganizationSrv, greyscaleUserSrv,
+    .factory('greyscaleOrganizationsTbl', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
         greyscaleProfileSrv, greyscaleModalsSrv) {
         var _dicts = {
             users: []
@@ -83,7 +83,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleOrganizationSrv.delete(rec.id)
+            greyscaleOrganizationApi.delete(rec.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errorHandler(err, 'deleting');
@@ -96,9 +96,9 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleOrganizationSrv.update(newRec);
+                        return greyscaleOrganizationApi.update(newRec);
                     } else {
-                        return greyscaleOrganizationSrv.add(newRec);
+                        return greyscaleOrganizationApi.add(newRec);
                     }
                 })
                 .then(reloadTable)
@@ -111,8 +111,8 @@ angular.module('greyscale.tables')
             return greyscaleProfileSrv.getProfile()
                 .then(function (profile) {
                     var reqs = {
-                        orgs: greyscaleOrganizationSrv.list(),
-                        users: greyscaleUserSrv.list({
+                        orgs: greyscaleOrganizationApi.list(),
+                        users: greyscaleUserApi.list({
                             organizationId: profile.organizationId
                         })
                     };

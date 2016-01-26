@@ -17,6 +17,7 @@ var _app = angular.module('greyscaleApp', [
     'ui.bootstrap',
     'ui.router',
     'RDash',
+    'greyscale.mock',
     'greyscale.core',
     'greyscale.rest',
     'greyscale.tables',
@@ -171,8 +172,40 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Project Setup',
+                name: '',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('projects.setup.roles', {
+            url: '/roles',
+            templateUrl: 'views/controllers/project-setup-roles.html',
+            controller: 'ProjectSetupRolesCtrl',
+            data: {
+                name: 'User Roles'
+            }
+        })
+        .state('projects.setup.surveys', {
+            url: '/surveys',
+            templateUrl: 'views/controllers/project-setup-surveys.html',
+            controller: 'ProjectSetupSurveysCtrl',
+            data: {
+                name: 'Surveys'
+            }
+        })
+        .state('projects.setup.products', {
+            url: '/products',
+            templateUrl: 'views/controllers/project-setup-products.html',
+            controller: 'ProjectSetupProductsCtrl',
+            data: {
+                name: 'Products'
+            }
+        })
+        .state('projects.setup.tasks', {
+            url: '/tasks',
+            templateUrl: 'views/controllers/project-setup-tasks.html',
+            controller: 'ProjectSetupTasksCtrl',
+            data: {
+                name: 'Tasks'
             }
         })
         .state('orgs', {
@@ -187,6 +220,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Organizations',
                 accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('workflow', {
+            parent: 'home',
+            url: 'workflow',
+            data: {
+                name: 'Workflow Steps',
+                accessLevel: systemRoles.superAdmin.mask
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/workflow.html',
+                    controller: 'WorkflowCtrl'
+                }
             }
         })
         .state('profile', {
@@ -244,12 +291,26 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Graph',
                 isPublic: false
             }
+        })
+        .state('usersUoa', {
+            parent: 'home',
+            url: 'users-uoa',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/users-uoa.html',
+                    controller: 'UsersUoaCtrl'
+                }
+            },
+            data: {
+                name: 'Users units of analysis',
+                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+            }
         });
 
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== 0xffff) {
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
@@ -257,9 +318,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                     e.preventDefault();
                     if ((_level & 0xfffe) !== 0) { //if not admin accessing admin level page
                         $state.go('home');
-                        inform.add('Access restricted to "' + toState.data.name + '"!', {
-                            type: 'danger'
-                        });
+                        greyscaleUtilsSrv.errorMsg('Access restricted to "' + toState.data.name + '"!');
                     } else {
                         $stateParams.returnTo = toState.name;
                         $state.go('login');

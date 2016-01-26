@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaClassTypes', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaClassTypeSrv) {
+    .factory('greyscaleUoaClassTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+        greyscaleLanguageApi, greyscaleUoaClassTypeApi) {
 
         var dicts = {
             languages: []
@@ -75,12 +75,12 @@ angular.module('greyscale.tables')
 
         function _editUoaClassType(_uoaClassType) {
             var op = 'editing';
-            return greyscaleUoaClassTypeSrv.get(_uoaClassType)
+            return greyscaleUoaClassTypeApi.get(_uoaClassType)
                 .then(function (uoaClassType) {
                     return greyscaleModalsSrv.editRec(uoaClassType, _table);
                 })
                 .then(function (uoaClassType) {
-                    return greyscaleUoaClassTypeSrv.update(uoaClassType);
+                    return greyscaleUoaClassTypeApi.update(uoaClassType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -92,7 +92,7 @@ angular.module('greyscale.tables')
             var op = 'adding';
             return greyscaleModalsSrv.editRec(_uoaClassType, _table)
                 .then(function (uoaClassType) {
-                    return greyscaleUoaClassTypeSrv.add(uoaClassType);
+                    return greyscaleUoaClassTypeApi.add(uoaClassType);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -101,7 +101,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaClassTypeSrv.delete(item.id)
+            greyscaleUoaClassTypeApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');
@@ -111,8 +111,8 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoaClassTypes: greyscaleUoaClassTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoaClassTypes: greyscaleUoaClassTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoaClassTypes.length; p++) {
