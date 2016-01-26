@@ -18,7 +18,7 @@ angular
             var scriptTag = $document[0].createElement('script');
             scriptTag.type = 'text/javascript';
             scriptTag.async = true;
-            scriptTag.src = 'bower_components/d3plus/d3plus.min.js';
+            scriptTag.src = 'https://cdn.rawgit.com/alexandersimoes/d3plus/master/d3plus.js';
             scriptTag.onreadystatechange = function () {
                 if (this.readyState === 'complete') {
                     onScriptLoad();
