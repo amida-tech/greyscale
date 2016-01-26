@@ -5,11 +5,13 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv) {
+                                              greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessagesApi) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
+        var _messages = [];
+        var _associate = [];
 
         this.getProfile = function (force) {
             var self = this;
@@ -30,6 +32,7 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
+                            .then(self._setAssociate)
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -52,7 +55,29 @@ angular.module('greyscale.core')
                     _userRoles = usrRoles;
                     return _profile;
                 });
+            } else {
+                return $q.reject('no user data loaded');
             }
+        };
+
+        this._setAssociate = function () {
+            if (_profile) {
+                return greyscaleUserApi.list({organizationId: _profile.organizationId})
+                    .then(function(associate){
+                        _associate = associate;
+                        return _profile;
+                    });
+            } else {
+                return $q.reject('no user data loaded');
+            }
+        };
+
+        this.recentMessages = function () {
+            return $q.reject('recentMessages is not implemented yet');
+        };
+
+        this.getMessages = function () {
+            return _messages;
         };
 
         this.getAccessLevelMask = function () {
