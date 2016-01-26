@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessagesApi) {
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
