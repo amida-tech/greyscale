@@ -2,7 +2,7 @@
   "name": "greyscale-client",
   "version": "0.0.0",
   "dependencies": {
-    "formbuilder": "~0.2.1",
+    "formbuilder": "https://github.com/manticorra/formbuilder.git#gh-pages",
     "angular": "^1.4.0",
     "bootstrap-sass-official": "^3.2.0",
     "angular-cookies": "^1.4.0",
