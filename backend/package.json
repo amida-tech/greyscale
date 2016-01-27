@@ -2,6 +2,7 @@
   "name": "indaba-backend",
   "version": "0.2.0",
   "description": "Backend code for Indaba app",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/amida-tech/greyscale.git"
@@ -52,7 +53,7 @@
     "supertest": "^0.13.0"
   },
   "engines": {
-    "node": "~0.12.0"
+    "node": "~5.0.0"
   },
   "scripts": {
     "start": "node --harmony app.js",
