@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
+    SurveyQuestion = require('app/models/survey_questions'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -65,9 +66,9 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            var survey = yield thunkQuery(Survey.select().from(Survey).where(Survey.id.equals(req.body.surveyId)));
-            if (!_.first(survey)) {
-                throw new HttpError(403, 'Survey with this id does not exist');
+            var question = yield thunkQuery(SurveyQuestion.select().from(SurveyQuestion).where(SurveyQuestion.id.equals(req.body.questionId)));
+            if (!_.first(question)) {
+                throw new HttpError(403, 'Question with id = '+ req.body.questionId +' does not exist');
             }
             req.body.userId = req.user.id;
             return yield thunkQuery(SurveyAnswer.insert(req.body).returning(SurveyAnswer.id));

@@ -575,7 +575,11 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'local',
-                        baseServerUrl: 'http://localhost:3005/local/v0.2',
+                        apiProtocol: 'http',
+                        apiHostname: 'localhost',
+                        apiPort: '3005',
+                        apiRealm: 'local',
+                        apiVersion: 'v0.2',
                         enableDebugLog: true
                     }
                 }
@@ -585,7 +589,11 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'env',
-                        baseServerUrl: 'http://' + process.env.SERVICE_HOST + ':3005/v0.2',
+                        apiProtocol: process.env.SERVICE_PROTOCOL,
+                        apiHostname: process.env.SERVICE_HOST,
+                        apiPort: process.env.SERVICE_PORT,
+                        apiRealm: process.env.SERVICE_REALM,
+                        apiVersion: process.env.SERVICE_VER,
                         enableDebugLog: false
                     }
                 }
@@ -595,7 +603,11 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'dev',
-                        baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
+                        apiProtocol: 'http',
+                        apiHostname: 'indaba.ntrlab.ru',
+                        apiPort: '83',
+                        apiRealm: '',
+                        apiVersion: 'v0.2',
                         defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
                         enableDebugLog: true
