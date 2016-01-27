@@ -35,9 +35,11 @@ module.exports = function (grunt) {
     };
 
     if (process.platform === 'darwin') {
-        dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
-        dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
-        dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        try {
+            dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+            dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+            dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        } catch (error) {}
     }
 
     // Define the configuration for all the tasks
@@ -57,7 +59,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/scripts/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -151,7 +154,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ]
             },
             test: {
@@ -191,7 +195,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     config: '../.jsbeautifyrc'
@@ -204,7 +209,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/vendors/{,*/}*.js',
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
                     mode: 'VERIFY_ONLY',
@@ -268,6 +274,7 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
+                exclude: ['bower_components/plotly.js/dist/plotly.min.js'],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -519,7 +526,15 @@ module.exports = function (grunt) {
             dev: {
                 src: 'dev-Dockerrun.aws.json',
                 dest: 'Dockerrun.aws.json',
-            }
+            },
+            stage: {
+                src: 'staging-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
+            prod: {
+                src: 'prod-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
         },
 
         // Run some tasks in parallel to speed up the build process
@@ -551,7 +566,11 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'local',
-                        baseServerUrl: 'http://localhost:3005/v0.2',
+                        apiProtocol: 'http',
+                        apiHostname: 'localhost',
+                        apiPort: '3005',
+                        apiRealm: 'local',
+                        apiVersion: 'v0.2',
                         enableDebugLog: true
                     }
                 }
@@ -561,8 +580,12 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'env',
-                        baseServerUrl: 'http://' + process.env.SERVICE_HOST + ':3005/v0.2',
-                        enableDebugLog: true
+                        apiProtocol: process.env.SERVICE_PROTOCOL,
+                        apiHostname: process.env.SERVICE_HOST,
+                        apiPort: process.env.SERVICE_PORT,
+                        apiRealm: process.env.SERVICE_REALM,
+                        apiVersion: process.env.SERVICE_VER,
+                        enableDebugLog: false
                     }
                 }
             },
@@ -571,8 +594,12 @@ module.exports = function (grunt) {
                 constants: {
                     greyscaleEnv: {
                         name: 'dev',
-                        baseServerUrl: 'http://indaba.ntrlab.ru:83/v0.2',
-                        defaultUser: 'no@mail.net',
+                        apiProtocol: 'http',
+                        apiHostname: 'indaba.ntrlab.ru',
+                        apiPort: '83',
+                        apiRealm: 'dev',
+                        apiVersion: 'v0.2',
+                        defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
@@ -583,15 +610,15 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker 
+                    'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
@@ -615,7 +642,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.pem
+                        key: dockerConfig.key
                     }
                 }
             }
@@ -639,18 +666,30 @@ module.exports = function (grunt) {
         },
 
         awsebtdeploy: {
+            options: {
+                region: 'us-west-2',
+                applicationName: 'greyscale',
+                sourceBundle: 'latest-client.zip',
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                versionLabel: 'client-' + Date.now(),
+                s3: {
+                    bucket: 'amida-greyscale'
+                }
+            },
             dev: {
                 options: {
-                    region: 'us-west-2',
-                    applicationName: 'greyscale',
                     environmentName: 'greyscale-client-dev',
-                    sourceBundle: 'latest-client.zip',
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                    versionLabel: 'client-' + Date.now(),
-                    s3: {
-                        bucket: 'amida-greyscale'
-                    }
+                }
+            },
+            stage: {
+                options: {
+                    environmentName: 'greyscale-client-stage',
+                }
+            },
+            prod: {
+                options: {
+                    environmentName: 'greyscale-client-prod',
                 }
             }
         }
@@ -699,7 +738,7 @@ module.exports = function (grunt) {
         'copy:images',
         //'cdnify',
         'cssmin',
-        'uglify',
+        //'uglify',
         'filerev',
         'usemin',
         'htmlmin'
@@ -728,7 +767,7 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('buildEnv', [
-        'ngconstant:dev',
+        'ngconstant:env',
         'build'
     ]);
 
@@ -736,6 +775,22 @@ module.exports = function (grunt) {
         'copy:dev',
         'compress',
         'awsebtdeploy:dev'
+    ]);
+    grunt.registerTask('ebsStage', [
+        'copy:stage',
+        'compress',
+        'awsebtdeploy:stage'
+    ]);
+    grunt.registerTask('ebsProd', [
+        'copy:prod',
+        'compress',
+        'awsebtdeploy:prod'
+    ]);
+
+    grunt.registerTask('brushIt', [
+        'jshint:all',
+        'jscs:all',
+        'jsbeautifier:beautify'
     ]);
 
     grunt.registerTask('default', [

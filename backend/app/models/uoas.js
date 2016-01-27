@@ -1,32 +1,34 @@
 var sql = require('sql');
 
+var columns = [
+    'id',
+    'gadmId0',
+    'gadmId1',
+    'gadmId2',
+    'gadmId3',
+    'gadmObjectId',
+    'ISO',
+    'ISO2',
+    'nameISO',
+    'name',
+    'description',
+    'shortName',
+    'HASC',
+    'unitOfAnalysisType',
+    'parentId',
+    'creatorId',
+    'ownerId',
+    'visibility',
+    'status',
+    'createTime',
+    'deleteTime',
+    'langId'
+];
+
 var UnitOfAnalysis = sql.define({
     name: 'UnitOfAnalysis',
     schema: 'proto_amida',
-    columns: [
-        'id',
-        'gadmId0',
-        'gadmId1',
-        'gadmId2',
-        'gadmId3',
-        'gadmObjectId',
-        'ISO',
-        'ISO2',
-        'nameISO',
-        'name',
-        'description',
-        'shortName',
-        'HASC',
-        'unitOfAnalysisType',
-        'parentId',
-        'creatorId',
-        'ownerId',
-        'visibility',
-        'status',
-        'createTime',
-        'deleteTime',
-        'langId'
-    ]
+    columns: columns
 });
 var translate = [
     'name',
@@ -35,5 +37,6 @@ var translate = [
 ];
 
 UnitOfAnalysis.translate = translate;
+UnitOfAnalysis.whereCol = columns;
 
 module.exports = UnitOfAnalysis;

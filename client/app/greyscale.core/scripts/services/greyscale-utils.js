@@ -11,7 +11,8 @@ angular.module('greyscale.core')
             removeInternal: _purify,
             prepareFields: _preProcess,
             errorMsg: addErrMsg,
-            getRoleMask: _getRoleMask
+            getRoleMask: _getRoleMask,
+            parseURL: _parseURL
         };
 
         function _decode(dict, key, code, name) {
@@ -75,5 +76,42 @@ angular.module('greyscale.core')
                 res = res || greyscaleGlobals.userRoles.nobody.mask;
             }
             return res;
+        }
+
+        function _parseURL(url) {
+            var p = document.createElement('a');
+            p.href = url;
+            var result = {
+                protocol: p.protocol,
+                hostname: p.hostname,
+                port: p.port,
+                path: p.pathname,
+                search: decodeURIComponent(p.search),
+                hash: p.hash,
+                params: {}
+            };
+
+            if (result.search) {
+                var params = result.search.substring(1).split('&');
+
+                for (var i = 0; i < params.length; i++) {
+                    var parts = params[i].split('=');
+
+                    if (parts[0]) {
+                        var param = result.params[parts[0]];
+
+                        if (typeof param === 'undefined') {
+                            param = parts[1];
+                        } else if (angular.isArray(param)) {
+                            param.push(parts[1]);
+                        } else {
+                            param = [param, parts[1]];
+                        }
+
+                        result.params[parts[0]] = param;
+                    }
+                }
+            }
+            return result;
         }
     });

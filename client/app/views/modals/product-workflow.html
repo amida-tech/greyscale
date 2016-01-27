@@ -1,0 +1,42 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
+    <h3 class="modal-title">Workflow Steps <small>For "{{model.product.title}}" Product</small></h3>
+</div>
+<div class="modal-body">
+
+    <div name="dataForm" class="form" ng-form="dataForm">
+        <div class="form-group">
+            <label>Title</label>
+            <div>
+                <input type="text" class="form-control" name="name" id="name"
+                       ng-model="model.product.workflow.name"
+                       ng-required="true" ng-minlength="1">
+
+                <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
+                     ng-if="dataForm.name.$dirty">
+                    <span ng-message="required, minlength" class="help-block">Title is required.</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <div>
+                <textarea type="text" class="form-control" name="description" id="description"
+                       ng-model="model.product.workflow.description"
+                       ng-required="true" ng-minlength="1"></textarea>
+
+                <div class="text-center" ng-messages="dataForm.description.$error" role="alert"
+                     ng-if="dataForm.description.$dirty">
+                    <span ng-message="required, minlength" class="help-block">Description is required.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <widget-table model="model.productWorkflow"></widget-table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()">Cancel</button>
+    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !model.productWorkflow.multiselect.selectedMap.length" ng-click="save()">Save</button>
+</div>
+

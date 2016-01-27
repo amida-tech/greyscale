@@ -2,6 +2,8 @@ var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
     Project = require('app/models/projects'),
+    Product = require('app/models/products'),
+    Workflow = require('app/models/workflows'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
     Language = require('app/models/languages'),
@@ -68,8 +70,26 @@ module.exports = {
         });
     },
 
-    uoaList: function (req, res, next) {
-        next();
+    productList: function (req, res, next) {
+        co(function* () {
+            return yield thunkQuery(
+                Product
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Product.id.equals(Workflow.productId))
+                )
+                .where(Product.projectId.equals(req.params.id))
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
     },
 
     insertOne: function (req, res, next) {
@@ -122,15 +142,15 @@ function* checkProjectData(req) {
         throw new HttpError(403, 'By some reason cannot find your organization');
     }
 
-    var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)),
-    		 {'realm': req.param('realm')});
-    if (!_.first(isExistAdmin)) {
-        throw new HttpError(403, 'User with this id does not exist (admin user id)');
-    }
-
-    if (_.first(isExistAdmin).organizationId !== req.user.organizationId) {
-        throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization');
-    }
+    //var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)),
+    //		{'realm': req.param('realm')});
+    //if (!_.first(isExistAdmin)) {
+    //    throw new HttpError(403, 'User with this id does not exist (admin user id)');
+    //}
+    //
+    //if (_.first(isExistAdmin).organizationId != req.user.organizationId) {
+    //    throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization')
+    //}
 
     req.body.organizationId = req.user.organizationId;
 

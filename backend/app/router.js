@@ -67,8 +67,8 @@ router.route('/:realm/v0.2/projects/:id')
     .delete(authenticate('token').always, projects.delete)
     .put(authenticate('token').always, projects.editOne);
 
-router.route('/v0.2/projects/:id/uoa')
-    .get(authenticate('token').always, projects.uoaList);
+router.route('/:realm/v0.2/projects/:id/products')
+    .get(authenticate('token').always, projects.productList);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
@@ -83,6 +83,14 @@ router.route('/:realm/v0.2/surveys/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.editOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
+
+router.route('/:realm/v0.2/surveys/:id/questions')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
+
+router.route('/:realm/v0.2/questions/:id')
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS
@@ -174,7 +182,16 @@ router.route('/:realm/v0.2/products')
 
 router.route('/:realm/v0.2/products/:id')
     .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
+    .put(authenticate('token').always, checkPermission('product_update', 'products'), products.updateOne)
     .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
+
+router.route('/:realm/v0.2/products/:id/uoa')
+    .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);
+
+router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
+    .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
+    .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
@@ -241,10 +258,12 @@ router.route('/:realm/v0.2/users/:id')
     .put(authenticate('token').always, checkRight('users_edit_one'), users.updateOne)
     .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
 
-router.route('/v0.2/users/:id/uoa')
-    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect);
+router.route('/:realm/v0.2/users/:id/uoa')
+    .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect)
+    .post(authenticate('token').always, checkRight('users_uoa'), users.UOAaddMultiple)
+    .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdeleteMultiple);
 
-router.route('/v0.2/users/:id/uoa/:uoaid')
+router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdelete)
     .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
 
@@ -266,14 +285,28 @@ router.route('/:realm/v0.2/countries/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var workflows = require('app/controllers/workflows');
 
-router.route('/v0.2/workflows')
+router.route('/:realm/v0.2/workflows')
     .get(authenticate('token').always, workflows.select)
     .post(authenticate('token').always, /*checkRight('countries_insert_one'),*/ workflows.insertOne);
 
-router.route('/v0.2/workflows/:id')
+router.route('/:realm/v0.2/workflows/:id')
     .get(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.selectOne)
     .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
+
+router.route('/:realm/v0.2/workflows/:id/steps')
+    .get(authenticate('token').always, workflows.steps)
+    .delete(authenticate('token').always, workflows.stepsDelete)
+    .post(authenticate('token').always, workflows.stepsAdd);
+
+router.route('/:realm/v0.2/workflow_steps')
+    .get(authenticate('token').always, workflows.stepListSelect)
+    .post(authenticate('token').always, workflows.stepListAdd);
+
+router.route('/:realm/v0.2/workflow_steps/:id')
+    .get(authenticate('token').always, workflows.stepListSelectOne)
+    .put(authenticate('token').always, workflows.stepListUpdateOne)
+    .delete(authenticate('token').always, workflows.stepListDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis

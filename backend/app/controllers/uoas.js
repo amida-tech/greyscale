@@ -19,10 +19,9 @@ module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
-            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            req.query.realm = req.param('realm');
-            var uoa = thunkQuery(UnitOfAnalysis.select(), req.query);
+            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')),{'realm': req.param('realm')});
+			req.query.realm = req.param('realm');
+            var uoa = thunkQuery(UnitOfAnalysis.select(), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoa];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -34,10 +33,11 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
-            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')),{'realm': req.param('realm')});
             var langId = yield * detectLanguage(req);
-            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis),  {'realm': req.param('realm')});
+
+			req.query.realm = req.param('realm');
+            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield [_counter, uoa];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);

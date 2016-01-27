@@ -40,7 +40,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.body.id)), {'realm': req.param('realm')});
+            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.params.id)),{'realm': req.param('realm')});
         }).then(function () {
             res.status(200).end();
         }, function (err) {
@@ -50,7 +50,7 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.delete().where(Country.id.equals(req.query.id)),{'realm': req.param('realm')});
+            return yield thunkQuery(Country.delete().where(Country.id.equals(req.params.id)),{'realm': req.param('realm')});
         }).then(function () {
             res.status(204).end();
         }, function (err) {

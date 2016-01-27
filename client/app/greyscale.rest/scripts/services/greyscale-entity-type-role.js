@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleEntityTypeRoleSrv', function (greyscaleRestSrv) {
+    .factory('greyscaleEntityTypeRoleApi', function (greyscaleRestSrv) {
 
         return {
             list: _list,

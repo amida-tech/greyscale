@@ -4,10 +4,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoas', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
+    .factory('greyscaleUoasTbl', function ($q, greyscaleGlobals, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageSrv, greyscaleUoaSrv,
-        greyscaleUoaTypeSrv) {
+        greyscaleLanguageApi, greyscaleUoaApi,
+        greyscaleUoaTypeApi) {
 
         var dicts = {
             languages: [],
@@ -145,12 +145,12 @@ angular.module('greyscale.tables')
 
         function _editUoa(_uoa) {
             var op = 'editing';
-            return greyscaleUoaSrv.get(_uoa)
+            return greyscaleUoaApi.get(_uoa)
                 .then(function (uoa) {
                     return greyscaleModalsSrv.editRec(uoa, _table);
                 })
                 .then(function (uoa) {
-                    return greyscaleUoaSrv.update(uoa);
+                    return greyscaleUoaApi.update(uoa);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -162,7 +162,7 @@ angular.module('greyscale.tables')
             var op = 'adding';
             return greyscaleModalsSrv.editRec(null, _table)
                 .then(function (uoa) {
-                    return greyscaleUoaSrv.add(uoa);
+                    return greyscaleUoaApi.add(uoa);
                 })
                 .then(reloadTable)
                 .catch(function (err) {
@@ -173,9 +173,9 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleProfileSrv.getProfile().then(function (profile) {
                 var req = {
-                    uoas: greyscaleUoaSrv.list(),
-                    uoaTypes: greyscaleUoaTypeSrv.list(),
-                    languages: greyscaleLanguageSrv.list()
+                    uoas: greyscaleUoaApi.list(),
+                    uoaTypes: greyscaleUoaTypeApi.list(),
+                    languages: greyscaleLanguageApi.list()
                 };
                 return $q.all(req).then(function (promises) {
                     for (var p = 0; p < promises.uoas.length; p++) {
@@ -190,7 +190,7 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(item) {
-            greyscaleUoaSrv.delete(item.id)
+            greyscaleUoaApi.delete(item.id)
                 .then(reloadTable)
                 .catch(function (err) {
                     errHandler(err, 'deleting');

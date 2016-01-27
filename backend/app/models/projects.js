@@ -14,7 +14,7 @@ var columns = [
     'status',
     //'logoPath',
     //'msgboardId',
-    'adminUserId',
+    //'adminUserId',
     //'sponsorLogos',
     //'isActive',
     'closeTime',
