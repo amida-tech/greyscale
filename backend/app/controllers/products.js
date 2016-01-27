@@ -19,7 +19,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(getTranslateQuery(req.lang.id, Product));
+            return yield thunkQuery(getTranslateQuery(req.lang.id, Product),  {'realm': req.param('realm')});
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -29,7 +29,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = getTranslateQuery(req.lang.id, Product, Product.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -39,7 +39,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Product.delete().where(Product.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -50,12 +50,12 @@ module.exports = {
     insertOne: function (req, res, next) {
 
         co(function* () {
-            var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+            var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)),{'realm': req.param('realm')});
             if (!_.first(isExistMatrix)) {
                 throw new HttpError(403, 'Matrix with this id does not exist');
             }
 
-            var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
+            var result = yield thunkQuery(Product.insert(req.body).returning(Product.id),{'realm': req.param('realm')} );
 
             return result;
         }).then(function (data) {

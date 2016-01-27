@@ -13,6 +13,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(Workflow.select().from(Workflow), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -23,7 +24,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        query(Workflow.select().where(Workflow.id.equals(req.params.id)), function (err, data) {
+        query(Workflow.select().where(Workflow.id.equals(req.params.id)),{'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -37,7 +38,8 @@ module.exports = {
     updateOne: function (req, res, next) {
         // TODO validation
         co(function* () {
-            var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
+            var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)),
+            		{'realm': req.param('realm')});
             return result;
         }).then(function (data) {
             res.status(202).end();
@@ -47,7 +49,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
-        query(Workflow.delete().where(Workflow.id.equals(req.params.id)), function (err, data) {
+        query(Workflow.delete().where(Workflow.id.equals(req.params.id)), {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -59,7 +61,7 @@ module.exports = {
         // TODO validation
         co(function* () {
 
-            var result = yield thunkQuery(Workflow.insert(req.body).returning(Workflow.id));
+            var result = yield thunkQuery(Workflow.insert(req.body).returning(Workflow.id), {'realm': req.param('realm')});
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));

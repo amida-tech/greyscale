@@ -14,7 +14,7 @@ module.exports = {
 
     select: function (req, res, next) {
         var q = Language.select().from(Language);
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -24,7 +24,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = Language.select().from(Language).where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -34,7 +34,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Language.delete().where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -44,7 +44,7 @@ module.exports = {
 
     editOne: function (req, res, next) {
         var q = Language.update(req.body).where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -54,7 +54,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         var q = Language.insert(req.body).returning(Language.id);
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }

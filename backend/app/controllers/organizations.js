@@ -15,7 +15,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -29,6 +29,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(Organization.select().from(Organization), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -43,11 +44,12 @@ module.exports = {
             if (!req.body.adminUserId) {
                 throw new HttpError(400, 'Admin user id field is required');
             }
-            var existUser = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId)));
+            var existUser = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId)), 
+            		{'realm': req.param('realm')} );
             if (!_.first(existUser)) {
                 throw new HttpError(403, 'User with this id does not exist');
             }
-            return yield thunkQuery(Organization.insert(req.body).returning(Organization.id));
+            return yield thunkQuery(Organization.insert(req.body).returning(Organization.id),  {'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {

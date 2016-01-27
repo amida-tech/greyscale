@@ -7,20 +7,27 @@ var HttpError = require('app/error').HttpError,
 exports.Query = function () {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
-
+        
+        var schema = 'public';
+        if (options.realm !== undefined){
+        	schema = options.realm;
+        	delete options['realm'];
+        }
+        
         if (arguments.length === 2) {
             cb = options;
         }
 
         var arlen = arguments.length;
-
+        console.log('::::::::::::::::::::::'+queryObject);
         client.connect(function (err) {
             if (err) {
                 return console.error('could not connect to postgres', err);
             }
             //START
             if (typeof queryObject === 'string') {
-                client.query(queryObject, options, function (err, result) {
+            	console.log(';;;;;;;;;;;;;;;;;;; is string');
+                client.query(queryObject.replace(/proto_amida/g,schema), options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
                     if (err) {
@@ -29,6 +36,7 @@ exports.Query = function () {
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
+            	console.log(';;;;;;;;;;;;;;;;;;; not string '+arlen);
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
                     if (Object.keys(optWhere).length) {
@@ -76,12 +84,14 @@ exports.Query = function () {
                     if (options.limit) {
                         queryObject.limit(options.limit);
                     }
-
+                    
                 }
-
-                console.log(queryObject.toQuery());
-
-                client.query(queryObject.toQuery(), function (err, result) {
+                
+                var q = queryObject.toQuery();
+                q.text = q.text.replace(/proto_amida/g,schema);
+                console.log(q);
+                
+                client.query(q, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
                     if (err) {

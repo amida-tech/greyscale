@@ -12,6 +12,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
         }).then(function (data) {
             res.json(data);
@@ -23,7 +24,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = Survey.select().from(Survey).where(Survey.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -38,7 +39,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Survey.delete().where(Survey.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -49,7 +50,7 @@ module.exports = {
     editOne: function (req, res, next) {
         if (req.body.data) {
             var q = Survey.update(req.body).where(Survey.id.equals(req.params.id));
-            query(q, function (err, data) {
+            query(q,  {'realm': req.param('realm')}, function (err, data) {
                 if (err) {
                     return next(err);
                 }
@@ -62,7 +63,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         var q = Survey.insert(req.body).returning(Survey.id);
-        query(q, function (err, data) {
+        query(q,  {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }

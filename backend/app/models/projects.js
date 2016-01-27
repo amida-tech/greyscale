@@ -26,6 +26,7 @@ var columns = [
 
 var Project = sql.define({
     name: 'Projects',
+    schema: 'proto_amida',
     columns: columns
 });
 

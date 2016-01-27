@@ -32,7 +32,7 @@ module.exports = {
             var needNewToken = false;
             var data = yield thunkQuery(Token.select().where({
                 userID: req.user.id
-            }));
+            }), {'realm': req.param('realm')} );
             if (!data.length) {
                 needNewToken = true;
             }
@@ -45,7 +45,7 @@ module.exports = {
                 return yield thunkQuery(Token.insert({
                     'userID': req.user.id,
                     'body': token
-                }).returning(Token.body));
+                }).returning(Token.body),{'realm': req.param('realm')});
             } else {
                 return data;
             }
@@ -60,7 +60,8 @@ module.exports = {
 
     checkToken: function (req, res, next) {
         co(function* () {
-            var existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
+            var existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)),
+            		 {'realm': req.param('realm')});
             if (!_.first(existToken)) {
                 throw new HttpError(400, 'Token invalid');
             }
@@ -80,6 +81,7 @@ module.exports = {
 
         query(
             Token.delete().where(Token.userID.equals(id)),
+            {'realm': req.param('realm')},
             function (err, data) {
                 if (!err) {
                     res.status(202).end();
@@ -92,7 +94,9 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             var _counter = thunkQuery(User.select(User.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            req.query.realm = req.param('realm');
             var user = thunkQuery(User.select(), req.query);
             return yield [_counter, user];
         }).then(function (data) {
@@ -105,6 +109,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
+        	//XXX: Ami I missing something?  This looks recursive
             return yield insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -122,7 +127,8 @@ module.exports = {
             if (!vl.isEmail(req.body.email)) {
                 throw new HttpError(400, 101);
             }
-            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)),
+            		 {'realm': req.param('realm')});
             isExistUser = _.first(isExistUser);
             if (isExistUser && isExistUser.isActive) {
                 throw new HttpError(400, 'User with this email has already registered');
@@ -148,7 +154,7 @@ module.exports = {
                     'activationToken': activationToken
                 };
 
-                userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+                userId = yield thunkQuery(User.insert(newClient).returning(User.id),  {'realm': req.param('realm')});
 
                 var newOrganization = {
                     'name': OrgNameTemp,
@@ -156,7 +162,8 @@ module.exports = {
                     'isActive': false
                 };
 
-                var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
+                var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id), 
+                		 {'realm': req.param('realm')});
 
                 console.log(_.first(organizationId).id);
 
@@ -164,7 +171,7 @@ module.exports = {
                     organizationId: _.first(organizationId).id
                 }).where({
                     id: _.first(userId).id
-                }));
+                }),  {'realm': req.param('realm')});
             }
 
             userId = isExistUser ? isExistUser.id : _.first(userId).id;
@@ -198,7 +205,8 @@ module.exports = {
 
     checkActivationToken: function (req, res, next) {
         co(function* () {
-            var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
+            var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)),
+            		 {'realm': req.param('realm')});
             if (!_.first(isExist)) {
                 throw new HttpError(400, 'Token is not valid');
             }
@@ -212,7 +220,8 @@ module.exports = {
 
     activate: function (req, res, next) {
         co(function* () {
-            var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
+            var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)),
+            		 {'realm': req.param('realm')});
             if (!_.first(isExist)) {
                 throw new HttpError(400, 'Token is not valid');
             }
@@ -226,7 +235,8 @@ module.exports = {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
             };
-            var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
+            var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id),
+            		 {'realm': req.param('realm')});
             return updated;
         }).then(function (data) {
             res.json(_.first(data));
@@ -240,7 +250,8 @@ module.exports = {
             if (req.user.roleID !== 2) {
                 throw new HttpError(400, 'Your role is not "client". Only clients can have organization');
             }
-            var Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)));
+            var Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)),
+            		 {'realm': req.param('realm')});
             if (!_.first(Org)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -263,7 +274,8 @@ module.exports = {
                 url: req.body.url,
                 isActive: true
             };
-            var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id));
+            var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id),
+            		 {'realm': req.param('realm')});
             if (!_.first(updated)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -283,13 +295,15 @@ module.exports = {
             if (!vl.isEmail(req.body.email)) {
                 throw new HttpError(400, 101);
             }
-            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)),
+            		 {'realm': req.param('realm')});
             isExistUser = _.first(isExistUser);
             if (isExistUser && isExistUser.isActive) {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)),
+            		 {'realm': req.param('realm')});
             org = _.first(org);
             if (!org) {
                 throw new HttpError(400, 'You dont have any organizations');
@@ -313,7 +327,7 @@ module.exports = {
                     'organizationId': org.id
                 };
 
-                var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+                var userId = yield thunkQuery(User.insert(newClient).returning(User.id),  {'realm': req.param('realm')});
             }
 
             var options = {
@@ -358,7 +372,8 @@ module.exports = {
                     .leftJoin(UOA)
                     .on(UserUOA.UOAid.equals(UOA.id))
                 )
-                .where(UserUOA.UserId.equals(req.params.id))
+                .where(UserUOA.UserId.equals(req.params.id)),
+                {'realm': req.param('realm')}
             );
         }).then(function (data) {
             res.json(data);
@@ -371,7 +386,7 @@ module.exports = {
         query(UserUOA.insert({
             UserId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, user) {
+        }),  {'realm': req.param('realm')}, function (err, user) {
             if (!err) {
                 res.status(201).end();
             } else {
@@ -384,7 +399,7 @@ module.exports = {
         query(UserUOA.delete().where({
             UserId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, user) {
+        }),  {'realm': req.param('realm')}, function (err, user) {
             if (!err) {
                 res.status(204).end();
             } else {
@@ -394,7 +409,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        query(User.select().where(req.params), function (err, user) {
+        query(User.select().where(req.params),  {'realm': req.param('realm')}, function (err, user) {
             if (!err) {
                 res.json(_.first(user));
             } else {
@@ -406,6 +421,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         query(
             User.update(_.pick(req.body, User.whereCol)).where(User.id.equals(req.params.id)),
+            {'realm': req.param('realm')},
             function (err, data) {
                 if (!err) {
                     res.status(202).end();
@@ -419,6 +435,7 @@ module.exports = {
     deleteOne: function (req, res, next) {
         query(
             User.delete().where(User.id.equals(req.params.id)),
+            {'realm': req.param('realm')},
             function (err) {
                 if (!err) {
                     res.status(204).end();
@@ -430,12 +447,12 @@ module.exports = {
 
     selectSelf: function (req, res, next) {
         var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "RolesRights" ' +
-            ' LEFT JOIN "Rights"' +
+            ' SELECT "Rights"."action" FROM "PROTO_AMIDA.RolesRights" ' +
+            ' LEFT JOIN "PROTO_AMIDA.Rights"' +
             ' ON ("RolesRights"."rightID" = "Rights"."id")' +
             ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
             ') AS rights';
-        query(User.select(User.star(), request).where(User.id.equals(req.user.id)), function (err, user) {
+        query(User.select(User.star(), request).where(User.id.equals(req.user.id)), {'realm': req.param('realm')}, function (err, user) {
             if (!err) {
                 res.json(_.first(user));
             } else {
@@ -447,6 +464,7 @@ module.exports = {
     updateSelf: function (req, res, next) {
         query(
             User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.user.id)),
+            {'realm': req.param('realm')}, 
             function (err, data) {
                 if (!err) {
                     res.status(202).end();
@@ -458,7 +476,7 @@ module.exports = {
     },
     forgot: function (req, res, next) {
         co(function* () {
-            var user = yield thunkQuery(User.select().where(User.email.equals(req.body.email)));
+            var user = yield thunkQuery(User.select().where(User.email.equals(req.body.email)), {'realm': req.param('realm')});
             if (!_.first(user)) {
                 throw new HttpError(403, 'User with this email does not exist');
             } else {
@@ -469,7 +487,8 @@ module.exports = {
                 userToSave.resetPasswordToken = token;
                 userToSave.resetPasswordExpires = Date.now() + 3600000;
 
-                var update = yield thunkQuery(User.update(userToSave).where(User.email.equals(req.body.email)).returning(User.resetPasswordToken));
+                var update = yield thunkQuery(User.update(userToSave).where(User.email.equals(req.body.email)).returning(User.resetPasswordToken),
+                		{'realm': req.param('realm')});
 
                 if (!_.first(update)) {
                     throw new HttpError(400, 'Cannot update user data');
@@ -502,7 +521,8 @@ module.exports = {
     checkRestoreToken: function (req, res, next) {
         query(User.select().where(
             User.resetPasswordToken.equals(req.params.token)
-            .and(User.resetPasswordExpires.gt(Date.now()))), function (err, user) {
+            .and(User.resetPasswordExpires.gt(Date.now()))), 
+            {'realm': req.param('realm')}, function (err, user) {
             if (!err) {
                 if (!_.first(user)) {
                     return next(new HttpError(403, 'Token expired or does not exist'));
@@ -519,7 +539,7 @@ module.exports = {
                 User.select().where(
                     User.resetPasswordToken.equals(req.body.token)
                     .and(User.resetPasswordExpires.gt(Date.now()))
-                )
+                ), {'realm': req.param('realm')}
             );
             if (!_.first(user)) {
                 throw new HttpError(403, 'Token expired or does not exist');
@@ -533,7 +553,7 @@ module.exports = {
 
             return yield thunkQuery(User.update(data)
                 .where(User.resetPasswordToken.equals(req.body.token))
-                .returning(User.id));
+                .returning(User.id), {'realm': req.param('realm')});
 
         }).then(function (data) {
             res.status(200).end();
@@ -556,7 +576,7 @@ function* insertOne(req, res, next) {
     }
 
     // validate email for unique
-    var email = yield thunkQuery(User.select().where(User.email.equals(req.body.email)));
+    var email = yield thunkQuery(User.select().where(User.email.equals(req.body.email)), {'realm': req.param('realm')});
     if (_.first(email)) {
         throw new HttpError(403, 103);
     }
@@ -571,7 +591,7 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(req.body).returning(User.id));
+    var user = yield thunkQuery(User.insert(req.body).returning(User.id), {'realm': req.param('realm')});
 
     var options = {
         to: {

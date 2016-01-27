@@ -20,6 +20,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -30,7 +31,8 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
+            var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)),
+            		{'realm': req.param('realm')});
             if (!_.first(project)) {
                 throw new HttpError(404, 'Not found');
             } else {
@@ -45,7 +47,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Project.delete().where(Project.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -56,7 +58,8 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var result = yield thunkQuery(Project.update(req.body).where(Project.id.equals(req.params.id)));
+            var result = yield thunkQuery(Project.update(req.body).where(Project.id.equals(req.params.id)), 
+            		{'realm': req.param('realm')});
             return result;
         }).then(function () {
             res.status(202).end();
@@ -72,7 +75,8 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var result = yield thunkQuery(Project.insert(req.body).returning(Project.id));
+            var result = yield thunkQuery(Project.insert(req.body).returning(Project.id),
+            		{'realm': req.param('realm')});
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -84,7 +88,7 @@ module.exports = {
 };
 
 function* checkProjectData(req) {
-    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)), {'realm': req.param('realm')});
     var isExistCode;
     if (!_.first(isExistMatrix)) {
         throw new HttpError(403, 'Matrix with this id does not exist');
@@ -95,7 +99,8 @@ function* checkProjectData(req) {
             isExistCode = yield thunkQuery(
                 Project.select().from(Project)
                 .where(Project.codeName.equals(req.body.codeName)
-                    .and(Project.id.notEquals(req.params.id)))
+                    .and(Project.id.notEquals(req.params.id))),
+               {'realm': req.param('realm')}
             );
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
@@ -103,19 +108,22 @@ function* checkProjectData(req) {
         }
     } else { // create
         if (req.body.codeName) {
-            isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)));
+            isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)),
+            		 {'realm': req.param('realm')});
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
             }
         }
     }
 
-    var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.user.organizationId)));
+    var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.user.organizationId)),
+    		 {'realm': req.param('realm')});
     if (!_.first(isExistOrg)) {
         throw new HttpError(403, 'By some reason cannot find your organization');
     }
 
-    var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)));
+    var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)),
+    		 {'realm': req.param('realm')});
     if (!_.first(isExistAdmin)) {
         throw new HttpError(403, 'User with this id does not exist (admin user id)');
     }

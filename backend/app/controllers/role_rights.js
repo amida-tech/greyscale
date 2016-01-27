@@ -16,7 +16,9 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             var _counter = thunkQuery(RoleRights.select(RoleRights.count('counter')).where(req.params), _.omit(req.query, 'offset', 'limit', 'order'));
+            req.query.realm = req.param('realm');
             var roleRight = thunkQuery(RoleRights.select(Rights.star()).from(RoleRights.leftJoin(Rights).on(RoleRights.rightID.equals(Rights.id))).where(req.params), req.query);
 
             return yield [_counter, roleRight];
@@ -29,17 +31,17 @@ module.exports = {
     },
     insertOne: function (req, res, next) {
         co(function* () {
-            var isExists = yield thunkQuery(RoleRights.select().where(req.params));
+            var isExists = yield thunkQuery(RoleRights.select().where(req.params),  {'realm': req.param('realm')});
             if (_.first(isExists)) {
                 throw new HttpError(403, 106);
             }
 
-            var Right = yield thunkQuery(Rights.select().where(Rights.id.equals(req.params.rightID)));
+            var Right = yield thunkQuery(Rights.select().where(Rights.id.equals(req.params.rightID)),  {'realm': req.param('realm')});
             if (!_.first(Right)) {
                 throw new HttpError(400, 'This right does not exist');
             }
 
-            var Role = yield thunkQuery(Roles.select().where(Roles.id.equals(req.params.roleID)));
+            var Role = yield thunkQuery(Roles.select().where(Roles.id.equals(req.params.roleID)),  {'realm': req.param('realm')});
             Role = _.first(Role);
 
             if (!Role) {
@@ -50,7 +52,7 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(RoleRights.insert(req.params));
+            var result = yield thunkQuery(RoleRights.insert(req.params),  {'realm': req.param('realm')});
 
             return result;
         }).then(function (data) {
@@ -63,6 +65,7 @@ module.exports = {
     deleteOne: function (req, res, next) {
         query(
             RoleRights.delete().where(req.params),
+            {'realm': req.param('realm')},
             function (err) {
                 if (!err) {
                     res.status(204).end();

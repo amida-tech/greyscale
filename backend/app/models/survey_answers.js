@@ -4,6 +4,7 @@ var columns = ['id', 'surveyId', 'userId', 'data', 'date'];
 
 var SurveyAnswer = sql.define({
     name: 'SurveyAnswers',
+    schema: 'proto_amida',
     columns: columns
 });
 

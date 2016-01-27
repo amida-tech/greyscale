@@ -4,6 +4,7 @@ var columns = ['roleID', 'rightID'];
 
 var RolesRights = sql.define({
     name: 'RolesRights',
+    schema: 'proto_amida',
     columns: columns
 });
 
