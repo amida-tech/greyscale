@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-  .directive('mapViz', function ($window, greyscaleSurveySrv){
+  .directive('mapViz', ['$http', function ($window, greyscaleSurveySrv){
     return {
       restrict: 'E',
       templateUrl: 'views/directives/visualization.html',
@@ -13,7 +13,6 @@ angular.module('greyscaleApp')
       //   filterParams: '=',
       //   filterOptions: '='
       // },
-      
       link: function(scope, element, attrs){
         //Local variables for angular data digest cycle ($watch)
         var vizData = [];
@@ -131,12 +130,6 @@ angular.module('greyscaleApp')
           ]
         };
 
-        var soloData = [];
-        var muteData = ["AM", "ZA", "MZ"]; //hack so names don't render huge
-
-        //var d3 = $window.d3; <-- zooming doesn't work when services used
-        var d3selectContainer = d3.select(element.find('svg')[0]);
-
         //Non-essential
         // function parseQuery(){
         //   if(filterParams.mapQuery == "") { return filterParams.mapQuery };
@@ -145,7 +138,9 @@ angular.module('greyscaleApp')
 
         // }
 
-        // d3plus solo/mute filtering options (instead of modifying vizData)
+        var soloData = [];
+        var muteData = [];
+
         function applyFilters(){
           try{
             filterParams.topicSelected.forEach(function(country){
@@ -190,13 +185,43 @@ angular.module('greyscaleApp')
           } 
         }
 
+        //TODO: remove rows from vizData based on soloData/muteData
+
         function renderMap(){
-            //parseQuery();
-            applyFilters();
-            var layout = {
-              autosize: true,
-              
-            }
+          //parseQuery();
+          applyFilters();
+
+          var rows = vizData; //filteredVizData?
+
+          function unpackData(rows, key){
+            return rows.map(function(row){ return row[key]});
+          }
+
+          var mapData = [{
+            type: 'chloropleth',
+            locationmode: 'country names',
+            locations: unpack(rows, 'country'),
+            z: unpack(rows, 'rank'),
+            text: unpack(rows, 'country'),
+            autocolorscale:true
+          }];
+
+          var layout = {
+            geo: {
+              projection: {
+                type: 'mercator'
+              }
+            },
+            autosize: true,
+            margin: {
+              l: 50,
+              r: 50,
+              b: 100,
+              t: 100,
+              pad: 4
+            },
+          };
+          Plotly.newPlot('mapViz', mapData, layout, {showLink:false}); 
         }
 
         scope.$watchGroup(['vizData', 'geoData'], function(newVals, oldVals){
@@ -211,5 +236,5 @@ angular.module('greyscaleApp')
           renderMap();
         });
       }
-    };
-  });
+    }
+  }]);
