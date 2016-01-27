@@ -40,6 +40,7 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
     //     $scope.topics = [...countrySet];
     //     console.log($scope.topics);
 
+    //NO LONGER NEEDED, BUILT INTO PLOTLY.JS
     //     $http.get("scripts/directives/resources/world110-m3.json")
     //       .success(function(geo_data){
     //         $scope.geoData = geo_data;
