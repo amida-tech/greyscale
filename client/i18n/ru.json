@@ -1,0 +1,123 @@
+{
+    "BRAND": {
+        "SLOGAN": "Превращение знаний в данные."
+    },
+    "COMMON": {
+        "APPLY": "Применить",
+        "ASSIGN": "Назначить",
+        "CANCEL": "Отмена",
+        "CLOSE": "Закрыть",
+        "CREATE": "Создать",
+        "EDIT": "Изменить",
+        "FURTHER": "Далее",
+        "SAVE": "Сохранить"
+    },
+    "DATEPICKER": {
+        "DATE_FORMAT": "dd.MM.yyyy",
+        "DONE": "ОК",
+        "PLACEHOLDER": "ДД.ММ.ГГГГ",
+        "RESET": "Сброс",
+        "TODAY": "Сегодня"
+    },
+    "FORMS": {
+        "FIELD_REQUIRED": "",
+        "WRONG_DATE_FORMAT": ""
+    },
+    "LOGIN": {
+        "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
+        "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
+        "EMAIL": "Эл.почт@",
+        "FORGOT_PASSWORD": "Забыл пароль...",
+        "LOGIN_REQUIRED": "Логин обязателен",
+        "PASSWORD": "Пароль",
+        "PASSWORD_REQUIRED": "Пароль обязателен",
+        "SIGN_IN": "Вход"
+    },
+    "NAV": {
+        "ACCESS_MANAGEMENT": "Управление доступом",
+        "ACTIVATE": "Активация",
+        "ADMIN_SECTION": "Администрирование",
+        "CONTENT_SECTION": "Ваш контент",
+        "FORM_BUILDER": "Построитель форм",
+        "HOME": "Главная",
+        "LOGIN": "Логин",
+        "LOGOUT": "Выход",
+        "NOTIFICATIONS": "Уведомления",
+        "ORGANIZATIONS": "Организации",
+        "PROFILE": "Профиль",
+        "PROJECTS": {
+            "PRODUCTS": "Продукты",
+            "SURVEYS": "Опросы",
+            "TASKS": "Задачи",
+            "USER_ROLES": "Роли пользователей"
+        },
+        "PROJECTS_MANAGEMENT": "Проекты",
+        "REGISTER": "Регистрация",
+        "UOAS": "Единицы анализа",
+        "USERS": "Пользователи",
+        "USERS_UOAS": "Пользователи и единицы анализа",
+        "VISUALIZATION": "Визуализация",
+        "WORKFLOW_STEPS": "Процессы"
+    },
+    "PRODUCTS": {
+        "TABLE": {
+            "DESCRIPTION": "Описание",
+            "PRODUCT": "Продукт",
+            "SURVEY": "Опрос",
+            "TITLE": "Название",
+            "UOAS": "Единицы анализа",
+            "WORKFLOW": "Процесс"
+        },
+        "WORKFLOW": {
+            "DESCRIPTION": "Описание",
+            "DESCRIPTION_REQUIRED": "Описание обязательно",
+            "STEPS": {
+                "END_DATE": "Дата окончания",
+                "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
+                "ROLE": "Роль",
+                "START_DATE": "Дата начала",
+                "TITLE": "Шаг"
+            },
+            "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
+            "TITLE": "Название",
+            "TITLE_REQUIRED": "Название обязательно"
+        }
+    },
+    "PROJECTS": {
+        "ACCESS_MATRIX": "Матрица доступа",
+        "CLOSE_TIME": "Время закрытия",
+        "CODE_NAME": "Название",
+        "CREATED": "Создан",
+        "DESCRIPTION": "Описание",
+        "HEADER": "Проекты",
+        "ITEM": "Проект",
+        "ORGANIZATION": "Организация",
+        "PROJECT": "Проект",
+        "PROJECTS": "Проекты",
+        "ROLES": {
+            "ITEM": "Роль в проекте",
+            "ROLE": "Роль",
+            "USER": "Пользователь"
+        },
+        "START_TIME": "Время начала",
+        "STATUS": "Статус"
+    },
+    "SURVEYS": {
+        "DESCRIPTION": "Описание",
+        "FIELDS": "Вопросы",
+        "ITEM": "Опрос",
+        "NAME": "Название",
+        "VIEW": "Просмотр"
+    },
+    "TABLES": {
+        "LOADING_DATA": "Загрузка данных...",
+        "NO_DATA": "Нет данных",
+        "SELECT_ALL_TITLE": "Отметить/Снять все"
+    },
+    "WORKFLOW_STEPS": {
+        "DESCRIPTION": "Описание",
+        "HEADER": "Шаги рабочих процессов",
+        "ITEM": "Шаг процесса",
+        "TITLE": "Название"
+    }
+}

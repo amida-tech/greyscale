@@ -9,11 +9,11 @@ angular.module('greyscaleApp')
             controller: function ($scope, $rootScope) {
                 $scope.model = {
                     login: {
-                        label: 'E-m@il',
+                        label: 'LOGIN.EMAIL',
                         value: greyscaleEnv.defaultUser || ''
                     },
                     password: {
-                        label: 'Password',
+                        label: 'LOGIN.PASSWORD',
                         value: greyscaleEnv.defaultPassword || ''
                     },
                     error: null
@@ -30,10 +30,10 @@ angular.module('greyscaleApp')
                                 $rootScope.$emit('login');
                             }).catch(function (err) {
                                 $log.debug(err);
-                                $scope.model.error = 'Please check your E-mail/Password';
+                                $scope.model.error = 'LOGIN.CHECK_EMAIL_PASSWORD';
                             });
                     } else {
-                        $scope.model.error = 'Please check your Login/Password';
+                        $scope.model.error = 'LOGIN.CHECK_LOGIN_PASSWORD';
                     }
                 };
             }

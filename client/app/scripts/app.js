@@ -22,11 +22,12 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.rest',
     'greyscale.tables',
     'inform',
-    'lodashAngularWrapper'
+    'lodashAngularWrapper',
+    'pascalprecht.translate'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
-    greyscaleEnv, greyscaleGlobalsProvider) {
+    greyscaleEnv, greyscaleGlobalsProvider, i18nProvider, $translateProvider) {
 
     var globals = greyscaleGlobalsProvider.$get();
 
@@ -35,6 +36,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $locationProvider.html5Mode(false);
 
     var systemRoles = globals.userRoles;
+
+    i18nProvider.init($translateProvider);
+    _app.useNgLocale = i18nProvider.useNgLocale; // to reinit $locale after async loading of angular-locale
 
     $stateProvider
         .state('main', {
@@ -51,7 +55,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Activate',
+                name: 'NAV.ACTIVATE',
                 accessLevel: systemRoles.any.mask
             }
         })
@@ -65,7 +69,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Register',
+                name: 'NAV.REGISTER',
                 accessLevel: systemRoles.any.mask
             }
         })
@@ -79,7 +83,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Login',
+                name: 'NAV.LOGIN',
                 accessLevel: systemRoles.any.mask
             }
         })
@@ -98,7 +102,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'dashboard',
             url: '',
             data: {
-                name: 'Home',
+                name: 'NAV.HOME',
                 accessLevel: systemRoles.admin.mask | systemRoles.superAdmin.mask | systemRoles.user.mask
             },
             views: {
@@ -111,7 +115,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'access',
             data: {
-                name: 'Access management',
+                name: 'NAV.ACCESS_MANAGEMENT',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -125,7 +129,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'users',
             data: {
-                name: 'Users',
+                name: 'NAV.USERS',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             },
             views: {
@@ -145,7 +149,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Units of Analysis',
+                name: 'NAV.UOAS',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -159,7 +163,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Projects Management',
+                name: 'NAV.PROJECTS_MANAGEMENT',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
@@ -181,7 +185,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-roles.html',
             controller: 'ProjectSetupRolesCtrl',
             data: {
-                name: 'User Roles'
+                name: 'NAV.PROJECTS.USER_ROLES'
             }
         })
         .state('projects.setup.surveys', {
@@ -189,7 +193,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-surveys.html',
             controller: 'ProjectSetupSurveysCtrl',
             data: {
-                name: 'Surveys'
+                name: 'NAV.PROJECTS.SURVEYS'
             }
         })
         .state('projects.setup.products', {
@@ -197,7 +201,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-products.html',
             controller: 'ProjectSetupProductsCtrl',
             data: {
-                name: 'Products'
+                name: 'NAV.PROJECTS.PRODUCTS'
             }
         })
         .state('projects.setup.tasks', {
@@ -205,7 +209,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/project-setup-tasks.html',
             controller: 'ProjectSetupTasksCtrl',
             data: {
-                name: 'Tasks'
+                name: 'NAV.PROJECTS.TASKS'
             }
         })
         .state('orgs', {
@@ -218,7 +222,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Organizations',
+                name: 'NAV.ORGANIZATIONS',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -226,7 +230,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'workflow',
             data: {
-                name: 'Workflow Steps',
+                name: 'NAV.WORKFLOW_STEPS',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -246,7 +250,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Profile',
+                name: 'NAV.PROFILE',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -260,7 +264,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Form Builder',
+                name: 'NAV.FORM_BUILDER',
                 isPublic: false
             }
         })
@@ -274,7 +278,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Visualization',
+                name: 'NAV.VISUALIZATION',
                 isPublic: false
             }
         })
@@ -288,12 +292,13 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Users units of analysis',
+                name: 'NAV.USERS_UOAS',
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         });
 
     $urlRouterProvider.otherwise('/');
+
 });
 
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv) {

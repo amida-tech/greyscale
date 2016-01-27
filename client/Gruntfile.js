@@ -78,6 +78,13 @@ module.exports = function (grunt) {
             gruntfile: {
                 files: ['Gruntfile.js']
             },
+            i18n: {
+                files: ['i18n/*.json'],
+                tasks: ['i18n'],
+                options: {
+                    livereload: '<%= connect.options.livereload %>'
+                }
+            },
             livereload: {
                 options: {
                     livereload: '<%= connect.options.livereload %>'
@@ -493,6 +500,11 @@ module.exports = function (grunt) {
                     src: ['generated/*']
                 }, {
                     expand: true,
+                    cwd: '.tmp/l10n',
+                    dest: '<%= yeoman.dist %>/l10n',
+                    src: ['*.js']
+                }, {
+                    expand: true,
                     cwd: '.',
                     src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
                     dest: '<%= yeoman.dist %>'
@@ -515,6 +527,12 @@ module.exports = function (grunt) {
                 cwd: '<%= yeoman.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            l10n: {
+                expand: true,
+                cwd: 'i18n/l10n',
+                dest: '.tmp/l10n/',
+                src: '**/*.*'
             },
             docker: {
                 expand: true,
@@ -589,15 +607,15 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker 
+                    'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
@@ -673,6 +691,8 @@ module.exports = function (grunt) {
             'wiredep',
             'concurrent:server',
             'postcss:server',
+            'copy:l10n',
+            'i18n',
             'connect:livereload',
             'watch'
         ]);
@@ -701,6 +721,7 @@ module.exports = function (grunt) {
         'ngtemplates',
         'concat',
         'ngAnnotate',
+        'i18n',
         'copy:dist',
         'copy:images',
         //'cdnify',
@@ -757,4 +778,119 @@ module.exports = function (grunt) {
         'test',
         'build'
     ]);
+
+    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang', function i18nTask(){
+
+        if (i18nTask.lock) {
+            return;
+        }
+
+        i18nTask.lock = true;
+
+        var done = this.async();
+
+        var i18nDir = 'i18n';
+        var tmpDir = '.tmp/l10n';
+
+        grunt.file.mkdir(tmpDir);
+
+        var supportedLocales = ['en', 'ru']; //should come from config
+
+        var count = 0;
+        for (var i = 0; i < supportedLocales.length; i++) {
+            count++;
+            _processLocale(supportedLocales[i]);
+        }
+
+        //////////////////////////
+
+        function _processLocale(locale) {
+            _generateL10n(locale, function(locale, normSrc){
+                _normalizeSrc(locale, normSrc, function(){
+                    count--;
+                    if (count === 0) {
+                        setTimeout(function(){
+                            done();
+                            i18nTask.lock = false;
+                        }, 200);
+                    }
+                });
+            });
+        }
+
+        function _generateL10n(locale, callback) {
+            var normSrc, src;
+            if (!_generateL10n.defaultSrc) {
+                src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
+            } else {
+                normSrc = _readSource(locale);
+                src = _applyFallback(normSrc,_generateL10n.defaultSrc, locale);
+            }
+            _writeI18n(locale, src, function(){
+                callback(locale, normSrc);
+            });
+        }
+
+        function _applyFallback(src, fallback) {
+            if (typeof fallback !== 'object') {
+                return fallback;
+            }
+            if (typeof src !== 'object') {
+                src = {};
+            }
+            var fallenSrc = {};
+            for (var fname in fallback) {
+                var fvalue = fallback[fname];
+                var isObject = typeof fvalue === 'object';
+                if (src[fname] === undefined) {
+                    src[fname] = isObject ? {} : '';
+                }
+                if (isObject) {
+                    fallenSrc[fname] = _applyFallback(src[fname], fvalue);
+                } else {
+                    fallenSrc[fname] = src[fname]!=='' ? src[fname] : fvalue;
+                }
+            }
+            for (var sname in src) {
+                if (fallback[sname] === undefined) {
+                    delete src[sname];
+                }
+            }
+            return fallenSrc;
+        }
+
+        function _writeI18n(locale, src, callback) {
+            var file = _getDestFileName(locale);
+            var content = 'L10N(\'' + locale + '\', ' + JSON.stringify(_sortObject(src), null, 2) + ');\n';
+            fs.writeFile(file, content, callback);
+        }
+
+        function _normalizeSrc(locale, src, callback) {
+            var file = _getSrcFileName(locale);
+            var content = JSON.stringify(_sortObject(src), null, 4);
+            fs.writeFile(file, content, callback);
+        }
+
+        function _readSource(locale) {
+            var file = _getSrcFileName(locale);
+            var src = grunt.file.readJSON(file);
+            return JSON.parse(JSON.stringify(src));
+        }
+
+        function _getSrcFileName(locale) {
+            return i18nDir + '/' + locale + '.json';
+        }
+
+        function _getDestFileName(locale) {
+            return tmpDir + '/' + locale + '.js';
+        }
+
+        function _sortObject(o) {
+            var ordered = {};
+            Object.keys(o).sort().forEach(function(key) {
+                ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
+            });
+            return ordered;
+        }
+    });
 };

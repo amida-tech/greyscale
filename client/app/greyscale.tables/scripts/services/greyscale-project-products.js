@@ -8,25 +8,27 @@ angular.module('greyscale.tables')
         greyscaleProductWorkflowApi,
         inform) {
 
+        var tns = 'PRODUCTS.TABLE.';
+
         var _dicts = {
             surveys: []
         };
 
         var _cols = [{
             field: 'title',
-            title: 'Title',
+            title: tns + 'TITLE',
             show: true,
             sortable: 'title',
             dataRequired: true
         }, {
             field: 'description',
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             show: true,
             dataRequired: true,
             dataFormat: 'textarea'
         }, {
             field: 'surveyId',
-            title: 'Survey',
+            title: tns + 'SURVEY',
             show: true,
             sortable: 'surveyId',
             dataFormat: 'option',
@@ -44,7 +46,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'workflow.name',
             sortable: 'workflow.name',
-            title: 'Workflow',
+            title: tns + 'WORKFLOW',
             show: true,
             dataHide: true
         }, {
@@ -52,11 +54,11 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: 'Workflow',
+                title: tns + 'WORKFLOW',
                 class: 'info',
                 handler: _editProductWorkflow
             }, {
-                title: 'UoAs',
+                title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
             }, {
@@ -80,9 +82,9 @@ angular.module('greyscale.tables')
             },
             dataPromise: _getData,
             dataFilter: {},
-            formTitle: 'Product',
+            formTitle: tns + 'PRODUCT',
             add: {
-                title: 'add',
+                title: 'COMMON.CREATE',
                 handler: _editProduct
             }
         };

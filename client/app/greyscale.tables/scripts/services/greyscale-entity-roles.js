@@ -6,6 +6,9 @@ angular.module('greyscale.tables')
     .factory('greyscaleEntityRolesTbl', function ($q, _, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleEntityTypeRoleApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleEntityTypeApi, greyscaleRestSrv) {
+
+        var tns = "PROJECTS.ROLES.";
+
         var _dicts = {
             users: [],
             roles: [],
@@ -18,7 +21,7 @@ angular.module('greyscale.tables')
         var _fields = [{
                 field: 'userId',
                 show: true,
-                title: 'User',
+                title: tns + 'USER',
                 sortable: 'userId',
                 dataRequired: true,
                 dataFormat: 'option',
@@ -30,7 +33,7 @@ angular.module('greyscale.tables')
             }, {
                 field: 'roleId',
                 show: true,
-                title: 'Role',
+                title: tns + 'ROLE',
                 sortable: 'roleId',
                 dataRequired: true,
                 dataFormat: 'option',
@@ -87,12 +90,13 @@ angular.module('greyscale.tables')
         var _table = {
             dataFilter: {},
             title: '',
-            formTitle: 'project role',
+            formTitle: tns + 'ITEM',
+            formAddHeaderPrefix: 'COMMON.ASSIGN',
             cols: _fields,
             dataPromise: getData,
             pageLength: 10,
             add: {
-                title: 'Assign',
+                title: 'COMMON.ASSIGN',
                 handler: _editRecord
             }
 

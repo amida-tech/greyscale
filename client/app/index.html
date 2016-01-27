@@ -19,13 +19,15 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
 </head>
-<body ng-app="greyscaleApp">
+<body>
 <!--[if lte IE 8]>
 <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
     your browser</a> to improve your experience.</p>
 <![endif]-->
 <div inform class="inform-fixed inform-shadow"></div>
-<div ui-view></div>
+<div ui-view>
+    <div class="loading"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>
+</div>
 <!-- build:js(.) scripts/vendor.js -->
 <!-- bower:js -->
 <script src="bower_components/jquery/jquery.js"></script>
@@ -52,6 +54,7 @@
 <script src="bower_components/angular-inform/dist/angular-inform.js"></script>
 <script src="bower_components/ng-table/dist/ng-table.min.js"></script>
 <script src="bower_components/angular-mocks/angular-mocks.js"></script>
+<script src="bower_components/angular-translate/angular-translate.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
 
@@ -77,6 +80,7 @@
 <script src="greyscale.core/scripts/services/greyscale-utils.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-roles.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-rest.js"></script>
+<script src="greyscale.core/scripts/services/grayscale-i18n.js"></script>
 <!-- end greyscale.core -->
 <!-- endbuild -->
 
@@ -188,6 +192,7 @@
 <script src="scripts/directives/modal-form-field.js"></script>
 <script src="scripts/directives/checkbox-list.js"></script>
 <script src="scripts/directives/propagate-disabled.js"></script>
+<script src="scripts/directives/language-selector.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
 

@@ -191,3 +191,23 @@ body {
 .modal-max {
     width: 90%;
 }
+
+.language-selector {
+    .dropdown-toggle {
+        cursor: pointer;
+    }
+    .flag {
+        height: 1.6em !important;
+        width: auto !important;
+        margin: auto !important;
+    }
+}
+.user .item.language-selector {
+    .dropdown-toggle {
+        cursor: default;
+        line-height: 55px;
+        .fa-caret-down {
+            display: none;
+        }
+    }
+}
