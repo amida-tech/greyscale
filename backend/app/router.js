@@ -10,11 +10,11 @@ var express = require('express'),
 //----------------------------------------------------------------------------------------------------------------------
 var roles = require('app/controllers/roles');
 
-router.route('/v0.2/roles')
+router.route('/:realm/v0.2/roles')
     .get(authenticate('token').ifPossible, roles.select)
     .post(authenticate('token').ifPossible, roles.insertOne);
 
-router.route('/v0.2/roles/:id')
+router.route('/:realm/v0.2/roles/:id')
     .get(authenticate('token').ifPossible, roles.selectOne)
     .put(authenticate('token').ifPossible, roles.updateOne);
 
@@ -23,11 +23,11 @@ router.route('/v0.2/roles/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var rights = require('app/controllers/rights');
 
-router.route('/v0.2/rights')
+router.route('/:realm/v0.2/rights')
     .get(authenticate('token').always, checkRight('rights_view_all'), rights.select)
     .post(authenticate('token').always, checkRight('rights_add_one'), rights.insertOne);
 
-router.route('/v0.2/rights/:id')
+router.route('/:realm/v0.2/rights/:id')
     .get(authenticate('token').always, checkRight('rights_view_one'), rights.selectOne)
     .put(authenticate('token').always, checkRight('rights_edit_one'), rights.updateOne)
     .delete(authenticate('token').always, checkRight('rights_delete_one'), rights.deleteOne);
@@ -37,10 +37,10 @@ router.route('/v0.2/rights/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var roleRights = require('app/controllers/role_rights');
 
-router.route('/v0.2/roles/:roleID/rights')
+router.route('/:realm/v0.2/roles/:roleID/rights')
     .get(authenticate('token').always, checkRight('role_rights_view_one'), roleRights.select);
 
-router.route('/v0.2/roles/:roleID/rights/:rightID')
+router.route('/:realm/v0.2/roles/:roleID/rights/:rightID')
     .post(authenticate('token').always, checkRight('role_rights_add'), roleRights.insertOne)
     .delete(authenticate('token').always, checkRight('role_rights_delete'), roleRights.deleteOne);
 
@@ -49,7 +49,7 @@ router.route('/v0.2/roles/:roleID/rights/:rightID')
 //----------------------------------------------------------------------------------------------------------------------
 var essences = require('app/controllers/essences');
 
-router.route('/v0.2/essences')
+router.route('/:realm/v0.2/essences')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
 
@@ -58,16 +58,16 @@ router.route('/v0.2/essences')
 //----------------------------------------------------------------------------------------------------------------------
 var projects = require('app/controllers/projects');
 
-router.route('/v0.2/projects')
+router.route('/:realm/v0.2/projects')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.insertOne);
 
-router.route('/v0.2/projects/:id')
+router.route('/:realm/v0.2/projects/:id')
     .get(authenticate('token').always, projects.selectOne)
     .delete(authenticate('token').always, projects.delete)
     .put(authenticate('token').always, projects.editOne);
 
-router.route('/v0.2/projects/:id/products')
+router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('token').always, projects.productList);
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -75,20 +75,20 @@ router.route('/v0.2/projects/:id/products')
 //----------------------------------------------------------------------------------------------------------------------
 var surveys = require('app/controllers/surveys');
 
-router.route('/v0.2/surveys')
+router.route('/:realm/v0.2/surveys')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.insertOne);
 
-router.route('/v0.2/surveys/:id')
+router.route('/:realm/v0.2/surveys/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.selectOne)
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.editOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
 
-router.route('/v0.2/surveys/:id/questions')
+router.route('/:realm/v0.2/surveys/:id/questions')
   .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
   .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
 
-router.route('/v0.2/questions/:id')
+router.route('/:realm/v0.2/questions/:id')
   .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
   .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
 
@@ -97,11 +97,11 @@ router.route('/v0.2/questions/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var surveyAnswers = require('app/controllers/survey_answers');
 
-router.route('/v0.2/survey_answers')
+router.route('/:realm/v0.2/survey_answers')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.insertOne);
 
-router.route('/v0.2/survey_answers/:id')
+router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.editOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
@@ -111,11 +111,11 @@ router.route('/v0.2/survey_answers/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var essenceRoles = require('app/controllers/essence_roles');
 
-router.route('/v0.2/essence_roles')
+router.route('/:realm/v0.2/essence_roles')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.insertOne);
 
-router.route('/v0.2/essence_roles/:id')
+router.route('/:realm/v0.2/essence_roles/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.selectOne)
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.updateOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.delete);
@@ -125,20 +125,20 @@ router.route('/v0.2/essence_roles/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var accessMatrices = require('app/controllers/access_matrices');
 
-router.route('/v0.2/access_matrices')
+router.route('/:realm/v0.2/access_matrices')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.insertOne);
 
-router.route('/v0.2/access_matrices/:id/permissions')
+router.route('/:realm/v0.2/access_matrices/:id/permissions')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsSelect);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_PERMISSIONS
 //----------------------------------------------------------------------------------------------------------------------
-router.route('/v0.2/access_permissions')
+router.route('/:realm/v0.2/access_permissions')
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsInsertOne);
 
-router.route('/v0.2/access_permissions/:id')
+router.route('/:realm/v0.2/access_permissions/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.permissionsDeleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -146,11 +146,11 @@ router.route('/v0.2/access_permissions/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var languages = require('app/controllers/languages');
 
-router.route('/v0.2/languages')
+router.route('/:realm/v0.2/languages')
     .get(authenticate('token').always, languages.select)
     .post(authenticate('token').always, languages.insertOne);
 
-router.route('/v0.2/languages/:id')
+router.route('/:realm/v0.2/languages/:id')
     .get(authenticate('token').always, languages.selectOne)
     .put(authenticate('token').always, languages.editOne)
     .delete(authenticate('token').always, languages.delete);
@@ -159,37 +159,37 @@ router.route('/v0.2/languages/:id')
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
 var translations = require('app/controllers/translations');
-router.route('/v0.2/translations')
+router.route('/:realm/v0.2/translations')
     .get(authenticate('token').always, translations.select)
     .post(authenticate('token').always, translations.insertOne);
 
-router.route('/v0.2/translations/:essenceId/:entityId/:field/:langId')
+router.route('/:realm/v0.2/translations/:essenceId/:entityId/:field/:langId')
     .delete(authenticate('token').always, /*checkPermission('product_delete','products'),*/ translations.delete)
     .put(authenticate('token').always, /*checkPermission('product_delete','products'),*/ translations.editOne);
 
-router.route('/v0.2/translations/:essenceId')
+router.route('/:realm/v0.2/translations/:essenceId')
     .get(authenticate('token').always, translations.selectByParams);
 
-router.route('/v0.2/translations/:essenceId/:entityId')
+router.route('/:realm/v0.2/translations/:essenceId/:entityId')
     .get(authenticate('token').always, translations.selectByParams);
 //----------------------------------------------------------------------------------------------------------------------
 //    PRODUCTS
 //----------------------------------------------------------------------------------------------------------------------
 var products = require('app/controllers/products');
-router.route('/v0.2/products')
+router.route('/:realm/v0.2/products')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ products.select)
     .post(authenticate('token').always, products.insertOne);
 
-router.route('/v0.2/products/:id')
+router.route('/:realm/v0.2/products/:id')
     .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
     .put(authenticate('token').always, checkPermission('product_update', 'products'), products.updateOne)
     .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
 
-router.route('/v0.2/products/:id/uoa')
+router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);
 
-router.route('/v0.2/products/:id/uoa/:uoaid')
+router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
@@ -199,71 +199,71 @@ router.route('/v0.2/products/:id/uoa/:uoaid')
 var users = require('app/controllers/users');
 var organizations = require('app/controllers/organizations');
 
-router.route('/v0.2/organizations')
+router.route('/:realm/v0.2/organizations')
     .get(authenticate('token').always, organizations.select)
     .post(authenticate('token').always, organizations.insertOne);
 
-router.route('/v0.2/organizations/:id')
+router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne);
 
-router.route('/v0.2/users/self/organization')
+router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)
     .put(authenticate('token').always, users.selfOrganizationUpdate);
 
-router.route('/v0.2/users/self/organization/invite')
+router.route('/:realm/v0.2/users/self/organization/invite')
     .post(authenticate('token').always, users.selfOrganizationInvite);
 
 //----------------------------------------------------------------------------------------------------------------------
 // USERS
 //----------------------------------------------------------------------------------------------------------------------
 
-router.route('/v0.2/users')
+router.route('/:realm/v0.2/users')
     .get(authenticate('token').always, checkRight('rights_view_all'), users.select)
     .post(authenticate('token').ifPossible, users.insertOne);
 
-router.route('/v0.2/users/token')
+router.route('/:realm/v0.2/users/token')
     .get(authenticate('basic').always, /*checkRight('users_token'),*/ users.token);
 
-router.route('/v0.2/users/checkToken/:token')
+router.route('/:realm/v0.2/users/checkToken/:token')
     .get(users.checkToken);
 
-router.route('/v0.2/users/forgot')
+router.route('/:realm/v0.2/users/forgot')
     .post(users.forgot);
 
-router.route('/v0.2/users/reset-password')
+router.route('/:realm/v0.2/users/reset-password')
     .put(users.resetPassword);
 
-router.route('/v0.2/users/activate/:token')
+router.route('/:realm/v0.2/users/activate/:token')
     .get(users.checkActivationToken)
     .post(users.activate);
 
-router.route('/v0.2/users/check_restore_token/:token')
+router.route('/:realm/v0.2/users/check_restore_token/:token')
     .get(users.checkRestoreToken);
 
-router.route('/v0.2/users/logout')
+router.route('/:realm/v0.2/users/logout')
     .post(authenticate('token').always, /*checkRight('users_logout_self'),*/ users.logout);
 
-router.route('/v0.2/users/invite')
+router.route('/:realm/v0.2/users/invite')
     .post(authenticate('token').always, checkRight('users_invite'), users.invite);
 
-router.route('/v0.2/users/logout/:id')
+router.route('/:realm/v0.2/users/logout/:id')
     .post(authenticate('token').always, checkRight('users_logout'), users.logout);
 
-router.route('/v0.2/users/self')
+router.route('/:realm/v0.2/users/self')
     .get(authenticate('token').always, /*checkRight('users_view_self'), */ users.selectSelf)
     .put(authenticate('token').always, /*checkRight('users_edit_self'), */ users.updateSelf);
 
-router.route('/v0.2/users/:id')
+router.route('/:realm/v0.2/users/:id')
     .get(authenticate('token').always, checkRight('users_view_one'), users.selectOne)
     .put(authenticate('token').always, checkRight('users_edit_one'), users.updateOne)
     .delete(authenticate('token').always, checkRight('users_delete_one'), users.deleteOne);
 
-router.route('/v0.2/users/:id/uoa')
+router.route('/:realm/v0.2/users/:id/uoa')
     .get(authenticate('token').always, checkRight('users_uoa'), users.UOAselect)
     .post(authenticate('token').always, checkRight('users_uoa'), users.UOAaddMultiple)
     .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdeleteMultiple);
 
-router.route('/v0.2/users/:id/uoa/:uoaid')
+router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('users_uoa'), users.UOAdelete)
     .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
 
@@ -272,11 +272,11 @@ router.route('/v0.2/users/:id/uoa/:uoaid')
 //----------------------------------------------------------------------------------------------------------------------
 var countries = require('app/controllers/countries');
 
-router.route('/v0.2/countries')
+router.route('/:realm/v0.2/countries')
     .get(authenticate('token').always, countries.select)
     .post(authenticate('token').always, checkRight('countries_insert_one'), countries.insertOne);
 
-router.route('/v0.2/countries/:id')
+router.route('/:realm/v0.2/countries/:id')
     .put(authenticate('token').always, checkRight('countries_update_one'), countries.updateOne)
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
@@ -285,25 +285,25 @@ router.route('/v0.2/countries/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var workflows = require('app/controllers/workflows');
 
-router.route('/v0.2/workflows')
+router.route('/:realm/v0.2/workflows')
     .get(authenticate('token').always, workflows.select)
     .post(authenticate('token').always, /*checkRight('countries_insert_one'),*/ workflows.insertOne);
 
-router.route('/v0.2/workflows/:id')
+router.route('/:realm/v0.2/workflows/:id')
     .get(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.selectOne)
     .put(authenticate('token').always, /*checkRight('countries_update_one'),*/ workflows.updateOne)
     .delete(authenticate('token').always, /*checkRight('countries_delete_one'),*/ workflows.deleteOne);
 
-router.route('/v0.2/workflows/:id/steps')
+router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('token').always, workflows.steps)
     .delete(authenticate('token').always, workflows.stepsDelete)
     .post(authenticate('token').always, workflows.stepsAdd);
 
-router.route('/v0.2/workflow_steps')
+router.route('/:realm/v0.2/workflow_steps')
     .get(authenticate('token').always, workflows.stepListSelect)
     .post(authenticate('token').always, workflows.stepListAdd);
 
-router.route('/v0.2/workflow_steps/:id')
+router.route('/:realm/v0.2/workflow_steps/:id')
     .get(authenticate('token').always, workflows.stepListSelectOne)
     .put(authenticate('token').always, workflows.stepListUpdateOne)
     .delete(authenticate('token').always, workflows.stepListDelete);
@@ -313,11 +313,11 @@ router.route('/v0.2/workflow_steps/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysis = require('app/controllers/uoas');
 
-router.route('/v0.2/uoas')
+router.route('/:realm/v0.2/uoas')
     .get(authenticate('token').always, UnitOfAnalysis.select)
     .post(authenticate('token').always, checkRight('unitofanalysis_insert_one'), UnitOfAnalysis.insertOne);
 
-router.route('/v0.2/uoas/:id')
+router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('token').always, UnitOfAnalysis.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
@@ -327,11 +327,11 @@ router.route('/v0.2/uoas/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysisType = require('app/controllers/uoatypes');
 
-router.route('/v0.2/uoatypes')
+router.route('/:realm/v0.2/uoatypes')
     .get(authenticate('token').always, UnitOfAnalysisType.select)
     .post(authenticate('token').always, checkRight('unitofanalysistype_insert_one'), UnitOfAnalysisType.insertOne);
 
-router.route('/v0.2/uoatypes/:id')
+router.route('/:realm/v0.2/uoatypes/:id')
     .get(authenticate('token').always, UnitOfAnalysisType.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysistype_update_one'), UnitOfAnalysisType.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysistype_delete_one'), UnitOfAnalysisType.deleteOne);
@@ -341,11 +341,11 @@ router.route('/v0.2/uoatypes/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysisClassType = require('app/controllers/uoaclasstypes');
 
-router.route('/v0.2/uoaclasstypes')
+router.route('/:realm/v0.2/uoaclasstypes')
     .get(authenticate('token').always, UnitOfAnalysisClassType.select)
     .post(authenticate('token').always, checkRight('unitofanalysisclasstype_insert_one'), UnitOfAnalysisClassType.insertOne);
 
-router.route('/v0.2/uoaclasstypes/:id')
+router.route('/:realm/v0.2/uoaclasstypes/:id')
     .get(authenticate('token').always, UnitOfAnalysisClassType.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysisclasstype_update_one'), UnitOfAnalysisClassType.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysisclasstype_delete_one'), UnitOfAnalysisClassType.deleteOne);
@@ -355,11 +355,11 @@ router.route('/v0.2/uoaclasstypes/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysisTag = require('app/controllers/uoatags');
 
-router.route('/v0.2/uoatags')
+router.route('/:realm/v0.2/uoatags')
     .get(authenticate('token').always, UnitOfAnalysisTag.select)
     .post(authenticate('token').always, checkRight('unitofanalysistag_insert_one'), UnitOfAnalysisTag.insertOne);
 
-router.route('/v0.2/uoatags/:id')
+router.route('/:realm/v0.2/uoatags/:id')
     .get(authenticate('token').always, UnitOfAnalysisTag.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysistag_update_one'), UnitOfAnalysisTag.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysistag_delete_one'), UnitOfAnalysisTag.deleteOne);
@@ -369,11 +369,11 @@ router.route('/v0.2/uoatags/:id')
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysisTagLink = require('app/controllers/uoataglinks');
 
-router.route('/v0.2/uoataglinks')
+router.route('/:realm/v0.2/uoataglinks')
     .get(authenticate('token').always, UnitOfAnalysisTagLink.select)
     .post(authenticate('token').always, checkRight('uoataglink_insert_one'), UnitOfAnalysisTagLink.checkInsert, UnitOfAnalysisTagLink.insertOne);
 
-router.route('/v0.2/uoataglinks/:id')
+router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
