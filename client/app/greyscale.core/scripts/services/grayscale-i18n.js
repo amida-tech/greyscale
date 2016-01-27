@@ -54,16 +54,6 @@
         script.onreadystatechange = script.onload = callback;
     }
 
-    //function _injectAngularLocale(locale, callback) {
-    //    if (locale === 'en') {
-    //        return;
-    //    }
-    //    var ngLocale = document.createElement('script');
-    //    ngLocale.src = 'l10n/angular-locale/angular-locale_' + locale + '.js';
-    //    document.head.appendChild(ngLocale);
-    //    ngLocale.onreadystatechange = ngLocale.onload = callback;
-    //}
-
     function getLocale() {
         var locale = _getCookie('locale');
         if (locale && localesList.indexOf(locale) >= 0) {
@@ -186,14 +176,17 @@ angular.module('greyscale.core')
 
             var loop = setInterval(function(){
                 if (window.i18nNgLocaleLoaded) {
+                    delete(window.i18nNgLocaleLoaded);
                     clearInterval(loop);
                     _initNewNgLocale();
                 }
-            }, 40);
+            }, 15);
         }
 
         function _initNewNgLocale() {
-            console.log('init ngLocale');
+            var injector = angular.injector(['ngLocale']),
+                newLocale = injector.get('$locale');
+            angular.extend($locale, newLocale);
         }
     })
 ;
