@@ -19,14 +19,12 @@ exports.Query = function () {
         }
 
         var arlen = arguments.length;
-        console.log('::::::::::::::::::::::'+queryObject);
         client.connect(function (err) {
             if (err) {
                 return console.error('could not connect to postgres', err);
             }
             //START
             if (typeof queryObject === 'string') {
-            	console.log(';;;;;;;;;;;;;;;;;;; is string');
                 client.query(queryObject.replace(/proto_amida/g,schema), options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
@@ -36,7 +34,6 @@ exports.Query = function () {
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
-            	console.log(';;;;;;;;;;;;;;;;;;; not string '+arlen);
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
                     if (Object.keys(optWhere).length) {
