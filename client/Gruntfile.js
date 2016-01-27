@@ -42,6 +42,13 @@ module.exports = function (grunt) {
         } catch (error) {}
     }
 
+    var i18nConfig = {
+        i18nDir: 'i18n',
+        l10nDir: 'l10n',
+        supportedLocales: ['en','ru']
+    };
+
+
     // Define the configuration for all the tasks
     grunt.initConfig({
 
@@ -79,7 +86,7 @@ module.exports = function (grunt) {
                 files: ['Gruntfile.js']
             },
             i18n: {
-                files: ['i18n/*.json'],
+                files: [i18nConfig.i18nDir + '/*.json'],
                 tasks: ['i18n'],
                 options: {
                     livereload: '<%= connect.options.livereload %>'
@@ -500,8 +507,8 @@ module.exports = function (grunt) {
                     src: ['generated/*']
                 }, {
                     expand: true,
-                    cwd: '.tmp/l10n',
-                    dest: '<%= yeoman.dist %>/l10n',
+                    cwd: '.tmp/' + i18nConfig.l10nDir,
+                    dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
                     src: ['*.js']
                 }, {
                     expand: true,
@@ -530,8 +537,8 @@ module.exports = function (grunt) {
             },
             l10n: {
                 expand: true,
-                cwd: 'i18n/l10n',
-                dest: '.tmp/l10n/',
+                cwd: i18nConfig.i18nDir + '/' + i18nConfig.l10nDir,
+                dest: '.tmp/' + i18nConfig.l10nDir + '/',
                 src: '**/*.*'
             },
             docker: {
@@ -801,12 +808,12 @@ module.exports = function (grunt) {
 
         var done = this.async();
 
-        var i18nDir = 'i18n';
-        var tmpDir = '.tmp/l10n';
+        var i18nDir = i18nConfig.i18nDir;
+        var serveL10nDir = '.tmp/' + i18nConfig.l10nDir;
 
-        grunt.file.mkdir(tmpDir);
+        grunt.file.mkdir(serveL10nDir);
 
-        var supportedLocales = ['en', 'ru']; //should come from config
+        var supportedLocales = i18nConfig.supportedLocales;
 
         var count = 0;
         for (var i = 0; i < supportedLocales.length; i++) {
@@ -894,7 +901,7 @@ module.exports = function (grunt) {
         }
 
         function _getDestFileName(locale) {
-            return tmpDir + '/' + locale + '.js';
+            return serveL10nDir + '/' + locale + '.js';
         }
 
         function _sortObject(o) {
