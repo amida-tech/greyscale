@@ -81,7 +81,8 @@ module.exports = {
                     WorkflowStep
                     .leftJoin(WorkflowStepList)
                     .on(WorkflowStep.stepId.equals(WorkflowStepList.id))
-                ).where(WorkflowStep.workflowId.equals(req.params.id))
+                ).where(WorkflowStep.workflowId.equals(req.params.id)),
+                {'realm': req.param('realm')} 
             );
         }).then(function (data) {
             res.json(data);
@@ -92,7 +93,8 @@ module.exports = {
 
     stepsDelete: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body)));
+            return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body)),
+            		{'realm': req.param('realm')} );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -106,12 +108,14 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equlas(req.params.id)));
+            var product = yield thunkQuery(Product.select().where(Product.id.equlas(req.params.id)),
+            		{'realm': req.param('realm')} );
             if (_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
             }
 
-            var rels = yield thunkQuery(ProductUOA.select().where(ProductUOA.productId.equals(req.params.id)));
+            var rels = yield thunkQuery(ProductUOA.select().where(ProductUOA.productId.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
 
             var relIds = rels.map(function (value) {
                 return value.UOAid;
@@ -135,7 +139,8 @@ module.exports = {
                     }
                     if (updateObj.length) {
                         console.log('update' + updateObj);
-                        yield thunkQuery(ProductUOA.update().where(ProductUOA.id.equals(req.body[i].id)));
+                        yield thunkQuery(ProductUOA.update().where(ProductUOA.id.equals(req.body[i].id)),
+                        		{'realm': req.param('realm')} );
                     }
                 } else {
                     insertArr.push(req.body[i]);
@@ -150,10 +155,10 @@ module.exports = {
             }
 
             if (needDel) {
-                yield thunkQuery(deleteQ);
+                yield thunkQuery(deleteQ,{'realm': req.param('realm')} );
             }
             if (insertArr.length) {
-                yield thunkQuery(ProductUOA.insert(insertArr));
+                yield thunkQuery(ProductUOA.insert(insertArr),{'realm': req.param('realm')} );
             }
 
         }).then(function (data) {
@@ -170,17 +175,20 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of step ids in request body');
             }
 
-            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
+            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             if (!_.first(workflow)) {
                 throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
             }
 
-            var result = yield thunkQuery(WorkflowStepList.select(WorkflowStepList.id).where(WorkflowStepList.id.in(req.body)));
+            var result = yield thunkQuery(WorkflowStepList.select(WorkflowStepList.id).where(WorkflowStepList.id.in(req.body)),
+            		{'realm': req.param('realm')} );
             var stepsInList = result.map(function (value) {
                 return value.id;
             });
 
-            result = yield thunkQuery(WorkflowStep.select(WorkflowStep.stepId).where(WorkflowStep.workflowId.equals(req.params.id)));
+            result = yield thunkQuery(WorkflowStep.select(WorkflowStep.stepId).where(WorkflowStep.workflowId.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             var stepsInRel = result.map(function (value) {
                 return value.stepId;
             });
@@ -200,7 +208,7 @@ module.exports = {
                 });
             }
 
-            return yield thunkQuery(WorkflowStep.insert(insertArr));
+            return yield thunkQuery(WorkflowStep.insert(insertArr),{'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(201).end();
         }, function (err) {
@@ -210,7 +218,7 @@ module.exports = {
 
     stepListSelect: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList));
+            return yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList),{'realm': req.param('realm')} );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -220,7 +228,7 @@ module.exports = {
 
     stepListAdd: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(WorkflowStepList.insert(req.body).returning(WorkflowStepList.id));
+            return yield thunkQuery(WorkflowStepList.insert(req.body).returning(WorkflowStepList.id),{'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -230,7 +238,8 @@ module.exports = {
 
     stepListSelectOne: function (req, res, next) {
         co(function* () {
-            var result = yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList).where(WorkflowStepList.id.equals(req.params.id)));
+            var result = yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList).where(WorkflowStepList.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             if (!_.first(result)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -244,7 +253,8 @@ module.exports = {
 
     stepListUpdateOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(WorkflowStepList.update(req.body).where(WorkflowStepList.id.equals(req.params.id)));
+            return yield thunkQuery(WorkflowStepList.update(req.body).where(WorkflowStepList.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -254,7 +264,8 @@ module.exports = {
 
     stepListDelete: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(WorkflowStepList.delete().where(WorkflowStepList.id.equals(req.params.id)));
+            return yield thunkQuery(WorkflowStepList.delete().where(WorkflowStepList.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(204).end();
         }, function (err) {
@@ -265,7 +276,8 @@ module.exports = {
 };
 
 function* checkData(req) {
-    var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)));
+    var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)),
+    		{'realm': req.param('realm')} );
     if (!_.first(product)) {
         throw new HttpError(403, 'Product with id = ' + req.body.productId + ' does not exist');
     }
@@ -274,13 +286,15 @@ function* checkData(req) {
     var productRel;
     if (req.params.id) { //update
         if (req.body.productId) {
-            productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId).and(Workflow.id.notEquals(req.params.id))));
+            productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId).and(Workflow.id.notEquals(req.params.id))),
+            		{'realm': req.param('realm')} );
             if (_.first(productRel)) {
                 relError = true;
             }
         }
     } else { //create
-        productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId)));
+        productRel = yield thunkQuery(Workflow.select().where(Workflow.productId.equals(req.body.productId)),
+        		{'realm': req.param('realm')} );
         if (_.first(productRel)) {
             relError = true;
         }

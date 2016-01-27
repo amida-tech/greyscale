@@ -87,7 +87,8 @@ module.exports = {
                 )
                 .from(SurveyQuestion.leftJoin(SurveyQuestionOption).on(SurveyQuestion.id.equals(SurveyQuestionOption.questionId)))
                 .where(SurveyQuestion.surveyId.equals(req.params.id))
-                .group(SurveyQuestion.id)
+                .group(SurveyQuestion.id),
+                {'realm': req.param('realm')} 
             );
             return result;
         }).then(function (data) {
@@ -104,7 +105,8 @@ module.exports = {
                 throw new HttpError(403, 'Survey with id = ' + req.params.id + ' does nor exist');
             }
             req.body.surveyId = req.params.id;
-            var result = yield thunkQuery(SurveyQuestion.insert(req.body).returning(SurveyQuestion.id));
+            var result = yield thunkQuery(SurveyQuestion.insert(req.body).returning(SurveyQuestion.id),
+            		{'realm': req.param('realm')} );
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -115,7 +117,8 @@ module.exports = {
 
     questionEdit: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(SurveyQuestion.update(req.body).where(SurveyQuestion.id.equals(req.params.id)));
+            return yield thunkQuery(SurveyQuestion.update(req.body).where(SurveyQuestion.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -124,12 +127,14 @@ module.exports = {
     },
 
     questionDelete: function (req, res, next) {
-        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
+        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)),{'realm': req.param('realm')} , 
+        	function (err, data) {
+	            if (err) {
+	                return next(err);
+	            }
+	            res.status(204).end();
             }
-            res.status(204).end();
-        });
+        );
     }
 
 };

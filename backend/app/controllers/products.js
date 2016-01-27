@@ -109,7 +109,8 @@ module.exports = {
                     .leftJoin(UOA)
                     .on(ProductUOA.UOAid.equals(UOA.id))
                 )
-                .where(ProductUOA.productId.equals(req.params.id))
+                .where(ProductUOA.productId.equals(req.params.id)),
+                {'realm': req.param('realm')} 
             );
         }).then(function (data) {
             res.json(data);
@@ -122,7 +123,7 @@ module.exports = {
         query(ProductUOA.insert({
             productId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, data) {
+        }),{'realm': req.param('realm')} , function (err, data) {
             if (!err) {
                 res.status(201).end();
             } else {
@@ -137,16 +138,18 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of unit ids in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)));
+            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
             }
 
-            var result = yield thunkQuery(ProductUOA.select(ProductUOA.UOAid).from(ProductUOA).where(ProductUOA.productId.equals(req.params.id)));
+            var result = yield thunkQuery(ProductUOA.select(ProductUOA.UOAid).from(ProductUOA).where(ProductUOA.productId.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             var existIds = result.map(function (value, key) {
                 return value.UOAid;
             });
-            result = yield thunkQuery(UOA.select(UOA.id).from(UOA).where(UOA.id.in(req.body)));
+            result = yield thunkQuery(UOA.select(UOA.id).from(UOA).where(UOA.id.in(req.body)),{'realm': req.param('realm')} );
             var ids = result.map(function (value, key) {
                 return value.id;
             });
@@ -164,7 +167,7 @@ module.exports = {
                 });
             }
 
-            return yield thunkQuery(ProductUOA.insert(insertArr));
+            return yield thunkQuery(ProductUOA.insert(insertArr),{'realm': req.param('realm')} );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -177,7 +180,7 @@ module.exports = {
         query(ProductUOA.delete().where({
             productId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, data) {
+        }), {'realm': req.param('realm')}, function (err, data) {
             if (!err) {
                 res.status(204).end();
             } else {

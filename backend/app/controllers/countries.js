@@ -18,6 +18,7 @@ module.exports = {
     	
         co(function* () {
             var _counter = thunkQuery(Country.select(Country.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            req.query.realm = req.param('realm');
             var country = thunkQuery(Country.select(), req.query);
             return yield [_counter, country];
         }).then(function (data) {

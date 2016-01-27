@@ -83,7 +83,8 @@ module.exports = {
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
                 )
-                .where(Product.projectId.equals(req.params.id))
+                .where(Product.projectId.equals(req.params.id)),
+                {'realm': req.param('realm')} 
             );
         }).then(function (data) {
             res.json(data);

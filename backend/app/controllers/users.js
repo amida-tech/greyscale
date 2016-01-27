@@ -109,7 +109,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-        	//XXX: Ami I missing something?  This looks recursive
+        	//XXX: Am I I missing something?  This looks recursive
             return yield insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -509,8 +509,8 @@ module.exports = {
 
     selectSelf: function (req, res, next) {
         var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "PROTO_AMIDA.RolesRights" ' +
-            ' LEFT JOIN "PROTO_AMIDA.Rights"' +
+            ' SELECT "Rights"."action" FROM "proto_amida.RolesRights" ' +
+            ' LEFT JOIN "proto_amida.Rights"' +
             ' ON ("RolesRights"."rightID" = "Rights"."id")' +
             ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
             ') AS rights';
