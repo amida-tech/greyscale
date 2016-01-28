@@ -287,7 +287,6 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
-                exclude: ['bower_components/plotly.js/dist/plotly.min.js'],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -510,6 +509,11 @@ module.exports = function (grunt) {
                     cwd: '.tmp/' + i18nConfig.l10nDir,
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
                     src: ['**/*.js']
+                }, {
+                    expand: true,
+                    cwd: '.tmp/concat',
+                    src: 'scripts/*',
+                    dest: '<%= yeoman.dist %>'
                 }, {
                     expand: true,
                     cwd: '.',
