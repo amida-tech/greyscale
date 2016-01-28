@@ -21,7 +21,8 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.rest',
     'greyscale.tables',
     'inform',
-    'lodashAngularWrapper'
+    'lodashAngularWrapper',
+    'angularjs-dropdown-multiselect'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
