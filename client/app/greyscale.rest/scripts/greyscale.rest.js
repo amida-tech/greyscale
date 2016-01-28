@@ -7,8 +7,8 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
     .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
         RestangularProvider.setBaseUrl(
             greyscaleEnv.apiProtocol + '://' +
-            greyscaleEnv.apiHostname + ':' +
-            greyscaleEnv.apiPort + '/' +
+            greyscaleEnv.apiHostname + 
+            (greyscaleEnv.apiPort !== undefined?':'+greyscaleEnv.apiPort:'') + '/' +
             greyscaleEnv.apiRealm + '/' +
             greyscaleEnv.apiVersion
         );
