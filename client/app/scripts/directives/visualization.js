@@ -7,15 +7,10 @@ angular.module('greyscaleApp')
       templateUrl: 'views/directives/visualization.html',
       //no isolate scope for data binding, all data moved from controller to directive
       link: function(scope, element, attrs){
-
-        //Local variables for angular data digest cycle ($watch)
-        var vizData = [];
-
         //Load geo coordinates and data
         var request = $http.get("scripts/directives/resources/doingbiz_agg.json")
           .success(function(viz_data) {
             scope.vizData = viz_data.agg;
-            return viz_data.agg;
             console.log(scope.vizData);
 
             var countrySet = new Set(); //account for same country/multi-year duplicates
@@ -24,22 +19,34 @@ angular.module('greyscaleApp')
             });
             scope.topics = [...countrySet];
             console.log(scope.topics);
+            return viz_data.agg;
           })
           .error(function(err) {
             console.log(err);
           });
 
         //ng-dropdown-multiselect extr-settings
-        // scope.multiDropdownSettings = {
-        //   dynamicTitle: false,
-        //   enableSearch: true,
-        //   scrollable: true,
-        //   scrollableHeight: '200px',
-        //   displayProp: "name",
-        //   idProp: '',
-        //   externalIdProp: ''
-        // };
+        scope.multiDropdownSettings = {
+          dynamicTitle: false,
+          enableSearch: true,
+          scrollable: true,
+          scrollableHeight: '200px',
+          displayProp: "name",
+          idProp: "name",
+          externalIdProp: ''
+        };
 
+        //Defaults for UI
+        scope.minDate = new Date(2015, 1, 1);
+        scope.maxDate = new Date(2016, 1, 1);
+        scope.open1 = function() {
+          scope.popup1.opened = true;
+        };
+        scope.popup1 = { opened: false};
+        scope.open2 = function() {
+          scope.popup2.opened = true;
+        };
+        scope.popup2 = { opened: false};
         //Mocked survey data --> look @ Mike's format
         scope.users = ["user1", "user2", "user3"];
 
@@ -124,12 +131,9 @@ angular.module('greyscaleApp')
         
         function applyFilters(data, callback){
           console.log("in applyFilters");
-          if(scope.filterForm.$pristine){
+          if((scope.filterForm.$pristine) ||(scope.topicSelected==null&&scope.subtopicSelected==null)){
             console.log("in if block");
             callback(scope.vizData);
-          // } else if(scope.filterForm.topic==null && scope.filterForm.subtopic==null) {
-          //   console.log("else if block");
-          //   callback(vizData);
           } else {
             console.log("in else block");
             var filteredVizData =[];
@@ -174,7 +178,19 @@ angular.module('greyscaleApp')
             renderMap(filteredData);
           })
         })
-        
+        function formatTitles(){
+          //start with default
+          var titles = {
+            graphTitle: "Doing Business 2016",
+            scaleTitle: "Rank"
+          };
+          if(scope.filterForm.variableSelected){
+            titles.scaleTitle = (scope.variableSelected=="rank") ? "Rank" : "DTF (frontier=100)";
+          }
+          
+          return titles;
+        }
+
         function renderMap(plotData){
           console.log(plotData);
 
@@ -183,6 +199,9 @@ angular.module('greyscaleApp')
           }
           var plotVar = (scope.filterForm.variableSelected) ? scope.filterForm.variableSelected : 'rank';
           console.log(plotVar);
+
+          //var titleObj = formatTitles();
+
           var mapData = [{
             type: 'choropleth',
             locationmode: 'country names',
@@ -191,7 +210,7 @@ angular.module('greyscaleApp')
             text: unpackData(plotData, 'country'),
             autocolorscale: true,
             colorbar: {
-              title: plotVar,
+              title: "Rank",
               thickness: 0.75,
               len: 0.75,
               xpad: 30

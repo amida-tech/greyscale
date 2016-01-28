@@ -14,11 +14,11 @@
   </div>
   <div class="form-group" style="margin: 5px;">
     <label for="topicDropdown"> Topic </label>
-    <!--div ng-dropdown-multiselect id="topicDropdown" options="topics" selected-model="filterForm.topicSelected" extra-settings="multiDropdownSettings">
-    </div-->
-    <select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2">
-      <option value="" selected>--Choose Topic--</option>
-    </select>
+    <div ng-dropdown-multiselect id="topicDropdown" options="topics" selected-model="filterForm.topicSelected" extra-settings="multiDropdownSettings">
+    </div>
+    <!--select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2">
+      <option value="" selected>Choose Topic</option>
+    </select-->
   </div>
   <div class="form-group" style="margin: 5px;">
     <label for="subtopicDropdown"> Subtopic </label>
@@ -43,6 +43,20 @@
     <select class="form-control" ng-model="filterForm.questionSelected" ng-options="question as question.qid for question in surveys" id="questionDropdown" placeholder="Question...">
       <option value="">Question ID</option>
     </select>
+  </div>
+  <label for="startDatePopup"> Start Date </label>
+  <div class="input-group" id="startDatePopup">
+    <input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" is-open="popup1.opened" min-date="minDate" max-date="maxDate" ng-model="startDate" close-text="Close"/>
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="open1()"><i class="glyphicon glyphicon-calendar"></i></button>
+    </span>
+  </div>
+  <label for="endDatePopup"> End Date </label>
+  <div class="input-group" id="endDatePopup">
+    <input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" is-open="popup2.opened" min-date="minDate" max-date="maxDate" ng-model="endDate" close-text="Close"/>
+    <span class="input-group-btn">
+      <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
+    </span>
   </div>
   <div class="form-group">
     <label for="mapQueryInput"> Custom Query: </label>
