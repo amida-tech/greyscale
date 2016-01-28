@@ -7,6 +7,7 @@ angular.module('greyscaleApp')
       templateUrl: 'views/directives/visualization.html',
       //no isolate scope for data binding, all data moved from controller to directive
       link: function(scope, element, attrs){
+
         //Local variables for angular data digest cycle ($watch)
         var vizData = [];
 
@@ -26,6 +27,17 @@ angular.module('greyscaleApp')
           .error(function(err) {
             console.log(err);
           });
+
+        //ng-dropdown-multiselect extr-settings
+        // scope.multiDropdownSettings = {
+        //   dynamicTitle: false,
+        //   enableSearch: true,
+        //   scrollable: true,
+        //   scrollableHeight: '200px',
+        //   displayProp: "name",
+        //   idProp: '',
+        //   externalIdProp: ''
+        // };
 
         //Mocked survey data --> look @ Mike's format
         scope.users = ["user1", "user2", "user3"];

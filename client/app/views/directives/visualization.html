@@ -1,38 +1,40 @@
 <ng-form name="filterForm" class="form-inline" style="postion: fixed;padding: 10px; padding-bottom: 42px;">
   <div class="form-group">
     <label for="userDropdown"> User </label>
-    <select class="form-control" id="userDropdown" ng-model="filterForm.userSelected" ng-options="user as user.name for user in users">
+    <select class="form-control" id="userDropdown" ng-model="filterForm.userSelected" ng-options="user for user in users">
       <option value="user">--All--</option>
     </select>
   </div>
   <div class="form-group">
-    <label for="topicdropdown"> Topic </label>
-    <select multiple class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by topic.isoa2">
-      <option value="topic">--Choose topic--</option>
+    <label for="topicDropdown"> Topic </label>
+    <!--div ng-dropdown-multiselect id="topicDropdown" options="topics" selected-model="filterForm.topicSelected" extra-settings="multiDropdownSettings">
+    </div-->
+    <select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2">
+      <option value="topic" selected disabled>--Choose Topic--</option>
     </select>
   </div>
   <div class="form-group">
-    <label for="topicDropdown"> Subtopic </label>
+    <label for="subtopicDropdown"> Subtopic </label>
     <select class="form-control" id="subtopicDropdown" ng-model="filterForm.subtopicSelected.subtopic" ng-options="st as st.name for st in filterOptions.subtopics track by st.id">
-      <option value="st">--Choose subtopic--</option>
+      <option value="st" selected disabled>--Choose Subtopic--</option>
     </select>
   </div>
   <div ng-show="filterForm.subtopicSelected.subtopic.name == 'Continent'" class="form-group ng-hide">
     <label for="continentDropdown"> Continent </label>
     <select class="form-control" id="continentDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="ct as ct.name for ct in filterOptions.continents track by ct.isoa2">
-      <option value="ct">--Choose continent--</option>
+      <option value="ct" selected disabled>--Choose Continent--</option>
     </select>
   </div>
   <div ng-show="filterForm.subtopicSelected.subtopic.name == 'Income'" class="form-group ng-hide">
     <label for="incomeDropdown"> Income Level </label>
     <select class="form-control" id="incomeDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="lvl as lvl.name for lvl in filterOptions.incomeLevels">
-      <option value="lvl"> Choose income level </option>
+      <option value="lvl"> Choose Income Level </option>
     </select>
   </div>
   <div class="form-group">
     <label for="questionDropdown"> Question </label>
     <select class="form-control" ng-model="filterForm.questionSelected" ng-options="question as question.qid for question in surveys" id="questionDropdown" placeholder="Question...">
-      <option value="question">Question id</option>
+      <option value="question">Question ID</option>
     </select>
   </div>
   <div class="form-group">
