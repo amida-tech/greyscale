@@ -3,7 +3,11 @@ var HttpError = require('app/error').HttpError,
 	_ = require('underscore'),    
 	Query = require('app/util').Query,
     query = new Query(),
-	ClientPG = require('app/db_bootstrap');
+	ClientPG = require('app/db_bootstrap'),
+	users = require('app/controllers/users'),
+	co = require('co'),
+    thunkify = require('thunkify'),
+    thunkQuery = thunkify(query),
 
 module.exports = {
 
@@ -33,21 +37,36 @@ module.exports = {
     instantiate: function (req, res, next) {
     	//get the schema to populate.
     	var schemaName = req.params.realm;
+    	var tablesDontExist = false;
+    	var tablesNotPopulated = false;
     	
-    	//check to see if the tables have been created
-    	query('SELECT COUNT(*) FROM '+schemaName+'.Languages', function(err, resp) {
-    		//if response is error then tables need to be created
-    		//if response is 0 then the tables need to be populated
-    		//if response is > 0 then the tables are already populated.
-    	});
     	
-    	if (tablesDontExist){
-    		createTables(schemaName);
-    	}
-    	
-    	if (tablesNotPopulated){
-    		populateTables(schemaName);
-    	}
+        co(function* () {
+            var needNewToken = false;
+            var data = yield thunkQuery('SELECT COUNT(*) FROM proto_indaba.Languages', {'realm': req.param('realm')} );
+            if (!data.length) {
+            	//if response is 0 then the tables need to be populated
+        		populateTables(schemaName);
+        		//get username and password from request
+        		users.insertOne(req, res, next);
+        		return 1;
+            }else{
+            	//if response is > 0 then the tables are already populated. 
+            	//do nothing
+            	return 1
+            }
+
+        }).then(function (data) {
+        	//do nothing for the moment.  Reserving this should I need to do post processing
+        }, function (err) {
+        	co(function* () {
+                //tables do not exist.  
+            	createTables(schemaName);    		
+            	populateTables(schemaName);
+        		//get username and password from request
+        		users.insertOne(req, res, next);
+        	});
+        });
     }
 
 };

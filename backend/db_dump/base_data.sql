@@ -372,7 +372,6 @@ INSERT INTO "Rights" VALUES (126, 'product_update', 'Can update products', 4);
 INSERT INTO "Rights" VALUES (127, 'product_delete', 'Can delete products', 4);
 INSERT INTO "Rights" VALUES (16, 'rights_view_all', 'Can see list of all rights', NULL);
 INSERT INTO "Rights" VALUES (18, 'rights_view_one', 'Can see one right', NULL);
-INSERT INTO "Rights" VALUES (129, 'work', 'Have to work hard :)', NULL);
 INSERT INTO "Rights" VALUES (17, 'rights_add_one', 'Can add rights', NULL);
 
 
@@ -391,11 +390,10 @@ SELECT pg_catalog.setval('"Rights_id_seq"', 130, true);
 -- Data for Name: RolesRights; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "RolesRights" VALUES (1, 18);
-INSERT INTO "RolesRights" VALUES (1, 17);
-INSERT INTO "RolesRights" VALUES (1, 19);
 INSERT INTO "RolesRights" VALUES (1, 16);
-INSERT INTO "RolesRights" VALUES (1, 127);
+INSERT INTO "RolesRights" VALUES (1, 17);
+INSERT INTO "RolesRights" VALUES (1, 18);
+INSERT INTO "RolesRights" VALUES (1, 19);
 INSERT INTO "RolesRights" VALUES (1, 29);
 INSERT INTO "RolesRights" VALUES (1, 34);
 INSERT INTO "RolesRights" VALUES (1, 35);
@@ -406,6 +404,7 @@ INSERT INTO "RolesRights" VALUES (1, 39);
 INSERT INTO "RolesRights" VALUES (1, 82);
 INSERT INTO "RolesRights" VALUES (1, 125);
 INSERT INTO "RolesRights" VALUES (1, 126);
+INSERT INTO "RolesRights" VALUES (1, 127);
 INSERT INTO "RolesRights" VALUES (2, 129);
 INSERT INTO "RolesRights" VALUES (2, 24);
 INSERT INTO "RolesRights" VALUES (2, 16);
