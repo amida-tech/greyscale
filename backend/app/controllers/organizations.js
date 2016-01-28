@@ -56,6 +56,28 @@ module.exports = {
             next(err);
         });
 
+    },
+    
+    deleteOne: function (req, res, next) {
+        var q = Organization.delete().where(Organization.id.equals(req.params.id));
+        query(q, {'realm': req.param('realm')}, function (err, data) {
+            if (err) {
+                return next(err);
+            }
+            res.status(204).end();
+        });
+    },
+    updateOne: function (req, res, next) {
+        query(
+            Organization.update(_.pick(req.body, Organization.whereCol)).where(Organization.id.equals(req.params.id)),
+            {'realm': req.param('realm')},
+            function (err, data) {
+                if (!err) {
+                    res.status(202).end();
+                } else {
+                    next(err);
+                }
+            }
+        );
     }
-
 };

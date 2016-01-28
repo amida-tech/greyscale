@@ -204,7 +204,12 @@ router.route('/:realm/v0.2/organizations')
     .post(authenticate('token').always, organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
-    .get(authenticate('token').always, organizations.selectOne);
+    .get(authenticate('token').always, organizations.selectOne)
+     //XXX: should do a checkRight('organizations_delete_one') before the delete action.
+    .delete(authenticate('token').always, /* checkRight('organizations_delete_one'), */ organizations.deleteOne)
+	.put(authenticate('token').always, /*checkRight('organizations_edit_one'),*/ organizations.updateOne);
+
+   
 
 router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)
