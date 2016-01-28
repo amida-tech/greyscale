@@ -178,7 +178,7 @@ angular.module('greyscaleApp')
             autocolorscale: true,
             colorbar: {
               title: "Doing Business Rank",
-              thickness: 0.5,
+            //   thickness: 0.5,
               len: 0.75,
               tickmode: "array",
               tickvals: ["1","50","100","150","189"],
@@ -189,20 +189,21 @@ angular.module('greyscaleApp')
           var layout = {
             title: 'Doing Business Ranking - 2016',
             geo: {
-              projection: {
-                type: 'mercator'
-              },
-              resolution: '50',
-              showframe: false
+              showframe: false,
+              showcoastlines: false,
+              projection:{
+                  type: 'mercator'
+              }
+            //   resolution: '50',
             },
             width: 700,
             height: 700, //weird gaps
-            margin: {
-              l: 80,
-              r: 80,
-              t: 100,
-              b: 40
-            }
+            // margin: {
+            //   l: 80,
+            //   r: 80,
+            //   t: 100,
+            //   b: 40
+            // }
           };
           Plotly.newPlot('mapViz', mapData, layout, {showLink:false}); 
         }

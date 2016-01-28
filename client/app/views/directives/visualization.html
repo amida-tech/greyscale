@@ -1,4 +1,4 @@
-<ng-form name="filterForm" class="form-inline">
+<ng-form name="filterForm" class="form-inline" style="padding: 10px;">
   <div class="form-group" style="postion: fixed;">
     <label for="topicdropdown"> Topic </label>
     <select multiple class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by topic.isoa2">
@@ -34,5 +34,5 @@
     <input class="form-control" placeholder="question1:yes" ng-model="filterForm.mapQuery" id="mapQueryInput"></input>
   </div>
   <button type="submit" class="btn btn-default" click="renderMap()">Submit</button>
+  <div id="mapViz"></div>
 </ng-form>
-<div id="mapViz"></div>
