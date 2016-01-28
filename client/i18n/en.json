@@ -23,6 +23,34 @@
         "FIELD_REQUIRED": "This field is required.",
         "WRONG_DATE_FORMAT": "Wrong date format"
     },
+    "GLOBALS": {
+        "PROJECTSTATES": {
+            "ABANDONED": "Abandoned",
+            "COMPLETED": "Completed",
+            "IN_FLIGHT": "In-flight",
+            "SUSPENDED": "Suspended",
+            "WAITING": "Waiting"
+        },
+        "UOASTATUS": {
+            "ACTIVE": "Active",
+            "DELETED": "Deleted",
+            "INACTIVE": "Inactive"
+        },
+        "UOAVISIBILITY": {
+            "PRIVATE": "Private",
+            "PUBLIC": "Public"
+        },
+        "USERROLES": {
+            "CONTRIBUTOR": "Contributor",
+            "DECIDER": "Decider",
+            "EDITOR": "Editor",
+            "PROJECT_MANAGER": "Project Manager",
+            "RESEARCHER": "Researcher",
+            "RESEARCH_DIRECTOR": "Research Director",
+            "REVIEWER": "Reviewer",
+            "TRANSLATOR": "Translator"
+        }
+    },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",

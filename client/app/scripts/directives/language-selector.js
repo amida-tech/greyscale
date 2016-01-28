@@ -4,10 +4,15 @@ angular.module('greyscaleApp')
             restrict: 'A',
             replace: true,
             templateUrl: 'views/directives/language-selector.html',
-            link: function(scope) {
-                scope.supportedLanguages = i18n.getSupportedLanguages();
+            link: function(scope, el) {
+                if (i18n.getLocales().length === 1) {
+                    el.remove();
+                    return;
+                }
 
-                scope.selected = _.find(scope.supportedLanguages, {locale: i18n.getLocale()});
+                scope.languages = i18n.getLanguages();
+
+                scope.selected = _.find(scope.languages, {locale: i18n.getLocale()});
 
                 scope.changeLanguage = function(locale){
                     i18n.changeLocale(locale);

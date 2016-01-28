@@ -7,7 +7,7 @@ angular.module('greyscale.tables')
         greyscaleEntityTypeRoleApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleEntityTypeApi, greyscaleRestSrv) {
 
-        var tns = "PROJECTS.ROLES.";
+        var tns = 'PROJECTS.ROLES.';
 
         var _dicts = {
             users: [],

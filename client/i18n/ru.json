@@ -20,8 +20,36 @@
         "TODAY": "Сегодня"
     },
     "FORMS": {
-        "FIELD_REQUIRED": "",
-        "WRONG_DATE_FORMAT": ""
+        "FIELD_REQUIRED": "Обязательное поле",
+        "WRONG_DATE_FORMAT": "Неправильный формат даты"
+    },
+    "GLOBALS": {
+        "PROJECTSTATES": {
+            "ABANDONED": "Устаревший",
+            "COMPLETED": "Завершенный",
+            "IN_FLIGHT": "Активный",
+            "SUSPENDED": "Приостановленный",
+            "WAITING": "В ожидании"
+        },
+        "UOASTATUS": {
+            "ACTIVE": "Активный",
+            "DELETED": "Удаленный",
+            "INACTIVE": "Неактивный"
+        },
+        "UOAVISIBILITY": {
+            "PRIVATE": "Закрытый",
+            "PUBLIC": "Открытый"
+        },
+        "USERROLES": {
+            "CONTRIBUTOR": "Участник",
+            "DECIDER": "Принимающий решения",
+            "EDITOR": "Редактор",
+            "PROJECT_MANAGER": "Менеджер проектов",
+            "RESEARCHER": "Исследователь",
+            "RESEARCH_DIRECTOR": "Директор исследований",
+            "REVIEWER": "Рецензент",
+            "TRANSLATOR": "Переводчик"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",

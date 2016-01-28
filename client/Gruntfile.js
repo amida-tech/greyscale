@@ -609,11 +609,12 @@ module.exports = function (grunt) {
                 options: {},
                 constants: {
                     greyscaleEnv: {
+                        supportedLocales: ['en', 'ru'],
                         name: 'dev',
                         apiProtocol: 'http',
                         apiHostname: 'indaba.ntrlab.ru',
                         apiPort: '83',
-                        apiRealm: '',
+                        apiRealm: 'dev',
                         apiVersion: 'v0.2',
                         defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',

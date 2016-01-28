@@ -87,7 +87,7 @@ angular.module('greyscaleApp')
         function _translateParams(table) {
             var params = ['formTitle', 'title'];
             angular.forEach(params, function(param){
-                table[param] = i18n.t(table[param]);
+                table[param] = i18n.translate(table[param]);
             });
         }
 
@@ -99,7 +99,7 @@ angular.module('greyscaleApp')
                 if (col.actions) {
                     col['class'] = 'header-actions';
                 }
-                col.title = i18n.t(col.title);
+                col.title = i18n.translate(col.title);
             });
         }
 
