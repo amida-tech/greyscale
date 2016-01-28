@@ -99,11 +99,10 @@ var surveyAnswers = require('app/controllers/survey_answers');
 
 router.route('/:realm/v0.2/survey_answers')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
-    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.insertOne);
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
 
 router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
-    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.editOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
 
 //----------------------------------------------------------------------------------------------------------------------

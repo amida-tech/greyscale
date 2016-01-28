@@ -1,7 +1,7 @@
 <div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span>
+    <button class="close" ng-click="close()" aria-label="{{'COMMON.CLOSE'}}" data-dismiss="modal" type="button"><span>×</span>
     </button>
-    <h3 class="modal-title"><span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> <span
+    <h3 class="modal-title"><span ng-show="model.id">{{view.formEditHeaderPrefix||'COMMON.EDIT'|translate}}</span><span ng-hide="model.id">{{view.formAddHeaderPrefix||'COMMON.CREATE'|translate}}</span> <span
         class="text-lowercase">{{view.formTitle}}</span></h3>
 </div>
 <div class="modal-body">

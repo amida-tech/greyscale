@@ -1,7 +1,7 @@
 <rd-widget>
     <rd-widget-header icon="{{model.icon}}" title="{{model.title}}">
         <div class="text-right" ng-show="model.add">
-            <button class="btn btn-default btn-xs" ng-click="model.add.handler()"><i class="fa {{model.add.icon}}" ng-show="model.add.icon"> </i>{{model.add.title}}</button>
+            <button class="btn btn-default btn-xs" ng-click="model.add.handler()"><i class="fa {{model.add.icon}}" ng-show="model.add.icon"> </i>{{model.add.title|translate}}</button>
         </div>
     </rd-widget-header>
     <div class="table-responsive widget-table">
@@ -10,8 +10,8 @@
                 <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row" model-multiselect="model.multiselect"></td>
             </tr>
         </table>
-        <p ng-if="model.tableParams.data != undefined && !model.tableParams.data.length" class="empty-data text-center">No Data</p>
-        <p ng-if="model.tableParams.data == undefined" class="empty-data text-center">Data Loading...</p>
+        <p ng-if="model.tableParams.data != undefined && !model.tableParams.data.length" class="empty-data text-center">{{(model.noDataText||'TABLES.NO_DATA')|translate}}</p>
+        <p ng-if="model.tableParams.data == undefined" class="empty-data text-center">{{(model.loadingDataText||'TABLES.LOADING_DATA')|translate}}</p>
     </div>
 </rd-widget>
 
@@ -21,6 +21,6 @@
            ng-model="model.multiselect.selectAllState"
            ng-show="model.dataMap.length"
            ng-change="model.multiselect.selectAll(); model.multiselect.fireChange()"
-           title="Check/Uncheck All"
+           title="{{(model.multiselect.selectAllTitle||'TABLES.SELECT_ALL_TITLE')|translate}}"
     />
 </script>

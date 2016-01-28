@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span>
+    </button>
+    <h3 class="modal-title">Translation</h3>
+</div>
+<div class="modal-body" translate-namespace="TRANSLATION">
+
+    <div name="dataForm" class="form" ng-form="dataForm">
+
+        <div class="form-group" ng-repeat="item in model.translations">
+            <input type="text" class="form-control" name="name"
+                   ng-model="item.value"
+                   ng-required="true" ng-minlength="1">
+
+            <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
+                 ng-if="dataForm.name.$dirty">
+                <span ng-message="required, minlength" class="help-block"><span
+                    translate=".TITLE_REQUIRED"></span></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
+    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !this.dataForm.$dirty" ng-click="save()"
+            translate="COMMON.SAVE"></button>
+</div>

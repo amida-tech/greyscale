@@ -6,12 +6,13 @@
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
     .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
         RestangularProvider.setBaseUrl(
-            greyscaleEnv.apiProtocol + '://' +
+            (greyscaleEnv.apiProtocol||'http') + '://' +
             greyscaleEnv.apiHostname + 
             (greyscaleEnv.apiPort !== undefined?':'+greyscaleEnv.apiPort:'') + '/' +
             greyscaleEnv.apiRealm + '/' +
             greyscaleEnv.apiVersion
         );
+
         RestangularProvider.setDefaultHttpFields({
             cache: false,
             withCredentials: false
