@@ -137,7 +137,7 @@ function* checkProjectData(req) {
         }
     }
 
-    var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.user.organizationId)),
+    var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)),
     		 {'realm': req.param('realm')});
     if (!_.first(isExistOrg)) {
         throw new HttpError(403, 'By some reason cannot find your organization');
