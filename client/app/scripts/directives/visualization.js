@@ -12,9 +12,10 @@ angular.module('greyscaleApp')
         var vizData = [];
 
         //Load geo coordinates and data
-        $http.get("scripts/directives/resources/doingbiz_agg.json")
+        var request = $http.get("scripts/directives/resources/doingbiz_agg.json")
           .success(function(viz_data) {
             scope.vizData = viz_data.agg;
+            return viz_data.agg;
             console.log(scope.vizData);
 
             var countrySet = new Set(); //account for same country/multi-year duplicates
@@ -121,18 +122,18 @@ angular.module('greyscaleApp')
         // }
 
         
-        function applyFilters(callback){
+        function applyFilters(data, callback){
           console.log("in applyFilters");
           if(scope.filterForm.$pristine){
             console.log("in if block");
-            callback(vizData);
-          } else if(scope.filterForm.topic==null && scope.filterForm.subtopic==null) {
-            console.log("else if block");
-            callback(vizData);
+            callback(scope.vizData);
+          // } else if(scope.filterForm.topic==null && scope.filterForm.subtopic==null) {
+          //   console.log("else if block");
+          //   callback(vizData);
           } else {
             console.log("in else block");
             var filteredVizData =[];
-            vizData.forEach(function(row){
+            scope.vizData.forEach(function(row){
               if(scope.filterForm.topicSelected){
                 console.log("topicSelected block");
                 scope.filterForm.topicSelected.forEach(function(topic){
@@ -168,8 +169,15 @@ angular.module('greyscaleApp')
           }
         }
 
+        request.then(function(data){
+          applyFilters(data, function(filteredData){
+            renderMap(filteredData);
+          })
+        })
+        
         function renderMap(plotData){
           console.log(plotData);
+
           function unpackData(rows, key){
               return rows.map(function(row){ return row[key]});
           }
@@ -197,29 +205,25 @@ angular.module('greyscaleApp')
                 type: 'mercator'
               },
               resolution: '50',
-              showframe: false
+              showframe: false,
+              showcoastlines: false
             },
             width: 700,
-            height: 700, //weird gaps
-            margin: {
-              l: 80,
-              r: 80,
-              t: 100,
-              b: 40
-            }
+            height: 700
           };
           Plotly.newPlot('mapViz', mapData, layout, {showLink:false}); 
         }
 
         scope.drawMap = function(){ 
-          applyFilters(function(result){
+          applyFilters(scope.vizData, function(result){
             renderMap(result);
           }); 
         };
 
         scope.$watch('vizData', function(newVal, oldVal){
-          vizData = newVal;
-          applyFilters(function(result){renderMap(result)});
+          if(!newVal===oldVal){
+            applyFilters(scope.vizData, function(result){renderMap(result)}); 
+          }
         });
       }
     }
