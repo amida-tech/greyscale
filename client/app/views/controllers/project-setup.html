@@ -1,9 +1,9 @@
-<h3>{{::project.codeName}} <small>Project</small></h3>
+<h3>{{::project.codeName}} <small translate="PROJECTS.PROJECT"></small></h3>
 
 <uib-tabset>
     <uib-tab ng-click="go(tab.state)" ng-repeat="tab in tabs track by $index" active="tab.active">
         <uib-tab-heading>
-            <i class="fa {{::tab.icon}}"></i> {{::tab.title}}
+            <i class="fa {{::tab.icon}}"></i> {{::tab.title|translate}}
         </uib-tab-heading>
     </uib-tab>
 </uib-tabset>
