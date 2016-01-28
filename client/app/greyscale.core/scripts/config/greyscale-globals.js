@@ -89,6 +89,10 @@ angular.module('greyscale.core')
                 },
                 any: {
                     id: null,
+                    mask: 0xfffe
+                },
+                all: {
+                    id: null,
                     mask: 0xffff
                 }
             },

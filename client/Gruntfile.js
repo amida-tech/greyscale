@@ -588,7 +588,7 @@ module.exports = function (grunt) {
                         apiProtocol: 'http',
                         apiHostname: 'indaba.ntrlab.ru',
                         apiPort: '83',
-                        apiRealm: '',
+                        apiRealm: 'dev',
                         apiVersion: 'v0.2',
                         defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',

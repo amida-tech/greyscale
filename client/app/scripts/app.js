@@ -26,7 +26,7 @@ var _app = angular.module('greyscaleApp', [
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
-    greyscaleEnv, greyscaleGlobalsProvider) {
+                      greyscaleEnv, greyscaleGlobalsProvider) {
 
     var globals = greyscaleGlobalsProvider.$get();
 
@@ -80,7 +80,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Login',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.nobody.mask
             }
         })
         .state('dashboard', {
@@ -99,11 +99,12 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: '',
             data: {
                 name: 'Home',
-                accessLevel: systemRoles.admin.mask | systemRoles.superAdmin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.any.mask
             },
             views: {
                 'body@dashboard': {
-                    template: ''
+                    templateUrl: 'views/controllers/home.html',
+                    controller: 'HomeCtrl'
                 }
             }
         })
@@ -291,20 +292,33 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Users units of analysis',
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
+        })
+        .state('translate', {
+            parent: 'home',
+            url: 'translate',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/translate.html',
+                    controller: 'TranslateCtrl'
+                }
+            },
+            data: {
+                name: 'Translate page'
+            }
         });
 
     $urlRouterProvider.otherwise('/');
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
-        if (toState.data && toState.data.accessLevel !== 0xffff) {
+        if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
-                    if ((_level & 0xfffe) !== 0) { //if not admin accessing admin level page
-                        $state.go('home');
+                    if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
                         greyscaleUtilsSrv.errorMsg('Access restricted to "' + toState.data.name + '"!');
+                        $state.go('home');
                     } else {
                         $stateParams.returnTo = toState.name;
                         $state.go('login');
