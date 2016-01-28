@@ -9,7 +9,6 @@ angular.module('greyscaleApp')
       link: function(scope, element, attrs){
         //Local variables for angular data digest cycle ($watch)
         var vizData = [];
-        var filterForm= {};
 
         //Load geo coordinates and data
         $http.get("scripts/directives/resources/doingbiz_agg.json")
@@ -29,6 +28,8 @@ angular.module('greyscaleApp')
           });
 
         //Mocked survey data --> look @ Mike's format
+        scope.users = ["user1", "user2", "user3"];
+
         scope.surveys = [
           {
             "qid":"1234",
@@ -107,74 +108,71 @@ angular.module('greyscaleApp')
 
         // }
 
-        var filteredVizData=[];
-        function applyFilters(){
-          console.log("APPLYING FILTERS");
+        
+        function applyFilters(callback){
+          console.log("in applyFilters");
           if(scope.filterForm.$pristine){
-            filteredVizData = vizData;
-            console.log("NO FILTERS SELECTED");
-          }
-          else{
-            console.log("IN ELSE BLOCK, APPLYING FILTERS");
+            console.log("in if block");
+            callback(vizData);
+          } else {
+            console.log("in else block");
             try{
+              var filteredVizData =[];
               vizData.forEach(function(row){
 
-                if(filterForm.topicSelected.indexOf(row.country)>-1){
-                  filteredVizData.push(row);
-                }
-
-                var category = filterForm.subtopicSelected.category;
-                switch(filterForm.subtopicSelected.subtopic.name){
-                  case "Continent":
-                    if(row.continent==category.isoa2){
+                if(scope.filterForm.topicSelected){
+                  console.log("topicSelected block");
+                  scope.filterForm.topicSelected.forEach(function(topic){
+                    if(topic.isoa2==row.isoa2){
                       filteredVizData.push(row);
                     }
-                    break;
-                  case "Income":
-                    if(checkIfInGroup("incomeLevels", row)){
-                      filteredVizData.push(row);
-                    };
-                    break;
-                  case "Region": 
-                    if(checkIfInGroup("region", row)){
-                      filteredVizData.push(row);
-                    };
-                    break;
-                  default:
-                    break;
+                  })
                 }
-              });
+                if(scope.filterForm.subtopicSelected){
+                  var subtopicObj = scope.filterForm.subtopicSelected;
+                  switch(subtopicObj.subtopic.name){
+                    case "Continent":
+                      if(row.continent==subtopicObj.category.isoa2){
+                        filteredVizData.push(row);
+                      }
+                      break;
+                    case "Income":
+                      if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
+                        filteredVizData.push(row);
+                      }
+                      break;
+                    case "Region": 
+                      if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
+                        filteredVizData.push(row);
+                      }
+                      break;
+                    default:
+                      break;
+                  };
+                }
+              }); 
+              callback(filteredVizData);
+              console.log(filteredVizData);  
             } catch(e) {
               console.log(e);
             }
           }
-          console.log(filteredVizData); 
         }
 
-        function checkIfInGroup(subtopic, row){
-          var groupIds = [];
-          filterOptions[subtopic].forEach(function(group){
-            if(group==category){
-              groupIds = group.countries;
-            }
-          });
-          return (groupIds.indexOf(row.isoa2)>-1);
-        }
-
-        function renderMap(){
-          applyFilters();
-          var rows = filteredVizData;
+        function renderMap(plotData){
+          console.log(plotData);
           function unpackData(rows, key){
-            return rows.map(function(row){ return row[key]});
+              return rows.map(function(row){ return row[key]});
           }
+
           var mapData = [{
             type: 'choropleth',
             locationmode: 'country names',
-            locations: unpackData(rows, 'country'),
-            z: unpackData(rows, 'rank'),
+            locations: unpackData(plotData, 'country'),
+            z: unpackData(plotData, 'rank'),
             zmin:1,
             zmax: 189,
-            text: unpackData(rows, 'country'),
+            text: unpackData(plotData, 'country'),
             autocolorscale: true,
             colorbar: {
               title: "Doing Business Rank",
@@ -187,7 +185,7 @@ angular.module('greyscaleApp')
           }];
 
           var layout = {
-            title: 'Doing Business Ranking - 2016',
+            title: 'Doing Business Ranking - 2016', //Make subtitle from filter selection
             geo: {
               showframe: false,
               showcoastlines: false,
@@ -208,15 +206,15 @@ angular.module('greyscaleApp')
           Plotly.newPlot('mapViz', mapData, layout, {showLink:false}); 
         }
 
+        scope.drawMap = function(){ 
+          applyFilters(function(result){
+            renderMap(result);
+          }); 
+        };
+
         scope.$watch('vizData', function(newVal, oldVal){
           vizData = newVal.agg;
-          renderMap();
-        });
-
-        scope.$watch('filterForm', function(newVal, oldVal){
-          console.log(newVal);
-          filterForm = newVal;
-          renderMap();
+          applyFilters(function(result){renderMap(result)});
         });
       }
     }
