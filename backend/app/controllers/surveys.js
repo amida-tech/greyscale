@@ -98,11 +98,7 @@ module.exports = {
 
   questionAdd: function (req, res, next) {
     co(function* (){
-      var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
-      if(!_.first(survey)){
-        throw new HttpError(403, 'Survey with id = ' + req.params.id + ' does not exist');
-      }
-      req.body.surveyId = req.params.id;
+      yield* checkQuestionData(req, true);
       var result = yield thunkQuery(SurveyQuestion.insert(req.body).returning(SurveyQuestion.id));
       return result;
     }).then(function(data){
@@ -114,6 +110,7 @@ module.exports = {
 
   questionEdit: function (req, res, next) {
     co(function* (){
+      yield* checkQuestionData(req, false);
       return yield thunkQuery(SurveyQuestion.update(req.body).where(SurveyQuestion.id.equals(req.params.id)));
     }).then(function(data){
       res.status(202).end();
@@ -133,7 +130,7 @@ module.exports = {
 
 };
 
-function* checkSurveyData(req){
+function* checkSurveyData(req) {
     if(!req.params.id){ // create
         if(!req.body.title || !req.body.productId){
             throw new HttpError(403, 'productId and title fields are required');
@@ -144,6 +141,30 @@ function* checkSurveyData(req){
         var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)));
         if(!_.first(product)){
             throw new HttpError(403, 'Product with id = ' + req.body.productId + ' does not exists');
+        }
+    }
+}
+
+function* checkQuestionData(req, isCreate) {
+    if (isCreate) {
+        if(!req.body.label || !req.body.surveyId || !req.body.type){
+            throw new HttpError(403, 'label, surveyId and type field are required');
+        }
+    }
+
+    var surveyId = isCreate ? req.params.id : req.body.surveyId;
+
+    if (surveyId) {
+        var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
+        if(!_.first(survey)){
+            throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
+        }
+        req.body.surveyId = surveyId;
+    }
+
+    if (req.body.type) {
+        if((parseInt(req.body.type)) < 0 || (parseInt(req.body.type) > 10)){
+            throw new HttpError(403, 'Type value should be from 0 till 11');
         }
     }
 

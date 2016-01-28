@@ -6,9 +6,9 @@
 angular.module('greyscaleApp')
     .directive('headerbar', function () {
         return {
-            template: '<div class="meta"><div class="page">{{model.title}}</div><div class="breadcrumb-links">' +
+            template: '<div class="meta"><div class="page">{{model.title|translate}}</div><div class="breadcrumb-links">' +
                 '<ul class="breadcrumb"><li ng-repeat="parent in model.path">' +
-                '<a ui-sref="{{parent.route}}">{{parent.name}}</a></li><li class="active">{{model.title}}</li>' +
+                '<a ui-sref="{{parent.route}}">{{parent.name|translate}}</a></li><li class="active">{{model.title|translate}}</li>' +
                 '</ul></div></div>',
             scope: {},
             restrict: 'AE',

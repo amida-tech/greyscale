@@ -3,25 +3,25 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('translate', function ($compile, $log) {
+    .directive('translation', function ($compile, $log) {
         return {
             scope: {
-                translation: '=translate'
+                translation: '=?'
             },
             restrict: 'A',
             link: function (scope, elem) {
-                var wrapper = angular.element('<div class="translate"/></div>');
+                var wrapper = angular.element('<div class="translation"/></div>');
 
                 elem.after(wrapper);
                 wrapper.prepend(elem);
 
-                var anIcon = angular.element('<i class="fa fa-language text-info" ng-click="toggleTranslate()"></i>');
+                var anIcon = angular.element('<i class="fa fa-language text-info" ng-click="toggleTranslation()"></i>');
 
                 $compile(anIcon)(scope);
                 wrapper.append(anIcon);
 
-                scope.toggleTranslate = function() {
-                    $log.debug('translating', scope.translation);
+                scope.toggleTranslation = function() {
+                    $log.debug('translation', scope.translation);
                 };
 
                 scope.$on('$destroy', function() {

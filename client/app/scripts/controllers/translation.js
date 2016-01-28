@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('TranslateCtrl', function ($scope, $log) {
+    .controller('TranslationCtrl', function ($scope) {
         $scope.model = {
             translation: {
                 'essenceId': 4,
@@ -12,8 +12,5 @@ angular.module('greyscaleApp')
                 'langId': 2,
                 'value': 'Яблоко'
             }
-        };
-        $scope.toggleTranslate = function () {
-            $log.debug('view controller translate toggle');
         };
     });

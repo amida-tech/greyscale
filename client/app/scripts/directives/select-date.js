@@ -4,9 +4,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('selectDate', function () {
+    .directive('selectDate', function (i18n) {
         return {
-            template: '<p class="input-group"><input type="date" class="form-control" id="{{dataId}}" name="{{dataId}}" ' +
+            template: '<p class="input-group"><input type="text" class="form-control" id="{{dataId}}" name="{{dataId}}" ' +
                 'uib-datepicker-popup ng-model="result" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
                 'datepicker-options="{{model.dateOptions}}" ng-required="{{model.required}}" required="{{model.required}}" ' +
                 'close-text="{{model.closeText}}" placeholder="{{model.placeholder}}"/><span class="input-group-btn">' +
@@ -14,13 +14,13 @@ angular.module('greyscaleApp')
                 '<i class="glyphicon glyphicon-calendar"></i></button></span></p>',
             restrict: 'E',
             scope: {
-                dataId: '=',
                 result: '=',
                 minDate: '=',
                 maxDate: '=',
                 options: '='
             },
-            controller: function ($scope) {
+            controller: function ($scope, $element) {
+                $scope.dataId = $element.attr('data-id');
                 $scope.model = {
                     opened: false,
                     err: null
@@ -29,6 +29,8 @@ angular.module('greyscaleApp')
                     $scope.result = new Date($scope.result);
                 }
                 angular.extend($scope.model, $scope.options);
+
+                $scope.model.placeholder = $scope.model.placeholder||i18n.translate('DATEPICKER.PLACEHOLDER');
 
                 $scope.open = function () {
                     $scope.model.opened = true;

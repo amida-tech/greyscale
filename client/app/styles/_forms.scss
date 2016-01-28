@@ -3,8 +3,11 @@
         margin-left: 0;
     }
 }
+[uib-datepicker-popup].form-control {
+    min-width: 150px;
+}
 
-.translate i {
+.translation i {
     position: absolute;
     margin: auto;
     top: 0;
