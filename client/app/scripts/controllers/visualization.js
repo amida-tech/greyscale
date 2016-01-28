@@ -13,8 +13,8 @@
 angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, $scope, greyscaleSurveySrv) {
 
     $scope.model = {
-    //   vizData : JSON.parse("scripts/directives/resources/doingbiz_agg.json"),
-    //   geoData : JSON.parse("scripts/directives/resources/world110-m3.json") <-JSON formatting errors
+        //   vizData : JSON.parse("scripts/directives/resources/doingbiz_agg.json"),
+        //   geoData : JSON.parse("scripts/directives/resources/world110-m3.json") <-JSON formatting errors
     };
 
     //MOVED TO DIRECTIVE
@@ -136,4 +136,4 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
     //     }
     //   ]
     // };
-  });
+});
