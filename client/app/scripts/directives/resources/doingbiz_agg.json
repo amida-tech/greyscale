@@ -1296,8 +1296,8 @@
     "dtf": "82.46"
   }, {
     "country": "United States",
-    "isoa2": null,
-    "continent": null,
+    "isoa2": "US",
+    "continent": "NA",
     "year": "2016",
     "rank": 7,
     "dtf": "82.15"

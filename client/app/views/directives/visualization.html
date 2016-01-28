@@ -1,5 +1,11 @@
-<ng-form name="filterForm" class="form-inline">
-  <div class="form-group" style="postion: fixed;">
+<ng-form name="filterForm" class="form-inline" style="postion: fixed;padding: 10px; padding-bottom: 42px;">
+  <div class="form-group">
+    <label for="userDropdown"> User </label>
+    <select class="form-control" id="userDropdown" ng-model="filterForm.userSelected" ng-options="user as user.name for user in users">
+      <option value="user">--All--</option>
+    </select>
+  </div>
+  <div class="form-group">
     <label for="topicdropdown"> Topic </label>
     <select multiple class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by topic.isoa2">
       <option value="topic">--Choose topic--</option>
@@ -33,6 +39,6 @@
     <label for="mapQueryInput"> Custom Query: </label>
     <input class="form-control" placeholder="question1:yes" ng-model="filterForm.mapQuery" id="mapQueryInput"></input>
   </div>
-  <button type="submit" class="btn btn-default" click="renderMap()">Submit</button>
+  <button type="submit" class="btn btn-success pull-right" ng-click="drawMap()">Submit</button>
 </ng-form>
 <div id="mapViz"></div>
