@@ -509,8 +509,8 @@ module.exports = {
 
     selectSelf: function (req, res, next) {
         var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "proto_amida.RolesRights" ' +
-            ' LEFT JOIN "proto_amida.Rights"' +
+            ' SELECT "Rights"."action" FROM "proto_amida"."RolesRights" ' +
+            ' LEFT JOIN "proto_amida"."Rights"' +
             ' ON ("RolesRights"."rightID" = "Rights"."id")' +
             ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
             ') AS rights';

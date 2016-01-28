@@ -25,8 +25,8 @@ var Right = require('app/models/rights'),
     UserRights = false;
 
 var requestRights = 'ARRAY(' +
-    ' SELECT "Rights"."action" FROM "RolesRights" ' +
-    ' LEFT JOIN "Rights"' +
+    ' SELECT "Rights"."action" FROM "proto_amida"."RolesRights" ' +
+    ' LEFT JOIN "proto_amida"."Rights"' +
     ' ON ("RolesRights"."rightID" = "Rights"."id")' +
     ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
     ') AS rights';
@@ -38,6 +38,7 @@ passport.use(new BasicStrategy({
     function (req, email, password, done) {
         query(
             User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([User.email.equals(email)]),
+            {'realm': req.param('realm')},
             function (err, user) {
                 if (err) {
                     return done(err);
@@ -72,6 +73,7 @@ passport.use(new TokenStrategy({
                 .leftJoin(Role).on(User.roleID.equals(Role.id))
             )
             .where(Token.body.equals(tokenBody)),
+            {'realm': req.param('realm')},
             function (err, data) {
                 if (err) {
                     return done(err);
@@ -113,6 +115,7 @@ module.exports = {
         };
     },
     authorize: function (role) {
+    	
         return function (req, res, next) {
             var success = false;
             if (Array.isArray(role)) {
@@ -124,7 +127,7 @@ module.exports = {
                 req.debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
                 next();
             } else {
-                req.debug(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
+                console.log(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
                 next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
             }
         };
