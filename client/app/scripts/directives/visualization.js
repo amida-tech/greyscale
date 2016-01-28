@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
         //Load geo coordinates and data
         $http.get("scripts/directives/resources/doingbiz_agg.json")
           .success(function(viz_data) {
-            scope.vizData = viz_data;
+            scope.vizData = viz_data.agg;
             console.log(scope.vizData);
 
             var countrySet = new Set(); //account for same country/multi-year duplicates
@@ -126,48 +126,45 @@ angular.module('greyscaleApp')
           if(scope.filterForm.$pristine){
             console.log("in if block");
             callback(vizData);
+          } else if(scope.filterForm.topic==null && scope.filterForm.subtopic==null) {
+            console.log("else if block");
+            callback(vizData);
           } else {
             console.log("in else block");
-            try{
-              var filteredVizData =[];
-              vizData.forEach(function(row){
-
-                if(scope.filterForm.topicSelected){
-                  console.log("topicSelected block");
-                  scope.filterForm.topicSelected.forEach(function(topic){
-                    if(topic.isoa2==row.isoa2){
+            var filteredVizData =[];
+            vizData.forEach(function(row){
+              if(scope.filterForm.topicSelected){
+                console.log("topicSelected block");
+                scope.filterForm.topicSelected.forEach(function(topic){
+                  if(topic.isoa2==row.isoa2){
+                    filteredVizData.push(row);
+                  }
+                });
+              }
+              if(scope.filterForm.subtopicSelected){
+                var subtopicObj = scope.filterForm.subtopicSelected;
+                switch(subtopicObj.subtopic.name){
+                  case "Continent":
+                    if(row.continent==subtopicObj.category.isoa2){
                       filteredVizData.push(row);
                     }
-                  })
-                }
-                if(scope.filterForm.subtopicSelected){
-                  var subtopicObj = scope.filterForm.subtopicSelected;
-                  switch(subtopicObj.subtopic.name){
-                    case "Continent":
-                      if(row.continent==subtopicObj.category.isoa2){
-                        filteredVizData.push(row);
-                      }
-                      break;
-                    case "Income":
-                      if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
-                        filteredVizData.push(row);
-                      }
-                      break;
-                    case "Region": 
-                      if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
-                        filteredVizData.push(row);
-                      }
-                      break;
-                    default:
-                      break;
-                  };
-                }
-              }); 
-              callback(filteredVizData);
-              console.log(filteredVizData);  
-            } catch(e) {
-              console.log(e);
-            }
+                    break;
+                  case "Income":
+                    if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
+                      filteredVizData.push(row);
+                    }
+                    break;
+                  case "Region": 
+                    if(subtopicObj.category.countries.indexOf(row.isoa2)>-1){
+                      filteredVizData.push(row);
+                    }
+                    break;
+                  default:
+                    break;
+                };
+              }
+            }); 
+            callback(filteredVizData);
           }
         }
 
@@ -176,28 +173,25 @@ angular.module('greyscaleApp')
           function unpackData(rows, key){
               return rows.map(function(row){ return row[key]});
           }
-
+          var plotVar = (scope.filterForm.variableSelected) ? scope.filterForm.variableSelected : 'rank';
+          console.log(plotVar);
           var mapData = [{
             type: 'choropleth',
             locationmode: 'country names',
             locations: unpackData(plotData, 'country'),
-            z: unpackData(plotData, 'rank'),
-            zmin:1,
-            zmax: 189,
+            z: unpackData(plotData, plotVar),
             text: unpackData(plotData, 'country'),
             autocolorscale: true,
             colorbar: {
-              title: "Doing Business Rank",
-              thickness: 0.5,
+              title: plotVar,
+              thickness: 0.75,
               len: 0.75,
-              tickmode: "array",
-              tickvals: ["1","50","100","150","189"],
               xpad: 30
             }
           }];
 
           var layout = {
-            title: 'Doing Business Ranking - 2016', //Make subtitle from filter selection
+            title: 'Doing Business 2016', //Make subtitle from filter selection
             geo: {
               projection: {
                 type: 'mercator'
@@ -224,7 +218,7 @@ angular.module('greyscaleApp')
         };
 
         scope.$watch('vizData', function(newVal, oldVal){
-          vizData = newVal.agg;
+          vizData = newVal;
           applyFilters(function(result){renderMap(result)});
         });
       }
