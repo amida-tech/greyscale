@@ -28,17 +28,6 @@ angular.module('greyscaleApp')
             console.log(err);
           });
 
-        //ng-dropdown-multiselect extr-settings
-        // scope.multiDropdownSettings = {
-        //   dynamicTitle: false,
-        //   enableSearch: true,
-        //   scrollable: true,
-        //   scrollableHeight: '200px',
-        //   displayProp: "name",
-        //   idProp: '',
-        //   externalIdProp: ''
-        // };
-
         //Mocked survey data --> look @ Mike's format
         scope.users = ["user1", "user2", "user3"];
 
@@ -115,10 +104,6 @@ angular.module('greyscaleApp')
           ],
           regions : []
         };
-
-        // function parseQuery(){
-
-        // }
 
         
         function applyFilters(callback){
