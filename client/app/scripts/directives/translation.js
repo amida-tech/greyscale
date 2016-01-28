@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('translation', function ($compile, $log) {
+    .directive('translation', function ($compile, greyscaleModalsSrv, $log) {
         return {
             scope: {
                 translation: '=?'
@@ -20,11 +20,14 @@ angular.module('greyscaleApp')
                 $compile(anIcon)(scope);
                 wrapper.append(anIcon);
 
-                scope.toggleTranslation = function() {
-                    $log.debug('translation', scope.translation);
+                scope.toggleTranslation = function () {
+                    greyscaleModalsSrv.editTranslations(scope.translation)
+                        .then(function (result) {
+                            $log.debug(result);
+                        });
                 };
 
-                scope.$on('$destroy', function() {
+                scope.$on('$destroy', function () {
                     wrapper.after(elem);
                     wrapper.remove();
                 });

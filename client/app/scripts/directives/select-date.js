@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
                 }
                 angular.extend($scope.model, $scope.options);
 
-                $scope.model.placeholder = $scope.model.placeholder||i18n.translate('DATEPICKER.PLACEHOLDER');
+                $scope.model.placeholder = $scope.model.placeholder || i18n.translate('DATEPICKER.PLACEHOLDER');
 
                 $scope.open = function () {
                     $scope.model.opened = true;

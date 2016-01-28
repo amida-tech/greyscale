@@ -2,7 +2,7 @@
  * Created by igi on 26.01.16.
  */
 angular.module('greyscale.rest')
-    .factory('greyscaleTanslationApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleTranslationApi', function (greyscaleRestSrv, $q) {
         return {
             list: _list,
             listByEntityType: _listByEntityType,
@@ -13,7 +13,7 @@ angular.module('greyscale.rest')
         };
 
         function _api() {
-            return greyscaleRestSrv.one('translations');
+            return greyscaleRestSrv().one('translations');
         }
 
         function _list(params) {

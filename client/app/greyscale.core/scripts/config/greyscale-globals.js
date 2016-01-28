@@ -123,13 +123,14 @@ angular.module('greyscale.core')
         }
 
     })
-    .run(function(greyscaleGlobals, i18n){
+    .run(function (greyscaleGlobals, i18n) {
 
         _translate(greyscaleGlobals);
 
         function _translate(data) {
-            var tns = 'GLOBALS.', dataSetTns;
-            angular.forEach(data, function(dataSet, name){
+            var tns = 'GLOBALS.',
+                dataSetTns;
+            angular.forEach(data, function (dataSet, name) {
                 dataSetTns = tns + name.toUpperCase() + '.';
                 if (angular.isString(dataSet)) {
                     if (name !== 'loremIpsum') {
@@ -149,7 +150,7 @@ angular.module('greyscale.core')
         }
 
         function _translateList(tns, data) {
-            angular.forEach(data, function(item){
+            angular.forEach(data, function (item) {
                 if (item.name !== undefined) {
                     item.name = i18n.translate(tns + item.name);
                 }

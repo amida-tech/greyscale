@@ -1,6 +1,6 @@
 'use strict';
 
-(function(){
+(function () {
 
     var env = _getNgModuleInject(angular.module('greyscale.core'), 'greyscaleEnv') || {};
 
@@ -61,7 +61,7 @@
     }
 
     function _runNgApp() {
-        angular.element(document).ready(function(){
+        angular.element(document).ready(function () {
             angular.bootstrap(document.body, ['greyscaleApp']);
         });
     }
@@ -70,8 +70,8 @@
         window.i18nNgLocaleLoaded = true;
     }
 
-    function _getCookie(name){
-        return(document.cookie.match('(^|; )'+name+'=([^;]*)')||0)[2];
+    function _getCookie(name) {
+        return (document.cookie.match('(^|; )' + name + '=([^;]*)') || 0)[2];
     }
 
     function _getNgModuleInject(module, injectName) {
@@ -97,7 +97,7 @@
 })();
 
 angular.module('greyscale.core')
-    .provider('i18n', function i18nProvider(){
+    .provider('i18n', function i18nProvider() {
         var _locale,
             _locales,
             _languages,
@@ -163,7 +163,7 @@ angular.module('greyscale.core')
             }]
         };
     })
-    .run(function(uibDatepickerPopupConfig, $locale, i18n){
+    .run(function (uibDatepickerPopupConfig, $locale, i18n) {
 
         _resolveNgLocaleLoading();
 
@@ -188,7 +188,7 @@ angular.module('greyscale.core')
                 delete(window.i18nNgLocaleLoaded);
                 return;
             }
-            var loop = setInterval(function(){
+            var loop = setInterval(function () {
                 if (window.i18nNgLocaleLoaded) {
                     delete(window.i18nNgLocaleLoaded);
                     clearInterval(loop);
@@ -202,5 +202,4 @@ angular.module('greyscale.core')
                 newLocale = injector.get('$locale');
             angular.extend($locale, newLocale);
         }
-    })
-;
+    });
