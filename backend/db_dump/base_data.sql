@@ -299,13 +299,13 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 10, true);
 
 INSERT INTO "Roles" VALUES (1, 'admin', true);
 INSERT INTO "Roles" VALUES (2, 'client', true);
+INSERT INTO "Roles" VALUES (3, 'user', true);
 INSERT INTO "Roles" VALUES (4, 'reviewer', false);
 INSERT INTO "Roles" VALUES (5, 'translator', false);
 INSERT INTO "Roles" VALUES (8, 'decider', false);
 INSERT INTO "Roles" VALUES (9, 'project manager', false);
 INSERT INTO "Roles" VALUES (10, 'research director', false);
 INSERT INTO "Roles" VALUES (11, 'researcher', false);
-INSERT INTO "Roles" VALUES (3, 'user', true);
 
 SELECT pg_catalog.setval('"role_id_seq"', 12, true);
 
@@ -345,7 +345,9 @@ SELECT pg_catalog.setval('"Languages_id_seq"', 10, true);
 -- Dependencies: 192
 -- Data for Name: Rights; Type: TABLE DATA; Schema: public; Owner: postgres
 --
-
+INSERT INTO "Rights" VALUES (16, 'rights_view_all', 'Can see list of all rights', NULL);
+INSERT INTO "Rights" VALUES (17, 'rights_add_one', 'Can add rights', NULL);
+INSERT INTO "Rights" VALUES (18, 'rights_view_one', 'Can see one right', NULL);
 INSERT INTO "Rights" VALUES (19, 'rights_delete_one', 'Can delete one right', NULL);
 INSERT INTO "Rights" VALUES (20, 'rights_edit_one', 'Can edit one right', NULL);
 INSERT INTO "Rights" VALUES (24, 'users_view_all', 'Can view list of all users', NULL);
@@ -363,16 +365,15 @@ INSERT INTO "Rights" VALUES (36, 'organizations_delete_one', 'Can delete an Orga
 INSERT INTO "Rights" VALUES (37, 'organizations_edit_one', 'Can edit an Organization', NULL);
 INSERT INTO "Rights" VALUES (38, 'unitofanalysis_insert_one', 'Can add a Unit of Analysis', NULL);
 INSERT INTO "Rights" VALUES (39, 'uoataglink_insert_one', 'Can add a Unit of Analysis tag link', NULL);
-INSERT INTO "Rights" VALUES (40, 'product_uoa', NULL, NULL);
+INSERT INTO "Rights" VALUES (40, 'users_uoa', 'Can assign units of analysis to user', NULL);
+INSERT INTO "Rights" VALUES (40, 'product_uoa', 'Can get product uoa', 4);
 INSERT INTO "Rights" VALUES (80, 'role_rights_view_one', NULL, NULL);
 INSERT INTO "Rights" VALUES (81, 'role_rights_add', NULL, NULL);
 INSERT INTO "Rights" VALUES (82, 'role_rights_delete', NULL, NULL);
 INSERT INTO "Rights" VALUES (125, 'product_select', 'Can select products', 4);
 INSERT INTO "Rights" VALUES (126, 'product_update', 'Can update products', 4);
 INSERT INTO "Rights" VALUES (127, 'product_delete', 'Can delete products', 4);
-INSERT INTO "Rights" VALUES (16, 'rights_view_all', 'Can see list of all rights', NULL);
-INSERT INTO "Rights" VALUES (18, 'rights_view_one', 'Can see one right', NULL);
-INSERT INTO "Rights" VALUES (17, 'rights_add_one', 'Can add rights', NULL);
+
 
 
 --
@@ -405,7 +406,6 @@ INSERT INTO "RolesRights" VALUES (1, 82);
 INSERT INTO "RolesRights" VALUES (1, 125);
 INSERT INTO "RolesRights" VALUES (1, 126);
 INSERT INTO "RolesRights" VALUES (1, 127);
-INSERT INTO "RolesRights" VALUES (2, 129);
 INSERT INTO "RolesRights" VALUES (2, 24);
 INSERT INTO "RolesRights" VALUES (2, 16);
 
