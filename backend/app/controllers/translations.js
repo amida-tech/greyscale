@@ -24,7 +24,7 @@ module.exports = {
     },
 
     selectByParams: function (req, res, next) {
-        var q = Translations.select().from(Translations).where(req.params);
+        var q = Translations.select().from(Translations).where(_.pick(req.params,['essenceId','entityId']));
         query(q, function (err, data) {
             if (err) {
                 return next(err);
