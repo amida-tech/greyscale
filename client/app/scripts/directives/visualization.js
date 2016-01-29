@@ -130,7 +130,7 @@ angular.module('greyscaleApp')
                   }
                 });
               }
-              if(scope.filterForm.subtopicSelected){
+              if(scope.filterForm.subtopicSelected.subtopic){
                 var subtopicObj = scope.filterForm.subtopicSelected;
                 if(subtopicObj.subtopic.name==="Continent"){
                   if(row.continent==subtopicObj.category.isoa2){
