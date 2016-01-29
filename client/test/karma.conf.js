@@ -48,7 +48,9 @@ module.exports = function(config) {
       'bower_components/plotly.js/dist/plotly.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-translate/angular-translate.js',
-      'bower_components/clusterize/clusterize.js',
+      'bower_components/pivottable/dist/pivot.js',
+      'bower_components/d3/d3.js',
+      'bower_components/c3/c3.js',
       // endbower
       "app/greyscale.core/scripts/greyscale.core.js",
       "app/greyscale.core/**/*.js",

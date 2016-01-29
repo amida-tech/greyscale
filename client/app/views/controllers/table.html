@@ -1,12 +1,7 @@
 <div class="row">
     <div class="col-md-12">
-            <table ng-table="tableParams" class="table table-condensed table-bordered table-striped" show-filter="true">
-                <tr ng-repeat="d in $data">
-                    <td title="'Country'" filter="{ country: 'text'}" sortable="'name'">
-                        {{d.country}}</td>
-                    <td title="'Score'" filter="{ score: 'number'}" sortable="'score'">
-                        {{d.score}}</td>
-                </tr>
-            </table>
+        
+        <div id="pivotTable"></div>
+        
     </div>
 </div>

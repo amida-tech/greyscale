@@ -10,39 +10,33 @@
 
 'use strict';
 
-angular.module('greyscaleApp').controller('TableCtrl', function ($scope, NgTableParams) {
+angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http) {
 
-    $scope.data = [{
-        'country': 'United States',
-        'value': 'B',
-        'score': 20
-    }, {
-        'country': 'Canada',
-        'value': 'B',
-        'score': 21
-    }, {
-        'country': 'Australia',
-        'value': 'B',
-        'score': 22
-    }, {
-        'country': 'United Kingdom',
-        'value': 'A',
-        'score': 23
-    }, {
-        'country': 'Mexico',
-        'value': 'C',
-        'score': 24
-    }, {
-        'country': 'Argentina',
-        'value': 'C',
-        'score': 25
-    }];
+    var renderers = $.extend(
+        $.pivotUtilities.renderers,
+        $.pivotUtilities.c3_renderers,
+        $.pivotUtilities.d3_renderers,
+        $.pivotUtilities.export_renderers
+    );
 
-    $scope.tableParams = new NgTableParams({
-        count: $scope.data.length // hides pager
-    }, {
-        counts: [], // hides page sizes
-        data: $scope.data
-    });
-    
+    var config = {
+        rows: [],
+        cols: [],
+        renderers: renderers,
+        rendererName: 'Table'
+    };
+
+    var request = $http.get('scripts/controllers/resources/mps.json')
+        .success(function (data) {
+
+            $('#pivotTable').pivotUI(
+                data,
+                config
+            );
+
+        })
+        .error(function (err) {
+            console.log(err);
+        });
+
 });
