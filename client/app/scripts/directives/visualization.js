@@ -244,6 +244,12 @@ angular.module('greyscaleApp')
           }); 
         };
 
+        scope.resetFilters = function(){
+          scope.filterForm.topicSelected = "";
+          scope.filterForm.subtopicSelected = "";
+          scope.filterForm.$setPristine();
+        }
+
         scope.$watch('vizData', function (newVal, oldVal){
           if(newVal!==oldVal){
             applyFilters(scope.vizData, function(result){
