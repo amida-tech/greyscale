@@ -1,118 +1,150 @@
 'use strict';
 
 angular.module('greyscaleApp')
-  .directive('mapViz', function ($window, $http, greyscaleSurveySrv){
-    return {
-      restrict: 'E',
-      templateUrl: 'views/directives/visualization.html',
-      //no isolate scope for data binding, all data moved from controller to directive
-      link: function(scope, element, attrs){
-        //Load geo coordinates and data
-        var request = $http.get("scripts/directives/resources/doingbiz_agg.json")
-          .success(function(viz_data) {
-            scope.vizData = viz_data.agg;
-            console.log(scope.vizData);
+    .directive('mapViz', function ($window, $http, greyscaleSurveySrv) {
+        return {
+            restrict: 'E',
+            templateUrl: 'views/directives/visualization.html',
+            //no isolate scope for data binding, all data moved from controller to directive
+            link: function (scope, element, attrs) {
+                //Load geo coordinates and data
+                var request = $http.get('scripts/directives/resources/doingbiz_agg.json')
+                    .success(function (vizData) {
+                        scope.vizData = vizData.agg;
 
-            var countrySet = new Set(); //account for same country/multi-year duplicates
-            viz_data.agg.forEach(function(row){
-              countrySet.add({"name":row.country, "isoa2":row.isoa2});
-            });
-            scope.topics = [...countrySet];
-            console.log(scope.topics);
-            return viz_data.agg;
-          })
-          .error(function(err) {
-            console.log(err);
-          });
+                        var countrySet = new Set(); //account for same country/multi-year duplicates
+                        vizData.agg.forEach(function (row, index) {
+                            countrySet.add({
+                                'name': row.country,
+                                'isoa2': row.isoa2,
+                                'id': index
+                            });
+                        });
+                        scope.topics = [...countrySet];
+                        return vizData.agg;
+                    })
+                    .error(function (err) {
+                        console.log(err);
+                    });
 
-        //Defaults for UI
-        scope.minDate = new Date(2015, 1, 1);
-        scope.maxDate = new Date(2016, 1, 1);
-        scope.open1 = function() {
-          scope.popup1.opened = true;
-        };
-        scope.popup1 = { opened: false};
-        scope.open2 = function() {
-          scope.popup2.opened = true;
-        };
-        scope.popup2 = { opened: false};
+                //Defaults for UI
+                scope.minDate = new Date(2015, 1, 1);
+                scope.maxDate = new Date(2016, 1, 1);
+                scope.open1 = function () {
+                    scope.popup1.opened = true;
+                };
+                scope.popup1 = {
+                    opened: false
+                };
+                scope.open2 = function () {
+                    scope.popup2.opened = true;
+                };
+                scope.popup2 = {
+                    opened: false
+                };
+                //Mocked survey data --> look @ Mike's format
+                scope.users = ['user1', 'user2', 'user3'];
 
-        //Mocked survey data --> look @ Mike's format
-        scope.users = ["user1", "user2", "user3"];
+                scope.filterForm.topicSelected = [];
 
-        scope.surveys = [
-          {
-            "qid":"1234",
-            "text":"question1"
-          },
-          {
-            "qid":"5678",
-            "text":"question2"
-          } 
-        ];
+                scope.surveys = [{
+                    'qid': '1234',
+                    'text': 'question1'
+                }, {
+                    'qid': '5678',
+                    'text': 'question2'
+                }];
 
-        scope.filterOptions = {
-          subtopics : [
-            {
-              "id":"3333",
-              "name":"Income"
-            },
-            {
-              "id":"424",
-              "name":"Region" //allow for user-specified region mapping
-            },
-            {
-              "id":"111",
-              "name":"Continent"
-            }
-          ],
-          continents : [
-            {
-              "name":"Africa",
-              "isoa2":"AF"
-            },
-            {
-              "name":"Europe",
-              "isoa2":"EU"
-            },
-            {
-              "name":"North America",
-              "isoa2":"NA"
-            },
-            {
-              "name":"Asia",
-              "isoa2":"AS",
-            },
-            {
-              "name":"South America",
-              "isoa2":"SA"
-            },
-            {
-              "name":"Australia",
-              "isoa2":"AU"
-            },
-            {
-              "name":"Antartica",
-              "isoa2":"AQ"
-            }
-          ],
-          //TODO: pull official groupings (incomes+regions) from somewhere
-          incomeLevels : [
-            {
-              "name":"Low-income",
-              "countries":["AF","DZ"]
-            },
-            {
-              "name":"Middle-income",
-              "countries": ["AZ","MX"]
-            },
-            {
-              "name":"High-income",
-              "countries":["US","FR","DE"]
-            }
-          ],
-          regions : []
-        };
+                scope.filterOptions = {
+                    subtopics: [{
+                        'id': '3333',
+                        'name': 'Income'
+                    }, {
+                        'id': '424',
+                        'name': 'Region' //allow for user-specified region mapping
+                    }, {
+                        'id': '111',
+                        'name': 'Continent'
+                    }],
+                    continents: [{
+                        'name': 'Africa',
+                        'isoa2': 'AF'
+                    }, {
+                        'name': 'Europe',
+                        'isoa2': 'EU'
+                    }, {
+                        'name': 'North America',
+                        'isoa2': 'NA'
+                    }, {
+                        'name': 'Asia',
+                        'isoa2': 'AS',
+                    }, {
+                        'name': 'South America',
+                        'isoa2': 'SA'
+                    }, {
+                        'name': 'Australia',
+                        'isoa2': 'AU'
+                    }, {
+                        'name': 'Antartica',
+                        'isoa2': 'AQ'
+                    }],
+                    //TODO: pull official groupings (incomes+regions) from somewhere
+                    incomeLevels: [{
+                        'name': 'Low-income',
+                        'countries': ['AF', 'DZ']
+                    }, {
+                        'name': 'Middle-income',
+                        'countries': ['AZ', 'MX']
+                    }, {
+                        'name': 'High-income',
+                        'countries': ['US', 'FR', 'DE']
+                    }],
+                    regions: []
+                };
+
+                function applyFilters(data, callback) {
+                    console.log('in applyFilters');
+                    if ((scope.filterForm.$pristine) || (scope.topicSelected === null && scope.subtopicSelected === null)) {
+                        console.log('in if block');
+                        callback(scope.vizData);
+                    } else {
+                        console.log('in else block');
+                        var filteredVizData = [];
+                        scope.vizData.forEach(function (row) {
+                            if (scope.filterForm.topicSelected) {
+                                console.log('topicSelected block');
+                                scope.filterForm.topicSelected.forEach(function (topic) {
+                                    if (topic.isoa2 === row.isoa2) {
+                                        filteredVizData.push(row);
+                                    }
+                                });
+                            }
+                            if (scope.filterForm.subtopicSelected) {
+                                var subtopicObj = scope.filterForm.subtopicSelected;
+                                switch (subtopicObj.subtopic.name) {
+                                case 'Continent':
+                                    if (row.continent === subtopicObj.category.isoa2) {
+                                        filteredVizData.push(row);
+                                    }
+                                    break;
+                                case 'Income':
+                                    if (subtopicObj.category.countries.indexOf(row.isoa2) > -1) {
+                                        filteredVizData.push(row);
+                                    }
+                                    break;
+                                case 'Region':
+                                    if (subtopicObj.category.countries.indexOf(row.isoa2) > -1) {
+                                        filteredVizData.push(row);
+                                    }
+                                    break;
+                                default:
+                                    break;
+                                }
+                            }
+                        });
+                        callback(filteredVizData);
+                    }
+                }
 
         
         function applyFilters(data, callback){
