@@ -32,14 +32,16 @@
     </select>
   </div>
   <div ng-show="filterForm.subtopicSelected.subtopic.name == 'Continent'" class="form-group ng-hide" style="margin: 5px;">
-    <label for="continentDropdown"> Continent </label>
-    <select class="form-control" id="continentDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="ct as ct.name for ct in filterOptions.continents track by ct.isoa2">
+    <label for="continentDropdown" ng-if="filterForm.$valid"> Continent* </label>
+    <label for="continentDropdown" ng-if="filterForm.$invalid" style="color:red;"> Continent* </label>
+    <select ng-required="filterForm.subtopicSelected.subtopic.name == 'Continent'" class="form-control" id="continentDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="ct as ct.name for ct in filterOptions.continents track by ct.isoa2">
       <option value="" selected>--Choose Continent--</option>
     </select>
   </div>
   <div ng-show="filterForm.subtopicSelected.subtopic.name == 'Income'" class="form-group ng-hide" style="margin: 5px;">
-    <label for="incomeDropdown"> Income Level </label>
-    <select class="form-control" id="incomeDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="lvl as lvl.name for lvl in filterOptions.incomeLevels">
+    <label for="incomeDropdown" ng-if="filterForm.$valid"> Income Level* </label>
+    <label for="incomeDropdown" ng-if="filterForm.$invalid" style="color:red;"> Income Level* </label>
+    <select ng-required="filterForm.subtopicSelected.subtopic.name == 'Income'" class="form-control" id="incomeDropdown" ng-model="filterForm.subtopicSelected.category" ng-options="lvl as lvl.name for lvl in filterOptions.incomeLevels">
       <option value="" selected>--Choose Income Level--</option>
     </select>
   </div>
