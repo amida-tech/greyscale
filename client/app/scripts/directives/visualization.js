@@ -245,9 +245,14 @@ angular.module('greyscaleApp')
         };
 
         scope.resetFilters = function(){
-          scope.filterForm.topicSelected = "";
-          scope.filterForm.subtopicSelected = "";
+          scope.filterForm.userSelected="";
+          scope.filterForm.variableSelected ="rank";
+          scope.filterForm.topicSelected = [];
+          scope.filterForm.subtopicSelected.subtopic = "";
+          scope.filterForm.subtopicSelected.category = "";
+          scope.filterForm.questionSelected="";
           scope.filterForm.$setPristine();
+          scope.drawMap();
         }
 
         scope.$watch('vizData', function (newVal, oldVal){
