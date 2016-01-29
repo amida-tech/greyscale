@@ -63,7 +63,7 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(RoleRights.insert(req.params));
+            var result = yield thunkQuery(RoleRights.insert(_.pick(req.params,RoleRights.table._initialConfig.columns)));
 
             return result;
         }).then(function (data) {
