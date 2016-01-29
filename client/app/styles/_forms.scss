@@ -16,3 +16,9 @@
     right: 2em;
     cursor: pointer;
 }
+
+.translation-form {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
