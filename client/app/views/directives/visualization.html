@@ -22,9 +22,8 @@
         item-label="name"
         tick-property="selected"
         style="display: inline-block; z-index: 1002; position: relative;"></div>
-    <!--select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2">
-      <option value="" selected>Choose Topic</option>
-    </select-->
+    <!--select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2"-->
+    </select>
   </div>
   <div class="form-group" style="margin: 5px;">
     <label for="subtopicDropdown"> Subtopic </label>
@@ -68,6 +67,6 @@
     <label for="mapQueryInput"> Custom Query: </label>
     <input class="form-control" placeholder="question1:yes" ng-model="filterForm.mapQuery" id="mapQueryInput"></input>
   </div>
-  <button type="submit" class="btn btn-default" click="renderMap()">Submit</button>
+  <button type="submit" class="btn btn-success" ng-click="drawMap()">Submit</button>
   <div id="mapViz"></div>
 </ng-form>
