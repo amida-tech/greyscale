@@ -7,7 +7,7 @@ angular.module('greyscale.core')
         var menu = {
             title: 'greyscale',
             groups: [{
-                title: 'Administration',
+                title: 'NAV.ADMIN_SECTION',
                 items: [{
                     state: 'access',
                     icon: 'fa-compass'
@@ -31,7 +31,7 @@ angular.module('greyscale.core')
                     icon: 'fa-fast-forward'
                 }]
             }, {
-                title: 'Your Content',
+                title: 'NAV.CONTENT_SECTION',
                 items: [{
                     state: 'profile',
                     icon: 'fa-user'

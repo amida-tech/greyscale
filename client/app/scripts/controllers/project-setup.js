@@ -12,19 +12,19 @@ angular.module('greyscaleApp')
 
         $scope.tabs = [{
             state: 'roles',
-            title: 'User Roles',
+            title: 'NAV.PROJECTS.USER_ROLES',
             icon: 'fa-users'
         }, {
             state: 'surveys',
-            title: 'Surveys',
+            title: 'NAV.PROJECTS.SURVEYS',
             icon: 'fa-list'
         }, {
             state: 'products',
-            title: 'Products',
+            title: 'NAV.PROJECTS.PRODUCTS',
             icon: 'fa-briefcase'
         }, {
             state: 'tasks',
-            title: 'Tasks',
+            title: 'NAV.PROJECTS.TASKS',
             icon: 'fa-tasks'
         }];
 
