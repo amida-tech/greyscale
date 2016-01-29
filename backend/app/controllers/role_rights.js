@@ -19,7 +19,7 @@ module.exports = {
             var _counter = thunkQuery(
                 RoleRights
                     .select(RoleRights.count('counter'))
-                    .where(req.params.roleID)
+                    .where(RoleRights.roleID.equals(req.params.roleID))
                 , _.omit(req.query, 'offset', 'limit', 'order')
             );
             var roleRight = thunkQuery(
@@ -29,7 +29,7 @@ module.exports = {
                         RoleRights.leftJoin(Rights)
                         .on(RoleRights.rightID.equals(Rights.id))
                     )
-                    .where(req.params.roleID)
+                    .where(RoleRights.roleID.equals(req.params.roleID))
                 , req.query);
 
             return yield [_counter, roleRight];
