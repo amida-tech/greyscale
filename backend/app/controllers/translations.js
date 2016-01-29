@@ -35,8 +35,7 @@ module.exports = {
                 Translations
                     .select()
                     .from(Translations)
-                    .where(_.pick(req.params,['essenceId','entityId'])
-                )
+                    .where(_.pick(req.params,['essenceId','entityId']))
                 , _.omit(req.query, 'offset', 'limit', 'order')
             );
         }).then(function(data){
