@@ -21,7 +21,9 @@
         max-height="300px"
         item-label="name"
         tick-property="selected"
-        style="display: inline-block; z-index: 1002; position: relative;"></div>
+        style="display: inline-block; z-index: 1002; position: relative;"
+        class="topicSelectedState"></div>
+    <input type="text" ng-model="filterForm.topicSelected" style="display:none"/>
     <!--select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2"-->
     </select>
   </div>

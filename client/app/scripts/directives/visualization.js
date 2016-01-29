@@ -264,6 +264,15 @@ angular.module('greyscaleApp')
             }); 
           }
         });
+
+        //Validation of topics ng-multi-select dropdown
+        scope.$watch('filterForm.topicSelected', function(newVal, oldVal){
+         if (newVal.length <= 0) {
+              $(".topicSelectedState").removeClass("ng-dirty");
+          } else {
+            $(".topicSelectedState").addClass("ng-dirty");
+          }
+        });
       }
     }
   });
