@@ -239,9 +239,11 @@ angular.module('greyscaleApp')
         }
 
         scope.drawMap = function(){ 
-          applyFilters(scope.vizData, function (result){
-            renderMap(result);
-          }); 
+          if(scope.filterForm.$valid){
+            applyFilters(scope.vizData, function (result){
+              renderMap(result);
+            }); 
+          }
         };
 
         scope.resetFilters = function(){
