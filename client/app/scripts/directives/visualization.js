@@ -11,33 +11,21 @@ angular.module('greyscaleApp')
                 var request = $http.get('scripts/directives/resources/doingbiz_agg.json')
                     .success(function (vizData) {
                         scope.vizData = vizData.agg;
-                        console.log(scope.vizData);
 
                         var countrySet = new Set(); //account for same country/multi-year duplicates
-                        vizData.agg.forEach(function (row) {
+                        vizData.agg.forEach(function (row, index) {
                             countrySet.add({
                                 'name': row.country,
-                                'isoa2': row.isoa2
+                                'isoa2': row.isoa2,
+                                'id': index
                             });
                         });
                         scope.topics = [...countrySet];
-                        console.log(scope.topics);
                         return vizData.agg;
                     })
                     .error(function (err) {
                         console.log(err);
                     });
-
-                //ng-dropdown-multiselect extr-settings
-                scope.multiDropdownSettings = {
-                    dynamicTitle: false,
-                    enableSearch: true,
-                    scrollable: true,
-                    scrollableHeight: '200px',
-                    displayProp: 'name',
-                    idProp: 'name',
-                    externalIdProp: ''
-                };
 
                 //Defaults for UI
                 scope.minDate = new Date(2015, 1, 1);
@@ -56,6 +44,8 @@ angular.module('greyscaleApp')
                 };
                 //Mocked survey data --> look @ Mike's format
                 scope.users = ['user1', 'user2', 'user3'];
+
+                scope.filterForm.topicSelected = [];
 
                 scope.surveys = [{
                     'qid': '1234',
@@ -176,7 +166,6 @@ angular.module('greyscaleApp')
                 }
 
                 function renderMap(plotData) {
-                    console.log(plotData);
 
                     function unpackData(rows, key) {
                         return rows.map(function (row) {
@@ -184,9 +173,6 @@ angular.module('greyscaleApp')
                         });
                     }
                     var plotVar = (scope.filterForm.variableSelected) ? scope.filterForm.variableSelected : 'rank';
-                    console.log(plotVar);
-
-                    //var titleObj = formatTitles();
 
                     var mapData = [{
                         type: 'choropleth',
@@ -197,7 +183,7 @@ angular.module('greyscaleApp')
                         autocolorscale: true,
                         colorbar: {
                             title: 'Rank',
-                            //thickness: 0.75,
+                            thickness: 7,
                             len: 0.75,
                             xpad: 30
                         }
@@ -209,7 +195,7 @@ angular.module('greyscaleApp')
                             projection: {
                                 type: 'mercator'
                             },
-                            //resolution: '50',
+                            resolution: '50',
                             showframe: false,
                             showcoastlines: false
                         },

@@ -21,7 +21,7 @@
     "plotly.js": "~1.4.1",
     "d3": "~3.5.13",
     "d3plus": "~1.8.0",
-    "angularjs-dropdown-multiselect": "~1.5.2"
+    "isteven-angular-multiselect": "^4.0.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"
