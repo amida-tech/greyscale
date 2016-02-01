@@ -649,14 +649,14 @@ module.exports = function (grunt) {
             }
         },
 
-        compress: {
-            main: {
-                options: {
-                    archive: 'latest-client.zip'
-                },
-                src: 'Dockerrun.aws.json'
-            }
-        },
+        // compress: {
+        //     main: {
+        //         options: {
+        //             archive: 'latest-client.zip'
+        //         },
+        //         src: 'Dockerrun.aws.json'
+        //     }
+        // },
 
         awsebtdeploy: {
             options: {
