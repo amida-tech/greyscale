@@ -315,7 +315,7 @@ SELECT pg_catalog.setval('"role_id_seq"', 12, true);
 -- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "Users" VALUES (1, 125, 'no@mail.net', 'test', 'admin', '2d97fa50e82fb50e883dfd491565f276349eed70dbf0ed0c188b051018ede809', NULL, NULL, NULL, NULL, '2015-12-02 12:38:37.214467+00', '2015-12-21 12:41:35.45101', true, NULL, NULL);
+-- INSERT INTO "Users" VALUES (1, 125, 'no@mail.net', 'test', 'admin', '2d97fa50e82fb50e883dfd491565f276349eed70dbf0ed0c188b051018ede809', NULL, NULL, NULL, NULL, '2015-12-02 12:38:37.214467+00', '2015-12-21 12:41:35.45101', true, NULL, NULL);
 
 SELECT pg_catalog.setval('"user_id_seq"', 200, true);
 
@@ -366,7 +366,7 @@ INSERT INTO "Rights" VALUES (37, 'organizations_edit_one', 'Can edit an Organiza
 INSERT INTO "Rights" VALUES (38, 'unitofanalysis_insert_one', 'Can add a Unit of Analysis', NULL);
 INSERT INTO "Rights" VALUES (39, 'uoataglink_insert_one', 'Can add a Unit of Analysis tag link', NULL);
 INSERT INTO "Rights" VALUES (40, 'users_uoa', 'Can assign units of analysis to user', NULL);
-INSERT INTO "Rights" VALUES (40, 'product_uoa', 'Can get product uoa', 4);
+INSERT INTO "Rights" VALUES (41, 'product_uoa', 'Can get product uoa', 4);
 INSERT INTO "Rights" VALUES (80, 'role_rights_view_one', NULL, NULL);
 INSERT INTO "Rights" VALUES (81, 'role_rights_add', NULL, NULL);
 INSERT INTO "Rights" VALUES (82, 'role_rights_delete', NULL, NULL);

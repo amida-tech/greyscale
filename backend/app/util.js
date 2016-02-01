@@ -86,7 +86,6 @@ exports.Query = function () {
                 
                 var q = queryObject.toQuery();
                 q.text = q.text.replace(/proto_amida/g,schema);
-                console.log(q);
                 
                 client.query(q, function (err, result) {
                     client.end();

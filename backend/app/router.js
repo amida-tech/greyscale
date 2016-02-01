@@ -381,4 +381,13 @@ router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//Admin Functions
+//----------------------------------------------------------------------------------------------------------------------
+var Data = require('app/controllers/data');
+
+router.route('/admin/v0.2/realms')
+    .post(authenticate('token').always, checkRight('schema_create'), Data.instantiate);
+
+
+//----------------------------------------------------------------------------------------------------------------------
 module.exports = router;

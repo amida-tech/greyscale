@@ -109,7 +109,6 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-        	//XXX: Am I I missing something?  This looks recursive
             return yield insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(_.first(data));
