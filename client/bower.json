@@ -20,6 +20,7 @@
     "ng-table": "~0.8.3",
     "plotly.js": "~1.4.1",
     "angular-mocks": "~1.4.8",
+    "isteven-angular-multiselect": "^4.0.0",
     "angular-translate": "~2.9.0",
     "pivottable": "^2.0.2",
     "c3": "^0.4.10",
@@ -46,8 +47,9 @@
     }
   },
   "resolutions": {
-    "angular": "^1.4.0",
+    "angular": "1.4.9",
     "d3": "3.5.0",
-    "font-awesome": "~4.5.0"
+    "font-awesome": "~4.5.0",
+    "lodash": "^3.10.1"
   }
 }

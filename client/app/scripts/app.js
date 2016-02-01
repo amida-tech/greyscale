@@ -23,6 +23,7 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
+    'isteven-multi-select',
     'pascalprecht.translate'
 ]);
 
