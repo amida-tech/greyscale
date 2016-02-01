@@ -6,6 +6,8 @@
 angular.module('greyscale.tables')
     .factory('greyscaleWorkflowStepsTbl', function ($q, greyscaleModalsSrv, greyscaleUtilsSrv, greyscaleWorkflowStepsApi) {
 
+        var tns = 'WORKFLOW_STEPS.';
+
         var recDescr = [{
             field: 'id',
             show: true,
@@ -17,13 +19,13 @@ angular.module('greyscale.tables')
             field: 'title',
             show: true,
             sortable: false,
-            title: 'Title',
+            title: tns + 'TITLE',
             dataFormat: 'text'
         }, {
             field: 'description',
             show: true,
             sortable: false,
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             dataFormat: 'textarea'
         }, {
             field: '',
@@ -42,14 +44,14 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
-            formTitle: 'Workflow Step',
-            title: 'Workflow Steps',
+            formTitle: tns + 'ITEM',
+            title: tns + 'HEADER',
             icon: 'fa-fast-forward',
             pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
+                title: 'COMMON.CREATE',
                 handler: _editWorkflow
             }
         };

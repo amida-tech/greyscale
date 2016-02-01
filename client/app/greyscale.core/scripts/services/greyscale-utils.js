@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleUtilsSrv', function (_, greyscaleGlobals, greyscaleRolesSrv, $log, inform) {
+    .factory('greyscaleUtilsSrv', function (_, greyscaleGlobals, greyscaleRolesSrv, $log, inform, $translate) {
 
         return {
             decode: _decode,
@@ -46,6 +46,13 @@ angular.module('greyscale.core')
             }
         }
 
+        function showErr(msg) {
+            $log.debug(msg);
+            inform.add(msg, {
+                type: 'danger'
+            });
+        }
+
         function addErrMsg(err, prefix) {
             var msg = prefix ? prefix + ': ' : '';
             if (err) {
@@ -58,10 +65,11 @@ angular.module('greyscale.core')
                 } else {
                     msg += err;
                 }
-                $log.debug(msg);
-                inform.add(msg, {
-                    type: 'danger'
-                });
+                $translate(msg)
+                    .then(showErr)
+                    .catch(function () {
+                        showErr(msg);
+                    });
             }
         }
 

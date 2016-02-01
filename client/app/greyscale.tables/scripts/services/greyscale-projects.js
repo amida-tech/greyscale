@@ -6,7 +6,9 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
         greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv) {
+        greyscaleModalsSrv, greyscaleUtilsSrv, i18n) {
+
+        var tns = 'PROJECTS.';
 
         var dicts = {
             matrices: [],
@@ -27,7 +29,7 @@ angular.module('greyscale.tables')
             field: 'organizationId',
             show: _isSuperAdmin,
             sortable: 'organizationId',
-            title: 'Organization',
+            title: tns + 'ORGANIZATION',
             dataFormat: 'option',
             dataReadOnly: 'edit',
             dataHide: _isNotSuperAdmin,
@@ -40,26 +42,26 @@ angular.module('greyscale.tables')
             field: 'codeName',
             show: true,
             sortable: 'codeName',
-            title: 'Code Name',
+            title: tns + 'CODE_NAME',
             dataRequired: true
         }, {
             field: 'description',
             show: false,
             sortable: false,
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             dataFormat: 'textarea'
         }, {
             field: 'created',
             dataFormat: 'date',
             show: true,
             sortable: 'created',
-            title: 'Created',
+            title: tns + 'CREATED',
             dataReadOnly: 'both'
         }, {
             field: 'matrixId',
             show: false,
             sortable: 'matrixId',
-            title: 'Access matrix',
+            title: tns + 'ACCESS_MATRIX',
             dataFormat: 'option',
             dataSet: {
                 getData: getMatrices,
@@ -71,12 +73,12 @@ angular.module('greyscale.tables')
             dataFormat: 'date',
             show: true,
             sortable: 'startTime',
-            title: 'Start Time'
+            title: tns + 'START_TIME'
         }, {
             field: 'status',
             show: true,
             sortable: 'status',
-            title: 'Status',
+            title: tns + 'STATUS',
             dataFormat: 'option',
             dataSet: {
                 getData: getStatus,
@@ -100,7 +102,7 @@ angular.module('greyscale.tables')
             dataFormat: 'date',
             show: true,
             sortable: 'closeTime',
-            title: 'Close Time'
+            title: tns + 'CLOSE_TIME'
         }, {
             field: '',
             title: '',
@@ -118,14 +120,14 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
-            formTitle: 'Project',
-            title: 'Projects',
+            formTitle: tns + 'ITEM',
+            title: tns + 'HEADER',
             icon: 'fa-paper-plane',
             pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
+                title: 'COMMON.CREATE',
                 handler: _editProject
             }
         };

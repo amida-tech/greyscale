@@ -7,6 +7,8 @@ angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi, greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi) {
 
+        var tns = 'PRODUCTS.WORKFLOW.STEPS.';
+
         var _dicts = {
             roles: []
         };
@@ -14,12 +16,12 @@ angular.module('greyscale.tables')
         var recDescr = [{
             field: 'title',
             show: true,
-            title: 'Title',
+            title: tns + 'TITLE',
             dataRequired: true,
             dataFormat: 'text'
         }, {
             field: 'step.roleId',
-            title: 'Role',
+            title: tns + 'ROLE',
             showDataInput: true,
             dataFormat: 'option',
             dataSet: {
@@ -29,12 +31,12 @@ angular.module('greyscale.tables')
             }
         }, {
             field: 'step.startDate',
-            title: 'Start Date',
+            title: tns + 'START_DATE',
             showDataInput: true,
             dataFormat: 'date'
         }, {
             field: 'step.endDate',
-            title: 'End Date',
+            title: tns + 'END_DATE',
             showDataInput: true,
             dataFormat: 'date'
         }, {
@@ -44,7 +46,7 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
-            title: 'Product Workflow Steps',
+            title: tns + 'PRODUCT_WORKFLOW_STEPS',
             icon: 'fa-fast-forward',
             pageLength: 10,
             cols: recDescr,

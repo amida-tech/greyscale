@@ -1,0 +1,159 @@
+{
+    "BRAND": {
+        "SLOGAN": "Turn knowledge into data."
+    },
+    "COMMON": {
+        "ADD": "Add",
+        "APPLY": "Apply",
+        "ASSIGN": "Assign",
+        "CANCEL": "Cancel",
+        "CLOSE": "Close",
+        "CREATE": "Create",
+        "EDIT": "Edit",
+        "FURTHER": "Further",
+        "SAVE": "Save"
+    },
+    "DATEPICKER": {
+        "DATE_FORMAT": "yyyy/MM/dd",
+        "DONE": "Done",
+        "PLACEHOLDER": "YYYY/MM/DD",
+        "RESET": "Reset",
+        "TODAY": "Today"
+    },
+    "FORMS": {
+        "FIELD_REQUIRED": "This field is required.",
+        "WRONG_DATE_FORMAT": "Wrong date format"
+    },
+    "GLOBALS": {
+        "PROJECTSTATES": {
+            "ABANDONED": "Abandoned",
+            "COMPLETED": "Completed",
+            "IN_FLIGHT": "In-flight",
+            "SUSPENDED": "Suspended",
+            "WAITING": "Waiting"
+        },
+        "UOASTATUS": {
+            "ACTIVE": "Active",
+            "DELETED": "Deleted",
+            "INACTIVE": "Inactive"
+        },
+        "UOAVISIBILITY": {
+            "PRIVATE": "Private",
+            "PUBLIC": "Public"
+        },
+        "USERROLES": {
+            "CONTRIBUTOR": "Contributor",
+            "DECIDER": "Decider",
+            "EDITOR": "Editor",
+            "PROJECT_MANAGER": "Project Manager",
+            "RESEARCHER": "Researcher",
+            "RESEARCH_DIRECTOR": "Research Director",
+            "REVIEWER": "Reviewer",
+            "TRANSLATOR": "Translator"
+        }
+    },
+    "LOGIN": {
+        "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
+        "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
+        "EMAIL": "E-m@il",
+        "FORGOT_PASSWORD": "Forgot password...",
+        "LOGIN_REQUIRED": "Login is required.",
+        "PASSWORD": "Password",
+        "PASSWORD_REQUIRED": "Password is required.",
+        "SIGN_IN": "Sign in"
+    },
+    "NAV": {
+        "ACCESS_MANAGEMENT": "Access management",
+        "ACTIVATE": "Activate",
+        "ADMIN_SECTION": "Administration",
+        "CONTENT_SECTION": "Your Content",
+        "FORM_BUILDER": "Form Builder",
+        "HOME": "Home",
+        "LOGIN": "Login",
+        "LOGOUT": "Logout",
+        "MESSAGES": "Messages",
+        "ORGANIZATIONS": "Organizations",
+        "PROFILE": "Profile",
+        "PROJECTS": {
+            "PRODUCTS": "Products",
+            "SURVEYS": "Surveys",
+            "TASKS": "Tasks",
+            "USER_ROLES": "User Roles"
+        },
+        "PROJECTS_MANAGEMENT": "Projects Management",
+        "REGISTER": "Register",
+        "UOAS": "Units of Analysis",
+        "USERS": "Users",
+        "USERS_UOAS": "Users units of analysis",
+        "VISUALIZATION": "Visualization",
+        "WORKFLOW_STEPS": "Workflow Steps"
+    },
+    "PRODUCTS": {
+        "TABLE": {
+            "DESCRIPTION": "Description",
+            "PRODUCT": "Product",
+            "SURVEY": "Survey",
+            "TITLE": "Title",
+            "UOAS": "UoAs",
+            "WORKFLOW": "Workflow"
+        },
+        "WORKFLOW": {
+            "DESCRIPTION": "Description",
+            "DESCRIPTION_REQUIRED": "Description is required.",
+            "STEPS": {
+                "END_DATE": "End Date",
+                "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
+                "ROLE": "Role",
+                "START_DATE": "Start Date",
+                "TITLE": "Title"
+            },
+            "STEPS_FOR": "Workflow Steps <small>For \"{{product}}\" Product</small>",
+            "TITLE": "Title",
+            "TITLE_REQUIRED": "Title is required."
+        }
+    },
+    "PROJECTS": {
+        "ACCESS_MATRIX": "Access matrix",
+        "CLOSE_TIME": "Close Time",
+        "CODE_NAME": "Code Name",
+        "CREATED": "Created",
+        "DESCRIPTION": "Description",
+        "HEADER": "Projects",
+        "ITEM": "Project",
+        "ORGANIZATION": "Organization",
+        "PROJECT": "Project",
+        "PROJECTS": "Projects",
+        "ROLES": {
+            "ITEM": "Project Role",
+            "ROLE": "Role",
+            "USER": "User"
+        },
+        "START_TIME": "Start Time",
+        "STATUS": "Status"
+    },
+    "SURVEYS": {
+        "DESCRIPTION": "Description",
+        "FIELDS": "Fields",
+        "ITEM": "Survey",
+        "NAME": "Name",
+        "VIEW": "View"
+    },
+    "TABLES": {
+        "LOADING_DATA": "Loading Data...",
+        "NO_DATA": "No data",
+        "SELECT_ALL_TITLE": "Check/Uncheck All"
+    },
+    "TRANSLATION": {
+        "REQUIRED": {
+            "LANG": "Laguage required",
+            "VALUE": "Translation required"
+        },
+        "TITLE": "Translations"
+    },
+    "WORKFLOW_STEPS": {
+        "DESCRIPTION": "Description",
+        "HEADER": "Workflow Steps",
+        "ITEM": "Workflow Step",
+        "TITLE": "Title"
+    }
+}
