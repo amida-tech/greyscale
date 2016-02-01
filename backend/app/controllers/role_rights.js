@@ -16,8 +16,21 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            var _counter = thunkQuery(RoleRights.select(RoleRights.count('counter')).where(req.params), _.omit(req.query, 'offset', 'limit', 'order'));
-            var roleRight = thunkQuery(RoleRights.select(Rights.star()).from(RoleRights.leftJoin(Rights).on(RoleRights.rightID.equals(Rights.id))).where(req.params), req.query);
+            var _counter = thunkQuery(
+                RoleRights
+                .select(RoleRights.count('counter'))
+                .where(RoleRights.roleID.equals(req.params.roleID)),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
+            var roleRight = thunkQuery(
+                RoleRights
+                .select(Rights.star())
+                .from(
+                    RoleRights.leftJoin(Rights)
+                    .on(RoleRights.rightID.equals(Rights.id))
+                )
+                .where(RoleRights.roleID.equals(req.params.roleID)),
+                req.query);
 
             return yield [_counter, roleRight];
         }).then(function (data) {
@@ -29,7 +42,7 @@ module.exports = {
     },
     insertOne: function (req, res, next) {
         co(function* () {
-            var isExists = yield thunkQuery(RoleRights.select().where(req.params));
+            var isExists = yield thunkQuery(RoleRights.select().where(_.pick(req.params, ['roleID', 'rightID'])));
             if (_.first(isExists)) {
                 throw new HttpError(403, 106);
             }
@@ -50,7 +63,7 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(RoleRights.insert(req.params));
+            var result = yield thunkQuery(RoleRights.insert(_.pick(req.params, RoleRights.table._initialConfig.columns)));
 
             return result;
         }).then(function (data) {
@@ -62,7 +75,7 @@ module.exports = {
     },
     deleteOne: function (req, res, next) {
         query(
-            RoleRights.delete().where(req.params),
+            RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID'])),
             function (err) {
                 if (!err) {
                     res.status(204).end();

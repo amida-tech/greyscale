@@ -32,7 +32,7 @@ module.exports = {
 
     },
     selectOne: function (req, res, next) {
-        query(Role.select().where(req.params), function (err, role) {
+        query(Role.select().where(_.pick(req.params, ['id'])), function (err, role) {
             if (!err) {
                 res.json(_.first(role));
             } else {

@@ -4,6 +4,7 @@ var
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
+    Survey = require('app/models/surveys'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     UOA = require('app/models/uoas'),
@@ -88,7 +89,9 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProductData(req);
-            var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
+            var result = yield thunkQuery(
+                Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id)
+            );
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -187,15 +190,22 @@ module.exports = {
 
 function* checkProductData(req) {
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !req.body.projectId) {
+        if (!req.body.projectId) {
             throw new HttpError(403, 'Matrix id and Project id fields are required');
         }
     }
 
-    if (req.body.matrixId) {
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-        if (!_.first(isExistMatrix)) {
-            throw new HttpError(403, 'Matrix with this id does not exist');
+    //if (req.body.matrixId) {
+    //    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+    //    if (!_.first(isExistMatrix)) {
+    //        throw new HttpError(403, 'Matrix with this id does not exist');
+    //    }
+    //}
+
+    if (req.body.surveyId) {
+        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
+        if (!_.first(isExistSurvey)) {
+            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
         }
     }
 

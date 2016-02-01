@@ -14,29 +14,51 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
-        var q = Translations.select().from(Translations);
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* () {
+            return yield thunkQuery(
+                Translations
+                .select()
+                .from(Translations),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
+
+        }).then(function (data) {
             res.json(data);
+        }, function (err) {
+            next(err);
         });
     },
 
     selectByParams: function (req, res, next) {
-        var q = Translations.select().from(Translations).where(req.params);
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* () {
+            return yield thunkQuery(
+                Translations
+                .select()
+                .from(Translations)
+                .where(_.pick(req.params, ['essenceId', 'entityId'])),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
+        }).then(function (data) {
             res.json(data);
+        }, function (err) {
+            next(err);
         });
+
     },
 
     editOne: function (req, res, next) {
         var q = Translations.update({
             'value': req.body.value
-        }).where(req.params);
+        }).where(
+            _.pick(
+                req.params, [
+                    'essenceId',
+                    'entityId',
+                    'langId',
+                    'field'
+                ]
+            )
+        );
         query(q, function (err, data) {
             if (err) {
                 return next(err);
@@ -46,7 +68,14 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = Translations.delete().where(req.params);
+        var q = Translations.delete().where(_.pick(
+            req.params, [
+                'essenceId',
+                'entityId',
+                'langId',
+                'field'
+            ]
+        ));
         query(q, function (err, data) {
             if (err) {
                 return next(err);
@@ -91,7 +120,7 @@ module.exports = {
                 throw new HttpError(403, 'Cannot find model file: ' + EssenceOne.fileName);
             }
             if (typeof model.translate === 'undefined' || model.translate.indexOf(req.body.field) === -1) {
-                throw new HttpError(400, 'Field "' + req.body.field + '" in ' + model._name + ' is not tranlstable');
+                throw new HttpError(400, 'Field "' + req.body.field + '" in ' + model._name + ' is not translatable');
             }
 
             var Entity = yield thunkQuery(model.select().where(model.id.equals(req.body.entityId)));

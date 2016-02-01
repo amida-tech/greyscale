@@ -1,27 +1,46 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span>
-    </button>
-    <h3 class="modal-title">Translation</h3>
-</div>
-<div class="modal-body" translate-namespace="TRANSLATION">
+<div translate-namespace="TRANSLATION">
+    <div class="modal-header">
+        <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span>
+        </button>
+        <h3 class="modal-title" translate=".TITLE"></h3>
+    </div>
+    <div class="modal-body">
+        <div name="transForm" class="form-horizontal translation-form" ng-form="transForm">
+            <div class="form-group" ng-repeat="item in model.translations">
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="trn_{{$index}}" translation-input="$index"
+                           ng-model="item.value"
+                           ng-required="true" ng-minlength="1">
 
-    <div name="dataForm" class="form" ng-form="dataForm">
-
-        <div class="form-group" ng-repeat="item in model.translations">
-            <input type="text" class="form-control" name="name"
-                   ng-model="item.value"
-                   ng-required="true" ng-minlength="1">
-
-            <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
-                 ng-if="dataForm.name.$dirty">
+                </div>
+                <div class="col-sm-2">
+                    <select class="form-control"
+                            name="lng_{{$index}}"
+                            ng-options="lng.id as lng.code for lng in model.languages | languages : model.translations : $index"
+                            ng-model="item.langId"
+                            ng-required="true"></select>
+                </div>
+                <div class="text-center" ng-messages="transForm['trn_'+$index].$error" role="alert"
+                     ng-if="transForm['trn_'+$index].$dirty">
                 <span ng-message="required, minlength" class="help-block"><span
-                    translate=".TITLE_REQUIRED"></span></span>
+                    translate=".REQUIRED.VALUE"></span></span>
+                </div>
+                <div class="text-center" ng-messages="transForm['lng_'+$index].$error" role="alert"
+                     ng-if="transForm['lng_'+$index].$dirty">
+                <span ng-message="required, minlength" class="help-block"><span
+                    translate=".REQUIRED.LANG"></span></span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2 col-sm-offset-10 text-right">
+                <button class="btn btn-default" ng-click="add()" translate="COMMON.ADD"></button>
             </div>
         </div>
     </div>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !this.dataForm.$dirty" ng-click="save()"
-            translate="COMMON.SAVE"></button>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
+        <button class="btn btn-primary" ng-disabled="(transForm.$invalid || !transForm.$dirty) && model.translations.length === model.originalTrn.length" ng-click="save()"
+                translate="COMMON.SAVE"></button>
+    </div>
 </div>

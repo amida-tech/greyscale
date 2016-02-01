@@ -5,9 +5,10 @@ var columns = [
     'title',
     'description',
     'projectId',
-    'matrixId',
-    'originalLangId'
-    //'workflowId'
+    'originalLangId',
+    'workflowId',
+    'surveyId'
+    //'matrixId',
     //'productConfigId',
     //'contentType',
     //'mode',
@@ -15,10 +16,10 @@ var columns = [
     //'analyticsUrl'
 ];
 
-//var translate = [
-//	'title',
-//	'description'
-//];
+var translate = [
+    'title',
+    'description'
+];
 
 var Product = sql.define({
     name: 'Products',
@@ -27,6 +28,6 @@ var Product = sql.define({
 
 Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId'];
 
-//Product.translate = translate;
+Product.translate = translate;
 
 module.exports = Product;
