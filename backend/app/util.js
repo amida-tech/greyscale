@@ -143,7 +143,7 @@ exports.getTranslateQuery = function (langId, model, condition) {
     if ((typeof model.translate !== 'undefined')) {
         var translate = model.translate;
         from = from
-            .leftJoin(Essence).on(Essence.tableName.equals(model._name)); // Join Essence Table
+        .leftJoin(Essence).on(Essence.tableName.equals(model._name)); // Join Essence Table
 
         for (var i in model.table.columns) {
             if (model.translate.indexOf(model.table.columns[i].name) === -1) {

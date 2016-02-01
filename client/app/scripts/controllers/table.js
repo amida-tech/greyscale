@@ -10,6 +10,8 @@
 
 'use strict';
 
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+
 angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http) {
 
     var renderers = $.extend(

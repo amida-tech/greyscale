@@ -15,5 +15,4 @@ angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, 
     $scope.model = {
 
     };
-  });
-
+});

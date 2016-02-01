@@ -287,6 +287,10 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
+                exclude: [
+                    'bower_components/plotly.js/dist/plotly.min.js',
+                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
+                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -653,7 +657,7 @@ module.exports = function (grunt) {
                             build: { /* extra options to docker build   */ },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
-                            stop: {  /* extra options to docker stop   */ },
+                            stop: { /* extra options to docker stop   */ },
                             kill: { /* extra options to docker kill    */ },
                             logs: { /* extra options to docker logs    */ },
                             pause: { /* extra options to docker pause   */ },
