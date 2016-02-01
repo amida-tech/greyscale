@@ -29,12 +29,21 @@ angular.module('greyscale.rest')
         }
 
         function _add(body) {
-            return _api().customPOST(body);
+            if (body.mock) {
+                return _api().one('mock').customPOST(body);
+            } else {
+                return _api().customPOST(body);
+            }
         }
 
         function _edit(body) {
             if (body.essenceId && body.entityId && body.langId) {
-                return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').customPUT(body);
+                if (body.mock) {
+                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '',
+                        'mock').customPUT(body);
+                } else {
+                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').customPUT(body);
+                }
             } else {
                 $q.reject('inconsistent translation body');
             }
@@ -42,7 +51,11 @@ angular.module('greyscale.rest')
 
         function _del(body) {
             if (body.essenceId && body.entityId && body.langId) {
-                return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').remove();
+                if (body.mock) {
+                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '', 'mock').remove();
+                } else {
+                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').remove();
+                }
             } else {
                 $q.reject('inconsistent translation body');
             }
