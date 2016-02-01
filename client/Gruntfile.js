@@ -27,7 +27,7 @@ module.exports = function (grunt) {
         app: require('./bower.json').appPath || 'app',
         dist: 'dist'
     };
-    
+
     var dockerConfig = {
         ca: '',
         cert: '',
@@ -517,7 +517,7 @@ module.exports = function (grunt) {
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
             },
-<<<<<<< HEAD
+
             docker: {
                 expand: true,
                 cwd: '',
@@ -527,27 +527,7 @@ module.exports = function (grunt) {
             dev: {
                 src: 'dev-Dockerrun.aws.json',
                 dest: 'Dockerrun.aws.json',
-            },
-            stage: {
-                src: 'staging-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            prod: {
-                src: 'prod-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-=======
-            // docker: {
-            //     expand: true,
-            //     cwd: '',
-            //     dest: 'app/greyscale.core/scripts/config/',
-            //     src: 'greyscale-env.js'
-            // },
-            // dev: {
-            //     src: 'dev-Dockerrun.aws.json',
-            //     dest: 'Dockerrun.aws.json',
-            // }
->>>>>>> Map viz rendering with mocked ifc data
+            }
         },
 
         // Run some tasks in parallel to speed up the build process
@@ -620,25 +600,24 @@ module.exports = function (grunt) {
             }
         },
 
-<<<<<<< HEAD
         dock: {
             options: {
                 docker: {
-                    // docker connection
-                    // See Dockerode for options
+                    // docker connection 
+                    // See Dockerode for options 
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option
-                // The command will look like 'grunt dock:build'
+                // It is possible to define images in the 'default' grunt option 
+                // The command will look like 'grunt dock:build' 
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker
+                    'amidatech/greyscale-client': { // Name to use for Docker 
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
-                            stop: { /* extra options to docker stop    */ },
+                            stop: {  extra options to docker stop     },
                             kill: { /* extra options to docker kill    */ },
                             logs: { /* extra options to docker logs    */ },
                             pause: { /* extra options to docker pause   */ },
@@ -656,53 +635,11 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.key
+                        key: dockerConfig.pem
                     }
                 }
             }
         },
-=======
-        // dock: {
-        //     options: {
-        //         docker: {
-        //             // docker connection 
-        //             // See Dockerode for options 
-        //             socketPath: '/var/run/docker.sock'
-        //         },
-
-        //         // It is possible to define images in the 'default' grunt option 
-        //         // The command will look like 'grunt dock:build' 
-        //         images: {
-        //             'amidatech/greyscale-client': { // Name to use for Docker 
-        //                 dockerfile: './',
-        //                 options: {
-        //                     build: { /* extra options to docker build   */ },
-        //                     create: { /* extra options to docker create  */ },
-        //                     start: { /* extra options to docker start   */ },
-        //                     stop: {  extra options to docker stop     },
-        //                     kill: { /* extra options to docker kill    */ },
-        //                     logs: { /* extra options to docker logs    */ },
-        //                     pause: { /* extra options to docker pause   */ },
-        //                     unpause: { /* extra options to docker unpause */ }
-        //                 }
-        //             }
-        //         }
-        //     },
-        //     osx: {
-        //         options: {
-        //             docker: {
-        //                 protocol: 'https',
-        //                 host: '192.168.99.100',
-        //                 port: '2376',
-
-        //                 ca: dockerConfig.ca,
-        //                 cert: dockerConfig.cert,
-        //                 key: dockerConfig.pem
-        //             }
-        //         }
-        //     }
-        // },
->>>>>>> Map viz rendering with mocked ifc data
 
         // Test settings
         karma: {
@@ -712,14 +649,14 @@ module.exports = function (grunt) {
             }
         },
 
-        // compress: {
-        //     main: {
-        //         options: {
-        //             archive: 'latest-client.zip'
-        //         },
-        //         src: 'Dockerrun.aws.json'
-        //     }
-        // },
+        compress: {
+            main: {
+                options: {
+                    archive: 'latest-client.zip'
+                },
+                src: 'Dockerrun.aws.json'
+            }
+        },
 
         awsebtdeploy: {
             options: {
@@ -810,17 +747,17 @@ module.exports = function (grunt) {
         'build'
     ]);
 
-    // grunt.registerTask('buildDocker', [
-    //     'copy:docker',
-    //     'build',
-    //     'dock:build'
-    // ]);
+    grunt.registerTask('buildDocker', [
+        'copy:docker',
+        'build',
+        'dock:build'
+    ]);
 
-    // grunt.registerTask('buildDockerMac', [
-    //     'copy:docker',
-    //     'build',
-    //     'dock:osx:build'
-    // ]);
+    grunt.registerTask('buildDockerMac', [
+        'copy:docker',
+        'build',
+        'dock:osx:build'
+    ]);
 
     grunt.registerTask('buildEnv', [
         'ngconstant:env',

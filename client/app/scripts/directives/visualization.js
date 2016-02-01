@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-  .directive('mapViz', function ($window, $http, greyscaleSurveySrv) {
+  .directive('mapViz', function ($window, $http, greyscaleSurveyApi) {
     return {
       restrict: 'E',
       templateUrl: 'views/directives/visualization.html',
@@ -113,14 +113,11 @@ angular.module('greyscaleApp')
           //Handles case when data has not been narrowed, only variable changed
           //length==0 because topicSelected ng-multi-select not registering as dirty (TODO)
           if(scope.filterForm.$pristine && scope.filterForm.topicSelected.length==0){
-            console.log("in if");
             callback(scope.vizData);
             
           } else if (scope.filterForm.subtopicSelected==null && scope.filterForm.topicSelected.length==0){
-            console.log("in else if");
             callback(scope.vizData);
           } else {
-            console.log("in else");
             var filteredVizData =[];
             scope.vizData.forEach(function(row){
               if(scope.filterForm.topicSelected){
@@ -172,7 +169,6 @@ angular.module('greyscaleApp')
                                 "usa" : scope.topicSelected.continent;
             //Multiple countries - check from same continent
             } else {
-              console.log("checking if all same continent");
               var continentCode = String(topicArray[0].continent);
               var allSameContinent = topicArray.every(function(currentTopic){
                 return String(currentTopic.continent)==continentCode;
@@ -181,7 +177,6 @@ angular.module('greyscaleApp')
                 var fullContinentName = scope.filterOptions.continents.filter(function(cont){
                   return (cont.isoa2==continentCode);
                 });
-                console.log(fullContinentName);
                 params.geoScope = fullContinentName[0].name.toLowerCase();
               }
             }
