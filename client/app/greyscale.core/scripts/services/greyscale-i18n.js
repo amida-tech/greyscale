@@ -111,7 +111,6 @@ angular.module('greyscale.core')
             };
 
         function _init(translateProvider) {
-
             if (typeof window.I18N !== 'object') {
                 throw 'Expected global I18N object!';
             }

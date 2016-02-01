@@ -47,7 +47,9 @@ module.exports = function(config) {
       'bower_components/angular-messages/angular-messages.js',
       'bower_components/angular-inform/dist/angular-inform.js',
       'bower_components/ng-table/dist/ng-table.min.js',
+      'bower_components/plotly.js/dist/plotly.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/isteven-angular-multiselect/isteven-multi-select.js',
       'bower_components/angular-translate/angular-translate.js',
       'bower_components/pivottable/dist/pivot.js',
       'bower_components/d3/d3.js',
@@ -84,13 +86,13 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      "PhantomJS"
+      "Chrome"
     ],
 
     // Which plugins to enable
     plugins: [
       "karma-spec-reporter",
-      "karma-phantomjs-launcher",
+      "karma-chrome-launcher",
       "karma-jasmine"
     ],
 
