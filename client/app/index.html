@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
     <link rel="stylesheet" href="bower_components/angular-inform/dist/angular-inform.css" />
     <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.min.css" />
+    <link rel="stylesheet" href="bower_components/pivottable/dist/pivot.css" />
+    <link rel="stylesheet" href="bower_components/c3/c3.css" />
     <!-- endbower -->
     <!-- endbuild -->
     <!-- build:css(.tmp) styles/main.css -->
@@ -56,8 +58,16 @@
 <script src="bower_components/plotly.js/dist/plotly.min.js"></script>
 <script src="bower_components/angular-mocks/angular-mocks.js"></script>
 <script src="bower_components/angular-translate/angular-translate.js"></script>
+<script src="bower_components/pivottable/dist/pivot.js"></script>
+<script src="bower_components/d3/d3.js"></script>
+<script src="bower_components/c3/c3.js"></script>
 <!-- endbower -->
 <!-- endbuild -->
+
+<!-- extra rendering code for pivot tables -->
+<script src="bower_components/pivottable/dist/c3_renderers.min.js"></script>
+<script src="bower_components/pivottable/dist/d3_renderers.min.js"></script>
+<script src="bower_components/pivottable/dist/export_renderers.min.js"></script>
 
 <!-- build:js({.tmp,app}) scripts/rdash-angular.js -->
 <script src="vendors/rdash/module.js"></script>
@@ -172,6 +182,7 @@
 <script src="scripts/controllers/survey.js"></script>
 <script src="scripts/controllers/visualization.js"></script>
 <script src="scripts/controllers/graph.js"></script>
+<script src="scripts/controllers/table.js"></script>
 <script src="scripts/controllers/users-uoa.js"></script>
 <script src="scripts/controllers/workflow-steps.js"></script>
 <script src="scripts/controllers/home.js"></script>

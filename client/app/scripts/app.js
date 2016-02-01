@@ -297,6 +297,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('table', {
+            parent: 'home',
+            url: 'table',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/table.html',
+                    controller: 'TableCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                isPublic: false
+            }
+        })
         .state('usersUoa', {
             parent: 'home',
             url: 'users-uoa',
