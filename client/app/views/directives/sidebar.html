@@ -6,10 +6,10 @@
                 class="menu-icon glyphicon glyphicon-transfer"></span></a>
         </li>
         <li class="sidebar-title" ng-repeat-start="group in menu.groups">
-            <span class="text-uppercase">{{group.title}}</span>
+            <span class="text-uppercase">{{group.title|translate}}</span>
         </li>
         <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
-            <a ui-sref="{{item.sref}}">{{item.title}} <span class="menu-icon fa {{item.icon}}"></span></a>
+            <a ui-sref="{{item.sref}}">{{item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
         </li>
         <li class="sidebar-list">
             <a ui-sref="survey">Surveys <span class="menu-icon fa fa-list"></span></a>
@@ -20,7 +20,10 @@
         <li class="sidebar-list">
             <a ui-sref="graph">Graphs <span class="menu-icon fa fa-bar-chart"></span></a>
         </li>
+        <li class="sidebar-list">
+            <a ui-sref="table">Tables <span class="menu-icon fa fa-table"></span></a>
+        </li>
     </ul>
     <div class="sidebar-footer"></div>
-    </div>
+</div>
 <!-- End Sidebar -->

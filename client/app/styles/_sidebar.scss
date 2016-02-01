@@ -1,0 +1,58 @@
+ul.sidebar {
+    .sidebar-title {
+        line-height: 1.4;
+        height: auto;
+        padding: 20px 20px 5px 20px;
+        text-indent: 0;
+    }
+    .sidebar-list {
+        height: auto;
+        position: relative;
+        a, a:hover {
+            float: none;
+            display: block;
+            padding: 11px 45px 11px 25px;
+            line-height: 1.4;
+            text-indent: 0;
+            &:hover {
+                padding-left: 22px;
+            }
+            .menu-icon {
+                float: none;
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                line-height: 100%;
+                padding: 14px 18px;
+                width: 50px;
+                text-indent: 0;
+            }
+        }
+    }
+    .sidebar-main .menu-icon {
+        padding-right: 15px;
+    }
+}
+#page-wrapper:not(.open) ul.sidebar {
+    .sidebar-list {
+        a, a:hover {
+            padding-right: 70px;
+            height: 40px;
+            overflow: hidden;
+            .menu-icon {
+                text-indent: 8px;
+                width: 70px;
+                padding: 13px 18px;
+            }
+        }
+        a:hover {
+            .menu-icon {
+                text-indent: 5px;
+            }
+        }
+    }
+    .sidebar-main .menu-icon {
+        padding-right: 28px;
+    }
+}

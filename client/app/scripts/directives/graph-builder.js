@@ -5,7 +5,7 @@
 
 angular
     .module('greyscaleApp')
-    .directive('graphBuilder', function ($window, greyscaleSurveySrv, _) {
+    .directive('graphBuilder', function ($window, greyscaleSurveyApi, _) {
         return {
             templateUrl: 'views/directives/graph-builder.html',
             restrict: 'E',
@@ -49,7 +49,7 @@ angular
                 /*
                  * Service calls
                  */
-                greyscaleSurveySrv.list().then(function (data) {
+                greyscaleSurveyApi.list().then(function (data) {
                     scope.surveys = data;
                 });
 

@@ -73,6 +73,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _translationForm(translation) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/translation-form.html',
+                controller: 'ModalTranslationCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    translation: translation
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             editCountry: function (_country) {
@@ -90,6 +102,7 @@ angular.module('greyscaleApp')
             editSurvey: function (_right, _ext) {
                 return _simpleLargeForm('views/modals/survey-form.html', _right, _ext);
             },
+            editTranslations: _translationForm,
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
             productWorkflow: _productWorkflow

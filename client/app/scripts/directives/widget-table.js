@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter) {
+    .directive('widgetTable', function (_, NgTableParams, $filter, i18n) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -19,6 +19,8 @@ angular.module('greyscaleApp')
                 } else {
                     $scope.model.current = null;
                 }
+
+                _translateParams($scope.model);
 
                 if (!$scope.model.tableParams || !($scope.model.tableParams instanceof NgTableParams)) {
 
@@ -58,19 +60,6 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.select = function (row, e) {
-
-                    //if ($scope.model.multiselect) {
-                    //    var target = angular.element(e.target);
-                    //    var disabled = $scope.isDisabled(row);
-                    //    if (target.hasClass('multiselect-checkbox')) {
-                    //        return true;
-                    //    } else if (disabled) {
-                    //        e.preventDefault();
-                    //        e.stopPropagation();
-                    //        return;
-                    //    }
-                    //}
-
                     $scope.model.current = row;
                     if (typeof $scope.rowSelector === 'function') {
                         $scope.rowSelector(row);
@@ -95,6 +84,13 @@ angular.module('greyscaleApp')
             return map;
         }
 
+        function _translateParams(table) {
+            var params = ['formTitle', 'title'];
+            angular.forEach(params, function (param) {
+                table[param] = i18n.translate(table[param]);
+            });
+        }
+
         function _parseColumns(model) {
             angular.forEach(model.cols, function (col) {
                 if (col.multiselect) {
@@ -103,6 +99,7 @@ angular.module('greyscaleApp')
                 if (col.actions) {
                     col['class'] = 'header-actions';
                 }
+                col.title = i18n.translate(col.title);
             });
         }
 

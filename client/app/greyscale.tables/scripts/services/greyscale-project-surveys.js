@@ -4,16 +4,18 @@ angular.module('greyscale.tables')
         greyscaleProjectApi, greyscaleModalsSrv,
         $rootScope, greyscaleUtilsSrv, inform, $log, $location) {
 
+        var tns = 'SURVEYS.';
+
         var _cols = [{
             field: 'name',
-            title: 'Name',
+            title: tns + 'NAME',
             show: true,
             sortable: 'name',
             dataRequired: true,
             dataFormat: 'text'
         }, {
             field: 'description',
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             show: true,
             dataRequired: false,
             dataFormat: 'text'
@@ -23,11 +25,11 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: 'View',
+                title: tns + 'VIEW',
                 class: 'info',
                 handler: _viewSurvey
             }, {
-                title: 'Fields',
+                title: tns + 'FIELDS',
                 class: 'info',
                 handler: _editSurveyFields
             }, {
@@ -50,9 +52,9 @@ angular.module('greyscale.tables')
             },
             dataPromise: _getData,
             dataFilter: {},
-            formTitle: 'Survey',
+            formTitle: tns + 'ITEM',
             add: {
-                title: 'add',
+                title: 'COMMON.CREATE',
                 handler: _editSurvey
             }
         };
@@ -72,7 +74,7 @@ angular.module('greyscale.tables')
 
         function _editSurvey(survey) {
             var op = 'editing';
-            _table.formSaveButton = survey && survey.id ? null : 'Next';
+            _table.formSaveButton = survey && survey.id ? null : 'COMMON.FURTHER';
             greyscaleModalsSrv.editRec(survey, _table)
                 .then(function (newSurvey) {
                     if (newSurvey.id) {
