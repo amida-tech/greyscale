@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
                 rowSelector: '=',
                 classes: '@class'
             },
-            link: function(scope, el){
+            link: function (scope, el) {
                 el.removeAttr('class');
             },
             controller: function ($scope) {

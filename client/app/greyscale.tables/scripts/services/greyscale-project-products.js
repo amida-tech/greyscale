@@ -166,7 +166,7 @@ angular.module('greyscale.tables')
         }
 
         function _editProductTasks(product) {
-            $state.go('projects.setup.tasks',{
+            $state.go('projects.setup.tasks', {
                 productId: product.id,
                 product: product
             });

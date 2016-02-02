@@ -17,7 +17,7 @@ angular.module('greyscale.rest')
                 product: {
                     name: 'SOS'
                 },
-                step:  {
+                step: {
                     id: 3,
                     title: 'Think twice!!',
                     description: 'keep calm and relax',
@@ -36,7 +36,7 @@ angular.module('greyscale.rest')
                 product: {
                     name: '!@#$%^&*'
                 },
-                step:  {
+                step: {
                     id: 4,
                     title: 'Watch your step',
                     description: 'try walk in my shoes',
@@ -49,7 +49,7 @@ angular.module('greyscale.rest')
             }];
 
             return api().get(params)
-                .catch(function(){
+                .catch(function () {
                     return $q.when(mock);
                 });
         }

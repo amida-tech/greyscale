@@ -181,7 +181,10 @@ angular.module('greyscale.tables')
         }
 
         function getData() {
-            return greyscaleEntityTypeApi.list({name: 'projects',fields: 'id'})
+            return greyscaleEntityTypeApi.list({
+                    name: 'projects',
+                    fields: 'id'
+                })
                 .then(function (types) {
                     _table.dataFilter.essenceId = types[0].id;
 

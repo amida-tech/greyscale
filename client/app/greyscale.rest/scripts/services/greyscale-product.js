@@ -32,7 +32,7 @@ angular.module('greyscale.rest')
         function _uoasList(productId) {
             return function (params) {
                 return _productUoasApi(productId).get(params)
-                    .catch(function(){
+                    .catch(function () {
                         return $q.when([{
                             id: 1,
                             shortName: 'pjbphjnjnj',

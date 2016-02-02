@@ -38,7 +38,6 @@ angular.module('greyscaleApp')
                 $state.go('home');
             });
 
-
         _onStateChange(function (state) {
             if (state.name === _parentState) {
                 $scope.go(_getDefaultState());
