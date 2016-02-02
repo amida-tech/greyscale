@@ -42,7 +42,7 @@
 
     function _injectL10N() {
         var locale = getLocale();
-        _injectScript('l10n/' + locale + '.js', function(){
+        _injectScript('l10n/' + locale + '.js', function () {
             if (!window.L10N) {
                 throw 'Expected global L10N object!';
             }
