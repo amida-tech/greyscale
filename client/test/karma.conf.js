@@ -47,6 +47,7 @@ module.exports = function(config) {
       'bower_components/ng-table/dist/ng-table.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-translate/angular-translate.js',
+      'bower_components/angular-file-upload/dist/angular-file-upload.min.js',
       // endbower
       "app/scripts/**/*.js",
 //      "test/mock/**/*.js",

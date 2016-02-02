@@ -23,7 +23,8 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'angularFileUpload'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -297,17 +298,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
-        .state('translation', {
+        .state('the-wall', {
             parent: 'home',
-            url: 'translation',
+            url: 'the-wall',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/translation.html',
-                    controller: 'TranslationCtrl'
+                    templateUrl: 'views/controllers/the-wall.html',
+                    controller: 'TheWallCtrl'
                 }
             },
             data: {
-                name: 'Translation page'
+                name: 'Page with bricks'
             }
         });
 
