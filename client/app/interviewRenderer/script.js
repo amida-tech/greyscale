@@ -8,10 +8,10 @@ function getCookie(name) {
 
 var token;
 function readySurvey() {
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/surveys/' + window.location.hash.replace('#', '');
+    var url = 'http://indaba.ntrlab.ru:83/dev/v0.2/surveys/' + window.location.hash.replace('#', '') + '/questions';
     token = getCookie('token').replace('%22', '').replace('%22', '');
     $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        generateSurvey(JSON.parse(request.response.data));
+        generateSurvey(request.response);
         load();
     }).catch(function (error) {
         console.error(error);
@@ -28,7 +28,32 @@ var content;
 function generateSurvey(json) {
     survey = $('#survey');
     currentParent = survey;
-    data = json.fields;
+    var data = []
+    for (var i = 0; i < json.length; i++) {
+        var type;
+        switch (json[i].type) {
+            case 0: type = 'text'; break;
+            case 1: type = 'paragraph'; break;
+            case 2: type = 'checkbox'; break;
+            case 3: type = 'radio'; break;
+            case 4: type = 'dropdown'; break;
+            case 5: type = 'number'; break;
+            case 6: type = 'email'; break;
+            case 7: type = 'price'; break;
+            case 8: type = 'section_start'; break;
+            case 9: type = 'section_end'; break;
+            case 10: type = 'section_break'; break;
+            default: continue;
+        }
+
+        data.push({
+            cid: 'c' + json[i].id,
+            field_type: type,
+            label: json[i].label,
+            required: json[i].isRequired,
+            field_options: {}
+        });
+    }
     var contentDiv = $.create('div', { className: 'content-container compact' });
     $.start(contentDiv, survey);
     $.inside($.create('span', { contents: ['Content'], className: 'content-title' }), contentDiv);

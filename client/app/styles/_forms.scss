@@ -3,6 +3,7 @@
         margin-left: 0;
     }
 }
+
 [uib-datepicker-popup].form-control {
     min-width: 150px;
 }
@@ -21,4 +22,14 @@
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.fb-add-field-types .fb-button {
+    margin: 1% !important;
+    width: 48% !important;
+}
+
+.fb-add-field-types .fb-button[data-field-type="date"], .fb-add-field-types .fb-button[data-field-type="time"],
+.fb-add-field-types .fb-button[data-field-type="website"], .fb-add-field-types .fb-button[data-field-type="address"] {
+    display: none;
 }
