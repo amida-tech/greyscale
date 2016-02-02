@@ -1,6 +1,17 @@
 var sql = require('sql');
 
-var columns = ['id', 'userId', 'value', 'date', 'optionId', 'questionId'];
+var columns = [
+    'id',
+    'questionId',
+    'userId',
+    'value',
+    'created',
+    'optionId',
+    'productId',
+    'UOAid',
+    'wfStepId',
+    'version'
+];
 
 var SurveyAnswer = sql.define({
     name: 'SurveyAnswers',

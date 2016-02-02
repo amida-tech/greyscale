@@ -20,6 +20,10 @@
         "RESET": "Reset",
         "TODAY": "Today"
     },
+    "FILE": {
+        "CONTINUE": "Continue",
+        "SELECT": "Please select the file to upload"
+    },
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
         "WRONG_DATE_FORMAT": "Wrong date format"
@@ -73,6 +77,7 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
             "PRODUCTS": "Products",
@@ -82,6 +87,7 @@
         },
         "PROJECTS_MANAGEMENT": "Projects Management",
         "REGISTER": "Register",
+        "TASKS": "Tasks",
         "UOAS": "Units of Analysis",
         "USERS": "Users",
         "USERS_UOAS": "Users units of analysis",
@@ -92,10 +98,30 @@
         "TABLE": {
             "DESCRIPTION": "Description",
             "PRODUCT": "Product",
+            "SETTINGS": "Settings",
             "SURVEY": "Survey",
+            "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "UoAs",
             "WORKFLOW": "Workflow"
+        },
+        "TASKS": {
+            "DRAG_USER": "Drag And Drop User To Task",
+            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
+            "SEARCH_USER_LABEL": "And By Name Or E-mail",
+            "SELECT_ROLE": "Select Role ...",
+            "SELECT_ROLE_LABEL": "Search User By Role",
+            "TABLE": {
+                "TITLE": "Assigning Users To Unit Of Analysis And Workflow Step",
+                "UOAS_HEADER": "UoA",
+                "UOAS_TYPE_HEADER": "UoA Type"
+            },
+            "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
+            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\"",
+            "USERS_NOT_FOUND_BY_SEARCH": "And Matches \"{{search}}\""
+        },
+        "UOAS": {
+            "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Description",
@@ -107,7 +133,7 @@
                 "START_DATE": "Start Date",
                 "TITLE": "Title"
             },
-            "STEPS_FOR": "Workflow Steps <small>For \"{{product}}\" Product</small>",
+            "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
             "TITLE": "Title",
             "TITLE_REQUIRED": "Title is required."
         }

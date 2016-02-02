@@ -22,21 +22,30 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-
     },
 
     selectOne: function (req, res, next) {
-        var q = Survey.select().from(Survey).where(Survey.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        co(function* (){
+            var data = yield thunkQuery(
+                Survey
+                .select(Survey.star(), 'array_agg(row_to_json("SurveyQuestions".*)) as questions')
+                .from(
+                    Survey
+                    .leftJoin(SurveyQuestion)
+                    .on(Survey.id.equals(SurveyQuestion.surveyId))
+                )
+                .where(Survey.id.equals(req.params.id))
+                .group(Survey.id)
+            );
             if (_.first(data)) {
-                res.json(_.first(data));
+                return data;
             } else {
-                return next(new HttpError(404, 'Not found'));
+                throw new HttpError(404, 'Not found');
             }
-
+        }).then(function(data){
+            res.json(_.first(data));
+        },function(err){
+            next(err);
         });
     },
 

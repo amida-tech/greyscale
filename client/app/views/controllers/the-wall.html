@@ -1,13 +1,16 @@
 <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-4 brick">
         <form class="form-horizontal">
             <div class="form-group">
-                <div class="col-sm-3"><label class="control-label" for="test">test translation</label></div>
+                <div class="col-sm-3"><label class="control-label" for="test">translation</label></div>
                 <div class="col-sm-9">
                     <input id="test" ng-model="model.translation.value" class="form-control"
                            translation="model.translation"/>
                 </div>
             </div>
         </form>
+    </div>
+    <div class="col-sm-6 col-sm-offset-2 brick">
+        <upload-form upload-endpoint="/upload/nowhere"></upload-form>
     </div>
 </div>
