@@ -107,6 +107,7 @@
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
+            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
             "SEARCH_USER_LABEL": "And By Name Or E-mail",
             "SELECT_ROLE": "Select Role ...",
             "SELECT_ROLE_LABEL": "Search User By Role",
