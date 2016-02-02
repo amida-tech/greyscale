@@ -30,11 +30,26 @@ angular.module('greyscaleApp')
 
         $scope.searchUsers = function () {
             var roleId = $scope.model.selectedRole.id;
-            //var userSearch = $scope.model.searchUser;
-            $scope.model.usersSearchResult = _.filter($scope.model.usersList, {
-                role: {
-                    id: roleId
+            var userSearch = $scope.model.searchUser;
+            $scope.model.usersSearchResult = _.filter($scope.model.usersList, function(assignee){
+                if (assignee.role.id !== roleId) {
+                    return false;
                 }
+                var accept = true;
+                if (userSearch && userSearch !== '') {
+                    var user = assignee.user;
+                    accept = false;
+                    if (user.firstName.match(userSearch)) {
+                        accept = true;
+                    }
+                    if (user.lastName.match(userSearch)) {
+                        accept = true;
+                    }
+                    if (user.email.match(userSearch)) {
+                        accept = true;
+                    }
+                }
+                return accept;
             });
             $timeout(_initDragUser);
         };
@@ -155,15 +170,22 @@ angular.module('greyscaleApp')
 
             _destroyDragUser();
 
+            var target;
             $('.drag-user').draggable({
                 cursor: 'move',
                 revert: true,
-                helper: 'clone',
-                drag: function (e, ui) {
-                    ui.helper.prevObject.css('opacity', 0.5);
+                start: function(e){
+                    target = $(e.target);
                 },
-                stop: function (e, ui) {
-                    ui.helper.prevObject.css('opacity', 1);
+                helper: function(e){
+                    var el = $(e.target).clone();
+                    return el.wrap('<table class="table table-bordered"><tr></tr></table>');
+                },
+                drag: function () {
+                    target.css('opacity', 0.5);
+                },
+                stop: function () {
+                    target.css('opacity', 1);
                 }
             });
         }

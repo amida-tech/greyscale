@@ -116,7 +116,8 @@
                 "UOAS_TYPE_HEADER": ""
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
-            "USERS_NOT_FOUND_BY_ROLE": ""
+            "USERS_NOT_FOUND_BY_ROLE": "",
+            "USERS_NOT_FOUND_BY_SEARCH": ""
         },
         "UOAS": {
             "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
