@@ -23,3 +23,14 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
+
+upload-form,
+.upload-form {
+    input[type="file"] {
+        height: initial;
+    }
+    .progress {
+        margin-top: 3px;
+        margin-bottom: 10px;
+    }
+}

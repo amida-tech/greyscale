@@ -4,6 +4,7 @@ angular.module('greyscaleApp')
         return {
             templateUrl: 'views/directives/upload-form.html',
             restrict: 'AE',
+            replace: true,
             scope: {
                 uploadEndpoint: '@',
                 uploadError: '=',
