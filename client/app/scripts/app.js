@@ -176,8 +176,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.roles', {
@@ -205,11 +204,16 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('projects.setup.tasks', {
-            url: '/tasks',
-            templateUrl: 'views/controllers/project-setup-tasks.html',
-            controller: 'ProjectSetupTasksCtrl',
+            url: '/products/:productId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-tasks.html',
+                    controller: 'ProductTasksCtrl'
+                }
+            },
             data: {
-                name: 'NAV.PROJECTS.TASKS'
+                name: 'NAV.PRODUCT_TASKS',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('orgs', {
@@ -251,6 +255,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROFILE',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+            }
+        })
+        .state('tasks', {
+            parent: 'home',
+            url: 'tasks',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/my-tasks.html',
+                    controller: 'MyTasksCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.TASKS',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -335,4 +353,6 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     $rootScope.$on('login', function () {
         $state.go('home');
     });
+
+    $state.ext = {};
 });

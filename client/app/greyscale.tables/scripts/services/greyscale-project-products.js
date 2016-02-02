@@ -6,6 +6,7 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
         greyscaleProductWorkflowApi,
+        $state,
         inform) {
 
         var tns = 'PRODUCTS.TABLE.';
@@ -50,18 +51,26 @@ angular.module('greyscale.tables')
             show: true,
             dataHide: true
         }, {
-
+            title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: tns + 'WORKFLOW',
-                class: 'info',
-                handler: _editProductWorkflow
-            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
             }, {
+                title: tns + 'WORKFLOW',
+                class: 'info',
+                handler: _editProductWorkflow
+            }, {
+                title: tns + 'TASKS',
+                class: 'info',
+                handler: _editProductTasks
+            }]
+        }, {
+            show: true,
+            dataFormat: 'action',
+            actions: [{
                 title: '',
                 icon: 'fa-pencil',
                 class: 'info',
@@ -154,6 +163,13 @@ angular.module('greyscale.tables')
                     return _saveWorkflowAndSteps(product, data);
                 })
                 .then(_reload);
+        }
+
+        function _editProductTasks(product) {
+            $state.go('projects.setup.tasks',{
+                productId: product.id,
+                product: product
+            });
         }
 
         function _errHandler(err, operation) {

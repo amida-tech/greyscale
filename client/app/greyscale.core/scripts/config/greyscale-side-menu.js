@@ -35,6 +35,9 @@ angular.module('greyscale.core')
                 items: [{
                     state: 'profile',
                     icon: 'fa-user'
+                }, {
+                    state: 'tasks',
+                    icon: 'fa-tasks'
                 }]
             }]
         };

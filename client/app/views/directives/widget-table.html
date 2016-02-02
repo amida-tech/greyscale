@@ -4,8 +4,8 @@
             <button class="btn btn-default btn-xs" ng-click="model.add.handler()"><i class="fa {{model.add.icon}}" ng-show="model.add.icon"> </i>{{model.add.title|translate}}</button>
         </div>
     </rd-widget-header>
-    <div class="table-responsive widget-table">
-        <table class="table table-responsive table-hover panel" ng-table-dynamic="model.tableParams with model.cols">
+    <div class="widget-table ng-table">
+        <table class="table table-responsive panel {{::classes}}" ng-table-dynamic="model.tableParams with model.cols">
             <tr ng-repeat="row in $data" ng-click="select(row, $event)" ng-class="{selected: isSelected(row)}" ng-disabled="isDisabled(row)" propagate-disabled>
                 <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row" model-multiselect="model.multiselect"></td>
             </tr>

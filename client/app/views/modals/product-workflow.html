@@ -37,6 +37,6 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !model.productWorkflow.multiselect.selectedMap.length" ng-click="save()" translate="COMMON.SAVE"></button>
+    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()" translate="COMMON.SAVE"></button>
 </div>
 

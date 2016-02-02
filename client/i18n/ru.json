@@ -72,6 +72,7 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
             "PRODUCTS": "Продукты",
@@ -81,6 +82,7 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "TASKS": "Задачи",
         "UOAS": "Единицы анализа",
         "USERS": "Пользователи",
         "USERS_UOAS": "Пользователи и единицы анализа",
@@ -91,10 +93,28 @@
         "TABLE": {
             "DESCRIPTION": "Описание",
             "PRODUCT": "Продукт",
+            "SETTINGS": "Настройки",
             "SURVEY": "Опрос",
+            "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",
             "WORKFLOW": "Процесс"
+        },
+        "TASKS": {
+            "DRAG_USER": "",
+            "SEARCH_USER_LABEL": "",
+            "SELECT_ROLE": "",
+            "SELECT_ROLE_LABEL": "",
+            "TABLE": {
+                "TITLE": "",
+                "UOAS_HEADER": "",
+                "UOAS_TYPE_HEADER": ""
+            },
+            "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
+            "USERS_NOT_FOUND_BY_ROLE": ""
+        },
+        "UOAS": {
+            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",

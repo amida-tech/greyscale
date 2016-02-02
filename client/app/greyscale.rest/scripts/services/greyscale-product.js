@@ -29,17 +29,55 @@ angular.module('greyscale.rest')
             return api().one(productId + '').one('uoa');
         }
 
-        //function _productWorkflowApi(productId) {
-        //    return api().one(productId + '').one('workflow');
-        //}
-
         function _uoasList(productId) {
             return function (params) {
                 return _productUoasApi(productId).get(params)
-                    .catch(function () {
+                    .catch(function(){
                         return $q.when([{
                             id: 1,
-                            name: '2222'
+                            shortName: 'pjbphjnjnj',
+                            unitOfAnalysisType: 1,
+
+                        }, {
+                            id: 2,
+                            shortName: 'iyfljnluygl',
+                            unitOfAnalysisType: 1,
+
+                        }, {
+                            id: 3,
+                            shortName: 'vgftyfiygh;l',
+                            unitOfAnalysisType: 2,
+
+                        }, {
+                            id: 4,
+                            shortName: 'nbvgfkljn;',
+                            unitOfAnalysisType: 2,
+
+                        }, {
+                            id: 5,
+                            shortName: 'bvcfdeer',
+                            unitOfAnalysisType: 1,
+
+                        }, {
+                            id: 6,
+                            shortName: 'wscgbjk',
+                            unitOfAnalysisType: 3,
+
+                        }, {
+                            id: 7,
+                            shortName: 'esedftgvf',
+                            unitOfAnalysisType: 2,
+
+                        }, {
+                            id: 8,
+                            shortName: 'tfwaq',
+                            unitOfAnalysisType: 4,
+
+                        }, {
+                            id: 9,
+                            shortName: 'ddddffre',
+                            unitOfAnalysisType: 4,
+
                         }]);
                     });
             };
@@ -57,31 +95,11 @@ angular.module('greyscale.rest')
             };
         }
 
-        //function _workflowList(productId) {
-        //    return function (params) {
-        //        return _productWorkflowApi(productId).get(params)
-        //            .catch(function () {
-        //                return $q.when([{
-        //                    id: 1,
-        //                    name: '2222'
-        //                }]);
-        //            });
-        //    };
-        //}
-        //
-        //function _workflowUpdate(productId) {
-        //    return function (stepIds) {
-        //        return _productUoasApi(productId).customPOST(stepIds);
-        //    };
-        //}
-
         var _productApi = function (productId) {
             return {
                 uoasList: _uoasList(productId),
                 uoasAddBulk: _uoasAddBulk(productId),
-                uoasDel: _uoasDel(productId),
-                //workflowList: _workflowList(productId),
-                //workflowUpdate: _workflowUpdate(productId)
+                uoasDel: _uoasDel(productId)
             };
         };
 

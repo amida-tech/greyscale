@@ -67,10 +67,13 @@ angular.module('greyscaleApp')
                                 '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></textarea>';
                             break;
                         case 'date':
-                            field += '<select-date data-id="' + clmn.field + '" result="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select-date>';
-                            //if (!_embedded) {
+                            field += '<select-date data-id="' + clmn.field + '" ' +
+                                'result="modalFormFieldModel" form-field-value="$parent.dataForm.' + clmn.field + '" ' +
+                                (_embedded ? ' embedded ' : '') +
+                                'ng-required="modalFormField.dataRequired"></select-date>';
+                            if (!_embedded) {
                                 field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
-                            //}
+                            }
                             break;
                         case 'option':
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +

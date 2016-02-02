@@ -509,7 +509,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '.tmp/' + i18nConfig.l10nDir,
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
-                    src: ['*.js']
+                    src: ['**/*.*']
                 }, {
                     expand: true,
                     cwd: '.',
@@ -741,6 +741,7 @@ module.exports = function (grunt) {
         'ngtemplates',
         'concat',
         'ngAnnotate',
+        'copy:l10n',
         'i18n',
         'copy:dist',
         'copy:images',

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTableCell', function ($filter, $compile, i18n) {
+    .directive('widgetTableCell', function ($filter, $compile) {
 
         function decode(_set, dict, value) {
             var res = value;
@@ -26,7 +26,6 @@ angular.module('greyscaleApp')
                 rowValue: '=',
                 modelMultiselect: '='
             },
-            controllerAs: '',
             link: function ($scope, elem) {
                 var cell = angular.copy($scope.widgetCell);
 
@@ -80,6 +79,8 @@ angular.module('greyscaleApp')
                     default:
                         if (cell.multiselect) {
                             _compileMultiselectCell();
+                        } else if (cell.cellTemplate) {
+                            _compileCellTemplate();
                         } else {
                             _compileDefaultCell();
                         }
@@ -88,6 +89,16 @@ angular.module('greyscaleApp')
                     if (cell.link) {
                         _compileLinkCell();
                     }
+
+                    if (cell.cellClass) {
+                        elem.addClass(cell.cellClass);
+                    }
+                }
+
+                function _compileCellTemplate() {
+                    $scope.row = $scope.rowValue;
+                    elem.append(cell.cellTemplate);
+                    $compile(elem.contents())($scope);
                 }
 
                 function _compileMultiselectCell() {

@@ -4,16 +4,19 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter, i18n) {
+    .directive('widgetTable', function (_, NgTableParams, $filter, $compile, i18n) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
             scope: {
                 model: '=',
-                rowSelector: '='
+                rowSelector: '=',
+                classes: '@class'
+            },
+            link: function(scope, el){
+                el.removeAttr('class');
             },
             controller: function ($scope) {
-
                 if (typeof $scope.rowSelector === 'function') {
                     $scope.model.current = $scope.rowSelector();
                 } else {
@@ -92,14 +95,16 @@ angular.module('greyscaleApp')
         }
 
         function _parseColumns(model) {
-            angular.forEach(model.cols, function (col) {
+            angular.forEach(model.cols, function (col, i) {
                 if (col.multiselect) {
                     _setMultiselect(col, model);
                 }
                 if (col.actions) {
                     col['class'] = 'header-actions';
                 }
-                col.title = i18n.translate(col.title);
+                if (col.title) {
+                    col.title = i18n.translate(col.title);
+                }
             });
         }
 
