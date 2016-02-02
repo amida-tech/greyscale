@@ -3,7 +3,7 @@ angular.module('greyscaleApp')
     .directive('uploadForm', function () {
         return {
             templateUrl: 'views/directives/upload-form.html',
-            restrict: 'AE',
+            restrict: 'E',
             replace: true,
             scope: {
                 uploadEndpoint: '@',

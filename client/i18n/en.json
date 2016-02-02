@@ -56,6 +56,9 @@
             "TRANSLATOR": "Translator"
         }
     },
+    "IMPORT": {
+        "USERS": "Import users"
+    },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
@@ -80,6 +83,7 @@
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
+            "IMPORT": "Import data",
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",

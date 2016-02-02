@@ -56,6 +56,9 @@
             "TRANSLATOR": "Переводчик"
         }
     },
+    "IMPORT": {
+        "USERS": "Импорт пользователей"
+    },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
@@ -80,6 +83,7 @@
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
+            "IMPORT": "Импорт данных",
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",

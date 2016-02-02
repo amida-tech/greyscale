@@ -218,6 +218,14 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('projects.setup.import', {
+            url: '/import',
+            templateUrl: 'views/controllers/project-setup-import.html',
+            controller: 'ProjectSetupImportCtrl',
+            data: {
+                name: 'NAV.PROJECTS.IMPORT'
+            }
+        })
         .state('orgs', {
             parent: 'home',
             url: 'organizations',
