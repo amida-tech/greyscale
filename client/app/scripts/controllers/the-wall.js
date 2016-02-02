@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('TranslationCtrl', function ($scope) {
+    .controller('TheWallCtrl', function ($scope) {
         $scope.model = {
             translation: {
                 'essenceId': 4,
