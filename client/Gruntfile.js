@@ -510,12 +510,6 @@ module.exports = function (grunt) {
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
                     src: ['**/*.js']
                 }, {
-                    // used for testing with compiled I18N scripts
-                    expand: true,
-                    cwd: '.tmp/' + i18nConfig.l10nDir,
-                    dest: '<%= yeoman.app %>/' + i18nConfig.l10nDir,
-                    src: ['**/*.js']
-                }, {
                     expand: true,
                     cwd: '.tmp/concat',
                     src: 'scripts/*',
@@ -645,15 +639,15 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker 
+                    'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
@@ -756,6 +750,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', [
         'clean:server',
         'wiredep',
+        'i18n',
         'concurrent:test',
         'postcss',
         'connect:test',
@@ -772,7 +767,6 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'i18n',
-        'copy:l10n',
         'copy:dist',
         'copy:images',
         //'cdnify',
@@ -922,7 +916,7 @@ module.exports = function (grunt) {
 
         function _writeI18n(locale, src, callback) {
             var file = _getDestFileName(locale);
-            var content = 'L10N(\'' + locale + '\', ' + JSON.stringify(_sortObject(src), null, 2) + ');\n';
+            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
             fs.writeFile(file, content, callback);
         }
 

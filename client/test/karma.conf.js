@@ -18,7 +18,7 @@ module.exports = function(config) {
     frameworks: [
       "jasmine"
     ],
-    
+
     reporters: ['spec'],
 
     // list of files / patterns to load in the browser
@@ -55,6 +55,7 @@ module.exports = function(config) {
       'bower_components/d3/d3.js',
       'bower_components/c3/c3.js',
       // endbower
+      ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",
       "app/greyscale.core/**/*.js",
       "app/greyscale.mock/**/*.js",
@@ -104,7 +105,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: 'LOG_WARN'
+    logLevel: config.LOG_WARN
 
     // Uncomment the following lines if you are using grunt's server to run the tests
     // proxies: {
