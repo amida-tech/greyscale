@@ -93,7 +93,6 @@ angular.module('greyscaleApp')
                             delete questions[i].cid;
                             if (isNew) scope.model.questions.push(questions[i]);
                         }
-                        debugger;
                         scope.$apply();
                     });
                 }
