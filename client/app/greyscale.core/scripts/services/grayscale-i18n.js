@@ -42,7 +42,7 @@
 
     function _injectL10N() {
         var locale = getLocale();
-        _injectScript('l10n/' + locale + '.js', function(){
+        _injectScript('l10n/' + locale + '.js', function () {
             if (!window.L10N) {
                 throw 'Expected global L10N object!';
             }
@@ -108,103 +108,103 @@
 })();
 
 angular.module('greyscale.core')
-.provider('i18n', function i18nProvider($windowProvider, i18nData) {
-    var _locale,
-        _locales,
-        _languages,
-        _cookies,
-        pub = {
-            getLocale: _getLocale,
-            getLocales: _getLocales,
-            getLanguages: _getLanguages,
-            isSupported: _isSupported,
-            changeLocale: _changeLocale
+    .provider('i18n', function i18nProvider($windowProvider, i18nData) {
+        var _locale,
+            _locales,
+            _languages,
+            _cookies,
+            pub = {
+                getLocale: _getLocale,
+                getLocales: _getLocales,
+                getLanguages: _getLanguages,
+                isSupported: _isSupported,
+                changeLocale: _changeLocale
+            };
+
+        function _init(translateProvider) {
+            _locale = i18nData.locale;
+            _locales = i18nData.locales;
+            _languages = i18nData.languages;
+
+            translateProvider.translations(_locale, i18nData.translations);
+            translateProvider.preferredLanguage(_locale);
+            translateProvider.useSanitizeValueStrategy(null);
+            i18nData = undefined;
+        }
+
+        function _changeLocale(locale) {
+            if (locale !== _locale && _isSupported(locale)) {
+                _cookies.put('locale', locale);
+                window.location.reload();
+            }
+        }
+
+        function _getLocale() {
+            return _locale;
+        }
+
+        function _getLocales() {
+            return _locales;
+        }
+
+        function _getLanguages() {
+            return _languages;
+        }
+
+        function _isSupported(locale) {
+            return _locales.indexOf(locale) >= 0;
+        }
+
+        return {
+            init: _init,
+            useNgLocale: pub.useNgLocale,
+            $get: ['$cookies', '$translate', '$rootScope', function ($cookies, $translate, $rootScope) {
+                $translate.use(_locale);
+                _cookies = $cookies;
+                pub.translate = $translate.instant;
+                $rootScope.currentLocale = _locale;
+
+                return pub;
+            }]
+        };
+    })
+    .run(function (uibDatepickerPopupConfig, $locale, i18n) {
+
+        _resolveNgLocaleLoading();
+
+        var datepickerPopupL10n = {
+            clearText: t('RESET'),
+            closeText: t('DONE'),
+            currentText: t('TODAY'),
+            datepickerPopup: t('DATE_FORMAT')
         };
 
-    function _init(translateProvider) {
-        _locale = i18nData.locale;
-        _locales = i18nData.locales;
-        _languages = i18nData.languages;
+        angular.extend(uibDatepickerPopupConfig, datepickerPopupL10n);
 
-        translateProvider.translations(_locale, i18nData.translations);
-        translateProvider.preferredLanguage(_locale);
-        translateProvider.useSanitizeValueStrategy(null);
-        i18nData = undefined;
-    }
-
-    function _changeLocale(locale) {
-        if (locale !== _locale && _isSupported(locale)) {
-            _cookies.put('locale', locale);
-            window.location.reload();
+        function t(key, data) {
+            return i18n.translate('DATEPICKER.' + key, data);
         }
-    }
 
-    function _getLocale() {
-        return _locale;
-    }
-
-    function _getLocales() {
-        return _locales;
-    }
-
-    function _getLanguages() {
-        return _languages;
-    }
-
-    function _isSupported(locale) {
-        return _locales.indexOf(locale) >= 0;
-    }
-
-    return {
-        init: _init,
-        useNgLocale: pub.useNgLocale,
-        $get: ['$cookies', '$translate', '$rootScope', function ($cookies, $translate, $rootScope) {
-            $translate.use(_locale);
-            _cookies = $cookies;
-            pub.translate = $translate.instant;
-            $rootScope.currentLocale = _locale;
-
-            return pub;
-        }]
-    };
-})
-.run(function (uibDatepickerPopupConfig, $locale, i18n) {
-
-    _resolveNgLocaleLoading();
-
-    var datepickerPopupL10n = {
-        clearText: t('RESET'),
-        closeText: t('DONE'),
-        currentText: t('TODAY'),
-        datepickerPopup: t('DATE_FORMAT')
-    };
-
-    angular.extend(uibDatepickerPopupConfig, datepickerPopupL10n);
-
-    function t(key, data) {
-        return i18n.translate('DATEPICKER.' + key, data);
-    }
-
-    function _resolveNgLocaleLoading() {
-        if (i18n.getLocale() === 'en') {
-            return;
-        }
-        if (window.i18nNgLocaleLoaded) {
-            delete(window.i18nNgLocaleLoaded);
-            return;
-        }
-        var loop = setInterval(function () {
+        function _resolveNgLocaleLoading() {
+            if (i18n.getLocale() === 'en') {
+                return;
+            }
             if (window.i18nNgLocaleLoaded) {
                 delete(window.i18nNgLocaleLoaded);
-                clearInterval(loop);
-                _initNewNgLocale();
+                return;
             }
-        }, 15);
-    }
+            var loop = setInterval(function () {
+                if (window.i18nNgLocaleLoaded) {
+                    delete(window.i18nNgLocaleLoaded);
+                    clearInterval(loop);
+                    _initNewNgLocale();
+                }
+            }, 15);
+        }
 
-    function _initNewNgLocale() {
-        var injector = angular.injector(['ngLocale']),
-            newLocale = injector.get('$locale');
-        angular.extend($locale, newLocale);
-    }
-});
+        function _initNewNgLocale() {
+            var injector = angular.injector(['ngLocale']),
+                newLocale = injector.get('$locale');
+            angular.extend($locale, newLocale);
+        }
+    });
