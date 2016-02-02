@@ -89,7 +89,7 @@ angular.module('greyscaleApp')
 
         function _translateParams(table) {
             var params = ['formTitle', 'title'];
-            angular.forEach(params, function(param){
+            angular.forEach(params, function (param) {
                 table[param] = i18n.translate(table[param]);
             });
         }

@@ -3,6 +3,7 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMON": {
+        "ADD": "Добавить",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
@@ -161,6 +162,13 @@
         "LOADING_DATA": "Загрузка данных...",
         "NO_DATA": "Нет данных",
         "SELECT_ALL_TITLE": "Отметить/Снять все"
+    },
+    "TRANSLATION": {
+        "REQUIRED": {
+            "LANG": "Не указан язык",
+            "VALUE": "Не указан перевод"
+        },
+        "TITLE": "Переводы"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

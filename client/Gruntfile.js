@@ -45,9 +45,8 @@ module.exports = function (grunt) {
     var i18nConfig = {
         i18nDir: 'i18n',
         l10nDir: 'l10n',
-        supportedLocales: ['en','ru']
+        supportedLocales: ['en', 'ru']
     };
-
 
     // Define the configuration for all the tasks
     grunt.initConfig({
@@ -509,7 +508,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '.tmp/' + i18nConfig.l10nDir,
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
-                    src: ['**/*.*']
+                    src: ['**/*.js']
                 }, {
                     expand: true,
                     cwd: '.',
@@ -711,8 +710,8 @@ module.exports = function (grunt) {
             'wiredep',
             'concurrent:server',
             'postcss:server',
-            'copy:l10n',
             'i18n',
+            'copy:l10n',
             'connect:livereload',
             'watch'
         ]);
@@ -726,6 +725,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', [
         'clean:server',
         'wiredep',
+        'i18n',
         'concurrent:test',
         'postcss',
         'connect:test',
@@ -741,8 +741,8 @@ module.exports = function (grunt) {
         'ngtemplates',
         'concat',
         'ngAnnotate',
-        'copy:l10n',
         'i18n',
+        'copy:l10n',
         'copy:dist',
         'copy:images',
         //'cdnify',
@@ -800,7 +800,7 @@ module.exports = function (grunt) {
         'build'
     ]);
 
-    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang', function i18nTask(){
+    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang', function i18nTask() {
 
         if (i18nTask.lock) {
             return;
@@ -826,11 +826,11 @@ module.exports = function (grunt) {
         //////////////////////////
 
         function _processLocale(locale) {
-            _generateL10n(locale, function(locale, normSrc){
-                _normalizeSrc(locale, normSrc, function(){
+            _generateL10n(locale, function (locale, normSrc) {
+                _normalizeSrc(locale, normSrc, function () {
                     count--;
                     if (count === 0) {
-                        setTimeout(function(){
+                        setTimeout(function () {
                             done();
                             i18nTask.lock = false;
                         }, 200);
@@ -845,9 +845,9 @@ module.exports = function (grunt) {
                 src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
             } else {
                 normSrc = _readSource(locale);
-                src = _applyFallback(normSrc,_generateL10n.defaultSrc, locale);
+                src = _applyFallback(normSrc, _generateL10n.defaultSrc, locale);
             }
-            _writeI18n(locale, src, function(){
+            _writeI18n(locale, src, function () {
                 callback(locale, normSrc);
             });
         }
@@ -869,7 +869,7 @@ module.exports = function (grunt) {
                 if (isObject) {
                     fallenSrc[fname] = _applyFallback(src[fname], fvalue);
                 } else {
-                    fallenSrc[fname] = src[fname]!=='' ? src[fname] : fvalue;
+                    fallenSrc[fname] = src[fname] !== '' ? src[fname] : fvalue;
                 }
             }
             for (var sname in src) {
@@ -882,7 +882,7 @@ module.exports = function (grunt) {
 
         function _writeI18n(locale, src, callback) {
             var file = _getDestFileName(locale);
-            var content = 'L10N(\'' + locale + '\', ' + JSON.stringify(_sortObject(src), null, 2) + ');\n';
+            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
             fs.writeFile(file, content, callback);
         }
 
@@ -908,7 +908,7 @@ module.exports = function (grunt) {
 
         function _sortObject(o) {
             var ordered = {};
-            Object.keys(o).sort().forEach(function(key) {
+            Object.keys(o).sort().forEach(function (key) {
                 ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
             });
             return ordered;

@@ -56,42 +56,34 @@ angular.module('greyscale.core')
                 },
                 projectManager: {
                     key: 'project manager',
-                    name: 'PROJECT_MANAGER',
                     mask: 0x1000
                 },
                 contributor: {
                     key: 'contributor',
-                    name: 'CONTRIBUTOR',
                     mask: 0x0800
                 },
                 reviewer: {
                     key: 'reviewer',
-                    name: 'REVIEWER',
                     mask: 0x0400
                 },
                 editor: {
                     key: 'editor',
-                    name: 'EDITOR',
                     mask: 0x0200
                 },
                 translator: {
                     key: 'translator',
-                    name: 'TRANSLATOR',
                     mask: 0x0100
                 },
                 researcher: {
                     key: 'researcher',
-                    name: 'RESEARCHER',
                     mask: 0x0080
                 },
                 researchDirector: {
                     key: 'research director',
-                    name: 'RESEARCH_DIRECTOR',
                     mask: 0x0040
                 },
                 decider: {
                     key: 'decider',
-                    name: 'DECIDER',
                     mask: 0x0020
                 },
                 nobody: {
@@ -99,6 +91,10 @@ angular.module('greyscale.core')
                     mask: 0x0001
                 },
                 any: {
+                    id: null,
+                    mask: 0xfffe
+                },
+                all: {
                     id: null,
                     mask: 0xffff
                 }
@@ -127,13 +123,14 @@ angular.module('greyscale.core')
         }
 
     })
-    .run(function(greyscaleGlobals, i18n){
+    .run(function (greyscaleGlobals, i18n) {
 
         _translate(greyscaleGlobals);
 
         function _translate(data) {
-            var tns = 'GLOBALS.', dataSetTns;
-            angular.forEach(data, function(dataSet, name){
+            var tns = 'GLOBALS.',
+                dataSetTns;
+            angular.forEach(data, function (dataSet, name) {
                 dataSetTns = tns + name.toUpperCase() + '.';
                 if (angular.isString(dataSet)) {
                     if (name !== 'loremIpsum') {
@@ -153,7 +150,7 @@ angular.module('greyscale.core')
         }
 
         function _translateList(tns, data) {
-            angular.forEach(data, function(item){
+            angular.forEach(data, function (item) {
                 if (item.name !== undefined) {
                     item.name = i18n.translate(tns + item.name);
                 }
