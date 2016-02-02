@@ -20,6 +20,10 @@
         "RESET": "Сброс",
         "TODAY": "Сегодня"
     },
+    "FILE": {
+        "CONTINUE": "Продолжить",
+        "SELECT": "Выберите файл для загрузки"
+    },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
@@ -73,6 +77,7 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
             "PRODUCTS": "Продукты",
@@ -82,6 +87,7 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "TASKS": "Задачи",
         "UOAS": "Единицы анализа",
         "USERS": "Пользователи",
         "USERS_UOAS": "Пользователи и единицы анализа",
@@ -92,10 +98,30 @@
         "TABLE": {
             "DESCRIPTION": "Описание",
             "PRODUCT": "Продукт",
+            "SETTINGS": "Настройки",
             "SURVEY": "Опрос",
+            "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",
             "WORKFLOW": "Процесс"
+        },
+        "TASKS": {
+            "DRAG_USER": "Перетащите пользователя на задачу",
+            "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
+            "SEARCH_USER_LABEL": "и по имени или E-mail",
+            "SELECT_ROLE": "Выберите роль...",
+            "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
+            "TABLE": {
+                "TITLE": "Назначение пользователя на выполнение задачи",
+                "UOAS_HEADER": "Единица анализа",
+                "UOAS_TYPE_HEADER": ""
+            },
+            "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
+            "USERS_NOT_FOUND_BY_ROLE": "Не найден пользователь с ролью \"{{role}}\"",
+            "USERS_NOT_FOUND_BY_SEARCH": "и содержащий \"{{search}}\""
+        },
+        "UOAS": {
+            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",

@@ -5,6 +5,10 @@
 }
 [uib-datepicker-popup].form-control {
     min-width: 150px;
+    &.embedded.ng-invalid-date {
+        border: 1px solid red;
+        z-index: 3;
+    }
 }
 
 .translation-input i,
@@ -22,4 +26,15 @@
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+upload-form,
+.upload-form {
+    input[type="file"] {
+        height: initial;
+    }
+    .progress {
+        margin-top: 3px;
+        margin-bottom: 10px;
+    }
 }

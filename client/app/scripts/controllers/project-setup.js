@@ -8,7 +8,6 @@ angular.module('greyscaleApp')
         greyscaleProjectApi) {
 
         var _parentState = 'projects.setup';
-        var _defaultState = false;
 
         $scope.tabs = [{
             state: 'roles',
@@ -22,10 +21,6 @@ angular.module('greyscaleApp')
             state: 'products',
             title: 'NAV.PROJECTS.PRODUCTS',
             icon: 'fa-briefcase'
-        }, {
-            state: 'tasks',
-            title: 'NAV.PROJECTS.TASKS',
-            icon: 'fa-tasks'
         }];
 
         $scope.go = function (state) {
@@ -34,10 +29,8 @@ angular.module('greyscaleApp')
 
         greyscaleProjectApi.get($stateParams.projectId)
             .then(function (project) {
+                $state.ext.projectName = project.codeName;
                 $scope.project = project;
-                if (_defaultState) {
-                    $scope.go(_getDefaultState(project));
-                }
             }, function () {
                 inform.add('Project Not Found', {
                     type: 'danger'
@@ -47,13 +40,13 @@ angular.module('greyscaleApp')
 
         _onStateChange(function (state) {
             if (state.name === _parentState) {
-                _defaultState = true;
+                $scope.go(_getDefaultState());
             } else {
                 _setActiveTab(state);
             }
         });
 
-        function _getDefaultState(project) {
+        function _getDefaultState() {
             return 'products';
         }
 

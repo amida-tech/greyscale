@@ -182,40 +182,36 @@ angular.module('greyscale.tables')
 
         function getData() {
             return greyscaleEntityTypeApi.list({
-                fields: 'id,name'
-            }).then(function (types) {
-                if (!_table.dataFilter) {
-                    return $q.reject();
-                }
-                angular.extend(_table.dataFilter, {
-                    essenceId: _.get(_.find(types, {
-                        name: 'projects'
-                    }), 'id')
+                    name: 'projects',
+                    fields: 'id'
+                })
+                .then(function (types) {
+                    _table.dataFilter.essenceId = types[0].id;
+
+                    return greyscaleProfileSrv.getProfile()
+                        .then(function (profile) {
+                            var reqs = {
+                                data: _tableRestSrv.list(_table.dataFilter),
+                                users: greyscaleUserApi.list({
+                                    organizationId: profile.organizationId
+                                }),
+                                roles: greyscaleRoleApi.list({
+                                    isSystem: false
+                                }),
+                                entTypes: greyscaleEntityTypeApi.list()
+                            };
+
+                            return $q.all(reqs).then(function (promises) {
+                                _dicts.users = promises.users;
+                                _dicts.roles = promises.roles;
+                                _dicts.entTypes = promises.entTypes;
+
+                                greyscaleUtilsSrv.prepareFields(promises.data, _fields);
+                                return promises.data;
+                            });
+                        })
+                        .catch(errorHandler);
                 });
-                return greyscaleProfileSrv.getProfile()
-                    .then(function (profile) {
-                        var reqs = {
-                            data: _tableRestSrv.list(_table.dataFilter),
-                            users: greyscaleUserApi.list({
-                                organizationId: profile.organizationId
-                            }),
-                            roles: greyscaleRoleApi.list({
-                                isSystem: false
-                            }),
-                            entTypes: greyscaleEntityTypeApi.list()
-                        };
-
-                        return $q.all(reqs).then(function (promises) {
-                            _dicts.users = promises.users;
-                            _dicts.roles = promises.roles;
-                            _dicts.entTypes = promises.entTypes;
-
-                            greyscaleUtilsSrv.prepareFields(promises.data, _fields);
-                            return promises.data;
-                        });
-                    })
-                    .catch(errorHandler);
-            });
         }
 
         function reloadTable() {

@@ -29,19 +29,9 @@ angular.module('greyscale.rest')
             return api().one(productId + '').one('uoa');
         }
 
-        //function _productWorkflowApi(productId) {
-        //    return api().one(productId + '').one('workflow');
-        //}
-
         function _uoasList(productId) {
             return function (params) {
-                return _productUoasApi(productId).get(params)
-                    .catch(function () {
-                        return $q.when([{
-                            id: 1,
-                            name: '2222'
-                        }]);
-                    });
+                return _productUoasApi(productId).get(params);
             };
         }
 
@@ -57,31 +47,11 @@ angular.module('greyscale.rest')
             };
         }
 
-        //function _workflowList(productId) {
-        //    return function (params) {
-        //        return _productWorkflowApi(productId).get(params)
-        //            .catch(function () {
-        //                return $q.when([{
-        //                    id: 1,
-        //                    name: '2222'
-        //                }]);
-        //            });
-        //    };
-        //}
-        //
-        //function _workflowUpdate(productId) {
-        //    return function (stepIds) {
-        //        return _productUoasApi(productId).customPOST(stepIds);
-        //    };
-        //}
-
         var _productApi = function (productId) {
             return {
                 uoasList: _uoasList(productId),
                 uoasAddBulk: _uoasAddBulk(productId),
-                uoasDel: _uoasDel(productId),
-                //workflowList: _workflowList(productId),
-                //workflowUpdate: _workflowUpdate(productId)
+                uoasDel: _uoasDel(productId)
             };
         };
 
