@@ -5,7 +5,9 @@
         </div>
     </rd-widget-header>
     <div class="widget-table ng-table">
-        <table class="table table-responsive panel {{::classes}}" ng-table-dynamic="model.tableParams with model.cols">
+        <table class="table table-responsive panel {{::classes}}"
+               ng-class="{'table-hover':model.selectable}"
+               ng-table-dynamic="model.tableParams with model.cols">
             <tr ng-repeat="row in $data" ng-click="select(row, $event)" ng-class="{selected: isSelected(row)}" ng-disabled="isDisabled(row)" propagate-disabled>
                 <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row" model-multiselect="model.multiselect"></td>
             </tr>
