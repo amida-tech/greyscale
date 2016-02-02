@@ -295,8 +295,8 @@ router.route('/:realm/v0.2/workflows/:id')
 
 router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('token').always, workflows.steps)
-    .delete(authenticate('token').always, workflows.stepsDelete)
-    .post(authenticate('token').always, workflows.stepsAdd);
+    //.delete(authenticate('token').always, workflows.stepsDelete)
+    .put(authenticate('token').always, workflows.stepsUpdate);
 
 router.route('/:realm/v0.2/workflow_steps')
     .get(authenticate('token').always, workflows.stepListSelect)
