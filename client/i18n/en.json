@@ -3,6 +3,7 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMON": {
+        "ADD": "Add",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
@@ -141,6 +142,13 @@
         "LOADING_DATA": "Loading Data...",
         "NO_DATA": "No data",
         "SELECT_ALL_TITLE": "Check/Uncheck All"
+    },
+    "TRANSLATION": {
+        "REQUIRED": {
+            "LANG": "Laguage required",
+            "VALUE": "Translation required"
+        },
+        "TITLE": "Translations"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

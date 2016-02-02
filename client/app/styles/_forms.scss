@@ -6,3 +6,20 @@
 [uib-datepicker-popup].form-control {
     min-width: 150px;
 }
+
+.translation-input i,
+.translation i {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    height: 1em;
+    right: 2em;
+    cursor: pointer;
+}
+
+.translation-form {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

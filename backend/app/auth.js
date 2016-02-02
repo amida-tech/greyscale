@@ -210,7 +210,6 @@ module.exports = {
 
     checkRight: function (action) {
         return function (req, res, next) {
-
             if (!action) {
                 next(new HttpError(400, 'Bad action!'));
             }

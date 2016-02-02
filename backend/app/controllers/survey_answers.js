@@ -5,6 +5,14 @@ var
     SurveyAnswerVersion = require('app/models/survey_answer_versions'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
+    WorkflowStep = require('app/models/workflow_steps'),
+    Workflow = require('app/models/workflows'),
+    UOA = require('app/models/uoas'),
+    EssenceRole = require('app/models/essence_roles'),
+    Role = require('app/models/roles'),
+    Essence = require('app/models/essences'),
+    Product = require('app/models/products'),
+    ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -77,33 +85,89 @@ module.exports = {
                 throw new HttpError(403, 'Question with id = '+ req.body.questionId +' does not exist');
             }
 
-            var user = yield thunkQuery(User.select().where(User.id.equals(req.body.userId)));
-
-            if(!_.first(user)){
-                throw new HttpError(403, 'User with id = '+ req.body.userId + ' does not exist');
-            }
-
-            var isRewriter = false; //TODO
-
-            if (!isRewriter && (req.body.userId != req.user.id)) {
-                throw new HttpError(403, 'You cannot answer for another user');
-            }
-
-            var answer = yield thunkQuery(
-                SurveyAnswer.select()
-                .where(
-                    SurveyAnswer.userId.equals(req.body.userId)
-                    .and(SurveyAnswer.userId.equals(req.body.userId))
-                )
+            var uoa = yield thunkQuery(
+                UOA.select().where(UOA.id.equals(req.body.UOAid))
             );
 
-            if(!_.first(answer)){ // new answer, create...
-                var result = yield thunkQuery(SurveyAnswer.insert(_.pick(req.body,['userId','questionId'])).returning(SurveyAnswer.id));
-                var answerId = _.first(result).id;
-            }else{
-                var answerId = answer.id;
+            if (!_.first(uoa)) {
+                throw new HttpError(403, 'UOA with id = ' + req.body.UOAid + ' does not exist');
             }
-            console.log(_.first(question).type);
+
+            var product_uoa = yield thunkQuery(
+                ProductUOA.select().where(_.pick(req.body, ['productId','UOAid']))
+            );
+
+            if(!_.first(product_uoa)){
+                throw new HttpError(
+                    403,
+                    'UOA with id = ' + req.body.UOAid + ' does not relate to Product with id = ' + req.body.productId
+                );
+            }
+
+            var version = yield thunkQuery(
+                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId','UOAid','wfStepId','userId','productId']))
+            );
+
+            if(_.first(version).max === null){
+                req.body.version = 1;
+            }else{
+                req.body.version = _.first(version).max + 1;
+            }
+
+            var member = yield thunkQuery(
+                EssenceRole
+                .select(EssenceRole.star())
+                .from(
+                    EssenceRole
+                    .join(Role)
+                    .on(EssenceRole.roleId.equals(Role.id))
+                    .join(Product)
+                    .on(
+                        EssenceRole.entityId.equals(Product.projectId)
+                        .and(Product.id.equals(req.body.productId))
+                    )
+                )
+                .where(
+                    EssenceRole.essenceId.in(
+                        Essence.subQuery().select(Essence.id).where(Essence.tableName.equals('Projects'))
+                    )
+                )
+                .and(EssenceRole.userId.equals(req.user.id))
+            );
+
+            if (!_.first(member)) {
+               throw new HttpError(403, 'You are not a member of product\'s project')
+            }
+
+            var workflow = yield thunkQuery(
+                Workflow
+                .select(
+                    Workflow.star(),
+                    'row_to_json("WorkflowSteps".*) as step'
+                )
+                .from(
+                    Workflow
+                    .leftJoin(WorkflowStep)
+                    .on(
+                        WorkflowStep.workflowId.equals(Workflow.id)
+                        .and(WorkflowStep.id.equals(req.body.wfStepId))
+                    )
+                )
+                .where(Workflow.productId.equals(req.body.productId))
+            );
+
+            if (!_.first(workflow)) {
+                throw new HttpError(403, 'Workflow is not define for Product id = ' + req.body.productId);
+            }
+
+            if (!_.first(workflow).step) {
+                throw new HttpError(403, 'Workflow step does not relate to Product\'s workflow');
+            }
+
+            if (_.first(workflow).step.roleId != _.first(member).roleId) {
+                throw new HttpError(403, 'Your membership role does not match with workflow step\'s role');
+            }
+
             if([2,3,4].indexOf(_.first(question).type) != -1){ // question with options
                 if(!req.body.optionId){
                     throw new HttpError(403, 'You should provide optionId for this type of question');
@@ -123,16 +187,53 @@ module.exports = {
                 }
             }
 
+            //_.first(workflow).steps.map(function(value){
+            //    if(value === null) {
+            //        throw new HttpError(403, 'Workflow steps are not define for Workflow with id = ' + _.first(workflow).id);
+            //    }
+            //});
+
+            //var steps = yield thunkQuery(
+            //    Workflow.select().where
+            //    WorkflowStep.select().where(WorkflowStep.id.equals(req.body.wfStepId))
+            //);
+
+            //return workflow;
+
+            //var isRewriter = false; //TODO
+            //
+            //if (!isRewriter && (req.body.userId != req.user.id)) {
+            //    throw new HttpError(403, 'You cannot answer for another user');
+            //}
+            //
+            //var answer = yield thunkQuery(
+            //    SurveyAnswer.select()
+            //    .where(
+            //        SurveyAnswer.userId.equals(req.body.userId)
+            //        .and(SurveyAnswer.userId.equals(req.body.userId))
+            //    )
+            //);
+
+            //if(!_.first(answer)){ // new answer, create...
+            //    var result = yield thunkQuery(SurveyAnswer.insert(_.pick(req.body,['userId','questionId'])).returning(SurveyAnswer.id));
+            //    var answerId = _.first(result).id;
+            //}else{
+            //    var answerId = answer.id;
+            //}
+            //console.log(_.first(question).type);
+
+            //
             req.body.userId = req.user.id;
-            var version = yield thunkQuery(
-                SurveyAnswerVersion
-                    .insert(_.pick(req.body,['userId', 'optionId', 'value', 'comment']))
-                    .returning(SurveyAnswerVersion.id)
+            var answer = yield thunkQuery(
+                SurveyAnswer
+                    .insert(_.pick(req.body,SurveyAnswer.table._initialConfig.columns))
+                    .returning(SurveyAnswer.id)
             );
 
-            return version;
+            return answer;
         }).then(function (data) {
-            res.status(201).json(_.first(data));
+            res.json(data);
+            //res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
