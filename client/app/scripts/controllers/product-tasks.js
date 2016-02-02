@@ -364,73 +364,7 @@ angular.module('greyscaleApp')
             var workflowId = product.workflow.id;
             var productId = product.id;
             var reqs = {
-                workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList()
-                    .then(function (steps) {
-                        return [{
-                            id: 3,
-                            title: 'Think twice!!',
-                            description: 'keep calm and relax',
-                            workflowId: workflowId,
-                            stepId: 9,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-02-04T21:00:00.000Z',
-                            roleId: 9
-                        }, {
-                            id: 4,
-                            title: 'Watch your step',
-                            description: 'try walk in my shoes',
-                            workflowId: workflowId,
-                            stepId: 11,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-01-29T21:00:00.000Z',
-                            roleId: 8
-                        }, {
-                            id: 5,
-                            title: '22Think twice!!',
-                            description2: 'keep calm and relax',
-                            workflowId: workflowId,
-                            stepId: 12,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-02-04T21:00:00.000Z',
-                            roleId: 9
-                        }, {
-                            id: 6,
-                            title: '333Watch your step',
-                            description: 'try walk in my shoes',
-                            workflowId: workflowId,
-                            stepId: 13,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-01-29T21:00:00.000Z',
-                            roleId: 8
-                        }];
-                        //[{
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-02-04T21:00:00.000Z",
-                        //    "roleId": 5
-                        //}, {
-                        //    "startDate": "2016-01-02T21:00:00.000Z",
-                        //    "endDate": "2016-01-29T21:00:00.000Z",
-                        //    "roleId": 4
-                        //}, {
-                        //    "id": 3,
-                        //    "title": "Think twice!!",
-                        //    "description": "keep calm and relax",
-                        //    "workflowId": 6,
-                        //    "stepId": 9,
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-02-05T21:00:00.000Z",
-                        //    "roleId": 8
-                        //}, {
-                        //    "id": 4,
-                        //    "title": "Watch your step",
-                        //    "description": "try walk in my shoes",
-                        //    "workflowId": 6,
-                        //    "stepId": 11,
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-01-29T21:00:00.000Z",
-                        //    "roleId": 9
-                        //}]
-                    }),
+                workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
                 uoaTypes: greyscaleUoaTypeApi.list()
             };
