@@ -70,6 +70,9 @@ router.route('/:realm/v0.2/projects/:id')
 router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('token').always, projects.productList);
 
+router.route('/:realm/v0.2/projects/:id/surveys')
+    .get(authenticate('token').always, projects.surveyList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------

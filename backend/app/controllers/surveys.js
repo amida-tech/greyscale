@@ -2,6 +2,7 @@ var
   _ = require('underscore'),
   Survey = require('app/models/surveys'),
   Product = require('app/models/products'),
+  Project = require('app/models/projects'),
   SurveyQuestion = require('app/models/survey_questions'),
   SurveyQuestionOption = require('app/models/survey_question_options'),
   co = require('co'),
@@ -152,15 +153,15 @@ module.exports = {
 
 function* checkSurveyData(req) {
     if(!req.params.id){ // create
-        if(!req.body.title || !req.body.productId){
-            throw new HttpError(403, 'productId and title fields are required');
+        if(!req.body.title || !req.body.projectId){
+            throw new HttpError(403, 'projectId and title fields are required');
         }
     }
 
-    if(req.body.productId){
-        var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)));
-        if(!_.first(product)){
-            throw new HttpError(403, 'Product with id = ' + req.body.productId + ' does not exists');
+    if(req.body.projectId){
+        var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
+        if(!_.first(project)){
+            throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
         }
     }
 }
@@ -172,7 +173,7 @@ function* checkQuestionData(req, isCreate) {
             typeof req.body.surveyId == 'undefined' ||
             typeof req.body.type == 'undefined'
         ){
-            throw new HttpError(403, 'label, surveyId and type field are required');
+            throw new HttpError(403, 'label, surveyId and type fields are required');
         }
     } else {
         var question = yield thunkQuery(
@@ -223,6 +224,8 @@ function* checkQuestionData(req, isCreate) {
                         '("SurveyQuestions"."surveyId" = '+ surveyId +') ' +
                         'AND ("SurveyQuestions"."position" >= '+ req.body.position +')' +
                     ')'
+
+                    // TODO cannot increment position via ORM
                     //SurveyQuestion.update({position : position+1})
                     //    .where(SurveyQuestion.surveyId.equals(surveyId))
                     //    .and(SurveyQuestion.position.gte(req.body.position))

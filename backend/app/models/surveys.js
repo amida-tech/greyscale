@@ -7,7 +7,8 @@ var Survey = sql.define({
         'title',
         'description',
         'productId',
-        'created'
+        'created',
+        'projectId'
     ]
 });
 
