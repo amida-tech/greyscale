@@ -37,7 +37,10 @@
             <span ng-show="model.searchUser" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></span>
         </div>
     </div>
-    <div ng-if="!model.workflowSteps.length" class="col-md-12">
+    <div ng-if="model.workflowSteps && !model.workflowSteps.length" class="col-md-12">
         <div class="alert alert-warning" translate=".NO_WORKFLOW_STEPS"></div>
+    </div>
+    <div ng-if="!model.workflowSteps" class="col-md-12">
+        <rd-loading></rd-loading>
     </div>
 </div>

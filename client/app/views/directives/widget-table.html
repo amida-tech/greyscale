@@ -11,9 +11,13 @@
             <tr ng-repeat="row in $data" ng-click="select(row, $event)" ng-class="{selected: isSelected(row)}" ng-disabled="isDisabled(row)" propagate-disabled>
                 <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row" model-multiselect="model.multiselect"></td>
             </tr>
+            <tr ng-show="!model.$loading && model.dataMap && !model.dataMap.length" class="empty-data text-center">
+                <td colspan="{{$columns.length}}">{{(model.noDataText||'TABLES.NO_DATA')|translate}}</td>
+            </tr>
+            <tr ng-show="model.$loading">
+                <td colspan="{{$columns.length}}"><rd-loading></rd-loading></td>
+            </tr>
         </table>
-        <p ng-if="model.tableParams.data != undefined && !model.tableParams.data.length" class="empty-data text-center">{{(model.noDataText||'TABLES.NO_DATA')|translate}}</p>
-        <p ng-if="model.tableParams.data == undefined" class="empty-data text-center">{{(model.loadingDataText||'TABLES.LOADING_DATA')|translate}}</p>
     </div>
 </rd-widget>
 
@@ -21,7 +25,7 @@
     <input type="checkbox"
            class="select-all"
            ng-model="model.multiselect.selectAllState"
-           ng-show="model.dataMap.length"
+           ng-if="model.dataMap.length"
            ng-change="model.multiselect.selectAll(); model.multiselect.fireChange()"
            title="{{(model.multiselect.selectAllTitle||'TABLES.SELECT_ALL_TITLE')|translate}}"
     />

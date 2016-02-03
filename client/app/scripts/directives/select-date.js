@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('selectDate', function (i18n) {
+    .directive('selectDate', function (i18n, $locale) {
         return {
             template: '<p class="input-group"><input type="text" class="form-control {{class}}" id="{{dataId}}" name="{{dataId}}" ' +
                 'uib-datepicker-popup ng-model="result" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
@@ -36,6 +36,13 @@ angular.module('greyscaleApp')
                     $scope.result = new Date($scope.result);
                 }
                 angular.extend($scope.model, $scope.options);
+
+                var firstDay = $locale.DATETIME_FORMATS.FIRSTDAYOFWEEK + 1;
+                if (firstDay > 6) {
+                    firstDay = 0;
+                }
+                $scope.model.dateOptions = $scope.model.dateOptions || {};
+                $scope.model.dateOptions.startingDay = firstDay;
 
                 $scope.model.placeholder = $scope.model.placeholder || i18n.translate('DATEPICKER.PLACEHOLDER');
 
