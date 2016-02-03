@@ -14,7 +14,8 @@ angular.module('greyscale.core')
             errorMsg: addErrMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
-            getApiBase: _getApiBase
+            getApiBase: _getApiBase,
+            capitalize: _capitalize
         };
 
         function _decode(dict, key, code, name) {
@@ -129,5 +130,9 @@ angular.module('greyscale.core')
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [greyscaleEnv.apiRealm, greyscaleEnv.apiVersion].join('/');
             return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
+        }
+
+        function _capitalize(_str) {
+            return _str.charAt(0).toUpperCase() + _str.substr(1).toLowerCase();
         }
     });

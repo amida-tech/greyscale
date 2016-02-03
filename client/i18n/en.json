@@ -93,8 +93,11 @@
         "REGISTER": "Register",
         "TASKS": "Tasks",
         "UOAS": "Units of Analysis",
-        "USERS": "Users",
-        "USERS_UOAS": "Users units of analysis",
+        "USERS": {
+            "LIST": "List",
+            "TITLE": "Users",
+            "UOA": "Units of analysis"
+        },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },

@@ -131,7 +131,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'users',
             data: {
-                name: 'NAV.USERS',
+                name: 'NAV.USERS.TITLE',
+                icon: 'fa-users',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             },
             views: {
@@ -139,6 +140,28 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                     templateUrl: 'views/controllers/users.html',
                     controller: 'UsersCtrl'
                 }
+            }
+        })
+        .state('usersList', {
+            parent: 'users',
+            url: '/list',
+            templateUrl: 'views/controllers/users-list.html',
+            controller: 'UsersListCtrl',
+            data: {
+                name: 'NAV.USERS.LIST',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('usersUoa', {
+            parent: 'users',
+            url: '/uoa',
+            templateUrl: 'views/controllers/users-uoa.html',
+            controller: 'UsersUoaCtrl',
+            data: {
+                name: 'NAV.USERS.UOA',
+                icon: 'fa-map',
+                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
         .state('uoas', {
@@ -296,6 +319,19 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('survey.edit', {
+            url: 'projects/:projectId/surveys/:surveyId',
+            parent: 'home',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey-edit.html',
+                    controller: 'SurveyEditCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.surveyName}}'
+            }
+        })
         .state('visualization', {
             parent: 'home',
             url: 'visualization',
@@ -308,20 +344,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 isPublic: false
-            }
-        })
-        .state('usersUoa', {
-            parent: 'home',
-            url: 'users-uoa',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/users-uoa.html',
-                    controller: 'UsersUoaCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.USERS_UOAS',
-                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
         .state('the-wall', {

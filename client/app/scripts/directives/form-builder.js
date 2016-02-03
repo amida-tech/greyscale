@@ -9,15 +9,16 @@ angular.module('greyscaleApp')
         templateUrl: 'views/directives/form-builder.html',
         restrict: 'E',
         link: function (scope, elem, attr) {
-
+            
             var formbuilder;
-
+            
             function createFormBuilder() {
                 var data = [];
-                if (scope.model && scope.model.questions) {
-                    for (var i = 0; i < scope.model.questions.length; i++) {
+                if (scope.model.survey && scope.model.survey.questions) {
+                    for (var i = 0; i < scope.model.survey.questions.length; i++) {
+                        if (!scope.model.survey.questions[i]) continue;
                         var type;
-                        switch (scope.model.questions[i].type) {
+                        switch (scope.model.survey.questions[i].type) {
                             case 0: type = 'text'; break;
                             case 1: type = 'paragraph'; break;
                             case 2: type = 'checkbox'; break;
@@ -31,12 +32,12 @@ angular.module('greyscaleApp')
                             case 10: type = 'section_break'; break;
                             default: continue;
                         }
-
+                        
                         data.push({
-                            cid: 'c' + scope.model.questions[i].id,
+                            cid: 'c' + scope.model.survey.questions[i].id,
                             field_type: type,
-                            label: scope.model.questions[i].label,
-                            required: scope.model.questions[i].isRequired,
+                            label: scope.model.survey.questions[i].label,
+                            required: scope.model.survey.questions[i].isRequired,
                             field_options: {}
                         });
                     }
@@ -69,35 +70,50 @@ angular.module('greyscaleApp')
                                 case 'section_break': type = 10; break;
                                 default: continue;
                             }
-
+                            
                             questions.push({
                                 label: fields[i].label,
                                 cid: fields[i].cid,
                                 //options: JSON.stringify(fields[i].field_options),
                                 isRequired: fields[i].required,
                                 type: type,
-                                surveyId: scope.model.id,
-                                //position: i
+                                surveyId: scope.model.survey.id,
+                                position: i + 1
                             });
                         }
-                        for (var i = 0; i < questions.length; i++) {
-                            var isNew = true;
-                            for (var j = 0; j < scope.model.questions.length; j++) {
-                                if ('c' + scope.model.questions[j].id !== questions[i].cid) continue;
-                                isNew = false
-                                delete questions[i].cid;
-                                questions[i].id = scope.model.questions[j].id;
-                                scope.model.questions[j] = questions[i];
-                                break;
+                        if (scope.model.survey.questions) {
+                            for (var i = scope.model.survey.questions.length - 1; i >= 0; i--) {
+                                if (!scope.model.survey.questions[i]) continue;
+                                if (scope.model.survey.questions[i].deleted) continue;
+                                var isAvaliable = false
+                                for (var j = questions.length - 1; j >= 0; j--) {
+                                    if ('c' + scope.model.survey.questions[i].id !== questions[j].cid) continue;
+                                    isAvaliable = true;
+                                    delete questions[j].cid;
+                                    questions[j].id = scope.model.survey.questions[i].id;
+                                    scope.model.survey.questions[i] = questions[j];
+                                    
+                                    questions.splice(j, 1);
+                                }
+                                if (!isAvaliable) {
+                                    if (scope.model.survey.questions[i].id) scope.model.survey.questions[i].deleted = true;
+                                    else scope.model.survey.questions.splice(i, 1);
+                                }
                             }
+                        } else scope.model.survey.questions = [];
+                        
+                        for (var i = 0; i < questions.length; i++) {
                             delete questions[i].cid;
-                            if (isNew) scope.model.questions.push(questions[i]);
+                            scope.model.survey.questions.push(questions[i]);
                         }
+                        
+                        scope.model.survey.questions.sort(function (a, b) { return a.position - b.position; });
+
                         scope.$apply();
                     });
                 }
             }
-
+            
             scope.$watch(attr.ngModel, createFormBuilder);
         }
     };
