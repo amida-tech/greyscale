@@ -1,13 +1,22 @@
 #page-wrapper:not(.open) ul.sidebar .sidebar-title.separator,
 .sidebar-footer,
-ul.sidebar .sidebar-list a:hover,
-ul.sidebar .sidebar-main a,
 #sidebar-wrapper {
     background-color: $grey-light;
 }
 
+ul.sidebar .sidebar-list a:hover,
+ul.sidebar .sidebar-main a {
+    background-color: transparent;
+}
+
 #sidebar-wrapper {
     left: -70px;
+    .logo {
+        margin: 15px;
+        width: 185px;
+        float: left;
+        background-position: left center;
+    }
 }
 
 ul.sidebar {
@@ -53,11 +62,14 @@ ul.sidebar {
         }
     }
     .sidebar-main {
-        a {
-            color: $grey-dark;
+
+        a,
+        a:hover {
+            color: $green;
         }
         .menu-icon {
-            padding-right: 15px;
+            padding: 0 15px 0 0;
+            margin: 0;
         }
     }
 }
