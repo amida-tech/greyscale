@@ -288,6 +288,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
+        .state('survey.edit', {
+            url: '/:surveyId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey-edit.html',
+                    controller: 'SurveyEditCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.surveyName}}'
+            }
+        })
         .state('visualization', {
             parent: 'home',
             url: 'visualization',
