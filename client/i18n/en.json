@@ -111,16 +111,18 @@
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
-            "SEARCH_USER_LABEL": "Search By Name or E-mail",
+            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
+            "SEARCH_USER_LABEL": "And By Name Or E-mail",
             "SELECT_ROLE": "Select Role ...",
-            "SELECT_ROLE_LABEL": "Seacrh By Role",
+            "SELECT_ROLE_LABEL": "Search User By Role",
             "TABLE": {
                 "TITLE": "Assigning Users To Unit Of Analysis And Workflow Step",
                 "UOAS_HEADER": "UoA",
                 "UOAS_TYPE_HEADER": "UoA Type"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\""
+            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\"",
+            "USERS_NOT_FOUND_BY_SEARCH": "And Matches \"{{search}}\""
         },
         "UOAS": {
             "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"

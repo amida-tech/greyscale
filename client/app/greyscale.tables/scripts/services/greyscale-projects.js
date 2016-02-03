@@ -125,6 +125,7 @@ angular.module('greyscale.tables')
             icon: 'fa-paper-plane',
             pageLength: 10,
             cols: recDescr,
+            selectable: true,
             dataPromise: _getData,
             add: {
                 title: 'COMMON.CREATE',

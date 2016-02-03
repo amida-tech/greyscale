@@ -1,12 +1,12 @@
 <div class="row" translate-namespace="PRODUCTS.TASKS">
-    <div class="col-md-9">
+    <div ng-if="model.workflowSteps.length" class="col-md-9">
         <div ng-if="model.tasks">
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
         </div>
         <div ng-hide="model.tasks" class="loading"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>
 
     </div>
-    <div class="col-md-3">
+    <div ng-if="model.workflowSteps.length" class="col-md-3">
         <div class="form-group">
             <label translate=".SELECT_ROLE_LABEL"></label>
             <select class="form-control"
@@ -16,24 +16,28 @@
                 <option value="" disabled translate=".SELECT_ROLE"></option>
             </select>
         </div>
-        <!--<div class="form-group">-->
-            <!--<label translate=".SEARCH_USER_LABEL"></label>-->
-            <!--<input type="text" class="form-control"-->
-                   <!--ng-change="searchUsers()"-->
-                   <!--ng-model="model.searchUser" />-->
-        <!--</div>-->
+        <div class="form-group" ng-if="model.selectedRole.id">
+            <label translate=".SEARCH_USER_LABEL"></label>
+            <input type="text" class="form-control"
+                   ng-change="searchUsers()"
+                   ng-model="model.searchUser" />
+        </div>
         <div class="form-group" ng-if="model.usersSearchResult.length">
             <label translate=".DRAG_USER"></label>
-            <table class="table table-bordered">
+            <table class="table table-bordered table-hover">
                 <tbody>
                     <tr ng-repeat="item in model.usersSearchResult track by item.id">
-                        <td class="drag-user">{{item.user.firstName}} {{item.user.lastName}} ({{item.user.email}})</td>
+                        <td class="drag-user" ng-bind-html="item.user.firstName + ' ' + item.user.lastName + ' (' + item.user.email + ')' | highlight:model.searchUser"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="alert alert-warning" ng-if="model.usersSearchResult && !model.usersSearchResult.length">
-            <span translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name}"></span>
+            <span translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name, search: model.searchUser}"></span>
+            <span ng-show="model.searchUser" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></span>
         </div>
+    </div>
+    <div ng-if="!model.workflowSteps.length" class="col-md-12">
+        <div class="alert alert-warning" translate=".NO_WORKFLOW_STEPS"></div>
     </div>
 </div>

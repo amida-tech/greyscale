@@ -63,6 +63,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.select = function (row, e) {
+                    if (!$scope.model.selectable) {
+                        return;
+                    }
                     $scope.model.current = row;
                     if (typeof $scope.rowSelector === 'function') {
                         $scope.rowSelector(row);

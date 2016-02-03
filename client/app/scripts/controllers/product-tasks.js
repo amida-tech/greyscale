@@ -30,11 +30,26 @@ angular.module('greyscaleApp')
 
         $scope.searchUsers = function () {
             var roleId = $scope.model.selectedRole.id;
-            //var userSearch = $scope.model.searchUser;
-            $scope.model.usersSearchResult = _.filter($scope.model.usersList, {
-                role: {
-                    id: roleId
+            var userSearch = $scope.model.searchUser;
+            $scope.model.usersSearchResult = _.filter($scope.model.usersList, function(assignee){
+                if (assignee.role.id !== roleId) {
+                    return false;
                 }
+                var accept = true;
+                if (userSearch && userSearch !== '') {
+                    var user = assignee.user;
+                    accept = false;
+                    if (user.firstName.match(userSearch)) {
+                        accept = true;
+                    }
+                    if (user.lastName.match(userSearch)) {
+                        accept = true;
+                    }
+                    if (user.email.match(userSearch)) {
+                        accept = true;
+                    }
+                }
+                return accept;
             });
             $timeout(_initDragUser);
         };
@@ -155,15 +170,22 @@ angular.module('greyscaleApp')
 
             _destroyDragUser();
 
+            var target;
             $('.drag-user').draggable({
                 cursor: 'move',
                 revert: true,
-                helper: 'clone',
-                drag: function (e, ui) {
-                    ui.helper.prevObject.css('opacity', 0.5);
+                start: function(e){
+                    target = $(e.target);
                 },
-                stop: function (e, ui) {
-                    ui.helper.prevObject.css('opacity', 1);
+                helper: function(e){
+                    var el = $(e.target).clone();
+                    return el.wrap('<table class="table table-bordered"><tr></tr></table>');
+                },
+                drag: function () {
+                    target.css('opacity', 0.5);
+                },
+                stop: function () {
+                    target.css('opacity', 1);
                 }
             });
         }
@@ -342,73 +364,7 @@ angular.module('greyscaleApp')
             var workflowId = product.workflow.id;
             var productId = product.id;
             var reqs = {
-                workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList()
-                    .then(function (steps) {
-                        return [{
-                            id: 3,
-                            title: 'Think twice!!',
-                            description: 'keep calm and relax',
-                            workflowId: workflowId,
-                            stepId: 9,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-02-04T21:00:00.000Z',
-                            roleId: 9
-                        }, {
-                            id: 4,
-                            title: 'Watch your step',
-                            description: 'try walk in my shoes',
-                            workflowId: workflowId,
-                            stepId: 11,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-01-29T21:00:00.000Z',
-                            roleId: 8
-                        }, {
-                            id: 5,
-                            title: '22Think twice!!',
-                            description2: 'keep calm and relax',
-                            workflowId: workflowId,
-                            stepId: 12,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-02-04T21:00:00.000Z',
-                            roleId: 9
-                        }, {
-                            id: 6,
-                            title: '333Watch your step',
-                            description: 'try walk in my shoes',
-                            workflowId: workflowId,
-                            stepId: 13,
-                            startDate: '2015-12-26T21:00:00.000Z',
-                            endDate: '2016-01-29T21:00:00.000Z',
-                            roleId: 8
-                        }];
-                        //[{
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-02-04T21:00:00.000Z",
-                        //    "roleId": 5
-                        //}, {
-                        //    "startDate": "2016-01-02T21:00:00.000Z",
-                        //    "endDate": "2016-01-29T21:00:00.000Z",
-                        //    "roleId": 4
-                        //}, {
-                        //    "id": 3,
-                        //    "title": "Think twice!!",
-                        //    "description": "keep calm and relax",
-                        //    "workflowId": 6,
-                        //    "stepId": 9,
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-02-05T21:00:00.000Z",
-                        //    "roleId": 8
-                        //}, {
-                        //    "id": 4,
-                        //    "title": "Watch your step",
-                        //    "description": "try walk in my shoes",
-                        //    "workflowId": 6,
-                        //    "stepId": 11,
-                        //    "startDate": "2015-12-26T21:00:00.000Z",
-                        //    "endDate": "2016-01-29T21:00:00.000Z",
-                        //    "roleId": 9
-                        //}]
-                    }),
+                workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
                 uoaTypes: greyscaleUoaTypeApi.list()
             };

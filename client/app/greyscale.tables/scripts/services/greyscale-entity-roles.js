@@ -190,7 +190,6 @@ angular.module('greyscale.tables')
 
                     return greyscaleProfileSrv.getProfile()
                         .then(function (profile) {
-                            console.log(_table.dataFilter);
                             var reqs = {
                                 data: _tableRestSrv.list(_table.dataFilter),
                                 users: greyscaleUserApi.list({
