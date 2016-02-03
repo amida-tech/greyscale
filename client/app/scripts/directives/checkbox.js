@@ -15,13 +15,13 @@
         };
     });
 
-    $(document).on('DOMNodeInserted', function(e){
-        $(e.target).find('input[type="checkbox"]:not(.styled-checkbox)').each(function(){
-            var el = $(this);
-            _styleCheckbox(el);
-        });
-    });
-
+    //$(document).on('DOMNodeInserted', function(e){
+    //    $(e.target).find('input[type="checkbox"]:not(.styled-checkbox)').each(function(){
+    //        var el = $(this);
+    //        _styleCheckbox(el);
+    //    });
+    //});
+    //
     function _styleCheckbox(el) {
         var id = el[0].id || Math.round(Math.random()*1e10);
         el[0].id = id;

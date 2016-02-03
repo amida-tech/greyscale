@@ -7,10 +7,10 @@ angular.module('greyscale.tables')
         var tns = 'SURVEYS.';
 
         var _cols = [{
-            field: 'name',
+            field: 'title',
             title: tns + 'NAME',
             show: true,
-            sortable: 'name',
+            sortable: 'title',
             dataRequired: true,
             dataFormat: 'text'
         }, {

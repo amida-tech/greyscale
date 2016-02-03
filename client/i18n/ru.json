@@ -115,7 +115,7 @@
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
-            "SEARCH_USER_LABEL": "и по имени или E-mail",
+            "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
@@ -124,8 +124,8 @@
                 "UOAS_TYPE_HEADER": ""
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Не найден пользователь с ролью \"{{role}}\"",
-            "USERS_NOT_FOUND_BY_SEARCH": "и содержащий \"{{search}}\""
+            "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
             "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
