@@ -1,0 +1,31 @@
+input.styled-checkbox {
+    display: none;
+    & + label:before {
+        font-size: 19px;
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        font-family: FontAwesome;
+        display: inline-block;
+        content: "\f096";
+        letter-spacing: 10px;
+    }
+    &:checked + label:before {
+        content: "\f14a";
+        letter-spacing: 5px;
+        font-size: 18px;
+        top: -1px;
+    }
+    &[disabled="disabled"] + label:before {
+        opacity: 0.6;
+    }
+}
+label.styled-checkbox {
+    display: inline-block;
+    font-weight: normal;
+    margin: auto;
+    width: 20px;
+    height: 20px;
+    margin-bottom: -5px;
+    position: relative;
+}

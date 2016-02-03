@@ -21,6 +21,10 @@ angular.module('greyscaleApp')
             state: 'products',
             title: 'NAV.PROJECTS.PRODUCTS',
             icon: 'fa-briefcase'
+        }, {
+            state: 'import',
+            title: 'NAV.PROJECTS.IMPORT',
+            icon: 'fa-upload'
         }];
 
         $scope.go = function (state) {

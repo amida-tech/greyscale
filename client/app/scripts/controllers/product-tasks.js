@@ -203,7 +203,7 @@ angular.module('greyscaleApp')
             var _table = {
                 title: tns + 'TITLE',
                 icon: 'fa-tasks',
-                pageLength: 2,
+                //pageLength: 2,
                 cols: _cols,
                 dataPromise: function () {
                     return _getTaskTableData(_table);
@@ -417,10 +417,6 @@ angular.module('greyscaleApp')
                     });
                     $state.go('home');
                 });
-        }
-
-        function _reload() {
-            $scope.model.tasks.tableParams.reload();
         }
 
     });

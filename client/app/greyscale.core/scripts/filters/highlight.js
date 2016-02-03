@@ -12,6 +12,6 @@ angular.module('greyscale.core')
         if (search) {
             text = text.replace(new RegExp('('+search+')', 'gi'), prefix + '$1' + postfx);
         }
-        return $sce.trustAsHtml(text)
+        return $sce.trustAsHtml(text);
     };
 });
