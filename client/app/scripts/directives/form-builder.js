@@ -80,20 +80,22 @@ angular.module('greyscaleApp')
                                 position: i + 1
                             });
                         }
-                        for (var i = scope.model.survey.questions.length - 1; i >= 0; i--) {
-                            if (scope.model.survey.questions[i].deleted) continue;
-                            var isAvaliable = false
-                            for (var j = questions.length - 1; j >= 0; j--) {
-                                if ('c' + scope.model.survey.questions[i].id !== questions[j].cid) continue;
-                                isAvaliable = true;
-                                delete questions[j].cid;
-                                questions[j].id = scope.model.survey.questions[i].id;
-                                scope.model.survey.questions[i] = questions[j];
-                                
-                                questions.splice(j, 1);
+                        if (scope.model.survey.questions) {
+                            for (var i = scope.model.survey.questions.length - 1; i >= 0; i--) {
+                                if (scope.model.survey.questions[i].deleted) continue;
+                                var isAvaliable = false
+                                for (var j = questions.length - 1; j >= 0; j--) {
+                                    if ('c' + scope.model.survey.questions[i].id !== questions[j].cid) continue;
+                                    isAvaliable = true;
+                                    delete questions[j].cid;
+                                    questions[j].id = scope.model.survey.questions[i].id;
+                                    scope.model.survey.questions[i] = questions[j];
+                                    
+                                    questions.splice(j, 1);
+                                }
+                                if (!isAvaliable) scope.model.survey.questions[i].deleted = true;
                             }
-                            if (!isAvaliable) scope.model.survey.questions[i].deleted = true;
-                        }
+                        } else scope.model.survey.questions = [];
                         
                         for (var i = 0; i < questions.length; i++) {
                             delete questions[i].cid;

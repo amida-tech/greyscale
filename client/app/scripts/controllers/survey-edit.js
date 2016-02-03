@@ -13,24 +13,35 @@
 angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $stateParams, $state, $q) {
     var surveyId = $stateParams.surveyId;
     
-    var _newSurvey;
-    greyscaleSurveyApi.get(surveyId).get().then(function (newSurvey) {
+    var _survey;
+    if (surveyId >= 0) {
+        greyscaleSurveyApi.get(surveyId).get().then(function (survey) {
+            $scope.model = {
+                survey: survey
+            };
+            $state.ext.surveyName = survey ? survey.title : 'New survey';
+        //return greyscaleModalsSrv.editSurvey(survey);
+        });
+    } else {
         $scope.model = {
-            survey: newSurvey
+            survey: {}
         };
-        $state.ext.surveyName = newSurvey ? newSurvey.title : 'New survey';
-        //return greyscaleModalsSrv.editSurvey(newSurvey);
-    });
+        $state.ext.surveyName = 'New survey';
+    }
     
     $scope.save = function () {
-        _newSurvey = $scope.model.survey;
+        _survey = $scope.model.survey;
         //TODO remove
-        _newSurvey.productId = 2;
-        (_newSurvey.id ? greyscaleSurveyApi.update(_newSurvey) : greyscaleSurveyApi.add(_newSurvey)).then(function (newSurvey) {
-            if (!newSurvey) newSurvey = _newSurvey;
+        _survey.productId = 2;
+        (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey)).then(function (survey) {
+            if (!survey) survey = _survey;
+            else survey.questions = _survey.questions;
+            for (var i = 0; i < survey.questions.length; i++) survey.questions[i].surveyId = survey.id
             var questionsFunctions = [];
-            for (var i = 0; i < newSurvey.questions.length; i++) {
-                questionsFunctions.push(_getQuestionFunction(newSurvey.questions[i]));
+            if (survey.questions) {
+                for (var i = 0; i < survey.questions.length; i++) {
+                    questionsFunctions.push(_getQuestionFunction(survey.questions[i]));
+                }
             }
             return $q.all(questionsFunctions);
         }).then(function () {
