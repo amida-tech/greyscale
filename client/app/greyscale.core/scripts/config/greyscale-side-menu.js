@@ -18,9 +18,6 @@ angular.module('greyscale.core')
                     state: 'users',
                     icon: 'fa-group'
                 }, {
-                    state: 'usersUoa',
-                    icon: 'fa-map'
-                }, {
                     state: 'orgs',
                     icon: 'fa-university'
                 }, {
