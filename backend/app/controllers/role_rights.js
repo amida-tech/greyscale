@@ -16,10 +16,23 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
-            var _counter = thunkQuery(RoleRights.select(RoleRights.count('counter')).where(req.params), _.omit(req.query, 'offset', 'limit', 'order'));
+			req.query.realm = req.param('realm');
+            var _counter = thunkQuery(
+                RoleRights
+                .select(RoleRights.count('counter'))
+                .where(RoleRights.roleID.equals(req.params.roleID)),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
             req.query.realm = req.param('realm');
-            var roleRight = thunkQuery(RoleRights.select(Rights.star()).from(RoleRights.leftJoin(Rights).on(RoleRights.rightID.equals(Rights.id))).where(req.params), req.query);
+            var roleRight = thunkQuery(
+                RoleRights
+                .select(Rights.star())
+                .from(
+                    RoleRights.leftJoin(Rights)
+                    .on(RoleRights.rightID.equals(Rights.id))
+                )
+                .where(RoleRights.roleID.equals(req.params.roleID)),
+                req.query);
 
             return yield [_counter, roleRight];
         }).then(function (data) {
@@ -31,7 +44,8 @@ module.exports = {
     },
     insertOne: function (req, res, next) {
         co(function* () {
-            var isExists = yield thunkQuery(RoleRights.select().where(req.params),  {'realm': req.param('realm')});
+            var isExists = yield thunkQuery(RoleRights.select().where(_.pick(req.params, ['roleID', 'rightID'])),
+            		 {'realm': req.param('realm')});
             if (_.first(isExists)) {
                 throw new HttpError(403, 106);
             }
@@ -52,7 +66,8 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(RoleRights.insert(req.params),  {'realm': req.param('realm')});
+            var result = yield thunkQuery(RoleRights.insert(_.pick(req.params, RoleRights.table._initialConfig.columns)),  
+            		{'realm': req.param('realm')});
 
             return result;
         }).then(function (data) {
@@ -64,7 +79,7 @@ module.exports = {
     },
     deleteOne: function (req, res, next) {
         query(
-            RoleRights.delete().where(req.params),
+            RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID'])),
             {'realm': req.param('realm')},
             function (err) {
                 if (!err) {

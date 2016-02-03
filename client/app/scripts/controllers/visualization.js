@@ -10,7 +10,7 @@
 
 'use strict';
 
-angular.module('greyscaleApp').controller('VisualizationCtrl', function ($scope) {
+angular.module('greyscaleApp').controller('VisualizationCtrl', function ($http, $scope, greyscaleSurveyApi) {
 
     $scope.model = {
 

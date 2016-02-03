@@ -26,8 +26,7 @@ module.exports = {
 
     },
     selectOne: function (req, res, next) {
-    	req.query.realm = req.param('realm');
-        query(Role.select().where(req.params), _.omit(req.query, 'offset', 'limit', 'order'), function (err, role) {
+        query(Role.select().where(_.pick(req.params, ['id'])),{'realm': req.param('realm')}, function (err, role) {
             if (!err) {
                 res.json(_.first(role));
             } else {

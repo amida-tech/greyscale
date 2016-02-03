@@ -45,7 +45,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            var right = yield thunkQuery(Right.select().where(req.params),  {'realm': req.param('realm')});
+            var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params)), {'realm': req.param('realm')});
             if (!_.first(right)) {
                 throw new HttpError(404, 'Not found');
             }

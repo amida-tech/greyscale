@@ -23,6 +23,7 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
+    'isteven-multi-select',
     'pascalprecht.translate'
 ]);
 
@@ -290,6 +291,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 'body@dashboard': {
                     templateUrl: 'views/controllers/graph.html',
                     controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                isPublic: false
+            }
+        })
+        .state('table', {
+            parent: 'home',
+            url: 'table',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/table.html',
+                    controller: 'TableCtrl'
                 }
             },
             data: {
