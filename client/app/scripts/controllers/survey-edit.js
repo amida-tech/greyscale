@@ -10,7 +10,7 @@
 
 'use strict';
 
-angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $stateParams, $state) {
+angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $stateParams, $state, $q) {
     var surveyId = $stateParams.surveyId;
     
     var _newSurvey;
@@ -23,24 +23,18 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
     });
     
     $scope.save = function () {
-        (function () {
-            _newSurvey = $scope.model.survey;
-            //TODO remove
-            _newSurvey.productId = 2;
-            if (_newSurvey.id) {
-                return greyscaleSurveyApi.update(_newSurvey);
-            } else {
-                return greyscaleSurveyApi.add(_newSurvey);
-            }
-        })().then(function (newSurvey) {
+        _newSurvey = $scope.model.survey;
+        //TODO remove
+        _newSurvey.productId = 2;
+        (_newSurvey.id ? greyscaleSurveyApi.update(_newSurvey) : greyscaleSurveyApi.add(_newSurvey)).then(function (newSurvey) {
             if (!newSurvey) newSurvey = _newSurvey;
             var questionsFunctions = [];
             for (var i = 0; i < newSurvey.questions.length; i++) {
-                questionsFunctions.push(new Promise(_getQuestionFunction(_newSurvey, newSurvey.questions[i])));
+                questionsFunctions.push(_getQuestionFunction(newSurvey.questions[i]));
             }
-            return Promise.all(questionsFunctions).then(function () {
-                debugger;
-            });
+            return $q.all(questionsFunctions);
+        }).then(function () {
+            $state.go('survey');
         }).catch(function (err) {
             if (!err) {
                 return;
@@ -58,17 +52,14 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
     $scope.cancel = function () {
         $state.go('survey');
     };
-
-    function _getQuestionFunction(_newSurvey, question) {
-        return function (newSurvey) {
-            question.surveyId = newSurvey && newSurvey.id ? newSurvey.id : _newSurvey.id;
-            if (question.deleted) {
-                return greyscaleQuestionApi.delete(question);
-            } else if (question.id) {
-                return greyscaleQuestionApi.update(question);
-            } else {
-                return greyscaleQuestionApi.add(question);
-            }
+    
+    function _getQuestionFunction(question) {
+        if (question.deleted) {
+            return greyscaleQuestionApi.delete(question);
+        } else if (question.id) {
+            return greyscaleQuestionApi.update(question);
+        } else {
+            return greyscaleQuestionApi.add(question);
         }
     }
 });

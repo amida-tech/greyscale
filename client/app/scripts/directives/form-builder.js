@@ -77,11 +77,9 @@ angular.module('greyscaleApp')
                                 isRequired: fields[i].required,
                                 type: type,
                                 surveyId: scope.model.survey.id,
-                                position: i
+                                position: i + 1
                             });
                         }
-                        debugger;
-                        
                         for (var i = scope.model.survey.questions.length - 1; i >= 0; i--) {
                             if (scope.model.survey.questions[i].deleted) continue;
                             var isAvaliable = false
@@ -102,6 +100,8 @@ angular.module('greyscaleApp')
                             scope.model.survey.questions.push(questions[i]);
                         }
                         
+                        scope.model.survey.questions.sort(function (a, b) { return a.position - b.position; });
+
                         scope.$apply();
                     });
                 }
