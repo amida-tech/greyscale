@@ -8,7 +8,9 @@ angular.module('greyscale.tables')
     function _getQuestionFunction(_newSurvey, question) {
         return function (newSurvey) {
             question.surveyId = newSurvey && newSurvey.id ? newSurvey.id : _newSurvey.id;
-            if (question.id) {
+            if (question.deleted) {
+                return greyscaleQuestionApi.delete(question);
+            } else if (question.id) {
                 return greyscaleQuestionApi.update(question);
             } else {
                 return greyscaleQuestionApi.add(question);

@@ -80,19 +80,27 @@ angular.module('greyscaleApp')
                                 //position: i
                             });
                         }
-                        for (var i = 0; i < questions.length; i++) {
-                            var isNew = true;
-                            for (var j = 0; j < scope.model.questions.length; j++) {
-                                if ('c' + scope.model.questions[j].id !== questions[i].cid) continue;
-                                isNew = false
-                                delete questions[i].cid;
-                                questions[i].id = scope.model.questions[j].id;
-                                scope.model.questions[j] = questions[i];
-                                break;
+                        
+                        for (var i = scope.model.questions.length - 1; i >= 0; i--) {
+                            if (scope.model.questions[i].deleted) continue;
+                            var isAvaliable = false
+                            for (var j = questions.length - 1; j >= 0; j--) {
+                                if ('c' + scope.model.questions[i].id !== questions[j].cid) continue;
+                                isAvaliable = true;
+                                delete questions[j].cid;
+                                questions[j].id = scope.model.questions[i].id;
+                                scope.model.questions[i] = questions[j];
+
+                                questions.splice(j, 1);
                             }
-                            delete questions[i].cid;
-                            if (isNew) scope.model.questions.push(questions[i]);
+                            if (!isAvaliable) scope.model.questions[i].deleted = true;
                         }
+
+                        for (var i = 0; i < questions.length; i++) {
+                            delete questions[i].cid;
+                            scope.model.questions.push(questions[i]);
+                        }
+                        
                         scope.$apply();
                     });
                 }
