@@ -100,7 +100,7 @@ angular.module('greyscale.tables')
                 var workStep = _.find(workSteps, {
                     stepId: step.id
                 });
-                step.step = workStep || {};
+                step.step = workStep || {stepId: step.id};
             });
             return stepsTableData;
         }

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter, $compile, i18n) {
+    .directive('widgetTable', function (_, NgTableParams, $filter, $compile, i18n, $timeout) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -37,15 +37,25 @@ angular.module('greyscaleApp')
                         counts: [],
                         getData: function ($defer, params) {
                             if (typeof $scope.model.dataPromise === 'function') {
-                                $scope.model.dataPromise().then(function (data) {
-                                    $scope.model.dataMap = _getDataMap(data);
-                                    if (data) {
-                                        params.total(data.length);
-                                        var orderedData = params.sorting() ?
-                                            $filter('orderBy')(data, params.orderBy()) : data;
-                                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                                    }
-                                });
+                                var throttling = $timeout(function(){
+                                    $scope.model.$loading = true;
+                                }, 100);
+                                var endLoading = function(){
+                                    $timeout.cancel(throttling);
+                                    $scope.model.$loading = false;
+                                };
+                                $scope.model.dataPromise()
+                                    .then(function (data) {
+                                        $scope.model.dataMap = _getDataMap(data);
+                                        if (data) {
+                                            params.total(data.length);
+                                            var orderedData = params.sorting() ?
+                                                $filter('orderBy')(data, params.orderBy()) : data;
+                                            $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                        }
+                                        endLoading();
+                                    })
+                                    .catch(endLoading);
                             }
                         }
                     });

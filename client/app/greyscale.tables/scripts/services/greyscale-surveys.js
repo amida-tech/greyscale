@@ -4,7 +4,7 @@ angular.module('greyscale.tables')
     var _getSurveys = function () {
         return greyscaleSurveyApi.list();
     };
-    
+
     function _getQuestionFunction(_newSurvey, question) {
         return function (newSurvey) {
             question.surveyId = newSurvey && newSurvey.id ? newSurvey.id : _newSurvey.id;
@@ -15,7 +15,7 @@ angular.module('greyscale.tables')
             }
         }
     }
-    
+
     var _editSurvey = function (_survey) {
         var _newSurvey;
         return greyscaleSurveyApi.get(_survey.id).get().then(function (newSurvey) {
@@ -50,11 +50,11 @@ angular.module('greyscale.tables')
         });
 
     };
-    
+
     var _reload = function () {
         _greyscaleSurvey.tableParams.reload();
     };
-    
+
     var _greyscaleSurvey = {
         title: 'Surveys',
         icon: 'fa-list',
@@ -109,6 +109,6 @@ angular.module('greyscale.tables')
             handler: _editSurvey
         }
     };
-    
+
     return _greyscaleSurvey;
 });

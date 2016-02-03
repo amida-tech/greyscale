@@ -9,9 +9,9 @@ angular.module('greyscaleApp')
         templateUrl: 'views/directives/form-builder.html',
         restrict: 'E',
         link: function (scope, elem, attr) {
-            
+
             var formbuilder;
-            
+
             function createFormBuilder() {
                 var data = [];
                 if (scope.model && scope.model.questions) {
@@ -31,13 +31,13 @@ angular.module('greyscaleApp')
                             case 10: type = 'section_break'; break;
                             default: continue;
                         }
-                        
+
                         data.push({
                             cid: 'c' + scope.model.questions[i].id,
                             field_type: type,
                             label: scope.model.questions[i].label,
                             required: scope.model.questions[i].isRequired,
-                            field_options: {}                            
+                            field_options: {}
                         });
                     }
                 }
@@ -69,7 +69,7 @@ angular.module('greyscaleApp')
                                 case 'section_break': type = 10; break;
                                 default: continue;
                             }
-                            
+
                             questions.push({
                                 label: fields[i].label,
                                 cid: fields[i].cid,
@@ -97,7 +97,7 @@ angular.module('greyscaleApp')
                     });
                 }
             }
-            
+
             scope.$watch(attr.ngModel, createFormBuilder);
         }
     };
