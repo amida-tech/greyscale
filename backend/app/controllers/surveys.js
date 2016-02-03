@@ -28,7 +28,10 @@ module.exports = {
         co(function* (){
             var data = yield thunkQuery(
                 Survey
-                .select(Survey.star(), 'array_agg(row_to_json("SurveyQuestions".*)) as questions')
+                .select(
+                    Survey.star(),
+                    'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
+                )
                 .from(
                     Survey
                     .leftJoin(SurveyQuestion)
@@ -108,7 +111,11 @@ module.exports = {
   questionAdd: function (req, res, next) {
     co(function* (){
       yield* checkQuestionData(req, true);
-      var result = yield thunkQuery(SurveyQuestion.insert(req.body).returning(SurveyQuestion.id));
+      var result = yield thunkQuery(
+          SurveyQuestion
+          .insert(_.pick(req.body, ['label','surveyId','type','position','isRequired']))
+          .returning(SurveyQuestion.id)
+      );
       return result;
     }).then(function(data){
       res.status(201).json(_.first(data));
@@ -120,7 +127,11 @@ module.exports = {
   questionEdit: function (req, res, next) {
     co(function* (){
       yield* checkQuestionData(req, false);
-      return yield thunkQuery(SurveyQuestion.update(req.body).where(SurveyQuestion.id.equals(req.params.id)));
+      return yield thunkQuery(
+          SurveyQuestion
+          .update(_.pick(req.body, ['label','position','isRequired']))
+          .where(SurveyQuestion.id.equals(req.params.id))
+      );
     }).then(function(data){
       res.status(202).end();
     }, function(err){
@@ -156,9 +167,21 @@ function* checkSurveyData(req) {
 
 function* checkQuestionData(req, isCreate) {
     if (isCreate) {
-        if(!req.body.label || !req.body.surveyId || !req.body.type){
+        if(
+            typeof req.body.label == 'undefined' ||
+            typeof req.body.surveyId == 'undefined' ||
+            typeof req.body.type == 'undefined'
+        ){
             throw new HttpError(403, 'label, surveyId and type field are required');
         }
+    } else {
+        var question = yield thunkQuery(
+            SurveyQuestion.select().where(SurveyQuestion.id.equals(req.params.id))
+        );
+        if (!_.first(question)) {
+            throw new HttpError(403, 'Survey question with id = ' + req.params.id + 'does not exist');
+        }
+        question = _.first(question);
     }
 
     var surveyId = isCreate ? req.params.id : req.body.surveyId;
@@ -174,6 +197,59 @@ function* checkQuestionData(req, isCreate) {
     if (req.body.type) {
         if((parseInt(req.body.type)) < 0 || (parseInt(req.body.type) > 10)){
             throw new HttpError(403, 'Type value should be from 0 till 11');
+        }
+    }
+
+    var maxPos = yield thunkQuery(
+        SurveyQuestion.select('max("SurveyQuestions"."position")').where(SurveyQuestion.surveyId.equals(surveyId))
+    );
+
+    var nextPos = 1;
+
+    if(_.first(maxPos)){
+        nextPos = _.first(maxPos).max + 1;
+    }
+
+    if (isCreate || typeof req.body.position != 'undefined') {
+        req.body.position = isNaN(parseInt(req.body.position)) ? 0 : parseInt(req.body.position);
+
+        if (req.body.position > nextPos || req.body.position < 1) {
+            req.body.position = nextPos;
+        } else {
+            if ((isCreate && _.first(maxPos))){
+                yield thunkQuery(
+                    'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                    'WHERE (' +
+                        '("SurveyQuestions"."surveyId" = '+ surveyId +') ' +
+                        'AND ("SurveyQuestions"."position" >= '+ req.body.position +')' +
+                    ')'
+                    //SurveyQuestion.update({position : position+1})
+                    //    .where(SurveyQuestion.surveyId.equals(surveyId))
+                    //    .and(SurveyQuestion.position.gte(req.body.position))
+                );
+            }
+            if (!isCreate && (question.position != req.body.position)) {
+                if (question.position < req.body.position) {
+                    var q =
+                        'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                        'WHERE (' +
+                        '("SurveyQuestions"."surveyId" = '+ surveyId +') ' +
+                        'AND ("SurveyQuestions"."position" > '+ question.position +')' +
+                        'AND ("SurveyQuestions"."position" <= '+ req.body.position +')' +
+                        ')';
+                }else{
+                    var q =
+                        'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                        'WHERE (' +
+                        '("SurveyQuestions"."surveyId" = '+ surveyId +') ' +
+                        'AND ("SurveyQuestions"."position" < '+ question.position +')' +
+                        'AND ("SurveyQuestions"."position" >= '+ req.body.position +')' +
+                        ')';
+                }
+
+                yield thunkQuery(q);
+            }
+
         }
     }
 
