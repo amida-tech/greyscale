@@ -16,6 +16,7 @@ angular.module('greyscaleApp')
                 var data = [];
                 if (scope.model.survey && scope.model.survey.questions) {
                     for (var i = 0; i < scope.model.survey.questions.length; i++) {
+                        if (!scope.model.survey.questions[i]) continue;
                         var type;
                         switch (scope.model.survey.questions[i].type) {
                             case 0: type = 'text'; break;
@@ -82,6 +83,7 @@ angular.module('greyscaleApp')
                         }
                         if (scope.model.survey.questions) {
                             for (var i = scope.model.survey.questions.length - 1; i >= 0; i--) {
+                                if (!scope.model.survey.questions[i]) continue;
                                 if (scope.model.survey.questions[i].deleted) continue;
                                 var isAvaliable = false
                                 for (var j = questions.length - 1; j >= 0; j--) {
@@ -93,7 +95,10 @@ angular.module('greyscaleApp')
                                     
                                     questions.splice(j, 1);
                                 }
-                                if (!isAvaliable) scope.model.survey.questions[i].deleted = true;
+                                if (!isAvaliable) {
+                                    if (scope.model.survey.questions[i].id) scope.model.survey.questions[i].deleted = true;
+                                    else scope.model.survey.questions.splice(i, 1);
+                                }
                             }
                         } else scope.model.survey.questions = [];
                         
