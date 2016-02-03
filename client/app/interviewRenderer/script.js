@@ -7,11 +7,14 @@ function getCookie(name) {
 }
 
 var token;
+var survey;
 function readySurvey() {
-    var url = 'http://indaba.ntrlab.ru:83/dev/v0.2/surveys/' + window.location.hash.replace('#', '') + '/questions';
+    var url = 'http://indaba.ntrlab.ru:83/dev/v0.2/surveys/' + window.location.hash.replace('#', '');
     token = getCookie('token').replace('%22', '').replace('%22', '');
     $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        generateSurvey(request.response);
+        survey = request.response;
+        $('#title').innerHTML = survey.title;
+        generateSurvey(survey.questions);
         load();
     }).catch(function (error) {
         console.error(error);

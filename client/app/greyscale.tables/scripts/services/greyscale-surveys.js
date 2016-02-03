@@ -1,60 +1,21 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleSurveysTbl', function (greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $location) {
+    .factory('greyscaleSurveysTbl', function (greyscaleSurveyApi, inform, $log, $location, $state) {
     var _getSurveys = function () {
         return greyscaleSurveyApi.list();
     };
-
-    function _getQuestionFunction(_newSurvey, question) {
-        return function (newSurvey) {
-            question.surveyId = newSurvey && newSurvey.id ? newSurvey.id : _newSurvey.id;
-            if (question.id) {
-                return greyscaleQuestionApi.update(question);
-            } else {
-                return greyscaleQuestionApi.add(question);
-            }
-        }
-    }
-
+    
+    
     var _editSurvey = function (_survey) {
-        var _newSurvey;
-        return greyscaleSurveyApi.get(_survey.id).get().then(function (newSurvey) {
-            return greyscaleModalsSrv.editSurvey(newSurvey);
-        }).then(function (newSurvey) {
-            _newSurvey = newSurvey;
-            newSurvey.productId = 2;
-            if (newSurvey.id) {
-                return greyscaleSurveyApi.update(newSurvey);
-            } else {
-                return greyscaleSurveyApi.add(newSurvey);
-            }
-        }).then(function (newSurvey) {
-            if (!newSurvey) newSurvey = _newSurvey;
-            var questionsFunctions = [];
-            for (var i = 0; i < newSurvey.questions.length; i++) {
-                questionsFunctions.push(new Promise(_getQuestionFunction(_newSurvey, newSurvey.questions[i])));
-            }
-            return Promise.all(questionsFunctions);
-        }).then(_reload).catch(function (err) {
-            if (!err) {
-                return;
-            }
-            $log.debug(err);
-            var msg = 'Survey update error';
-            if (err.data && err.data.message) {
-                msg += ': ' + err.data.message;
-            }
-            inform.add(msg, {
-                type: 'danger'
-            });
+        $state.go('survey.edit', {
+            surveyId: _survey ? _survey.id : -1,
         });
-
     };
-
+    
     var _reload = function () {
         _greyscaleSurvey.tableParams.reload();
     };
-
+    
     var _greyscaleSurvey = {
         title: 'Surveys',
         icon: 'fa-list',
@@ -109,6 +70,6 @@ angular.module('greyscale.tables')
             handler: _editSurvey
         }
     };
-
+    
     return _greyscaleSurvey;
 });
