@@ -3,10 +3,14 @@
 angular.module('greyscale.rest')
     .factory('greyscaleTaskApi', function (greyscaleRestSrv, $q) {
         function api() {
-            return greyscaleRestSrv().one('get_my_tasks');
+            return greyscaleRestSrv().one('tasks');
         }
 
-        function _list(params) {
+        function myApi() {
+            return greyscaleRestSrv().one('my_tasks');
+        }
+
+        function _myList(params) {
 
             var mock = [{
                 title: 'Easy task for you',
@@ -48,13 +52,18 @@ angular.module('greyscale.rest')
                 }
             }];
 
-            return api().get(params)
+            return myApi().get(params)
                 .catch(function () {
                     return $q.when(mock);
                 });
         }
 
+        function _del(taskId) {
+            return api().one(taskId + '').remove();
+        }
+
         return {
-            list: _list
+            myList: _myList,
+            del: _del
         };
     });

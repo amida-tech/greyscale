@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTableCell', function ($filter, $compile) {
+    .directive('widgetTableCell', function ($filter, $compile, $q, $http, $templateCache) {
 
         function decode(_set, dict, value) {
             var res = value;
@@ -44,8 +44,8 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'action':
                         elem.addClass('text-right row-actions');
-                        elem.append('<button ng-repeat="act in widgetCell.actions" class="btn btn-xs btn-{{act.class}}" ' +
-                            'ng-click="act.handler(rowValue);$event.stopPropagation();"><i class="fa {{act.icon}}" ng-show="act.icon"> </i>{{act.title|translate}}</button>');
+                        elem.append('<a ng-repeat="act in widgetCell.actions" class="action action-{{act.class}}" ' +
+                            'ng-click="act.handler(rowValue);$event.stopPropagation();"><i class="fa {{act.icon}}" ng-show="act.icon"> </i>{{act.title|translate}}</a>');
                         $compile(elem.contents())($scope);
                         break;
 
@@ -80,7 +80,9 @@ angular.module('greyscaleApp')
                         if (cell.multiselect) {
                             _compileMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate();
+                            _compileCellTemplate(cell.cellTemplate);
+                        } else if (cell.cellTemplateUrl) {
+                            _compileCellTemplateFromUrl();
                         } else {
                             _compileDefaultCell();
                         }
@@ -95,15 +97,31 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate() {
+                function _compileCellTemplate(template) {
                     $scope.row = $scope.rowValue;
-                    elem.append(cell.cellTemplate);
+                    $scope.cell = $scope.model;
+                    elem.append(template);
                     $compile(elem.contents())($scope);
+                }
+
+                function _compileCellTemplateFromUrl() {
+                    _getTemplateByUrl(cell.cellTemplateUrl)
+                        .then(_compileCellTemplate);
+                }
+
+                function _getTemplateByUrl(templateUrl) {
+                    return $http.get(templateUrl, {cache: $templateCache})
+                        .then(function(response){
+                            return response.data;
+                        });
                 }
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<input type="checkbox" class="multiselect-checkbox disable-control" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
+                    elem.append('<div class="checkbox"><label>' +
+                        '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
+                        'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
+                        '<div class="chk-box"></div></label></div>');
                     $compile(elem.contents())($scope);
                 }
 

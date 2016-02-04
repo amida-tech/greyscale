@@ -1,11 +1,9 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
-    <h3 class="modal-title">Units Of Analysis <small>For "{{product.title}}" Product</small></h3>
-</div>
+<modal-form-header>
+    Units Of Analysis
+    <small>For "{{product.title}}" Product</small>
+</modal-form-header>
 <div class="modal-body">
-
     <widget-table model="model.productUoas"></widget-table>
-
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()">Close</button>

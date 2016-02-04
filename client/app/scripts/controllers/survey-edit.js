@@ -12,7 +12,8 @@
 
 angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $stateParams, $state, $q) {
     var surveyId = $stateParams.surveyId;
-    
+    var projectId = $stateParams.projectId;
+
     var _survey;
     if (surveyId >= 0) {
         greyscaleSurveyApi.get(surveyId).get().then(function (survey) {
@@ -28,15 +29,19 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
         };
         $state.ext.surveyName = 'New survey';
     }
-    
+
     $scope.save = function () {
         _survey = $scope.model.survey;
-        //TODO remove
-        _survey.productId = 2;
+        _survey.projectId = projectId;
         (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey)).then(function (survey) {
-            if (!survey) survey = _survey;
-            else survey.questions = _survey.questions;
-            for (var i = 0; i < survey.questions.length; i++) survey.questions[i].surveyId = survey.id
+            if (!survey) {
+                survey = _survey;
+            } else {
+                survey.questions = _survey.questions;
+            }
+            for (var j = 0; j < survey.questions.length; j++) {
+                survey.questions[j].surveyId = survey.id;
+            }
             var questionsFunctions = [];
             if (survey.questions) {
                 for (var i = 0; i < survey.questions.length; i++) {
@@ -45,7 +50,7 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
             }
             return $q.all(questionsFunctions);
         }).then(function () {
-            $state.go('survey');
+            $state.go('projects.setup.surveys', { projectId: projectId });
         }).catch(function (err) {
             if (!err) {
                 return;
@@ -61,9 +66,9 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
         });
     };
     $scope.cancel = function () {
-        $state.go('survey');
+        $state.go('projects.setup.surveys', { projectId: projectId });
     };
-    
+
     function _getQuestionFunction(question) {
         if (question.deleted) {
             return greyscaleQuestionApi.delete(question);

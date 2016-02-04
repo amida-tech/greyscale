@@ -4,7 +4,7 @@ angular.module('greyscaleApp')
         greyscaleProductWorkflowApi, greyscaleProjectApi,
         greyscaleProductApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleUtilsSrv, greyscaleEntityTypeRoleApi, greyscaleUoaTypeApi,
-        greyscaleEntityTypeApi, inform) {
+        greyscaleEntityTypeApi, greyscaleTaskApi, inform, i18n) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -41,12 +41,10 @@ angular.module('greyscaleApp')
         //////////////////// interface logic ///////////////////////
 
         function _searchUsers() {
-            var searchRole = $scope.model.selectedRole
-                ? $scope.model.selectedRole.id
-                : null;
-            var searchText = $scope.model.searchText && $scope.model.searchText !== ''
-                ? $scope.model.searchText
-                : null;
+            var searchRole = $scope.model.selectedRole ?
+                $scope.model.selectedRole.id : null;
+            var searchText = $scope.model.searchText && $scope.model.searchText !== '' ?
+                $scope.model.searchText : null;
 
             $scope.model.usersSearchResult = _.filter($scope.model.usersList, function(assignee){
                 var acceptRole = searchRole && assignee.role.id === searchRole;
@@ -69,68 +67,102 @@ angular.module('greyscaleApp')
             $timeout(_initDragUser);
         }
 
-
-
         function _initDropUser() {
             _destroyDropUser();
 
             $('.drop-user').droppable({
                 over: function (e, ui) {
+                    var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
                     var taskViewModel = _getTaskViewModel(e);
-                    _setCellBgColor(e, taskViewModel, assigneeViewModel);
+                    if (_isAcceptableRole(taskViewModel, assigneeViewModel)) {
+                        if (_isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
+                            _indicateDropZone(cellEl);
+                        }
+                    } else {
+                        _indicateNotAcceptable(cellEl);
+                    }
                 },
                 out: function (e) {
-                    _resetCellBgColor(e);
+                    var cellEl = $(e.target);
+                    _resetIndications(cellEl);
                 },
                 drop: function (e, ui) {
+                    var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
                     var taskViewModel = _getTaskViewModel(e);
-                    if (taskViewModel.roleId === assigneeViewModel.role.id) {
+                    if (_isAcceptableRole(taskViewModel, assigneeViewModel) &&
+                        _isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
                         ui.helper.remove();
-                        taskViewModel.assignee = assigneeViewModel;
-                        _saveTask(taskViewModel);
-                        $timeout(function () {
-                            $scope.$apply();
-                        });
+                        _cellLoadingState(cellEl, true);
+                        _saveTask(taskViewModel, assigneeViewModel.id)
+                            .then(function(){
+                                taskViewModel.assignee = assigneeViewModel;
+                            })
+                            .finally(function(){
+                                _cellLoadingState(cellEl, false);
+                            });
                     }
-                    _resetCellBgColor(e);
+                    _resetIndications(cellEl);
                 }
             });
 
             $('.drop-user-bulk').droppable({
                 over: function (e, ui) {
+                    var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var taskViewModel = {};
-                    taskViewModel.roleId = _getClassId(e, 'role-id');
-                    _setCellBgColor(e, taskViewModel, assigneeViewModel);
+                    var checkTask = {};
+                    checkTask.roleId = _getClassId(e, 'role-id');
+                    if (_isAcceptableRole(checkTask, assigneeViewModel)) {
+                        if (_isAcceptableAssignee(checkTask, assigneeViewModel)) {
+                            _indicateDropZone(cellEl);
+                        }
+                    } else {
+                        _indicateNotAcceptable(cellEl);
+                    }
                 },
                 out: function (e) {
-                    _resetCellBgColor(e);
+                    var cellEl = $(e.target);
+                    _resetIndications(cellEl);
                 },
                 drop: function (e, ui) {
+                    var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var roleId = _getClassId(e, 'role-id');
-                    if (roleId === assigneeViewModel.role.id) {
+                    var checkTask = {};
+                    checkTask.roleId = _getClassId(e, 'role-id');
+                    if (_isAcceptableRole(checkTask, assigneeViewModel) &&
+                        _isAcceptableAssignee(checkTask, assigneeViewModel)) {
                         ui.helper.remove();
                         var stepId = _getClassId(e, 'step-id');
-                        _saveTasksAssignment(stepId, assigneeViewModel);
-                        $timeout(function () {
-                            $scope.$apply();
-                        });
+                        _cellLoadingState(cellEl, true);
+                        _saveTasksAssignment(stepId, assigneeViewModel)
+                            .then(function(){
+                                angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
+                                    var taskViewModel = uoa.steps[stepId];
+                                    taskViewModel.assignee = assigneeViewModel;
+                                });
+                            })
+                            .finally(function(){
+                                _cellLoadingState(cellEl, false);
+                            });
                     }
-                    _resetCellBgColor(e);
+                    _resetIndications(cellEl);
                 }
             });
 
-            $('.drop-user .unassign-user').on('click', function (e) {
+            $('.drop-user').on('click', '.unassign-user', function (e) {
                 e.stopPropagation();
-                var taskViewModel = _getTaskViewModel($(e.target).closest('.drop-user'));
-                taskViewModel.assignee = undefined;
-                _removeTask(taskViewModel);
-                $timeout(function () {
-                    $scope.$apply();
-                });
+                var cellEl = $(e.target).closest('.drop-user');
+                var taskViewModel = _getTaskViewModel(cellEl);
+                _cellLoadingState(cellEl, true);
+                _removeTask(taskViewModel)
+                    .then(function(){
+                        taskViewModel.assignee = undefined;
+                        delete(taskViewModel.taskId);
+                    })
+                    .finally(function(){
+                        _cellLoadingState(cellEl, false);
+                    });
             });
 
             function _getClassId(e, prefix) {
@@ -140,18 +172,31 @@ angular.module('greyscaleApp')
                 return match ? parseInt(match[1]) : undefined;
             }
 
-            function _resetCellBgColor(e) {
-                var cell = angular.element(e.target);
-                cell.removeClass('bg-danger bg-success');
+            function _cellLoadingState(el, state) {
+                el.css('opacity', state ? 0.5 : 1);
             }
 
-            function _setCellBgColor(e, task, user) {
-                var cell = angular.element(e.target);
-                if (task.roleId === user.role.id) {
-                    cell.addClass('bg-success');
-                } else {
-                    cell.addClass('bg-danger');
-                }
+            function _indicateDropZone(el) {
+                el.addClass('bg-success');
+                //el.append('<div class="drop-zone-indicator"><div></div></div>');
+            }
+
+            function _indicateNotAcceptable(el) {
+                el.addClass('bg-danger');
+            }
+
+            function _resetIndications(el) {
+                el.removeClass('bg-success');
+                //el.find('.drop-zone-indicator').remove();
+                el.removeClass('bg-danger');
+            }
+
+            function _isAcceptableRole(task, assignee) {
+                return task.roleId === assignee.role.id;
+            }
+
+            function _isAcceptableAssignee(task, assignee) {
+                return !task.assignee || task.assignee.id !== assignee.id;
             }
 
             function _getAssigneeViewModel(ui) {
@@ -199,63 +244,137 @@ angular.module('greyscaleApp')
 
         ///////////////////// action handlers ////////////////////
 
-        function _saveTasksAssignment(stepId, assigneeViewModel) {
-            //var taskViewModelsColumn = [];
-            //angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
-            //    var taskViewModel = uoa.steps[stepId];
-            //    taskViewModel.assignee = assigneeViewModel;
-            //    taskViewModelsColumn.push(taskViewModel);
-            //});
-            //var tasks = _findTasks(taskViewModelsColumn);
-            //
-            //greyscaleProductApi.product(productId).tasksListUpdate(tasks)
-            //.then(function(response){
-            //    var newTasks = _.find(tasks, function(task){
-            //        return !task.id;
-            //    });
-            //    if (response.inserted && response.inserted.length === newTasks.length) {
-            //        var i = 0;
-            //        //angular.forEach(tasks, function(task){
-            //        //    if (task)
-            //        //});
-            //    }
-            //    console.log(response);
-            //});
-        }
+        function _saveTask(taskViewModel, assigneeId) {
+            var defer = $q.defer();
 
-        function _saveTask(taskViewModel) {
             var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
-            console.log(task);
-            if (!task) {
-                task = {
-                    uoaId: taskViewModel.uoaId,
-                    stepId: taskViewModel.stepId
-                };
-            }
-            task.entityTypeRoleId = taskViewModel.assignee.id;
+            var saveTask = task ? angular.copy(task) : {
+                uoaId: taskViewModel.uoaId,
+                stepId: taskViewModel.stepId
+            };
+            saveTask.entityTypeRoleId = assigneeId;
 
-            greyscaleProductApi.product(productId).tasksListUpdate([task])
+            var updateStorage = function() {
+                if (!task) {
+                    _tasks.push(saveTask)
+                } else {
+                    angular.extend(task, saveTask);
+                }
+            };
+
+            greyscaleProductApi.product(productId).tasksListUpdate([saveTask])
+                //.catch(function(){// mock response
+                //    var response = {};
+                //    if (!task.id) {
+                //        response = {
+                //            inserted: [777]
+                //        };
+                //    }
+                //    return response;
+                //})
                 .then(function(response){
-                    if (!task.id && response.inserted && response.inserted[0]) {
-                        task.id = response.inserted[0];
+                    if (task && response.inserted && response.inserted[0]) {
+                        saveTask.id = response.inserted[0];
                     }
-                    console.log(response);
+                    updateStorage();
+                    defer.resolve();
+                })
+                .catch(function(error){
+                    _informError('task_update', error);
+                    defer.reject();
                 });
 
-            console.log('send save to productId:', productId, 'task', task);
+            return defer.promise;
         }
 
         function _removeTask(taskViewModel) {
+            var defer = $q.defer();
 
-            greyscaleProductApi.product(productId).tasksDel(taskViewModel.taskId)
+            var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
+            var taskId = task.id;
+
+            var updateStorage = function(){
+                _.remove(_tasks, {uoaId: taskViewModel.uoaId, stepId: taskViewModel.stepId});
+            };
+
+            greyscaleTaskApi.del(taskId)
+                //.catch(function(){// mock response
+                //    return [];
+                //})
                 .then(function(){
-                    delete(taskViewModel.taskId);
+                    updateStorage();
+                    defer.resolve();
+                })
+                .catch(function(error){
+                    _informError('task_remove', error);
+                    defer.reject();
                 });
 
-            console.log('send remove from productId:', productId, ', task:', taskViewModel);
+            return defer.promise;
         }
 
+        function _saveTasksAssignment(stepId, assigneeViewModel) {
+            var defer = $q.defer();
 
+            // assign user
+            var saveTasks = [];
+            var newTasks = [];
+            angular.forEach($scope.model.tasks.dataMap, function(uoaId){
+                var task = _findTask(uoaId, stepId);
+                var saveTask = task ? angular.copy(task) : {
+                    uoaId: uoaId,
+                    stepId: stepId
+                };
+                saveTask.entityTypeRoleId = assigneeViewModel.id;
+                saveTasks.push(saveTask);
+                if (!task) {
+                    newTasks.push(saveTask);
+                }
+            });
+
+            var updateStorage = function() {
+                angular.forEach(saveTasks, function(saveTask){
+                    var task = _findTask(saveTask.uoaId, stepId);
+                    if (!task) {
+                        _tasks.push(saveTask)
+                    } else {
+                        angular.extend(task, saveTask);
+                    }
+                });
+            };
+
+            greyscaleProductApi.product(productId).tasksListUpdate(saveTasks)
+                //.catch(function(){// mock response
+                //    return {
+                //        inserted: [3333,4444]
+                //    };
+                //})
+                .then(function(response){
+                    if (response.inserted && response.inserted.length === newTasks.length) {
+                        angular.forEach(newTasks, function(newTask, i){
+                            newTask.id = response.inserted[i];
+                        });
+                    }
+                    updateStorage();
+                    defer.resolve();
+                })
+                .catch(function(error){
+                    _informError('tasks_update', error);
+                    defer.reject();
+                });
+
+            return defer.promise;
+        }
+
+        function _informError(action, error) {
+            var message = i18n.translate(tns + action.toUpperCase() + '_ERROR');
+            if (error && error.message) {
+                message += ' ' + error.message;
+            }
+            inform.add(message, {
+                type: 'danger'
+            });
+        }
 
         ////////////////////  table-widget init /////////////////////
 
@@ -272,7 +391,7 @@ angular.module('greyscaleApp')
             var _table = {
                 title: tns + 'TITLE',
                 icon: 'fa-tasks',
-                //pageLength: 2,
+                pageLength: 10,
                 cols: _cols,
                 dataPromise: function () {
                     return _getTaskTableData(_table);
@@ -287,18 +406,13 @@ angular.module('greyscaleApp')
         function _setStepColumns(table, axisData) {
             angular.forEach(axisData.workflowSteps, function (step) {
                 table.cols.push({
-                    title: step.title,
+                    titleTemplate: '<b>{{step.title}}</b><br/><small class="text-muted">{{step.role.name}}</small>',
+                    titleTemplateData: {step: step},
                     show: true,
-                    class: 'drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
+                    class: 'drop-zone drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
-                    cellClass: 'drop-user',
-                    cellTemplate: '<span ng-hide="model.assignee" class="text-muted">{{model.role.name}}</span>' +
-                    '<span ng-show="model.assignee" class="text-success">{{model.role.name}}</span>' +
-                    '<br/>' +
-                    '<span ng-show="model.assignee">' +
-                    '  <b>{{model.assignee.user.firstName}} {{model.assignee.user.lastName}} ({{model.assignee.user.email}})</b>' +
-                    '<span class="unassign-user text-danger"><i class="fa fa-close"></i></span>' +
-                    '</span>&nbsp;'
+                    cellClass: 'drop-zone drop-user',
+                    cellTemplateUrl: 'views/controllers/partials/product-tasks-matrix-cell.html'
                 });
             });
         }
@@ -358,24 +472,8 @@ angular.module('greyscaleApp')
             }
         }
 
-        function _findTasks(taskViewModelsColumn) {
-            var tasks = [];
-            angular.forEach(taskViewModelsColumn, function(taskViewModel){
-                var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
-                if (!task) {
-                    task = {
-                        uoaId: taskViewModel.uoaId,
-                        stepId: taskViewModel.stepId
-                    };
-                }
-                task.entityTypeRoleId = taskViewModel.assignee.id;
-                tasks.push(task);
-            });
-            return tasks;
-        }
-
         function _findTask(uoaId, stepId) {
-            return _.find(_tasks, {uoaId: uoaId, stepId: stepId})
+            return _.find(_tasks, {uoaId: uoaId, stepId: stepId});
         }
 
         /////////////////////// data loading ///////////////////////
@@ -403,10 +501,10 @@ angular.module('greyscaleApp')
             }
 
             return $q.all(reqs).then(function (promises) {
-                $scope.model.workflowSteps = promises.workflowSteps;
                 _dicts.uoaTypes = promises.uoaTypes;
                 $scope.model.uoas = _addUoasRelations(promises.uoas);
                 _dicts.roles = _dicts.roles || promises.roles;
+                $scope.model.workflowSteps = _addWorkflowStepsRelations(promises.workflowSteps);
                 return promises;
             });
         }
@@ -475,6 +573,15 @@ angular.module('greyscaleApp')
                 });
             });
             return uoas;
+        }
+
+        function _addWorkflowStepsRelations(workflowSteps) {
+            angular.forEach(workflowSteps, function (step) {
+                step.role = _.find(_dicts.roles, {
+                    id: step.roleId
+                });
+            });
+            return workflowSteps;
         }
 
         function _loadProductTasks(product) {
