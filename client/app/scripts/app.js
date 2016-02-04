@@ -220,6 +220,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'NAV.PROJECTS.SURVEYS'
             }
         })
+        .state('projects.setup.surveys.edit', {
+            url: '/:surveyId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey-edit.html',
+                    controller: 'SurveyEditCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.surveyName}}'
+            }
+        })
         .state('projects.setup.products', {
             url: '/products',
             templateUrl: 'views/controllers/project-setup-products.html',
@@ -303,33 +315,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TASKS',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
-            }
-        })
-        .state('survey', {
-            parent: 'home',
-            url: 'survey',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/survey.html',
-                    controller: 'SurveyCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.FORM_BUILDER',
-                isPublic: false
-            }
-        })
-        .state('survey.edit', {
-            url: 'projects/:projectId/surveys/:surveyId',
-            parent: 'home',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/survey-edit.html',
-                    controller: 'SurveyEditCtrl'
-                }
-            },
-            data: {
-                name: '{{ext.surveyName}}'
             }
         })
         .state('visualization', {
