@@ -10,7 +10,6 @@
                 if (attr.type !== 'checkbox' || el.hasClass('styled-checkbox')) {
                     return;
                 }
-                _styleCheckbox(el);
             }
         };
     });
