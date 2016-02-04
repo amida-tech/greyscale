@@ -119,6 +119,9 @@
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
+                "TASKS_UPDATE_ERROR": "",
+                "TASK_REMOVE_ERROR": "",
+                "TASK_UPDATE_ERROR": "",
                 "TITLE": "Назначение пользователя на выполнение задачи",
                 "UOAS_HEADER": "Единица анализа",
                 "UOAS_TYPE_HEADER": ""
