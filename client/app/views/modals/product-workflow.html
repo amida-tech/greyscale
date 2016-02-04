@@ -1,12 +1,12 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
-    <h3 class="modal-title" translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></h3>
-</div>
+<modal-form-header>
+    <span translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+</modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
 
     <div name="dataForm" class="form" ng-form="dataForm">
         <div class="form-group">
             <label translate=".TITLE"></label>
+
             <div>
                 <input type="text" class="form-control" name="name" id="name"
                        ng-model="model.product.workflow.name"
@@ -20,14 +20,16 @@
         </div>
         <div class="form-group">
             <label translate=".DESCRIPTION"></label>
+
             <div>
                 <textarea type="text" class="form-control" name="description" id="description"
-                       ng-model="model.product.workflow.description"
-                       ng-required="true" ng-minlength="1"></textarea>
+                          ng-model="model.product.workflow.description"
+                          ng-required="true" ng-minlength="1"></textarea>
 
                 <div class="text-center" ng-messages="dataForm.description.$error" role="alert"
                      ng-if="dataForm.description.$dirty">
-                    <span ng-message="required, minlength" class="help-block"><span translate=".DESCRIPTION_REQUIRED"></span></span>
+                    <span ng-message="required, minlength" class="help-block"><span
+                        translate=".DESCRIPTION_REQUIRED"></span></span>
                 </div>
             </div>
         </div>
@@ -37,6 +39,7 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()" translate="COMMON.SAVE"></button>
+    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()"
+            translate="COMMON.SAVE"></button>
 </div>
 

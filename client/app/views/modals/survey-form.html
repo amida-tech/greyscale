@@ -1,7 +1,6 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
-    <h3 class="modal-title"><span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> Fields</h3>
-</div>
+<modal-form-header>
+    <span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> Fields
+</modal-form-header>
 <div class="modal-body">
     <div class="row">
         <div name="dataForm" class="form-horizontal" ng-form="dataForm">

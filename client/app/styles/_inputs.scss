@@ -1,3 +1,4 @@
+.radio,
 .checkbox {
     input {
         display: none;
@@ -6,16 +7,21 @@
             display: block;
             border-radius: 3px;
             content: '';
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             position: absolute;
-            top: 1px;
+            top: 0;
             left: 1px;
-            bottom: 1px;
+            bottom: 0;
             margin: auto 0;
             background-color: white;
             border: solid 1px $grey-medium-light;
         }
+
+        &[type="radio"] +.chk-box {
+            border-radius: 7px;
+        }
+
         &:checked + .chk-box {
             background-color: $green;
         }

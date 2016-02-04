@@ -1,9 +1,7 @@
 <div translate-namespace="TRANSLATION">
-    <div class="modal-header">
-        <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span>
-        </button>
-        <h3 class="modal-title" translate=".TITLE"></h3>
-    </div>
+    <modal-form-header>
+        <span translate=".TITLE"></span>
+    </modal-form-header>
     <div class="modal-body">
         <div name="transForm" class="form-horizontal translation-form" ng-form="transForm">
             <div class="form-group" ng-repeat="item in model.translations">
