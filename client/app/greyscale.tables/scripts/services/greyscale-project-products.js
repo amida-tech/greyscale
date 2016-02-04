@@ -92,6 +92,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'PRODUCT',
+            pageLength: 10,
             add: {
                 title: 'COMMON.CREATE',
                 handler: _editProduct

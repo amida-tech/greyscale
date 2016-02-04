@@ -391,7 +391,7 @@ angular.module('greyscaleApp')
             var _table = {
                 title: tns + 'TITLE',
                 icon: 'fa-tasks',
-                //pageLength: 2,
+                pageLength: 10,
                 cols: _cols,
                 dataPromise: function () {
                     return _getTaskTableData(_table);
