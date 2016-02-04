@@ -77,7 +77,11 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function*(){
             yield* checkSurveyData(req);
-            return yield thunkQuery(Survey.update(_.pick(req.body, Survey.table._initialConfig.columns)).where(Survey.id.equals(req.params.id)));
+            return yield thunkQuery(
+                Survey
+                .update(_.pick(req.body, Survey.table._initialConfig.columns))
+                .where(Survey.id.equals(req.params.id))
+            );
         }).then(function(data) {
             res.status(202).end();
         }, function(err) {
@@ -88,7 +92,17 @@ module.exports = {
   insertOne: function (req, res, next) {
     co(function*(){
         yield* checkSurveyData(req);
-        return yield thunkQuery(Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id));
+
+        var survey = yield thunkQuery(
+            Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id)
+        );
+        // TODO survey questions
+        //if (req.body.questions) {
+        //    for (var i in req.body.questions)
+        //    console.log('q=' + req.body.questions);
+        //}
+
+        return survey;
     }).then(function(data) {
         res.status(201).json(_.first(data));
     }, function(err) {

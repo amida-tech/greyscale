@@ -26,7 +26,7 @@ var Product = sql.define({
     columns: columns
 });
 
-Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId'];
+Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId', 'surveyId'];
 
 Product.translate = translate;
 
