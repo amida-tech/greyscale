@@ -4,6 +4,7 @@
     }
 }
 .widget-header {
+    @extend h2;
     .row>div {
         margin-bottom: 0;
     }

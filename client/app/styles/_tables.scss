@@ -20,25 +20,31 @@
             margin-left: 0;
         }
     }
-    th.header {
-        &.header-actions, &.header-multiselect {
-            width: 1%;
-        }
-        .select-all {
-            margin: 0;
-            position: relative;
-            top: 2px;
+    th {
+        @extend h2;
+        .header {
+            &.header-actions, &.header-multiselect {
+                width: 1%;
+            }
+            .select-all {
+                margin: 0;
+                position: relative;
+                top: 2px;
+            }
         }
     }
-    td.input-cell {
-        .form-group {
-            margin: -6px 0;
-        }
-        &.auto-width {
-            width: 1%;
-        }
-        .input-group {
-            margin: 0;
+    td {
+        @extend p;
+        .input-cell {
+            .form-group {
+                margin: -6px 0;
+            }
+            &.auto-width {
+                width: 1%;
+            }
+            .input-group {
+                margin: 0;
+            }
         }
     }
     table.table {
@@ -78,6 +84,7 @@
         z-index: 1000;
     }
 }
+
 .drop-user {
     .text-muted {
         opacity: 0.4;

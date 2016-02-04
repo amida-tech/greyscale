@@ -1,0 +1,12 @@
+.action,
+.action-primary {
+    @extend a;
+    margin: 0 3px;
+}
+
+.action-secondary {
+    color: $grey-medium-light;
+    &:hover {
+        color: $grey-medium-dark;
+    }
+}
