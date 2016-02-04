@@ -111,10 +111,10 @@ angular.module('greyscaleApp')
                 over: function (e, ui) {
                     var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var taskViewModel = {};
-                    taskViewModel.roleId = _getClassId(e, 'role-id');
-                    if (_isAcceptableRole(taskViewModel, assigneeViewModel)) {
-                        if (_isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
+                    var checkTask = {};
+                    checkTask.roleId = _getClassId(e, 'role-id');
+                    if (_isAcceptableRole(checkTask, assigneeViewModel)) {
+                        if (_isAcceptableAssignee(checkTask, assigneeViewModel)) {
                             _indicateDropZone(cellEl);
                         }
                     } else {
@@ -128,14 +128,23 @@ angular.module('greyscaleApp')
                 drop: function (e, ui) {
                     var cellEl = $(e.target);
                     var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var roleId = _getClassId(e, 'role-id');
-                    if (roleId === assigneeViewModel.role.id) {
+                    var checkTask = {};
+                    checkTask.roleId = _getClassId(e, 'role-id');
+                    if (_isAcceptableRole(checkTask, assigneeViewModel) &&
+                        _isAcceptableAssignee(checkTask, assigneeViewModel)) {
                         ui.helper.remove();
                         var stepId = _getClassId(e, 'step-id');
-                        _saveTasksAssignment(stepId, assigneeViewModel);
-                        $timeout(function () {
-                            $scope.$apply();
-                        });
+                        _cellLoadingState(cellEl, true);
+                        _saveTasksAssignment(stepId, assigneeViewModel)
+                            .then(function(){
+                                angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
+                                    var taskViewModel = uoa.steps[stepId];
+                                    taskViewModel.assignee = assigneeViewModel;
+                                });
+                            })
+                            .finally(function(){
+                                _cellLoadingState(cellEl, false);
+                            });
                     }
                     _resetIndications(cellEl);
                 }
@@ -238,21 +247,19 @@ angular.module('greyscaleApp')
         function _saveTask(taskViewModel, assigneeId) {
             var defer = $q.defer();
 
-            // find/create task
-            // assign user
             var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
-            if (!task) {
-                task = {
-                    uoaId: taskViewModel.uoaId,
-                    stepId: taskViewModel.stepId
-                };
-                _tasks.push(task);
-            }
-            var saveTask = angular.copy(task);
+            var saveTask = task ? angular.copy(task) : {
+                uoaId: taskViewModel.uoaId,
+                stepId: taskViewModel.stepId
+            };
             saveTask.entityTypeRoleId = assigneeId;
 
             var updateStorage = function() {
-                angular.extend(task, saveTask);
+                if (!task) {
+                    _tasks.push(saveTask)
+                } else {
+                    angular.extend(task, saveTask);
+                }
             };
 
             greyscaleProductApi.product(productId).tasksListUpdate([saveTask])
@@ -266,8 +273,8 @@ angular.module('greyscaleApp')
                 //    return response;
                 //})
                 .then(function(response){
-                    if (!task.id && response.inserted && response.inserted[0]) {
-                        task.id = response.inserted[0];
+                    if (task && response.inserted && response.inserted[0]) {
+                        saveTask.id = response.inserted[0];
                     }
                     updateStorage();
                     defer.resolve();
@@ -307,48 +314,56 @@ angular.module('greyscaleApp')
         }
 
         function _saveTasksAssignment(stepId, assigneeViewModel) {
-            // show assigned in visible zone
-            angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
-                var taskViewModel = uoa.steps[stepId];
-                taskViewModel.assignee = assigneeViewModel;
-            });
+            var defer = $q.defer();
 
-            // find/create tasks of whole column
             // assign user
-            var tasks = [];
+            var saveTasks = [];
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function(uoaId){
                 var task = _findTask(uoaId, stepId);
+                var saveTask = task ? angular.copy(task) : {
+                    uoaId: uoaId,
+                    stepId: stepId
+                };
+                saveTask.entityTypeRoleId = assigneeViewModel.id;
+                saveTasks.push(saveTask);
                 if (!task) {
-                    task = {
-                        uoaId: uoaId,
-                        stepId: stepId
-                    };
-                    _tasks.push(task);
-                    newTasks.push(task);
+                    newTasks.push(saveTask);
                 }
-                task.entityTypeRoleId = assigneeViewModel.id;
-                tasks.push(task);
             });
 
-            // send tasks to backend for bulk update
-            greyscaleProductApi.product(productId).tasksListUpdate(tasks)
+            var updateStorage = function() {
+                angular.forEach(saveTasks, function(saveTask){
+                    var task = _findTask(saveTask.uoaId, stepId);
+                    if (!task) {
+                        _tasks.push(saveTask)
+                    } else {
+                        angular.extend(task, saveTask);
+                    }
+                });
+            };
+
+            greyscaleProductApi.product(productId).tasksListUpdate(saveTasks)
                 //.catch(function(){// mock response
                 //    return {
                 //        inserted: [3333,4444]
                 //    };
                 //})
                 .then(function(response){
-                    // get ids of new tasks and save to client storage
                     if (response.inserted && response.inserted.length === newTasks.length) {
                         angular.forEach(newTasks, function(newTask, i){
                             newTask.id = response.inserted[i];
                         });
                     }
+                    updateStorage();
+                    defer.resolve();
                 })
                 .catch(function(error){
                     _informError('tasks_update', error);
+                    defer.reject();
                 });
+
+            return defer.promise;
         }
 
         function _informError(action, error) {
