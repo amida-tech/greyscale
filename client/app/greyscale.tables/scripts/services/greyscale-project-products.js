@@ -37,12 +37,12 @@ angular.module('greyscale.tables')
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
-                valField: 'name'
+                valField: 'title'
             },
             link: {
-                target: '_blank',
-                href: '/survey/{{item.id}}'
-                    //state: 'projects.setup({projectId: item.id})'
+                //target: '_blank',
+                //href: '/survey/{{item.id}}'
+                state: 'projects.setup.surveys.edit({projectId: item.id, surveyId: item.surveyId})'
             }
         }, {
             field: 'workflow.name',
