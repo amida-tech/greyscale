@@ -54,12 +54,23 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = Survey.delete().where(Survey.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+        co(function*(){
+            var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.params.id)));
+            if (_.first(products)) {
+                throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
             }
+            var questions = yield thunkQuery(SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id)));
+            if(questions.length){
+                for(var i in questions){
+                    yield thunkQuery(SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))); // delete options
+                    yield thunkQuery(SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))); // delete question
+                }
+            }
+            yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
+        }).then(function(data){
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
@@ -170,10 +181,10 @@ function* checkQuestionData(req, isCreate) {
     if (isCreate) {
         if(
             typeof req.body.label == 'undefined' ||
-            typeof req.body.surveyId == 'undefined' ||
+            //typeof req.body.surveyId == 'undefined' ||
             typeof req.body.type == 'undefined'
         ){
-            throw new HttpError(403, 'label, surveyId and type fields are required');
+            throw new HttpError(403, 'label, surveyId(in params) and type fields are required');
         }
     } else {
         var question = yield thunkQuery(

@@ -107,11 +107,7 @@ module.exports = {
                     .where(Survey.projectId.equals(req.params.id))
                     .group(Survey.id)
             );
-            if (_.first(data)) {
-                return data;
-            } else {
-                throw new HttpError(404, 'Not found');
-            }
+            return data;
         }).then(function(data){
             res.json(data);
         },function(err){
