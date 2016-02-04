@@ -28,7 +28,7 @@ angular.module('greyscaleApp').controller('TableCtrl', function ($scope, $http) 
         rendererName: 'Table'
     };
 
-    var request = $http.get('scripts/controllers/resources/mps.json')
+    var request = $http.get('fixtures/mps.json')
         .success(function (data) {
 
             $('#pivotTable').pivotUI(
