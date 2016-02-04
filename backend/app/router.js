@@ -158,6 +158,20 @@ router.route('/:realm/v0.2/languages/:id')
     .delete(authenticate('token').always, languages.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    TASKS
+//----------------------------------------------------------------------------------------------------------------------
+var tasks = require('app/controllers/tasks');
+
+router.route('/:realm/v0.2/tasks')
+    .get(authenticate('token').always, tasks.select)
+    .post(authenticate('token').always, tasks.insertOne);
+
+//router.route('/:realm/v0.2/languages/:id')
+//    .get(authenticate('token').always, languages.selectOne)
+//    .put(authenticate('token').always, languages.editOne)
+//    .delete(authenticate('token').always, languages.delete);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
 var translations = require('app/controllers/translations');
