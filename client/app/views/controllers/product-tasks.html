@@ -1,9 +1,7 @@
 <div class="row" translate-namespace="PRODUCTS.TASKS">
     <div ng-if="model.workflowSteps.length" class="col-md-9">
         <div ng-if="model.tasks">
-
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
-
         </div>
 
         <div ng-hide="model.tasks" class="loading"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>

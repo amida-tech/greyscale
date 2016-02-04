@@ -110,14 +110,10 @@ angular.module('greyscaleApp')
                 }
 
                 function _getTemplateByUrl(templateUrl) {
-                    var template = $templateCache.get(templateUrl);
-                    if (!template) {
-                        return $http.get(templateUrl, {cache: $templateCache})
-                            .then(function(response){
-                                return response.data;
-                            });
-                    }
-                    return $q.when(template);
+                    return $http.get(templateUrl, {cache: $templateCache})
+                        .then(function(response){
+                            return response.data;
+                        });
                 }
 
                 function _compileMultiselectCell() {
