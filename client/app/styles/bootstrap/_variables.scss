@@ -2,7 +2,11 @@
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
 
 $btn-primary-bg: $green !default;
+$btn-default-bg: $grey-medium-light;
+$btn-info-bg: $grey-medium-light;
+
 $link-hover-color: $green-dark !default;
+$link-color: $green;
 
 $headings-font-family: "Helvetica";
 $headings-font-weight: bold;
@@ -14,5 +18,3 @@ $font-size-h3: 16px;
 $font-size-h4: 14px;
 $font-size-h5: 12px;
 $font-size-h6: 10px;
-
-$btn-default-bg: $grey-medium-light;
