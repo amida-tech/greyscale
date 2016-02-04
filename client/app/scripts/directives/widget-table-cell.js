@@ -122,7 +122,10 @@ angular.module('greyscaleApp')
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<input type="checkbox" class="multiselect-checkbox disable-control" ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />');
+                    elem.append('<div class="checkbox"><label>' +
+                        '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
+                        'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
+                        '<div class="chk-box"></div></label></div>');
                     $compile(elem.contents())($scope);
                 }
 
