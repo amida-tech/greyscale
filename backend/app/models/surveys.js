@@ -6,7 +6,6 @@ var Survey = sql.define({
         'id',
         'title',
         'description',
-        'productId',
         'created',
         'projectId'
     ]

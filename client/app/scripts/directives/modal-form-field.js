@@ -58,7 +58,7 @@ angular.module('greyscaleApp')
                         }
                     } else {
                         if (!_embedded) {
-                            field += (clmn.dataFormat === 'boolean' ? ' checkbox' : '') + '">';
+                            field += '">';
                         }
 
                         switch (clmn.dataFormat) {
@@ -80,7 +80,9 @@ angular.module('greyscaleApp')
                                 '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select>';
                             break;
                         case 'boolean':
-                            field += '<input type="checkbox" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
+                            field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
+                                '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
+                                '<i class="chk-box"></i></label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
