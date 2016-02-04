@@ -58,7 +58,7 @@ angular.module('greyscale.tables')
         };
 
         function _getData() {
-            return greyscaleTaskApi.list();
+            return greyscaleTaskApi.myList();
         }
 
         return _table;

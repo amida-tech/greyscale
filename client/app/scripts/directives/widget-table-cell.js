@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTableCell', function ($filter, $compile) {
+    .directive('widgetTableCell', function ($filter, $compile, $q, $http, $templateCache) {
 
         function decode(_set, dict, value) {
             var res = value;
@@ -80,7 +80,9 @@ angular.module('greyscaleApp')
                         if (cell.multiselect) {
                             _compileMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate();
+                            _compileCellTemplate(cell.cellTemplate);
+                        } else if (cell.cellTemplateUrl) {
+                            _compileCellTemplateFromUrl();
                         } else {
                             _compileDefaultCell();
                         }
@@ -95,10 +97,27 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate() {
+                function _compileCellTemplate(template) {
                     $scope.row = $scope.rowValue;
-                    elem.append(cell.cellTemplate);
+                    $scope.cell = $scope.model;
+                    elem.append(template);
                     $compile(elem.contents())($scope);
+                }
+
+                function _compileCellTemplateFromUrl() {
+                    _getTemplateByUrl(cell.cellTemplateUrl)
+                        .then(_compileCellTemplate);
+                }
+
+                function _getTemplateByUrl(templateUrl) {
+                    var template = $templateCache.get(templateUrl);
+                    if (!template) {
+                        return $http.get(templateUrl, {cache: $templateCache})
+                            .then(function(response){
+                                return response.data;
+                            });
+                    }
+                    return $q.when(template);
                 }
 
                 function _compileMultiselectCell() {

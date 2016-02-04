@@ -4,7 +4,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter, $compile, i18n, $timeout) {
+    .directive('widgetTable', function (_, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope) {
+        var _templateCacheIds = [];
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -88,6 +90,11 @@ angular.module('greyscaleApp')
                     if ($scope.model.multiselect && $scope.model.multiselect.reset) {
                         $scope.model.multiselect.reset();
                     }
+                    if (_templateCacheIds.length) {
+                        angular.forEach(_templateCacheIds, function(templateId){
+                            $templateCache.remove(templateId);
+                        });
+                    }
                 });
             }
         };
@@ -118,7 +125,23 @@ angular.module('greyscaleApp')
                 if (col.title) {
                     col.title = i18n.translate(col.title);
                 }
+                if (col.titleTemplate) {
+                    _setTitleTemplate(col);
+                }
             });
+        }
+
+        function _setTitleTemplate(col) {
+            var template = col.titleTemplate;
+            var templateId = 'widget-table-' + Math.random();
+            _templateCacheIds.push(templateId);
+            var scope = $rootScope.$new();
+            angular.extend(scope, col.titleTemplateData||{});
+            template = $compile(template)(scope);
+            $templateCache.put(templateId, template);
+            col.headerTemplateURL = function () {
+                return templateId;
+            };
         }
 
         function _setMultiselect(col, model) {
