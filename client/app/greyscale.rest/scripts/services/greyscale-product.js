@@ -29,9 +29,29 @@ angular.module('greyscale.rest')
             return api().one(productId + '').one('uoa');
         }
 
+        function _productTasksApi(productId) {
+            return api().one(productId + '').one('tasks');
+        }
+
         function _uoasList(productId) {
             return function (params) {
                 return _productUoasApi(productId).get(params);
+            };
+        }
+
+        function _tasksList(productId) {
+            return function (params) {
+                return _productTasksApi(productId).get(params)
+                    .catch(function(){
+                        return $q.when([
+                            {id: 1, uoaId: 1, stepId: 23, entityTypeRoleId: 30},
+                            {id: 2, uoaId: 5, stepId: 23, entityTypeRoleId: 34},
+                            {id: 3, uoaId: 1, stepId: 22, entityTypeRoleId: 33},
+                            {id: 4, uoaId: 2, stepId: 22, entityTypeRoleId: 33},
+                            {id: 5, uoaId: 5, stepId: 22, entityTypeRoleId: 33},
+                            {id: 6, uoaId: 5, stepId: 19, entityTypeRoleId: 35},
+                        ]);
+                    });
             };
         }
 
@@ -41,9 +61,21 @@ angular.module('greyscale.rest')
             };
         }
 
+        function _tasksListUpdate(productId) {
+            return function (tasks) {
+                return _productTasksApi(productId).customPUT(tasks);
+            };
+        }
+
         function _uoasDel(productId) {
             return function (uoaId) {
                 return _productUoasApi(productId).one(uoaId + '').remove();
+            };
+        }
+
+        function _tasksDel(productId) {
+            return function (taskId) {
+                return _productTasksApi(productId).one(taskId + '').remove();
             };
         }
 
@@ -51,7 +83,10 @@ angular.module('greyscale.rest')
             return {
                 uoasList: _uoasList(productId),
                 uoasAddBulk: _uoasAddBulk(productId),
-                uoasDel: _uoasDel(productId)
+                uoasDel: _uoasDel(productId),
+                tasksList: _tasksList(productId),
+                tasksListUpdate: _tasksListUpdate(productId),
+                tasksDel: _tasksDel(productId)
             };
         };
 

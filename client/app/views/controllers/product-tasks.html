@@ -13,28 +13,28 @@
                     ng-model="model.selectedRole"
                     ng-change="searchUsers()"
                     ng-options="role as role.name for role in model.roles">
-                <option value="" disabled translate=".SELECT_ROLE"></option>
+                <option value=""></option>
             </select>
         </div>
-        <div class="form-group" ng-if="model.selectedRole.id">
+        <div class="form-group">
             <label translate=".SEARCH_USER_LABEL"></label>
             <input type="text" class="form-control"
                    ng-change="searchUsers()"
-                   ng-model="model.searchUser" />
+                   ng-model="model.searchText" />
         </div>
         <div class="form-group" ng-if="model.usersSearchResult.length">
             <label translate=".DRAG_USER"></label>
             <table class="table table-bordered table-hover">
                 <tbody>
                     <tr ng-repeat="item in model.usersSearchResult track by item.id">
-                        <td class="drag-user" ng-bind-html="item.user.firstName + ' ' + item.user.lastName + ' (' + item.user.email + ')' | highlight:model.searchUser"></td>
+                        <td class="drag-user" ng-bind-html="item.user.firstName + ' ' + item.user.lastName + ' (' + item.user.email + ')' | highlight:model.searchText"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="alert alert-warning" ng-if="model.usersSearchResult && !model.usersSearchResult.length">
-            <span translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name, search: model.searchUser}"></span>
-            <span ng-show="model.searchUser" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></span>
+        <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedRole.id || model.searchText)">
+            <div ng-show="model.selectedRole.id" translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name}"></div>
+            <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></div>
         </div>
     </div>
     <div ng-if="model.workflowSteps && !model.workflowSteps.length" class="col-md-12">
