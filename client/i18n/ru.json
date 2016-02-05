@@ -160,6 +160,7 @@
         "HEADER": "Проекты",
         "ITEM": "Проект",
         "ORGANIZATION": "Организация",
+        "PAUSE_PROJECT": "",
         "PROJECT": "Проект",
         "PROJECTS": "Проекты",
         "ROLES": {
@@ -167,6 +168,7 @@
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
+        "START_PROJECT": "",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
     },
