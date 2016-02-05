@@ -1,22 +1,5 @@
-#page-wrapper:not(.open) ul.sidebar .sidebar-title.separator,
-.sidebar-footer,
-#sidebar-wrapper {
-    background-color: $grey-light;
-}
-
-ul.sidebar .sidebar-list a:hover,
-ul.sidebar .sidebar-main a {
-    background-color: transparent;
-}
-
 #sidebar-wrapper {
     left: -70px;
-    .logo {
-        margin: 15px;
-        width: 185px;
-        float: left;
-        background-position: left center;
-    }
 }
 
 ul.sidebar {
@@ -72,8 +55,6 @@ ul.sidebar {
             color: $green;
         }
         .menu-icon {
-            padding: 0 15px 0 0;
-            margin: 0;
         }
     }
 }
