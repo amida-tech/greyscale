@@ -72,7 +72,7 @@ angular.module('greyscale.tables')
             var _reqs = {
                 rights: greyscaleRightApi.list(),
                 eTypes: greyscaleEntityTypeApi.list({
-                    fields: 'id, name'
+                    fields: 'id,name'
                 })
             };
             return $q.all(_reqs).then(function (promises) {

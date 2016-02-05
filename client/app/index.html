@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -9,8 +9,6 @@
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/formbuilder/dist/formbuilder.css" />
-    <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.css" />
-    <link rel="stylesheet" href="bower_components/rdash-ui/dist/css/rdash.min.css" />
     <link rel="stylesheet" href="bower_components/angular-inform/dist/angular-inform.css" />
     <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.min.css" />
     <link rel="stylesheet" href="bower_components/isteven-angular-multiselect/isteven-multi-select.css" />
@@ -63,13 +61,13 @@
 <script src="bower_components/pivottable/dist/pivot.js"></script>
 <script src="bower_components/d3/d3.js"></script>
 <script src="bower_components/c3/c3.js"></script>
+<script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
 <!-- endbower -->
-<!-- endbuild -->
-
 <!-- extra rendering code for pivot tables -->
 <script src="bower_components/pivottable/dist/c3_renderers.min.js"></script>
 <script src="bower_components/pivottable/dist/d3_renderers.min.js"></script>
 <script src="bower_components/pivottable/dist/export_renderers.min.js"></script>
+<!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/rdash-angular.js -->
 <script src="vendors/rdash/module.js"></script>
@@ -86,8 +84,10 @@
 <script src="greyscale.core/scripts/greyscale.core.js"></script>
 <script src="greyscale.core/scripts/config/greyscale-env.js"></script>
 <script src="greyscale.core/scripts/config/greyscale-globals.js"></script>
+<script src="greyscale.core/scripts/services/grayscale-i18n.js"></script>
 <script src="greyscale.core/scripts/config/greyscale-side-menu.js"></script>
 <script src="greyscale.core/scripts/filters/greyscale-languages.js"></script>
+<script src="greyscale.core/scripts/filters/highlight.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-base64.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-token.js"></script>
 <script src="greyscale.core/scripts/services/greyscale-profile.js"></script>
@@ -113,6 +113,7 @@
 <script src="greyscale.rest/scripts/services/greyscale-entity-type-role.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-role.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-survey.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-question.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-user.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-right.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-project.js"></script>
@@ -123,6 +124,7 @@
 <script src="greyscale.rest/scripts/services/greyscale-product-workflow.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-message.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-translation.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-task.js"></script>
 <!-- end greyscale.user -->
 <!-- endbuild -->
 
@@ -146,11 +148,11 @@
 <script src="greyscale.tables/scripts/services/greyscale-rights.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-role-rights.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-organizations.js"></script>
-<script src="greyscale.tables/scripts/services/greyscale-surveys.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-product-uoas.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-product-workflow.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-entity-roles.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-workflow-steps.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-my-tasks.js"></script>
 <!-- end greyscale.tables -->
 <!-- endbuild -->
 
@@ -173,25 +175,29 @@
 <script src="scripts/controllers/register.js"></script>
 <script src="scripts/controllers/activate.js"></script>
 <script src="scripts/controllers/profile.js"></script>
+<script src="scripts/controllers/my-tasks.js"></script>
 <script src="scripts/controllers/uoas.js"></script>
 <script src="scripts/controllers/access.js"></script>
 <script src="scripts/controllers/users.js"></script>
+<script src="scripts/controllers/users-import.js"></script>
+<script src="scripts/controllers/users-list.js"></script>
+<script src="scripts/controllers/users-uoa.js"></script>
 <script src="scripts/controllers/dashboard.js"></script>
 <script src="scripts/controllers/projects.js"></script>
 <script src="scripts/controllers/project-setup.js"></script>
 <script src="scripts/controllers/project-setup-roles.js"></script>
 <script src="scripts/controllers/project-setup-surveys.js"></script>
 <script src="scripts/controllers/project-setup-products.js"></script>
-<script src="scripts/controllers/project-setup-tasks.js"></script>
+<script src="scripts/controllers/product-tasks.js"></script>
 <script src="scripts/controllers/organizations.js"></script>
-<script src="scripts/controllers/survey.js"></script>
+<script src="scripts/controllers/survey-edit.js"></script>
 <script src="scripts/controllers/visualization.js"></script>
 <script src="scripts/controllers/graph.js"></script>
 <script src="scripts/controllers/table.js"></script>
 <script src="scripts/controllers/users-uoa.js"></script>
 <script src="scripts/controllers/workflow-steps.js"></script>
 <script src="scripts/controllers/home.js"></script>
-<script src="scripts/controllers/translation.js"></script>
+<script src="scripts/controllers/the-wall.js"></script>
 <script src="scripts/controllers/modals/simple-form.js"></script>
 <script src="scripts/controllers/modals/modal-form.js"></script>
 <script src="scripts/controllers/modals/modal-product-uoas.js"></script>
@@ -209,17 +215,20 @@
 <script src="scripts/directives/is-equal.js"></script>
 <script src="scripts/directives/widget-table.js"></script>
 <script src="scripts/directives/widget-table-cell.js"></script>
-<script src="scripts/directives/modal-form-footer.js"></script>
 <script src="scripts/directives/form-builder.js"></script>
 <script src="scripts/directives/graph-builder.js"></script>
 <script src="scripts/directives/select-date.js"></script>
+<script src="scripts/directives/modal-form-header.js"></script>
 <script src="scripts/directives/modal-form-field.js"></script>
+<script src="scripts/directives/modal-form-footer.js"></script>
 <script src="scripts/directives/checkbox-list.js"></script>
 <script src="scripts/directives/propagate-disabled.js"></script>
 <script src="scripts/directives/visualization.js"></script>
 <script src="scripts/directives/language-selector.js"></script>
 <script src="scripts/directives/translation.js"></script>
 <script src="scripts/directives/translation-input.js"></script>
+<script src="scripts/directives/upload-form.js"></script>
+<!--script src="scripts/directives/checkbox.js"></script-->
 <!-- end directives -->
 <!-- endbuild -->
 

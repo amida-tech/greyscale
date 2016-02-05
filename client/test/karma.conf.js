@@ -54,6 +54,7 @@ module.exports = function(config) {
       'bower_components/pivottable/dist/pivot.js',
       'bower_components/d3/d3.js',
       'bower_components/c3/c3.js',
+      'bower_components/angular-file-upload/dist/angular-file-upload.min.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",

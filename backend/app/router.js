@@ -70,6 +70,9 @@ router.route('/:realm/v0.2/projects/:id')
 router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('token').always, projects.productList);
 
+router.route('/:realm/v0.2/projects/:id/surveys')
+    .get(authenticate('token').always, projects.surveyList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -155,6 +158,20 @@ router.route('/:realm/v0.2/languages/:id')
     .delete(authenticate('token').always, languages.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    TASKS
+//----------------------------------------------------------------------------------------------------------------------
+var tasks = require('app/controllers/tasks');
+
+router.route('/:realm/v0.2/tasks')
+    .get(authenticate('token').always, tasks.select)
+    .post(authenticate('token').always, tasks.insertOne);
+
+router.route('/:realm/v0.2/tasks/:id')
+    .get(authenticate('token').always, tasks.selectOne)
+    .put(authenticate('token').always, tasks.updateOne)
+    .delete(authenticate('token').always, tasks.delete);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
 var translations = require('app/controllers/translations');
@@ -183,6 +200,10 @@ router.route('/:realm/v0.2/products/:id')
     .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
     .put(authenticate('token').always, checkPermission('product_update', 'products'), products.updateOne)
     .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
+
+router.route('/:realm/v0.2/products/:id/tasks')
+    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
+    .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
@@ -295,8 +316,8 @@ router.route('/:realm/v0.2/workflows/:id')
 
 router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('token').always, workflows.steps)
-    .delete(authenticate('token').always, workflows.stepsDelete)
-    .post(authenticate('token').always, workflows.stepsAdd);
+    //.delete(authenticate('token').always, workflows.stepsDelete)
+    .put(authenticate('token').always, workflows.stepsUpdate);
 
 router.route('/:realm/v0.2/workflow_steps')
     .get(authenticate('token').always, workflows.stepListSelect)

@@ -4,15 +4,17 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('selectDate', function (i18n) {
+    .directive('selectDate', function (i18n, $locale) {
         return {
-            template: '<p class="input-group"><input type="text" class="form-control" id="{{dataId}}" name="{{dataId}}" ' +
+            template: '<p class="input-group"><input type="text" class="form-control {{class}}" id="{{dataId}}" name="{{dataId}}" ' +
                 'uib-datepicker-popup ng-model="result" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
                 'datepicker-options="{{model.dateOptions}}" ng-required="{{model.required}}" required="{{model.required}}" ' +
+                '{{embedded}} ' +
                 'close-text="{{model.closeText}}" placeholder="{{model.placeholder}}"/><span class="input-group-btn">' +
                 '<button type="button" class="btn btn-default" ng-click="open($event)">' +
                 '<i class="glyphicon glyphicon-calendar"></i></button></span></p>',
             restrict: 'E',
+            required: '^ngModel',
             scope: {
                 result: '=',
                 minDate: '=',
@@ -21,6 +23,11 @@ angular.module('greyscaleApp')
             },
             controller: function ($scope, $element) {
                 $scope.dataId = $element.attr('data-id');
+
+                if ($element.attr('embedded') !== undefined) {
+                    $scope.class = 'embedded';
+                }
+
                 $scope.model = {
                     opened: false,
                     err: null
@@ -29,6 +36,13 @@ angular.module('greyscaleApp')
                     $scope.result = new Date($scope.result);
                 }
                 angular.extend($scope.model, $scope.options);
+
+                var firstDay = $locale.DATETIME_FORMATS.FIRSTDAYOFWEEK + 1;
+                if (firstDay > 6) {
+                    firstDay = 0;
+                }
+                $scope.model.dateOptions = $scope.model.dateOptions || {};
+                $scope.model.dateOptions.startingDay = firstDay;
 
                 $scope.model.placeholder = $scope.model.placeholder || i18n.translate('DATEPICKER.PLACEHOLDER');
 

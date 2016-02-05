@@ -200,6 +200,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Make sure code formatting is beautiful
         jsbeautifier: {
             beautify: {
                 src: [
@@ -384,32 +385,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // The following *-min tasks will produce minified files in the dist folder
-        // By default, your `index.html`'s <!-- Usemin block --> will take care of
-        // minification. These next options are pre-configured if you do not wish
-        // to use the Usemin blocks.
-        // cssmin: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/styles/main.css': [
-        //         '.tmp/styles/{,*/}*.css'
-        //       ]
-        //     }
-        //   }
-        // },
-        // uglify: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/scripts/scripts.js': [
-        //         '<%= yeoman.dist %>/scripts/scripts.js'
-        //       ]
-        //     }
-        //   }
-        // },
-        // concat: {
-        //   dist: {}
-        // },
-
         imagemin: {
             dist: {
                 files: [{
@@ -475,15 +450,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Replace Google CDN references
-        /*
-         cdnify: {
-         dist: {
-         html: ['<%= yeoman.dist %>/*.html']
-         }
-         },
-         */
-
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -524,14 +490,12 @@ module.exports = function (grunt) {
                     cwd: '.',
                     src: 'bower_components/font-awesome/fonts/*',
                     dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'fixtures/*',
+                    dest: '<%= yeoman.dist %>'
                 }]
-            },
-            // temporary while imagemin is broken
-            images: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/images',
-                src: '{,*/}*.{png,jpg,jpeg,gif}',
-                dest: '<%= yeoman.dist %>/images'
             },
             styles: {
                 expand: true,
@@ -575,7 +539,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'compass:dist',
-                // 'imagemin',
+                'imagemin',
                 'svgmin'
             ]
         },
@@ -685,6 +649,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Compress the EBS Dockerrun file
         compress: {
             main: {
                 options: {
@@ -694,6 +659,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Tasks for Elastic Beanstalk deployment
         awsebtdeploy: {
             options: {
                 region: 'us-west-2',
@@ -768,10 +734,7 @@ module.exports = function (grunt) {
         'ngAnnotate',
         'i18n',
         'copy:dist',
-        'copy:images',
-        //'cdnify',
         'cssmin',
-        //'uglify',
         'filerev',
         'usemin',
         'htmlmin'

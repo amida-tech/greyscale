@@ -20,6 +20,13 @@
         "RESET": "Reset",
         "TODAY": "Today"
     },
+    "ERROR": {
+        "TEST": "Test error"
+    },
+    "FILE": {
+        "CONTINUE": "Continue",
+        "SELECT": "Please select the file to upload"
+    },
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
         "WRONG_DATE_FORMAT": "Wrong date format"
@@ -52,6 +59,9 @@
             "TRANSLATOR": "Translator"
         }
     },
+    "IMPORT": {
+        "USERS": "Import users"
+    },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
@@ -69,10 +79,12 @@
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
         "HOME": "Home",
+        "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
             "PRODUCTS": "Products",
@@ -82,9 +94,13 @@
         },
         "PROJECTS_MANAGEMENT": "Projects Management",
         "REGISTER": "Register",
+        "TASKS": "Tasks",
         "UOAS": "Units of Analysis",
-        "USERS": "Users",
-        "USERS_UOAS": "Users units of analysis",
+        "USERS": {
+            "LIST": "List",
+            "TITLE": "Users",
+            "UOA": "Units of analysis"
+        },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
@@ -92,10 +108,33 @@
         "TABLE": {
             "DESCRIPTION": "Description",
             "PRODUCT": "Product",
+            "SETTINGS": "Settings",
             "SURVEY": "Survey",
+            "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "UoAs",
             "WORKFLOW": "Workflow"
+        },
+        "TASKS": {
+            "DRAG_USER": "Drag And Drop User To Task",
+            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
+            "SEARCH_USER_LABEL": "Or By Name Or E-mail",
+            "SELECT_ROLE": "Select Role ...",
+            "SELECT_ROLE_LABEL": "Search User By Role",
+            "TABLE": {
+                "TASKS_UPDATE_ERROR": "Server error while updating tasks",
+                "TASK_REMOVE_ERROR": "Server error while removing task",
+                "TASK_UPDATE_ERROR": "Server error while updating task",
+                "TITLE": "Tasks",
+                "UOAS_HEADER": "UoA",
+                "UOAS_TYPE_HEADER": "UoA Type"
+            },
+            "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
+            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
+        },
+        "UOAS": {
+            "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Description",
@@ -107,7 +146,7 @@
                 "START_DATE": "Start Date",
                 "TITLE": "Title"
             },
-            "STEPS_FOR": "Workflow Steps <small>For \"{{product}}\" Product</small>",
+            "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
             "TITLE": "Title",
             "TITLE_REQUIRED": "Title is required."
         }
@@ -121,6 +160,7 @@
         "HEADER": "Projects",
         "ITEM": "Project",
         "ORGANIZATION": "Organization",
+        "PAUSE_PROJECT": "Pause Project",
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
@@ -128,6 +168,7 @@
             "ROLE": "Role",
             "USER": "User"
         },
+        "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
     },

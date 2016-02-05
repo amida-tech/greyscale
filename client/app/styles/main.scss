@@ -1,3 +1,5 @@
+@import "variables";
+
 // override bootstrap variables
 @import "bootstrap/variables";
 @import "fontawesome/variables";
@@ -13,4 +15,12 @@
 @import "forms";
 @import "panels";
 @import "sidebar";
-@import "viz"
+@import "viz";
+@import "widget";
+@import "breadcrumbs";
+@import "tables";
+@import "modal";
+@import "language-selector";
+@import "formbuilder";
+@import "buttons";
+@import "inputs";

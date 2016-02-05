@@ -1,0 +1,11 @@
+.widget {
+    .widget-header {
+        padding: 0 15px;
+    }
+}
+.widget-header {
+    @extend h2;
+    .row>div {
+        margin-bottom: 0;
+    }
+}

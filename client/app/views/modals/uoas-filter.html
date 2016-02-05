@@ -1,9 +1,7 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
-    <h3 class="modal-title">Select Unit Of Analysis</h3>
-</div>
+<modal-form-header>
+    Select Unit Of Analysis
+</modal-form-header>
 <div class="modal-body">
-
     <div class="row">
         <div class="col-lg-4">
             <widget-table model="model.uoaTypes"></widget-table>
@@ -20,7 +18,6 @@
             <widget-table model="model.uoas"></widget-table>
         </div>
     </div>
-
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-if="listMode" ng-click="close()">Cancel</button>

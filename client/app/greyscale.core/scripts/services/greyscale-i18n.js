@@ -157,7 +157,6 @@ angular.module('greyscale.core')
 
         return {
             init: _init,
-            useNgLocale: pub.useNgLocale,
             $get: ['$cookies', '$translate', '$rootScope', function ($cookies, $translate, $rootScope) {
                 $translate.use(_locale);
                 _cookies = $cookies;

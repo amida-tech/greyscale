@@ -82,6 +82,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Make sure code formatting is beautiful
         jsbeautifier: {
             beautify: {
                 src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js'],
@@ -98,6 +99,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Perform Docker actions via Grunt
         dock: {
             options: {
                 docker: {
@@ -156,6 +158,7 @@ module.exports = function (grunt) {
             },
         },
 
+        // Compress the EBS Dockerrun file
         compress: {
             main: {
                 options: {
@@ -165,6 +168,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Tasks for Elastic Beanstalk deployment
         awsebtdeploy: {
             options: {
                 region: 'us-west-2',
@@ -196,6 +200,7 @@ module.exports = function (grunt) {
 
     });
 
+    // Postgres helper tasks for testing
     grunt.registerTask('createDatabase', function () {
         var done = this.async();
         exec('createdb indabatest', function (err) {

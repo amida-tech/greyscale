@@ -1,0 +1,15 @@
+.language-selector {
+    .dropdown-toggle {
+        cursor: pointer;
+    }
+    .fa-caret-down {
+        position: relative;
+        top: 1px;
+    }
+    .flag {
+        height: auto !important;
+        width: auto !important;
+        margin: auto !important;
+        border: 1px solid #ddd;
+    }
+}

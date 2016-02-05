@@ -456,12 +456,17 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        query(User.select().where(req.params), function (err, user) {
-            if (!err) {
-                res.json(_.first(user));
-            } else {
-                next(err);
+        co(function* () {
+            var user = yield thunkQuery(
+                User.select().where(User.id.equals(req.params.id))
+            );
+            if (!_.first(user)) {
+                throw new HttpError(404, 'Not found');
             }
+        }).then(function (data) {
+            res.json(!_.first(data));
+        }, function (err) {
+            next(err);
         });
     },
 

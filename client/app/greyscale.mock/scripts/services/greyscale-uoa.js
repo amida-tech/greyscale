@@ -8,7 +8,7 @@ angular.module('greyscale.mock')
         return function () {
             $httpBackend.whenGET(/uoas.*mock.*/).respond(function (m, url) {
                 var urlParts = greyscaleUtilsSrv.parseURL(url);
-                $log.debug('mocking ' + url);
+                $log.debug('mocking ', m, url);
                 var resp = [],
                     uoaType = 'public',
                     idStart = 1;
