@@ -37,7 +37,7 @@ function generateSurvey(json) {
         switch (json[i].type) {
             case 0: type = 'text'; break;
             case 1: type = 'paragraph'; break;
-            case 2: type = 'checkbox'; break;
+            case 2: type = 'checkboxes'; break;
             case 3: type = 'radio'; break;
             case 4: type = 'dropdown'; break;
             case 5: type = 'number'; break;

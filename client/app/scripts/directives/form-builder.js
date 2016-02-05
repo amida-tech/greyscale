@@ -16,7 +16,7 @@ angular.module('greyscaleApp')
             var types = [
                 'text',
                 'paragraph',
-                'checkbox',
+                'checkboxes',
                 'radio',
                 'dropdown',
                 'number',
@@ -43,6 +43,12 @@ angular.module('greyscaleApp')
                                     required: scope.model.survey.questions[i].isRequired,
                                     field_options: {}
                                 });
+                                //if (type === 'checkbox' || type === 'radio' || type === 'dropdown') data[data.length - 1].field_options.options = [{
+                                //        checked: false,
+                                //        label: "",
+                                //        skip: "",
+                                //        value: ""
+                                //    }];
                             }
                         }
                     }
@@ -56,8 +62,12 @@ angular.module('greyscaleApp')
                         selector: '#formbuilder',
                         bootstrapData: data
                     });
-                    scope.saveFormbuilder = formbuilder.mainView.saveForm;
+                    scope.saveFormbuilder = function () {
+                        if (formbuilder.mainView.formSaved) scope.$emit('form-changes-saved');
+                        else formbuilder.mainView.saveForm();
+                    };
                     formbuilder.on('save', function (json) {
+                        debugger
                         var fields = JSON.parse(json).fields;
                         var questions = [];
                         for (i = 0; i < fields.length; i++) {
@@ -81,9 +91,9 @@ angular.module('greyscaleApp')
                                     scope.model.survey.questions.splice(i, 1);
                                     continue;
                                 }
-                                    if (scope.model.survey.questions[i].deleted) {
-                                        continue;
-                                    }
+                                if (scope.model.survey.questions[i].deleted) {
+                                    continue;
+                                }
                                 var isAvaliable = false;
                                 for (var j = questions.length - 1; j >= 0; j--) {
                                     if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
