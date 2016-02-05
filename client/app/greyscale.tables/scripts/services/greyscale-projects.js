@@ -19,7 +19,7 @@ angular.module('greyscale.tables')
         var _const = {
             STATUS_INFLIGHT: 1,
             STATUS_SUSPENDED: 3
-        }
+        };
 
         var _statusIcons = {};
         _statusIcons[_const.STATUS_INFLIGHT] = 'fa-pause';
@@ -146,6 +146,9 @@ angular.module('greyscale.tables')
             icon: 'fa-paper-plane',
             pageLength: 10,
             cols: recDescr,
+            sorting: {
+                id: 'asc'
+            },
             selectable: true,
             dataPromise: _getData,
             add: {

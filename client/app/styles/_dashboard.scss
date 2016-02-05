@@ -280,7 +280,32 @@ div.input-mask {
  * Sidebar
  */
 #sidebar-wrapper {
-    background: #30426a;
+    background-color: $grey-light;
+
+
+    .sidebar-header {
+        border-bottom: solid 1px $grey-medium-light;
+
+        .logo {
+            margin: 15px;
+            width: 185px;
+            float: left;
+            background-position: left center;
+        }
+
+        .sidebar-toggle {
+            display: block;
+            text-align: center;
+            float: right;
+            line-height: 1.4;
+            font-size: $font-size-h1;
+            width: $sidebar-toggle-width;
+        }
+    }
+}
+
+*:not(.open) #sidebar-wrapper .sidebar-header {
+    border-bottom-color: transparent;
 }
 
 ul.sidebar .sidebar-main a,
@@ -288,11 +313,11 @@ ul.sidebar .sidebar-main a,
 ul.sidebar .sidebar-list a:hover,
 #page-wrapper:not(.open) ul.sidebar .sidebar-title.separator {
     /* Sidebar header and footer color */
-    background: #2d3e63;
+    background-color: transparent;
 }
 
 ul.sidebar {
-    position: absolute;
+/*    position: absolute;*/
     top: 0;
     bottom: 0;
     padding: 0;
@@ -316,8 +341,8 @@ ul.sidebar .sidebar-main {
 }
 
 ul.sidebar .sidebar-main a {
-    font-size: 18px;
-    line-height: 60px;
+    font-size: $font-size-h2;
+    line-height: 40px;
 }
 
 ul.sidebar .sidebar-main a:hover {
@@ -326,9 +351,10 @@ ul.sidebar .sidebar-main a:hover {
 
 ul.sidebar .sidebar-main .menu-icon {
     float: right;
-    font-size: 18px;
-    padding-right: 28px;
-    line-height: 60px;
+    font-size: $font-size-h2;
+    padding: 0 10px 0 0;
+    margin: 0;
+    line-height: 1.4;
 }
 
 ul.sidebar .sidebar-title {

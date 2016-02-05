@@ -56,6 +56,7 @@ angular.module('greyscaleApp')
                             selector: '#formbuilder',
                             bootstrapData: data
                         });
+                        scope.saveFormbuilder = formbuilder.mainView.saveForm;
                         formbuilder.on('save', function (json) {
                             var fields = JSON.parse(json).fields;
                             var questions = [];
@@ -113,7 +114,7 @@ angular.module('greyscaleApp')
                             scope.model.survey.questions.sort(function (a, b) {
                                 return a.position - b.position;
                             });
-
+                            scope.$emit('form-changes-saved');
                             scope.$apply();
                         });
                     }
