@@ -59,6 +59,18 @@ module.exports = {
     })
   },
 
+  editTasks: function (req, res, next) {
+    co(function* (){
+      if (!Array.isArray(req.body)) {
+        throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
+      }
+    }).then(function () {
+
+    }, function (err) {
+      next(err);
+    });
+  },
+
   selectOne: function (req, res, next) {
     co(function* (){
       var product =  yield thunkQuery(

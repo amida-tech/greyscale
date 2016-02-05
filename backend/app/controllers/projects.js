@@ -24,7 +24,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
+            return yield thunkQuery(Project.select().from(Project), req.query);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
