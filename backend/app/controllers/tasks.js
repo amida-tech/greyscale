@@ -78,7 +78,7 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(
                 Task
-                .update(_.pick(req.body, ['title', 'description']))
+                .update(_.pick(req.body, ['title', 'description','entityTypeRoleId']))
                 .where(Task.id.equals(req.params.id))
             );
         }).then(function (data) {
