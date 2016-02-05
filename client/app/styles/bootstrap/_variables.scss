@@ -5,19 +5,24 @@ $btn-primary-bg: $green !default;
 $btn-default-bg: $grey-medium-light;
 $btn-info-bg: $grey-medium-light;
 
-$link-hover-color: $green-dark !default;
 $link-color: $green;
+$link-hover-color: $green-dark;
 
 $font-family-base: "Helvetica";
 $headings-font-family: "Helvetica";
 $headings-font-weight: bold;
 $headings-color: $grey-dark;
 
-$font-size-h1: 20pt;
+$dropdown-link-color: $grey-medium-dark;
+$dropdown-link-hover-color: $grey-medium-dark;
+$dropdown-link-hover-bg: $grey-light;
+
+$font-size-h1: 26pt;
 $font-size-h2: 16pt;
 $font-size-h3: 12pt;
 $font-size-h4: 12pt;
 $font-size-h5: 12pt;
 $font-size-h6: 12pt;
+
 $font-size-base: 12pt;
 $font-size-sub: 10pt;
