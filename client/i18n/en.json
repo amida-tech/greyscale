@@ -160,6 +160,7 @@
         "HEADER": "Projects",
         "ITEM": "Project",
         "ORGANIZATION": "Organization",
+        "PAUSE_PROJECT": "Pause Project",
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
@@ -167,6 +168,7 @@
             "ROLE": "Role",
             "USER": "User"
         },
+        "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
     },

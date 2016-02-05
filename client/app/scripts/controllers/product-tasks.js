@@ -8,8 +8,8 @@ angular.module('greyscaleApp')
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
-        var projectId = $stateParams.projectId,
-            productId = $stateParams.productId;
+        var projectId = parseInt($stateParams.projectId),
+            productId = parseInt($stateParams.productId);
 
         $scope.model = {
             selectedUser: {},

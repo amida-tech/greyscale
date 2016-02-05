@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
         greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv, i18n) {
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
@@ -15,6 +15,11 @@ angular.module('greyscale.tables')
             orgs: [],
             users: []
         };
+
+        var _statusIcons = [
+            'fa-play',
+            'fa-pause'
+        ];
 
         var accessLevel;
 
@@ -74,6 +79,17 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'startTime',
             title: tns + 'START_TIME'
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProjectTooltip,
+                class: 'info',
+                handler: _startOrPauseProject
+            }]
         }, {
             field: 'status',
             show: true,
@@ -149,6 +165,23 @@ angular.module('greyscale.tables')
             return greyscaleGlobals.projectStates;
         }
 
+        function _getStatusIcon(project) {
+            return _statusIcons[project.status] ? _statusIcons[project.status] : '';
+        }
+
+        function _getStartOrPauseProjectTooltip(project) {
+            var action, tooltip;
+            if (project.status === 0) {
+                action = 'START';
+            } else if (project.status === 1) {
+                action = 'PAUSE';
+            }
+            if (action) {
+                tooltip = tns + action + '_PROJECT';
+            }
+            return tooltip;
+        }
+
         function _isSuperAdmin() {
             return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
         }
@@ -215,6 +248,26 @@ angular.module('greyscale.tables')
                 .catch(function (err) {
                     return errHandler(err, op);
                 });
+        }
+
+        function _startOrPauseProject(project) {
+            var op = 'changing status';
+            var status = project.status;
+            var setStatus;
+            if (status === 0) {
+                setStatus = 1;
+            } else if (status === 1) {
+                setStatus = 0;
+            }
+            if (setStatus !== undefined) {
+                var saveProject = angular.copy(project);
+                saveProject.status = setStatus;
+                greyscaleProjectApi.update(saveProject)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        return errHandler(err, op);
+                    });
+            }
         }
 
         function reloadTable() {
