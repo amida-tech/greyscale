@@ -6,9 +6,9 @@
 angular.module('greyscaleApp')
     .directive('headerbar', function () {
         return {
-            template: '<div class="meta"><div class="page">{{model.title|translate}}</div><div class="breadcrumb-links">' +
+            template: '<div class="meta"><div class="page">{{model.title|translate:{ext:stateExt} }}</div><div class="breadcrumb-links">' +
                 '<ul class="breadcrumb"><li ng-repeat="parent in model.path">' +
-                '<a ui-sref="{{parent.route}}">{{parent.name|translate}}</a></li><li class="active">{{model.title|translate}}</li>' +
+                '<a ui-sref="{{parent.route}}">{{parent.name|translate:{ext:stateExt} }}</a></li><li class="active">{{model.title|translate:{ext:stateExt} }}</li>' +
                 '</ul></div></div>',
             scope: {},
             restrict: 'AE',
@@ -27,6 +27,8 @@ angular.module('greyscaleApp')
 
                     return path;
                 };
+
+                $scope.stateExt = $state.ext;
 
                 $scope.$on('$stateChangeSuccess', function () {
                     $scope.model = {

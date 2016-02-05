@@ -29,35 +29,38 @@ angular.module('greyscale.rest')
         }
 
         function _add(body) {
+            var req = _api();
             if (body.mock) {
-                return _api().one('mock').customPOST(body);
-            } else {
-                return _api().customPOST(body);
+                req.one('mock');
             }
+            return req.customPOST(body);
         }
 
         function _edit(body) {
-            if (body.essenceId && body.entityId && body.langId) {
+            var res;
+            if (body.essenceId && body.entityId && body.langId && body.field) {
+                var req = _api().one(body.essenceId + '', body.entityId + '').one(body.field + '', body.langId + '');
                 if (body.mock) {
-                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '',
-                        'mock').customPUT(body);
-                } else {
-                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').customPUT(body);
+                    req.one('mock');
                 }
+                res = req.customPUT(body);
             } else {
-                $q.reject('inconsistent translation body');
+                res = $q.reject('inconsistent translation body');
             }
+            return res;
         }
 
         function _del(body) {
-            if (body.essenceId && body.entityId && body.langId) {
+            var res;
+            if (body.essenceId && body.entityId && body.langId && body.field) {
+                var req = _api().one(body.essenceId + '', body.entityId + '').one(body.field + '', body.langId + '');
                 if (body.mock) {
-                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '', 'mock').remove();
-                } else {
-                    return _api().one(body.essenceId + '', body.entityId + '').one(body.langId + '').remove();
+                    req.one('mock');
                 }
+                res = req.remove();
             } else {
-                $q.reject('inconsistent translation body');
+                res = $q.reject('inconsistent translation body');
             }
+            return res;
         }
     });

@@ -1,12 +1,14 @@
 <!-- Sidebar -->
 <div id="sidebar-wrapper" ng-show="menu.title">
+    <span class="logo"></span>
     <ul class="sidebar">
-        <li class="sidebar-main text-capitalize">
-            <a ng-click="toggleSidebar()">{{menu.title}} <span
-                class="menu-icon glyphicon glyphicon-transfer"></span></a>
+        <li class="sidebar-main">
+            <a ng-click="toggleSidebar()">
+                <span class="menu-icon glyphicon glyphicon-transfer"></span>
+            </a>
         </li>
         <li class="sidebar-title" ng-repeat-start="group in menu.groups">
-            <span class="text-uppercase">{{group.title|translate}}</span>
+            <span class="text-capitalize">{{group.title|translate}}</span>
         </li>
         <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
             <a ui-sref="{{item.sref}}">{{item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>

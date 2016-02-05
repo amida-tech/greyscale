@@ -4,7 +4,8 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleUtilsSrv', function (_, greyscaleGlobals, greyscaleRolesSrv, $log, inform, $translate) {
+    .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, greyscaleRolesSrv, $log, inform,
+        $translate) {
 
         return {
             decode: _decode,
@@ -12,7 +13,9 @@ angular.module('greyscale.core')
             prepareFields: _preProcess,
             errorMsg: addErrMsg,
             getRoleMask: _getRoleMask,
-            parseURL: _parseURL
+            parseURL: _parseURL,
+            getApiBase: _getApiBase,
+            capitalize: _capitalize
         };
 
         function _decode(dict, key, code, name) {
@@ -121,5 +124,15 @@ angular.module('greyscale.core')
                 }
             }
             return result;
+        }
+
+        function _getApiBase() {
+            var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
+            var path = [greyscaleEnv.apiRealm, greyscaleEnv.apiVersion].join('/');
+            return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
+        }
+
+        function _capitalize(_str) {
+            return _str.charAt(0).toUpperCase() + _str.substr(1).toLowerCase();
         }
     });

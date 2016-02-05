@@ -24,7 +24,8 @@ var _app = angular.module('greyscaleApp', [
     'inform',
     'lodashAngularWrapper',
     'isteven-multi-select',
-    'pascalprecht.translate'
+    'pascalprecht.translate',
+    'angularFileUpload'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -131,7 +132,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'home',
             url: 'users',
             data: {
-                name: 'NAV.USERS',
+                name: 'NAV.USERS.TITLE',
+                icon: 'fa-users',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             },
             views: {
@@ -139,6 +141,39 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                     templateUrl: 'views/controllers/users.html',
                     controller: 'UsersCtrl'
                 }
+            }
+        })
+        .state('usersList', {
+            parent: 'users',
+            url: '/list',
+            templateUrl: 'views/controllers/users-list.html',
+            controller: 'UsersListCtrl',
+            data: {
+                name: 'NAV.USERS.LIST',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('usersUoa', {
+            parent: 'users',
+            url: '/uoa',
+            templateUrl: 'views/controllers/users-uoa.html',
+            controller: 'UsersUoaCtrl',
+            data: {
+                name: 'NAV.USERS.UOA',
+                icon: 'fa-map',
+                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+            }
+        })
+        .state('usersImport', {
+            parent: 'users',
+            url: '/import',
+            templateUrl: 'views/controllers/users-import.html',
+            controller: 'UsersImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoas', {
@@ -178,8 +213,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.roles', {
@@ -198,6 +232,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'NAV.PROJECTS.SURVEYS'
             }
         })
+        .state('projects.setup.surveys.edit', {
+            url: '/:surveyId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey-edit.html',
+                    controller: 'SurveyEditCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.surveyName}}'
+            }
+        })
         .state('projects.setup.products', {
             url: '/products',
             templateUrl: 'views/controllers/project-setup-products.html',
@@ -207,11 +253,16 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('projects.setup.tasks', {
-            url: '/tasks',
-            templateUrl: 'views/controllers/project-setup-tasks.html',
-            controller: 'ProjectSetupTasksCtrl',
+            url: '/products/:productId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-tasks.html',
+                    controller: 'ProductTasksCtrl'
+                }
+            },
             data: {
-                name: 'NAV.PROJECTS.TASKS'
+                name: 'NAV.PRODUCT_TASKS',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('orgs', {
@@ -256,18 +307,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
-        .state('survey', {
+        .state('tasks', {
             parent: 'home',
-            url: 'survey',
+            url: 'tasks',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/survey.html',
-                    controller: 'SurveyCtrl'
+                    templateUrl: 'views/controllers/my-tasks.html',
+                    controller: 'MyTasksCtrl'
                 }
             },
             data: {
-                name: 'NAV.FORM_BUILDER',
-                isPublic: false
+                name: 'NAV.TASKS',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('visualization', {
@@ -312,31 +363,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 isPublic: false
             }
         })
-        .state('usersUoa', {
+        .state('the-wall', {
             parent: 'home',
-            url: 'users-uoa',
+            url: 'the-wall',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/users-uoa.html',
-                    controller: 'UsersUoaCtrl'
+                    templateUrl: 'views/controllers/the-wall.html',
+                    controller: 'TheWallCtrl'
                 }
             },
             data: {
-                name: 'NAV.USERS_UOAS',
-                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
-            }
-        })
-        .state('translation', {
-            parent: 'home',
-            url: 'translation',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/translation.html',
-                    controller: 'TranslationCtrl'
-                }
-            },
-            data: {
-                name: 'Translation page'
+                name: 'Page with bricks'
             }
         });
 
@@ -378,4 +415,6 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     $rootScope.$on('login', function () {
         $state.go('home');
     });
+
+    $state.ext = {};
 });

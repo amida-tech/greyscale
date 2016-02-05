@@ -1,2 +1,21 @@
 // Bootstrap Variable Overrides.
 $icon-font-path: "../bower_components/bootstrap-sass-official/assets/fonts/bootstrap/";
+
+$btn-primary-bg: $green !default;
+$btn-default-bg: $grey-medium-light;
+$btn-info-bg: $grey-medium-light;
+
+$link-hover-color: $green-dark !default;
+$link-color: $green;
+
+$font-family-base: "Helvetica";
+$headings-font-family: "Helvetica";
+$headings-font-weight: bold;
+$headings-color: $grey-dark;
+
+$font-size-h1: 26pt;
+$font-size-h2: 20pt;
+$font-size-h3: 16pt;
+$font-size-h4: 14pt;
+$font-size-h5: 12pt;
+$font-size-h6: 10pt;

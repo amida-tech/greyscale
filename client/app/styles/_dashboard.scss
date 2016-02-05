@@ -1,67 +1,7 @@
-.widget {
-    .widget-header {
-        padding: 0 15px;
-    }
-}
-.widget-header {
-    .row>div {
-        margin-bottom: 0;
-    }
-}
+/* project specific */
 
-.breadcrumb-links {
-    .breadcrumb {
-        background-color: inherit;
-        margin-bottom: 0;
-        padding-left:0;
-        padding-bottom: 4px;
-        padding-top: 4px;
-    }
-}
 
-.widget-table {
-    overflow: visible; // for datepicker in row
-    tr.selected {
-        @extend .bg-info;
-    }
-    tr.selected:hover {
-        background-color: #C2D6E0;
-    }
-    .table-hover {
-        tr td {
-            cursor: pointer;
-        }
-    }
-    .row-actions {
-        white-space: nowrap;
-        button {
-            margin-left: 4px;
-        }
-        button:first-child {
-            margin-left: 0;
-        }
-    }
-    th.header {
-        &.header-actions, &.header-multiselect {
-            width: 1%;
-        }
-        .select-all {
-            margin: 0;
-            position: relative;
-            top: 2px;
-        }
-    }
-    td.input-cell {
-        .form-group {
-            margin: -6px 0;
-        }
-        &.auto-width {
-            width: 1%;
-        }
-        .input-group {
-            margin: 0;
-        }
-    }
-}
+
+
 
 

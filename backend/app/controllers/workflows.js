@@ -88,15 +88,15 @@ module.exports = {
         });
     },
 
-    stepsDelete: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body)));
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
+    //stepsDelete: function (req, res, next) {
+    //    co(function* () {
+    //        return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body)));
+    //    }).then(function (data) {
+    //        res.json(data);
+    //    }, function (err) {
+    //        next(err);
+    //    });
+    //},
 
     stepsUpdate: function (req, res, next) {
         co(function* () {
@@ -104,58 +104,72 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equlas(req.params.id)));
-            if (_.first(product)) {
-                throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)));
+            if (!_.first(workflow)) {
+                throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
             }
 
-            var rels = yield thunkQuery(ProductUOA.select().where(ProductUOA.productId.equals(req.params.id)));
-
+            var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
             var relIds = rels.map(function (value) {
-                return value.UOAid;
+                //if (relIds.indexOf(req.body[i].id) == -1) {
+                //    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
+                //    needDel = true;
+                //}
+
+                return value.id;
             });
 
-            var deleteQ = ProductUOA.delete();
-            var needDel = false;
+            var deleteQ = WorkflowStep.delete();
             var insertArr = [];
+            var passedIds = [];
+            var updatedIds = [];
+            var insertIds = [];
 
             for (var i in req.body) {
+                var updateObj = _.pick(req.body[i], ['startDate', 'endDate', 'roleId']);
                 if (req.body[i].id) { // need update
-                    var updateObj = {};
-                    if (req.body[i].startDate) {
-                        updateObj.startDate = req.body[i].startDate;
-                    }
-                    if (req.body[i].endDate) {
-                        updateObj.endDate = req.body[i].endDate;
-                    }
-                    if (req.body[i].roleId) {
-                        updateObj.roleId = req.body[i].roleId;
-                    }
-                    if (updateObj.length) {
-                        console.log('update' + updateObj);
-                        yield thunkQuery(ProductUOA.update().where(ProductUOA.id.equals(req.body[i].id)));
+                    passedIds.push(req.body[i].id);
+                    if (Object.keys(updateObj).length && relIds.indexOf(req.body[i].id) !== -1) { // have data to update  and exists
+                        updatedIds.push(req.body[i].id);
+                        yield thunkQuery(
+                            WorkflowStep
+                            .update(updateObj)
+                            .where(WorkflowStep.id.equals(req.body[i].id))
+                        );
                     }
                 } else {
-                    insertArr.push(req.body[i]);
-                }
-                if (relIds.indexOf(req.body[i].id) === -1) {
-                    deleteQ = deleteQ.or({
-                        productId: req.params.id,
-                        UOAid: req.body[i].id
-                    });
-                    needDel = true;
+                    var insertObj = _.pick(req.body[i], ['stepId', 'startDate', 'endDate', 'roleId']);
+                    insertObj.workflowId = req.params.id;
+                    insertArr.push(insertObj);
                 }
             }
 
-            if (needDel) {
+            var deleteIds = _.difference(relIds, passedIds);
+
+            for (var j in deleteIds) {
+                deleteQ = deleteQ.or({
+                    id: deleteIds[j]
+                });
+            }
+
+            if (deleteIds.length) {
                 yield thunkQuery(deleteQ);
             }
+
             if (insertArr.length) {
-                yield thunkQuery(ProductUOA.insert(insertArr));
+                insertIds = yield thunkQuery(WorkflowStep.insert(insertArr).returning(WorkflowStep.id));
             }
 
+            return {
+                deleted: deleteIds,
+                updated: updatedIds,
+                inserted: insertIds.map(function (value) {
+                    return value.id;
+                })
+            };
+
         }).then(function (data) {
-            res.end();
+            res.json(data);
         }, function (err) {
             next(err);
         });

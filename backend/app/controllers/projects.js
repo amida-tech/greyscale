@@ -4,6 +4,8 @@ var client = require('app/db_bootstrap'),
     Project = require('app/models/projects'),
     Product = require('app/models/products'),
     Workflow = require('app/models/workflows'),
+    Survey = require('app/models/surveys'),
+    SurveyQuestion = require('app/models/survey_questions'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
     Language = require('app/models/languages'),
@@ -82,6 +84,30 @@ module.exports = {
                 )
                 .where(Product.projectId.equals(req.params.id))
             );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    surveyList: function (req, res, next) {
+        co(function* () {
+            var data = yield thunkQuery(
+                Survey
+                .select(
+                    Survey.star(),
+                    'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
+                )
+                .from(
+                    Survey
+                    .leftJoin(SurveyQuestion)
+                    .on(Survey.id.equals(SurveyQuestion.surveyId))
+                )
+                .where(Survey.projectId.equals(req.params.id))
+                .group(Survey.id)
+            );
+            return data;
         }).then(function (data) {
             res.json(data);
         }, function (err) {

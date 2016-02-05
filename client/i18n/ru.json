@@ -20,6 +20,10 @@
         "RESET": "Сброс",
         "TODAY": "Сегодня"
     },
+    "FILE": {
+        "CONTINUE": "Продолжить",
+        "SELECT": "Выберите файл для загрузки"
+    },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
@@ -52,6 +56,9 @@
             "TRANSLATOR": "Переводчик"
         }
     },
+    "IMPORT": {
+        "USERS": "Импорт пользователей"
+    },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
@@ -69,10 +76,12 @@
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
         "HOME": "Главная",
+        "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
             "PRODUCTS": "Продукты",
@@ -82,9 +91,13 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "TASKS": "Задачи",
         "UOAS": "Единицы анализа",
-        "USERS": "Пользователи",
-        "USERS_UOAS": "Пользователи и единицы анализа",
+        "USERS": {
+            "LIST": "Список",
+            "TITLE": "Пользователи",
+            "UOA": "Единицы анализа"
+        },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
@@ -92,10 +105,33 @@
         "TABLE": {
             "DESCRIPTION": "Описание",
             "PRODUCT": "Продукт",
+            "SETTINGS": "Настройки",
             "SURVEY": "Опрос",
+            "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",
             "WORKFLOW": "Процесс"
+        },
+        "TASKS": {
+            "DRAG_USER": "Перетащите пользователя на задачу",
+            "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
+            "SEARCH_USER_LABEL": "или по имени или E-mail",
+            "SELECT_ROLE": "Выберите роль...",
+            "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
+            "TABLE": {
+                "TASKS_UPDATE_ERROR": "",
+                "TASK_REMOVE_ERROR": "",
+                "TASK_UPDATE_ERROR": "",
+                "TITLE": "Назначение пользователя на выполнение задачи",
+                "UOAS_HEADER": "Единица анализа",
+                "UOAS_TYPE_HEADER": ""
+            },
+            "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
+            "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
+        },
+        "UOAS": {
+            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",

@@ -18,9 +18,6 @@ angular.module('greyscale.core')
                     state: 'users',
                     icon: 'fa-group'
                 }, {
-                    state: 'usersUoa',
-                    icon: 'fa-map'
-                }, {
                     state: 'orgs',
                     icon: 'fa-university'
                 }, {
@@ -35,6 +32,9 @@ angular.module('greyscale.core')
                 items: [{
                     state: 'profile',
                     icon: 'fa-user'
+                }, {
+                    state: 'tasks',
+                    icon: 'fa-tasks'
                 }]
             }]
         };

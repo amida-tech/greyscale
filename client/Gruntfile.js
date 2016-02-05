@@ -720,6 +720,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', [
         'clean:server',
         'wiredep',
+        'i18n',
         'concurrent:test',
         'postcss',
         'connect:test',
@@ -883,7 +884,7 @@ module.exports = function (grunt) {
 
         function _writeI18n(locale, src, callback) {
             var file = _getDestFileName(locale);
-            var content = 'L10N(\'' + locale + '\', ' + JSON.stringify(_sortObject(src), null, 2) + ');\n';
+            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
             fs.writeFile(file, content, callback);
         }
 

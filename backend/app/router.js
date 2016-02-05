@@ -70,6 +70,9 @@ router.route('/:realm/v0.2/projects/:id')
 router.route('/:realm/v0.2/projects/:id/products')
     .get(authenticate('token').always, projects.productList);
 
+router.route('/:realm/v0.2/projects/:id/surveys')
+    .get(authenticate('token').always, projects.surveyList);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -153,6 +156,20 @@ router.route('/:realm/v0.2/languages/:id')
     .get(authenticate('token').always, languages.selectOne)
     .put(authenticate('token').always, languages.editOne)
     .delete(authenticate('token').always, languages.delete);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    TASKS
+//----------------------------------------------------------------------------------------------------------------------
+var tasks = require('app/controllers/tasks');
+
+router.route('/:realm/v0.2/tasks')
+    .get(authenticate('token').always, tasks.select)
+    .post(authenticate('token').always, tasks.insertOne);
+
+//router.route('/:realm/v0.2/languages/:id')
+//    .get(authenticate('token').always, languages.selectOne)
+//    .put(authenticate('token').always, languages.editOne)
+//    .delete(authenticate('token').always, languages.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
@@ -295,8 +312,8 @@ router.route('/:realm/v0.2/workflows/:id')
 
 router.route('/:realm/v0.2/workflows/:id/steps')
     .get(authenticate('token').always, workflows.steps)
-    .delete(authenticate('token').always, workflows.stepsDelete)
-    .post(authenticate('token').always, workflows.stepsAdd);
+    //.delete(authenticate('token').always, workflows.stepsDelete)
+    .put(authenticate('token').always, workflows.stepsUpdate);
 
 router.route('/:realm/v0.2/workflow_steps')
     .get(authenticate('token').always, workflows.stepListSelect)
