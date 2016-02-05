@@ -24,7 +24,7 @@ angular.module('greyscaleApp')
         }];
 
         $scope.go = function (state, params, options) {
-            $state.go(_parentState + '.' + state, params||{}, options||{});
+            $state.go(_parentState + '.' + state, params || {}, options || {});
         };
 
         greyscaleProjectApi.get($stateParams.projectId)
@@ -40,7 +40,9 @@ angular.module('greyscaleApp')
 
         _onStateChange(function (state) {
             if (state.name === _parentState) {
-                $scope.go(_getDefaultState(), {}, {location: 'replace'});
+                $scope.go(_getDefaultState(), {}, {
+                    location: 'replace'
+                });
             } else {
                 _setActiveTab(state);
             }

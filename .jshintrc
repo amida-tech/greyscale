@@ -16,6 +16,7 @@
         "describe": true,
         "done": true,
         "it": true,
+        "Plotly": true,
         "Promise": true,
         "window": true,
         "document": true,

@@ -200,6 +200,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Make sure code formatting is beautiful
         jsbeautifier: {
             beautify: {
                 src: [
@@ -287,6 +288,10 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
+                exclude: [
+                    'bower_components/plotly.js/dist/plotly.min.js',
+                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
+                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -384,32 +389,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // The following *-min tasks will produce minified files in the dist folder
-        // By default, your `index.html`'s <!-- Usemin block --> will take care of
-        // minification. These next options are pre-configured if you do not wish
-        // to use the Usemin blocks.
-        // cssmin: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/styles/main.css': [
-        //         '.tmp/styles/{,*/}*.css'
-        //       ]
-        //     }
-        //   }
-        // },
-        // uglify: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/scripts/scripts.js': [
-        //         '<%= yeoman.dist %>/scripts/scripts.js'
-        //       ]
-        //     }
-        //   }
-        // },
-        // concat: {
-        //   dist: {}
-        // },
-
         imagemin: {
             dist: {
                 files: [{
@@ -475,15 +454,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Replace Google CDN references
-        /*
-         cdnify: {
-         dist: {
-         html: ['<%= yeoman.dist %>/*.html']
-         }
-         },
-         */
-
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -511,6 +481,11 @@ module.exports = function (grunt) {
                     src: ['**/*.js']
                 }, {
                     expand: true,
+                    cwd: '.tmp/concat',
+                    src: 'scripts/*',
+                    dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
                     cwd: '.',
                     src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
                     dest: '<%= yeoman.dist %>'
@@ -519,14 +494,12 @@ module.exports = function (grunt) {
                     cwd: '.',
                     src: 'bower_components/font-awesome/fonts/*',
                     dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'fixtures/*',
+                    dest: '<%= yeoman.dist %>'
                 }]
-            },
-            // temporary while imagemin is broken
-            images: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/images',
-                src: '{,*/}*.{png,jpg,jpeg,gif}',
-                dest: '<%= yeoman.dist %>/images'
             },
             styles: {
                 expand: true,
@@ -549,7 +522,15 @@ module.exports = function (grunt) {
             dev: {
                 src: 'dev-Dockerrun.aws.json',
                 dest: 'Dockerrun.aws.json',
-            }
+            },
+            stage: {
+                src: 'staging-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
+            prod: {
+                src: 'prod-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
         },
 
         // Run some tasks in parallel to speed up the build process
@@ -562,7 +543,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'compass:dist',
-                // 'imagemin',
+                'imagemin',
                 'svgmin'
             ]
         },
@@ -626,21 +607,21 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection
-                    // See Dockerode for options
+                    // docker connection 
+                    // See Dockerode for options 
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option
-                // The command will look like 'grunt dock:build'
+                // It is possible to define images in the 'default' grunt option 
+                // The command will look like 'grunt dock:build' 
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker
+                    'amidatech/greyscale-client': { // Name to use for Docker 
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
-                            stop: { /* extra options to docker stop    */ },
+                            stop: { /* extra options to docker stop   */ },
                             kill: { /* extra options to docker kill    */ },
                             logs: { /* extra options to docker logs    */ },
                             pause: { /* extra options to docker pause   */ },
@@ -658,7 +639,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.key
+                        key: dockerConfig.pem
                     }
                 }
             }
@@ -672,6 +653,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Compress the EBS Dockerrun file
         compress: {
             main: {
                 options: {
@@ -681,19 +663,32 @@ module.exports = function (grunt) {
             }
         },
 
+        // Tasks for Elastic Beanstalk deployment
         awsebtdeploy: {
+            options: {
+                region: 'us-west-2',
+                applicationName: 'greyscale',
+                sourceBundle: 'latest-client.zip',
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                versionLabel: 'client-' + Date.now(),
+                s3: {
+                    bucket: 'amida-greyscale'
+                }
+            },
             dev: {
                 options: {
-                    region: 'us-west-2',
-                    applicationName: 'greyscale',
                     environmentName: 'greyscale-client-dev',
-                    sourceBundle: 'latest-client.zip',
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                    versionLabel: 'client-' + Date.now(),
-                    s3: {
-                        bucket: 'amida-greyscale'
-                    }
+                }
+            },
+            stage: {
+                options: {
+                    environmentName: 'greyscale-client-stage',
+                }
+            },
+            prod: {
+                options: {
+                    environmentName: 'greyscale-client-prod',
                 }
             }
         }
@@ -744,10 +739,7 @@ module.exports = function (grunt) {
         'i18n',
         'copy:l10n',
         'copy:dist',
-        'copy:images',
-        //'cdnify',
         'cssmin',
-        'uglify',
         'filerev',
         'usemin',
         'htmlmin'
@@ -784,6 +776,16 @@ module.exports = function (grunt) {
         'copy:dev',
         'compress',
         'awsebtdeploy:dev'
+    ]);
+    grunt.registerTask('ebsStage', [
+        'copy:stage',
+        'compress',
+        'awsebtdeploy:stage'
+    ]);
+    grunt.registerTask('ebsProd', [
+        'copy:prod',
+        'compress',
+        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('brushIt', [

@@ -92,25 +92,25 @@ module.exports = {
     },
 
     surveyList: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             var data = yield thunkQuery(
                 Survey
-                    .select(
-                        Survey.star(),
-                        'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
-                    )
-                    .from(
-                        Survey
-                            .leftJoin(SurveyQuestion)
-                            .on(Survey.id.equals(SurveyQuestion.surveyId))
-                    )
-                    .where(Survey.projectId.equals(req.params.id))
-                    .group(Survey.id)
+                .select(
+                    Survey.star(),
+                    'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
+                )
+                .from(
+                    Survey
+                    .leftJoin(SurveyQuestion)
+                    .on(Survey.id.equals(SurveyQuestion.surveyId))
+                )
+                .where(Survey.projectId.equals(req.params.id))
+                .group(Survey.id)
             );
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
