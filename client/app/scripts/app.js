@@ -339,6 +339,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
+                icon: 'fa-globe',
                 isPublic: false
             }
         })
