@@ -412,7 +412,7 @@ angular.module('greyscaleApp')
                     class: 'drop-zone drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
                     cellClass: 'drop-zone drop-user',
-                    cellTemplateUrl: 'views/controllers/partials/product-tasks-matrix-cell.html'
+                    cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html'
                 });
             });
         }
