@@ -13,7 +13,7 @@
 angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv, inform, $log, $stateParams, $state, $q) {
     var surveyId = $stateParams.surveyId;
     var projectId = $stateParams.projectId;
-    
+
     var _survey;
     if (surveyId >= 0) {
         greyscaleSurveyApi.get(surveyId).get().then(function (survey) {
@@ -29,7 +29,7 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
         };
         $state.ext.surveyName = 'New survey';
     }
-    
+
     $scope.save = function () {
         _survey = $scope.model.survey;
         _survey.projectId = projectId;
@@ -76,7 +76,7 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
             projectId: projectId
         });
     };
-    
+
     function _getQuestionFunction(question) {
         if (question.deleted) {
             return greyscaleQuestionApi.delete(question);
