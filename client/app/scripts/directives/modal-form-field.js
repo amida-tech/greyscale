@@ -77,7 +77,14 @@ angular.module('greyscaleApp')
                             break;
                         case 'option':
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select>';
+                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
+
+                            var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
+                            var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
+                            var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
+                            field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
+
+                            field += '</select>';
                             break;
                         case 'boolean':
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
@@ -124,9 +131,12 @@ angular.module('greyscaleApp')
                                 title: data[d][clmn.dataSet.valField]
                             });
                         }
+                        _setDefaultOption($scope.modalFormRec, clmn.field, _options);
                         $scope.model.options = _options;
+
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function (data) {
+                            _setDefaultOption($scope.modalFormRec, clmn.field, data);
                             $scope.model.options = data;
                         });
                     }
@@ -143,6 +153,12 @@ angular.module('greyscaleApp')
                     });
 
                     return parsedParams;
+                }
+
+                function _setDefaultOption(model, field, data) {
+                    if (clmn.dataNoEmptyOption && data[0] && model[field] === undefined) {
+                        model[field] = data[0][clmn.dataSet.keyField];
+                    }
                 }
             }
         };

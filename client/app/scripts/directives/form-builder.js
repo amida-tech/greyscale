@@ -81,7 +81,9 @@ angular.module('greyscaleApp')
                                     scope.model.survey.questions.splice(i, 1);
                                     continue;
                                 }
-                                if (scope.model.survey.questions[i].deleted) continue;
+                                    if (scope.model.survey.questions[i].deleted) {
+                                        continue;
+                                    }
                                 var isAvaliable = false;
                                 for (var j = questions.length - 1; j >= 0; j--) {
                                     if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {

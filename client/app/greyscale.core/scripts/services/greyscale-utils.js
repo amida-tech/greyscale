@@ -59,8 +59,10 @@ angular.module('greyscale.core')
                     } else {
                         errText = err.data;
                     }
-                } else {
+                } else if (typeof err === 'string') {
                     errText = err;
+                } else if (err.statusText) {
+                    errText = err.statusText;
                 }
                 msg += i18n.translate(errText);
 

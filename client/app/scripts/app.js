@@ -23,6 +23,7 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
+    'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload'
 ]);
@@ -338,6 +339,37 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
+                icon: 'fa-globe',
+                isPublic: false
+            }
+        })
+        .state('graph', {
+            parent: 'home',
+            url: 'graph',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/graph.html',
+                    controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                icon: 'fa-bar-chart',
+                isPublic: false
+            }
+        })
+        .state('table', {
+            parent: 'home',
+            url: 'table',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/table.html',
+                    controller: 'TableCtrl'
+                }
+            },
+            data: {
+                name: 'Table',
+                icon: 'fa-table',
                 isPublic: false
             }
         })

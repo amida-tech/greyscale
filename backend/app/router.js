@@ -201,6 +201,10 @@ router.route('/:realm/v0.2/products/:id')
     .put(authenticate('token').always, checkPermission('product_update', 'products'), products.updateOne)
     .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
 
+router.route('/:realm/v0.2/products/:id/tasks')
+    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
+    .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
+
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);

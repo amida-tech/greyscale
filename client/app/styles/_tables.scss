@@ -46,7 +46,8 @@
     }
     td {
         @extend p;
-        .input-cell {
+
+        &.input-cell {
             .form-group {
                 margin: -6px 0;
             }

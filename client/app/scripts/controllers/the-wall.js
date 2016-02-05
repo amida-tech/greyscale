@@ -14,5 +14,5 @@ angular.module('greyscaleApp')
             }
         };
 
-        greyscaleUtilsSrv.errorMsg('All is fine :)','ERROR.TEST');
+        greyscaleUtilsSrv.errorMsg('All is fine :)', 'ERROR.TEST');
     });

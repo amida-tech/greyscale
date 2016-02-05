@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
         greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv, i18n) {
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
@@ -15,6 +15,15 @@ angular.module('greyscale.tables')
             orgs: [],
             users: []
         };
+
+        var _const = {
+            STATUS_INFLIGHT: 1,
+            STATUS_SUSPENDED: 3
+        };
+
+        var _statusIcons = {};
+        _statusIcons[_const.STATUS_INFLIGHT] = 'fa-pause';
+        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
         var accessLevel;
 
@@ -75,11 +84,23 @@ angular.module('greyscale.tables')
             sortable: 'startTime',
             title: tns + 'START_TIME'
         }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProjectTooltip,
+                class: 'info',
+                handler: _startOrPauseProject
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
             title: tns + 'STATUS',
             dataFormat: 'option',
+            dataNoEmptyOption: true,
             dataSet: {
                 getData: getStatus,
                 keyField: 'id',
@@ -125,6 +146,9 @@ angular.module('greyscale.tables')
             icon: 'fa-paper-plane',
             pageLength: 10,
             cols: recDescr,
+            sorting: {
+                id: 'asc'
+            },
             selectable: true,
             dataPromise: _getData,
             add: {
@@ -147,6 +171,23 @@ angular.module('greyscale.tables')
 
         function getStatus() {
             return greyscaleGlobals.projectStates;
+        }
+
+        function _getStatusIcon(project) {
+            return _statusIcons[project.status] ? _statusIcons[project.status] : '';
+        }
+
+        function _getStartOrPauseProjectTooltip(project) {
+            var action, tooltip;
+            if (project.status === _const.STATUS_SUSPENDED) {
+                action = 'START';
+            } else if (project.status === _const.STATUS_INFLIGHT) {
+                action = 'PAUSE';
+            }
+            if (action) {
+                tooltip = tns + action + '_PROJECT';
+            }
+            return tooltip;
         }
 
         function _isSuperAdmin() {
@@ -215,6 +256,26 @@ angular.module('greyscale.tables')
                 .catch(function (err) {
                     return errHandler(err, op);
                 });
+        }
+
+        function _startOrPauseProject(project) {
+            var op = 'changing status';
+            var status = project.status;
+            var setStatus;
+            if (status === _const.STATUS_INFLIGHT) {
+                setStatus = _const.STATUS_SUSPENDED;
+            } else if (status === _const.STATUS_SUSPENDED) {
+                setStatus = _const.STATUS_INFLIGHT;
+            }
+            if (setStatus !== undefined) {
+                var saveProject = angular.copy(project);
+                saveProject.status = setStatus;
+                greyscaleProjectApi.update(saveProject)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        return errHandler(err, op);
+                    });
+            }
         }
 
         function reloadTable() {

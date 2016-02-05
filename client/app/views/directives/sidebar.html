@@ -8,15 +8,11 @@
             </a>
         </li>
         <li class="sidebar-title" ng-repeat-start="group in menu.groups">
-            <span class="text-capitalize">{{group.title|translate}}</span>
+            <span class="truncate text-capitalize" title="{{::group.title|translate}}">{{::group.title|translate}}</span>
         </li>
         <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
-            <a ui-sref="{{item.sref}}">{{item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
-        </li>
-        <li class="sidebar-list">
-            <a ui-sref="visualization">Visualizations <span class="menu-icon fa fa-area-chart"></span></a>
+            <a ui-sref="{{item.sref}}" class="truncate" title="{{::item.title|translate}}">{{::item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
         </li>
     </ul>
-    <div class="sidebar-footer"></div>
 </div>
 <!-- End Sidebar -->
