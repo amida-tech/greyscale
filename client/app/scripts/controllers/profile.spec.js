@@ -30,7 +30,8 @@ describe('ProfileCtrl:', function () {
     describe('editProfile', function () {
 
         it('should be in $scope', function () {
-            expect($scope.editProfile).toEqual(jasmine.anything());
+            expect(typeof $scope.editProfile === 'function')
+                .toEqual(true);
         });
 
     });
@@ -38,7 +39,8 @@ describe('ProfileCtrl:', function () {
     describe('editOrg', function () {
 
         it('should be in $scope', function () {
-            expect($scope.editOrg).toEqual(jasmine.anything());
+            expect(typeof $scope.editOrg === 'function')
+                .toEqual(true);
         });
 
     });

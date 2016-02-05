@@ -4,6 +4,12 @@ describe('greyscaleProfileSrv:', function () {
 
     beforeEach(angular.mock.module('greyscaleApp'));
 
+    // Prevent flush issues with state transitions
+    // http://stackoverflow.com/questions/23655307/ui-router-interfers-with-httpbackend-unit-test-angular-js/23670198#23670198
+    beforeEach(module(function ($urlRouterProvider) {
+        $urlRouterProvider.deferIntercept();
+    }));
+
     var greyscaleProfileSrv,
         httpBackend;
 
@@ -24,8 +30,6 @@ describe('greyscaleProfileSrv:', function () {
             return [200, resp];
         });
 
-        httpBackend.expectGET(/views\/.*/);
-
         httpBackend.flush();
     });
 
@@ -45,54 +49,13 @@ describe('greyscaleProfileSrv:', function () {
                 });
         });
 
-        it('should return a user', function () {
-            greyscaleProfileSrv.getProfile()
-                .then(function (user) {
-                    expect(user).toBe(jasmine.anything());
-                });
-        });
-
-        it('should set the accessLevel', function () {
-            greyscaleProfileSrv.getProfile()
-                .then(function (user) {
-                    greyscaleProfileSrv.getAccessLevelMask()
-                        .then(function (mask) {
-                            expect(mask).toBe(0x0002);
-                        });
-                });
-        });
-
     });
-
-    // describe('_setAccessLevel');
 
     describe('getAccessLevelMask', function () {
 
         it('should get the default acessLevel', function () {
-            greyscaleProfileSrv.getAccessLevelMask()
-                .then(function (mask) {
-                    expect(mask).toBe(0x0001);
-                });
-            httpBackend.flush();
+            expect(greyscaleProfileSrv.getAccessLevelMask()).toBe(0x0001);
         });
-
-    });
-
-    describe('login', function () {
-
-        it('should work', function () {
-            greyscaleProfileSrv.login()
-                .then(function (user) {
-                    expect(user).toBe(jasmine.anything());
-                });
-
-        });
-
-    });
-
-    describe('logout', function () {
-
-        it('should remove access level');
 
     });
 
