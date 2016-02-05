@@ -39,10 +39,10 @@ angular.module('greyscaleApp')
                         counts: [],
                         getData: function ($defer, params) {
                             if (typeof $scope.model.dataPromise === 'function') {
-                                var throttling = $timeout(function(){
+                                var throttling = $timeout(function () {
                                     $scope.model.$loading = true;
                                 }, 100);
-                                var endLoading = function(){
+                                var endLoading = function () {
                                     $timeout.cancel(throttling);
                                     $scope.model.$loading = false;
                                 };
@@ -91,7 +91,7 @@ angular.module('greyscaleApp')
                         $scope.model.multiselect.reset();
                     }
                     if (_templateCacheIds.length) {
-                        angular.forEach(_templateCacheIds, function(templateId){
+                        angular.forEach(_templateCacheIds, function (templateId) {
                             $templateCache.remove(templateId);
                         });
                     }
@@ -136,7 +136,7 @@ angular.module('greyscaleApp')
             var templateId = 'widget-table-' + Math.random();
             _templateCacheIds.push(templateId);
             var scope = $rootScope.$new();
-            angular.extend(scope, col.titleTemplateData||{});
+            angular.extend(scope, col.titleTemplateData || {});
             template = $compile(template)(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {

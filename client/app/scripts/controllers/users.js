@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
 
         _onStateChange(function (state) {
             if (state.name === _parentState) {
-                if ($scope.tabs.length>0) {
+                if ($scope.tabs.length > 0) {
                     $scope.go($scope.tabs[0].state);
                 }
             } else {

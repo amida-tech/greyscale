@@ -42,15 +42,38 @@ angular.module('greyscale.rest')
         function _tasksList(productId) {
             return function (params) {
                 return _productTasksApi(productId).get(params)
-                    .catch(function(){
-                        return $q.when([
-                            {id: 1, uoaId: 1, stepId: 23, entityTypeRoleId: 30},
-                            {id: 2, uoaId: 5, stepId: 23, entityTypeRoleId: 34},
-                            {id: 3, uoaId: 1, stepId: 22, entityTypeRoleId: 33},
-                            {id: 4, uoaId: 2, stepId: 22, entityTypeRoleId: 33},
-                            {id: 5, uoaId: 5, stepId: 22, entityTypeRoleId: 33},
-                            {id: 6, uoaId: 5, stepId: 19, entityTypeRoleId: 35},
-                        ]);
+                    .catch(function () {
+                        return $q.when([{
+                            id: 1,
+                            uoaId: 1,
+                            stepId: 23,
+                            entityTypeRoleId: 30
+                        }, {
+                            id: 2,
+                            uoaId: 5,
+                            stepId: 23,
+                            entityTypeRoleId: 34
+                        }, {
+                            id: 3,
+                            uoaId: 1,
+                            stepId: 22,
+                            entityTypeRoleId: 33
+                        }, {
+                            id: 4,
+                            uoaId: 2,
+                            stepId: 22,
+                            entityTypeRoleId: 33
+                        }, {
+                            id: 5,
+                            uoaId: 5,
+                            stepId: 22,
+                            entityTypeRoleId: 33
+                        }, {
+                            id: 6,
+                            uoaId: 5,
+                            stepId: 19,
+                            entityTypeRoleId: 35
+                        }, ]);
                     });
             };
         }

@@ -88,12 +88,12 @@ router.route('/:realm/v0.2/surveys/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.delete);
 
 router.route('/:realm/v0.2/surveys/:id/questions')
-  .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
-  .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questions)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionAdd);
 
 router.route('/:realm/v0.2/questions/:id')
-  .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
-  .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionEdit)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.questionDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS

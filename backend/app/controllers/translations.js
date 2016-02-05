@@ -14,33 +14,33 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Translations
-                    .select()
-                    .from(Translations)
-                , _.omit(req.query, 'offset', 'limit', 'order')
+                .select()
+                .from(Translations),
+                _.omit(req.query, 'offset', 'limit', 'order')
             );
 
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     selectByParams: function (req, res, next) {
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Translations
-                    .select()
-                    .from(Translations)
-                    .where(_.pick(req.params,['essenceId','entityId']))
-                , _.omit(req.query, 'offset', 'limit', 'order')
+                .select()
+                .from(Translations)
+                .where(_.pick(req.params, ['essenceId', 'entityId'])),
+                _.omit(req.query, 'offset', 'limit', 'order')
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -51,8 +51,7 @@ module.exports = {
             'value': req.body.value
         }).where(
             _.pick(
-                req.params,
-                [
+                req.params, [
                     'essenceId',
                     'entityId',
                     'langId',
@@ -70,8 +69,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Translations.delete().where(_.pick(
-            req.params,
-            [
+            req.params, [
                 'essenceId',
                 'entityId',
                 'langId',

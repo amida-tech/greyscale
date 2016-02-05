@@ -3,6 +3,8 @@
  */
 'use strict';
 
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+
 angular.module('greyscaleApp')
     .directive('formBuilder', function (_) {
         return {
@@ -26,7 +28,8 @@ angular.module('greyscaleApp')
                 ];
 
                 function createFormBuilder() {
-                    var data = [], i;
+                    var data = [],
+                        i;
 
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
