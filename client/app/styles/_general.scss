@@ -132,3 +132,7 @@ body {
     display: block;
 }
 
+.disabled,
+:disabled {
+    color: $grey-medium-light;
+}

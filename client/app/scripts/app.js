@@ -339,6 +339,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
+                icon: 'fa-globe',
                 isPublic: false
             }
         })
@@ -353,6 +354,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Graph',
+                icon: 'fa-bar-chart',
                 isPublic: false
             }
         })
@@ -366,7 +368,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Graph',
+                name: 'Table',
+                icon: 'fa-table',
                 isPublic: false
             }
         })

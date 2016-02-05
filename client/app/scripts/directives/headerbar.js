@@ -11,9 +11,20 @@ angular.module('greyscaleApp')
                 '<a ui-sref="{{parent.route}}">{{parent.name|translate:{ext:stateExt} }}</a></li><li class="active">{{model.title|translate:{ext:stateExt} }}</li>' +
                 '</ul></div></div>',
             scope: {},
-            restrict: 'AE',
+            restrict: 'E',
+            replace: true,
             controller: function ($scope, $state) {
-                var _getPath = function (_state) {
+
+                $scope.stateExt = $state.ext;
+
+                $scope.$on('$stateChangeSuccess', function () {
+                    $scope.model = {
+                        title: $state.current.data.name,
+                        path: _getPath($state.$current.parent)
+                    };
+                });
+
+                function _getPath (_state) {
                     var path = [];
                     while (_state) {
                         if (_state.data && _state.data.name) {
@@ -24,18 +35,8 @@ angular.module('greyscaleApp')
                         }
                         _state = _state.parent;
                     }
-
                     return path;
-                };
-
-                $scope.stateExt = $state.ext;
-
-                $scope.$on('$stateChangeSuccess', function () {
-                    $scope.model = {
-                        title: $state.current.data.name,
-                        path: _getPath($state.$current.parent)
-                    };
-                });
+                }
             }
         };
     });
