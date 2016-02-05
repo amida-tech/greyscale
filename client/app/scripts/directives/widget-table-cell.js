@@ -110,8 +110,10 @@ angular.module('greyscaleApp')
                 }
 
                 function _getTemplateByUrl(templateUrl) {
-                    return $http.get(templateUrl, {cache: $templateCache})
-                        .then(function(response){
+                    return $http.get(templateUrl, {
+                            cache: $templateCache
+                        })
+                        .then(function (response) {
                             return response.data;
                         });
                 }

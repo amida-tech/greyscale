@@ -3,6 +3,8 @@
  */
 'use strict';
 
+// jscs:disable requireCamelCaseOrUpperCaseIdentifiers
+
 angular.module('greyscaleApp')
     .directive('formBuilder', function (_) {
         return {
@@ -26,7 +28,8 @@ angular.module('greyscaleApp')
                 ];
 
                 function createFormBuilder() {
-                    var data = [], i;
+                    var data = [],
+                        i;
 
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
@@ -57,7 +60,8 @@ angular.module('greyscaleApp')
                             var fields = JSON.parse(json).fields;
                             var questions = [];
                             for (i = 0; i < fields.length; i++) {
-                                var typeIdx = _.findIndex(types, fields[i].field_type);
+                                //var typeIdx = _.findIndex(types, fields[i].field_type);
+                                var typeIdx = types.indexOf(fields[i].field_type);
                                 if (typeIdx > -1) {
                                     questions.push({
                                         label: fields[i].label,
@@ -72,24 +76,29 @@ angular.module('greyscaleApp')
                             }
                             if (scope.model.survey.questions) {
                                 for (i = scope.model.survey.questions.length - 1; i >= 0; i--) {
-                                    if (scope.model.survey.questions[i] && !scope.model.survey.questions[i].deleted) {
-                                        var isAvaliable = false;
-                                        for (var j = questions.length - 1; j >= 0; j--) {
-                                            if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
-                                                isAvaliable = true;
-                                                delete questions[j].cid;
-                                                questions[j].id = scope.model.survey.questions[i].id;
-                                                scope.model.survey.questions[i] = questions[j];
+                                    if (!scope.model.survey.questions[i]) {
+                                        scope.model.survey.questions.splice(i, 1);
+                                        continue;
+                                    }
+                                    if (scope.model.survey.questions[i].deleted) {
+                                        continue;
+                                    }
+                                    var isAvaliable = false;
+                                    for (var j = questions.length - 1; j >= 0; j--) {
+                                        if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
+                                            isAvaliable = true;
+                                            delete questions[j].cid;
+                                            questions[j].id = scope.model.survey.questions[i].id;
+                                            scope.model.survey.questions[i] = questions[j];
 
-                                                questions.splice(j, 1);
-                                            }
+                                            questions.splice(j, 1);
                                         }
-                                        if (!isAvaliable) {
-                                            if (scope.model.survey.questions[i].id) {
-                                                scope.model.survey.questions[i].deleted = true;
-                                            } else {
-                                                scope.model.survey.questions.splice(i, 1);
-                                            }
+                                    }
+                                    if (!isAvaliable) {
+                                        if (scope.model.survey.questions[i].id) {
+                                            scope.model.survey.questions[i].deleted = true;
+                                        } else {
+                                            scope.model.survey.questions.splice(i, 1);
                                         }
                                     }
                                 }
@@ -101,7 +110,6 @@ angular.module('greyscaleApp')
                                 delete questions[i].cid;
                                 scope.model.survey.questions.push(questions[i]);
                             }
-
                             scope.model.survey.questions.sort(function (a, b) {
                                 return a.position - b.position;
                             });

@@ -199,6 +199,7 @@ module.exports = {
     });
   }
 
+
 };
 
 function* checkProductData(req) {
@@ -216,10 +217,10 @@ function* checkProductData(req) {
     //}
 
     if (req.body.surveyId) {
-      var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-      if (!_.first(isExistSurvey)) {
-        throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-      }
+        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
+        if (!_.first(isExistSurvey)) {
+            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
+        }
     }
 
     if (req.body.projectId) {

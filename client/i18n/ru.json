@@ -20,6 +20,9 @@
         "RESET": "Сброс",
         "TODAY": "Сегодня"
     },
+    "ERROR": {
+        "TEST": "Тестовая ошибка"
+    },
     "FILE": {
         "CONTINUE": "Продолжить",
         "SELECT": "Выберите файл для загрузки"
@@ -76,6 +79,7 @@
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
         "HOME": "Главная",
+        "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
@@ -83,7 +87,6 @@
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
-            "IMPORT": "Импорт данных",
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
@@ -119,10 +122,10 @@
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
-                "TASKS_UPDATE_ERROR": "",
-                "TASK_REMOVE_ERROR": "",
-                "TASK_UPDATE_ERROR": "",
-                "TITLE": "Назначение пользователя на выполнение задачи",
+                "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
+                "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
+                "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
+                "TITLE": "Задачи",
                 "UOAS_HEADER": "Единица анализа",
                 "UOAS_TYPE_HEADER": ""
             },

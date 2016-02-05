@@ -18,50 +18,50 @@ var
 module.exports = {
 
     select: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(
                 Task
-                    .select(
-                        Task.star()
-                        //'row_to_json("Workflows".*) as workflow'
-                    )
-                    .from(
-                        Task
-                            //.leftJoin(Workflow)
-                            //.on(Product.id.equals(Workflow.productId))
-                    )
+                .select(
+                    Task.star()
+                    //'row_to_json("Workflows".*) as workflow'
+                )
+                .from(
+                    Task
+                    //.leftJoin(Workflow)
+                    //.on(Product.id.equals(Workflow.productId))
+                )
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
-        })
+        });
     },
 
     selectOne: function (req, res, next) {
-        co(function* (){
-            var task =  yield thunkQuery(
+        co(function* () {
+            var task = yield thunkQuery(
                 Task
-                    .select(
-                        Task.star()
-                        //'row_to_json("Workflows".*) as workflow'
-                    )
-                    .from(
-                        Task
-                            //.leftJoin(Workflow)
-                            //.on(Product.id.equals(Workflow.productId))
-                    )
-                    .where(Task.id.equals(req.params.id))
+                .select(
+                    Task.star()
+                    //'row_to_json("Workflows".*) as workflow'
+                )
+                .from(
+                    Task
+                    //.leftJoin(Workflow)
+                    //.on(Product.id.equals(Workflow.productId))
+                )
+                .where(Task.id.equals(req.params.id))
             );
-            if(!_.first(task)){
+            if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
             }
             return _.first(task);
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
-        })
+        });
     },
 
     delete: function (req, res, next) {
@@ -75,26 +75,26 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(
                 Task
-                .update(_.pick(req.body,['title', 'description']))
+                .update(_.pick(req.body, ['title', 'description']))
                 .where(Task.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.status(202).end();
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     insertOne: function (req, res, next) {
         co(function* () {
-            yield *checkTaskData(req);
+            yield * checkTaskData(req);
             var result = yield thunkQuery(
                 Task
                 .insert(
-                    _.pick(req.body,Task.table._initialConfig.columns)
+                    _.pick(req.body, Task.table._initialConfig.columns)
                 )
                 .returning(Task.id)
             );
@@ -105,7 +105,6 @@ module.exports = {
             next(err);
         });
     },
-
 
 };
 
@@ -118,7 +117,8 @@ function *checkTaskData (req) {
             typeof req.body.productId        == 'undefined' ||
             typeof req.body.title            == 'undefined'
         ){
-            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId and title fields are required');
+
+            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
         }
     }
 
@@ -126,4 +126,3 @@ function *checkTaskData (req) {
     //    UOA.select().where(UOA.id.equals)
     //);
 }
-

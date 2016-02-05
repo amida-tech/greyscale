@@ -23,6 +23,7 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
+    'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload'
 ]);
@@ -118,6 +119,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'access',
             data: {
                 name: 'NAV.ACCESS_MANAGEMENT',
+                icon: 'fa-compass',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -164,6 +166,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
+        .state('usersImport', {
+            parent: 'users',
+            url: '/import',
+            templateUrl: 'views/controllers/users-import.html',
+            controller: 'UsersImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('uoas', {
             parent: 'home',
             url: 'uoas',
@@ -175,6 +188,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.UOAS',
+                icon: 'fa-table',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -189,6 +203,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROJECTS_MANAGEMENT',
+                icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
@@ -253,14 +268,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        .state('projects.setup.import', {
-            url: '/import',
-            templateUrl: 'views/controllers/project-setup-import.html',
-            controller: 'ProjectSetupImportCtrl',
-            data: {
-                name: 'NAV.PROJECTS.IMPORT'
-            }
-        })
         .state('orgs', {
             parent: 'home',
             url: 'organizations',
@@ -272,6 +279,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.ORGANIZATIONS',
+                icon: 'fa-university',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -280,6 +288,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'workflow',
             data: {
                 name: 'NAV.WORKFLOW_STEPS',
+                icon: 'fa-fast-forward',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -300,6 +309,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROFILE',
+                icon: 'fa-user',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -314,6 +324,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.TASKS',
+                icon: 'fa-tasks',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -328,6 +339,34 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
+                isPublic: false
+            }
+        })
+        .state('graph', {
+            parent: 'home',
+            url: 'graph',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/graph.html',
+                    controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                isPublic: false
+            }
+        })
+        .state('table', {
+            parent: 'home',
+            url: 'table',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/table.html',
+                    controller: 'TableCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
                 isPublic: false
             }
         })

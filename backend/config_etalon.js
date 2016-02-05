@@ -86,7 +86,3 @@ var environments = {
 // Take configuration according to environment
 var nodeEnv = process.env.NODE_ENV || 'development';
 module.exports = environments[nodeEnv] || environments.development;
-
-
-
-

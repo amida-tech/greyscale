@@ -3,6 +3,6 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ProjectSetupImportCtrl', function () {
+    .controller('UsersImportCtrl', function () {
 
     });
