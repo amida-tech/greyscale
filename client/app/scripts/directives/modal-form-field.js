@@ -75,14 +75,14 @@ angular.module('greyscaleApp')
                                 field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
                             }
                             break;
-                            case 'option':
+                        case 'option':
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
                                 '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
                             var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
-                            var placeholderAttr = clmn.dataPlaceholder ? ' translate="'+clmn.dataPlaceholder + '" ' : '';
-                            field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr +'></option>'
+                            var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
+                            field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
 
                             field += '</select>';
                             break;

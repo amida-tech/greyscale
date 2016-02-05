@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
                             if (typeof $scope.model.dataPromise === 'function') {
                                 var throttling = $timeout(function () {
                                     $scope.model.$loading = true;
-                                }, 100);
+                                }, 200);
                                 var endLoading = function () {
                                     $timeout.cancel(throttling);
                                     $scope.model.$loading = false;

@@ -10,19 +10,21 @@
         <table class="table table-responsive panel {{::classes}}"
                ng-class="{'table-hover':model.selectable}"
                ng-table-dynamic="model.tableParams with model.cols">
-            <tr ng-repeat="row in $data" ng-click="select(row, $event)" ng-class="{selected: isSelected(row)}"
-                ng-disabled="isDisabled(row)" propagate-disabled>
-                <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
-                    model-multiselect="model.multiselect"></td>
-            </tr>
-            <tr ng-show="!model.$loading && model.dataMap && !model.dataMap.length" class="empty-data text-center">
-                <td colspan="{{$columns.length}}">{{(model.noDataText||'TABLES.NO_DATA')|translate}}</td>
-            </tr>
-            <tr ng-show="model.$loading">
-                <td colspan="{{$columns.length}}">
-                    <rd-loading></rd-loading>
-                </td>
-            </tr>
+            <tbody ng-show="!model.$loading">
+                <tr ng-repeat="row in $data" ng-click="select(row, $event)" ng-class="{selected: isSelected(row)}"
+                    ng-disabled="isDisabled(row)" propagate-disabled>
+                    <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
+                        model-multiselect="model.multiselect"></td>
+                </tr>
+                <tr ng-show="!model.$loading && model.dataMap && !model.dataMap.length" class="empty-data text-center">
+                    <td colspan="{{$columns.length}}">{{(model.noDataText||'TABLES.NO_DATA')|translate}}</td>
+                </tr>
+                <tr ng-show="model.$loading">
+                    <td colspan="{{$columns.length}}">
+                        <rd-loading></rd-loading>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </div>
 </rd-widget>
