@@ -8,34 +8,10 @@ angular.module('greyscale.core')
             title: 'greyscale',
             groups: [{
                 title: 'NAV.ADMIN_SECTION',
-                items: [{
-                    state: 'access',
-                    icon: 'fa-compass'
-                }, {
-                    state: 'uoas',
-                    icon: 'fa-table'
-                }, {
-                    state: 'users',
-                    icon: 'fa-group'
-                }, {
-                    state: 'orgs',
-                    icon: 'fa-university'
-                }, {
-                    state: 'projects',
-                    icon: 'fa-paper-plane'
-                }, {
-                    state: 'workflow',
-                    icon: 'fa-fast-forward'
-                }]
+                states: ['access', 'uoas', 'users', 'orgs', 'projects', 'workflow']
             }, {
                 title: 'NAV.CONTENT_SECTION',
-                items: [{
-                    state: 'profile',
-                    icon: 'fa-user'
-                }, {
-                    state: 'tasks',
-                    icon: 'fa-tasks'
-                }]
+                states: ['profile', 'tasks']
             }]
         };
 
