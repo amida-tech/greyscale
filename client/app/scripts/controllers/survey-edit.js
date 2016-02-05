@@ -30,7 +30,7 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
         $state.ext.surveyName = 'New survey';
     }
     
-    $scope.save = function () {
+    function _save() {
         _survey = $scope.model.survey;
         _survey.projectId = projectId;
         (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey)).then(function (survey) {
@@ -70,6 +70,11 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
                 type: 'danger'
             });
         });
+    }
+
+    $scope.save = function () {
+        $scope.$on('form-changes-saved', _save);
+        $scope.saveFormbuilder();
     };
     $scope.cancel = function () {
         $state.go('projects.setup.surveys', {
@@ -86,4 +91,10 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
             return greyscaleQuestionApi.add(question);
         }
     }
+
+    var firstSave = $scope.$on('form-changes-saved', function () {
+        $scope.dataForm.$dirty = true;
+        $scope.$apply();
+        firstSave();
+    });
 });
