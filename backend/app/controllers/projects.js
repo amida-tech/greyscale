@@ -60,13 +60,13 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title','description','startTime','closeTime','status','codeName']);
+            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
             var result = false;
             if (Object.keys(updateObj).length) {
-                var result = yield thunkQuery(
+                result = yield thunkQuery(
                     Project
-                        .update(updateObj)
-                        .where(Project.id.equals(req.params.id))
+                    .update(updateObj)
+                    .where(Project.id.equals(req.params.id))
                 );
             }
             return result;
@@ -150,7 +150,7 @@ function* checkProjectData(req) {
             );
         }
 
-        if(req.body.organizationId){
+        if (req.body.organizationId) {
             var isExistOrg = yield thunkQuery(
                 Organization.select().where(Organization.id.equals(req.user.organizationId))
             );
@@ -165,14 +165,14 @@ function* checkProjectData(req) {
         req.body.organizationId = req.user.organizationId;
     }
 
-    if(req.body.matrixId){
+    if (req.body.matrixId) {
         var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-        var isExistCode;
         if (!_.first(isExistMatrix)) {
             throw new HttpError(403, 'Matrix with this id does not exist');
         }
     }
 
+    var isExistCode;
     if (req.params.id) { // update
         if (req.body.codeName) {
             isExistCode = yield thunkQuery(
@@ -194,9 +194,5 @@ function* checkProjectData(req) {
             }
         }
     }
-
-
-
-
 
 }

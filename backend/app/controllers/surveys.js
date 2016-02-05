@@ -256,8 +256,9 @@ function* checkQuestionData(req, isCreate) {
                 );
             }
             if (!isCreate && (question.position !== req.body.position)) {
+                var q;
                 if (question.position < req.body.position) {
-                    var q =
+                    q =
                         'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                         'WHERE (' +
                         '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
@@ -265,7 +266,7 @@ function* checkQuestionData(req, isCreate) {
                         'AND ("SurveyQuestions"."position" <= ' + req.body.position + ')' +
                         ')';
                 } else {
-                    var q =
+                    q =
                         'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                         'WHERE (' +
                         '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
