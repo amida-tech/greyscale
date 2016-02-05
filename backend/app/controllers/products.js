@@ -71,7 +71,10 @@ module.exports = {
         throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
       }
       // TODO validation
-      var res = [];
+      var res = {
+        inserted: [],
+        updated: []
+      };
 
       for(var i in req.body){
         req.body[i].productId = req.params.id;
@@ -80,23 +83,25 @@ module.exports = {
             typeof req.body[i].uoaId            == 'undefined' ||
             typeof req.body[i].stepId           == 'undefined' ||
             typeof req.body[i].entityTypeRoleId == 'undefined' ||
-            typeof req.body[i].productId        == 'undefined' ||
-            typeof req.body[i].title            == 'undefined'
+            typeof req.body[i].productId        == 'undefined'
+            //typeof req.body[i].title            == 'undefined'
         ){
           throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
         }
 
         if(req.body[i].id){ // update
-          var updateObj = _.pick(req.body[i], ['title','description']);
-          Task.update(_.pick(updateObj)).where(Task.id.equals(req.body[i].id));
-          updateObj.id = req.body[i].id;
-          res.push(updateObj);
+          var updateObj = _.pick(req.body[i], ['title','description','entityTypeRoleId']);
+          if(Object.keys(updateObj).length){
+            Task.update(_.pick(updateObj)).where(Task.id.equals(req.body[i].id));
+            updateObj.id = req.body[i].id;
+            res.updated.push(req.body[i].id);
+          }
         }else{ // create
           var id = yield thunkQuery(
               Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
           );
           req.body[i].id = _.first(id).id;
-          res.push(req.body[i]);
+          res.inserted.push(req.body[i].id);
         }
 
       }
