@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv) {
         var _parentState = 'users';
 
-        var _states = ['List', 'Uoa'];
+        var _states = ['List', 'Uoa', 'Import'];
         $scope.tabs = [];
 
         greyscaleProfileSrv.getProfile().then(function (profile) {

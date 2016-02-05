@@ -164,6 +164,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
+        .state('usersImport', {
+            parent: 'users',
+            url: '/import',
+            templateUrl: 'views/controllers/users-import.html',
+            controller: 'UsersImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('uoas', {
             parent: 'home',
             url: 'uoas',
@@ -251,14 +262,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.PRODUCT_TASKS',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })
-        .state('projects.setup.import', {
-            url: '/import',
-            templateUrl: 'views/controllers/project-setup-import.html',
-            controller: 'ProjectSetupImportCtrl',
-            data: {
-                name: 'NAV.PROJECTS.IMPORT'
             }
         })
         .state('orgs', {

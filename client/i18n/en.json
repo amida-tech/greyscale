@@ -76,6 +76,7 @@
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
         "HOME": "Home",
+        "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
@@ -83,7 +84,6 @@
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
-            "IMPORT": "Import data",
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",

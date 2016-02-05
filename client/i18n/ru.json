@@ -76,6 +76,7 @@
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
         "HOME": "Главная",
+        "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
@@ -83,7 +84,6 @@
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
-            "IMPORT": "Импорт данных",
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
