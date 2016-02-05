@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
 
         $scope.model = {
             selectedUser: {},
-            selectedRole: {},
+            selectedRole: {}
         };
 
         var _dicts = {};
@@ -256,7 +256,7 @@ angular.module('greyscaleApp')
 
             var updateStorage = function() {
                 if (!task) {
-                    _tasks.push(saveTask)
+                    _tasks.push(saveTask);
                 } else {
                     angular.extend(task, saveTask);
                 }
@@ -336,7 +336,7 @@ angular.module('greyscaleApp')
                 angular.forEach(saveTasks, function(saveTask){
                     var task = _findTask(saveTask.uoaId, stepId);
                     if (!task) {
-                        _tasks.push(saveTask)
+                        _tasks.push(saveTask);
                     } else {
                         angular.extend(task, saveTask);
                     }
