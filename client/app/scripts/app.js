@@ -119,6 +119,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'access',
             data: {
                 name: 'NAV.ACCESS_MANAGEMENT',
+                icon: 'fa-compass',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -187,6 +188,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.UOAS',
+                icon: 'fa-table',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -201,6 +203,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROJECTS_MANAGEMENT',
+                icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
@@ -276,6 +279,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.ORGANIZATIONS',
+                icon: 'fa-university',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -284,6 +288,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'workflow',
             data: {
                 name: 'NAV.WORKFLOW_STEPS',
+                icon: 'fa-fast-forward',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -304,6 +309,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROFILE',
+                icon: 'fa-user',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -318,6 +324,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.TASKS',
+                icon: 'fa-tasks',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -332,6 +339,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
+                icon: 'fa-globe',
                 isPublic: false
             }
         })
@@ -346,6 +354,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'Graph',
+                icon: 'fa-bar-chart',
                 isPublic: false
             }
         })
@@ -359,7 +368,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Graph',
+                name: 'Table',
+                icon: 'fa-table',
                 isPublic: false
             }
         })

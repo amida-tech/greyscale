@@ -4,12 +4,12 @@ angular.module('greyscaleApp')
         greyscaleProductWorkflowApi, greyscaleProjectApi,
         greyscaleProductApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleUtilsSrv, greyscaleEntityTypeRoleApi, greyscaleUoaTypeApi,
-        greyscaleEntityTypeApi, greyscaleTaskApi, inform, i18n) {
+        greyscaleEntityTypeApi, greyscaleTaskApi) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
-        var projectId = $stateParams.projectId,
-            productId = $stateParams.productId;
+        var projectId = parseInt($stateParams.projectId),
+            productId = parseInt($stateParams.productId);
 
         $scope.model = {
             selectedUser: {},
@@ -248,7 +248,8 @@ angular.module('greyscaleApp')
             var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
             var saveTask = task ? angular.copy(task) : {
                 uoaId: taskViewModel.uoaId,
-                stepId: taskViewModel.stepId
+                stepId: taskViewModel.stepId,
+                productId: productId
             };
             saveTask.entityTypeRoleId = assigneeId;
 
@@ -278,7 +279,7 @@ angular.module('greyscaleApp')
                     defer.resolve();
                 })
                 .catch(function (error) {
-                    _informError('task_update', error);
+                    _informError(error, 'task_update');
                     defer.reject();
                 });
 
@@ -307,7 +308,7 @@ angular.module('greyscaleApp')
                     defer.resolve();
                 })
                 .catch(function (error) {
-                    _informError('task_remove', error);
+                    _informError(error, 'task_remove');
                     defer.reject();
                 });
 
@@ -324,7 +325,8 @@ angular.module('greyscaleApp')
                 var task = _findTask(uoaId, stepId);
                 var saveTask = task ? angular.copy(task) : {
                     uoaId: uoaId,
-                    stepId: stepId
+                    stepId: stepId,
+                    productId: productId
                 };
                 saveTask.entityTypeRoleId = assigneeViewModel.id;
                 saveTasks.push(saveTask);
@@ -360,21 +362,16 @@ angular.module('greyscaleApp')
                     defer.resolve();
                 })
                 .catch(function (error) {
-                    _informError('tasks_update', error);
+                    _informError(error, 'tasks_update');
                     defer.reject();
                 });
 
             return defer.promise;
         }
 
-        function _informError(action, error) {
-            var message = i18n.translate(tns + action.toUpperCase() + '_ERROR');
-            if (error && error.message) {
-                message += ' ' + error.message;
-            }
-            inform.add(message, {
-                type: 'danger'
-            });
+        function _informError(error, action) {
+            var message = tns + action.toUpperCase() + '_ERROR';
+            greyscaleUtilsSrv.errorMsg(error, message);
         }
 
         ////////////////////  table-widget init /////////////////////
@@ -415,7 +412,7 @@ angular.module('greyscaleApp')
                     class: 'drop-zone drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
                     cellClass: 'drop-zone drop-user',
-                    cellTemplateUrl: 'views/controllers/partials/product-tasks-matrix-cell.html'
+                    cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html'
                 });
             });
         }
@@ -603,10 +600,9 @@ angular.module('greyscaleApp')
                 .then(function (project) {
                     $state.ext.projectName = project.codeName;
                     return project;
-                }, function () {
-                    inform.add('Project Not Found', {
-                        type: 'danger'
-                    });
+                })
+                .catch(function (error) {
+                    greyscaleUtilsSrv.errorMsg(error, tns + 'PROJECT_NOT_FOUND');
                     $state.go('home');
                 });
         }
@@ -616,10 +612,9 @@ angular.module('greyscaleApp')
                 .then(function (product) {
                     $state.ext.productName = product.title;
                     return product;
-                }, function () {
-                    inform.add('Product Not Found', {
-                        type: 'danger'
-                    });
+                })
+                .catch(function (error) {
+                    greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
                     $state.go('home');
                 });
         }

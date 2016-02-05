@@ -166,10 +166,10 @@ router.route('/:realm/v0.2/tasks')
     .get(authenticate('token').always, tasks.select)
     .post(authenticate('token').always, tasks.insertOne);
 
-//router.route('/:realm/v0.2/languages/:id')
-//    .get(authenticate('token').always, languages.selectOne)
-//    .put(authenticate('token').always, languages.editOne)
-//    .delete(authenticate('token').always, languages.delete);
+router.route('/:realm/v0.2/tasks/:id')
+    .get(authenticate('token').always, tasks.selectOne)
+    .put(authenticate('token').always, tasks.updateOne)
+    .delete(authenticate('token').always, tasks.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
@@ -200,6 +200,10 @@ router.route('/:realm/v0.2/products/:id')
     .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
     .put(authenticate('token').always, checkPermission('product_update', 'products'), products.updateOne)
     .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
+
+router.route('/:realm/v0.2/products/:id/tasks')
+    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
+    .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks)
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)

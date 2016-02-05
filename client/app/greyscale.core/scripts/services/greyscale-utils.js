@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, greyscaleRolesSrv, $log, inform,
-        $translate) {
+        i18n) {
 
         return {
             decode: _decode,
@@ -49,30 +49,28 @@ angular.module('greyscale.core')
             }
         }
 
-        function showErr(msg) {
-            $log.debug(msg);
-            inform.add(msg, {
-                type: 'danger'
-            });
-        }
-
         function addErrMsg(err, prefix) {
-            var msg = prefix ? prefix + ': ' : '';
+            var msg = prefix ? i18n.translate(prefix) + ': ' : '';
+            var errText = '';
             if (err) {
                 if (err.data) {
                     if (err.data.message) {
-                        msg += err.data.message;
+                        errText = err.data.message;
                     } else {
-                        msg += err.data;
+                        errText = err.data;
                     }
-                } else {
-                    msg += err;
+                } else if (typeof err === 'string') {
+                    errText = err;
+                } else if (err.statusText) {
+                    errText = err.statusText;
                 }
-                $translate(msg)
-                    .then(showErr)
-                    .catch(function () {
-                        showErr(msg);
-                    });
+                msg += i18n.translate(errText);
+
+                $log.debug(msg);
+                inform.add(msg, {
+                    type: 'danger'
+                });
+
             }
         }
 

@@ -78,7 +78,7 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(
                 Task
-                .update(_.pick(req.body, ['title', 'description']))
+                .update(_.pick(req.body, ['title', 'description','entityTypeRoleId']))
                 .where(Task.id.equals(req.params.id))
             );
         }).then(function (data) {
@@ -108,15 +108,17 @@ module.exports = {
 
 };
 
-function* checkTaskData(req) {
-    if (!req.params.id) {
-        if (
-            typeof req.body.uoaId === 'undefined' ||
-            typeof req.body.stepId === 'undefined' ||
-            typeof req.body.entityTypeRoleId === 'undefined' ||
-            typeof req.body.title === 'undefined'
-        ) {
-            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId and title fields are required');
+function *checkTaskData (req) {
+    if(!req.params.id){
+        if(
+            typeof req.body.uoaId            == 'undefined' ||
+            typeof req.body.stepId           == 'undefined' ||
+            typeof req.body.entityTypeRoleId == 'undefined' ||
+            typeof req.body.productId        == 'undefined'
+            //typeof req.body.title            == 'undefined'
+        ){
+
+            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
         }
     }
 

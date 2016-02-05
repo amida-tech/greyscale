@@ -42,7 +42,7 @@ angular.module('greyscale.tables')
             link: {
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
-                state: 'projects.setup.surveys.edit({projectId: item.id, surveyId: item.surveyId})'
+                state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
             field: 'workflow.name',
