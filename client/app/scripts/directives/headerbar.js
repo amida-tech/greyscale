@@ -24,7 +24,7 @@ angular.module('greyscaleApp')
                     };
                 });
 
-                function _getPath (_state) {
+                function _getPath(_state) {
                     var path = [];
                     while (_state) {
                         if (_state.data && _state.data.name) {
