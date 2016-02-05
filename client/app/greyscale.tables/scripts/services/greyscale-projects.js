@@ -16,10 +16,14 @@ angular.module('greyscale.tables')
             users: []
         };
 
-        var _statusIcons = [
-            'fa-play',
-            'fa-pause'
-        ];
+        var _const = {
+            STATUS_INFLIGHT: 1,
+            STATUS_SUSPENDED: 3
+        }
+
+        var _statusIcons = {};
+        _statusIcons[_const.STATUS_INFLIGHT] = 'fa-pause';
+        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
         var accessLevel;
 
@@ -96,6 +100,7 @@ angular.module('greyscale.tables')
             sortable: 'status',
             title: tns + 'STATUS',
             dataFormat: 'option',
+            dataNoEmptyOption: true,
             dataSet: {
                 getData: getStatus,
                 keyField: 'id',
@@ -171,9 +176,9 @@ angular.module('greyscale.tables')
 
         function _getStartOrPauseProjectTooltip(project) {
             var action, tooltip;
-            if (project.status === 0) {
+            if (project.status === _const.STATUS_SUSPENDED) {
                 action = 'START';
-            } else if (project.status === 1) {
+            } else if (project.status === _const.STATUS_INFLIGHT) {
                 action = 'PAUSE';
             }
             if (action) {
@@ -254,10 +259,10 @@ angular.module('greyscale.tables')
             var op = 'changing status';
             var status = project.status;
             var setStatus;
-            if (status === 0) {
-                setStatus = 1;
-            } else if (status === 1) {
-                setStatus = 0;
+            if (status === _const.STATUS_INFLIGHT) {
+                setStatus = _const.STATUS_SUSPENDED;
+            } else if (status === _const.STATUS_SUSPENDED) {
+                setStatus = _const.STATUS_INFLIGHT;
             }
             if (setStatus !== undefined) {
                 var saveProject = angular.copy(project);
