@@ -7,6 +7,7 @@ var
     Survey = require('app/models/surveys'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
+    Task = require('app/models/tasks'),
     UOA = require('app/models/uoas'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -31,6 +32,25 @@ module.exports = {
                   .leftJoin(Workflow)
                   .on(Product.id.equals(Workflow.productId))
               )
+      );
+    }).then(function(data){
+      res.json(data);
+    },function(err){
+      next(err);
+    })
+  },
+
+  tasks: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(
+          Task
+              .select(
+                  Task.star()
+              )
+              .from(
+                  Task
+              )
+          .where(Task.productId.equals(req.params.id))
       );
     }).then(function(data){
       res.json(data);
