@@ -21,7 +21,7 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
                 survey: survey
             };
             $state.ext.surveyName = survey ? survey.title : 'New survey';
-        //return greyscaleModalsSrv.editSurvey(survey);
+            //return greyscaleModalsSrv.editSurvey(survey);
         });
     } else {
         $scope.model = {
@@ -50,7 +50,9 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
             }
             return $q.all(questionsFunctions);
         }).then(function () {
-            $state.go('projects.setup.surveys', { projectId: projectId });
+            $state.go('projects.setup.surveys', {
+                projectId: projectId
+            });
         }).catch(function (err) {
             if (!err) {
                 return;
@@ -66,7 +68,9 @@ angular.module('greyscaleApp').controller('SurveyEditCtrl', function ($scope, gr
         });
     };
     $scope.cancel = function () {
-        $state.go('projects.setup.surveys', { projectId: projectId });
+        $state.go('projects.setup.surveys', {
+            projectId: projectId
+        });
     };
 
     function _getQuestionFunction(question) {

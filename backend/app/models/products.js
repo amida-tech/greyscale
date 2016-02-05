@@ -17,8 +17,8 @@ var columns = [
 ];
 
 var translate = [
-	'title',
-	'description'
+    'title',
+    'description'
 ];
 
 var Product = sql.define({

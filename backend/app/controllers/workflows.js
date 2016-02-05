@@ -98,8 +98,8 @@ module.exports = {
     //},
 
     stepsUpdate: function (req, res, next) {
-        co(function* (){
-            if(!Array.isArray(req.body)){
+        co(function* () {
+            if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
             }
 
@@ -109,7 +109,7 @@ module.exports = {
             }
 
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
-            var relIds = rels.map(function(value){
+            var relIds = rels.map(function (value) {
                 //if (relIds.indexOf(req.body[i].id) == -1) {
                 //    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
                 //    needDel = true;
@@ -125,19 +125,19 @@ module.exports = {
             var insertIds = [];
 
             for (var i in req.body) {
-                var updateObj = _.pick(req.body[i],['startDate','endDate','roleId']);
+                var updateObj = _.pick(req.body[i], ['startDate', 'endDate', 'roleId']);
                 if (req.body[i].id) { // need update
                     passedIds.push(req.body[i].id);
-                    if(Object.keys(updateObj).length  && relIds.indexOf(req.body[i].id) != -1){ // have data to update  and exists
+                    if (Object.keys(updateObj).length && relIds.indexOf(req.body[i].id) !== -1) { // have data to update  and exists
                         updatedIds.push(req.body[i].id);
                         yield thunkQuery(
                             WorkflowStep
-                                .update(updateObj)
-                                .where(WorkflowStep.id.equals(req.body[i].id))
+                            .update(updateObj)
+                            .where(WorkflowStep.id.equals(req.body[i].id))
                         );
                     }
-                }else{
-                    var insertObj = _.pick(req.body[i],['stepId','startDate','endDate','roleId']);
+                } else {
+                    var insertObj = _.pick(req.body[i], ['stepId', 'startDate', 'endDate', 'roleId']);
                     insertObj.workflowId = req.params.id;
                     insertArr.push(insertObj);
                 }
@@ -145,28 +145,31 @@ module.exports = {
 
             var deleteIds = _.difference(relIds, passedIds);
 
-            for (var i in deleteIds){
-                deleteQ = deleteQ.or({id: deleteIds[i]});
+            for (var j in deleteIds) {
+                deleteQ = deleteQ.or({
+                    id: deleteIds[j]
+                });
             }
 
-            if(deleteIds.length) yield thunkQuery(deleteQ);
+            if (deleteIds.length) {
+                yield thunkQuery(deleteQ);
+            }
 
-            if(insertArr.length){
+            if (insertArr.length) {
                 insertIds = yield thunkQuery(WorkflowStep.insert(insertArr).returning(WorkflowStep.id));
             }
 
             return {
                 deleted: deleteIds,
                 updated: updatedIds,
-                inserted: insertIds.map(function(value){
+                inserted: insertIds.map(function (value) {
                     return value.id;
                 })
             };
 
-
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 

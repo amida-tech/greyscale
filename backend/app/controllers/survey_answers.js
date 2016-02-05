@@ -82,7 +82,7 @@ module.exports = {
             );
 
             if (!_.first(question)) {
-                throw new HttpError(403, 'Question with id = '+ req.body.questionId +' does not exist');
+                throw new HttpError(403, 'Question with id = ' + req.body.questionId + ' does not exist');
             }
 
             var uoa = yield thunkQuery(
@@ -93,11 +93,11 @@ module.exports = {
                 throw new HttpError(403, 'UOA with id = ' + req.body.UOAid + ' does not exist');
             }
 
-            var product_uoa = yield thunkQuery(
-                ProductUOA.select().where(_.pick(req.body, ['productId','UOAid']))
+            var productUoa = yield thunkQuery(
+                ProductUOA.select().where(_.pick(req.body, ['productId', 'UOAid']))
             );
 
-            if(!_.first(product_uoa)){
+            if (!_.first(productUoa)) {
                 throw new HttpError(
                     403,
                     'UOA with id = ' + req.body.UOAid + ' does not relate to Product with id = ' + req.body.productId
@@ -105,12 +105,12 @@ module.exports = {
             }
 
             var version = yield thunkQuery(
-                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId','UOAid','wfStepId','userId','productId']))
+                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
             );
 
-            if(_.first(version).max === null){
+            if (_.first(version).max === null) {
                 req.body.version = 1;
-            }else{
+            } else {
                 req.body.version = _.first(version).max + 1;
             }
 
@@ -136,7 +136,7 @@ module.exports = {
             );
 
             if (!_.first(member)) {
-               throw new HttpError(403, 'You are not a member of product\'s project')
+                throw new HttpError(403, 'You are not a member of product\'s project');
             }
 
             var workflow = yield thunkQuery(
@@ -164,25 +164,25 @@ module.exports = {
                 throw new HttpError(403, 'Workflow step does not relate to Product\'s workflow');
             }
 
-            if (_.first(workflow).step.roleId != _.first(member).roleId) {
+            if (_.first(workflow).step.roleId !== _.first(member).roleId) {
                 throw new HttpError(403, 'Your membership role does not match with workflow step\'s role');
             }
 
-            if([2,3,4].indexOf(_.first(question).type) != -1){ // question with options
-                if(!req.body.optionId){
+            if ([2, 3, 4].indexOf(_.first(question).type) !== -1) { // question with options
+                if (!req.body.optionId) {
                     throw new HttpError(403, 'You should provide optionId for this type of question');
-                }else{
+                } else {
                     var option = yield thunkQuery(SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(req.body.optionId)));
-                    if(!_.first(option)){
+                    if (!_.first(option)) {
                         throw new HttpError(403, 'Option with id = ' + req.body.optionId + ' does not exist');
                     }
 
-                    if(_.first(option).questionId != req.body.questionId){
+                    if (_.first(option).questionId !== req.body.questionId) {
                         throw new HttpError(403, 'This option does not relate to this question');
                     }
                 }
-            }else{
-                if(!req.body.value){
+            } else {
+                if (!req.body.value) {
                     throw new HttpError(403, 'You should provide value for this type of question');
                 }
             }
@@ -226,8 +226,8 @@ module.exports = {
             req.body.userId = req.user.id;
             var answer = yield thunkQuery(
                 SurveyAnswer
-                    .insert(_.pick(req.body,SurveyAnswer.table._initialConfig.columns))
-                    .returning(SurveyAnswer.id)
+                .insert(_.pick(req.body, SurveyAnswer.table._initialConfig.columns))
+                .returning(SurveyAnswer.id)
             );
 
             return answer;
