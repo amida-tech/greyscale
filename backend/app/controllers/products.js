@@ -61,11 +61,49 @@ module.exports = {
 
   editTasks: function (req, res, next) {
     co(function* (){
+      var product = yield thunkQuery(
+          Product.select().where(Product.id.equals(req.params.id))
+      );
+      if(!_.first(product)){
+        throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+      }
       if (!Array.isArray(req.body)) {
         throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
       }
-    }).then(function () {
+      // TODO validation
+      var res = [];
 
+      for(var i in req.body){
+        req.body[i].productId = req.params.id;
+
+        if(
+            typeof req.body[i].uoaId            == 'undefined' ||
+            typeof req.body[i].stepId           == 'undefined' ||
+            typeof req.body[i].entityTypeRoleId == 'undefined' ||
+            typeof req.body[i].productId        == 'undefined' ||
+            typeof req.body[i].title            == 'undefined'
+        ){
+          throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+        }
+
+        if(req.body[i].id){ // update
+          var updateObj = _.pick(req.body[i], ['title','description']);
+          Task.update(_.pick(updateObj)).where(Task.id.equals(req.body[i].id));
+          updateObj.id = req.body[i].id;
+          res.push(updateObj);
+        }else{ // create
+          var id = yield thunkQuery(
+              Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
+          );
+          req.body[i].id = _.first(id).id;
+          res.push(req.body[i]);
+        }
+
+      }
+
+      return res;
+    }).then(function (data) {
+      res.json(data);
     }, function (err) {
       next(err);
     });

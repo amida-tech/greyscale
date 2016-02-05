@@ -203,7 +203,7 @@ router.route('/:realm/v0.2/products/:id')
 
 router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
-    .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
+    .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks)
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
