@@ -6,10 +6,11 @@ var Task = sql.define({
         'id',
         'title',
         'description',
-        'uaoId',
+        'uoaId',
         'stepId',
         'entityTypeRoleId',
-        'created'
+        'created',
+        'productId'
     ]
 });
 
