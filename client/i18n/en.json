@@ -122,10 +122,10 @@
             "SELECT_ROLE": "Select Role ...",
             "SELECT_ROLE_LABEL": "Search User By Role",
             "TABLE": {
-                "TASKS_UPDATE_ERROR": "Server error while updating tasks.",
-                "TASK_REMOVE_ERROR": "Server error while removing task.",
-                "TASK_UPDATE_ERROR": "Server error while updating task.",
-                "TITLE": "Assigning Users To Unit Of Analysis And Workflow Step",
+                "TASKS_UPDATE_ERROR": "Server error while updating tasks",
+                "TASK_REMOVE_ERROR": "Server error while removing task",
+                "TASK_UPDATE_ERROR": "Server error while updating task",
+                "TITLE": "Tasks",
                 "UOAS_HEADER": "UoA",
                 "UOAS_TYPE_HEADER": "UoA Type"
             },

@@ -122,10 +122,10 @@
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
-                "TASKS_UPDATE_ERROR": "",
-                "TASK_REMOVE_ERROR": "",
-                "TASK_UPDATE_ERROR": "",
-                "TITLE": "Назначение пользователя на выполнение задачи",
+                "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
+                "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
+                "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
+                "TITLE": "Задачи",
                 "UOAS_HEADER": "Единица анализа",
                 "UOAS_TYPE_HEADER": ""
             },
