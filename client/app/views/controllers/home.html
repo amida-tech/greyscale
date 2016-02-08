@@ -1,3 +1,29 @@
 <div class="row">
-    <div class="col-sm-12"></div>
+    <div class="col-sm-6">
+        <h2><i class="fa fa-tasks"></i> My Tasks</h2>
+        <div class="card-tiles">
+            <div class="card" ng-repeat="task in model.tasks">
+                <h2>{{task.step.title}}</h2>
+                <p>{{task.step.description}}</p>
+                <p>
+                    <b>Survey</b> <br>
+                    <a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
+                        <b>{{task.survey.title}}</b> <br>
+                        {{task.survey.description}}
+                    </a>
+                </p>
+                <p>
+                    <b>Unit Of Analysis</b> <br>
+                    {{task.uoa.name}} <br>
+                    <small>{{task.uoa.shortName}}</small>
+                </p>
+                <p>
+                    <b>Terms</b> <br>
+                    {{task.startDate||task.step.startDate|date}}
+                    &mdash;
+                    {{task.endDate||task.step.endDate|date}}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>

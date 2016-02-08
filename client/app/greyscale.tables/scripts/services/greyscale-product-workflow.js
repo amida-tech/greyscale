@@ -5,7 +5,8 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
-        greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi, greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi) {
+        greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
+        greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi, greyscaleGlobals) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -24,11 +25,38 @@ angular.module('greyscale.tables')
             title: tns + 'ROLE',
             showDataInput: true,
             dataFormat: 'option',
+            dataNoEmptyOption: true,
             dataSet: {
                 keyField: 'id',
                 valField: 'name',
                 getData: getRoles
             }
+        }, {
+            field: 'step.writeToAnswers',
+            title: tns + 'ANSWERS_ACCESS',
+            showDataInput: true,
+            dataFormat: 'option',
+            dataNoEmptyOption: true,
+            dataSet: {
+                keyField: 'value',
+                valField: 'name',
+                getData: _getWriteToAnswersList
+            }
+        }, {
+            field: 'step.accessToResponses',
+            title: tns + 'RESPONSES_ACCESS',
+            showDataInput: true,
+            dataFormat: 'boolean'
+        }, {
+            field: 'step.accessToDiscussions',
+            title: tns + 'DISCUSSIONS_ACCESS',
+            showDataInput: true,
+            dataFormat: 'boolean'
+        }, {
+            field: 'step.blindReview',
+            title: tns + 'BLIND_REVIEW',
+            showDataInput: true,
+            dataFormat: 'boolean'
         }, {
             field: 'step.startDate',
             title: tns + 'START_DATE',
@@ -57,6 +85,10 @@ angular.module('greyscale.tables')
 
         function getRoles() {
             return _dicts.roles;
+        }
+
+        function _getWriteToAnswersList() {
+            return greyscaleGlobals.writeToAnswersList;
         }
 
         function _getWorkflowId() {
@@ -101,8 +133,12 @@ angular.module('greyscale.tables')
                     stepId: step.id
                 });
                 step.step = workStep || {
-                    stepId: step.id
+                    stepId: step.id,
                 };
+                step.step.writeToAnswers = !!step.step.writeToAnswers;
+                step.step.accessToResponses = !!step.step.accessToResponses;
+                step.step.accessToDiscussions = !!step.step.accessToDiscussions;
+                step.step.blindReviewer = !!step.step.blindReviewer;
             });
             return stepsTableData;
         }

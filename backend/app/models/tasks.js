@@ -10,7 +10,12 @@ var Task = sql.define({
         'stepId',
         'entityTypeRoleId',
         'created',
-        'productId'
+        'productId',
+        'startDate',
+        'endDate',
+        'accessToDiscussions',
+        'accessToResponses',
+        'writeToAnswers'
     ]
 });
 

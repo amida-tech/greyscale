@@ -233,6 +233,9 @@ router.route('/:realm/v0.2/users/self/organization')
 router.route('/:realm/v0.2/users/self/organization/invite')
     .post(authenticate('token').always, users.selfOrganizationInvite);
 
+router.route('/:realm/v0.2/users/self/tasks')
+    .get(authenticate('token').always, users.tasks);
+
 //----------------------------------------------------------------------------------------------------------------------
 // USERS
 //----------------------------------------------------------------------------------------------------------------------
