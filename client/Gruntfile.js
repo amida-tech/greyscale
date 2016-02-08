@@ -62,11 +62,11 @@ module.exports = function (grunt) {
             },
             js: {
                 files: [
-                    '<%= yeoman.app %>/scripts/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
+                    '<%= yeoman.app %>/scripts/**/*.js',
+                    '<%= yeoman.app %>/greyscale.core/**/*.js',
+                    '<%= yeoman.app %>/greyscale.rest/**/*.js',
+                    '<%= yeoman.app %>/greyscale.tables/**/*.js',
+                    '<%= yeoman.app %>/greyscale.mock/**/*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -74,11 +74,11 @@ module.exports = function (grunt) {
                 }
             },
             jsTest: {
-                files: ['test/spec/{,*/}*.js'],
+                files: ['test/spec/**/*.js'],
                 tasks: ['newer:jshint:test', 'newer:jscs:test', 'karma']
             },
             compass: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+                files: ['<%= yeoman.app %>/styles/**/*.{scss,sass}'],
                 tasks: ['compass:server', 'postcss:server']
             },
             gruntfile: {
@@ -96,9 +96,9 @@ module.exports = function (grunt) {
                     livereload: '<%= connect.options.livereload %>'
                 },
                 files: [
-                    '<%= yeoman.app %>/{,*/}*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    '<%= yeoman.app %>/**/*.html',
+                    '.tmp/styles/**/*.css',
+                    '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}'
                 ]
             }
         },

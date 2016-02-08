@@ -1,0 +1,22 @@
+.card {
+    display: block;
+    padding: 20px;
+    border: 1px solid #eee;
+    h1, h2, h3, h4, h5 {
+        margin-top: 0;
+    }
+}
+
+.card-tiles {
+    .card {
+        float: left;
+        width: 30%;
+        margin: 0 10px 10px 0;
+    }
+
+    &:after {
+        content:"";
+        display:block;
+        clear:both;
+    }
+}

@@ -73,6 +73,9 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
+router.route('/:realm/v0.2/projects/:id/csv_users')
+    .post(/*authenticate('token').always,*/ projects.csvUsers);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -232,6 +235,9 @@ router.route('/:realm/v0.2/users/self/organization')
 
 router.route('/:realm/v0.2/users/self/organization/invite')
     .post(authenticate('token').always, users.selfOrganizationInvite);
+
+router.route('/:realm/v0.2/users/self/tasks')
+    .get(authenticate('token').always, users.tasks);
 
 //----------------------------------------------------------------------------------------------------------------------
 // USERS

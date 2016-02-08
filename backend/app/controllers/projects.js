@@ -139,6 +139,78 @@ module.exports = {
         });
     },
 
+    csvUsers: function (req, res, next) {
+        // fields order
+        // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
+        // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
+
+        var csv = require('csv');
+        var fs = require('fs');
+
+        co(function* () {
+
+
+
+            var upload = new Promise(function(resolve, reject){
+                if(req.files.image) {
+
+                    fs.readFile(req.files.image.path, 'utf8', function (err, data) {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve(data);
+                    });
+                }else{
+                    reject('File has not uploaded');
+                }
+            });
+
+            var parser = new Promise(function(resolve, reject){
+                csv.parse(data, function (err, data) {
+                    //console.log(data);
+                    //for (var i in data) {
+                    //    if (i != 0) { // skip first string
+                    //        console.log('email = ' + data[i][0] + ',firstname=' + data[i][1] + ',lastname=' + data[i][2]);
+                    //        var newUser = {
+                    //            email: data[i][0],
+                    //            firstName: data[i][1],
+                    //            lastName: data[i][2]
+                    //        }
+                    //        var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
+                    //        console.log(isExist);
+                    //    }
+                    //}
+                });
+            });
+
+            var doUpload = yield upload.then(
+                function(data){
+                    return data;
+                },function(err){
+                    return err;
+                }
+            );
+            if(doUpload.code){
+                throw new HttpError(403, 'Upload file problem');
+            }else{
+                //parser.then(
+                //    function(data){
+                //
+                //    },function(err){
+                //
+                //    }
+                //);
+                return doUpload;
+            }
+            //return data;
+
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        })
+    }
+
 };
 
 function* checkProjectData(req) {

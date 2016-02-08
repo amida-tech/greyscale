@@ -47,16 +47,17 @@
     td {
         @extend p;
 
-        &.input-cell {
-            .form-group {
-                margin: -6px 0;
-            }
-            &.auto-width {
-                width: 1%;
-            }
-            .input-group {
-                margin: 0;
-            }
+        .form-group {
+            margin: 0;
+        }
+        &.auto-width {
+            width: 1%;
+        }
+        .input-group {
+            margin: 0;
+        }
+        .checkbox {
+            top: 7px;
         }
     }
     table.table {
@@ -101,8 +102,7 @@
     .text-muted {
         opacity: 0.4;
     }
-    .unassign-user {
-        cursor: pointer;
-        padding: 0 5px;
+    .action {
+        margin: 0;
     }
 }

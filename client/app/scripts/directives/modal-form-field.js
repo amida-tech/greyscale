@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 if (clmn.title) {
                     var field = '';
                     if (!_embedded) {
-                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}:</label>');
                         field += '<div class="col-sm-9';
                     }
 

@@ -65,7 +65,7 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/product-workflow.html',
                 controller: 'ModalProductWorkflowCtrl',
                 controllerAs: 'ctrl',
-                size: 'lg',
+                size: 'max',
                 windowClass: 'modal fade in',
                 resolve: {
                     product: product

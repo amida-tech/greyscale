@@ -1,7 +1,7 @@
 <modal-form-header>
     <span ng-show="model.id">{{(view.formEditHeaderPrefix||'COMMON.EDIT') |translate}}</span>
     <span ng-hide="model.id">{{(view.formAddHeaderPrefix||'COMMON.CREATE')|translate}}</span>
-    <span class="text-lowercase">{{view.formTitle}}</span>
+    <span class="text-lowercase">{{view.formTitle|translate}}</span>
 </modal-form-header>
 <div class="modal-body">
     <div class="row modal-form">

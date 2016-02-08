@@ -97,16 +97,21 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate(template) {
+                function _compileCellTemplate(template, data) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
                     elem.append(template);
+                    if (data && typeof data === 'object') {
+                        angular.extend($scope, data);
+                    }
                     $compile(elem.contents())($scope);
                 }
 
                 function _compileCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
-                        .then(_compileCellTemplate);
+                        .then(function (template) {
+                            _compileCellTemplate(template, cell.cellTemplateData);
+                        });
                 }
 
                 function _getTemplateByUrl(templateUrl) {
@@ -120,10 +125,10 @@ angular.module('greyscaleApp')
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<div class="checkbox"><label>' +
+                    elem.append('<div class="form-group"><div class="checkbox"><label>' +
                         '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
                         'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
-                        '<div class="chk-box"></div></label></div>');
+                        '<div class="chk-box"></div></label></div></div>');
                     $compile(elem.contents())($scope);
                 }
 
@@ -165,6 +170,9 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'date':
                         elem.addClass('auto-width');
+                        break;
+                    case 'boolean':
+                        elem.addClass('text-center');
                         break;
                     }
                     $compile(elem.contents())($scope);

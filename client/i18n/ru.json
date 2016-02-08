@@ -57,6 +57,10 @@
             "RESEARCH_DIRECTOR": "Директор исследований",
             "REVIEWER": "Рецензент",
             "TRANSLATOR": "Переводчик"
+        },
+        "WRITETOANSWERSLIST": {
+            "READ": "",
+            "READ_WRITE": ""
         }
     },
     "IMPORT": {
@@ -117,12 +121,14 @@
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
+            "NO_UOAS": "",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
+                "TASK_PARAMS": "",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
                 "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
                 "TITLE": "Задачи",
@@ -140,8 +146,12 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "STEPS": {
+                "ANSWERS_ACCESS": "",
+                "BLIND_REVIEW": "",
+                "DISCUSSIONS_ACCESS": "",
                 "END_DATE": "Дата окончания",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
+                "RESPONSES_ACCESS": "",
                 "ROLE": "Роль",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг"
