@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
         var _dicts = {};
         var _tasks = [];
 
-        var stepstns = 'PRODUCTS.WORKFLOW.STEPS.'
+        var stepstns = 'PRODUCTS.WORKFLOW.STEPS.';
         var _taskEditForm = {
             formTitle: tns + 'TASK_PARAMS',
             cols: [{
@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
                 showDataInput: true,
                 dataFormat: 'boolean'
             }]
-        }
+        };
 
         _loadProject(projectId)
             .then(_loadUserRolesData)
@@ -213,7 +213,7 @@ angular.module('greyscaleApp')
                     });
             });
 
-            $('.drop-user').on('click', '.edit-task', function(e){
+            $('.drop-user').on('click', '.edit-task', function (e) {
                 e.stopPropagation();
                 var cellEl = $(e.target).closest('.drop-user');
                 var taskViewModel = _getTaskViewModel(cellEl);
