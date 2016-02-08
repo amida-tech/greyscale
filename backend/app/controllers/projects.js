@@ -208,7 +208,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     }
 
 };
