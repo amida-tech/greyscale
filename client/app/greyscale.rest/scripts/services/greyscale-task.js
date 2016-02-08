@@ -2,12 +2,21 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleTaskApi', function (greyscaleRestSrv, $q) {
+
         function api() {
             return greyscaleRestSrv().one('tasks');
         }
 
-        function myApi() {
-            return greyscaleRestSrv().one('my_tasks');
+        function userAPI() {
+            return greyscaleRestSrv().one('users');
+        }
+
+        function selfAPI() {
+            return userAPI().one('self');
+        }
+
+        function myTasks() {
+            return selfAPI().one('tasks');
         }
 
         function _myList(params) {
@@ -52,7 +61,7 @@ angular.module('greyscale.rest')
                 }
             }];
 
-            return myApi().get(params)
+            return myTasks().get(params)
                 .catch(function () {
                     return $q.when(mock);
                 });
