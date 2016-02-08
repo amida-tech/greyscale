@@ -6,7 +6,13 @@ var client = require('app/db_bootstrap'),
     Organization = require('app/models/organizations'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
+    WorkflowStep = require('app/models/workflow_steps'),
+    WorkflowStepList = require('app/models/workflow_step_list'),
+    EssenceRole = require('app/models/essence_roles'),
     Token = require('app/models/token'),
+    Task = require('app/models/tasks'),
+    Product = require('app/models/products'),
+    Survey = require('app/models/surveys'),
     VError = require('verror'),
     logger = require('app/logger'),
     vl = require('validator'),
@@ -605,6 +611,60 @@ module.exports = {
         }).then(function (data) {
             res.status(200).end();
         }, function (err) {
+            next(err);
+        });
+    },
+
+    tasks: function (req, res, next) {
+        co(function* () {
+            var res = yield thunkQuery(
+                Task
+                .select(
+                    Task.id,
+                    Task.title,
+                    Task.description,
+                    Task.created,
+                    'row_to_json("UnitOfAnalysis".*) as uoa',
+                    'row_to_json("Products".*) as product',
+                    'row_to_json("EssenceRoles".*) as entityTypeRoleId',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json(STEPS) as step'
+                )
+                .from(
+                    Task
+                    .leftJoin(UOA)
+                    .on(Task.uoaId.equals(UOA.id))
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(Survey)
+                    .on(Product.surveyId.equals(Survey.id))
+                    .leftJoin(EssenceRole)
+                    .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+
+                )
+                .from(
+                    WorkflowStep
+                        .subQuery("STEPS")
+                        .select(
+                            WorkflowStepList.title,
+                            WorkflowStepList.description,
+                            WorkflowStep.star()
+                        )
+                        .from(
+                            WorkflowStep
+                            .leftJoin(WorkflowStepList)
+                            .on(WorkflowStepList.id.equals(WorkflowStep.stepId))
+                        )
+                        //.where(WorkflowStep.id.equals(Task.stepId))
+                )
+                .where(Task.entityTypeRoleId.in(
+                    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
+                )).and('STEPS.id = "Tasks"."stepId"')
+            );
+            return res;
+        }).then(function(data) {
+            res.json(data);
+        }, function(err) {
             next(err);
         });
     }
