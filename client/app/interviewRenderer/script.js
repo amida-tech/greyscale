@@ -1,4 +1,5 @@
-﻿//TODO do not use date, time, website, address
+﻿//http://localhost:8081/interviewRenderer/?surveyId=40&taskId=36
+//TODO do not use date, time, website, address
 
 function getCookie(name) {
     var value = '; ' + document.cookie;
@@ -488,22 +489,25 @@ function getUser() {
     });
 }
 function getSurveyAnswers() {
-    setCurrentAnswers();
-    //var surveyId = window.location.hash.replace('#', '');
-    //var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers/?surveyId=' + surveyId + '&userId=' + userId;
-    //$.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-    //    surveyAnswers = JSON.parse(request.response[0].data);
-    //    surveyAnswersId = request.response[0].id;
-    //    setCurrentAnswers();
-    //}).catch(function (error) {
-    //    setCurrentAnswers();
-    //    console.error(error);
-    //});
+    var url = constUrl + 'survey_answers?surveryId=' + surveyId + '&productId=' + taskInfo.productId + '&UOAid=' + taskInfo.uoaId + '&wfStepId=' + taskInfo.stepId + '&userId=' + userId;
+    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
+        var surveyAnswers;
+        for (var i = 0; i < request.response.length; i++) {
+            if (!surveyAnswers) surveyAnswers = {};
+            surveyAnswers['c' + request.response[i].questionId] = request.response[i].value;
+        }
+        setCurrentAnswers(surveyAnswers);
+    }).catch(function (error) {
+        console.error(error);
+        setCurrentAnswers(null);
+    });
 }
-function setCurrentAnswers() {
-    if (!surveyAnswersId)
+function setCurrentAnswers(surveyAnswers) {
+    if (!surveyAnswers) {
+        surveyAnswers = {};
         for (var i = 0; i < dataFields.length; i++)
             surveyAnswers[dataFields[i].cid] = localStorage.getItem(dataFields[i].cid);
+    }
     setValues(surveyAnswers);
     skipLogic();
     autosave();
@@ -619,14 +623,8 @@ function save(callback) {
         if (callback) callback();
         return;
     }
-    debugger;
     var vals = getValues();
     localStorage.clear();
-    //var valJson = {};
-    //for (var i = 0; i < vals.length; i++) {
-    //    localStorage.setItem(vals[i].id, vals[i].val);
-    //    valJson[vals[i].id] = vals[i].val;
-    //}
     
     var url = constUrl + 'survey_answers';
     var method = 'POST';
@@ -637,16 +635,16 @@ function save(callback) {
             surveyId: surveyId,
             questionId: parseInt(vals[i].id.replace('c', '')),
             productId: taskInfo.productId,
-            UOAid: 2, //taskInfo.uoaId,
+            UOAid: taskInfo.uoaId,
             wfStepId: taskInfo.stepId,
             userId: userId,
             value: vals[i].val
         };
         $.fetch(url, { method: method, data: JSON.stringify(data), responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
             console.log('saved to server');
-            hasChanges = false;
             sendCount--;
             if (sendCount > 0) return;
+            hasChanges = false;
             if (callback) callback();
         }).catch(function (error) {
             console.error(error);
