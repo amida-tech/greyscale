@@ -117,7 +117,8 @@
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
-            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
+            "NO_UOAS": "This Product has no Units Of Analysis.",
+            "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
             "SELECT_ROLE": "Select Role ...",
             "SELECT_ROLE_LABEL": "Search User By Role",

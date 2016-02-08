@@ -62,8 +62,13 @@ angular.module('greyscale.rest')
             return api().one(taskId + '').remove();
         }
 
+        function _add(task) {
+            return api().customPOST(task);
+        }
+
         return {
             myList: _myList,
+            add: _add,
             del: _del
         };
     });
