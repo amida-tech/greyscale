@@ -1,13 +1,12 @@
 <div class="row" translate-namespace="PRODUCTS.TASKS">
+
     <div ng-if="model.workflowSteps.length && model.uoas.length" class="col-md-9">
         <div ng-if="model.tasks">
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
         </div>
-
-        <div ng-hide="model.tasks" class="loading"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>
-
     </div>
-    <div ng-if="model.workflowSteps.length && model.uoas.length" class="col-md-3">
+
+    <div ng-if="!model.$loading && model.tasks" class="col-md-3">
         <div class="form-group">
             <label translate=".SELECT_ROLE_LABEL"></label>
             <select class="form-control"
@@ -39,14 +38,14 @@
         </div>
     </div>
 
-    <div ng-if="model.uoas && !model.uoas.length" class="col-md-12">
+    <div ng-if="!model.$loading && !model.uoas.length">
         <div class="alert alert-warning" translate=".NO_UOAS"></div>
     </div>
-    <div ng-if="model.workflowSteps && !model.workflowSteps.length" class="col-md-12">
+    <div ng-if="!model.$loading && !model.workflowSteps.length">
         <div class="alert alert-warning" translate=".NO_WORKFLOW_STEPS"></div>
     </div>
 
-    <div ng-if="!model.workflowSteps" class="col-md-12">
+    <div ng-if="model.$loading" class="col-md-12">
         <rd-loading></rd-loading>
     </div>
 </div>

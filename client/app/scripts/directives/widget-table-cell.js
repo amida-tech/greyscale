@@ -97,16 +97,21 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate(template) {
+                function _compileCellTemplate(template, data) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
                     elem.append(template);
+                    if (data && typeof data === 'object') {
+                        angular.extend($scope, data);
+                    }
                     $compile(elem.contents())($scope);
                 }
 
                 function _compileCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
-                        .then(_compileCellTemplate);
+                        .then(function (template) {
+                            _compileCellTemplate(template, cell.cellTemplateData);
+                        });
                 }
 
                 function _getTemplateByUrl(templateUrl) {

@@ -3,6 +3,12 @@
 <!--<br/>-->
 <span ng-show="cell.assignee">
     <span class="unassign-user text-danger pull-right"><i class="fa fa-close"></i></span>
-    <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
-    <br><small>{{cell.assignee.user.email}}</small>
+    <a ng-if="product.surveyId" ng-href="/interviewRenderer/?surveyId={{product.surveyId}}&taskId={{cell.taskId}}">
+        <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
+        <br><small>{{cell.assignee.user.email}}</small>
+    </a>
+    <span ng-if="!product.surveyId">
+        <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
+        <br><small>{{cell.assignee.user.email}}</small>
+    </span>
 </span>&nbsp;

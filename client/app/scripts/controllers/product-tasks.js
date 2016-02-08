@@ -12,6 +12,7 @@ angular.module('greyscaleApp')
             productId = parseInt($stateParams.productId);
 
         $scope.model = {
+            $loading: true,
             selectedUser: {},
             selectedRole: {}
         };
@@ -95,8 +96,9 @@ angular.module('greyscaleApp')
                         ui.helper.remove();
                         _cellLoadingState(cellEl, true);
                         _saveTask(taskViewModel, assigneeViewModel.id)
-                            .then(function () {
+                            .then(function (task) {
                                 taskViewModel.assignee = assigneeViewModel;
+                                taskViewModel.taskId = task.id;
                             })
                             .finally(function () {
                                 _cellLoadingState(cellEl, false);
@@ -135,10 +137,16 @@ angular.module('greyscaleApp')
                         var stepId = _getClassId(e, 'step-id');
                         _cellLoadingState(cellEl, true);
                         _saveTasksAssignment(stepId, assigneeViewModel)
-                            .then(function () {
+                            .then(function (newTasks) {
+                                console.log(newTasks);
                                 angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
                                     var taskViewModel = uoa.steps[stepId];
                                     taskViewModel.assignee = assigneeViewModel;
+                                    angular.forEach(newTasks, function (newTask) {
+                                        if (uoa.id === newTask.uoaId && taskViewModel.stepId === newTask.stepId) {
+                                            taskViewModel.taskId = newTask.id;
+                                        }
+                                    });
                                 });
                             })
                             .finally(function () {
@@ -256,12 +264,14 @@ angular.module('greyscaleApp')
             var updateStorage = function () {
                 if (!task) {
                     _tasks.push(saveTask);
+
                 } else {
                     angular.extend(task, saveTask);
                 }
             };
 
-            greyscaleProductApi.product(productId).tasksListUpdate([saveTask])
+            //greyscaleProductApi.product(productId).tasksListUpdate([saveTask])
+            greyscaleTaskApi.add(saveTask)
                 //.catch(function(){// mock response
                 //    var response = {};
                 //    if (!task.id) {
@@ -272,11 +282,13 @@ angular.module('greyscaleApp')
                 //    return response;
                 //})
                 .then(function (response) {
-                    if (task && response.inserted && response.inserted[0]) {
+                    if (!task && response.inserted && response.inserted[0]) {
                         saveTask.id = response.inserted[0];
+                    } else if (!task && response.id) {
+                        saveTask.id = response.id;
                     }
                     updateStorage();
-                    defer.resolve();
+                    defer.resolve(saveTask);
                 })
                 .catch(function (error) {
                     _informError(error, 'task_update');
@@ -317,18 +329,21 @@ angular.module('greyscaleApp')
 
         function _saveTasksAssignment(stepId, assigneeViewModel) {
             var defer = $q.defer();
-
+            var entityTypeRoleId = assigneeViewModel.id;
             // assign user
             var saveTasks = [];
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function (uoaId) {
                 var task = _findTask(uoaId, stepId);
+                if (task && task.entityTypeRoleId && task.entityTypeRoleId === entityTypeRoleId) {
+                    return;
+                }
                 var saveTask = task ? angular.copy(task) : {
                     uoaId: uoaId,
                     stepId: stepId,
                     productId: productId
                 };
-                saveTask.entityTypeRoleId = assigneeViewModel.id;
+                saveTask.entityTypeRoleId = entityTypeRoleId;
                 saveTasks.push(saveTask);
                 if (!task) {
                     newTasks.push(saveTask);
@@ -359,7 +374,7 @@ angular.module('greyscaleApp')
                         });
                     }
                     updateStorage();
-                    defer.resolve();
+                    defer.resolve(newTasks);
                 })
                 .catch(function (error) {
                     _informError(error, 'tasks_update');
@@ -402,7 +417,7 @@ angular.module('greyscaleApp')
         }
 
         function _setStepColumns(table, axisData) {
-            angular.forEach(axisData.workflowSteps, function (step) {
+            angular.forEach(axisData.workflowSteps || {}, function (step) {
                 table.cols.push({
                     titleTemplate: '<b>{{step.title}}</b><br/><small class="text-muted">{{step.role.name}}</small>',
                     titleTemplateData: {
@@ -412,7 +427,10 @@ angular.module('greyscaleApp')
                     class: 'drop-zone drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
                     cellClass: 'drop-zone drop-user',
-                    cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html'
+                    cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html',
+                    cellTemplateData: {
+                        product: axisData.product
+                    }
                 });
             });
         }
@@ -426,9 +444,10 @@ angular.module('greyscaleApp')
                     $scope.model.uoas = axisData.uoas;
                     if (table) {
                         return _getTasksData(axisData);
-                    } else {
+                    } else if (axisData.workflowSteps && axisData.uoas && axisData.workflowSteps.length && axisData.uoas.length) {
                         $scope.model.tasks = _initTasksTable(axisData);
                     }
+                    $scope.model.$loading = false;
                 })
                 .then(function (data) {
                     $timeout(_initDropUser);
@@ -486,11 +505,12 @@ angular.module('greyscaleApp')
             var tasks = data.tasks;
 
             if (!product.workflow) {
-                return $q.reject('no workflow');
+                return $q.when({});
             }
             var workflowId = product.workflow.id;
             var productId = product.id;
             var reqs = {
+                product: $q.when(product),
                 tasks: $q.when(tasks),
                 workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
