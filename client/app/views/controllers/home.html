@@ -1,3 +1,20 @@
 <div class="row">
-    <div class="col-sm-12"></div>
+    <div class="col-sm-6">
+        <h2><i class="fa fa-tasks"></i> My Tasks</h2>
+        <div class="card-tiles">
+            <div class="card" ng-repeat="task in model.tasks">
+                <p>{{task.step.title}}</p>
+                <p>
+                    <a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
+                        {{task.survey.title}}
+                    </a>
+                </p>
+                <p>
+                    {{task.startDate||task.step.startDate|parseDate|date:'shortDate'}}
+                    &mdash;
+                    {{task.endDate||task.step.endDate|parseDate|date:'shortDate'}}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>

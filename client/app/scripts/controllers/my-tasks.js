@@ -4,6 +4,7 @@ angular.module('greyscaleApp')
         $scope.model = {
             tasks: greyscaleMyTasksTbl
         };
+
         //
         //$scope.selectUoa = function (uoa) {
         //    if (typeof uoa !== 'undefined') {
