@@ -1,6 +1,5 @@
 <span ng-hide="cell.assignee" class="text-muted">{{cell.role.name}}</span>
-<!--<span ng-show="cell.assignee" class="text-success">{{cell.role.name}}</span>-->
-<!--<br/>-->
+
 <span ng-show="cell.assignee">
     <span class="unassign-user text-danger pull-right"><i class="fa fa-close"></i></span>
     <a ng-if="product.surveyId" ng-href="/interviewRenderer/?surveyId={{product.surveyId}}&taskId={{cell.taskId}}">
