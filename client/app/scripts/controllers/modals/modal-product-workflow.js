@@ -42,7 +42,11 @@ angular.module('greyscaleApp')
         var steps = _getSteps();
         var valid = 0;
         angular.forEach(steps, function(step){
-            if (step.roleId && step.startDate && step.endDate) {
+            if (step.roleId &&
+                step.startDate &&
+                step.endDate &&
+                step.writeToAnswers !== undefined
+            ) {
                 valid++;
             }
         });

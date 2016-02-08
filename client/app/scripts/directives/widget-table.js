@@ -39,11 +39,8 @@ angular.module('greyscaleApp')
                         counts: [],
                         getData: function ($defer, params) {
                             if (typeof $scope.model.dataPromise === 'function') {
-                                var throttling = $timeout(function () {
-                                    $scope.model.$loading = true;
-                                }, 200);
+                                $scope.model.$loading = true;
                                 var endLoading = function () {
-                                    $timeout.cancel(throttling);
                                     $scope.model.$loading = false;
                                 };
                                 $scope.model.dataPromise()

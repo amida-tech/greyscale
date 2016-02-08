@@ -125,10 +125,10 @@ angular.module('greyscaleApp')
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<div class="checkbox"><label>' +
+                    elem.append('<div class="form-group"><div class="checkbox"><label>' +
                         '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
                         'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
-                        '<div class="chk-box"></div></label></div>');
+                        '<div class="chk-box"></div></label></div></div>');
                     $compile(elem.contents())($scope);
                 }
 
@@ -170,6 +170,9 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'date':
                         elem.addClass('auto-width');
+                        break;
+                    case 'boolean':
+                        elem.addClass('text-center');
                         break;
                     }
                     $compile(elem.contents())($scope);

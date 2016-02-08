@@ -57,6 +57,10 @@
             "RESEARCH_DIRECTOR": "Research Director",
             "REVIEWER": "Reviewer",
             "TRANSLATOR": "Translator"
+        },
+        "WRITETOANSWERSLIST": {
+            "READ": "Read",
+            "READ_WRITE": "Read And Write"
         }
     },
     "IMPORT": {
@@ -124,6 +128,7 @@
             "SELECT_ROLE_LABEL": "Search User By Role",
             "TABLE": {
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
+                "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
                 "TASK_UPDATE_ERROR": "Server error while updating task",
                 "TITLE": "Tasks",
@@ -141,8 +146,12 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
+                "ANSWERS_ACCESS": "Answers Access",
+                "BLIND_REVIEW": "Blind Review",
+                "DISCUSSIONS_ACCESS": "Discussions Access",
                 "END_DATE": "End Date",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
+                "RESPONSES_ACCESS": "Responses Access",
                 "ROLE": "Role",
                 "START_DATE": "Start Date",
                 "TITLE": "Title"
