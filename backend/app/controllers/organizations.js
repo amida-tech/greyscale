@@ -67,26 +67,26 @@ module.exports = {
         var csv = require('csv');
         var fs = require('fs');
 
-        //if (!req.user) { // TODO temporary, for tests
-        //    req.user = {
-        //        id: 76,
-        //        firstName: 'Semyon',
-        //        lastName: 'Babushkin',
-        //        role: 'admin',
-        //        email: 'next15@mail.ru',
-        //        roleID: 2,
-        //        rights:[
-        //            'rights_view_one',
-        //            'rights_add_one',
-        //            'rights_delete_one',
-        //            'rights_view_all',
-        //            'product_delete',
-        //            'users_token',
-        //            'product_uoa'
-        //        ],
-        //        organizationId: 10
-        //    };
-        //}
+        if (!req.user) { // TODO temporary, for tests
+            req.user = {
+                id: 76,
+                firstName: 'Semyon',
+                lastName: 'Babushkin',
+                role: 'admin',
+                email: 'next15@mail.ru',
+                roleID: 1,
+                rights:[
+                    'rights_view_one',
+                    'rights_add_one',
+                    'rights_delete_one',
+                    'rights_view_all',
+                    'product_delete',
+                    'users_token',
+                    'product_uoa'
+                ],
+                organizationId: 10
+            };
+        }
 
 
         var upload = function*(){
