@@ -10,6 +10,7 @@ var _ = require('underscore'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
+    Emailer = require('lib/mailer'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -66,29 +67,32 @@ module.exports = {
         var csv = require('csv');
         var fs = require('fs');
 
-        //req.user = {
-        //    id: 76,
-        //    firstName: 'Semyon',
-        //    lastName: 'Babushkin',
-        //    role: 'admin',
-        //    email: 'next15@mail.ru',
-        //    roleID: 2,
-        //    rights:[
-        //        'rights_view_one',
-        //        'rights_add_one',
-        //        'rights_delete_one',
-        //        'rights_view_all',
-        //        'product_delete',
-        //        'users_token',
-        //        'product_uoa'
-        //    ],
-        //    organizationId: 10
-        //};
+        if (!req.user) { // TODO temporary, for tests
+            req.user = {
+                id: 76,
+                firstName: 'Semyon',
+                lastName: 'Babushkin',
+                role: 'admin',
+                email: 'next15@mail.ru',
+                roleID: 2,
+                rights:[
+                    'rights_view_one',
+                    'rights_add_one',
+                    'rights_delete_one',
+                    'rights_view_all',
+                    'product_delete',
+                    'users_token',
+                    'product_uoa'
+                ],
+                organizationId: 10
+            };
+        }
+
 
         var upload = function*(){
             return yield new Promise(function(resolve, reject) {
-                if(req.files.image) {
-                    fs.readFile(req.files.image.path, 'utf8', function (err, data) {
+                if(req.files.csv) {
+                    fs.readFile(req.files.csv.path, 'utf8', function (err, data) {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
@@ -107,11 +111,9 @@ module.exports = {
                         reject(new HttpError(403, 'Cannot parse data from file'));
                     }
                     resolve(data);
-
                 });
             });
         }
-
 
         co(function* () {
             var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.params.id)));
@@ -127,18 +129,33 @@ module.exports = {
             try {
                 var doUpload = yield* upload();
                 var parsed = yield* parser(doUpload);
+
+                var prepareLevel = function (level){
+                    level = parseInt(level);
+                    level = (isNaN(level) || level < 0 || level >  2) ? 0 : level;
+                    return level;
+                }
+
                 for (var i in parsed) {
                     if (i != 0) { // skip first string
                         var pass = crypto.randomBytes(5).toString('hex');
                         var newUser = {
-                            status : 'skipped',
-                            email : parsed[i][0],
-                            firstName : parsed[i][1],
-                            lastName : parsed[i][2],
-                            phone : parsed[i][8],
-                            roleID : parsed[i][3] ? 2 : 3, // 2 - client, 3 - user
+                            parse_status   : 'skipped',
+                            email          : parsed[i][0],
+                            firstName      : parsed[i][1],
+                            lastName       : parsed[i][2],
+                            roleID         : parsed[i][3] ? 2 : 3, // 2 - client, 3 - user
+                            isActive       : false, //(parsed[i][4]) cannot activate until email confirmation
+                            timezone       : parsed[i][5],
+                            location       : parsed[i][6],
+                            cell           : parsed[i][7],
+                            phone          : parsed[i][8],
+                            address        : parsed[i][9],
+                            lang           : parsed[i][10],
+                            bio            : parsed[i][11],
+                            notifyLevel    : prepareLevel(parsed[i][12]),
                             organizationId : org[0].id
-                        }
+                        };
 
                         if (!vl.isEmail(newUser.email)) {
                             newUser.message = 'Email is not valid';
@@ -148,12 +165,36 @@ module.exports = {
                                 newUser.message = 'Already exists';
                             }else{
                                 newUser.password = User.hashPassword(pass);
+                                newUser.activationToken = crypto.randomBytes(32).toString('hex');
                                 var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
                                 if (created[0]) {
                                     newUser.id = created[0].id;
-                                    newUser.status = 'Ok';
+                                    newUser.parse_status = 'Ok';
                                     newUser.message = 'Added';
                                 }
+
+                                var options = {
+                                    to: {
+                                        name: newUser.firstName,
+                                        surname: newUser.lastName,
+                                        email: newUser.email,
+                                        subject: 'Indaba. Organization membership'
+                                    },
+                                    template: 'org_invite'
+                                };
+                                var data = {
+                                    name: newUser.firstName,
+                                    surname: newUser.lastName,
+                                    company: org[0],
+                                    inviter: req.user,
+                                    token: newUser.activationToken
+                                };
+                                var mailer = new Emailer(options, data);
+                                mailer.send(function (data) {
+                                    console.log('EMAIL RESULT --->>>');
+                                    console.log(data);
+
+                                });
                             }
                         }
 

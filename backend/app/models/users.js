@@ -48,7 +48,10 @@ User.hashPassword = function (password) {
 User.validPassword = function (pas, checkpas) {
     return pas === this.hashPassword(checkpas);
 };
-User.editCols = ['firstName', 'lastName', 'mobile', 'birthday', 'updated'];
+User.editCols = [
+    'firstName', 'lastName', 'mobile', 'birthday', 'updated',
+    'timezone','location','cell','address','lang','bio','notifyLevel'
+];
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
 User.whereCol = columns;
 
