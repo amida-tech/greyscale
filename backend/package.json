@@ -33,7 +33,8 @@
     "nodemailer": "1.3.0",
     "nodemailer-smtp-transport": "0.1.13",
     "moment": "*",
-    "accept-language": "2.0.16"
+    "accept-language": "2.0.16",
+    "csv" : "0.4.6"
   },
   "devDependencies": {
     "chai": "^3.4.1",

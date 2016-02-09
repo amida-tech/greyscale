@@ -3,25 +3,16 @@
         <h2><i class="fa fa-tasks"></i> My Tasks</h2>
         <div class="card-tiles">
             <div class="card" ng-repeat="task in model.tasks">
-                <h2>{{task.step.title}}</h2>
-                <p>{{task.step.description}}</p>
+                <p>{{task.step.title}}</p>
                 <p>
-                    <b>Survey</b> <br>
                     <a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
-                        <b>{{task.survey.title}}</b> <br>
-                        {{task.survey.description}}
+                        {{task.survey.title}}
                     </a>
                 </p>
                 <p>
-                    <b>Unit Of Analysis</b> <br>
-                    {{task.uoa.name}} <br>
-                    <small>{{task.uoa.shortName}}</small>
-                </p>
-                <p>
-                    <b>Terms</b> <br>
-                    {{task.startDate||task.step.startDate|date}}
+                    {{task.startDate||task.step.startDate|parseDate|date:'shortDate'}}
                     &mdash;
-                    {{task.endDate||task.step.endDate|date}}
+                    {{task.endDate||task.step.endDate|parseDate|date:'shortDate'}}
                 </p>
             </div>
         </div>
