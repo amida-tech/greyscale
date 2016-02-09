@@ -3,8 +3,7 @@
         <h2><i class="fa fa-tasks"></i> My Tasks</h2>
 
         <div class="card-tiles">
-             <!--ng-table-dynamic="model.tasks.tableParams with model.tasks.cols">-->
-            <div class="card" ng-repeat="task in model.tasks.tableParams">
+            <div class="card" ng-repeat="task in model.tasks">
                 <p>{{task.step.title}}</p>
                 <p>
                     <a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
@@ -13,7 +12,7 @@
                 </p>
                 <p>
                     {{task.startDate||task.step.startDate|date:'shortDate'}}
-                     -
+                    -
                     {{task.endDate||task.step.endDate|date:'shortDate'}}
                 </p>
             </div>
