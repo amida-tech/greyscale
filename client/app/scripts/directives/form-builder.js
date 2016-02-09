@@ -22,9 +22,9 @@ angular.module('greyscaleApp')
                     'number',
                     'email',
                     'price',
-                    'selection_start',
-                    'selection_end',
-                    'selection_break'
+                    'section_start',
+                    'section_end',
+                    'section_break'
                 ];
 
                 function createFormBuilder() {

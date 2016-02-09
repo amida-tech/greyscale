@@ -33,31 +33,6 @@ angular.module('greyscaleApp')
                 title: stepstns + 'END_DATE',
                 dataFormat: 'date',
                 dataRequired: true
-            }, {
-                field: 'writeToAnswers',
-                title: stepstns + 'ANSWERS_ACCESS',
-                dataFormat: 'option',
-                dataNoEmptyOption: true,
-                dataSet: {
-                    keyField: 'value',
-                    valField: 'name',
-                    getData: _getWriteToAnswersList
-                }
-            }, {
-                field: 'accessToResponses',
-                title: stepstns + 'RESPONSES_ACCESS',
-                showDataInput: true,
-                dataFormat: 'boolean',
-            }, {
-                field: 'accessToDiscussions',
-                title: stepstns + 'DISCUSSIONS_ACCESS',
-                showDataInput: true,
-                dataFormat: 'boolean'
-            }, {
-                field: 'blindReview',
-                title: stepstns + 'BLIND_REVIEW',
-                showDataInput: true,
-                dataFormat: 'boolean'
             }]
         };
 
@@ -136,10 +111,12 @@ angular.module('greyscaleApp')
                         _isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
                         ui.helper.remove();
                         _cellLoadingState(cellEl, true);
-                        _saveTask(taskViewModel, assigneeViewModel.id)
+                        _saveTaskAssignee(taskViewModel, assigneeViewModel.id)
                             .then(function (task) {
                                 taskViewModel.assignee = assigneeViewModel;
                                 taskViewModel.id = task.id;
+                                taskViewModel.startDate = task.startDate;
+                                taskViewModel.endDate = task.endDate;
                             })
                             .finally(function () {
                                 _cellLoadingState(cellEl, false);
@@ -179,7 +156,6 @@ angular.module('greyscaleApp')
                         _cellLoadingState(cellEl, true);
                         _saveTasksAssignment(stepId, assigneeViewModel)
                             .then(function (newTasks) {
-                                console.log(newTasks);
                                 angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
                                     var taskViewModel = uoa.steps[stepId];
                                     taskViewModel.assignee = assigneeViewModel;
@@ -207,6 +183,9 @@ angular.module('greyscaleApp')
                     .then(function () {
                         taskViewModel.assignee = undefined;
                         delete(taskViewModel.id);
+                        delete(taskViewModel.startDate);
+                        delete(taskViewModel.endDate);
+                        delete(taskViewModel.endDate);
                     })
                     .finally(function () {
                         _cellLoadingState(cellEl, false);
@@ -217,8 +196,17 @@ angular.module('greyscaleApp')
                 e.stopPropagation();
                 var cellEl = $(e.target).closest('.drop-user');
                 var taskViewModel = _getTaskViewModel(cellEl);
-                console.log(taskViewModel);
-                greyscaleModalsSrv.editRec(taskViewModel, _taskEditForm);
+                var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
+                var editTask = angular.copy(task);
+                _cellLoadingState(cellEl, true);
+                greyscaleModalsSrv.editRec(editTask, _taskEditForm)
+                    .then(_updateTask)
+                    .then(function () {
+                        angular.extend(task, editTask);
+                    })
+                    .finally(function () {
+                        _cellLoadingState(cellEl, false);
+                    });
             });
 
             function _getClassId(e, prefix) {
@@ -280,9 +268,13 @@ angular.module('greyscaleApp')
                 start: function (e) {
                     target = $(e.target);
                 },
+                appendTo: 'body',
                 helper: function (e) {
-                    var el = $(e.target).clone();
-                    return el.wrap('<table class="table table-bordered"><tr></tr></table>');
+                    var el = $(e.target).clone().detach();
+                    var wrap = $('<table class="table table-bordered"><tr></tr></table>');
+                    wrap.find('tr').append(el);
+                    console.log(wrap);
+                    return wrap;
                 },
                 drag: function () {
                     target.css('opacity', 0.5);
@@ -299,15 +291,17 @@ angular.module('greyscaleApp')
 
         ///////////////////// action handlers ////////////////////
 
-        function _saveTask(taskViewModel, assigneeId) {
+        function _saveTaskAssignee(taskViewModel, assigneeId) {
             var defer = $q.defer();
 
             var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
-            console.log(task);
+
             var saveTask = task ? angular.copy(task) : {
                 uoaId: taskViewModel.uoaId,
                 stepId: taskViewModel.stepId,
-                productId: productId
+                productId: productId,
+                startDate: taskViewModel.step.startDate,
+                endDate: taskViewModel.step.endDate
             };
             saveTask.entityTypeRoleId = assigneeId;
 
@@ -335,6 +329,20 @@ angular.module('greyscaleApp')
                     defer.reject();
                 });
 
+            return defer.promise;
+        }
+
+        function _updateTask(task) {
+            var defer = $q.defer();
+
+            greyscaleTaskApi.update(task.id, task)
+                .then(function () {
+                    defer.resolve(task);
+                })
+                .catch(function (error) {
+                    _informError(error, 'task_update');
+                    defer.reject();
+                });
             return defer.promise;
         }
 
@@ -366,6 +374,9 @@ angular.module('greyscaleApp')
 
         function _saveTasksAssignment(stepId, assigneeViewModel) {
             var defer = $q.defer();
+            var step = _.find($scope.model.workflowSteps, {
+                id: stepId
+            });
             var entityTypeRoleId = assigneeViewModel.id;
             // assign user
             var saveTasks = [];
@@ -379,9 +390,8 @@ angular.module('greyscaleApp')
                     uoaId: uoaId,
                     stepId: stepId,
                     productId: productId,
-                    //writeToAnswers: false,
-                    //accessToResponses: false,
-                    //accessToDiscussions: false
+                    startDate: step.startDate,
+                    endDate: step.endDate
                 };
                 saveTask.entityTypeRoleId = entityTypeRoleId;
                 saveTasks.push(saveTask);
@@ -433,7 +443,8 @@ angular.module('greyscaleApp')
                 show: true,
                 field: 'name',
                 sortable: 'name',
-                cellTemplate: '<b>{{row.name}}</b><br><small>{{row.type.name}}</small>'
+                cellTemplate: '<b>{{row.name}}</b><br/>' +
+                    '<small>{{row.type.name}}</small>'
             }];
 
             var _table = {
@@ -454,7 +465,10 @@ angular.module('greyscaleApp')
         function _setStepColumns(table, axisData) {
             angular.forEach(axisData.workflowSteps || {}, function (step) {
                 table.cols.push({
-                    titleTemplate: '<b>{{step.title}}</b><br/><small class="text-muted">{{step.role.name}}</small>',
+                    titleTemplate: '<b>{{step.title}}</b>' +
+                        '<small class="text-muted">{{step.role.name}}<br />' +
+                        '{{step.startDate|date:"shortDate"}} - {{step.endDate|date:"shortDate"}}' +
+                        '</small>',
                     titleTemplateData: {
                         step: step
                     },
@@ -493,7 +507,7 @@ angular.module('greyscaleApp')
         ///////////////////// data processing ///////////////////////
 
         function _getTasksData(tableData) {
-            _initStorageData(tableData.tasks);
+            _initTasksStorage(tableData.tasks);
             angular.forEach(tableData.uoas, function (uoa) {
                 uoa.steps = {};
                 angular.forEach(tableData.workflowSteps, function (step) {
@@ -506,14 +520,11 @@ angular.module('greyscaleApp')
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
                         stepId: step.id,
+                        startDate: task && task.startDate || step.startDate,
+                        endDate: task && task.endDate || step.endDate,
 
-                        startDate: step.startDate,
-                        endDate: step.endDate,
-                        writeToAnswers: !!step.writeToAnswers,
-                        accessToResponses: !!step.accessToResponses,
-                        accessToDiscussions: !!step.accessToDiscussions,
-                        blindReview: !!step.blindReview,
                         roleId: step.roleId,
+                        step: step,
                         role: _role,
                         assignee: _getTaskAssignee(uoa.id, step.id)
                     });
@@ -522,8 +533,19 @@ angular.module('greyscaleApp')
             return tableData.uoas;
         }
 
-        function _initStorageData(tasks) {
-            _tasks = tasks || [];
+        function _initTasksStorage(tasks) {
+            _tasks = [];
+            angular.forEach(tasks, function (task) {
+                _tasks.push(_.pick(task, [
+                    'id',
+                    'productId',
+                    'stepId',
+                    'uoaId',
+                    'entityTypeRoleId',
+                    'startDate',
+                    'endDate'
+                ]));
+            });
         }
 
         function _getTaskAssignee(uoaId, stepId) {
@@ -681,10 +703,6 @@ angular.module('greyscaleApp')
                     greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
                     $state.go('home');
                 });
-        }
-
-        function _getWriteToAnswersList() {
-            return greyscaleGlobals.writeToAnswersList;
         }
 
     });

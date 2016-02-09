@@ -499,6 +499,11 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.app %>',
                     src: 'fixtures/*',
                     dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>/interviewRenderer',
+                    src: '*',
+                    dest: '<%= yeoman.dist %>/interviewRendererDist'
                 }]
             },
             styles: {
