@@ -20,10 +20,16 @@ var columns = [
     'resetPasswordExpires',
     'created',
     'updated',
-    'currencyID',
     'isActive',
     'activationToken',
-    'organizationId'
+    'organizationId',
+    'timezone',
+    'location',
+    'cell',
+    'address',
+    'lang',
+    'bio',
+    'notifyLevel'
 ];
 
 var User = sql.define({
