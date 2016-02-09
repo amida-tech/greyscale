@@ -99,7 +99,7 @@ module.exports = {
                         resolve(data);
                     });
                 }else{
-                    reject( new HttpError(403,'File has not uploaded'));
+                    reject( new HttpError(403,'Please, pass csv file in files[\'csv\']'));
                 }
             });
         }
