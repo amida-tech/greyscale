@@ -1,0 +1,34 @@
+.radio,
+.checkbox {
+    input {
+        display: none;
+        visibility: hidden;
+        & + .chk-box {
+            display: block;
+            border-radius: 3px;
+            content: '';
+            width: 14px;
+            height: 14px;
+            position: absolute;
+            top: 0;
+            left: 1px;
+            bottom: 0;
+            margin: auto 0;
+            background-color: white;
+            border: solid 1px $grey-medium-light;
+        }
+
+        &[type="radio"] +.chk-box {
+            border-radius: 7px;
+        }
+
+        &:checked + .chk-box {
+            background-color: $green;
+        }
+
+        &:disabled + .chk-box {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+    }
+}

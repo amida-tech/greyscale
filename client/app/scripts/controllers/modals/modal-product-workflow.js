@@ -29,6 +29,30 @@ angular.module('greyscaleApp')
         $uibModalInstance.close(resolveData);
     };
 
+    $scope.validWorkflowSteps = function(){
+        var selected = productWorkflow.multiselect.selectedMap;
+        if (!selected.length) {
+            return false;
+        } else {
+            return _validateWorkflowSteps();
+        }
+    };
+
+    function _validateWorkflowSteps() {
+        var steps = _getSteps();
+        var valid = 0;
+        angular.forEach(steps, function(step){
+            if (step.roleId &&
+                step.startDate &&
+                step.endDate &&
+                step.writeToAnswers !== undefined
+            ) {
+                valid++;
+            }
+        });
+        return valid == steps.length;
+    }
+
     function _getSteps() {
         var tableData = productWorkflow.tableParams.data;
         var selected = productWorkflow.multiselect.selected;

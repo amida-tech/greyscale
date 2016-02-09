@@ -5,7 +5,8 @@ var columns = [
     'surveyId',
     'type',
     'label',
-    'isRequired'
+    'isRequired',
+    'position'
 ];
 
 var SurveyQuestion = sql.define({

@@ -4,16 +4,21 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter, i18n) {
+    .directive('widgetTable', function (_, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope) {
+        var _templateCacheIds = [];
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
             scope: {
                 model: '=',
-                rowSelector: '='
+                rowSelector: '=',
+                classes: '@class'
+            },
+            link: function (scope, el) {
+                el.removeAttr('class');
             },
             controller: function ($scope) {
-
                 if (typeof $scope.rowSelector === 'function') {
                     $scope.model.current = $scope.rowSelector();
                 } else {
@@ -34,15 +39,22 @@ angular.module('greyscaleApp')
                         counts: [],
                         getData: function ($defer, params) {
                             if (typeof $scope.model.dataPromise === 'function') {
-                                $scope.model.dataPromise().then(function (data) {
-                                    $scope.model.dataMap = _getDataMap(data);
-                                    if (data) {
-                                        params.total(data.length);
-                                        var orderedData = params.sorting() ?
-                                            $filter('orderBy')(data, params.orderBy()) : data;
-                                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                                    }
-                                });
+                                $scope.model.$loading = true;
+                                var endLoading = function () {
+                                    $scope.model.$loading = false;
+                                };
+                                $scope.model.dataPromise()
+                                    .then(function (data) {
+                                        $scope.model.dataMap = _getDataMap(data);
+                                        if (data) {
+                                            params.total(data.length);
+                                            var orderedData = params.sorting() ?
+                                                $filter('orderBy')(data, params.orderBy()) : data;
+                                            $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                        }
+                                        endLoading();
+                                    })
+                                    .catch(endLoading);
                             }
                         }
                     });
@@ -60,6 +72,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.select = function (row, e) {
+                    if (!$scope.model.selectable) {
+                        return;
+                    }
                     $scope.model.current = row;
                     if (typeof $scope.rowSelector === 'function') {
                         $scope.rowSelector(row);
@@ -71,6 +86,11 @@ angular.module('greyscaleApp')
                 $scope.$on('$destroy', function () {
                     if ($scope.model.multiselect && $scope.model.multiselect.reset) {
                         $scope.model.multiselect.reset();
+                    }
+                    if (_templateCacheIds.length) {
+                        angular.forEach(_templateCacheIds, function (templateId) {
+                            $templateCache.remove(templateId);
+                        });
                     }
                 });
             }
@@ -92,15 +112,33 @@ angular.module('greyscaleApp')
         }
 
         function _parseColumns(model) {
-            angular.forEach(model.cols, function (col) {
+            angular.forEach(model.cols, function (col, i) {
                 if (col.multiselect) {
                     _setMultiselect(col, model);
                 }
                 if (col.actions) {
                     col['class'] = 'header-actions';
                 }
-                col.title = i18n.translate(col.title);
+                if (col.title) {
+                    col.title = i18n.translate(col.title);
+                }
+                if (col.titleTemplate) {
+                    _setTitleTemplate(col);
+                }
             });
+        }
+
+        function _setTitleTemplate(col) {
+            var template = col.titleTemplate;
+            var templateId = 'widget-table-' + Math.random();
+            _templateCacheIds.push(templateId);
+            var scope = $rootScope.$new();
+            angular.extend(scope, col.titleTemplateData || {});
+            template = $compile(template)(scope);
+            $templateCache.put(templateId, template);
+            col.headerTemplateURL = function () {
+                return templateId;
+            };
         }
 
         function _setMultiselect(col, model) {

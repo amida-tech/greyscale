@@ -1,16 +1,31 @@
-<div class="modal-header">
-    <button class="close" ng-click="close()" aria-label="Close" data-dismiss="modal" type="button"><span>×</span></button>
-    <h3 class="modal-title"><span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> Fields</h3>
-</div>
+<modal-form-header>
+    <span ng-show="model.id">Edit</span><span ng-hide="model.id">Add</span> Fields
+</modal-form-header>
 <div class="modal-body">
     <div class="row">
         <div name="dataForm" class="form-horizontal" ng-form="dataForm">
             <div class="form-group" ng-show="model.id">
-                <label class="col-sm-3 control-label">ID:</label>
-                <div class="col-sm-9">
+                <label class="col-sm-4 control-label">ID:</label>
+                <div class="col-sm-8">
                     <p class="form-control-static">{{model.id}}</p>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="title" class="col-sm-4 control-label">Title</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="title" id="title" ng-model="model.title" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description" class="col-sm-4 control-label">Description</label>
+                <div class="col-sm-8">
+                    <textarea type="text" class="form-control" name="description" id="description"
+                              ng-model="model.description"></textarea>
+                </div>
+            </div>
+
             <form-builder ng-model="model"></form-builder>
         </div>
     </div>

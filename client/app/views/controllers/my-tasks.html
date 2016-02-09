@@ -1,0 +1,36 @@
+<div class="row">
+    <div class="col-md-12">
+        <widget-table model="model.tasks" row-selector=""></widget-table>
+    </div>
+</div>
+
+<script type="text/ng-template" id="my-tasks-cell-task.html">
+    {{row.step.title}} <br>
+    <small>{{row.step.description}}</small>
+</script>
+
+<script type="text/ng-template" id="my-tasks-cell-survey.html">
+    <a ng-href="/interviewRenderer/?surveyId={{row.survey.id}}&taskId={{row.id}}">
+        {{row.survey.title}}
+    </a>
+    <br>
+    <small>{{row.survey.description}}</small>
+</script>
+
+<script type="text/ng-template" id="my-tasks-cell-terms.html">
+    {{row.startDate||row.step.startDate|parseDate|date}}
+    &mdash;
+    {{row.endDate||row.step.endDate|parseDate|date}}
+</script>
+
+<script type="text/ng-template" id="my-tasks-cell-product.html">
+    {{row.product.title}}
+    <br>
+    <small>{{row.product.description}}</small>
+</script>
+
+<script type="text/ng-template" id="my-tasks-cell-uoa.html">
+    <b>{{row.uoa.name}}</b>
+    <br>
+    <small>{{row.uoa.shortName}}</small>
+</script>

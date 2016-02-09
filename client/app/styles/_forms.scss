@@ -3,8 +3,13 @@
         margin-left: 0;
     }
 }
+
 [uib-datepicker-popup].form-control {
     min-width: 150px;
+    &.embedded.ng-invalid-date {
+        border: 1px solid red;
+        z-index: 3;
+    }
 }
 
 .translation-input i,
@@ -22,4 +27,37 @@
     max-height: 300px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+upload-form,
+.upload-form {
+    input[type="file"] {
+        height: initial;
+    }
+    .progress {
+        margin-top: 3px;
+        margin-bottom: 10px;
+    }
+}
+
+.fb-add-field-types .fb-button {
+    margin: 1% !important;
+    width: 48% !important;
+}
+
+.fb-add-field-types .fb-button[data-field-type="date"], .fb-add-field-types .fb-button[data-field-type="time"],
+.fb-add-field-types .fb-button[data-field-type="website"], .fb-add-field-types .fb-button[data-field-type="address"] {
+    display: none;
+}
+
+.fb-save-wrapper {
+    display: none;
+}
+
+.help-block {
+    font-size: 10pt;
+}
+
+.radio, .checkbox {
+    display: inline-block;
 }

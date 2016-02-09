@@ -1,4 +1,5 @@
-﻿//TODO do not use date, time, website, address
+﻿//http://localhost:8081/interviewRenderer/?surveyId=40&taskId=36
+//TODO do not use date, time, website, address
 
 function getCookie(name) {
     var value = '; ' + document.cookie;
@@ -7,19 +8,35 @@ function getCookie(name) {
 }
 
 var token;
+var survey;
+var surveyId;
+var taskId;
+var taskInfo;
+var constUrl = 'http://indaba.ntrlab.ru:83/dev/v0.2/'
 function readySurvey() {
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/surveys/' + window.location.hash.replace('#', '');
+    surveyId = parseInt(getParameterByName('surveyId'));
+    taskId = parseInt(getParameterByName('taskId'));
+    
     token = getCookie('token').replace('%22', '').replace('%22', '');
-    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        generateSurvey(JSON.parse(request.response.data));
-        load();
+    $.fetch(constUrl + 'surveys/' + surveyId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
+        survey = request.response;
+        $('#title').innerHTML = survey.title;
+        generateSurvey(survey.questions);
+        
+        $.fetch(constUrl + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
+            taskInfo = request.response;
+            load();
+        }).catch(function (error) {
+            console.error(error);
+            console.log(error.stack)
+        });
     }).catch(function (error) {
         console.error(error);
         console.log(error.stack)
     });
 }
 
-var data;
+var dataFields;
 var survey;
 var currentParent;
 
@@ -28,7 +45,32 @@ var content;
 function generateSurvey(json) {
     survey = $('#survey');
     currentParent = survey;
-    data = json.fields;
+    dataFields = []
+    for (var i = 0; i < json.length; i++) {
+        var type;
+        switch (json[i].type) {
+            case 0: type = 'text'; break;
+            case 1: type = 'paragraph'; break;
+            case 2: type = 'checkboxes'; break;
+            case 3: type = 'radio'; break;
+            case 4: type = 'dropdown'; break;
+            case 5: type = 'number'; break;
+            case 6: type = 'email'; break;
+            case 7: type = 'price'; break;
+            case 8: type = 'section_start'; break;
+            case 9: type = 'section_end'; break;
+            case 10: type = 'section_break'; break;
+            default: continue;
+        }
+        
+        dataFields.push({
+            cid: 'c' + json[i].id,
+            field_type: type,
+            label: json[i].label,
+            required: json[i].isRequired,
+            field_options: {}
+        });
+    }
     var contentDiv = $.create('div', { className: 'content-container compact' });
     $.start(contentDiv, survey);
     $.inside($.create('span', { contents: ['Content'], className: 'content-title' }), contentDiv);
@@ -37,30 +79,30 @@ function generateSurvey(json) {
     $.inside(button, contentDiv);
     content = $.create('ul', { className: 'content' });
     $.inside(content, contentDiv);
-    for (var i = 0; i < data.length; i++) fieldCreate(data[i]);
+    for (var i = 0; i < dataFields.length; i++) fieldCreate(dataFields[i]);
 }
 
 function getField(cid) { return $('#' + cid); }
 function getData(cid) {
-    for (var i = 0; i < data.length; i++) if (data[i].cid === cid) return data[i];
+    for (var i = 0; i < dataFields.length; i++) if (dataFields[i].cid === cid) return dataFields[i];
 }
 
 var hasChanges = false;
 function fieldCreate(data) {
     var type = data.field_type;
     if (type === 'date' || type === 'time' || type === 'website' || type === 'address') return;
-
+    
     if (type !== 'section_end') {
         var contentElement = $.create('li', { contents: [data.label] });
         contentElement._.events({ 'click': function () { getField(data.cid).scrollIntoView(); } });
         $.inside(contentElement, content);
     }
-
+    
     var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'section_start' || type === 'section_end' ? 'div' : 'label';
-
+    
     var field = $.create(tag, { id: data.cid, className: 'field ' + type, 'data-type': type });
     $.inside($.create('span', { contents: [data.label], className: 'field-label' }), field);
-
+    
     if (data.required && type !== 'section_break' && type !== 'section_start' && type !== 'section_end') $.inside($.create('span', {
         contents: ['*'],
         className: 'required'
@@ -70,7 +112,7 @@ function fieldCreate(data) {
         className: 'description'
     }), field);
     if (field) $.inside(field, currentParent);
-
+    
     switch (type) {
         case 'section_start':
             fieldSectionStart(data);
@@ -114,7 +156,7 @@ function fieldSectionStart(data) {
 }
 function fieldSectionEnd(data) {
     if (currentParent === survey) return;
-
+    
     currentParent = currentParent.parentNode;
 }
 function fieldText(data) {
@@ -126,7 +168,7 @@ function fieldText(data) {
         name: data.cid
     });
     $.inside(input, div);
-
+    
     input._.events({
         'change': function () { hasChanges = true; },
         'keypress': function () { hasChanges = true; }
@@ -137,7 +179,7 @@ function fieldTextarea(data) {
     $.inside(div, getField(data.cid));
     var input = $.create('textarea', { className: data.field_options.size, name: data.cid })
     $.inside(input, div);
-
+    
     input._.events({
         'change': function () { hasChanges = true; },
         'keypress': function () { hasChanges = true; }
@@ -151,7 +193,7 @@ function fieldRadioCheckboxes(data) {
     for (var i = 0; i < data.field_options.options.length; i++) {
         var checkboxLabel = $.create('label', { className: 'variant' });
         $.inside(checkboxLabel, fieldSet);
-
+        
         var input = $.create('input', {
             type: type,
             value: data.field_options.options[i].label,
@@ -161,10 +203,10 @@ function fieldRadioCheckboxes(data) {
         });
         $.inside(input, checkboxLabel);
         input._.events({ 'change': function () { hasChanges = true; } });
-
+        
         $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
     }
-
+    
     if (data.field_options.include_other_option) {
         var block = $.create('div', { className: 'variant' });
         $.inside(block, fieldSet);
@@ -186,12 +228,12 @@ function fieldDropdown(data) {
     var select = $.create('select', { name: data.cid });
     $.inside(select, div);
     select._.events({ 'change': function () { hasChanges = true; } });
-
+    
     if (data.field_options.include_blank_option) {
         var option = $.create('option', { text: ' ', value: ' ' });
         $.inside(option, select);
     }
-
+    
     for (var i = 0; i < data.field_options.options.length; i++) {
         var option = $.create('option', {
             text: data.field_options.options[i].label,
@@ -213,7 +255,7 @@ function showErrors(data) {
 }
 function addRemoveError(data, error, mustHaveError) {
     if (!data.errors) data.errors = [];
-
+    
     var index = -1;
     for (var i = 0; i < data.errors.length; i++) {
         if (data.errors[i].type !== error.type) continue;
@@ -237,7 +279,7 @@ function validateAll(data) {
 }
 function validateRequired(data) {
     if (!data.required) return;
-
+    
     var field = getField(data.cid);
     var errorText = 'It\'s a required field. It\'s must have value.';
     var mustHaveError = false;
@@ -273,16 +315,16 @@ function validateRequired(data) {
 }
 function validateLength(data) {
     if (data.field_type !== 'text' && data.field_type !== 'paragraph') return;
-
+    
     var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
     var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
     if (!minlength && !maxlength) return;
     if (maxlength && minlength > maxlength) return;
-
+    
     var errorText;
     var errorTextMin = 'Text is too short. It must be ' + minlength + ' ' + data.field_options.min_max_length_units + ' at least.';
     var errorTextMax = 'Text is too long. It must be less then ' + maxlength + ' ' + data.field_options.min_max_length_units + '.';
-
+    
     var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
     var mustHaveError = false;
     if (data.field_options.min_max_length_units === 'characters') {
@@ -308,7 +350,7 @@ function validateLength(data) {
 }
 function validateNumber(data) {
     if (data.field_type !== 'number' && data.field_type !== 'price') return;
-
+    
     var val = $('input', getField(data.cid)).value.trim();
     var mustHaveError = false;
     var errorText;
@@ -319,7 +361,7 @@ function validateNumber(data) {
         mustHaveError = isNaN(val);
         errorText = 'Value must be number.'
     }
-
+    
     if (!mustHaveError) {
         var number = parseFloat(val);
         if (data.field_options.min !== undefined && number < data.field_options.min) {
@@ -330,7 +372,7 @@ function validateNumber(data) {
             errorText = 'Value must be less then ' + data.field_options.max + '.';
         }
     }
-
+    
     addRemoveError(data, { type: 'number', text: errorText }, mustHaveError);
 }
 function validateEmail(data) {
@@ -381,12 +423,12 @@ function validationRuleRequired(data) {
 }
 function validationRuleLength(data) {
     if (data.field_type !== 'text' && data.field_type !== 'paragraph') return;
-
+    
     var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
     var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
     if (!minlength && !maxlength) return;
     if (maxlength && minlength > maxlength) return;
-
+    
     var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
     input._.events({ 'blur': function () { validateLength(data); } });
 }
@@ -433,11 +475,11 @@ var userId;
 var surveyAnswers = {};
 var surveyAnswersId;
 function load() {
-    if (!data) return;
+    if (!dataFields) return;
     getUser()
 }
 function getUser() {
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/users/self';
+    var url = constUrl + 'users/self';
     $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
         userId = request.response.id;
         getSurveyAnswers();
@@ -447,21 +489,25 @@ function getUser() {
     });
 }
 function getSurveyAnswers() {
-    var surveyId = window.location.hash.replace('#', '');
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers/?surveyId=' + surveyId + '&userId=' + userId;
-    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-        surveyAnswers = JSON.parse(request.response[0].data);
-        surveyAnswersId = request.response[0].id;
-        setCurrentAnswers();
+    var url = constUrl + 'survey_answers?surveryId=' + surveyId + '&productId=' + taskInfo.productId + '&UOAid=' + taskInfo.uoaId + '&wfStepId=' + taskInfo.stepId + '&userId=' + userId;
+    $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
+        var surveyAnswers;
+        for (var i = 0; i < request.response.length; i++) {
+            if (!surveyAnswers) surveyAnswers = {};
+            surveyAnswers['c' + request.response[i].questionId] = request.response[i].value;
+        }
+        setCurrentAnswers(surveyAnswers);
     }).catch(function (error) {
-        setCurrentAnswers();
         console.error(error);
+        setCurrentAnswers(null);
     });
 }
-function setCurrentAnswers() {
-    if (!surveyAnswersId)
-        for (var i = 0; i < data.length; i++)
-            surveyAnswers[data[i].cid] = localStorage.getItem(data[i].cid);
+function setCurrentAnswers(surveyAnswers) {
+    if (!surveyAnswers) {
+        surveyAnswers = {};
+        for (var i = 0; i < dataFields.length; i++)
+            surveyAnswers[dataFields[i].cid] = localStorage.getItem(dataFields[i].cid);
+    }
     setValues(surveyAnswers);
     skipLogic();
     autosave();
@@ -470,7 +516,7 @@ function setValues(vals) {
     var fields = $$('.field');
     for (var i = 0; i < fields.length; i++) {
         var id = fields[i].id;
-
+        
         if (vals[id] === null || vals[id] === undefined) continue;
         switch (fields[i]._.getAttribute('data-type')) {
             case 'text':
@@ -519,7 +565,7 @@ function skipLogic() {
     var skip = 0;
     for (var i = 0; i < vals.length; i++) {
         var data = getData(vals[i].id);
-        var field = getField(vals[i].id);        
+        var field = getField(vals[i].id);
         switch (data.field_type) {
             //case 'section_start':
             //case 'section_end':
@@ -561,6 +607,16 @@ function skipLogic() {
 }
 //End Load
 
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 //Save
 function save(callback) {
     if (!hasChanges) {
@@ -569,29 +625,34 @@ function save(callback) {
     }
     var vals = getValues();
     localStorage.clear();
-    var valJson = {};
-    for (var i = 0; i < vals.length; i++) {
-        localStorage.setItem(vals[i].id, vals[i].val);
-        valJson[vals[i].id] = vals[i].val;
-    }
-
-    var surveyId = parseInt(window.location.hash.replace('#', ''));
-    var url = 'http://indaba.ntrlab.ru:83/v0.2/survey_answers';
+    
+    var url = constUrl + 'survey_answers';
     var method = 'POST';
-    var data = JSON.stringify({ surveyId: surveyId, data: JSON.stringify(valJson) });
-
-    if (surveyAnswersId) {
-        url = url + '/' + surveyAnswersId;
-        method = 'PUT';
+    
+    var sendCount = vals.lengt - 1;
+    for (var i = 0; i < vals.length; i++) {
+        var data = {
+            surveyId: surveyId,
+            questionId: parseInt(vals[i].id.replace('c', '')),
+            productId: taskInfo.productId,
+            UOAid: taskInfo.uoaId,
+            wfStepId: taskInfo.stepId,
+            userId: userId,
+            value: vals[i].val
+        };
+        $.fetch(url, { method: method, data: JSON.stringify(data), responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
+            console.log('saved to server');
+            sendCount--;
+            if (sendCount > 0) return;
+            hasChanges = false;
+            if (callback) callback();
+        }).catch(function (error) {
+            console.error(error);
+            sendCount--;
+            if (sendCount > 0) return;
+            if (callback) callback();
+        });
     }
-    $.fetch(url, { method: method, data: data, responseType: 'json', headers: { token: token, 'Content-type': 'application/json' } }).then(function (request) {
-        console.log('saved to server');
-        hasChanges = false;
-        if (callback) callback();
-    }).catch(function (error) {
-        console.error(error);
-        if (callback) callback();
-    });
 }
 function getValues() {
     var fields = $$('.field');
@@ -632,7 +693,7 @@ function getValues() {
     return vals;
 }
 function autosave() {
-    setTimeout(function () { save(function () { autosave(); }); }, 5000);
+    setTimeout(function () { save(function () { autosave(); }); }, 60000);
 }
 //End Save
 

@@ -4,6 +4,8 @@ var client = require('app/db_bootstrap'),
     Project = require('app/models/projects'),
     Product = require('app/models/products'),
     Workflow = require('app/models/workflows'),
+    Survey = require('app/models/surveys'),
+    SurveyQuestion = require('app/models/survey_questions'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
     Language = require('app/models/languages'),
@@ -23,7 +25,8 @@ module.exports = {
     select: function (req, res, next) {
         co(function* () {
         	req.query.realm = req.param('realm');
-            return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
+//            return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
+            return yield thunkQuery(Project.select().from(Project), req.query);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -60,8 +63,16 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var result = yield thunkQuery(Project.update(req.body).where(Project.id.equals(req.params.id)), 
+            var updateObj = _.defaults(_.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']),
             		{'realm': req.param('realm')});
+            var result = false;
+            if (Object.keys(updateObj).length) {
+                result = yield thunkQuery(
+                    Project
+                    .update(updateObj)
+                    .where(Project.id.equals(req.params.id))
+                );
+            }
             return result;
         }).then(function () {
             res.status(202).end();
@@ -93,11 +104,39 @@ module.exports = {
         });
     },
 
+    surveyList: function (req, res, next) {
+        co(function* () {
+            var data = yield thunkQuery(
+                Survey
+                .select(
+                    Survey.star(),
+                    'array_agg(row_to_json("SurveyQuestions".*) ORDER BY "SurveyQuestions"."position") as questions'
+                )
+                .from(
+                    Survey
+                    .leftJoin(SurveyQuestion)
+                    .on(Survey.id.equals(SurveyQuestion.surveyId))
+                )
+                .where(Survey.projectId.equals(req.params.id))
+                .group(Survey.id)
+            );
+            return data;
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var result = yield thunkQuery(Project.insert(req.body).returning(Project.id),
-            		{'realm': req.param('realm')});
+
+            var result = yield thunkQuery(
+                Project
+                .insert(_.defaults(_.pick(req.body, Project.table._initialConfig.columns),{'realm': req.param('realm')}))
+                .returning(Project.id)
+            );
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -106,15 +145,112 @@ module.exports = {
         });
     },
 
+    csvUsers: function (req, res, next) {
+        // fields order
+        // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
+        // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
+
+        var csv = require('csv');
+        var fs = require('fs');
+
+        co(function* () {
+
+
+
+            var upload = new Promise(function(resolve, reject){
+                if(req.files.image) {
+
+                    fs.readFile(req.files.image.path, 'utf8', function (err, data) {
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve(data);
+                    });
+                }else{
+                    reject('File has not uploaded');
+                }
+            });
+
+            var parser = new Promise(function(resolve, reject){
+                csv.parse(data, function (err, data) {
+                    //console.log(data);
+                    //for (var i in data) {
+                    //    if (i != 0) { // skip first string
+                    //        console.log('email = ' + data[i][0] + ',firstname=' + data[i][1] + ',lastname=' + data[i][2]);
+                    //        var newUser = {
+                    //            email: data[i][0],
+                    //            firstName: data[i][1],
+                    //            lastName: data[i][2]
+                    //        }
+                    //        var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
+                    //        console.log(isExist);
+                    //    }
+                    //}
+                });
+            });
+
+            var doUpload = yield upload.then(
+                function(data){
+                    return data;
+                },function(err){
+                    return err;
+                }
+            );
+            if(doUpload.code){
+                throw new HttpError(403, 'Upload file problem');
+            }else{
+                //parser.then(
+                //    function(data){
+                //
+                //    },function(err){
+                //
+                //    }
+                //);
+                return doUpload;
+            }
+            //return data;
+
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    }
+
 };
 
 function* checkProjectData(req) {
-    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)), {'realm': req.param('realm')});
-    var isExistCode;
-    if (!_.first(isExistMatrix)) {
-        throw new HttpError(403, 'Matrix with this id does not exist');
+    if (!req.params.id) { // create
+        if (!req.body.matrixId || !req.body.organizationId || !req.body.codeName) {
+            throw new HttpError(
+                403,
+                'matrixId, organizationId and codeName fields are required'
+            );
+        }
+
+        if (req.body.organizationId) {
+            var isExistOrg = yield thunkQuery(
+                Organization.select().where(Organization.id.equals(req.user.organizationId)), {'realm': req.param('realm')}
+            );
+            if (!_.first(isExistOrg)) {
+                throw new HttpError(
+                    403,
+                    'By some reason cannot find your organization (id = ' + req.user.organizationId + ')'
+                );
+            }
+        }
+
+        req.body.organizationId = req.user.organizationId;
     }
 
+    if (req.body.matrixId) {
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+        if (!_.first(isExistMatrix)) {
+            throw new HttpError(403, 'Matrix with this id does not exist');
+        }
+    }
+
+    var isExistCode;
     if (req.params.id) { // update
         if (req.body.codeName) {
             isExistCode = yield thunkQuery(
@@ -129,8 +265,9 @@ function* checkProjectData(req) {
         }
     } else { // create
         if (req.body.codeName) {
-            isExistCode = yield thunkQuery(Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)),
-            		 {'realm': req.param('realm')});
+            isExistCode = yield thunkQuery(
+                Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)),{'realm': req.param('realm')}
+            );
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
             }
@@ -154,5 +291,6 @@ function* checkProjectData(req) {
     //}
 
     req.body.organizationId = req.user.organizationId;
+
 
 }

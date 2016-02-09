@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
             //no isolate scope for data binding, all data moved from controller to directive
             link: function (scope, element, attrs) {
                 //Load geo coordinates and data
-                var request = $http.get('scripts/directives/resources/doingbiz_agg.json')
+                var request = $http.get('fixtures/doingbiz_agg.json')
                     .success(function (vizData) {
                         scope.vizData = vizData.agg;
 

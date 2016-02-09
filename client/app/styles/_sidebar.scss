@@ -1,21 +1,35 @@
+#sidebar-wrapper {
+    left: -70px;
+}
+
 ul.sidebar {
     .sidebar-title {
-        line-height: 1.4;
-        height: auto;
-        padding: 20px 20px 5px 20px;
-        text-indent: 0;
+        @extend .h2;
+        /*
+                line-height: 1.4;
+                height: auto;
+                padding: 20px 20px 5px 20px;
+                text-indent: 0;
+                color: $grey-dark;
+                */
+        .truncate {
+            width: 230px;
+        }
+
     }
+
     .sidebar-list {
         height: auto;
         position: relative;
         a, a:hover {
+            color: $grey-medium-light;
             float: none;
             display: block;
-            padding: 11px 45px 11px 25px;
+            padding: 11px 45px 11px 22px;
             line-height: 1.4;
             text-indent: 0;
             &:hover {
-                padding-left: 22px;
+                border-left: transparent 0px none;
             }
             .menu-icon {
                 float: none;
@@ -29,30 +43,24 @@ ul.sidebar {
                 text-indent: 0;
             }
         }
+        a:hover {
+            color: $green;
+            border: none;
+        }
     }
-    .sidebar-main .menu-icon {
-        padding-right: 15px;
+    .sidebar-main {
+
+        a,
+        a:hover {
+            color: $green;
+        }
+        .menu-icon {
+        }
     }
 }
+
 #page-wrapper:not(.open) ul.sidebar {
     .sidebar-list {
-        a, a:hover {
-            padding-right: 70px;
-            height: 40px;
-            overflow: hidden;
-            .menu-icon {
-                text-indent: 8px;
-                width: 70px;
-                padding: 13px 18px;
-            }
-        }
-        a:hover {
-            .menu-icon {
-                text-indent: 5px;
-            }
-        }
-    }
-    .sidebar-main .menu-icon {
-        padding-right: 28px;
+        display: none;
     }
 }

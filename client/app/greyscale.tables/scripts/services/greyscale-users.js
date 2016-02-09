@@ -75,11 +75,11 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                class: 'primary',
                 handler: _editRecord
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                class: 'secondary',
                 handler: _delRecord
             }]
         }];
@@ -93,7 +93,7 @@ angular.module('greyscale.tables')
             dataPromise: _getUsers,
             pageLength: 10,
             add: {
-                title: 'Invite',
+                icon: 'fa-plus',
                 handler: _editRecord
             }
         };

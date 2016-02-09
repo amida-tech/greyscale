@@ -62,11 +62,11 @@ module.exports = function (grunt) {
             },
             js: {
                 files: [
-                    '<%= yeoman.app %>/scripts/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
+                    '<%= yeoman.app %>/scripts/**/*.js',
+                    '<%= yeoman.app %>/greyscale.core/**/*.js',
+                    '<%= yeoman.app %>/greyscale.rest/**/*.js',
+                    '<%= yeoman.app %>/greyscale.tables/**/*.js',
+                    '<%= yeoman.app %>/greyscale.mock/**/*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -74,11 +74,11 @@ module.exports = function (grunt) {
                 }
             },
             jsTest: {
-                files: ['test/spec/{,*/}*.js'],
+                files: ['test/spec/**/*.js'],
                 tasks: ['newer:jshint:test', 'newer:jscs:test', 'karma']
             },
             compass: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+                files: ['<%= yeoman.app %>/styles/**/*.{scss,sass}'],
                 tasks: ['compass:server', 'postcss:server']
             },
             gruntfile: {
@@ -96,9 +96,9 @@ module.exports = function (grunt) {
                     livereload: '<%= connect.options.livereload %>'
                 },
                 files: [
-                    '<%= yeoman.app %>/{,*/}*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    '<%= yeoman.app %>/**/*.html',
+                    '.tmp/styles/**/*.css',
+                    '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}'
                 ]
             }
         },
@@ -288,10 +288,6 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
-                exclude: [
-                    'bower_components/plotly.js/dist/plotly.min.js',
-                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
-                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -494,6 +490,11 @@ module.exports = function (grunt) {
                     cwd: '.',
                     src: 'bower_components/font-awesome/fonts/*',
                     dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'fixtures/*',
+                    dest: '<%= yeoman.dist %>'
                 }]
             },
             styles: {
@@ -602,15 +603,15 @@ module.exports = function (grunt) {
         dock: {
             options: {
                 docker: {
-                    // docker connection 
-                    // See Dockerode for options 
+                    // docker connection
+                    // See Dockerode for options
                     socketPath: '/var/run/docker.sock'
                 },
 
-                // It is possible to define images in the 'default' grunt option 
-                // The command will look like 'grunt dock:build' 
+                // It is possible to define images in the 'default' grunt option
+                // The command will look like 'grunt dock:build'
                 images: {
-                    'amidatech/greyscale-client': { // Name to use for Docker 
+                    'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
                             build: { /* extra options to docker build   */ },
@@ -715,6 +716,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', [
         'clean:server',
         'wiredep',
+        'i18n',
         'concurrent:test',
         'postcss',
         'connect:test',
@@ -731,7 +733,6 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'i18n',
-        'copy:l10n',
         'copy:dist',
         'cssmin',
         'filerev',
@@ -878,7 +879,7 @@ module.exports = function (grunt) {
 
         function _writeI18n(locale, src, callback) {
             var file = _getDestFileName(locale);
-            var content = 'L10N(\'' + locale + '\', ' + JSON.stringify(_sortObject(src), null, 2) + ');\n';
+            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
             fs.writeFile(file, content, callback);
         }
 

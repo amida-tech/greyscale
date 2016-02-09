@@ -3,12 +3,12 @@
 angular.module('greyscaleApp')
     .controller('ProjectSetupProductsCtrl', function ($scope, $stateParams, greyscaleModalsSrv, greyscaleProjectApi, greyscaleProjectProductsTbl) {
 
-        $scope.addUoas = function () {
-            return greyscaleModalsSrv.uoasFilter()
-                .then(function () {
-                    console.log('add filtered uoas to product');
-                });
-        };
+        //$scope.addUoas = function () {
+        //    return greyscaleModalsSrv.uoasFilter()
+        //        .then(function () {
+        //            console.log('add filtered uoas to product');
+        //        });
+        //};
 
         var products = greyscaleProjectProductsTbl;
 

@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 if (clmn.title) {
                     var field = '';
                     if (!_embedded) {
-                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}:</label>');
                         field += '<div class="col-sm-9';
                     }
 
@@ -58,7 +58,7 @@ angular.module('greyscaleApp')
                         }
                     } else {
                         if (!_embedded) {
-                            field += (clmn.dataFormat === 'boolean' ? ' checkbox' : '') + '">';
+                            field += '">';
                         }
 
                         switch (clmn.dataFormat) {
@@ -67,17 +67,29 @@ angular.module('greyscaleApp')
                                 '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></textarea>';
                             break;
                         case 'date':
-                            field += '<select-date data-id="' + clmn.field + '" result="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select-date>';
-                            //if (!_embedded) {
-                            field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
-                            //}
+                            field += '<select-date data-id="' + clmn.field + '" ' +
+                                'result="modalFormFieldModel" form-field-value="$parent.dataForm.' + clmn.field + '" ' +
+                                (_embedded ? ' embedded ' : '') +
+                                'ng-required="modalFormField.dataRequired"></select-date>';
+                            if (!_embedded) {
+                                field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
+                            }
                             break;
                         case 'option':
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select>';
+                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
+
+                            var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
+                            var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
+                            var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
+                            field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
+
+                            field += '</select>';
                             break;
                         case 'boolean':
-                            field += '<input type="checkbox" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
+                            field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
+                                '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
+                                '<i class="chk-box"></i></label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
@@ -119,9 +131,12 @@ angular.module('greyscaleApp')
                                 title: data[d][clmn.dataSet.valField]
                             });
                         }
+                        _setDefaultOption($scope.modalFormRec, clmn.field, _options);
                         $scope.model.options = _options;
+
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function (data) {
+                            _setDefaultOption($scope.modalFormRec, clmn.field, data);
                             $scope.model.options = data;
                         });
                     }
@@ -138,6 +153,12 @@ angular.module('greyscaleApp')
                     });
 
                     return parsedParams;
+                }
+
+                function _setDefaultOption(model, field, data) {
+                    if (clmn.dataNoEmptyOption && data[0] && model[field] === undefined) {
+                        model[field] = data[0][clmn.dataSet.keyField];
+                    }
                 }
             }
         };
