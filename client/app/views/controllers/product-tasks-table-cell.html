@@ -11,6 +11,7 @@
     </a>
     <span ng-if="!product.surveyId">
         <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
+        <br><small>{{cell.assignee.user.email}}</small>
     </span>
     <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
 </span>&nbsp;

@@ -115,6 +115,8 @@ angular.module('greyscaleApp')
                             .then(function (task) {
                                 taskViewModel.assignee = assigneeViewModel;
                                 taskViewModel.id = task.id;
+                                taskViewModel.startDate = task.startDate;
+                                taskViewModel.endDate = task.endDate;
                             })
                             .finally(function () {
                                 _cellLoadingState(cellEl, false);
@@ -181,6 +183,9 @@ angular.module('greyscaleApp')
                     .then(function () {
                         taskViewModel.assignee = undefined;
                         delete(taskViewModel.id);
+                        delete(taskViewModel.startDate);
+                        delete(taskViewModel.endDate);
+                        delete(taskViewModel.endDate);
                     })
                     .finally(function () {
                         _cellLoadingState(cellEl, false);
@@ -263,9 +268,13 @@ angular.module('greyscaleApp')
                 start: function (e) {
                     target = $(e.target);
                 },
+                appendTo: 'body',
                 helper: function (e) {
-                    var el = $(e.target).clone();
-                    return el.wrap('<table class="table table-bordered"><tr></tr></table>');
+                    var el = $(e.target).clone().detach();
+                    var wrap = $('<table class="table table-bordered"><tr></tr></table>');
+                    wrap.find('tr').append(el);
+                    console.log(wrap);
+                    return wrap;
                 },
                 drag: function () {
                     target.css('opacity', 0.5);
@@ -434,7 +443,8 @@ angular.module('greyscaleApp')
                 show: true,
                 field: 'name',
                 sortable: 'name',
-                cellTemplate: '<b>{{row.name}}</b><br><small>{{row.type.name}}</small>'
+                cellTemplate: '<b>{{row.name}}</b><br/>' +
+                    '<small>{{row.type.name}}</small>'
             }];
 
             var _table = {
@@ -455,7 +465,10 @@ angular.module('greyscaleApp')
         function _setStepColumns(table, axisData) {
             angular.forEach(axisData.workflowSteps || {}, function (step) {
                 table.cols.push({
-                    titleTemplate: '<b>{{step.title}}</b><br/><small class="text-muted">{{step.role.name}}</small>',
+                    titleTemplate: '<b>{{step.title}}</b>' +
+                        '<small class="text-muted">{{step.role.name}}<br />' +
+                        '{{step.startDate|date:"shortDate"}} - {{step.endDate|date:"shortDate"}}' +
+                        '</small>',
                     titleTemplateData: {
                         step: step
                     },
@@ -507,8 +520,8 @@ angular.module('greyscaleApp')
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
                         stepId: step.id,
-                        startDate: step.startDate,
-                        endDate: step.endDate,
+                        startDate: task && task.startDate || step.startDate,
+                        endDate: task && task.endDate || step.endDate,
 
                         roleId: step.roleId,
                         step: step,

@@ -22,6 +22,12 @@
     }
     th {
         @extend h2;
+
+        small {
+            line-height: 1.4;
+            display: block;
+        }
+
         .header {
             &.header-actions, &.header-multiselect {
                 width: 1%;
@@ -60,7 +66,7 @@
             //top: 7px;
         }
         .form-control {
-            min-width: 100px;
+            min-width: 120px;
         }
     }
     table.table {
@@ -83,13 +89,16 @@
             border-right: 0;
         }
     }
-    tr td.ui-draggable-dragging {
-        background: #fff;
-        box-shadow: 0 4px 10px #ccc;
-    }
+
     rd-loading .loading {
         margin: 20px auto;
     }
+}
+
+.ui-draggable-dragging {
+    background: #fff;
+    box-shadow: 0 4px 10px #ccc;
+    width: auto;
 }
 
 .drag-user {
