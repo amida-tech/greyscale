@@ -91,15 +91,15 @@ module.exports = {
 
         var upload = function*(){
             return yield new Promise(function(resolve, reject) {
-                if(req.files.csv) {
-                    fs.readFile(req.files.csv.path, 'utf8', function (err, data) {
+                if(req.files.file) {
+                    fs.readFile(req.files.file.path, 'utf8', function (err, data) {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
                         resolve(data);
                     });
                 }else{
-                    reject( new HttpError(403,'Please, pass csv file in files[\'csv\']'));
+                    reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
                 }
             });
         }
