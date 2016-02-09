@@ -196,7 +196,7 @@ angular.module('greyscaleApp')
                 _cellLoadingState(cellEl, true);
                 greyscaleModalsSrv.editRec(editTask, _taskEditForm)
                     .then(_updateTask)
-                    .then(function(){
+                    .then(function () {
                         angular.extend(task, editTask);
                     })
                     .finally(function () {
@@ -365,7 +365,9 @@ angular.module('greyscaleApp')
 
         function _saveTasksAssignment(stepId, assigneeViewModel) {
             var defer = $q.defer();
-            var step = _.find($scope.model.workflowSteps, {id: stepId});
+            var step = _.find($scope.model.workflowSteps, {
+                id: stepId
+            });
             var entityTypeRoleId = assigneeViewModel.id;
             // assign user
             var saveTasks = [];
@@ -520,16 +522,16 @@ angular.module('greyscaleApp')
 
         function _initTasksStorage(tasks) {
             _tasks = [];
-            angular.forEach(tasks, function(task){
-               _tasks.push(_.pick(task, [
-                   'id',
-                   'productId',
-                   'stepId',
-                   'uoaId',
-                   'entityTypeRoleId',
-                   'startDate',
-                   'endDate'
-               ]))
+            angular.forEach(tasks, function (task) {
+                _tasks.push(_.pick(task, [
+                    'id',
+                    'productId',
+                    'stepId',
+                    'uoaId',
+                    'entityTypeRoleId',
+                    'startDate',
+                    'endDate'
+                ]));
             });
         }
 
@@ -689,6 +691,5 @@ angular.module('greyscaleApp')
                     $state.go('home');
                 });
         }
-
 
     });
