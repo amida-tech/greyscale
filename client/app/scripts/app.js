@@ -58,7 +58,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.ACTIVATE',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.nobody.mask
             }
         })
         .state('register', {
