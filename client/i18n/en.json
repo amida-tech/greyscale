@@ -77,6 +77,14 @@
         "PASSWORD_REQUIRED": "Password is required.",
         "SIGN_IN": "Sign in"
     },
+    "MY_TASKS": {
+        "PRODUCT": "Product",
+        "SURVEY": "Survey",
+        "TASK": "Task",
+        "TERMS": "Terms",
+        "TITLE": "My Tasks",
+        "UOA": "Unit Of Analysis"
+    },
     "NAV": {
         "ACCESS_MANAGEMENT": "Access management",
         "ACTIVATE": "Activate",
@@ -133,8 +141,7 @@
                 "TASK_REMOVE_ERROR": "Server error while removing task",
                 "TASK_UPDATE_ERROR": "Server error while updating task",
                 "TITLE": "Tasks",
-                "UOAS_HEADER": "UoA",
-                "UOAS_TYPE_HEADER": "UoA Type"
+                "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",

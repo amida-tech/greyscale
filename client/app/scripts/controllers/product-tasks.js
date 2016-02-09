@@ -273,7 +273,6 @@ angular.module('greyscaleApp')
                     var el = $(e.target).clone().detach();
                     var wrap = $('<table class="table table-bordered"><tr></tr></table>');
                     wrap.find('tr').append(el);
-                    console.log(wrap);
                     return wrap;
                 },
                 drag: function () {
