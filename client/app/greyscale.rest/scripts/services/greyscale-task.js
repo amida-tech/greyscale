@@ -75,9 +75,14 @@ angular.module('greyscale.rest')
             return api().customPOST(task);
         }
 
+        function _update(taskId, task) {
+            return api().one(taskId + '').customPUT(task);
+        }
+
         return {
             myList: _myList,
             add: _add,
+            update: _update,
             del: _del
         };
     });

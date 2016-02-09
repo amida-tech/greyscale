@@ -10,9 +10,9 @@
                     </a>
                 </p>
                 <p>
-                    {{task.startDate||task.step.startDate|parseDate|date:'shortDate'}}
-                    &mdash;
-                    {{task.endDate||task.step.endDate|parseDate|date:'shortDate'}}
+                    {{task.startDate||task.step.startDate|date:'shortDate'}}
+                    -
+                    {{task.endDate||task.step.endDate|date:'shortDate'}}
                 </p>
             </div>
         </div>

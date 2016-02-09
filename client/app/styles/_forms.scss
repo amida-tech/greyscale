@@ -5,7 +5,6 @@
 }
 
 [uib-datepicker-popup].form-control {
-    min-width: 150px;
     &.embedded.ng-invalid-date {
         border: 1px solid red;
         z-index: 3;

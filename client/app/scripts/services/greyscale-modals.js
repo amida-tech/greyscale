@@ -55,8 +55,8 @@ angular.module('greyscaleApp')
             return $uibModal.open({
                 templateUrl: 'views/modals/uoas-filter.html',
                 controller: 'ModalUoasFilterCtrl',
-                size: 'max',
-                windowClass: 'modal fade in'
+                size: 'xxl',
+                windowClass: 'modal fade in layout-compact'
             }).result;
         }
 
@@ -65,8 +65,8 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/product-workflow.html',
                 controller: 'ModalProductWorkflowCtrl',
                 controllerAs: 'ctrl',
-                size: 'max',
-                windowClass: 'modal fade in',
+                size: 'xxl',
+                windowClass: 'modal fade in layout-compact',
                 resolve: {
                     product: product
                 }

@@ -57,7 +57,10 @@
             margin: 0;
         }
         .checkbox {
-            top: 7px;
+            //top: 7px;
+        }
+        .form-control {
+            min-width: 100px;
         }
     }
     table.table {
