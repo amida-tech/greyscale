@@ -503,7 +503,7 @@ module.exports = function (grunt) {
                     expand: true,
                     cwd: '<%= yeoman.app %>/interviewRenderer',
                     src: '*',
-                    dest: '<%= yeoman.dist %>/interviewRendererDist'
+                    dest: '<%= yeoman.dist %>/interviewRenderer'
                 }]
             },
             styles: {
