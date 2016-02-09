@@ -15,6 +15,9 @@
                     {{task.endDate||task.step.endDate|date:'shortDate'}}
                 </p>
             </div>
+            <div ng-if="!model.tasks.$loading && model.tasks.dataMap && !model.tasks.dataMap.length" class="alert alert-warning">
+                notasks
+            </div>
         </div>
     </div>
 </div>

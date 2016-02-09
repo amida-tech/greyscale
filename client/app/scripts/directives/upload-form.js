@@ -8,11 +8,12 @@ angular.module('greyscaleApp')
             scope: {
                 uploadEndpoint: '@',
                 uploadError: '=',
-                uploadSuccess: '='
+                uploadSuccess: '=',
+                uploadBefore: '='
             },
-            controller: function ($scope, greyscaleUtilsSrv, FileUploader) {
+            controller: function ($scope, $timeout, greyscaleUtilsSrv, FileUploader) {
                 var uploader = $scope.uploader = new FileUploader({
-                    url: greyscaleUtilsSrv.getApiBase() + $scope.uploadEndpoint,
+                    url: _getAbsoluteUrl($scope.uploadEndpoint),
                     withCredentials: false,
                     method: 'POST',
                     removeAfterUpload: 1,
@@ -26,7 +27,11 @@ angular.module('greyscaleApp')
                     }]
                 });
 
-                uploader.onBeforeUploadItem = function () {
+                uploader.onBeforeUploadItem = function (item) {
+                    item.url = _getAbsoluteUrl($scope.uploadEndpoint);
+                    if (typeof $scope.uploadBefore === 'function') {
+                        $scope.uploadBefore(item);
+                    }
                     $scope.model = {};
                 };
 
@@ -37,6 +42,10 @@ angular.module('greyscaleApp')
                         issues: colorIssues(response.issue)
                     };
                 };
+
+                function _getAbsoluteUrl(url) {
+                    return greyscaleUtilsSrv.getApiBase() + '/' + url;
+                }
 
                 function colorIssues(issues) {
                     if (issues && issues.length) {
