@@ -59,12 +59,12 @@
             "TRANSLATOR": "Переводчик"
         },
         "WRITETOANSWERSLIST": {
-            "READ": "",
-            "READ_WRITE": ""
+            "READ": "Чтение",
+            "READ_WRITE": "Чтение и запись"
         }
     },
     "IMPORT": {
-        "ORGANIZATION": "",
+        "ORGANIZATION": "Организации",
         "USERS": "Импорт пользователей"
     },
     "LOGIN": {
@@ -76,6 +76,14 @@
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
         "SIGN_IN": "Вход"
+    },
+    "MY_TASKS": {
+        "PRODUCT": "Продукт",
+        "SURVEY": "Опрос",
+        "TASK": "Задача",
+        "TERMS": "Сроки",
+        "TITLE": "Мои задачи",
+        "UOA": "Единица анализа"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Управление доступом",
@@ -122,19 +130,18 @@
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
-            "NO_UOAS": "",
+            "NO_UOAS": "У этого продукта не заданы единицы анализа.",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
-                "TASK_PARAMS": "",
+                "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
                 "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
                 "TITLE": "Задачи",
-                "UOAS_HEADER": "Единица анализа",
-                "UOAS_TYPE_HEADER": ""
+                "UOAS_HEADER": "Единица анализа"
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
@@ -147,12 +154,12 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "STEPS": {
-                "ANSWERS_ACCESS": "",
-                "BLIND_REVIEW": "",
-                "DISCUSSIONS_ACCESS": "",
+                "ANSWERS_ACCESS": "Доступ к ответам",
+                "BLIND_REVIEW": "Слепой просмотр",
+                "DISCUSSIONS_ACCESS": "Доступ к обсуждениям",
                 "END_DATE": "Дата окончания",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
-                "RESPONSES_ACCESS": "",
+                "RESPONSES_ACCESS": "Доступ к оценкам",
                 "ROLE": "Роль",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг"
@@ -179,7 +186,7 @@
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
-        "START_PROJECT": "",
+        "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
     },

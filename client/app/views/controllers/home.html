@@ -1,6 +1,7 @@
 <div class="row">
     <div class="col-sm-6">
         <h2><i class="fa fa-tasks"></i> My Tasks</h2>
+
         <div class="card-tiles">
             <div class="card" ng-repeat="task in model.tasks">
                 <p>{{task.step.title}}</p>
@@ -15,9 +16,13 @@
                     {{task.endDate||task.step.endDate|date:'shortDate'}}
                 </p>
             </div>
-            <div ng-if="!model.tasks.$loading && model.tasks.dataMap && !model.tasks.dataMap.length" class="alert alert-warning">
-                notasks
+            <div ng-if="model.tasks.$loading">
+                <rd-loading></rd-loading>
             </div>
         </div>
+        <div ng-if="!model.tasks.$loading && model.tasks.dataMap && !model.tasks.dataMap.length" class="alert alert-warning">
+            notasks
+        </div>
+
     </div>
 </div>
