@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
 
         var _templateCacheIds = [];
 
-        var pub = {
+        return {
             init: _init
         };
 
@@ -207,8 +207,6 @@ angular.module('greyscaleApp')
                 });
             }
         }
-
-        return pub;
     })
     .directive('widgetTable', function () {
         return {
