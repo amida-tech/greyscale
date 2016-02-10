@@ -90,9 +90,21 @@ module.exports = {
         }
 
         if(req.body[i].id){ // update
-          var updateObj = _.pick(req.body[i], ['title','description','entityTypeRoleId']);
+          var updateObj = _.pick(
+              req.body[i],
+              [
+                'title',
+                'description',
+                'entityTypeRoleId',
+                'startDate',
+                'endDate',
+                'accessToDiscussions',
+                'accessToResponses',
+                'writeToAnswers'
+              ]
+          );
           if(Object.keys(updateObj).length){
-            Task.update(_.pick(updateObj)).where(Task.id.equals(req.body[i].id));
+            Task.update(updateObj).where(Task.id.equals(req.body[i].id));
             updateObj.id = req.body[i].id;
             res.updated.push(req.body[i].id);
           }

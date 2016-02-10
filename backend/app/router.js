@@ -228,8 +228,8 @@ router.route('/:realm/v0.2/organizations')
 router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne);
 
-router.route('/:realm/v0.2/organizations/:id/csv_users')
-    .post(/*authenticate('token').always,*/ organizations.csvUsers);
+router.route('/:realm/v0.2/organizations/:id/users_csv')
+    .post(authenticate('token').ifPossible, organizations.csvUsers);
 
 router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)

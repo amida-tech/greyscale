@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                             return greyscaleUserApi.login(scope.model.email, scope.model.password);
                         })
                         .then(function () {
-                            $state.go('main.profile');
+                            $state.go('profile');
                         })
                         .catch(function (err) {
                             inform.add(err.data.message, {
