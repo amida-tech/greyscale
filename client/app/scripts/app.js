@@ -340,7 +340,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('graph', {
@@ -355,7 +355,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Graph',
                 icon: 'fa-bar-chart',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('table', {
@@ -370,7 +370,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Table',
                 icon: 'fa-table',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('the-wall', {
@@ -383,7 +383,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks'
+                name: 'Page with bricks',
+                accessLevel: systemRoles.any.mask
             }
         });
 
@@ -412,7 +413,9 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
                     if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
-                        greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        if (toState.name !== 'login') {
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        }
                         $state.go('home', {}, params);
                     } else {
                         if (toState.name !== 'home') {
