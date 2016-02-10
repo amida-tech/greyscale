@@ -68,6 +68,10 @@ angular.module('greyscale.core')
                     .then(function (associate) {
                         _associate = associate;
                         return _profile;
+                    })
+                    .catch(function (err) {
+                        $log.debug(err.message || err);
+                        return _profile;
                     });
             } else {
                 return $q.reject('no user data loaded');
