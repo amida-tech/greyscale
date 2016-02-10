@@ -104,7 +104,7 @@ module.exports = {
               ]
           );
           if(Object.keys(updateObj).length){
-            Task.update(updateObj).where(Task.id.equals(req.body[i].id));
+            var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
             updateObj.id = req.body[i].id;
             res.updated.push(req.body[i].id);
           }
