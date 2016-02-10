@@ -32,12 +32,16 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "PRODUCTSTATES": {
+            "CANCELLED": "Отменен",
+            "COMPLETED": "Завершен",
+            "PLANNING": "Планируется",
+            "STARTED": "Начат",
+            "SUSPENDED": "Приостановлен"
+        },
         "PROJECTSTATES": {
-            "ABANDONED": "Устаревший",
-            "COMPLETED": "Завершенный",
-            "IN_FLIGHT": "Активный",
-            "SUSPENDED": "Приостановленный",
-            "WAITING": "В ожидании"
+            "ACTIVE": "Активный",
+            "INACTIVE": "Не активный"
         },
         "UOASTATUS": {
             "ACTIVE": "Активный",
@@ -64,12 +68,12 @@
         }
     },
     "IMPORT": {
-        "EMAIL": "",
-        "FIRST_NAME": "",
-        "LAST_NAME": "",
+        "EMAIL": "Эл. почта",
+        "FIRST_NAME": "Имя",
+        "LAST_NAME": "Фамилия",
         "ORGANIZATION": "Организация",
-        "RESULTS_TITLE": "",
-        "STATUS": "",
+        "RESULTS_TITLE": "Результаты импорта",
+        "STATUS": "Статус",
         "USERS": "Импорт пользователей"
     },
     "LOGIN": {
@@ -83,7 +87,7 @@
         "SIGN_IN": "Вход"
     },
     "MY_TASKS": {
-        "NO_TASKS": "",
+        "NO_TASKS": "На данный момент у Вас нет задач.",
         "PRODUCT": "Продукт",
         "SURVEY": "Опрос",
         "TASK": "Задача",
@@ -126,8 +130,11 @@
     "PRODUCTS": {
         "TABLE": {
             "DESCRIPTION": "Описание",
+            "PAUSE_PRODUCT": "Приостановить продукт",
             "PRODUCT": "Продукт",
             "SETTINGS": "Настройки",
+            "START_PRODUCT": "Запустить продукт",
+            "STATUS": "Состояние",
             "SURVEY": "Опрос",
             "TASKS": "Задачи",
             "TITLE": "Название",

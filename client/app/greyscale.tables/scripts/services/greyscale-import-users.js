@@ -28,7 +28,7 @@ angular.module('greyscale.tables')
             sortable: 'lastName',
             title: tns + 'LAST_NAME'
         }, {
-            show: true,
+            sortable: 'message',
             title: tns + 'STATUS',
             cellTemplate: '<span ng-class="{\'text-danger\':(row.parse_status == \'skipped\'), \'text-success\':(row.parse_status == \'Ok\')}">' +
                 '{{row.message}}</span>'
