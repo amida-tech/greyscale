@@ -1,12 +1,229 @@
+$widget-header-font-size: $font-size-h3;
+
 .widget {
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    background: $widget-background-color;
+    border: 1px solid $widget-border-color;
+    border-radius: $widget-border-radius;
+
+    .widget-header .pagination,
+    .widget-footer .pagination {
+        margin: 0;
+    }
+
     .widget-header {
+        color: $widget-header-color;
+        border: 1px solid $widget-border-color;
+        border-top-left-radius: $widget-border-radius;
+        border-top-right-radius: $widget-border-radius;
+        background-color: $widget-header-background-color;
+        line-height: 1.4;
         padding: 5px 15px;
+        font-size: $widget-header-font-size;
+        margin: 0;
+        .row > div {
+            margin-bottom: 0;
+            &.pull-right {
+                padding-right: 0;
+            }
+        }
+
+        i {
+            margin-left: 5px;
+        }
     }
-}
-.widget-header {
-    @extend h2;
-    .row>div {
-        margin-bottom: 0;
+
+    .widget-icon {
+        background: $widget-background-color;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        text-align: center;
+        vertical-align: middle;
+        margin-right: 15px;
+
+        i {
+            line-height: 66px;
+            color: $widget-icon-color;
+            font-size: $widget-header-font-size;
+        }
     }
-    margin: 0;
+
+    .widget-body {
+        padding: 20px;
+
+        table thead {
+            background: #fafafa;
+
+            & * {
+                font-size: 14px !important;
+            }
+
+            tbody * {
+                font-size: 13px !important;
+            }
+        }
+
+        .error {
+            color: $red;
+        }
+
+        button {
+            margin-left: 5px;
+        }
+
+        div.alert {
+            margin-bottom: 10px;
+        }
+
+        &.large {
+            height: 350px;
+            overflow-y: auto;
+        }
+
+        &.medium {
+            height: 250px;
+            overflow-y: auto;
+        }
+
+        &.small {
+            height: 150px;
+            overflow-y: auto;
+        }
+
+        &.no-padding {
+            padding: 0;
+
+            .error,
+            .message {
+                padding: 20px;
+            }
+        }
+    }
+
+    .widget-footer {
+        border-top: 1px solid $widget-border-color;
+        padding: 10px;
+    }
+
+    .widget-content .title {
+        font-size: $widget-header-font-size;
+        display: block;
+    }
+
+    .widget-table {
+        overflow: visible; // for datepicker in row
+
+        .table-hover {
+            tr {
+                &:hover,
+                &.selected {
+                    background-color: $grey-light;
+                }
+
+                &.selected:hover {
+                    background-color: $grey-medium-light;
+                }
+
+                td {
+                    cursor: pointer;
+                }
+            }
+        }
+
+        .row-actions {
+            white-space: nowrap;
+            button {
+                margin-left: 4px;
+            }
+            button:first-child {
+                margin-left: 0;
+            }
+        }
+
+        th {
+            font-size: $widget-header-font-size;
+            background-color: $grey-light;
+
+            &.sortable {
+                &.sort-asc,
+                &.sort-desc {
+                    background-color: $grey-light;
+                }
+            }
+
+            small {
+                line-height: 1.4;
+                display: block;
+            }
+
+            .header {
+                &.header-actions,
+                &.header-multiselect {
+                    width: 1%;
+                }
+                .select-all {
+                    margin: 0;
+                    position: relative;
+                    top: 2px;
+                }
+            }
+        }
+        th, td {
+            .checkbox {
+                position: relative;
+                top: 1px;
+                margin-top: 0;
+                margin-bottom: 0;
+                label {
+                    min-height: 0;
+                }
+            }
+        }
+        td {
+            @extend p;
+
+            .form-group {
+                margin: 0;
+            }
+            &.auto-width {
+                width: 1%;
+            }
+            .input-group {
+                margin: 0;
+            }
+            .checkbox {
+                //top: 7px;
+            }
+            .form-control {
+                min-width: 120px;
+            }
+        }
+        table.table {
+            &.table-bordered > thead > tr > th:first-child,
+            &.table-bordered > thead > tr > td:first-child,
+            &.table-bordered > tbody > tr > th:first-child,
+            &.table-bordered > tbody > tr > td:first-child,
+            &.table-bordered > tfoot > tr > th:first-child,
+            &.table-bordered > tfoot > tr > td:first-child {
+                border-left: 0;
+            }
+
+            &.table-bordered > thead > tr > th,
+            &.table-bordered > thead > tr > td,
+            &.table-bordered > tbody > tr > th,
+            &.table-bordered > tbody > tr > td,
+            &.table-bordered > tfoot > tr > th,
+            &.table-bordered > tfoot > tr > td {
+                border-left: 1px solid #ddd;
+                border-right: 0;
+            }
+        }
+
+        rd-loading .loading {
+            margin: 20px auto;
+        }
+    }
 }

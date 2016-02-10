@@ -96,6 +96,7 @@ angular.module('greyscale.tables')
             dataPromise: getData,
             pageLength: 10,
             add: {
+                icon: 'fa-plus',
                 title: 'COMMON.ASSIGN',
                 handler: _editRecord
             }
