@@ -11,7 +11,9 @@ angular.module('greyscaleApp')
                 uploadSuccess: '=',
                 uploadBefore: '='
             },
-            controller: function ($scope, $timeout, greyscaleUtilsSrv, FileUploader) {
+            controller: function ($scope, $timeout, greyscaleUtilsSrv, FileUploader, greyscaleTokenSrv) {
+                var _token = greyscaleTokenSrv();
+
                 var uploader = $scope.uploader = new FileUploader({
                     url: _getAbsoluteUrl($scope.uploadEndpoint),
                     withCredentials: false,
@@ -29,13 +31,14 @@ angular.module('greyscaleApp')
 
                 uploader.onBeforeUploadItem = function (item) {
                     item.url = _getAbsoluteUrl($scope.uploadEndpoint);
+                    item.headers.token = _token;
                     if (typeof $scope.uploadBefore === 'function') {
                         $scope.uploadBefore(item);
                     }
                     $scope.model = {};
                 };
 
-                uploader.onSuccessItem = $scope.uploadSuccess;
+                uploader.onCompleteItem = $scope.uploadSuccess || function () {};
 
                 uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
                     $scope.model = {

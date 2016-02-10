@@ -1,11 +1,12 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('MyTasksWidget', function($scope, greyscaleMyTasksTbl){
+.controller('MyTasksWidget', function($scope, greyscaleTaskApi){
 
     $scope.model = {};
 
-    greyscaleMyTasksTbl.dataPromise().then(function (data) {
-        $scope.model.tasks = data;
-    });
+    greyscaleTaskApi.myList()
+        .then(function (data) {
+            $scope.model.tasks = data;
+        });
 });
