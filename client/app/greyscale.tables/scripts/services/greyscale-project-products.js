@@ -61,17 +61,6 @@ angular.module('greyscale.tables')
             show: true,
             dataHide: true
         }, {
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
-        }, {
             field: 'status',
             show: true,
             sortable: 'status',
@@ -81,13 +70,20 @@ angular.module('greyscale.tables')
             dataSet: {
                 getData: _getStatus,
                 keyField: 'id',
-                valField: 'name'
+                valField: 'name',
+                getDisabled: _getDisabledStatus
             }
         }, {
             title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
             actions: [{
+                title: '',
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
@@ -162,7 +158,15 @@ angular.module('greyscale.tables')
 
         function _editProduct(product) {
             var op = 'editing';
-            greyscaleModalsSrv.editRec(product, _table)
+            _loadProductExtendedData(product)
+                .then(function (extendedProduct) {
+                    console.log(extendedProduct);
+                    var _editTable = angular.copy(_table);
+                    if (extendedProduct) {
+
+                    }
+                    return greyscaleModalsSrv.editRec(extendedProduct, _editTable);
+                })
                 .then(function (newProduct) {
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
@@ -215,6 +219,26 @@ angular.module('greyscale.tables')
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
+        function _loadProductExtendedData(product) {
+            if (!product || !product.id) {
+                return $q.when(product);
+            }
+
+            var extendedProduct = angular.copy(product);
+            var reqs = {
+                uoas: greyscaleProductApi.product(product.id).uoasList(),
+                tasks: greyscaleProductApi.product(product.id).tasksList(),
+            };
+            if (product.workflow && product.workflow.id) {
+                reqs.workflowSteps = greyscaleProductWorkflowApi
+                    .workflow(product.workflow.id).stepsList();
+            }
+            return $q.all(reqs).then(function (promises) {
+                angular.extend(extendedProduct, promises);
+                return extendedProduct;
+            });
+        }
+
         function _saveWorkflowAndSteps(product, data) {
             var promise = $q.when(data.workflow);
             if (!_.isEqual(data.workflow, product.workflow)) {
@@ -240,6 +264,11 @@ angular.module('greyscale.tables')
 
         function _saveProductWorkflowSteps(workflowId, steps) {
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
+        }
+
+        function _getDisabledStatus(item) {
+            //console.log(item);
+            return false;
         }
 
         function _getStatusIcon(product) {
