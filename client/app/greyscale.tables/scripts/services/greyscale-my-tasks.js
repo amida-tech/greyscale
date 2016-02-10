@@ -28,7 +28,7 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
 
-        return {
+        var _table = {
             title: tns + 'TITLE',
             icon: 'fa-tasks',
             sorting: {
@@ -42,4 +42,6 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleTaskApi.myList();
         }
+
+        return _table;
     });

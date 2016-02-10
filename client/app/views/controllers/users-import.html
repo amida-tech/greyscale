@@ -11,5 +11,10 @@
     </div>
     <upload-form
         upload-endpoint="organizations/{{model.organizationId}}/users_csv"
-        upload-before="beforeUpload"></upload-form>
+        upload-success="afterUpload"></upload-form>
+
+    <div ng-if="model.results">
+        <widget-table model="model.importUsers" class="table-bordered"></widget-table>
+    </div>
+
 </div>

@@ -19,6 +19,7 @@
 
 #page-wrapper.open #sidebar-wrapper {
     left: 150px;
+    overflow-y: auto;
 }
 
 /**
@@ -295,7 +296,9 @@ div.input-mask {
         .sidebar-toggle {
             display: block;
             text-align: center;
-            float: right;
+            position: absolute;
+            top: 0;
+            right: 0;
             line-height: 1.4;
             font-size: $font-size-h1;
             width: $sidebar-toggle-width;

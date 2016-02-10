@@ -64,7 +64,12 @@
         }
     },
     "IMPORT": {
+        "EMAIL": "",
+        "FIRST_NAME": "",
+        "LAST_NAME": "",
         "ORGANIZATION": "Организация",
+        "RESULTS_TITLE": "",
+        "STATUS": "",
         "USERS": "Импорт пользователей"
     },
     "LOGIN": {

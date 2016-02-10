@@ -3,12 +3,16 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersImportCtrl', function ($scope, greyscaleProfileSrv,
-        greyscaleGlobals, greyscaleOrganizationApi) {
+    .controller('UsersImportCtrl', function ($q, $scope, $state, $rootScope, greyscaleProfileSrv,
+        greyscaleGlobals, greyscaleOrganizationApi, greyscaleImportUsersTbl) {
 
         var roles = greyscaleGlobals.userRoles;
 
-        $scope.model = {};
+        var _importUsers = greyscaleImportUsersTbl;
+
+        $scope.model = {
+            importUsers: _importUsers
+        };
 
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
@@ -23,5 +27,16 @@ angular.module('greyscaleApp')
                     });
                 }
             });
+
+        $scope.afterUpload = function (file, data) {
+            _importUsers.dataPromise = function () {
+                return $q.when(data);
+            };
+            if ($scope.model.results) {
+                _importUsers.tableParams.reload();
+            } else {
+                $scope.model.results = true;
+            }
+        };
 
     });

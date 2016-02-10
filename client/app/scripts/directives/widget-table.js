@@ -37,7 +37,6 @@ angular.module('greyscaleApp')
                 }, {
                     counts: [],
                     getData: function ($defer, params) {
-                        console.log('dddddddd');
                         if (typeof model.dataPromise === 'function') {
                             model.$loading = true;
                             var endLoading = function () {

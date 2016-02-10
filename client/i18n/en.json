@@ -64,7 +64,12 @@
         }
     },
     "IMPORT": {
+        "EMAIL": "E-mail",
+        "FIRST_NAME": "First Name",
+        "LAST_NAME": "Last Name",
         "ORGANIZATION": "Organization",
+        "RESULTS_TITLE": "Import Results",
+        "STATUS": "Status",
         "USERS": "Import users"
     },
     "LOGIN": {
