@@ -3,7 +3,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleMyTasksTbl', function ($q, greyscaleTaskApi) {
 
-        var tns = "MY_TASKS.";
+        var tns = 'MY_TASKS.';
 
         var resDescr = [{
             title: tns + 'TASK',

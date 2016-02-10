@@ -64,7 +64,12 @@
         }
     },
     "IMPORT": {
-        "ORGANIZATION": "Организации",
+        "EMAIL": "",
+        "FIRST_NAME": "",
+        "LAST_NAME": "",
+        "ORGANIZATION": "Организация",
+        "RESULTS_TITLE": "",
+        "STATUS": "",
         "USERS": "Импорт пользователей"
     },
     "LOGIN": {
@@ -78,6 +83,7 @@
         "SIGN_IN": "Вход"
     },
     "MY_TASKS": {
+        "NO_TASKS": "",
         "PRODUCT": "Продукт",
         "SURVEY": "Опрос",
         "TASK": "Задача",

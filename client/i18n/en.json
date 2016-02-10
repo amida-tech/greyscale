@@ -64,7 +64,12 @@
         }
     },
     "IMPORT": {
+        "EMAIL": "E-mail",
+        "FIRST_NAME": "First Name",
+        "LAST_NAME": "Last Name",
         "ORGANIZATION": "Organization",
+        "RESULTS_TITLE": "Import Results",
+        "STATUS": "Status",
         "USERS": "Import users"
     },
     "LOGIN": {
@@ -78,6 +83,7 @@
         "SIGN_IN": "Sign in"
     },
     "MY_TASKS": {
+        "NO_TASKS": "You have no tasks at this moment.",
         "PRODUCT": "Product",
         "SURVEY": "Survey",
         "TASK": "Task",
@@ -91,7 +97,7 @@
         "ADMIN_SECTION": "Administration",
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
-        "HOME": "Home",
+        "HOME": "Dashboard",
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",

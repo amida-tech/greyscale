@@ -4,12 +4,12 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .service('widgetTableSrv', function(_, NgTableParams, $filter,
-        $compile, i18n, $timeout, $templateCache, $rootScope){
+    .service('widgetTableSrv', function (_, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope) {
 
         var _templateCacheIds = [];
 
-        var pub = {
+        return {
             init: _init
         };
 
@@ -37,24 +37,23 @@ angular.module('greyscaleApp')
                 }, {
                     counts: [],
                     getData: function ($defer, params) {
-                        console.log('dddddddd');
                         if (typeof model.dataPromise === 'function') {
                             model.$loading = true;
                             var endLoading = function () {
                                 model.$loading = false;
                             };
                             model.dataPromise()
-                            .then(function (data) {
-                                model.dataMap = _getDataMap(data);
-                                if (data) {
-                                    params.total(data.length);
-                                    var orderedData = params.sorting() ?
-                                        $filter('orderBy')(data, params.orderBy()) : data;
-                                    $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                                }
-                                endLoading();
-                            })
-                            .catch(endLoading);
+                                .then(function (data) {
+                                    model.dataMap = _getDataMap(data);
+                                    if (data) {
+                                        params.total(data.length);
+                                        var orderedData = params.sorting() ?
+                                            $filter('orderBy')(data, params.orderBy()) : data;
+                                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                    }
+                                    endLoading();
+                                })
+                                .catch(endLoading);
                         }
                     }
                 });
@@ -207,8 +206,6 @@ angular.module('greyscaleApp')
                 });
             }
         }
-
-        return pub;
     })
     .directive('widgetTable', function () {
         return {
