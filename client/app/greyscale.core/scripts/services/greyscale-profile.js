@@ -32,7 +32,7 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
-                            .then(self._setAssociate)
+                            //                            .then(self._setAssociate) disabled while not need
                             .finally(function () {
                                 _profilePromise = null;
                             });
