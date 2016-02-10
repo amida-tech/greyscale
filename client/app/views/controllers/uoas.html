@@ -1,5 +1,10 @@
 <div class="row">
     <div class="col-md-12">
+        <b>Import UoA</b>
+        <upload-form
+            upload-endpoint="import_uoas_csv"
+            upload-success="afterUpload"></upload-form>
+        <br>
         <widget-table model="model.uoas" row-selector="selectUoa"></widget-table>
     </div>
 </div>
