@@ -19,7 +19,8 @@ module.exports = function (grunt) {
         useminPrepare: 'grunt-usemin',
         ngtemplates: 'grunt-angular-templates',
         //cdnify: 'grunt-google-cdn',
-        ngconstant: 'grunt-ng-constant'
+        ngconstant: 'grunt-ng-constant',
+        favicons: 'grunt-favicons'
     });
 
     // Configurable paths for the application
@@ -39,7 +40,8 @@ module.exports = function (grunt) {
             dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
             dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
             dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
-        } catch (error) {}
+        } catch (error) {
+        }
     }
 
     var i18nConfig = {
@@ -623,14 +625,14 @@ module.exports = function (grunt) {
                     'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
-                            build: { /* extra options to docker build   */ },
-                            create: { /* extra options to docker create  */ },
-                            start: { /* extra options to docker start   */ },
-                            stop: { /* extra options to docker stop   */ },
-                            kill: { /* extra options to docker kill    */ },
-                            logs: { /* extra options to docker logs    */ },
-                            pause: { /* extra options to docker pause   */ },
-                            unpause: { /* extra options to docker unpause */ }
+                            build: {/* extra options to docker build   */},
+                            create: {/* extra options to docker create  */},
+                            start: {/* extra options to docker start   */},
+                            stop: {/* extra options to docker stop   */},
+                            kill: {/* extra options to docker kill    */},
+                            logs: {/* extra options to docker logs    */},
+                            pause: {/* extra options to docker pause   */},
+                            unpause: {/* extra options to docker unpause */}
                         }
                     }
                 }
@@ -695,6 +697,29 @@ module.exports = function (grunt) {
                 options: {
                     environmentName: 'greyscale-client-prod',
                 }
+            }
+        },
+
+        favicons: {
+            options: {
+                html: '<%= yeoman.app %>/index.html',
+                android: true,
+                apple: true,
+                coast: false,
+                favicons: true,
+                firefox: true,
+                windows: true,
+                tileBlackWhite: true,
+                trueColor: true,
+                precomposed: true,
+                manifest: null,
+                tileColor: 'auto',
+                ident: '\s',
+                HTMLPrefix: '/images/icons/'
+            },
+            icons: {
+                src: 'src/images/indaba-icon.png',
+                dest: '<%= yeoman.app %>/images/icons'
             }
         }
 
@@ -807,118 +832,119 @@ module.exports = function (grunt) {
         'build'
     ]);
 
-    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang', function i18nTask() {
+    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang',
+        function i18nTask() {
 
-        if (i18nTask.lock) {
-            return;
-        }
+            if (i18nTask.lock) {
+                return;
+            }
 
-        i18nTask.lock = true;
+            i18nTask.lock = true;
 
-        var done = this.async();
+            var done = this.async();
 
-        var i18nDir = i18nConfig.i18nDir;
-        var serveL10nDir = '.tmp/' + i18nConfig.l10nDir;
+            var i18nDir = i18nConfig.i18nDir;
+            var serveL10nDir = '.tmp/' + i18nConfig.l10nDir;
 
-        grunt.file.mkdir(serveL10nDir);
+            grunt.file.mkdir(serveL10nDir);
 
-        var supportedLocales = i18nConfig.supportedLocales;
+            var supportedLocales = i18nConfig.supportedLocales;
 
-        var count = 0;
-        for (var i = 0; i < supportedLocales.length; i++) {
-            count++;
-            _processLocale(supportedLocales[i]);
-        }
+            var count = 0;
+            for (var i = 0; i < supportedLocales.length; i++) {
+                count++;
+                _processLocale(supportedLocales[i]);
+            }
 
-        //////////////////////////
+            //////////////////////////
 
-        function _processLocale(locale) {
-            _generateL10n(locale, function (locale, normSrc) {
-                _normalizeSrc(locale, normSrc, function () {
-                    count--;
-                    if (count === 0) {
-                        setTimeout(function () {
-                            done();
-                            i18nTask.lock = false;
-                        }, 200);
-                    }
+            function _processLocale(locale) {
+                _generateL10n(locale, function (locale, normSrc) {
+                    _normalizeSrc(locale, normSrc, function () {
+                        count--;
+                        if (count === 0) {
+                            setTimeout(function () {
+                                done();
+                                i18nTask.lock = false;
+                            }, 200);
+                        }
+                    });
                 });
-            });
-        }
+            }
 
-        function _generateL10n(locale, callback) {
-            var normSrc, src;
-            if (!_generateL10n.defaultSrc) {
-                src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
-            } else {
-                normSrc = _readSource(locale);
-                src = _applyFallback(normSrc, _generateL10n.defaultSrc, locale);
-            }
-            _writeI18n(locale, src, function () {
-                callback(locale, normSrc);
-            });
-        }
-
-        function _applyFallback(src, fallback) {
-            if (typeof fallback !== 'object') {
-                return fallback;
-            }
-            if (typeof src !== 'object') {
-                src = {};
-            }
-            var fallenSrc = {};
-            for (var fname in fallback) {
-                var fvalue = fallback[fname];
-                var isObject = typeof fvalue === 'object';
-                if (src[fname] === undefined) {
-                    src[fname] = isObject ? {} : '';
-                }
-                if (isObject) {
-                    fallenSrc[fname] = _applyFallback(src[fname], fvalue);
+            function _generateL10n(locale, callback) {
+                var normSrc, src;
+                if (!_generateL10n.defaultSrc) {
+                    src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
                 } else {
-                    fallenSrc[fname] = src[fname] !== '' ? src[fname] : fvalue;
+                    normSrc = _readSource(locale);
+                    src = _applyFallback(normSrc, _generateL10n.defaultSrc, locale);
                 }
+                _writeI18n(locale, src, function () {
+                    callback(locale, normSrc);
+                });
             }
-            for (var sname in src) {
-                if (fallback[sname] === undefined) {
-                    delete src[sname];
+
+            function _applyFallback(src, fallback) {
+                if (typeof fallback !== 'object') {
+                    return fallback;
                 }
+                if (typeof src !== 'object') {
+                    src = {};
+                }
+                var fallenSrc = {};
+                for (var fname in fallback) {
+                    var fvalue = fallback[fname];
+                    var isObject = typeof fvalue === 'object';
+                    if (src[fname] === undefined) {
+                        src[fname] = isObject ? {} : '';
+                    }
+                    if (isObject) {
+                        fallenSrc[fname] = _applyFallback(src[fname], fvalue);
+                    } else {
+                        fallenSrc[fname] = src[fname] !== '' ? src[fname] : fvalue;
+                    }
+                }
+                for (var sname in src) {
+                    if (fallback[sname] === undefined) {
+                        delete src[sname];
+                    }
+                }
+                return fallenSrc;
             }
-            return fallenSrc;
-        }
 
-        function _writeI18n(locale, src, callback) {
-            var file = _getDestFileName(locale);
-            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
-            fs.writeFile(file, content, callback);
-        }
+            function _writeI18n(locale, src, callback) {
+                var file = _getDestFileName(locale);
+                var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
+                fs.writeFile(file, content, callback);
+            }
 
-        function _normalizeSrc(locale, src, callback) {
-            var file = _getSrcFileName(locale);
-            var content = JSON.stringify(_sortObject(src), null, 4);
-            fs.writeFile(file, content, callback);
-        }
+            function _normalizeSrc(locale, src, callback) {
+                var file = _getSrcFileName(locale);
+                var content = JSON.stringify(_sortObject(src), null, 4);
+                fs.writeFile(file, content, callback);
+            }
 
-        function _readSource(locale) {
-            var file = _getSrcFileName(locale);
-            var src = grunt.file.readJSON(file);
-            return JSON.parse(JSON.stringify(src));
-        }
+            function _readSource(locale) {
+                var file = _getSrcFileName(locale);
+                var src = grunt.file.readJSON(file);
+                return JSON.parse(JSON.stringify(src));
+            }
 
-        function _getSrcFileName(locale) {
-            return i18nDir + '/' + locale + '.json';
-        }
+            function _getSrcFileName(locale) {
+                return i18nDir + '/' + locale + '.json';
+            }
 
-        function _getDestFileName(locale) {
-            return serveL10nDir + '/' + locale + '.js';
-        }
+            function _getDestFileName(locale) {
+                return serveL10nDir + '/' + locale + '.js';
+            }
 
-        function _sortObject(o) {
-            var ordered = {};
-            Object.keys(o).sort().forEach(function (key) {
-                ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
-            });
-            return ordered;
-        }
-    });
+            function _sortObject(o) {
+                var ordered = {};
+                Object.keys(o).sort().forEach(function (key) {
+                    ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
+                });
+                return ordered;
+            }
+        });
 };
