@@ -64,7 +64,7 @@
         }
     },
     "IMPORT": {
-        "ORGANIZATION": "Организации",
+        "ORGANIZATION": "Организация",
         "USERS": "Импорт пользователей"
     },
     "LOGIN": {
@@ -78,6 +78,7 @@
         "SIGN_IN": "Вход"
     },
     "MY_TASKS": {
+        "NO_TASKS": "",
         "PRODUCT": "Продукт",
         "SURVEY": "Опрос",
         "TASK": "Задача",

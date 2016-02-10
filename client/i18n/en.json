@@ -78,6 +78,7 @@
         "SIGN_IN": "Sign in"
     },
     "MY_TASKS": {
+        "NO_TASKS": "You have no tasks at this moment.",
         "PRODUCT": "Product",
         "SURVEY": "Survey",
         "TASK": "Task",
@@ -91,7 +92,7 @@
         "ADMIN_SECTION": "Administration",
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
-        "HOME": "Home",
+        "HOME": "Dashboard",
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
