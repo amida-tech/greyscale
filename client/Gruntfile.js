@@ -19,8 +19,7 @@ module.exports = function (grunt) {
         useminPrepare: 'grunt-usemin',
         ngtemplates: 'grunt-angular-templates',
         //cdnify: 'grunt-google-cdn',
-        ngconstant: 'grunt-ng-constant',
-        favicons: 'grunt-favicons'
+        ngconstant: 'grunt-ng-constant'
     });
 
     // Configurable paths for the application
@@ -697,31 +696,7 @@ module.exports = function (grunt) {
                     environmentName: 'greyscale-client-prod',
                 }
             }
-        },
-
-        favicons: {
-            options: {
-                html: '<%= yeoman.app %>/index.html',
-                android: true,
-                apple: true,
-                coast: false,
-                favicons: true,
-                firefox: true,
-                windows: true,
-                tileBlackWhite: true,
-                trueColor: true,
-                precomposed: true,
-                manifest: null,
-                tileColor: 'auto',
-                ident: '\s',
-                HTMLPrefix: '/images/icons/'
-            },
-            icons: {
-                src: 'src/images/indaba-icon.png',
-                dest: '<%= yeoman.app %>/images/icons'
-            }
         }
-
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
