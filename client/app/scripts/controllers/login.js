@@ -4,11 +4,12 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('LoginCtrl', function ($state, greyscaleProfileSrv) {
+    .controller('LoginCtrl', function ($state, greyscaleProfileSrv, $log) {
         greyscaleProfileSrv.getAccessLevel()
             .then(function (_level) {
                 if (_level > 1) {
-                    $state.go('home');
+                    $log.debug('logged in. go home');
+                    $state.go('home', {});
                 }
             });
     });

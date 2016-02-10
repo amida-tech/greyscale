@@ -21,6 +21,7 @@
         "TODAY": "Today"
     },
     "ERROR": {
+        "ACCESS_RESTRICTED": "Access restricted to",
         "TEST": "Test error"
     },
     "FILE": {
