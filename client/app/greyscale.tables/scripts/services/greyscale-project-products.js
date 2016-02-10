@@ -6,6 +6,7 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
         greyscaleProductWorkflowApi,
+        greyscaleGlobals,
         $state,
         inform) {
 
@@ -14,6 +15,15 @@ angular.module('greyscale.tables')
         var _dicts = {
             surveys: []
         };
+
+        var _const = {
+            STATUS_STARTED: 1,
+            STATUS_SUSPENDED: 2
+        };
+
+        var _statusIcons = {};
+        _statusIcons[_const.STATUS_STARTED] = 'fa-pause';
+        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
         var _cols = [{
             field: 'title',
@@ -50,6 +60,29 @@ angular.module('greyscale.tables')
             title: tns + 'WORKFLOW',
             show: true,
             dataHide: true
+        }, {
+            field: '',
+            title: '',
+            show: true,
+            dataFormat: 'action',
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
+            field: 'status',
+            show: true,
+            sortable: 'status',
+            title: tns + 'STATUS',
+            dataFormat: 'option',
+            dataNoEmptyOption: true,
+            dataSet: {
+                getData: _getStatus,
+                keyField: 'id',
+                valField: 'name'
+            }
         }, {
             title: tns + 'SETTINGS',
             show: true,
@@ -117,6 +150,10 @@ angular.module('greyscale.tables')
                     return promises.products;
                 });
             }
+        }
+
+        function _getStatus() {
+            return greyscaleGlobals.productStates;
         }
 
         function _getSurveys() {
@@ -203,6 +240,48 @@ angular.module('greyscale.tables')
 
         function _saveProductWorkflowSteps(workflowId, steps) {
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
+        }
+
+        function _getStatusIcon(product) {
+            return _statusIcons[product.status] ? _statusIcons[product.status] : '';
+        }
+
+        function _getStartOrPauseProductTooltip(product) {
+            var action, tooltip;
+            if (product.status === _const.STATUS_SUSPENDED) {
+                action = 'START';
+            } else if (product.status === _const.STATUS_STARTED) {
+                action = 'PAUSE';
+            }
+            if (action) {
+                tooltip = tns + action + '_PRODUCT';
+            }
+            return tooltip;
+        }
+
+        function _startOrPauseProduct(product) {
+            var op = 'changing status';
+            var status = product.status;
+            var setStatus;
+            if (status === _const.STATUS_STARTED) {
+                setStatus = _const.STATUS_SUSPENDED;
+            } else if (status === _const.STATUS_SUSPENDED) {
+                setStatus = _const.STATUS_STARTED;
+            }
+            if (setStatus !== undefined) {
+                var saveProject = angular.copy(product);
+                saveProject.status = setStatus;
+                greyscaleProductApi.update(saveProject)
+                    .then(_reload)
+                    .catch(function (err) {
+                        return errHandler(err, op);
+                    });
+            }
+        }
+
+        function errHandler(err, operation) {
+            var msg = _table.formTitle + ' ' + operation + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

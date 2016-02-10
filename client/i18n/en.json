@@ -32,12 +32,16 @@
         "WRONG_DATE_FORMAT": "Wrong date format"
     },
     "GLOBALS": {
-        "PROJECTSTATES": {
-            "ABANDONED": "Abandoned",
+        "PRODUCTSTATES": {
+            "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
-            "IN_FLIGHT": "In-flight",
-            "SUSPENDED": "Suspended",
-            "WAITING": "Waiting"
+            "PLANNING": "Planning",
+            "STARTED": "Started",
+            "SUSPENDED": "Suspended"
+        },
+        "PROJECTSTATES": {
+            "ACTIVE": "Active",
+            "INACTIVE": "Inactive"
         },
         "UOASTATUS": {
             "ACTIVE": "Active",
@@ -126,8 +130,11 @@
     "PRODUCTS": {
         "TABLE": {
             "DESCRIPTION": "Description",
+            "PAUSE_PRODUCT": "Suspend Product",
             "PRODUCT": "Product",
             "SETTINGS": "Settings",
+            "START_PRODUCT": "Start Product",
+            "STATUS": "Status",
             "SURVEY": "Survey",
             "TASKS": "Tasks",
             "TITLE": "Title",
