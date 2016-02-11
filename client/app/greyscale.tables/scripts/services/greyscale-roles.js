@@ -32,6 +32,9 @@ angular.module('greyscale.tables')
                 'id': 'asc'
             },
             dataPromise: _getRoles,
-            selectable: true
+            selectable: true,
+            templates: {
+                pagination: "views/directive/pagination.html"
+            }
         };
     });
