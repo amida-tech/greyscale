@@ -6,7 +6,16 @@ var columns = [
     'type',
     'label',
     'isRequired',
-    'position'
+    'position',
+    'description',
+    'skip',
+    'size',
+    'minLength',
+    'maxLength',
+    'isWordmml',
+    'incOtherOpt',
+    'units',
+    'intOnly'
 ];
 
 var SurveyQuestion = sql.define({
@@ -14,6 +23,11 @@ var SurveyQuestion = sql.define({
     columns: columns
 });
 
+SurveyQuestion.editCols = [
+    'label', 'position', 'isRequired', 'description',
+    'skip', 'size', 'minLength', 'maxLength',
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly'
+];
 SurveyQuestion.whereCol = columns;
 
 module.exports = SurveyQuestion;

@@ -59,22 +59,6 @@ module.exports = {
         });
     },
 
-    //editOne: function (req, res, next) {
-    //    if (req.body.data) {
-    //        var q = SurveyAnswer.update({
-    //            data: req.body.data
-    //        }).where(SurveyAnswer.id.equals(req.params.id));
-    //        query(q, function (err, data) {
-    //            if (err) {
-    //                return next(err);
-    //            }
-    //            res.status(202).end();
-    //        });
-    //    } else {
-    //        return next(new HttpError(400, 'No data to update'));
-    //    }
-    //},
-
     add: function (req, res, next) {
         co(function* () {
             var question = yield thunkQuery(
@@ -187,42 +171,6 @@ module.exports = {
                 }
             }
 
-            //_.first(workflow).steps.map(function(value){
-            //    if(value === null) {
-            //        throw new HttpError(403, 'Workflow steps are not define for Workflow with id = ' + _.first(workflow).id);
-            //    }
-            //});
-
-            //var steps = yield thunkQuery(
-            //    Workflow.select().where
-            //    WorkflowStep.select().where(WorkflowStep.id.equals(req.body.wfStepId))
-            //);
-
-            //return workflow;
-
-            //var isRewriter = false; //TODO
-            //
-            //if (!isRewriter && (req.body.userId != req.user.id)) {
-            //    throw new HttpError(403, 'You cannot answer for another user');
-            //}
-            //
-            //var answer = yield thunkQuery(
-            //    SurveyAnswer.select()
-            //    .where(
-            //        SurveyAnswer.userId.equals(req.body.userId)
-            //        .and(SurveyAnswer.userId.equals(req.body.userId))
-            //    )
-            //);
-
-            //if(!_.first(answer)){ // new answer, create...
-            //    var result = yield thunkQuery(SurveyAnswer.insert(_.pick(req.body,['userId','questionId'])).returning(SurveyAnswer.id));
-            //    var answerId = _.first(result).id;
-            //}else{
-            //    var answerId = answer.id;
-            //}
-            //console.log(_.first(question).type);
-
-            //
             req.body.userId = req.user.id;
             var answer = yield thunkQuery(
                 SurveyAnswer
@@ -233,7 +181,6 @@ module.exports = {
             return answer;
         }).then(function (data) {
             res.json(data);
-            //res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
