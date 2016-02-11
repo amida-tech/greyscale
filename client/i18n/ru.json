@@ -114,6 +114,7 @@
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
         "PM_DASHBOARD": "",
+        "PM_PRODUCT_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -138,7 +139,9 @@
         "WORKFLOW_STEPS": "Процессы"
     },
     "PM_PROJECTS": {
-        "NO_PROJECTS": "Нет проектов для управления"
+        "NO_PRODUCTS": "В проекте нет продуктов",
+        "NO_PROJECTS": "Нет проектов для управления",
+        "PROJECT": ""
     },
     "PRODUCTS": {
         "TABLE": {

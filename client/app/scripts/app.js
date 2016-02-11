@@ -290,15 +290,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        .state('pmDashboard', {
+        .state('pmProductDashboard', {
             parent: 'home',
-            url: '',
-            data: {
-                name: 'NAV.PM_DASHBOARD',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
-            }
-        })
-        .state('pmDashboard.product', {
             url: 'pm/:productId',
             views: {
                 'body@dashboard': {
@@ -307,8 +300,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '{{ext.productName}}',
-                //accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                name: 'NAV.PM_PRODUCT_DASHBOARD',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('orgs', {

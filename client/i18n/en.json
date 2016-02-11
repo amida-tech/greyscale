@@ -114,6 +114,7 @@
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
         "PM_DASHBOARD": "Project Management",
+        "PM_PRODUCT_DASHBOARD": "Product Management: {{ext.productName}}",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -138,7 +139,9 @@
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "PM_PROJECTS": {
-        "NO_PROJECTS": "You have no projects to manage"
+        "NO_PRODUCTS": "No products in project",
+        "NO_PROJECTS": "You have no projects to manage",
+        "PROJECT": "Project"
     },
     "PRODUCTS": {
         "TABLE": {

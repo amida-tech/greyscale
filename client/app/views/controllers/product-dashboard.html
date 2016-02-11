@@ -1,1 +1,28 @@
-product dashboard
+<div class="row">
+    <div class="col-md-3">
+        <p class="indicator-box">
+            Tasks/UoAs<br>
+            <strong>{{model.tasks.length}}/{{model.uoas.length}}</strong>
+        </p>
+    </div>
+    <div class="col-md-3">
+        <p class="indicator-box">
+            tasks started
+            <br>
+            <strong>?</strong>
+        </p>
+    </div>
+    <div class="col-md-3">
+        <p class="indicator-box">
+            tasks flagged
+            <br>
+            <strong>?</strong>
+        </p>
+    </div>
+</div>
+
+<div class="list-group">
+    <div class="list-group-item" ng-repeat="task in model.tasks">
+        {{task.step.title}}, {{task.uoa.shortName}}, {{task.user.email}}, {{task.role.name}}
+    </div>
+</div>

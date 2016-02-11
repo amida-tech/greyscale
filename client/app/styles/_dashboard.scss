@@ -439,3 +439,14 @@ ul.sidebar .sidebar-list .menu-icon {
     color: #ffffff;
     text-decoration: none;
 }
+
+.indicator-box {
+    padding: 20px;
+    text-align: center;
+    background: #5cb85c;
+    strong {
+        font-size: 40px;
+        font-weight: normal;
+    }
+    color: #fff;
+}
