@@ -684,7 +684,8 @@ module.exports = {
                 )
                 .where(Task.entityTypeRoleId.in(
                     EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                )).and('STEPS.id = "Tasks"."stepId"')
+                )).and('STEPS.id = "Tasks"."stepId"'),
+                {'realm': req.param('realm')} 
             );
             return res;
         }).then(function(data) {

@@ -2,6 +2,7 @@ var sql = require('sql');
 
 var Task = sql.define({
     name: 'Tasks',
+    schema: 'proto_amida',
     columns: [
         'id',
         'title',
