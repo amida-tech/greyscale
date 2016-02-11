@@ -113,6 +113,7 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PM_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -135,6 +136,9 @@
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
+    },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "Нет проектов для управления"
     },
     "PRODUCTS": {
         "TABLE": {
