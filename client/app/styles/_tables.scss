@@ -22,3 +22,12 @@
         margin: 0;
     }
 }
+
+.table th.ui-droppable {
+    &.bg-success {
+        @extend .bg-success;
+    }
+    &.bg-danger {
+        @extend .bg-danger;
+    }
+}

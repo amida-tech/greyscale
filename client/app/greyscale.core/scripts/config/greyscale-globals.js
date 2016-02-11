@@ -106,6 +106,19 @@ angular.module('greyscale.core')
                     mask: 0xffff
                 }
             },
+            surveyFieldTypes: [
+                'text',
+                'paragraph',
+                'checkboxes',
+                'radio',
+                'dropdown',
+                'number',
+                'email',
+                'price',
+                'section_start',
+                'section_end',
+                'section_break'
+            ],
             writeToAnswersList: [{
                 value: false,
                 name: 'READ'

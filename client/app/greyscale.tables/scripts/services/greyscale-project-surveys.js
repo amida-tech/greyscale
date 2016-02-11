@@ -26,6 +26,11 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 title: '',
+                icon: 'fa-eye',
+                class: 'info',
+                handler: _viewSurvey
+            }, {
+                title: '',
                 icon: 'fa-pencil',
                 class: 'info',
                 handler: _editSurvey
@@ -34,10 +39,6 @@ angular.module('greyscale.tables')
                 icon: 'fa-trash',
                 class: 'danger',
                 handler: _deleteSurvey
-            }, {
-                title: tns + 'VIEW',
-                class: 'info',
-                handler: _viewSurvey
             }]
         }];
 

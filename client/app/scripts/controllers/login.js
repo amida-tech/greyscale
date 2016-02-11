@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getAccessLevel()
             .then(function (_level) {
                 if (_level > 1) {
-                    $state.go('home');
+                    $state.go('home', {});
                 }
             });
     });

@@ -8,7 +8,7 @@ angular.module('greyscale.tables')
         greyscaleProductWorkflowApi,
         greyscaleGlobals,
         $state,
-        inform) {
+        inform, i18n) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -17,8 +17,10 @@ angular.module('greyscale.tables')
         };
 
         var _const = {
+            STATUS_PLANNING: 0,
             STATUS_STARTED: 1,
-            STATUS_SUSPENDED: 2
+            STATUS_SUSPENDED: 2,
+            STATUS_CANCELLED: 4
         };
 
         var _statusIcons = {};
@@ -61,17 +63,6 @@ angular.module('greyscale.tables')
             show: true,
             dataHide: true
         }, {
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
-        }, {
             field: 'status',
             show: true,
             sortable: 'status',
@@ -81,13 +72,20 @@ angular.module('greyscale.tables')
             dataSet: {
                 getData: _getStatus,
                 keyField: 'id',
-                valField: 'name'
+                valField: 'name',
+                getDisabled: _getDisabledStatus
             }
         }, {
             title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
             actions: [{
+                title: '',
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
@@ -125,6 +123,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'PRODUCT',
+            formWarning: _getFormWarning,
             pageLength: 10,
             add: {
                 title: 'COMMON.CREATE',
@@ -162,7 +161,14 @@ angular.module('greyscale.tables')
 
         function _editProduct(product) {
             var op = 'editing';
-            greyscaleModalsSrv.editRec(product, _table)
+            _loadProductExtendedData(product)
+                .then(function (extendedProduct) {
+                    var _editTable = angular.copy(_table);
+                    if (extendedProduct) {
+
+                    }
+                    return greyscaleModalsSrv.editRec(extendedProduct, _editTable);
+                })
                 .then(function (newProduct) {
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
@@ -215,6 +221,26 @@ angular.module('greyscale.tables')
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
+        function _loadProductExtendedData(product) {
+            if (!product || !product.id) {
+                return $q.when(product);
+            }
+
+            var extendedProduct = angular.copy(product);
+            var reqs = {
+                uoas: greyscaleProductApi.product(product.id).uoasList(),
+                tasks: greyscaleProductApi.product(product.id).tasksList(),
+            };
+            if (product.workflow && product.workflow.id) {
+                reqs.workflowSteps = greyscaleProductWorkflowApi
+                    .workflow(product.workflow.id).stepsList();
+            }
+            return $q.all(reqs).then(function (promises) {
+                angular.extend(extendedProduct, promises);
+                return extendedProduct;
+            });
+        }
+
         function _saveWorkflowAndSteps(product, data) {
             var promise = $q.when(data.workflow);
             if (!_.isEqual(data.workflow, product.workflow)) {
@@ -240,6 +266,22 @@ angular.module('greyscale.tables')
 
         function _saveProductWorkflowSteps(workflowId, steps) {
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
+        }
+
+        function _planningNotFinish(product) {
+            return !product.uoas || !product.uoas.length || !product.surveyId ||
+                !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+        }
+
+        function _getDisabledStatus(item, rec) {
+            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(rec);
+        }
+
+        function _getFormWarning(product) {
+            if (product.id && _planningNotFinish(product)) {
+                var warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
+                return warning;
+            }
         }
 
         function _getStatusIcon(product) {

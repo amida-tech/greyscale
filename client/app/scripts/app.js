@@ -187,8 +187,30 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.UOAS',
+                name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasList', {
+            parent: 'uoas',
+            url: '/list',
+            templateUrl: 'views/controllers/uoas-list.html',
+            controller: 'UoasListCtrl',
+            data: {
+                name: 'NAV.UOAS.LIST',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasImport', {
+            parent: 'uoas',
+            url: '/import',
+            templateUrl: 'views/controllers/uoas-import.html',
+            controller: 'UoasImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -340,7 +362,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('graph', {
@@ -355,7 +377,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Graph',
                 icon: 'fa-bar-chart',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('table', {
@@ -370,7 +392,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Table',
                 icon: 'fa-table',
-                isPublic: false
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('the-wall', {
@@ -383,7 +405,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks'
+                name: 'Page with bricks',
+                accessLevel: systemRoles.any.mask
             }
         });
 
@@ -394,21 +417,37 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
+
+            var params = {
+                reload: true,
+                inherit: false
+            };
+
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
+
+                if (toParams.returnTo) {
+                    var redirect = $state.get(toParams.returnTo);
+                    if ((_level & redirect.data.accessLevel) !== 0) {
+                        $state.go(redirect.name, {}, params);
+                    }
+                }
+
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
                     if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
-                        greyscaleUtilsSrv.errorMsg('Access restricted to "' + toState.data.name + '"!');
-                        $state.go('home');
+                        if (toState.name !== 'login') {
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        }
+                        $state.go('home', {}, params);
                     } else {
-                        $stateParams.returnTo = toState.name;
+                        if (toState.name !== 'home') {
+                            $stateParams.returnTo = toState.name;
+                        }
                         $state.go('login');
                     }
                 } else {
                     if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, {
-                            reload: true
-                        });
+                        $state.go(fromParams.returnTo, {}, params);
                     }
                 }
             });
