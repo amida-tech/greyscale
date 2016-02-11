@@ -6,26 +6,14 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (_) {
+    .directive('formBuilder', function (greyscaleGlobals) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
             link: function (scope, elem, attr) {
 
                 var formbuilder;
-                var types = [
-                    'text',
-                    'paragraph',
-                    'checkboxes',
-                    'radio',
-                    'dropdown',
-                    'number',
-                    'email',
-                    'price',
-                    'section_start',
-                    'section_end',
-                    'section_break'
-                ];
+                var types = greyscaleGlobals.formBuilderFieldTypes;
 
                 function createFormBuilder() {
                     var data = [],
@@ -74,7 +62,6 @@ angular.module('greyscaleApp')
                             var fields = JSON.parse(json).fields;
                             var questions = [];
                             for (i = 0; i < fields.length; i++) {
-                                //var typeIdx = _.findIndex(types, fields[i].field_type);
                                 var typeIdx = types.indexOf(fields[i].field_type);
                                 if (typeIdx > -1) {
                                     questions.push({

@@ -373,6 +373,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.any.mask
             }
         })
+        .state('survey',{
+            parent: 'home',
+            url:'survey/:surveyId/task/:taskId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey.html',
+                    controller: 'SurveyCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.SURVEY',
+                icon: 'fa-question',
+                accessLevel: systemRoles.any.mask
+            }
+        })
         .state('the-wall', {
             parent: 'home',
             url: 'the-wall',

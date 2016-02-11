@@ -1,4 +1,5 @@
 $widget-header-font-size: $font-size-h3;
+$widget-header-font-weight: bold;
 
 .widget {
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
@@ -22,6 +23,7 @@ $widget-header-font-size: $font-size-h3;
         line-height: 1.4;
         padding: 5px 15px;
         font-size: $widget-header-font-size;
+        font-weight: $widget-header-font-weight;
         margin: 0;
         .row > div {
             margin-bottom: 0;
@@ -56,14 +58,14 @@ $widget-header-font-size: $font-size-h3;
 
         table thead {
             background: #fafafa;
-
+/*
             & * {
                 font-size: 14px !important;
             }
 
             tbody * {
                 font-size: 13px !important;
-            }
+            }*/
         }
 
         .error {
