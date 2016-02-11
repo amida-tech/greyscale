@@ -6,14 +6,26 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
         greyscaleProductWorkflowApi,
+        greyscaleGlobals,
         $state,
-        inform) {
+        inform, i18n) {
 
         var tns = 'PRODUCTS.TABLE.';
 
         var _dicts = {
             surveys: []
         };
+
+        var _const = {
+            STATUS_PLANNING: 0,
+            STATUS_STARTED: 1,
+            STATUS_SUSPENDED: 2,
+            STATUS_CANCELLED: 4
+        };
+
+        var _statusIcons = {};
+        _statusIcons[_const.STATUS_STARTED] = 'fa-pause';
+        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
 
         var _cols = [{
             field: 'title',
@@ -51,10 +63,29 @@ angular.module('greyscale.tables')
             show: true,
             dataHide: true
         }, {
+            field: 'status',
+            show: true,
+            sortable: 'status',
+            title: tns + 'STATUS',
+            dataFormat: 'option',
+            dataNoEmptyOption: true,
+            dataSet: {
+                getData: _getStatus,
+                keyField: 'id',
+                valField: 'name',
+                getDisabled: _getDisabledStatus
+            }
+        }, {
             title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
             actions: [{
+                title: '',
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
@@ -92,6 +123,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'PRODUCT',
+            formWarning: _getFormWarning,
             pageLength: 10,
             add: {
                 title: 'COMMON.CREATE',
@@ -119,13 +151,24 @@ angular.module('greyscale.tables')
             }
         }
 
+        function _getStatus() {
+            return greyscaleGlobals.productStates;
+        }
+
         function _getSurveys() {
             return _dicts.surveys;
         }
 
         function _editProduct(product) {
             var op = 'editing';
-            greyscaleModalsSrv.editRec(product, _table)
+            _loadProductExtendedData(product)
+                .then(function (extendedProduct) {
+                    var _editTable = angular.copy(_table);
+                    if (extendedProduct) {
+
+                    }
+                    return greyscaleModalsSrv.editRec(extendedProduct, _editTable);
+                })
                 .then(function (newProduct) {
                     if (newProduct.id) {
                         return greyscaleProductApi.update(newProduct);
@@ -178,6 +221,26 @@ angular.module('greyscale.tables')
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
+        function _loadProductExtendedData(product) {
+            if (!product || !product.id) {
+                return $q.when(product);
+            }
+
+            var extendedProduct = angular.copy(product);
+            var reqs = {
+                uoas: greyscaleProductApi.product(product.id).uoasList(),
+                tasks: greyscaleProductApi.product(product.id).tasksList(),
+            };
+            if (product.workflow && product.workflow.id) {
+                reqs.workflowSteps = greyscaleProductWorkflowApi
+                    .workflow(product.workflow.id).stepsList();
+            }
+            return $q.all(reqs).then(function (promises) {
+                angular.extend(extendedProduct, promises);
+                return extendedProduct;
+            });
+        }
+
         function _saveWorkflowAndSteps(product, data) {
             var promise = $q.when(data.workflow);
             if (!_.isEqual(data.workflow, product.workflow)) {
@@ -203,6 +266,64 @@ angular.module('greyscale.tables')
 
         function _saveProductWorkflowSteps(workflowId, steps) {
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
+        }
+
+        function _planningNotFinish(product) {
+            return !product.uoas || !product.uoas.length || !product.surveyId ||
+                !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+        }
+
+        function _getDisabledStatus(item, rec) {
+            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(rec);
+        }
+
+        function _getFormWarning(product) {
+            if (product.id && _planningNotFinish(product)) {
+                var warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
+                return warning;
+            }
+        }
+
+        function _getStatusIcon(product) {
+            return _statusIcons[product.status] ? _statusIcons[product.status] : '';
+        }
+
+        function _getStartOrPauseProductTooltip(product) {
+            var action, tooltip;
+            if (product.status === _const.STATUS_SUSPENDED) {
+                action = 'START';
+            } else if (product.status === _const.STATUS_STARTED) {
+                action = 'PAUSE';
+            }
+            if (action) {
+                tooltip = tns + action + '_PRODUCT';
+            }
+            return tooltip;
+        }
+
+        function _startOrPauseProduct(product) {
+            var op = 'changing status';
+            var status = product.status;
+            var setStatus;
+            if (status === _const.STATUS_STARTED) {
+                setStatus = _const.STATUS_SUSPENDED;
+            } else if (status === _const.STATUS_SUSPENDED) {
+                setStatus = _const.STATUS_STARTED;
+            }
+            if (setStatus !== undefined) {
+                var saveProject = angular.copy(product);
+                saveProject.status = setStatus;
+                greyscaleProductApi.update(saveProject)
+                    .then(_reload)
+                    .catch(function (err) {
+                        return errHandler(err, op);
+                    });
+            }
+        }
+
+        function errHandler(err, operation) {
+            var msg = _table.formTitle + ' ' + operation + ' error';
+            greyscaleUtilsSrv.errorMsg(err, msg);
         }
 
         return _table;

@@ -1,4 +1,20 @@
-<div class="row">
-    <h4 translate="IMPORT.USERS"></h4>
-    <upload-form upload-endpoint="/upload_users_csv_2016"></upload-form>
+<div translate-namespace="IMPORT.USERS">
+    <h4 translate=".TITLE"></h4>
+    <div ng-if="model.organizations" class="form-inline">
+        <div class="form-group">
+            <label translate=".ORGANIZATION"></label>:
+            <select class="form-control"
+                    ng-model="model.organizationId"
+                    ng-options="org.id as org.name for org in model.organizations">
+            </select>
+        </div>
+    </div>
+    <upload-form
+        upload-endpoint="organizations/{{model.organizationId}}/users_csv"
+        upload-success="afterUpload"></upload-form>
+
+    <div ng-if="model.results">
+        <widget-table model="model.importUsers" class="table-bordered"></widget-table>
+    </div>
+
 </div>

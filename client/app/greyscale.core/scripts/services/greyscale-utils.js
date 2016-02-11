@@ -66,7 +66,7 @@ angular.module('greyscale.core')
                 }
                 msg += i18n.translate(errText);
 
-                $log.debug(msg);
+                $log.debug(err, prefix, msg);
                 inform.add(msg, {
                     type: 'danger'
                 });

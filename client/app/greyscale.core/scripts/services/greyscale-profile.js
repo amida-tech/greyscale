@@ -32,7 +32,7 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
-                            .then(self._setAssociate)
+                            //                            .then(self._setAssociate) disabled while not need
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -67,6 +67,10 @@ angular.module('greyscale.core')
                     })
                     .then(function (associate) {
                         _associate = associate;
+                        return _profile;
+                    })
+                    .catch(function (err) {
+                        $log.debug(err.message || err);
                         return _profile;
                     });
             } else {

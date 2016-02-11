@@ -18,7 +18,30 @@ module.exports = {
     select: function (req, res, next) {
         co(function* () {
         	req.query.realm = req.param('realm');
-            return yield thunkQuery(EssenceRole.select().from(EssenceRole), _.omit(req.query, 'limit', 'offset', 'order'));
+            var q = EssenceRole.select(EssenceRole.star());
+            var from = EssenceRole;
+            if(req.query.essenceId){
+                var essence = yield thunkQuery(
+                    Essence.select().where(Essence.id.equals(req.query.essenceId)),
+                    {'realm': req.param('realm')}
+                );
+                if (essence[0]) {
+                    console.log(essence[0]);
+                    try {
+                        var Model = require('app/models/' + essence[0].fileName);
+                    }catch(e){
+                        throw new HttpError(403, 'Cannot load model\'s file: ' + essence[0].fileName);
+                    }
+                    from = from.leftJoin(Model).on(EssenceRole.entityId.equals(Model.id));
+                    q = q.select('row_to_json("' + Model.table._name + '".*) as entity');
+                }else{
+                    throw new HttpError(403, 'Entity type with id = ' + req.query.essenceId + ' does not exist');
+                }
+            }
+
+            return yield thunkQuery(
+                q.from(from), _.omit(req.query, 'limit', 'offset', 'order')
+            );
         }).then(function (data) {
             res.json(data);
         }, function (err) {

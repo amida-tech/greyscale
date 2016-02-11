@@ -16,15 +16,6 @@ angular.module('greyscale.tables')
             users: []
         };
 
-        var _const = {
-            STATUS_INFLIGHT: 1,
-            STATUS_SUSPENDED: 3
-        };
-
-        var _statusIcons = {};
-        _statusIcons[_const.STATUS_INFLIGHT] = 'fa-pause';
-        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
-
         var accessLevel;
 
         var recDescr = [{
@@ -83,17 +74,6 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'startTime',
             title: tns + 'START_TIME'
-        }, {
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProjectTooltip,
-                class: 'info',
-                handler: _startOrPauseProject
-            }]
         }, {
             field: 'status',
             show: true,
@@ -173,23 +153,6 @@ angular.module('greyscale.tables')
             return greyscaleGlobals.projectStates;
         }
 
-        function _getStatusIcon(project) {
-            return _statusIcons[project.status] ? _statusIcons[project.status] : '';
-        }
-
-        function _getStartOrPauseProjectTooltip(project) {
-            var action, tooltip;
-            if (project.status === _const.STATUS_SUSPENDED) {
-                action = 'START';
-            } else if (project.status === _const.STATUS_INFLIGHT) {
-                action = 'PAUSE';
-            }
-            if (action) {
-                tooltip = tns + action + '_PROJECT';
-            }
-            return tooltip;
-        }
-
         function _isSuperAdmin() {
             return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
         }
@@ -256,26 +219,6 @@ angular.module('greyscale.tables')
                 .catch(function (err) {
                     return errHandler(err, op);
                 });
-        }
-
-        function _startOrPauseProject(project) {
-            var op = 'changing status';
-            var status = project.status;
-            var setStatus;
-            if (status === _const.STATUS_INFLIGHT) {
-                setStatus = _const.STATUS_SUSPENDED;
-            } else if (status === _const.STATUS_SUSPENDED) {
-                setStatus = _const.STATUS_INFLIGHT;
-            }
-            if (setStatus !== undefined) {
-                var saveProject = angular.copy(project);
-                saveProject.status = setStatus;
-                greyscaleProjectApi.update(saveProject)
-                    .then(reloadTable)
-                    .catch(function (err) {
-                        return errHandler(err, op);
-                    });
-            }
         }
 
         function reloadTable() {

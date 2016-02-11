@@ -90,21 +90,33 @@ module.exports = {
                     throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
                 }
 
-                if (req.body[i].id) { // update
-                    var updateObj = _.pick(req.body[i], ['title', 'description', 'entityTypeRoleId']);
-                    if (Object.keys(updateObj).length) {
-                        Task.update(_.pick(updateObj)).where(Task.id.equals(req.body[i].id));
-                        updateObj.id = req.body[i].id;
-                        res.updated.push(req.body[i].id);
-                    }
-                } else { // create
-                    var id = yield thunkQuery(
-                        Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
-                    );
-                    req.body[i].id = _.first(id).id;
-                    res.inserted.push(req.body[i].id);
-                }
-
+        if(req.body[i].id){ // update
+          var updateObj = _.pick(
+              req.body[i],
+              [
+                'title',
+                'description',
+                'entityTypeRoleId',
+                'startDate',
+                'endDate',
+                'accessToDiscussions',
+                'accessToResponses',
+                'writeToAnswers'
+              ]
+          );
+          if(Object.keys(updateObj).length){
+            var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)), {'realm': req.param('realm')});
+            updateObj.id = req.body[i].id;
+            res.updated.push(req.body[i].id);
+          }
+        }else{ // create
+          var id = yield thunkQuery(
+              Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id),
+              {'realm': req.param('realm')}
+          );
+          req.body[i].id = _.first(id).id;
+          res.inserted.push(req.body[i].id);
+        }
             }
 
             return res;
@@ -276,12 +288,19 @@ function* checkProductData(req) {
         }
     }
 
-    //if (req.body.matrixId) {
-    //    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-    //    if (!_.first(isExistMatrix)) {
-    //        throw new HttpError(403, 'Matrix with this id does not exist');
-    //    }
-    //}
+    if (typeof req.body.status != 'undefined') {
+        if (Product.statuses.indexOf(req.body.status) == -1) {
+            throw new HttpError(
+                403,
+                'Status can be only: ' +
+                '0 - Planning, ' +
+                '1 - Started, ' +
+                '2 - Suspended, ' +
+                '3 - Completed, ' +
+                '4 - Canceled'
+            );
+        }
+    }
 
     if (req.body.surveyId) {
         var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)),{'realm': req.param('realm')});        

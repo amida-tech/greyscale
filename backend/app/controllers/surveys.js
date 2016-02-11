@@ -143,13 +143,25 @@ module.exports = {
             yield * checkQuestionData(req, true);
             var result = yield thunkQuery(
                 SurveyQuestion
-                .insert(_.pick(req.body, ['label', 'surveyId', 'type', 'position', 'isRequired']))
+                .insert(_.pick(req.body, SurveyQuestion.table._initialConfig.columns))
                 .returning(SurveyQuestion.id),
                 {'realm': req.param('realm')}
             );
+            result = result[0];
+            var insertArr = [];
+            if (req.body.options) {
+                for (var i in req.body.options) {
+                    var insertObj = _.pick(req.body.options[i], SurveyQuestionOption.table._initialConfig.columns);
+                    insertObj.questionId = result.id;
+                    insertArr.push(insertObj);
+                }
+                result.options = yield thunkQuery(
+                    SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
+                );
+            }
             return result;
         }).then(function (data) {
-            res.status(201).json(_.first(data));
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });
@@ -160,7 +172,7 @@ module.exports = {
             yield * checkQuestionData(req, false);
             return yield thunkQuery(
                 SurveyQuestion
-                .update(_.pick(req.body, ['label', 'position', 'isRequired']))
+                .update(_.pick(req.body, SurveyQuestion.editCols))
                 .where(SurveyQuestion.id.equals(req.params.id)),
                 {'realm': req.param('realm')}
             );
@@ -244,6 +256,7 @@ function* checkQuestionData(req, isCreate) {
         nextPos = _.first(maxPos).max + 1;
     }
 
+    //TODO: Need to update the manual queries below to specify schema
     if (isCreate || typeof req.body.position !== 'undefined') {
         req.body.position = isNaN(parseInt(req.body.position)) ? 0 : parseInt(req.body.position);
 

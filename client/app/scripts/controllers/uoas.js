@@ -11,29 +11,47 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('UoasCtrl', function ($scope,
-        greyscaleUoaTypesTbl,
-        greyscaleUoasTbl,
-        greyscaleUoaClassTypesTbl,
-        greyscaleUoaTagsTbl,
-        greyscaleUoaTagLinksTbl) {
+    .controller('UoasCtrl', function ($scope, $state) {
 
-        $scope.model = {
-            uoas: greyscaleUoasTbl,
-            uoaTypes: greyscaleUoaTypesTbl,
-            uoaTags: greyscaleUoaTagsTbl,
-            uoaTagLinks: greyscaleUoaTagLinksTbl,
-            uoaClassTypes: greyscaleUoaClassTypesTbl
+        var _parentState = 'uoas';
+
+        $scope.tabs = [{
+            state: 'uoasList',
+            active: true,
+            title: 'NAV.UOAS.LIST',
+            icon: 'fa-table'
+        }, {
+            state: 'uoasImport',
+            title: 'NAV.IMPORT',
+            icon: 'fa-upload'
+        }];
+
+        $scope.go = function (state) {
+            $state.go(state);
         };
 
-        $scope.selectUoa = function (uoa) {
-            if (typeof uoa !== 'undefined') {
-                $scope.model.uoaTagLinks.query = {
-                    uoaId: uoa.id
-                };
-                $scope.model.uoaTagLinks.tableParams.reload();
+        _onStateChange(function (state) {
+            if (state.name === _parentState) {
+                if ($scope.tabs.length > 0) {
+                    $scope.go($scope.tabs[0].state);
+                }
+            } else {
+                _setActiveTab(state);
             }
-            return $scope.model.uoas.current;
-        };
+        });
+
+        function _setActiveTab(state) {
+            var activeState = state.name.replace(_parentState + '.', '');
+            angular.forEach($scope.tabs, function (tab) {
+                tab.active = (tab.state === activeState);
+            });
+        }
+
+        function _onStateChange(handler) {
+            var stateChangeDisable = $scope.$on('$stateChangeSuccess', function (e, state) {
+                handler(state);
+            });
+            $scope.$on('$destroy', stateChangeDisable);
+        }
 
     });

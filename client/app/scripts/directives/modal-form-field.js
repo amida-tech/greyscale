@@ -76,14 +76,14 @@ angular.module('greyscaleApp')
                             }
                             break;
                         case 'option':
-                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
+                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
+                                'ng-options="item.id as item.title disable when model.getDisabled(item) for item in model.options" ' +
+                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
                             var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
                             var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
                             field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
-
                             field += '</select>';
                             break;
                         case 'boolean':
@@ -118,7 +118,8 @@ angular.module('greyscaleApp')
                 }
 
                 $scope.model = {
-                    options: []
+                    options: [],
+                    getDisabled: _getDisabled
                 };
 
                 var _options = [];
@@ -140,6 +141,11 @@ angular.module('greyscaleApp')
                             $scope.model.options = data;
                         });
                     }
+                }
+
+                function _getDisabled(item) {
+                    return (clmn.dataSet && typeof clmn.dataSet.getDisabled === 'function') ?
+                        clmn.dataSet.getDisabled(item, $scope.modalFormRec) : false;
                 }
 
                 function _parseParams(params) {

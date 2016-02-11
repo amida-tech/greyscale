@@ -7,8 +7,8 @@ var columns = [
     'projectId',
     'originalLangId',
     'workflowId',
-    'surveyId'
-    //'matrixId',
+    'surveyId',
+    'status'
     //'productConfigId',
     //'contentType',
     //'mode',
@@ -27,7 +27,15 @@ var Product = sql.define({
     columns: columns
 });
 
-Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId', 'surveyId'];
+Product.statuses = [
+    0, //'PLANNING'
+    1, //'STARTED'
+    2, //'SUSPENDED'
+    3, //'COMPLETED'
+    4  //'CANCELLED'
+];
+
+Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId', 'surveyId', 'status'];
 
 Product.translate = translate;
 

@@ -1,0 +1,19 @@
+.layout-compact {
+    [class^="col-"] {
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+    .widget-header {
+        font-size: 12pt;
+    }
+    table.table {
+        th {
+            font-size: 11pt;
+        }
+        th, td {
+            word-break: break-word;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+    }
+}

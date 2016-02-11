@@ -21,6 +21,7 @@
         "TODAY": "Сегодня"
     },
     "ERROR": {
+        "ACCESS_RESTRICTED": "Доступ ограничен к",
         "TEST": "Тестовая ошибка"
     },
     "FILE": {
@@ -32,12 +33,16 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "PRODUCTSTATES": {
+            "CANCELLED": "Отменен",
+            "COMPLETED": "Завершен",
+            "PLANNING": "Планируется",
+            "STARTED": "Начат",
+            "SUSPENDED": "Приостановлен"
+        },
         "PROJECTSTATES": {
-            "ABANDONED": "Устаревший",
-            "COMPLETED": "Завершенный",
-            "IN_FLIGHT": "Активный",
-            "SUSPENDED": "Приостановленный",
-            "WAITING": "В ожидании"
+            "ACTIVE": "Активный",
+            "INACTIVE": "Не активный"
         },
         "UOASTATUS": {
             "ACTIVE": "Активный",
@@ -59,12 +64,23 @@
             "TRANSLATOR": "Переводчик"
         },
         "WRITETOANSWERSLIST": {
-            "READ": "",
-            "READ_WRITE": ""
+            "READ": "Чтение",
+            "READ_WRITE": "Чтение и запись"
         }
     },
     "IMPORT": {
-        "USERS": "Импорт пользователей"
+        "UOAS": {
+            "TITLE": "Импорт единиц анализа"
+        },
+        "USERS": {
+            "EMAIL": "Эл. почта",
+            "FIRST_NAME": "Имя",
+            "LAST_NAME": "Фамилия",
+            "ORGANIZATION": "Организация",
+            "RESULTS_TITLE": "Результаты импорта",
+            "STATUS": "Статус",
+            "TITLE": "Импорт пользователей"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
@@ -75,6 +91,15 @@
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
         "SIGN_IN": "Вход"
+    },
+    "MY_TASKS": {
+        "NO_TASKS": "На данный момент у Вас нет задач.",
+        "PRODUCT": "Продукт",
+        "SURVEY": "Опрос",
+        "TASK": "Задача",
+        "TERMS": "Сроки",
+        "TITLE": "Мои задачи",
+        "UOA": "Единица анализа"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Управление доступом",
@@ -88,6 +113,7 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PM_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -98,8 +124,12 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "SURVEY": "Опрос",
         "TASKS": "Задачи",
-        "UOAS": "Единицы анализа",
+        "UOAS": {
+            "LIST": "Список",
+            "TITLE": "Единицы анализа"
+        },
         "USERS": {
             "LIST": "Список",
             "TITLE": "Пользователи",
@@ -108,11 +138,18 @@
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "Нет проектов для управления"
+    },
     "PRODUCTS": {
         "TABLE": {
             "DESCRIPTION": "Описание",
+            "PAUSE_PRODUCT": "Приостановить продукт",
+            "PLANNING_NOT_FINISH": "",
             "PRODUCT": "Продукт",
             "SETTINGS": "Настройки",
+            "START_PRODUCT": "Запустить продукт",
+            "STATUS": "Состояние",
             "SURVEY": "Опрос",
             "TASKS": "Задачи",
             "TITLE": "Название",
@@ -121,19 +158,18 @@
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
-            "NO_UOAS": "",
+            "NO_UOAS": "У этого продукта не заданы единицы анализа.",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
-                "TASK_PARAMS": "",
+                "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
                 "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
                 "TITLE": "Задачи",
-                "UOAS_HEADER": "Единица анализа",
-                "UOAS_TYPE_HEADER": ""
+                "UOAS_HEADER": "Единица анализа"
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
@@ -146,12 +182,12 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "STEPS": {
-                "ANSWERS_ACCESS": "",
-                "BLIND_REVIEW": "",
-                "DISCUSSIONS_ACCESS": "",
+                "ANSWERS_ACCESS": "Доступ к ответам",
+                "BLIND_REVIEW": "Слепой просмотр",
+                "DISCUSSIONS_ACCESS": "Доступ к обсуждениям",
                 "END_DATE": "Дата окончания",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
-                "RESPONSES_ACCESS": "",
+                "RESPONSES_ACCESS": "Доступ к оценкам",
                 "ROLE": "Роль",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг"
@@ -178,7 +214,7 @@
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
-        "START_PROJECT": "",
+        "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
     },

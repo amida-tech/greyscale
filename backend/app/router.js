@@ -73,8 +73,7 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-router.route('/:realm/v0.2/projects/:id/csv_users')
-    .post(/*authenticate('token').always,*/ projects.csvUsers);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
@@ -233,6 +232,9 @@ router.route('/:realm/v0.2/organizations/:id')
 	.put(authenticate('token').always, checkRight('organizations_edit_one'), organizations.updateOne);
 
    
+
+router.route('/:realm/v0.2/organizations/:id/users_csv')
+    .post(authenticate('token').ifPossible, organizations.csvUsers);
 
 router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)

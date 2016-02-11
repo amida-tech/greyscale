@@ -1,7 +1,7 @@
 {
   "name": "indaba-client",
   "version": "0.2.0",
-  "description": "Client code for Indaba app",
+      "description": "Client code for Indaba app",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

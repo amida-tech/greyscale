@@ -21,6 +21,7 @@
         "TODAY": "Today"
     },
     "ERROR": {
+        "ACCESS_RESTRICTED": "Access restricted to",
         "TEST": "Test error"
     },
     "FILE": {
@@ -32,12 +33,16 @@
         "WRONG_DATE_FORMAT": "Wrong date format"
     },
     "GLOBALS": {
-        "PROJECTSTATES": {
-            "ABANDONED": "Abandoned",
+        "PRODUCTSTATES": {
+            "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
-            "IN_FLIGHT": "In-flight",
-            "SUSPENDED": "Suspended",
-            "WAITING": "Waiting"
+            "PLANNING": "Planning",
+            "STARTED": "Started",
+            "SUSPENDED": "Suspended"
+        },
+        "PROJECTSTATES": {
+            "ACTIVE": "Active",
+            "INACTIVE": "Inactive"
         },
         "UOASTATUS": {
             "ACTIVE": "Active",
@@ -64,7 +69,18 @@
         }
     },
     "IMPORT": {
-        "USERS": "Import users"
+        "UOAS": {
+            "TITLE": "Import Units Of Analysis"
+        },
+        "USERS": {
+            "EMAIL": "E-mail",
+            "FIRST_NAME": "First Name",
+            "LAST_NAME": "Last Name",
+            "ORGANIZATION": "Organization",
+            "RESULTS_TITLE": "Import Results",
+            "STATUS": "Status",
+            "TITLE": "Import users"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
@@ -76,18 +92,28 @@
         "PASSWORD_REQUIRED": "Password is required.",
         "SIGN_IN": "Sign in"
     },
+    "MY_TASKS": {
+        "NO_TASKS": "You have no tasks at this moment.",
+        "PRODUCT": "Product",
+        "SURVEY": "Survey",
+        "TASK": "Task",
+        "TERMS": "Terms",
+        "TITLE": "My Tasks",
+        "UOA": "Unit Of Analysis"
+    },
     "NAV": {
         "ACCESS_MANAGEMENT": "Access management",
         "ACTIVATE": "Activate",
         "ADMIN_SECTION": "Administration",
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
-        "HOME": "Home",
+        "HOME": "Dashboard",
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PM_DASHBOARD": "Project Management",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -98,8 +124,12 @@
         },
         "PROJECTS_MANAGEMENT": "Projects Management",
         "REGISTER": "Register",
+        "SURVEY": "Survey",
         "TASKS": "Tasks",
-        "UOAS": "Units of Analysis",
+        "UOAS": {
+            "LIST": "List",
+            "TITLE": "Units of Analysis"
+        },
         "USERS": {
             "LIST": "List",
             "TITLE": "Users",
@@ -108,11 +138,18 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "You have no projects to manage"
+    },
     "PRODUCTS": {
         "TABLE": {
             "DESCRIPTION": "Description",
+            "PAUSE_PRODUCT": "Suspend Product",
+            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
             "PRODUCT": "Product",
             "SETTINGS": "Settings",
+            "START_PRODUCT": "Start Product",
+            "STATUS": "Status",
             "SURVEY": "Survey",
             "TASKS": "Tasks",
             "TITLE": "Title",
@@ -132,8 +169,7 @@
                 "TASK_REMOVE_ERROR": "Server error while removing task",
                 "TASK_UPDATE_ERROR": "Server error while updating task",
                 "TITLE": "Tasks",
-                "UOAS_HEADER": "UoA",
-                "UOAS_TYPE_HEADER": "UoA Type"
+                "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
