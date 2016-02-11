@@ -31,6 +31,10 @@
     var surveyAnswers = {};
     var surveyAnswersId;
 
+    function setChangeFlag() {
+        hasChanges = true;
+    }
+
     function getCookie(name) {
         var value = '; ' + document.cookie;
         var parts = value.split('; ' + name + '=');
@@ -216,12 +220,8 @@
         $.inside(input, div);
 
         input._.events({
-            'change': function () {
-                hasChanges = true;
-            },
-            'keypress': function () {
-                hasChanges = true;
-            }
+            'change': setChangeFlag,
+            'keypress': setChangeFlag
         });
     }
 
@@ -232,12 +232,8 @@
         $.inside(input, div);
 
         input._.events({
-            'change': function () {
-                hasChanges = true;
-            },
-            'keypress': function () {
-                hasChanges = true;
-            }
+            'change': setChangeFlag,
+            'keypress': setChangeFlag
         });
     }
 
@@ -263,9 +259,7 @@
             });
             $.inside(input, checkboxLabel);
             input._.events({
-                'change': function () {
-                    hasChanges = true;
-                }
+                'change': setChangeFlag
             });
 
             $.inside($.create('span', {contents: [data.field_options.options[i].label]}), checkboxLabel);
@@ -277,19 +271,13 @@
             input = $.create('input', {type: type, value: 'Other', name: data.cid, className: 'other'});
             $.inside(input, block);
             input._.events({
-                'change': function () {
-                    hasChanges = true;
-                }
+                'change': setChangeFlag
             });
             var inputVariant = $.create('input', {type: 'text', name: data.cid, className: 'other-text'});
             $.inside(inputVariant, block);
             inputVariant._.events({
-                'change': function () {
-                    hasChanges = true;
-                },
-                'keypress': function () {
-                    hasChanges = true;
-                }
+                'change': setChangeFlag,
+                'keypress': setChangeFlag
             });
         }
     }
@@ -304,9 +292,7 @@
         var select = $.create('select', {name: data.cid});
         $.inside(select, div);
         select._.events({
-            'change': function () {
-                hasChanges = true;
-            }
+            'change': setChangeFlag
         });
 
         if (data.field_options.include_blank_option) {
@@ -839,7 +825,7 @@
         var url = constUrl + 'survey_answers';
         var method = 'POST';
 
-        var sendCount = vals.lengt - 1;
+        var sendCount = vals.length - 1;
         for (var i = 0; i < vals.length; i++) {
             var data = {
                 surveyId: surveyId,

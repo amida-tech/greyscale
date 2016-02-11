@@ -106,7 +106,7 @@ angular.module('greyscale.core')
                     mask: 0xffff
                 }
             },
-            surveyFieldTypes: [
+            formBuilderFieldTypes: [
                 'text',
                 'paragraph',
                 'checkboxes',

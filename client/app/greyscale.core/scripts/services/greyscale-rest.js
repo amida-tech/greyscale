@@ -7,7 +7,7 @@ angular.module('greyscale.core')
     .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope) {
         return function (headers) {
             var _locale = $rootScope.currentLocale;
-            console.log();
+
             headers = headers || {};
             var aHeaders = {
                 'Content-Type': 'application/json',
