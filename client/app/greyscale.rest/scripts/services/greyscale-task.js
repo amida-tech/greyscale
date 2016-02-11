@@ -35,8 +35,13 @@ angular.module('greyscale.rest')
             return api().one(taskId + '').customPUT(task);
         }
 
+        function _getTask(taskId) {
+            return api().one(taskId + '').get();
+        }
+
         return {
             myList: _myList,
+            get: _getTask,
             add: _add,
             update: _update,
             del: _del

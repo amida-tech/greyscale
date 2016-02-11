@@ -5,7 +5,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleImportUsersTbl', function () {
 
-        var tns = 'IMPORT.';
+        var tns = 'IMPORT.USERS.';
 
         var _fields = [{
             field: 'id',

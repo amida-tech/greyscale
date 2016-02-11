@@ -13,12 +13,13 @@
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv,
         inform, $log, $stateParams, $state, $q) {
+
         var surveyId = $stateParams.surveyId;
         var projectId = $stateParams.projectId;
 
         var _survey;
         if (surveyId >= 0) {
-            greyscaleSurveyApi.get(surveyId).get().then(function (survey) {
+            greyscaleSurveyApi.get(surveyId).then(function (survey) {
                 $scope.model = {
                     survey: survey
                 };

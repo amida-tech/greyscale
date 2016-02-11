@@ -290,6 +290,27 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('pmDashboard', {
+            parent: 'home',
+            url: '',
+            data: {
+                name: 'NAV.PM_DASHBOARD',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+            }
+        })
+        .state('pmDashboard.product', {
+            url: 'pm/:productId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-dashboard.html',
+                    controller: 'PmDashboardProductCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.productName}}',
+                //accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+            }
+        })
         .state('orgs', {
             parent: 'home',
             url: 'organizations',
@@ -392,6 +413,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'Table',
                 icon: 'fa-table',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('survey',{
+            parent: 'home',
+            url:'survey/:surveyId/task/:taskId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey.html',
+                    controller: 'SurveyCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.SURVEY',
+                icon: 'fa-question',
                 accessLevel: systemRoles.any.mask
             }
         })

@@ -113,6 +113,7 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PM_DASHBOARD": "Project Management",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -123,6 +124,7 @@
         },
         "PROJECTS_MANAGEMENT": "Projects Management",
         "REGISTER": "Register",
+        "SURVEY": "Survey",
         "TASKS": "Tasks",
         "UOAS": {
             "LIST": "List",
@@ -135,6 +137,9 @@
         },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
+    },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "You have no projects to manage"
     },
     "PRODUCTS": {
         "TABLE": {
