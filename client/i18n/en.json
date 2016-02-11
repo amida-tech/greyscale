@@ -132,6 +132,7 @@
         "TABLE": {
             "DESCRIPTION": "Description",
             "PAUSE_PRODUCT": "Suspend Product",
+            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
             "PRODUCT": "Product",
             "SETTINGS": "Settings",
             "START_PRODUCT": "Start Product",

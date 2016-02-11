@@ -132,6 +132,7 @@
         "TABLE": {
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
+            "PLANNING_NOT_FINISH": "",
             "PRODUCT": "Продукт",
             "SETTINGS": "Настройки",
             "START_PRODUCT": "Запустить продукт",

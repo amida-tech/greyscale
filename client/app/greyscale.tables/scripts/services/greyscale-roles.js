@@ -34,7 +34,7 @@ angular.module('greyscale.tables')
             dataPromise: _getRoles,
             selectable: true,
             templates: {
-                pagination: "views/directive/pagination.html"
+                pagination: 'views/directive/pagination.html'
             }
         };
     });

@@ -145,7 +145,7 @@ angular.module('greyscaleApp')
 
                 function _getDisabled(item) {
                     return (clmn.dataSet && typeof clmn.dataSet.getDisabled === 'function') ?
-                        clmn.dataSet.getDisabled(item) : false;
+                        clmn.dataSet.getDisabled(item, $scope.modalFormRec) : false;
                 }
 
                 function _parseParams(params) {

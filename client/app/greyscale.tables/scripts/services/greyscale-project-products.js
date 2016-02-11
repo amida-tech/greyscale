@@ -8,7 +8,7 @@ angular.module('greyscale.tables')
         greyscaleProductWorkflowApi,
         greyscaleGlobals,
         $state,
-        inform) {
+        inform, i18n) {
 
         var tns = 'PRODUCTS.TABLE.';
 
@@ -17,8 +17,10 @@ angular.module('greyscale.tables')
         };
 
         var _const = {
+            STATUS_PLANNING: 0,
             STATUS_STARTED: 1,
-            STATUS_SUSPENDED: 2
+            STATUS_SUSPENDED: 2,
+            STATUS_CANCELLED: 4
         };
 
         var _statusIcons = {};
@@ -121,6 +123,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'PRODUCT',
+            formWarning: _getFormWarning,
             pageLength: 10,
             add: {
                 title: 'COMMON.CREATE',
@@ -160,7 +163,6 @@ angular.module('greyscale.tables')
             var op = 'editing';
             _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
-                    console.log(extendedProduct);
                     var _editTable = angular.copy(_table);
                     if (extendedProduct) {
 
@@ -266,9 +268,20 @@ angular.module('greyscale.tables')
             return greyscaleProductWorkflowApi.workflow(workflowId).stepsListUpdate(steps);
         }
 
-        function _getDisabledStatus(item) {
-            //console.log(item);
-            return false;
+        function _planningNotFinish(product) {
+            return !product.uoas || !product.uoas.length || !product.surveyId ||
+                !product.workflowSteps || !product.workflowSteps.length || !product.tasks || !product.tasks.length;
+        }
+
+        function _getDisabledStatus(item, rec) {
+            return item.id !== _const.STATUS_PLANNING && item.id !== _const.STATUS_CANCELLED && _planningNotFinish(rec);
+        }
+
+        function _getFormWarning(product) {
+            if (product.id && _planningNotFinish(product)) {
+                var warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
+                return warning;
+            }
         }
 
         function _getStatusIcon(product) {
