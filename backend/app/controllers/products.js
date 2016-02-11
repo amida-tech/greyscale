@@ -284,8 +284,7 @@ function* checkProductData(req) {
     //}
 
     if (req.body.surveyId) {
-        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)),             
-        var result = yield thunkQuery(Product.insert(req.body).returning(Product.id),{'realm': req.param('realm')} );
+        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)),{'realm': req.param('realm')});        
         if (!_.first(isExistSurvey)) {
             throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
         }
