@@ -4,4 +4,6 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('HomeCtrl', function ($scope) {});
+    .controller('HomeCtrl', function ($scope) {
+
+    });

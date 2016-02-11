@@ -69,13 +69,18 @@
         }
     },
     "IMPORT": {
-        "EMAIL": "E-mail",
-        "FIRST_NAME": "First Name",
-        "LAST_NAME": "Last Name",
-        "ORGANIZATION": "Organization",
-        "RESULTS_TITLE": "Import Results",
-        "STATUS": "Status",
-        "USERS": "Import users"
+        "UOAS": {
+            "TITLE": "Import Units Of Analysis"
+        },
+        "USERS": {
+            "EMAIL": "E-mail",
+            "FIRST_NAME": "First Name",
+            "LAST_NAME": "Last Name",
+            "ORGANIZATION": "Organization",
+            "RESULTS_TITLE": "Import Results",
+            "STATUS": "Status",
+            "TITLE": "Import users"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
@@ -108,6 +113,7 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PM_DASHBOARD": "Project Management",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -120,7 +126,10 @@
         "REGISTER": "Register",
         "SURVEY": "Survey",
         "TASKS": "Tasks",
-        "UOAS": "Units of Analysis",
+        "UOAS": {
+            "LIST": "List",
+            "TITLE": "Units of Analysis"
+        },
         "USERS": {
             "LIST": "List",
             "TITLE": "Users",
@@ -128,6 +137,9 @@
         },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
+    },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "You have no projects to manage"
     },
     "PRODUCTS": {
         "TABLE": {

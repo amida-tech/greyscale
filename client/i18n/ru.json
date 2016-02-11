@@ -69,13 +69,18 @@
         }
     },
     "IMPORT": {
-        "EMAIL": "Эл. почта",
-        "FIRST_NAME": "Имя",
-        "LAST_NAME": "Фамилия",
-        "ORGANIZATION": "Организация",
-        "RESULTS_TITLE": "Результаты импорта",
-        "STATUS": "Статус",
-        "USERS": "Импорт пользователей"
+        "UOAS": {
+            "TITLE": "Импорт единиц анализа"
+        },
+        "USERS": {
+            "EMAIL": "Эл. почта",
+            "FIRST_NAME": "Имя",
+            "LAST_NAME": "Фамилия",
+            "ORGANIZATION": "Организация",
+            "RESULTS_TITLE": "Результаты импорта",
+            "STATUS": "Статус",
+            "TITLE": "Импорт пользователей"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
@@ -108,6 +113,7 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PM_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -120,7 +126,10 @@
         "REGISTER": "Регистрация",
         "SURVEY": "Опрос",
         "TASKS": "Задачи",
-        "UOAS": "Единицы анализа",
+        "UOAS": {
+            "LIST": "Список",
+            "TITLE": "Единицы анализа"
+        },
         "USERS": {
             "LIST": "Список",
             "TITLE": "Пользователи",
@@ -128,6 +137,9 @@
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
+    },
+    "PM_PROJECTS": {
+        "NO_PROJECTS": "Нет проектов для управления"
     },
     "PRODUCTS": {
         "TABLE": {

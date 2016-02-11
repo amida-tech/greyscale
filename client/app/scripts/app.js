@@ -187,8 +187,30 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.UOAS',
+                name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasList', {
+            parent: 'uoas',
+            url: '/list',
+            templateUrl: 'views/controllers/uoas-list.html',
+            controller: 'UoasListCtrl',
+            data: {
+                name: 'NAV.UOAS.LIST',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasImport', {
+            parent: 'uoas',
+            url: '/import',
+            templateUrl: 'views/controllers/uoas-import.html',
+            controller: 'UoasImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
@@ -266,6 +288,27 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.PRODUCT_TASKS',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('pmDashboard', {
+            parent: 'home',
+            url: '',
+            data: {
+                name: 'NAV.PM_DASHBOARD',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+            }
+        })
+        .state('pmDashboard.product', {
+            url: 'pm/:productId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-dashboard.html',
+                    controller: 'PmDashboardProductCtrl'
+                }
+            },
+            data: {
+                name: '{{ext.productName}}',
+                //accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('orgs', {
