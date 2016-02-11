@@ -1,5 +1,5 @@
 <div class="upload-form">
-    <div class="form-group row">
+    <div class="form-group">
         <h5 translate="FILE.SELECT"></h5>
         <input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader">
         <div class="progress">
@@ -10,8 +10,10 @@
                 ng-disabled="!uploader.getNotUploadedItems().length"
             translate="FILE.CONTINUE">
         </button>
+        <div class="clearfix"></div>
     </div>
-    <div ng-repeat="issue in model.issues" ng-show="model.issues.length>0" class="col-md-10 text-{{issue.severity}}">
+    <div ng-repeat="issue in model.issues" ng-show="model.issues.length>0" class="text-{{issue.severity}}">
         <i class="fa fa-exclamation-circle"></i> {{issue.details}}
     </div>
+
 </div>

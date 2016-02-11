@@ -69,13 +69,18 @@
         }
     },
     "IMPORT": {
-        "EMAIL": "E-mail",
-        "FIRST_NAME": "First Name",
-        "LAST_NAME": "Last Name",
-        "ORGANIZATION": "Organization",
-        "RESULTS_TITLE": "Import Results",
-        "STATUS": "Status",
-        "USERS": "Import users"
+        "UOAS": {
+            "TITLE": "Import Units Of Analysis"
+        },
+        "USERS": {
+            "EMAIL": "E-mail",
+            "FIRST_NAME": "First Name",
+            "LAST_NAME": "Last Name",
+            "ORGANIZATION": "Organization",
+            "RESULTS_TITLE": "Import Results",
+            "STATUS": "Status",
+            "TITLE": "Import users"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
@@ -119,7 +124,10 @@
         "PROJECTS_MANAGEMENT": "Projects Management",
         "REGISTER": "Register",
         "TASKS": "Tasks",
-        "UOAS": "Units of Analysis",
+        "UOAS": {
+            "LIST": "List",
+            "TITLE": "Units of Analysis"
+        },
         "USERS": {
             "LIST": "List",
             "TITLE": "Users",

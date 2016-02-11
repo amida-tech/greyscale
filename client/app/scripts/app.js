@@ -187,8 +187,30 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.UOAS',
+                name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasList', {
+            parent: 'uoas',
+            url: '/list',
+            templateUrl: 'views/controllers/uoas-list.html',
+            controller: 'UoasListCtrl',
+            data: {
+                name: 'NAV.UOAS.LIST',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        .state('uoasImport', {
+            parent: 'uoas',
+            url: '/import',
+            templateUrl: 'views/controllers/uoas-import.html',
+            controller: 'UoasImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
