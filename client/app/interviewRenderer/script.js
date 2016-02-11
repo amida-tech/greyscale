@@ -228,7 +228,7 @@
     function fieldTextarea(data) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
-        var input = $.create('textarea', {className: data.field_options.size, name: data.cid})
+        var input = $.create('textarea', {className: data.field_options.size, name: data.cid});
         $.inside(input, div);
 
         input._.events({
