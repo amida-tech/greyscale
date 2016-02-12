@@ -3,7 +3,10 @@ var sql = require('sql');
 var columns = [
     'id',
     'questionId',
-    'value'
+    'value',
+    'label',
+    'skip',
+    'isSelected'
 ];
 
 var SurveyQuestionOption = sql.define({
