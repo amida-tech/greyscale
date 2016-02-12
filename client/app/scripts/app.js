@@ -295,7 +295,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'pm/:productId',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/product-dashboard.html',
+                    templateUrl: 'views/controllers/pm-dashboard-product.html',
                     controller: 'PmDashboardProductCtrl'
                 }
             },

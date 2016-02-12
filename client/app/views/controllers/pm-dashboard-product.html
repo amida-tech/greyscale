@@ -21,8 +21,5 @@
     </div>
 </div>
 
-<div class="list-group">
-    <div class="list-group-item" ng-repeat="task in model.tasks">
-        {{task.step.title}}, {{task.uoa.shortName}}, {{task.user.email}}, {{task.role.name}}
-    </div>
-</div>
+<widget-table model="model.tasksTable"></widget-table>
+

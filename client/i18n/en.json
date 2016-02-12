@@ -11,7 +11,9 @@
         "CREATE": "Create",
         "EDIT": "Edit",
         "FURTHER": "Further",
-        "SAVE": "Save"
+        "NO": "No",
+        "SAVE": "Save",
+        "YES": "Yes"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "yyyy/MM/dd",
@@ -199,6 +201,18 @@
             "TITLE": "Title",
             "TITLE_REQUIRED": "Title is required."
         }
+    },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "Current Step",
+        "DEADLINE": "Deadline",
+        "FLAGS": "Flags",
+        "LAST_INTERACTION": "Last Interaction",
+        "PROGRESS": "Progress",
+        "ROLE": "Role",
+        "STEP": "Workflow Step",
+        "TITLE": "Product Tasks",
+        "UOA": "Unit Of Analysis",
+        "USER": "User"
     },
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",

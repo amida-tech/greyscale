@@ -4,7 +4,7 @@ angular.module('greyscaleApp')
         greyscaleProductWorkflowApi, greyscaleProjectApi,
         greyscaleProductApi, greyscaleUserApi, greyscaleRoleApi,
         greyscaleUtilsSrv, greyscaleEntityTypeRoleApi, greyscaleUoaTypeApi,
-        greyscaleEntityTypeApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleGlobals) {
+        greyscaleEntityTypeApi, greyscaleTaskApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -201,8 +201,9 @@ angular.module('greyscaleApp')
                 _cellLoadingState(cellEl, true);
                 greyscaleModalsSrv.editRec(editTask, _taskEditForm)
                     .then(_updateTask)
-                    .then(function () {
-                        angular.extend(task, editTask);
+                    .then(function (savedTask) {
+                        angular.extend(task, savedTask);
+                        angular.extend(taskViewModel, savedTask);
                     })
                     .finally(function () {
                         _cellLoadingState(cellEl, false);
@@ -476,7 +477,7 @@ angular.module('greyscaleApp')
                     field: 'steps.' + step.id,
                     cellClass: 'drop-zone drop-user',
                     cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html',
-                    cellTemplateData: {
+                    cellTemplateExtData: {
                         product: axisData.product
                     }
                 });

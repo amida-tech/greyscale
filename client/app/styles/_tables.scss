@@ -31,3 +31,31 @@
         @extend .bg-danger;
     }
 }
+
+.table tr.expand-row td {
+    border-top-color: #efefef;
+    vertical-align: top;
+}
+.expand-row {
+    [class^="col-"] {
+        margin-bottom: 0;
+    }
+    .row-block {
+        display: inline-block;
+        padding: 0 15px;
+        &:first-child {
+            padding-left: 0;
+        }
+    }
+}
+.progress-block {
+    display: inline-block;
+    width: 20px;
+    height:20px;
+    margin-right: 2px;
+    background: #ddd;
+    border: 1px solid #ddd;
+    &.current {
+        border-color: #bbb;
+    }
+}

@@ -11,7 +11,9 @@
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "SAVE": "Сохранить"
+        "NO": "",
+        "SAVE": "Сохранить",
+        "YES": ""
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -199,6 +201,18 @@
             "TITLE": "Название",
             "TITLE_REQUIRED": "Название обязательно"
         }
+    },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "",
+        "DEADLINE": "",
+        "FLAGS": "",
+        "LAST_INTERACTION": "",
+        "PROGRESS": "",
+        "ROLE": "",
+        "STEP": "",
+        "TITLE": "",
+        "UOA": "",
+        "USER": ""
     },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
