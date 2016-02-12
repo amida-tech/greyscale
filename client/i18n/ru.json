@@ -239,6 +239,7 @@
         "STATUS": "Статус"
     },
     "SURVEYS": {
+        "CONTENT": "Содержание",
         "DESCRIPTION": "Описание",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",

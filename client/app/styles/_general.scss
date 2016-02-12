@@ -136,3 +136,15 @@ body {
 :disabled {
     color: $grey-medium-light;
 }
+
+.subtext {
+    font-size: $font-size-sub;
+    font-weight: normal;
+    color: $grey-medium-light;
+}
+
+.required:after {
+    content: ' *';
+    color: $green;
+    display: inline;
+}

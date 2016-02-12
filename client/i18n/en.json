@@ -239,6 +239,7 @@
         "STATUS": "Status"
     },
     "SURVEYS": {
+        "CONTENT": "Content",
         "DESCRIPTION": "Description",
         "FIELDS": "Fields",
         "ITEM": "Survey",
