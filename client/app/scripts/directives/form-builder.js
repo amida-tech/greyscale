@@ -16,9 +16,83 @@ angular.module('greyscaleApp')
             var types = greyscaleGlobals.formBuilderFieldTypes;
             var sizes = ['small', 'medium', 'large'];
             
+            function formBuilderSave(json){
+                var fields = JSON.parse(json).fields;
+                var questions = [];
+                var i, j;
+                for (i = 0; i < fields.length; i++) {
+                    var typeIdx = types.indexOf(fields[i].field_type);
+                    if (typeIdx === -1) continue;
+                    var fo = fields[i].field_options;
+                    var newQuestion = {
+                        label: fields[i].label,
+                        cid: fields[i].cid,
+                        isRequired: fields[i].required,
+                        type: typeIdx,
+                        surveyId: scope.model.survey.id,
+                        position: i + 1
+                    };
+                    questions.push(newQuestion);
+                    if (!fo) continue;
+                    
+                    newQuestion.description = fo.description ? fo.description : '';
+                    newQuestion.skip = fo.skip && !isNaN(fo.skip) ? parseInt(fo.skip) : 0;
+                    newQuestion.size = fo.size ? sizes.indexOf(fo.size) : 0;
+                    newQuestion.minLength = fo.minlength && !isNaN(fo.minlength) ? parseInt(fo.minlength) : undefined;
+                    newQuestion.maxLength = fo.maxlength && !isNaN(fo.maxlength) ? parseInt(fo.maxlength) : undefined;
+                    newQuestion.isWordmml = fo.min_max_length_units ?  fo.min_max_length_units === 'words' : undefined;
+                    newQuestion.incOtherOpt = fo.include_other_option || fo.include_blank_option;
+                    newQuestion.units = fo.units;
+                    newQuestion.intOnly = fo.integer_only;
+                    
+                    if (!fo.options) continue;
+                    newQuestion.options = [];
+                    for (j = 0; j < fo.options.length; j++) {
+                        var option = fo.options[j];
+                        newQuestion.options.push({
+                            label: option.label,
+                            value: option.value,
+                            skip: option.skip && !isNaN(option.skip) ? parseInt(option.skip) : 0,
+                            isSelected: option.checked,
+                        });
+                    }
+                }
+                if (!scope.model.survey.questions) scope.model.survey.questions = [];
+                
+                for (i = scope.model.survey.questions.length - 1; i >= 0; i--) {
+                    if (!scope.model.survey.questions[i]) {
+                        scope.model.survey.questions.splice(i, 1);
+                        continue;
+                    }
+                    if (scope.model.survey.questions[i].deleted) continue;
+                    
+                    var isAvaliable = false;
+                    for (j = questions.length - 1; j >= 0; j--) {
+                        if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
+                            isAvaliable = true;
+                            delete questions[j].cid;
+                            questions[j].id = scope.model.survey.questions[i].id;
+                            scope.model.survey.questions[i] = questions[j];
+                            
+                            questions.splice(j, 1);
+                        }
+                    }
+                    if (isAvaliable) continue;
+                    if (scope.model.survey.questions[i].id) scope.model.survey.questions[i].deleted = true;
+                    else scope.model.survey.questions.splice(i, 1);
+                }
+                for (i = 0; i < questions.length; i++) {
+                    delete questions[i].cid;
+                    scope.model.survey.questions.push(questions[i]);
+                }
+                scope.model.survey.questions.sort(function (a, b) { return a.position - b.position; });
+                scope.$emit('form-changes-saved');
+                scope.$apply();
+            }
+
             function createFormBuilder() {
-                var data = [],
-                    i;
+                var data = [];
+                var i, j;
                 
                 if (scope.model.survey && scope.model.survey.questions) {
                     for (i = 0; i < scope.model.survey.questions.length; i++) {
@@ -26,7 +100,7 @@ angular.module('greyscaleApp')
                         if (!question) continue;
                         var type = types[question.type];
                         if (!type) continue;
-                        data.push({
+                        var field = {
                             cid: 'c' + question.id,
                             field_type: type,
                             label: question.label,
@@ -43,90 +117,32 @@ angular.module('greyscaleApp')
                                 units: question.units,
                                 integer_only: question.intOnly
                             }
-                        });
+                        };
+                        data.push(field);
+                        if (!question.options) continue;
+                        field.field_options.options = [];
+                        for (j = 0; j < question.options.length; j++) {
+                            if (!question.options[j]) continue;
+                            field.field_options.options.push({
+                                label: question.options[j].label,
+                                skip: question.options[j].skip,
+                                value: question.options[j].value,
+                                checked: question.options[j].isSelected,
+                            });
+                        }
                     }
                 }
-                if (formbuilder) {
-                    formbuilder.off('save');
-                }
+                if (formbuilder) formbuilder.off('save');
                 if (window.Formbuilder) {
                     formbuilder = new window.Formbuilder({
                         selector: '#formbuilder',
                         bootstrapData: data
                     });
                     scope.saveFormbuilder = function () {
-                        if (formbuilder.mainView.formSaved) {
-                            scope.$emit('form-changes-saved');
-                        } else {
-                            formbuilder.mainView.saveForm();
-                        }
+                        if (formbuilder.mainView.formSaved) scope.$emit('form-changes-saved');
+                        else formbuilder.mainView.saveForm();
                     };
-                    formbuilder.on('save', function (json) {
-                        var fields = JSON.parse(json).fields;
-                        var questions = [];
-                        for (i = 0; i < fields.length; i++) {
-                            var typeIdx = types.indexOf(fields[i].field_type);
-                            if (typeIdx > -1) {
-                                questions.push({
-                                    label: fields[i].label,
-                                    cid: fields[i].cid,
-                                    isRequired: fields[i].required,
-                                    type: typeIdx,
-                                    surveyId: scope.model.survey.id,
-                                    position: i + 1,
-                                    description: fields[i].field_options && fields[i].field_options.description ? fields[i].field_options.description : '',
-                                    skip: fields[i].field_options && fields[i].field_options.skip ? parseInt(fields[i].field_options.skip) : 0,
-                                    size: fields[i].field_options && fields[i].field_options.size ? sizes.indexOf(fields[i].field_options.size) : 0,
-                                    minLength: fields[i].field_options && fields[i].field_options.minlength ? parseInt(fields[i].field_options.minlength) : undefined,
-                                    maxLength: fields[i].field_options && fields[i].field_options.maxlength ? parseInt(fields[i].field_options.maxlength) : undefined,
-                                    isWordmml: fields[i].field_options && fields[i].field_options.min_max_length_units ?  fields[i].field_options.min_max_length_units === 'words' : undefined,
-                                    incOtherOpt: fields[i].field_options && (fields[i].field_options.include_other_option || fields[i].field_options.include_blank_option) ? true : false,
-                                    units: fields[i].field_options && fields[i].field_options.units ? fields[i].field_options.units : '',
-                                    intOnly: fields[i].field_options && fields[i].field_options.integer_only ? true : false,
-                                });
-                            }
-                        }
-                        if (scope.model.survey.questions) {
-                            for (i = scope.model.survey.questions.length - 1; i >= 0; i--) {
-                                if (!scope.model.survey.questions[i]) {
-                                    scope.model.survey.questions.splice(i, 1);
-                                    continue;
-                                }
-                                if (scope.model.survey.questions[i].deleted) {
-                                    continue;
-                                }
-                                var isAvaliable = false;
-                                for (var j = questions.length - 1; j >= 0; j--) {
-                                    if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
-                                        isAvaliable = true;
-                                        delete questions[j].cid;
-                                        questions[j].id = scope.model.survey.questions[i].id;
-                                        scope.model.survey.questions[i] = questions[j];
-                                        
-                                        questions.splice(j, 1);
-                                    }
-                                }
-                                if (!isAvaliable) {
-                                    if (scope.model.survey.questions[i].id) {
-                                        scope.model.survey.questions[i].deleted = true;
-                                    } else {
-                                        scope.model.survey.questions.splice(i, 1);
-                                    }
-                                }
-                            }
-                        } else {
-                            scope.model.survey.questions = [];
-                        }
-                        for (i = 0; i < questions.length; i++) {
-                            delete questions[i].cid;
-                            scope.model.survey.questions.push(questions[i]);
-                        }
-                        scope.model.survey.questions.sort(function (a, b) {
-                            return a.position - b.position;
-                        });
-                        scope.$emit('form-changes-saved');
-                        scope.$apply();
-                    });
+                    formbuilder.on('save', formBuilderSave);
                 }
             }
             
