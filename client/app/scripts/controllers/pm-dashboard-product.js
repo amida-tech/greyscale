@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
 
         var tasksTable = greyscaleProductTasksTbl;
         tasksTable.dataFilter.productId = productId;
-        tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html'
+        tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
         $scope.model = {
             tasksTable: tasksTable
         };
