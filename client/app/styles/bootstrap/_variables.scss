@@ -11,7 +11,12 @@ $link-hover-color: $green-dark;
 $font-family-base: "Helvetica";
 $headings-font-family: "Helvetica";
 $headings-font-weight: bold;
+
 $headings-color: $grey-dark;
+
+$panel-default-text: $grey-dark;
+$panel-default-heading-bg: $grey-light;
+$panel-default-border: $grey-medium-light;
 
 $dropdown-link-color: $grey-medium-dark;
 $dropdown-link-hover-color: $grey-medium-dark;
@@ -26,3 +31,5 @@ $font-size-h6: 12pt;
 
 $font-size-base: 12pt;
 $font-size-sub: 10pt;
+
+$panel-border-radius: $base-border-radius;
