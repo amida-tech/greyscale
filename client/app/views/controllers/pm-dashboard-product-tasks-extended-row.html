@@ -10,8 +10,8 @@
     <div class="col-md-8">
         <b translate=".PROGRESS"></b>
         <br>
-        <div class="progress-block" ng-class="item.status" ng-repeat="item in row.progress track by $index">
+        <a href class="progress-block" ng-class="item.status" ng-repeat="item in row.progress track by $index">
             <i ng-if="item.icon" class="fa {{item.icon}}"></i>
-        </div>
+        </a>
     </div>
 </div>

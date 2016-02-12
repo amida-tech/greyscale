@@ -207,6 +207,9 @@
         "DEADLINE": "Deadline",
         "FLAGS": "Flags",
         "LAST_INTERACTION": "Last Interaction",
+        "MODAL": {
+            "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
+        },
         "PROGRESS": "Progress",
         "ROLE": "Role",
         "STEP": "Workflow Step",

@@ -4,7 +4,7 @@ angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function(_, $q,
         greyscaleProductApi, greyscaleWorkflowStepsApi,
         greyscaleProductWorkflowApi, greyscaleEntityTypeRoleApi,
-        greyscaleUserApi, greyscaleRoleApi){
+        greyscaleUserApi, greyscaleRoleApi, greyscaleModalsSrv){
 
         var tns = 'PRODUCT_TASKS.';
 
@@ -50,7 +50,10 @@ angular.module('greyscale.tables')
             dataFilter: {},
             sorting: {endDate: 'asc'},
             pageLength: 10,
-            dataPromise: _getData
+            dataPromise: _getData,
+            delegateClick: {
+                '.progress-block': _handleProgressBlockClick
+            }
         };
 
         function _getProductId() {
@@ -142,6 +145,11 @@ angular.module('greyscale.tables')
 
         function _dateIsOverdue(date) {
             return new Date(date) < new Date();
+        }
+
+        function _handleProgressBlockClick(e, scope) {
+            console.log(scope.item);
+            greyscaleModalsSrv.productTask(scope.row, scope.item);
         }
 
         return _table;

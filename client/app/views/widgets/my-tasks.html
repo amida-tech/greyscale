@@ -3,9 +3,13 @@
         <div class="card" ng-repeat="task in model.tasks">
             <p>{{task.step.title}}</p>
             <p>
-                <a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
+                <a ng-href="#/survey/{{task.survey.id}}/task/{{task.id}}">
                     {{task.survey.title}}
                 </a>
+                <br>
+                <small><a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
+                    {{task.survey.title}} (low bandwidth link)
+                </a></small>
             </p>
             <p>
                 {{task.startDate||task.step.startDate|date:'shortDate'}}

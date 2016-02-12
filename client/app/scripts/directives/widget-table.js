@@ -219,6 +219,7 @@ angular.module('greyscaleApp')
             link: function (scope, el) {
                 el.removeAttr('class');
                 _expandableRowFunctionality(scope, el);
+                _delegateClickFunctionality(scope, el);
             },
             controller: function ($scope, widgetTableSrv) {
                 widgetTableSrv.init({
@@ -281,6 +282,22 @@ angular.module('greyscaleApp')
             var expand = row.next();
             if (expand.hasClass('expand-row')) {
                 expand.remove();
+            }
+        }
+
+        function _delegateClickFunctionality(scope, el) {
+            var handlers = scope.model.delegateClick;
+            if (handlers && angular.isObject(handlers)) {
+                angular.forEach(handlers, function(handler, selector){
+                    if (typeof handler === 'function') {
+                        el.on('click', selector, function(e){
+                            e.stopPropagation();
+                            e.preventDefault();
+                            var trigger = angular.element(e.target);
+                            handler(e, trigger.scope());
+                        });
+                    }
+                });
             }
         }
     });

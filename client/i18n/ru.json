@@ -207,6 +207,9 @@
         "DEADLINE": "",
         "FLAGS": "",
         "LAST_INTERACTION": "",
+        "MODAL": {
+            "TITLE": ""
+        },
         "PROGRESS": "",
         "ROLE": "",
         "STEP": "",
