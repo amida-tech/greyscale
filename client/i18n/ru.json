@@ -11,7 +11,9 @@
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "SAVE": "Сохранить"
+        "NO": "",
+        "SAVE": "Сохранить",
+        "YES": ""
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -114,6 +116,7 @@
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
         "PM_DASHBOARD": "",
+        "PM_PRODUCT_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -139,7 +142,9 @@
         "WORKFLOW_STEPS": "Процессы"
     },
     "PM_PROJECTS": {
-        "NO_PROJECTS": "Нет проектов для управления"
+        "NO_PRODUCTS": "В проекте нет продуктов",
+        "NO_PROJECTS": "Нет проектов для управления",
+        "PROJECT": ""
     },
     "PRODUCTS": {
         "TABLE": {
@@ -197,6 +202,21 @@
             "TITLE_REQUIRED": "Название обязательно"
         }
     },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "",
+        "DEADLINE": "",
+        "FLAGS": "",
+        "LAST_INTERACTION": "",
+        "MODAL": {
+            "TITLE": ""
+        },
+        "PROGRESS": "",
+        "ROLE": "",
+        "STEP": "",
+        "TITLE": "",
+        "UOA": "",
+        "USER": ""
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
@@ -219,6 +239,7 @@
         "STATUS": "Статус"
     },
     "SURVEYS": {
+        "CONTENT": "Содержание",
         "DESCRIPTION": "Описание",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",

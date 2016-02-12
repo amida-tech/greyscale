@@ -8,6 +8,8 @@ $red: #dc402e;
 $red-dark: #902a1f;
 $white: #fff;
 
+$base-border-radius: 5px;
+
 $sidebar-toggle-width: 30px;
 
 $widget-base-color: $grey-dark;
@@ -19,4 +21,4 @@ $widget-icon-color: $white;
 
 $widget-border-color: $grey-light;
 
-$widget-border-radius: 5px;
+$widget-border-radius: $base-border-radius;

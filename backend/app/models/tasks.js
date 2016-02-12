@@ -20,4 +20,15 @@ var Task = sql.define({
     ]
 });
 
+Task.editCols = [
+    'title',
+    'description',
+    'entityTypeRoleId',
+    'startDate',
+    'endDate',
+    'accessToDiscussions',
+    'accessToResponses',
+    'writeToAnswers'
+];
+
 module.exports = Task;

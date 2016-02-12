@@ -19,6 +19,11 @@ var SurveyAnswer = sql.define({
     columns: columns
 });
 
+SurveyAnswer.editCols = [
+    'value',
+    'optionId'
+];
+
 SurveyAnswer.whereCol = columns;
 
 module.exports = SurveyAnswer;

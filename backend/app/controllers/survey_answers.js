@@ -92,15 +92,7 @@ module.exports = {
                 );
             }
 
-            var version = yield thunkQuery(
-                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
-            );
 
-            if (_.first(version).max === null) {
-                req.body.version = 1;
-            } else {
-                req.body.version = _.first(version).max + 1;
-            }
 
             var member = yield thunkQuery(
                 EssenceRole
@@ -156,7 +148,7 @@ module.exports = {
                 throw new HttpError(403, 'Your membership role does not match with workflow step\'s role');
             }
 
-            if ([2, 3, 4].indexOf(_.first(question).type) !== -1) { // question with options
+            if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
                 if (!req.body.optionId) {
                     throw new HttpError(403, 'You should provide optionId for this type of question');
                 } else {
@@ -176,12 +168,61 @@ module.exports = {
             }
 
             req.body.userId = req.user.id;
-            var answer = yield thunkQuery(
-                SurveyAnswer
-                .insert(_.pick(req.body, SurveyAnswer.table._initialConfig.columns))
-                .returning(SurveyAnswer.id),
+
+            var version = yield thunkQuery(
+                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId'])),
                 {'realm': req.param('realm')}
             );
+
+            if (_.first(version).max === null) {
+                req.body.version = 1;
+            } else {
+                req.body.version = _.first(version).max + 1;
+            }
+
+
+            var existsNullVer = yield thunkQuery(
+                SurveyAnswer.select()
+                    .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
+                    .and(SurveyAnswer.version.isNull()),
+                {'realm': req.param('realm')}
+            );
+
+
+            var editFields = SurveyAnswer.editCols;
+
+            if (req.query.autosave) {
+                req.body.version = null;
+                if(existsNullVer[0]){
+                    console.log('update where null');
+                }else{
+                    console.log('insert where null');
+                }
+            } else {
+                // req.body.version already set to next
+                if(existsNullVer[0]){
+                    console.log('update where null set nex ver');
+                }else{
+                    console.log('insert next ver');
+                }
+            }
+
+            if (existsNullVer[0]) {
+                var answer = {id : existsNullVer[0].id};
+                editFields.push('version');
+                yield thunkQuery(
+                    SurveyAnswer
+                    .update(_.pick(req.body, editFields))
+                    .where(SurveyAnswer.id.equals(existsNullVer[0].id))
+                );
+            }else {
+                var answer = yield thunkQuery(
+                    SurveyAnswer
+                        .insert(_.pick(req.body, SurveyAnswer.table._initialConfig.columns))
+                        .returning(SurveyAnswer.id)
+                );
+                answer = answer[0];
+            }
 
             return answer;
         }).then(function (data) {

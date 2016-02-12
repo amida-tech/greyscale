@@ -93,8 +93,8 @@ angular.module('greyscale.tables')
         }
 
         function _viewSurvey(_survey) {
-            var url = $location.protocol() + '://' + $location.host() + ':' + $location.port() + '/interviewRenderer/#' + _survey.id;
-            window.location = url;
+            window.location = $location.protocol() + '://' + $location.host() + ':' + $location.port() +
+                '/interviewRenderer/?sureveyId=' + _survey.id;
         }
 
         return _table;

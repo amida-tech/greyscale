@@ -44,8 +44,9 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'action':
                         elem.addClass('text-right row-actions');
-                        elem.append('<a ng-repeat="act in widgetCell.actions" title="{{act.tooltip||act.getTooltip(rowValue)|translate}}" class="action action-{{act.class}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
-                            'ng-click="act.handler(rowValue);$event.stopPropagation();"><i class="fa {{icon}}" ng-show="icon"> </i>{{act.title|translate}}</a>');
+                        elem.append('<a ng-repeat="act in widgetCell.actions" title="{{act.tooltip||act.getTooltip(rowValue)|translate}}" ' +
+                            'class="action action-{{act.class}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
+                            'ng-click="act.handler && act.handler(rowValue); act.handler && $event.stopPropagation();"><i class="fa {{icon}}" ng-show="icon"> </i>{{act.title|translate}}</a>');
                         $compile(elem.contents())($scope);
                         break;
 
@@ -80,7 +81,7 @@ angular.module('greyscaleApp')
                         if (cell.multiselect) {
                             _compileMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate(cell.cellTemplate);
+                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
                         } else if (cell.cellTemplateUrl) {
                             _compileCellTemplateFromUrl();
                         } else {
@@ -97,20 +98,18 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate(template, data) {
+                function _compileCellTemplate(template, ext) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
                     elem.append(template);
-                    if (data && typeof data === 'object') {
-                        angular.extend($scope, data);
-                    }
+                    $scope.ext = ext;
                     $compile(elem.contents())($scope);
                 }
 
                 function _compileCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
                         .then(function (template) {
-                            _compileCellTemplate(template, cell.cellTemplateData);
+                            _compileCellTemplate(template, cell.cellTemplateExtData);
                         });
                 }
 

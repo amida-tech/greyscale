@@ -1,12 +1,13 @@
 <div ng-controller="PmProjectsWidgetCtrl" translate-namespace="PM_PROJECTS">
 
     <div ng-repeat="project in model.projects">
-        <h2>{{project.codeName}} <small></small></h2>
+        <h2>{{project.codeName}} <small translate=".PROJECT"></small></h2>
         <div class="list-group">
-            <a ui-sref="pmDashboard.product({productId:product.id})" class="list-group-item" ng-repeat="product in project.products">
+            <a ui-sref="pmProductDashboard({productId:product.id})" class="list-group-item" ng-repeat="product in project.products">
                 {{product.title}}
 
             </a>
+            <div ng-if="!project.products.length" class="alert alert-warning" translate=".NO_PRODUCTS"></div>
         </div>
     </div>
 

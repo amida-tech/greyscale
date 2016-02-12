@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleProjectApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleProjectApi', function (greyscaleRestSrv) {
         function api() {
             return greyscaleRestSrv().one('projects');
         }
