@@ -249,15 +249,15 @@ angular.module('greyscaleApp')
 
         function _getTemplateByUrl(templateUrl) {
             return $http.get(templateUrl, {
-                cache: $templateCache
-            })
-            .then(function (response) {
-                return response.data;
-            });
+                    cache: $templateCache
+                })
+                .then(function (response) {
+                    return response.data;
+                });
         }
 
         function _controlRowExpanding(el, template, scope) {
-            el.on('click', '.action-expand-row', function(e){
+            el.on('click', '.action-expand-row', function (e) {
                 var row = $(e.target).closest('.expandable-row');
                 if (!row.hasClass('is-expanded')) {
                     _showExpandedRow(row, template, scope);
@@ -288,9 +288,9 @@ angular.module('greyscaleApp')
         function _delegateClickFunctionality(scope, el) {
             var handlers = scope.model.delegateClick;
             if (handlers && angular.isObject(handlers)) {
-                angular.forEach(handlers, function(handler, selector){
+                angular.forEach(handlers, function (handler, selector) {
                     if (typeof handler === 'function') {
-                        el.on('click', selector, function(e){
+                        el.on('click', selector, function (e) {
                             e.stopPropagation();
                             e.preventDefault();
                             var trigger = angular.element(e.target);

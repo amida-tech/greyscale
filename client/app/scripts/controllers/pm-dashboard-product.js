@@ -13,7 +13,6 @@ angular.module('greyscaleApp')
             tasksTable: tasksTable
         };
 
-
         greyscaleProductApi.get(productId)
             .then(function (product) {
                 $state.ext.productName = product.title;
