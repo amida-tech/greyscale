@@ -2,3 +2,15 @@
     list-style: none;
     padding-left: 15px;
 }
+.section-break {
+    border-top: solid 1px $grey-medium-light;
+    border-bottom: solid 1px $grey-medium-light;
+    background-color: $grey-light;
+
+    label {
+        margin: 5px 0;
+        font-weight: normal;
+        font-size: $font-size-sub;
+        padding: 0 5px;
+    }
+}
