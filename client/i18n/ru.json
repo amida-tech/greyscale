@@ -11,9 +11,10 @@
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "NO": "",
+        "NO": "Нет",
+        "REMIND": "Напомнить",
         "SAVE": "Сохранить",
-        "YES": ""
+        "YES": "Да"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -89,10 +90,12 @@
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
         "EMAIL": "Эл.почт@",
         "FORGOT_PASSWORD": "Забыл пароль...",
+        "LOGIN_INCORRECT": "",
         "LOGIN_REQUIRED": "Логин обязателен",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
-        "SIGN_IN": "Вход"
+        "SIGN_IN": "Вход",
+        "TOKEN_SENT": ""
     },
     "MY_TASKS": {
         "NO_TASKS": "На данный момент у Вас нет задач.",

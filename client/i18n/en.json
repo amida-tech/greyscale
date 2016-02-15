@@ -12,6 +12,7 @@
         "EDIT": "Edit",
         "FURTHER": "Further",
         "NO": "No",
+        "REMIND": "Remind",
         "SAVE": "Save",
         "YES": "Yes"
     },
@@ -89,10 +90,12 @@
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
         "EMAIL": "E-m@il",
         "FORGOT_PASSWORD": "Forgot password...",
+        "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
         "LOGIN_REQUIRED": "Login is required.",
         "PASSWORD": "Password",
         "PASSWORD_REQUIRED": "Password is required.",
-        "SIGN_IN": "Sign in"
+        "SIGN_IN": "Sign in",
+        "TOKEN_SENT": "Instructions was sent to your e-mail..."
     },
     "MY_TASKS": {
         "NO_TASKS": "You have no tasks at this moment.",
