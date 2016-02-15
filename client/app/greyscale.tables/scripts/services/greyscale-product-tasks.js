@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProductTasksTbl', function(_, $q,
+    .factory('greyscaleProductTasksTbl', function (_, $q,
         greyscaleProductApi, greyscaleWorkflowStepsApi,
         greyscaleProductWorkflowApi, greyscaleEntityTypeRoleApi,
-        greyscaleUserApi, greyscaleRoleApi, greyscaleModalsSrv){
+        greyscaleUserApi, greyscaleRoleApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCT_TASKS.';
 
@@ -48,7 +48,9 @@ angular.module('greyscale.tables')
             icon: 'fa-tasks',
             cols: _cols,
             dataFilter: {},
-            sorting: {endDate: 'asc'},
+            sorting: {
+                endDate: 'asc'
+            },
             pageLength: 10,
             dataPromise: _getData,
             delegateClick: {
@@ -92,13 +94,23 @@ angular.module('greyscale.tables')
 
         function _extendTasksWithRelations(tasks) {
             return _loadTasksExtendedData(tasks)
-                .then(function(){
+                .then(function () {
                     angular.forEach(tasks, function (task) {
-                        task.uoa = _.find(_dicts.uoas, {id: task.uoaId});
-                        task.step = _.find(_dicts.steps, {id: task.stepId});
-                        var entityTypeRole = _.find(_dicts.entityTypeRoles, {id: task.entityTypeRoleId});
-                        task.user = _.find(_dicts.users, {id: entityTypeRole.userId});
-                        task.role = _.find(_dicts.roles, {id: entityTypeRole.roleId});
+                        task.uoa = _.find(_dicts.uoas, {
+                            id: task.uoaId
+                        });
+                        task.step = _.find(_dicts.steps, {
+                            id: task.stepId
+                        });
+                        var entityTypeRole = _.find(_dicts.entityTypeRoles, {
+                            id: task.entityTypeRoleId
+                        });
+                        task.user = _.find(_dicts.users, {
+                            id: entityTypeRole.userId
+                        });
+                        task.role = _.find(_dicts.roles, {
+                            id: entityTypeRole.roleId
+                        });
                     });
                     return tasks;
                 });
@@ -115,7 +127,7 @@ angular.module('greyscale.tables')
             var progress = [];
             var id = currentTask.id;
             var uoaId = currentTask.uoaId;
-            angular.forEach(_dicts.tasks, function(task){
+            angular.forEach(_dicts.tasks, function (task) {
                 if (task.uoaId !== uoaId) {
                     return;
                 }
@@ -136,8 +148,10 @@ angular.module('greyscale.tables')
                 .then(function (entityTypeRoles) {
                     _dicts.entityTypeRoles = entityTypeRoles;
                     var userIds = _.uniq(_.map(entityTypeRoles, 'userId'));
-                    return greyscaleUserApi.list({id: userIds.join('|')})
-                        .then(function(users){
+                    return greyscaleUserApi.list({
+                            id: userIds.join('|')
+                        })
+                        .then(function (users) {
                             _dicts.users = users;
                         });
                 });

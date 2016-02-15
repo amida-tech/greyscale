@@ -195,7 +195,9 @@
                 "RESPONSES_ACCESS": "Доступ к оценкам",
                 "ROLE": "Роль",
                 "START_DATE": "Дата начала",
-                "TITLE": "Шаг"
+                "TASK_PERMISSIONS": "",
+                "TITLE": "Шаг",
+                "WORKFLOW_PERMISSIONS": ""
             },
             "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
             "TITLE": "Название",
@@ -220,7 +222,7 @@
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
-        "CODE_NAME": "Название",
+        "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
@@ -257,6 +259,9 @@
             "VALUE": "Не указан перевод"
         },
         "TITLE": "Переводы"
+    },
+    "USERS": {
+        "ORGANIZATION": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

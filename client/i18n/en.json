@@ -195,7 +195,9 @@
                 "RESPONSES_ACCESS": "Responses Access",
                 "ROLE": "Role",
                 "START_DATE": "Start Date",
-                "TITLE": "Title"
+                "TASK_PERMISSIONS": "Task Permissions",
+                "TITLE": "Title",
+                "WORKFLOW_PERMISSIONS": "Workflow Permissions"
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
             "TITLE": "Title",
@@ -220,7 +222,7 @@
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",
         "CLOSE_TIME": "Close Time",
-        "CODE_NAME": "Code Name",
+        "CODE_NAME": "Project Name",
         "CREATED": "Created",
         "DESCRIPTION": "Description",
         "HEADER": "Projects",
@@ -257,6 +259,9 @@
             "VALUE": "Translation required"
         },
         "TITLE": "Translations"
+    },
+    "USERS": {
+        "ORGANIZATION": "Organization"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

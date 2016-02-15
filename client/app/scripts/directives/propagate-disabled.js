@@ -4,10 +4,18 @@ angular.module('greyscaleApp')
             restrict: 'A',
             scope: false,
             link: function (scope, el, attrs) {
-                var children;
+                var searchSelector = 'textarea,input:not(.disable-control),select,button';
+
                 var dereg = attrs.$observe('disabled', function (state) {
-                    children = _getDependentChildren(el);
+                    var children = _getDependentChildren(el, searchSelector);
                     _propagateDisable(children, state);
+
+                    var expand = el.next();
+                    if (expand.hasClass('expand-row')) {
+                        var expandChildren = _getDependentChildren(expand, searchSelector);
+                        _propagateDisable(expandChildren, state);
+                    }
+
                 });
 
                 scope.$on('$destroy', function () {
@@ -16,8 +24,9 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _getDependentChildren(el) {
-            return el[0].querySelectorAll('textarea,input:not(.disable-control),select,button');
+        function _getDependentChildren(el, selector) {
+            var depChildren = el[0].querySelectorAll(selector);
+            return depChildren;
         }
 
         function _propagateDisable(children, state) {
