@@ -148,7 +148,7 @@ module.exports = {
                             isActive       : false, //(parsed[i][4]) cannot activate until email confirmation
                             timezone       : parsed[i][5],
                             location       : parsed[i][6],
-                            cell           : parsed[i][7],
+                            mobile           : parsed[i][7],
                             phone          : parsed[i][8],
                             address        : parsed[i][9],
                             lang           : parsed[i][10],
