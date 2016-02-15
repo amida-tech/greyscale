@@ -40,13 +40,13 @@ angular.module('greyscaleApp')
                     $scope.model = {};
                 };
 
-                uploader.onCompleteItem = function(file, data){
+                uploader.onCompleteItem = function (file, data) {
                     uploader.clearQueue();
 
                     $element[0].reset();
 
-                    $timeout(function(){
-                       $scope.$digest();
+                    $timeout(function () {
+                        $scope.$digest();
                     });
 
                     if ($scope.uploadSuccess) {
@@ -59,9 +59,8 @@ angular.module('greyscaleApp')
                             issues: colorIssues(response.issue)
                         };
                     };
-                };
 
-                $scope.disableUploadButton = function(){
+                $scope.disableUploadButton = function () {
                     var noFile = !uploader.getNotUploadedItems().length;
                     var customReason = typeof $scope.uploadDisable === 'function' ?
                         $scope.uploadDisable() : false;
