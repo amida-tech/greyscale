@@ -19,7 +19,8 @@ angular.module('greyscale.tables')
             title: 'ID',
             show: false,
             sortable: 'id',
-            dataReadOnly: 'both'
+            dataReadOnly: 'both',
+            dataHide: _isProfileEdit
         }, {
             field: 'organizationId',
             show: _isSuperAdmin,
@@ -188,7 +189,7 @@ angular.module('greyscale.tables')
                     roles: greyscaleRoleApi.list(roleFilter),
                     orgs: greyscaleOrganizationApi.list({
                         organizationId: profile.organizationId
-                    }),
+                    })
                 };
 
                 return $q.all(reqs).then(function (promises) {
@@ -222,6 +223,10 @@ angular.module('greyscale.tables')
             }
             msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _isProfileEdit() {
+            return (!!_table.profileMode);
         }
 
         return _table;

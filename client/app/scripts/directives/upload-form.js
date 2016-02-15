@@ -23,8 +23,9 @@ angular.module('greyscaleApp')
                     filters: [{
                         name: 'CSV',
                         fn: function (item) {
-                            var mimeType = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-                            return '|csv|'.indexOf(mimeType) !== -1;
+                            var types = '|csv|';
+                            var _ext = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
+                            return (types.indexOf(_ext) !== -1);
                         }
                     }]
                 });
@@ -38,13 +39,14 @@ angular.module('greyscaleApp')
                     $scope.model = {};
                 };
 
-                uploader.onCompleteItem = $scope.uploadSuccess || function () {};
+                uploader.onCompleteItem = $scope.uploadSuccess || function () {
+                    };
 
                 uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
-                    $scope.model = {
-                        issues: colorIssues(response.issue)
+                        $scope.model = {
+                            issues: colorIssues(response.issue)
+                        };
                     };
-                };
 
                 function _getAbsoluteUrl(url) {
                     return greyscaleUtilsSrv.getApiBase() + '/' + url;

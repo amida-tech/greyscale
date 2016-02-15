@@ -2,59 +2,72 @@
     Edit profile
 </modal-form-header>
 <div class="modal-body">
-    <div class="row">
-        <div name="dataForm" class="form-horizontal" ng-form="dataForm">
-            <div class="form-group">
-                <label for="firstName" class="col-sm-4 control-label">First Name</label>
+    <div class="form-horizontal" name="dataForm" ng-form="dataForm">
+        <div class="form-group"
+             modal-form-rec="model"
+             modal-form-field="item"
+             modal-form-field-model="model[item.field]"
+             ng-repeat="item in view.cols"
+             ng-show="!item.dataReadOnly || item.dataReadOnly ==='edit' && !model.id || model.id"
+            ></div>
+    </div>
+    <div ng-if="view.warning = view.formWarning(model)" class="alert alert-warning">
+        {{view.warning}}
+    </div>
+<hr>
+    <div name="dataForm" class="form-horizontal" ng-form="dataForm">
 
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="firstName" id="firstName" ng-model="model.firstName"
-                           ng-required="true" ng-minlength="1">
+        <div class="form-group">
+            <label for="firstName" class="col-sm-4 control-label">First Name</label>
 
-                    <div class="text-center" ng-messages="dataForm.firstName.$error" role="alert"
-                         ng-if="dataForm.firstName.$dirty">
-                        <span ng-message="required, minlength" class="help-block">Please input your first name.</span>
-                    </div>
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="firstName" id="firstName" ng-model="model.firstName"
+                       ng-required="true" ng-minlength="1">
+
+                <div class="text-center" ng-messages="dataForm.firstName.$error" role="alert"
+                     ng-if="dataForm.firstName.$dirty">
+                    <span ng-message="required, minlength" class="help-block">Please input your first name.</span>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="lastName" class="col-sm-4 control-label">Last Name</label>
-
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="lastName" id="lastName" ng-model="model.lastName"
-                           ng-required="true" ng-minlength="1">
-
-                    <div class="text-center" ng-messages="dataForm.lastName.$error" role="alert"
-                         ng-if="dataForm.lastName.$dirty">
-                        <span ng-message="required, minlength" class="help-block">Please input your last name.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="mobile" class="col-sm-4 control-label">Mobile</label>
-
-                <div class="col-sm-8">
-                    <input type="text" class="form-control" name="mobile" id="mobile" ng-model="model.mobile"
-                           ng-pattern="/^\+?[^-][0-9-]+$/">
-
-                    <div class="text-center" ng-messages="dataForm.mobile.$error" role="alert"
-                         ng-if="dataForm.mobile.$dirty">
-                        <span ng-message="pattern" class="help-block">Please input your mobile number in correct format.</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="birthday" class="col-sm-4 control-label">Birthday</label>
-
-                <div class="col-sm-8">
-                    <select-date id="birthday" data-id="birthday" result="model.birthday"></select-date>
-                </div>
-            </div>
-
         </div>
+
+        <div class="form-group">
+            <label for="lastName" class="col-sm-4 control-label">Last Name</label>
+
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="lastName" id="lastName" ng-model="model.lastName"
+                       ng-required="true" ng-minlength="1">
+
+                <div class="text-center" ng-messages="dataForm.lastName.$error" role="alert"
+                     ng-if="dataForm.lastName.$dirty">
+                    <span ng-message="required, minlength" class="help-block">Please input your last name.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="mobile" class="col-sm-4 control-label">Mobile</label>
+
+            <div class="col-sm-8">
+                <input type="text" class="form-control" name="mobile" id="mobile" ng-model="model.mobile"
+                       ng-pattern="/^\+?[^-][0-9-]+$/">
+
+                <div class="text-center" ng-messages="dataForm.mobile.$error" role="alert"
+                     ng-if="dataForm.mobile.$dirty">
+                    <span ng-message="pattern"
+                          class="help-block">Please input your mobile number in correct format.</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="birthday" class="col-sm-4 control-label">Birthday</label>
+
+            <div class="col-sm-8">
+                <select-date id="birthday" data-id="birthday" result="model.birthday"></select-date>
+            </div>
+        </div>
+
     </div>
 </div>
 <div class="modal-form-footer"></div>
