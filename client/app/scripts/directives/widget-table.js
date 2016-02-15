@@ -57,7 +57,13 @@ angular.module('greyscaleApp')
                         }
                     }
                 });
+
+                model.tableParams.custom = {
+                    showAllButton: !!model.showAllButton
+                };
             }
+
+
             scope.isSelected = function (row) {
                 return (typeof scope.rowSelector !== 'undefined' && model.current === row);
             };
