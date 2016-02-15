@@ -1,4 +1,5 @@
 <div>
+    <p class="subtext text-right">last saved: {{(savedAt||'never') | date }}</p>
     <uib-accordion>
         <uib-accordion-group is-open="contentOpen">
             <uib-accordion-heading>
@@ -11,14 +12,22 @@
             </ul>
         </uib-accordion-group>
     </uib-accordion>
-    <form name="surveyform" class="form-horizontal">
-        <div class="row" ng-repeat="fld in fields">
-            <div class="col-sm-12">
-                <label>{{fld.label}}</label>
+    <div class="row">
+        <div class="col-sm-12">
+            <div name="surveyForm" role="form" ng-form="surveyForm">
+                <div class="form-group"
+                     ng-repeat="fld in fields"
+                     survey-form-field="fld"
+                    >
+                </div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary"
+                        ng-click="save()"
+                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty">
+                    {{"COMMON.SAVE" | translate}}
+                </button>
             </div>
         </div>
-        <div class="row text-right">
-            <button class="btn btn-primary">{{"COMMON.SAVE" | translate}}</button>
-        </div>
-    </form>
+    </div>
 </div>
