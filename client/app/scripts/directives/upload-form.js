@@ -60,7 +60,7 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.disableUploadButton = function(){
-                    var noFile = !uploader.getNotUploadedItems().length;
+                    var noFile = false; //!uploader.getNotUploadedItems().length;
                     var customReason = typeof $scope.uploadDisable === 'function' ?
                         $scope.uploadDisable() : false;
                     return noFile || customReason;
