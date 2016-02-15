@@ -34,8 +34,13 @@ upload-form,
         height: initial;
     }
     .progress {
-        margin-top: 3px;
-        margin-bottom: 10px;
+        margin: 10px 0 0 0;
+        .progress-bar {
+            transition: initial;
+        }
+    }
+    .upload-file-button {
+        margin-top: 10px;
     }
 }
 
