@@ -136,6 +136,8 @@ angular.module('greyscale.rest')
         }
 
         function _remind(login) {
-            return userAPI().one('forgot').customPOST({email: login});
+            return userAPI().one('forgot').customPOST({
+                email: login
+            });
         }
     });
