@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserApi, greyscaleModalsSrv,
-        greyscaleGlobals, greyscaleUtilsSrv) {
+        greyscaleGlobals, greyscaleUtilsSrv, greyscaleUsersTbl, $log) {
 
         $scope.org = {
             loaded: false,
@@ -14,10 +14,30 @@ angular.module('greyscaleApp')
             url: ''
         };
 
+        var _user = greyscaleUsersTbl;
+
+        var _cols = angular.copy(_user.cols);
+
+        var _hide = ['id', 'organizationId', 'roleID', 'isAnonym'];
+        var userForm = {
+            formTitle: 'profile',
+            cols: _cols
+        };
+
+        $log.debug(_user, _cols.length);
+        for (var c = 0; c < _cols.length; c++) {
+            if (_hide.indexOf(userForm.cols[c].field) !== -1) {
+                $log.debug('hide');
+                userForm.cols.splice(c, 1);
+            }
+//            userForm.cols[c].dataHide = (_hide.indexOf(userForm.cols[c]) !== -1);
+        }
+
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
+                $scope.model = user;
                 $scope.user = user;
-                if (user.roleID === greyscaleGlobals.userRoles.admin.id) {
+                if (greyscaleProfileSrv.isAdmin()) {
                     return greyscaleUserApi.getOrganization()
                         .then(function (resp) {
                             $scope.org = resp;
@@ -28,7 +48,7 @@ angular.module('greyscaleApp')
             .catch(greyscaleUtilsSrv.errorMsg);
 
         $scope.editProfile = function () {
-            greyscaleModalsSrv.editUserProfile($scope.user)
+            greyscaleModalsSrv.editRec($scope.user, userForm)
                 .then(function (_user) {
                     return greyscaleUserApi.save(_user)
                         .then(function (resp) {

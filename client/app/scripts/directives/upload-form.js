@@ -24,8 +24,9 @@ angular.module('greyscaleApp')
                     filters: [{
                         name: 'CSV',
                         fn: function (item) {
-                            var mimeType = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-                            return '|csv|'.indexOf(mimeType) !== -1;
+                            var types = '|csv|';
+                            var _ext = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
+                            return (types.indexOf(_ext) !== -1);
                         }
                     }]
                 });
@@ -39,13 +40,13 @@ angular.module('greyscaleApp')
                     $scope.model = {};
                 };
 
-                uploader.onCompleteItem = function(file, data){
+                uploader.onCompleteItem = function (file, data) {
                     uploader.clearQueue();
 
                     $element[0].reset();
 
-                    $timeout(function(){
-                       $scope.$digest();
+                    $timeout(function () {
+                        $scope.$digest();
                     });
 
                     if ($scope.uploadSuccess) {
@@ -54,13 +55,13 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
-                    $scope.model = {
-                        issues: colorIssues(response.issue)
+                        $scope.model = {
+                            issues: colorIssues(response.issue)
+                        };
                     };
-                };
 
-                $scope.disableUploadButton = function(){
-                    var noFile = false; //!uploader.getNotUploadedItems().length;
+                $scope.disableUploadButton = function () {
+                    var noFile = !uploader.getNotUploadedItems().length;
                     var customReason = typeof $scope.uploadDisable === 'function' ?
                         $scope.uploadDisable() : false;
                     return noFile || customReason;

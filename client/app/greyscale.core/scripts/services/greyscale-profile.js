@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi) {
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi, greyscaleGlobals) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
@@ -63,8 +63,8 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                        organizationId: _profile.organizationId
-                    })
+                    organizationId: _profile.organizationId
+                })
                     .then(function (associate) {
                         _associate = associate;
                         return _profile;
@@ -110,5 +110,13 @@ angular.module('greyscale.core')
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
+        };
+
+        this.isSuperAdmin = function () {
+            return (_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
+        };
+
+        this.isAdmin = function () {
+            return (_accessLevel & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
         };
     });

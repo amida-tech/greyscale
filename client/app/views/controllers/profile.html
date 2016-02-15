@@ -3,35 +3,33 @@
         <rd-widget>
             <rd-widget-header icon="fa fa-user" title="{{user.firstName}} {{user.lastName}}"></rd-widget-header>
             <rd-widget-body classes="medium no-padding">
-                <div class="row">
-                    <div class="table-responsive col-sm-12">
-                        <table class="table">
-                            <tr>
-                                <td>E-mail</td>
-                                <td>
-                                    <span>{{user.email}}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Birthday</td>
-                                <td>
-                                    <span ng-if="user.birthday">{{user.birthday | date}}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Mobile</td>
-                                <td>
-                                    <span ng-if="user.mobile">{{user.mobile}}</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Registration date</td>
-                                <td>
-                                    <span ng-if="user.created">{{user.created | date:short}}</span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="table-responsive col-sm-12">
+                    <table class="table">
+                        <tr>
+                            <td>E-mail</td>
+                            <td>
+                                <span>{{user.email}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Birthday</td>
+                            <td>
+                                <span ng-if="user.birthday">{{user.birthday | date}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Mobile</td>
+                            <td>
+                                <span ng-if="user.mobile">{{user.mobile}}</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Registration date</td>
+                            <td>
+                                <span ng-if="user.created">{{user.created | date:short}}</span>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
@@ -44,28 +42,26 @@
         <rd-widget>
             <rd-widget-header icon="fa fa-group" title="{{org.name}}"></rd-widget-header>
             <rd-widget-body classes="medium no-padding">
-                <div class="row">
-                    <div class="table-responsive col-sm-12">
-                        <table class="table">
-                            <tr>
-                                <td>Url</td>
-                                <td>{{org.url}}</td>
-                            </tr>
-                            <tr>
-                                <td>Address</td>
-                                <td>{{org.address}}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" class="text-right">
-                                    Organization
+                <div class="table-responsive col-sm-12">
+                    <table class="table">
+                        <tr>
+                            <td>Url</td>
+                            <td>{{org.url}}</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td>{{org.address}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="text-right">
+                                Organization
                                     <span ng-if="org.isActive" class="text-success"> verified <i
                                         class="fa fa-check"></i></span>
                         <span ng-if="!org.isActive" class="text-danger"> not verified <i
                             class="fa fa-warning"></i></span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
