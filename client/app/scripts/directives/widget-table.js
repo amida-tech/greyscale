@@ -265,7 +265,7 @@ angular.module('greyscaleApp')
                     _hideExpandedRow(row);
                 }
             });
-            scope.$openExpandedRow = function(rowEl){
+            scope.$openExpandedRow = function (rowEl) {
                 _showExpandedRow(rowEl, template, scope);
             };
         }
@@ -277,7 +277,7 @@ angular.module('greyscaleApp')
             rowEl.after(expand);
             var rowScope = rowEl.scope().$parent;
             $compile(expand)(rowScope);
-            $timeout(function(){
+            $timeout(function () {
                 rowScope.$digest();
             });
         }
@@ -306,13 +306,13 @@ angular.module('greyscaleApp')
             }
         }
     })
-    .directive('widgetTableExpandedRowOpen', function(){
+    .directive('widgetTableExpandedRowOpen', function () {
         return {
             restrict: 'A',
             scope: {
                 open: '=widgetTableExpandedRowOpen'
             },
-            link: function(scope, el){
+            link: function (scope, el) {
                 if (scope.open) {
                     scope.$parent.$openExpandedRow(el);
                 }
