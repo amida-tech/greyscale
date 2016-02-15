@@ -43,21 +43,6 @@ angular.module('greyscale.tables')
                 getData: _getWriteToAnswersList
             }
         }, {
-        //    field: 'step.accessToResponses',
-        //    title: tns + 'RESPONSES_ACCESS',
-        //    showDataInput: true,
-        //    dataFormat: 'boolean'
-        //}, {
-        //    field: 'step.accessToDiscussions',
-        //    title: tns + 'DISCUSSIONS_ACCESS',
-        //    showDataInput: true,
-        //    dataFormat: 'boolean'
-        //}, {
-        //    field: 'step.blindReview',
-        //    title: tns + 'BLIND_REVIEW',
-        //    showDataInput: true,
-        //    dataFormat: 'boolean'
-        //}, {
             field: 'step.startDate',
             title: tns + 'START_DATE',
             showDataInput: true,

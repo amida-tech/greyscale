@@ -28,6 +28,10 @@ angular.module('greyscaleApp')
                 }
             });
 
+        $scope.disableUpload = function(){
+            return !$scope.model.organizationId;
+        };
+
         $scope.afterUpload = function (file, data) {
             _importUsers.dataPromise = function () {
                 return $q.when(data);

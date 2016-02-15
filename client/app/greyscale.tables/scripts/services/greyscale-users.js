@@ -64,12 +64,12 @@ angular.module('greyscale.tables')
             dataReadOnly: 'add'
 
         }, {
-            field: 'created',
-            title: 'Created',
+            field: 'lastActive',
+            title: 'Last Active',
             show: true,
-            sortable: 'created',
-            dataFormat: 'date',
-            dataReadOnly: 'both'
+            sortable: 'lastActive',
+            dataReadOnly: 'both',
+            cellTemplate: '<span ng-hide="cell" translate="USERS.NOT_LOGGED"></span>{{cell|date:\'medium\'}}'
         }, {
             field: 'isActive',
             title: 'Is Active',
@@ -107,6 +107,7 @@ angular.module('greyscale.tables')
             cols: _fields,
             dataPromise: _getUsers,
             pageLength: 10,
+            showAllButton: true,
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord

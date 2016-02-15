@@ -31,7 +31,7 @@ angular.module('greyscaleApp')
 
                         var subLeft = 'Left sub';
                         var subRight = 'Right sub';
-                        
+
                         switch (scope.field.type) {
                         case 'paragraph':
                             body = label + '<textarea ' + commonPart + '></textarea>';

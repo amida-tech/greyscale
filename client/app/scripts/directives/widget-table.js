@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
                     count: model.pageLength || 5,
                     sorting: model.sorting || null
                 }, {
-                    counts: [],
+                    counts: model.pageLengths || [],
                     getData: function ($defer, params) {
                         if (typeof model.dataPromise === 'function') {
                             model.$loading = true;
@@ -57,7 +57,13 @@ angular.module('greyscaleApp')
                         }
                     }
                 });
+
+                model.tableParams.custom = {
+                    showAllButton: !!model.showAllButton
+                };
             }
+
+
             scope.isSelected = function (row) {
                 return (typeof scope.rowSelector !== 'undefined' && model.current === row);
             };
@@ -265,7 +271,7 @@ angular.module('greyscaleApp')
                     _hideExpandedRow(row);
                 }
             });
-            scope.$openExpandedRow = function(rowEl){
+            scope.$openExpandedRow = function (rowEl) {
                 _showExpandedRow(rowEl, template, scope);
             };
         }
@@ -277,7 +283,7 @@ angular.module('greyscaleApp')
             rowEl.after(expand);
             var rowScope = rowEl.scope().$parent;
             $compile(expand)(rowScope);
-            $timeout(function(){
+            $timeout(function () {
                 rowScope.$digest();
             });
         }
@@ -306,13 +312,13 @@ angular.module('greyscaleApp')
             }
         }
     })
-    .directive('widgetTableExpandedRowOpen', function(){
+    .directive('widgetTableExpandedRowOpen', function () {
         return {
             restrict: 'A',
             scope: {
                 open: '=widgetTableExpandedRowOpen'
             },
-            link: function(scope, el){
+            link: function (scope, el) {
                 if (scope.open) {
                     scope.$parent.$openExpandedRow(el);
                 }
