@@ -50,16 +50,21 @@
 
 <script type="text/ng-template" id="custom/pager">
     <div class="ng-cloak ng-table-pager" ng-if="params.data.length">
-        <div ng-if="params.settings().counts.length" class="ng-table-counts btn-group pull-right">
+        <div ng-if="params.settings().counts.length || params.custom.showAllButton" class="ng-table-counts btn-group pull-right">
             <button ng-repeat="count in params.settings().counts" type="button"
-                    ng-init="countN = count == 'all' ? 99999999 : count"
-                    ng-class="{'active':params.count()==countN}" ng-click="params.count(countN)"
-                    class="btn btn-default">
-                <span ng-if="count != 'all'" ng-bind="count"></span>
-                <span ng-if="count == 'all'">{{'COMMON.SHOW_ALL'|translate}}</span>
+                    ng-class="{'active':params.count()==count}" ng-click="params.count(count)"
+                    class="btn">
+                <span ng-bind="count"></span>
+            </button>
+            <button ng-if="params.custom.showAllButton" class="btn"
+                    translate="COMMON.SHOW_ALL"
+                    ng-init="showCount = 999999999; saveCount = params.count()"
+                    ng-class="{active: saveCount == 999999999}"
+                    ng-click="params.count(showCount); showCount = saveCount; saveCount = params.count()">
+
             </button>
         </div>
-        <ul class="pagination ng-table-pagination">
+        <ul class="pagination ng-table-pagination pull-left" ng-if="pages.length">
             <li ng-class="{'disabled': !page.active && !page.current, 'active': page.current}"
                 ng-repeat="page in pages" ng-switch="page.type"><a ng-switch-when="prev"
                                                                    ng-click="params.page(page.number)"
@@ -74,5 +79,6 @@
                 ng-bind="page.number"></span></a> <a ng-switch-when="next" ng-click="params.page(page.number)"
                                                      href="">&raquo;</a></li>
         </ul>
+        <div class="clearfix"></div>
     </div>
 </script>

@@ -107,7 +107,7 @@ angular.module('greyscale.tables')
             cols: _fields,
             dataPromise: _getUsers,
             pageLength: 10,
-            pageLengths: ['all'],
+            showAllButton: true,
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord

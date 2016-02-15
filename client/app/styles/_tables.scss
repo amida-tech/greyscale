@@ -59,3 +59,18 @@
         border-color: #bbb;
     }
 }
+
+
+
+.widget-table {
+    .table {
+        margin: 0;
+    }
+    .ng-table-pager {
+        padding: 0;
+        .pagination, .ng-table-counts {
+            margin: 10px;
+        }
+    }
+}
+
