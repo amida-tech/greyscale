@@ -5,8 +5,10 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleOrganizationApi) {
         var accessLevel;
+
+        var tns = 'USERS.';
 
         var dicts = {
             roles: []
@@ -18,6 +20,19 @@ angular.module('greyscale.tables')
             show: false,
             sortable: 'id',
             dataReadOnly: 'both'
+        }, {
+            field: 'organizationId',
+            show: _isSuperAdmin,
+            sortable: 'organizationId',
+            title: tns + 'ORGANIZATION',
+            dataFormat: 'option',
+            dataReadOnly: 'edit',
+            dataHide: _isNotSuperAdmin,
+            dataSet: {
+                getData: getOrgs,
+                keyField: 'id',
+                valField: 'name'
+            }
         }, {
             field: 'email',
             title: 'E-mail',
@@ -102,6 +117,10 @@ angular.module('greyscale.tables')
             return dicts.roles;
         }
 
+        function getOrgs() {
+            return dicts.orgs;
+        }
+
         function _delRecord(rec) {
             greyscaleUserApi.delete(rec.id)
                 .then(reloadTable)
@@ -139,6 +158,10 @@ angular.module('greyscale.tables')
             return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
 
+        function _isNotSuperAdmin() {
+            return !_isSuperAdmin();
+        }
+
         function _isAdmin() {
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
@@ -161,11 +184,15 @@ angular.module('greyscale.tables')
 
                 var reqs = {
                     users: greyscaleUserApi.list(_table.dataFilter),
-                    roles: greyscaleRoleApi.list(roleFilter)
+                    roles: greyscaleRoleApi.list(roleFilter),
+                    orgs: greyscaleOrganizationApi.list({
+                        organizationId: profile.organizationId
+                    }),
                 };
 
                 return $q.all(reqs).then(function (promises) {
                     dicts.roles = _filterRolesByAccessLevel(promises.roles);
+                    dicts.orgs = promises.orgs;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });

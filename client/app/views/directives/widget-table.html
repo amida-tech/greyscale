@@ -13,6 +13,7 @@
             <tbody>
                 <tr ng-if="!model.$loading" ng-repeat="row in $data" ng-click="select(row, $event)"
                     ng-class="{selected: isSelected(row), 'expandable-row':model.expandedRowTemplate || model.expandedRowTemplateUrl}"
+                    widget-table-expanded-row-open="model.expandedRowShow"
                     ng-disabled="isDisabled(row)" propagate-disabled>
                     <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
                         model-multiselect="model.multiselect"></td>
