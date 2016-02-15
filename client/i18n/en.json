@@ -261,6 +261,7 @@
         "TITLE": "Translations"
     },
     "USERS": {
+        "NOT_LOGGED": "Not Logged",
         "ORGANIZATION": "Organization"
     },
     "WORKFLOW_STEPS": {

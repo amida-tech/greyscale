@@ -261,6 +261,7 @@
         "TITLE": "Переводы"
     },
     "USERS": {
+        "NOT_LOGGED": "",
         "ORGANIZATION": ""
     },
     "WORKFLOW_STEPS": {
