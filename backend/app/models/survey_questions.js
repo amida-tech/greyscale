@@ -23,6 +23,8 @@ var SurveyQuestion = sql.define({
     columns: columns
 });
 
+SurveyQuestion.multiSelectTypes = [2, 3, 4];
+
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',

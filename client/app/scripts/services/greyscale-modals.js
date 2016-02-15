@@ -73,6 +73,20 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _productTask(task, activeBlock) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/product-task.html',
+                controller: 'ModalProductTaskCtrl',
+                controllerAs: 'ctrl',
+                size: 'xxl',
+                windowClass: 'modal fade in',
+                resolve: {
+                    task: task,
+                    activeBlock: activeBlock
+                }
+            }).result;
+        }
+
         function _translationForm(translation) {
             return $uibModal.open({
                 templateUrl: 'views/modals/translation-form.html',
@@ -105,6 +119,7 @@ angular.module('greyscaleApp')
             editTranslations: _translationForm,
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
-            productWorkflow: _productWorkflow
+            productWorkflow: _productWorkflow,
+            productTask: _productTask
         };
     });

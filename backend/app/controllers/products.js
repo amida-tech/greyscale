@@ -92,16 +92,7 @@ module.exports = {
         if(req.body[i].id){ // update
           var updateObj = _.pick(
               req.body[i],
-              [
-                'title',
-                'description',
-                'entityTypeRoleId',
-                'startDate',
-                'endDate',
-                'accessToDiscussions',
-                'accessToResponses',
-                'writeToAnswers'
-              ]
+              Task.editCols
           );
           if(Object.keys(updateObj).length){
             var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));

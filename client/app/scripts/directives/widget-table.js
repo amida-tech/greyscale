@@ -207,7 +207,7 @@ angular.module('greyscaleApp')
             }
         }
     })
-    .directive('widgetTable', function () {
+    .directive('widgetTable', function ($templateCache, $compile, $http) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -218,6 +218,8 @@ angular.module('greyscaleApp')
             },
             link: function (scope, el) {
                 el.removeAttr('class');
+                _expandableRowFunctionality(scope, el);
+                _delegateClickFunctionality(scope, el);
             },
             controller: function ($scope, widgetTableSrv) {
                 widgetTableSrv.init({
@@ -227,4 +229,75 @@ angular.module('greyscaleApp')
                 });
             }
         };
+
+        function _expandableRowFunctionality(scope, el) {
+            var expandedRowTemplate = scope.model.expandedRowTemplate;
+            var expandedRowTemplateUrl = scope.model.expandedRowTemplateUrl;
+            if (!expandedRowTemplate && !expandedRowTemplateUrl) {
+                return;
+            }
+
+            if (expandedRowTemplateUrl) {
+                _getTemplateByUrl(expandedRowTemplateUrl)
+                    .then(function (template) {
+                        _controlRowExpanding(el, template, scope);
+                    });
+            } else if (expandedRowTemplate) {
+                _controlRowExpanding(el, expandedRowTemplate, scope);
+            }
+        }
+
+        function _getTemplateByUrl(templateUrl) {
+            return $http.get(templateUrl, {
+                    cache: $templateCache
+                })
+                .then(function (response) {
+                    return response.data;
+                });
+        }
+
+        function _controlRowExpanding(el, template, scope) {
+            el.on('click', '.action-expand-row', function (e) {
+                var row = $(e.target).closest('.expandable-row');
+                if (!row.hasClass('is-expanded')) {
+                    _showExpandedRow(row, template, scope);
+                } else {
+                    _hideExpandedRow(row);
+                }
+            });
+        }
+
+        function _showExpandedRow(row, template, scope) {
+            row.addClass('is-expanded');
+            var colspan = scope.model.cols.length;
+            var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
+            row.after(expand);
+            var rowScope = row.scope().$parent;
+            $compile(expand)(rowScope);
+            rowScope.$apply();
+        }
+
+        function _hideExpandedRow(row) {
+            row.removeClass('is-expanded');
+            var expand = row.next();
+            if (expand.hasClass('expand-row')) {
+                expand.remove();
+            }
+        }
+
+        function _delegateClickFunctionality(scope, el) {
+            var handlers = scope.model.delegateClick;
+            if (handlers && angular.isObject(handlers)) {
+                angular.forEach(handlers, function (handler, selector) {
+                    if (typeof handler === 'function') {
+                        el.on('click', selector, function (e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            var trigger = angular.element(e.target);
+                            handler(e, trigger.scope());
+                        });
+                    }
+                });
+            }
+        }
     });

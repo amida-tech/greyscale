@@ -290,25 +290,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        .state('pmDashboard', {
+        .state('pmProductDashboard', {
             parent: 'home',
-            url: '',
-            data: {
-                name: 'NAV.PM_DASHBOARD',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
-            }
-        })
-        .state('pmDashboard.product', {
             url: 'pm/:productId',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/product-dashboard.html',
+                    templateUrl: 'views/controllers/pm-dashboard-product.html',
                     controller: 'PmDashboardProductCtrl'
                 }
             },
             data: {
-                name: '{{ext.productName}}',
-                //accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                name: 'NAV.PM_PRODUCT_DASHBOARD',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('orgs', {
@@ -416,9 +409,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.any.mask
             }
         })
-        .state('survey',{
+        .state('survey', {
             parent: 'home',
-            url:'survey/:surveyId/task/:taskId',
+            url: 'survey/:surveyId/task/:taskId',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/survey.html',

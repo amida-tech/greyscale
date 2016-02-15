@@ -11,7 +11,9 @@
         "CREATE": "Create",
         "EDIT": "Edit",
         "FURTHER": "Further",
-        "SAVE": "Save"
+        "NO": "No",
+        "SAVE": "Save",
+        "YES": "Yes"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "yyyy/MM/dd",
@@ -114,6 +116,7 @@
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
         "PM_DASHBOARD": "Project Management",
+        "PM_PRODUCT_DASHBOARD": "Product Management: {{ext.productName}}",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -139,7 +142,9 @@
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "PM_PROJECTS": {
-        "NO_PROJECTS": "You have no projects to manage"
+        "NO_PRODUCTS": "No products in project",
+        "NO_PROJECTS": "You have no projects to manage",
+        "PROJECT": "Project"
     },
     "PRODUCTS": {
         "TABLE": {
@@ -197,6 +202,21 @@
             "TITLE_REQUIRED": "Title is required."
         }
     },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "Current Step",
+        "DEADLINE": "Deadline",
+        "FLAGS": "Flags",
+        "LAST_INTERACTION": "Last Interaction",
+        "MODAL": {
+            "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
+        },
+        "PROGRESS": "Progress",
+        "ROLE": "Role",
+        "STEP": "Workflow Step",
+        "TITLE": "Product Tasks",
+        "UOA": "Unit Of Analysis",
+        "USER": "User"
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",
         "CLOSE_TIME": "Close Time",
@@ -219,6 +239,7 @@
         "STATUS": "Status"
     },
     "SURVEYS": {
+        "CONTENT": "Content",
         "DESCRIPTION": "Description",
         "FIELDS": "Fields",
         "ITEM": "Survey",

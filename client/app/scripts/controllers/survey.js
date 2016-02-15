@@ -10,26 +10,25 @@ angular.module('greyscaleApp')
         $scope.loading = true;
         $log.debug('survey params', $stateParams);
 
-        $scope.model={
+        $scope.model = {
             title: '',
-            survey: null,
-            task: null,
-            user: null
+            surveyData: null
         };
 
         $q.all({
-            task: greyscaleTaskApi.get($stateParams.taskId),
-            survey: greyscaleSurveyApi.get($stateParams.surveyId),
-            profile: greyscaleProfileSrv.getProfile()
-        })
+                task: greyscaleTaskApi.get($stateParams.taskId),
+                survey: greyscaleSurveyApi.get($stateParams.surveyId),
+                profile: greyscaleProfileSrv.getProfile()
+            })
             .then(function (resp) {
-                $scope.model.user = resp.profile;
-                $scope.model.survey = resp.survey;
-                $scope.model.task = resp.task;
+                $scope.model.surveyData = {
+                    survey: resp.survey,
+                    task: resp.task,
+                    userId: resp.profile.id
+                };
                 $scope.model.title = resp.survey.title;
             })
             .finally(function () {
                 $scope.loading = false;
-            }
-        );
+            });
     });
