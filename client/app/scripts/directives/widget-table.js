@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
                     count: model.pageLength || 5,
                     sorting: model.sorting || null
                 }, {
-                    counts: [],
+                    counts: model.pageLengths || [],
                     getData: function ($defer, params) {
                         if (typeof model.dataPromise === 'function') {
                             model.$loading = true;

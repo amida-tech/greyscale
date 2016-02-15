@@ -282,9 +282,9 @@ div.input-mask {
  */
 #sidebar-wrapper {
     background-color: $grey-light;
-
     .sidebar-header {
         border-bottom: solid 1px $grey-medium-light;
+        margin: 0;
 
         .logo {
             margin: 15px;
