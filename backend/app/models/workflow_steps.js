@@ -12,6 +12,7 @@ var columns = [
     'workflowAccessToResponses',
     'workflowAccessToDiscussions',
     'workflowBlindReview',
+    'writeToAnswers',
     'position',
     'title'
 ];
@@ -31,6 +32,7 @@ WorkflowStep.editCols = [
     'workflowAccessToResponses',
     'workflowAccessToDiscussions',
     'workflowBlindReview',
+    'writeToAnswers',
     'position',
     'title'
 ];
