@@ -15,6 +15,7 @@
         "REMIND": "Напомнить",
         "SAVE": "Сохранить",
         "SHOW_ALL": "",
+        "SUBMIT": "",
         "YES": "Да"
     },
     "DATEPICKER": {
@@ -250,6 +251,7 @@
     "SURVEYS": {
         "CONTENT": "Содержание",
         "DESCRIPTION": "Описание",
+        "DISCUSSION": "",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",
         "NAME": "Название",

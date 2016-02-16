@@ -9,16 +9,21 @@ angular.module('greyscale.mock')
         for (var m = 0; m < 7; m++) {
             _messages.push({
                 id: m,
-                created: new Date().toUTCString(),
+                sent: new Date().toUTCString(),
                 read: null,
-                fromId: -1,
-                toId: -2,
-                title: 'lorem ipsum',
+                flagged: true,
+                from: 1,
+                to: 2,
                 body: greyscaleGlobals.loremIpsum
             });
         }
 
+        var _threads = [{id: 0, title:'lorem ipsum', messages:_messages}];
+
         return function () {
+            $httpBackend.whenGET(/messages.*mock.*\/thread/).respond(function(method,url){
+
+            });
             $httpBackend.whenGET(/messages.*mock.*/).respond(function (method, url) {
                 $log.debug('mocking ' + method + ' :' + url);
                 return [200, _messages, {}];

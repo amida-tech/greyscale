@@ -4,11 +4,10 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('SurveyCtrl', function ($scope, $stateParams, $log, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv) {
+    .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
+        greyscaleProfileSrv, $log) {
 
         $scope.loading = true;
-        $log.debug('survey params', $stateParams);
 
         $scope.model = {
             title: '',

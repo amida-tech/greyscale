@@ -15,6 +15,7 @@
         "REMIND": "Remind",
         "SAVE": "Save",
         "SHOW_ALL": "Show All",
+        "SUBMIT": "Submit",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -250,6 +251,7 @@
     "SURVEYS": {
         "CONTENT": "Content",
         "DESCRIPTION": "Description",
+        "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
         "ITEM": "Survey",
         "NAME": "Name",
