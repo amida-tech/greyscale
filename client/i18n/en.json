@@ -74,6 +74,9 @@
     },
     "IMPORT": {
         "UOAS": {
+            "NAME": "Name",
+            "RESULTS_TITLE": "Import Results",
+            "STATUS": "Status",
             "TITLE": "Import Units Of Analysis"
         },
         "USERS": {
