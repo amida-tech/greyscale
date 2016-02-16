@@ -69,6 +69,8 @@ module.exports = {
                 throw new HttpError(403, 'Question with id = ' + req.body.questionId + ' does not exist');
             }
 
+            req.body.surveyId = question[0].surveyId;
+
             var uoa = yield thunkQuery(
                 UOA.select().where(UOA.id.equals(req.body.UOAid))
             );
@@ -87,8 +89,6 @@ module.exports = {
                     'UOA with id = ' + req.body.UOAid + ' does not relate to Product with id = ' + req.body.productId
                 );
             }
-
-
 
             var member = yield thunkQuery(
                 EssenceRole
@@ -175,30 +175,16 @@ module.exports = {
                 req.body.version = _.first(version).max + 1;
             }
 
-
             var existsNullVer = yield thunkQuery(
                 SurveyAnswer.select()
                     .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
                     .and(SurveyAnswer.version.isNull())
             );
 
-
             var editFields = SurveyAnswer.editCols;
 
             if (req.query.autosave) {
                 req.body.version = null;
-                if(existsNullVer[0]){
-                    console.log('update where null');
-                }else{
-                    console.log('insert where null');
-                }
-            } else {
-                // req.body.version already set to next
-                if(existsNullVer[0]){
-                    console.log('update where null set nex ver');
-                }else{
-                    console.log('insert next ver');
-                }
             }
 
             if (existsNullVer[0]) {
