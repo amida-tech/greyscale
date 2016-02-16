@@ -15,6 +15,8 @@ var Organization = sql.define({
     columns: columns
 });
 
+Organization.editCols = ['name','address','url','adminUserId','enforceApiSecurity'];
+
 Organization.whereCol = columns;
 
 module.exports = Organization;

@@ -15,7 +15,6 @@ angular.module('greyscaleApp')
 
         function _init(config) {
 
-
             var scope = config.scope;
             var rowSelector = config.rowSelector;
             var model = config.model;
@@ -240,9 +239,9 @@ angular.module('greyscaleApp')
                     scope: $scope,
                     model: $scope.model,
                     rowSelector: $scope.rowSelector,
-                    onReload: function(){
-                        $timeout(function(){
-                            _onReload($scope, $element, arguments)
+                    onReload: function () {
+                        $timeout(function () {
+                            _onReload($scope, $element, arguments);
                         });
                     }
                 });

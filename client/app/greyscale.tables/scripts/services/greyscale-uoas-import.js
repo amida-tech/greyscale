@@ -35,7 +35,7 @@ angular.module('greyscale.tables')
                 uoaTypes: greyscaleUoaTypeApi.list()
             };
             return $q.all(reqs)
-                .then(function(data){
+                .then(function (data) {
                     _dicts.uoaTypes = data.uoaTypes;
                 });
         }

@@ -82,7 +82,9 @@ angular.module('greyscale.tables')
 
         function getUsers() {
             if (_table.dataFilter.formRecord !== undefined && _table.dataFilter.formRecord.id) {
-                return _.filter(_dicts.users, {organizationId: _table.dataFilter.formRecord.id});
+                return _.filter(_dicts.users, {
+                    organizationId: _table.dataFilter.formRecord.id
+                });
             } else {
                 return _dicts.users;
             }
@@ -112,7 +114,7 @@ angular.module('greyscale.tables')
                 .catch(function (err) {
                     errorHandler(err, action);
                 })
-                .finally(function(){
+                .finally(function () {
                     delete(_table.dataFilter.formRecord);
                 });
         }

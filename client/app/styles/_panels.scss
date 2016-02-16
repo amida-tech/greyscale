@@ -18,3 +18,17 @@
 .brick {
     background-color: rgb(226, 114, 91);
 }
+.gs-message {
+    .gs-message-from {
+        font-weight: bold;
+    }
+
+    .gs-message-body {
+        max-height: 5em;
+        overflow: hidden;
+    }
+}
+
+.group-discussion {
+    background-color: $grey-light;
+}

@@ -15,12 +15,12 @@ angular.module('greyscale.tables')
         };
 
         var recDescr = [{
-        //    dataFormat: 'action',
-        //    actions: [{
-        //        icon: 'fa-bars',
-        //        class: 'drag-sort'
-        //    }]
-        //}, {
+            //    dataFormat: 'action',
+            //    actions: [{
+            //        icon: 'fa-bars',
+            //        class: 'drag-sort'
+            //    }]
+            //}, {
             field: 'title',
             show: true,
             title: tns + 'TITLE',
@@ -59,10 +59,10 @@ angular.module('greyscale.tables')
             title: tns + 'END_DATE',
             showDataInput: true,
             dataFormat: 'date'
-        //}, {
-        //    show: true,
-        //    multiselect: true,
-        //    multiselectDisableOnUncheck: true
+                //}, {
+                //    show: true,
+                //    multiselect: true,
+                //    multiselectDisableOnUncheck: true
         }];
 
         var _table = {
@@ -110,7 +110,7 @@ angular.module('greyscale.tables')
 
         function _addWorkflowStep() {
             _table.tableParams.data.push({});
-            $timeout(function(){
+            $timeout(function () {
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
                 var rowTop = lastRow.offset().top;
                 var viewport = _table.el.closest('.modal');

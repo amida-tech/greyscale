@@ -33,7 +33,6 @@ angular.module('greyscaleApp')
 
                 var _field = cell.field;
 
-
                 var showDataInput;
                 if (typeof cell.showDataInput === 'function') {
                     showDataInput = cell.showDataInput();
