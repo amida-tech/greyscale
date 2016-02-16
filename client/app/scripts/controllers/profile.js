@@ -130,6 +130,7 @@ angular.module('greyscaleApp')
                     return greyscaleUserApi.saveOrganization(_org)
                         .then(function (resp) {
                             $scope.model.org = _org;
+                            $scope.model.user.organization = _org.name;
                             return resp;
                         });
                 })
