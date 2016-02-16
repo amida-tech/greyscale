@@ -15,6 +15,7 @@
         "REMIND": "Remind",
         "SAVE": "Save",
         "SHOW_ALL": "Show All",
+        "SUBMIT": "Submit",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -148,6 +149,11 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "Assign to",
+        "INPUT_MESSAGE": "Entry",
+        "SELECT_QUESTION": "Question"
+    },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No products in project",
         "NO_PROJECTS": "You have no projects to manage",
@@ -250,6 +256,7 @@
     "SURVEYS": {
         "CONTENT": "Content",
         "DESCRIPTION": "Description",
+        "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
         "ITEM": "Survey",
         "NAME": "Name",
