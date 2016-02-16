@@ -7,6 +7,7 @@
     <div class="modal-form">
         <div class="form-horizontal" name="dataForm" ng-form="dataForm">
             <div class="form-group"
+                 ng-if="showItem(item, model)"
                  modal-form-rec="model"
                  modal-form-field="item"
                  modal-form-field-model="model[item.field]"

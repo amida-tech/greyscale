@@ -70,4 +70,11 @@
             margin: 10px;
         }
     }
+    tr.ui-sortable-placeholder {
+        border: 1px solid red;
+        td {
+            border-top: 1px solid red;
+            border-bottom: 1px solid red;
+        }
+    }
 }
