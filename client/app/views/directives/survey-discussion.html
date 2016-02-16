@@ -2,7 +2,7 @@
     <uib-accordion>
         <uib-accordion-group is-open="item.isOpen" ng-repeat="item in model.questions">
             <uib-accordion-heading>
-                {{item.label}}
+                {{item.title}}
                 <i class="fa pull-right" ng-class="{'fa-caret-up': item.isOpen, 'fa-caret-down': !item.isOpen}"></i>
             </uib-accordion-heading>
             <div class="gs-message" gs-message="msg" ng-repeat="msg in item.messages"></div>
@@ -11,7 +11,7 @@
     <div class="form" ng-form="msgForm">
         <div class="form-group">
             <select class="form-control"
-                    ng-options="item.id as item.label for item in model.questions"
+                    ng-options="item.id as item.title for item in model.questions"
                     ng-model="model.msg.thread"
                     ng-required="true">
                 <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.SELECT_QUESTION"></option>

@@ -260,6 +260,7 @@
         "FIELDS": "Fields",
         "ITEM": "Survey",
         "NAME": "Name",
+        "QUESTION": "Question",
         "VIEW": "View"
     },
     "TABLES": {

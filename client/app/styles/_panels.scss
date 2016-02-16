@@ -1,23 +1,35 @@
-.tab-pane checkbox-list .panel {
+.tab-pane checkbox-list .panel,
+.tab-pane .checkbox-list.panel {
     overflow-y: auto;
     margin-bottom: 0;
     border-top-style: none;
     border-top-left-radius: 0;
     border-top-right-radius: 0;
-    padding: 0 15px;
+    padding: 15px   ;
 }
+
 .user-uoa {
     select {
         height: 310px;
     }
-    .tab-pane checkbox-list .panel {
+    .tab-pane checkbox-list .panel,
+    .tab-pane .checkbox-list.panel{
         height: 268px;
+    }
+}
+
+.checkbox-list,
+checkbox-list {
+    .checkbox {
+        margin-top:0;
+        margin-bottom: 0;
     }
 }
 
 .brick {
     background-color: rgb(226, 114, 91);
 }
+
 .gs-message {
     .gs-message-from {
         font-weight: bold;
