@@ -68,7 +68,7 @@ angular.module('greyscaleApp')
                     if (sectionTypes.indexOf(quest.type) === -1) {
                         scope.model.questions.push({
                             id: quest.id,
-                            title: i18n.translate('SURVEYS.QUESTION') + ' ' + q,
+                            title: i18n.translate('SURVEYS.QUESTION') + ' ' + (q + 1),
                             label: quest.label,
                             isOpen: false,
                             messages: [{
