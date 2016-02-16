@@ -149,6 +149,11 @@
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "",
+        "INPUT_MESSAGE": "",
+        "SELECT_QUESTION": ""
+    },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "В проекте нет продуктов",
         "NO_PROJECTS": "Нет проектов для управления",

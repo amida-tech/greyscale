@@ -13,18 +13,22 @@
             <select class="form-control"
                     ng-options="item.id as item.label for item in model.questions"
                     ng-model="model.msg.thread"
-                    ng-required="true" value="Question"></select>
+                    ng-required="true">
+                <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.SELECT_QUESTION"></option>
+            </select>
         </div>
 
         <div class="form-group">
-            <textarea class="form-control" ng-model="model.msg.body" ng-reqired="true"></textarea>
-
+            <textarea class="form-control" ng-model="model.msg.body" ng-reqired="true"
+                      placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"></textarea>
         </div>
         <div class="form-group">
             <select class="form-control"
                     ng-options="item.id as item.firstName+ ' '+item.lastName for item in model.associate"
                     ng-model="model.msg.to"
-                    ng-required="true" value="Assign to"></select>
+                    ng-required="true">
+                <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>
+            </select>
         </div>
         <div class="form-group">
             <div class="checkbox"><label class="text-danger"><input type="checkbox" ng-model="model.msg.flagged">Flag<i

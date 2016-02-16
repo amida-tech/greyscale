@@ -44,6 +44,20 @@ angular.module('greyscaleApp')
                         lastName: 'Doe'
                     }]
                 };
+
+                $scope.sendMsg = function () {
+                    emptyMsgForm();
+                };
+
+                emptyMsgForm();
+
+                function emptyMsgForm() {
+                    $scope.model.msg = {
+                        to: '',
+                        thread: '',
+                        body: ''
+                    };
+                }
             }
         };
 

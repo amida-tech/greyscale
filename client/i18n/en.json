@@ -149,6 +149,11 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "Assign to",
+        "INPUT_MESSAGE": "Entry",
+        "SELECT_QUESTION": "Question"
+    },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No products in project",
         "NO_PROJECTS": "You have no projects to manage",
