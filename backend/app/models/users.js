@@ -30,7 +30,8 @@ var columns = [
     'lang',
     'bio',
     'notifyLevel',
-    'lastActive'
+    'lastActive',
+    'affiliation'
 ];
 
 var User = sql.define({
@@ -46,13 +47,17 @@ User.hashPassword = function (password) {
     hash.update(temp);
     return hash.digest('hex');
 };
+
 User.validPassword = function (pas, checkpas) {
     return pas === this.hashPassword(checkpas);
 };
+
 User.editCols = [
-    'firstName', 'lastName', 'phone', 'birthday', 'updated',
-    'timezone','location','cell','address','lang','bio','notifyLevel'
+    'firstName', 'lastName', 'phone', 'birthday',
+    'updated', 'timezone','location','cell','address',
+    'lang','bio','notifyLevel','affiliation'
 ];
+
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
 User.whereCol = columns;
 
