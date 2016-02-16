@@ -10,7 +10,8 @@ var columns = [
     'productId',
     'UOAid',
     'wfStepId',
-    'version'
+    'version',
+    'surveyId'
 ];
 
 var SurveyAnswer = sql.define({
@@ -22,6 +23,7 @@ SurveyAnswer.editCols = [
     'value',
     'optionId'
 ];
+
 
 SurveyAnswer.whereCol = columns;
 
