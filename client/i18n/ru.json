@@ -74,6 +74,9 @@
     },
     "IMPORT": {
         "UOAS": {
+            "NAME": "",
+            "RESULTS_TITLE": "",
+            "STATUS": "",
             "TITLE": "Импорт единиц анализа"
         },
         "USERS": {

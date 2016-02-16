@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
                 $log.debug('hide');
                 userForm.cols.splice(c, 1);
             }
-//            userForm.cols[c].dataHide = (_hide.indexOf(userForm.cols[c]) !== -1);
+            //            userForm.cols[c].dataHide = (_hide.indexOf(userForm.cols[c]) !== -1);
         }
 
         greyscaleProfileSrv.getProfile()
