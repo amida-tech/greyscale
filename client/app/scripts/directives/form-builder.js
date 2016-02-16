@@ -22,7 +22,9 @@ angular.module('greyscaleApp')
                     var i, j;
                     for (i = 0; i < fields.length; i++) {
                         var typeIdx = types.indexOf(fields[i].field_type);
-                        if (typeIdx === -1) continue;
+                        if (typeIdx === -1) {
+                            continue;
+                        }
                         var fo = fields[i].field_options;
                         var newQuestion = {
                             label: fields[i].label,
@@ -33,7 +35,9 @@ angular.module('greyscaleApp')
                             position: i + 1
                         };
                         questions.push(newQuestion);
-                        if (!fo) continue;
+                        if (!fo) {
+                            continue;
+                        }
 
                         newQuestion.description = fo.description ? fo.description : '';
                         newQuestion.skip = fo.skip && !isNaN(fo.skip) ? parseInt(fo.skip) : 0;
@@ -45,7 +49,9 @@ angular.module('greyscaleApp')
                         newQuestion.units = fo.units;
                         newQuestion.intOnly = fo.integer_only;
 
-                        if (!fo.options) continue;
+                        if (!fo.options) {
+                            continue;
+                        }
                         newQuestion.options = [];
                         for (j = 0; j < fo.options.length; j++) {
                             var option = fo.options[j];
@@ -57,14 +63,18 @@ angular.module('greyscaleApp')
                             });
                         }
                     }
-                    if (!scope.model.survey.questions) scope.model.survey.questions = [];
+                    if (!scope.model.survey.questions) {
+                        scope.model.survey.questions = [];
+                    }
 
                     for (i = scope.model.survey.questions.length - 1; i >= 0; i--) {
                         if (!scope.model.survey.questions[i]) {
                             scope.model.survey.questions.splice(i, 1);
                             continue;
                         }
-                        if (scope.model.survey.questions[i].deleted) continue;
+                        if (scope.model.survey.questions[i].deleted) {
+                            continue;
+                        }
 
                         var isAvaliable = false;
                         for (j = questions.length - 1; j >= 0; j--) {
@@ -77,9 +87,14 @@ angular.module('greyscaleApp')
                                 questions.splice(j, 1);
                             }
                         }
-                        if (isAvaliable) continue;
-                        if (scope.model.survey.questions[i].id) scope.model.survey.questions[i].deleted = true;
-                        else scope.model.survey.questions.splice(i, 1);
+                        if (isAvaliable) {
+                            continue;
+                        }
+                        if (scope.model.survey.questions[i].id) {
+                            scope.model.survey.questions[i].deleted = true;
+                        } else {
+                            scope.model.survey.questions.splice(i, 1);
+                        }
                     }
                     for (i = 0; i < questions.length; i++) {
                         delete questions[i].cid;
@@ -99,9 +114,13 @@ angular.module('greyscaleApp')
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
                             var question = scope.model.survey.questions[i];
-                            if (!question) continue;
+                            if (!question) {
+                                continue;
+                            }
                             var type = types[question.type];
-                            if (!type) continue;
+                            if (!type) {
+                                continue;
+                            }
                             var field = {
                                 cid: 'c' + question.id,
                                 field_type: type,
@@ -121,10 +140,14 @@ angular.module('greyscaleApp')
                                 }
                             };
                             data.push(field);
-                            if (!question.options) continue;
+                            if (!question.options) {
+                                continue;
+                            }
                             field.field_options.options = [];
                             for (j = 0; j < question.options.length; j++) {
-                                if (!question.options[j]) continue;
+                                if (!question.options[j]) {
+                                    continue;
+                                }
                                 field.field_options.options.push({
                                     label: question.options[j].label,
                                     skip: question.options[j].skip,
@@ -134,15 +157,20 @@ angular.module('greyscaleApp')
                             }
                         }
                     }
-                    if (formbuilder) formbuilder.off('save');
+                    if (formbuilder) {
+                        formbuilder.off('save');
+                    }
                     if (window.Formbuilder) {
                         formbuilder = new window.Formbuilder({
                             selector: '#formbuilder',
                             bootstrapData: data
                         });
                         scope.saveFormbuilder = function () {
-                            if (formbuilder.mainView.formSaved) scope.$emit('form-changes-saved');
-                            else formbuilder.mainView.saveForm();
+                            if (formbuilder.mainView.formSaved) {
+                                scope.$emit('form-changes-saved');
+                            } else {
+                                formbuilder.mainView.saveForm();
+                            }
                         };
                         formbuilder.on('save', formBuilderSave);
                     }

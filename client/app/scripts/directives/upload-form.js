@@ -55,10 +55,10 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
-                        $scope.model = {
-                            issues: colorIssues(response.issue)
-                        };
+                    $scope.model = {
+                        issues: colorIssues(response.issue)
                     };
+                };
 
                 $scope.disableUploadButton = function () {
                     var noFile = !uploader.getNotUploadedItems().length;

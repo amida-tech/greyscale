@@ -63,7 +63,6 @@ angular.module('greyscaleApp')
                 };
             }
 
-
             scope.isSelected = function (row) {
                 return (typeof scope.rowSelector !== 'undefined' && model.current === row);
             };

@@ -1,32 +1,19 @@
 <div class="row">
     <div class="col-md-6">
         <rd-widget>
-            <rd-widget-header icon="fa fa-user" title="{{user.firstName}} {{user.lastName}}"></rd-widget-header>
+            <rd-widget-header icon="fa fa-user"
+                              title="{{model.user.firstName}} {{model.user.lastName}}"></rd-widget-header>
             <rd-widget-body classes="medium no-padding">
-                <div class="table-responsive col-sm-12">
-                    <table class="table">
-                        <tr>
-                            <td>E-mail</td>
-                            <td>
-                                <span>{{user.email}}</span>
-                            </td>
+                <div class="col-sm-12">
+                    <table class="table table-responsive">
+                        <tr ng-repeat="item in view.user" ng-show="item.show">
+                            <td>{{item.title}}</td>
+                            <td><span>{{model.user[item.field]}}</span></td>
                         </tr>
                         <tr>
-                            <td>Birthday</td>
-                            <td>
-                                <span ng-if="user.birthday">{{user.birthday | date}}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Mobile</td>
-                            <td>
-                                <span ng-if="user.mobile">{{user.mobile}}</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Registration date</td>
-                            <td>
-                                <span ng-if="user.created">{{user.created | date:short}}</span>
+                            <td colspan="2" class="text-right">
+                                Profile<span ng-show="model.user.isActive" class="text-success"> activated <i class="fa fa-check"></i></span>
+                                <span ng-hide="model.user.isActive" class="text-danger"> not activated <i class="fa fa-warning"></i></span>
                             </td>
                         </tr>
                     </table>
@@ -37,28 +24,24 @@
             </rd-widget-footer>
         </rd-widget>
     </div>
-
-    <div class="col-md-6" ng-show="org.loaded">
+    <div class="col-md-6" ng-show="model.org.loaded">
         <rd-widget>
-            <rd-widget-header icon="fa fa-group" title="{{org.name}}"></rd-widget-header>
+            <rd-widget-header icon="fa fa-group" title="{{model.org.name}}"></rd-widget-header>
             <rd-widget-body classes="medium no-padding">
                 <div class="table-responsive col-sm-12">
                     <table class="table">
                         <tr>
                             <td>Url</td>
-                            <td>{{org.url}}</td>
+                            <td>{{model.org.url}}</td>
                         </tr>
                         <tr>
                             <td>Address</td>
-                            <td>{{org.address}}</td>
+                            <td>{{model.org.address}}</td>
                         </tr>
                         <tr>
                             <td colspan="2" class="text-right">
-                                Organization
-                                    <span ng-if="org.isActive" class="text-success"> verified <i
-                                        class="fa fa-check"></i></span>
-                        <span ng-if="!org.isActive" class="text-danger"> not verified <i
-                            class="fa fa-warning"></i></span>
+                                Organization<span ng-show="model.org.isActive" class="text-success"> verified <i class="fa fa-check"></i></span>
+                                <span ng-hide="model.org.isActive" class="text-danger"> not verified <i class="fa fa-warning"></i></span>
                             </td>
                         </tr>
                     </table>

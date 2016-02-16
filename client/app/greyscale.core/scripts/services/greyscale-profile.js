@@ -63,8 +63,8 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                    organizationId: _profile.organizationId
-                })
+                        organizationId: _profile.organizationId
+                    })
                     .then(function (associate) {
                         _associate = associate;
                         return _profile;
