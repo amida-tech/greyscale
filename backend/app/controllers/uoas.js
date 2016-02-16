@@ -254,6 +254,11 @@ module.exports = {
                                         valid = false;
                                     }
                                 }
+                                // shortName
+                                if (vl.isNull(newUoa.shortName)) {
+                                    newUoa.messages.push('`shortName` must not be empty');
+                                    valid = false;
+                                }
                                 // If valid, then created
                                 if (valid) {
                                     var created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
