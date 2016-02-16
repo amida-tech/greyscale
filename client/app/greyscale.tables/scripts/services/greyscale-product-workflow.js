@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi, greyscaleGlobals) {
+        greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -15,13 +15,20 @@ angular.module('greyscale.tables')
         };
 
         var recDescr = [{
+        //    dataFormat: 'action',
+        //    actions: [{
+        //        icon: 'fa-bars',
+        //        class: 'drag-sort'
+        //    }]
+        //}, {
             field: 'title',
             show: true,
             title: tns + 'TITLE',
             dataRequired: true,
-            dataFormat: 'text'
+            dataFormat: 'text',
+            showDataInput: true
         }, {
-            field: 'step.roleId',
+            field: 'roleId',
             title: tns + 'ROLE',
             showDataInput: true,
             dataFormat: 'option',
@@ -32,7 +39,7 @@ angular.module('greyscale.tables')
                 getData: getRoles
             }
         }, {
-            field: 'step.writeToAnswers',
+            field: 'writeToAnswers',
             title: tns + 'ANSWERS_ACCESS',
             showDataInput: true,
             dataFormat: 'option',
@@ -43,19 +50,19 @@ angular.module('greyscale.tables')
                 getData: _getWriteToAnswersList
             }
         }, {
-            field: 'step.startDate',
+            field: 'startDate',
             title: tns + 'START_DATE',
             showDataInput: true,
             dataFormat: 'date'
         }, {
-            field: 'step.endDate',
+            field: 'endDate',
             title: tns + 'END_DATE',
             showDataInput: true,
             dataFormat: 'date'
-        }, {
-            show: true,
-            multiselect: true,
-            multiselectDisableOnUncheck: true
+        //}, {
+        //    show: true,
+        //    multiselect: true,
+        //    multiselectDisableOnUncheck: true
         }];
 
         var _table = {
@@ -64,8 +71,12 @@ angular.module('greyscale.tables')
             pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
-            multiselect: {},
-            dataFilter: {}
+            //multiselect: {},
+            dataFilter: {},
+            add: {
+                icon: 'fa-plus',
+                handler: _addWorkflowStep
+            }
         };
 
         function getRoles() {
@@ -88,14 +99,25 @@ angular.module('greyscale.tables')
             };
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
-                workflowSteps: greyscaleWorkflowStepsApi.list(),
                 roles: greyscaleRoleApi.list(roleFilter)
             };
 
             return $q.all(req).then(function (promises) {
-                _setTableMultiselect(promises.steps);
                 _dicts.roles = promises.roles;
-                return _getWorkflowStepsTableData(promises.workflowSteps, promises.steps);
+                return promises.steps;
+            });
+        }
+
+        function _addWorkflowStep() {
+            _table.tableParams.data.push({});
+            $timeout(function(){
+                var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
+                var rowTop = lastRow.offset().top;
+                var viewport = _table.el.closest('.modal');
+                if (!viewport.length) {
+                    viewport = $(window);
+                }
+                viewport.scrollTop(rowTop);
             });
         }
 
@@ -105,30 +127,6 @@ angular.module('greyscale.tables')
                 promise = greyscaleProductWorkflowApi.workflow(workflowId).stepsList();
             }
             return promise;
-        }
-
-        function _setTableMultiselect(steps) {
-            _table.multiselect.setSelected(steps, 'stepId');
-        }
-
-        function _getWorkflowStepsTableData(allSteps, workSteps) {
-            var stepsTableData = allSteps;
-            angular.forEach(allSteps, function (step) {
-                var workStep = _.find(workSteps, {
-                    stepId: step.id
-                });
-                step.step = workStep || {
-                    stepId: step.id,
-                };
-                step.step.writeToAnswers = !!step.step.writeToAnswers;
-                step.step.taskAccessToResponses = !!step.step.taskAccessToResponses;
-                step.step.taskAccessToDiscussions = !!step.step.taskAccessToDiscussions;
-                step.step.taskBlindReviewer = !!step.step.taskBlindReviewer;
-                step.step.workflowAccessToResponses = !!step.step.workflowAccessToResponses;
-                step.step.workflowAccessToDiscussions = !!step.step.workflowAccessToDiscussions;
-                step.step.workflowBlindReviewer = !!step.step.workflowBlindReviewer;
-            });
-            return stepsTableData;
         }
 
         return _table;

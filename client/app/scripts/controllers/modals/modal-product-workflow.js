@@ -31,20 +31,14 @@ angular.module('greyscaleApp')
         $uibModalInstance.close(resolveData);
     };
 
-    $scope.validWorkflowSteps = function(){
-        var selected = productWorkflow.multiselect.selectedMap;
-        if (!selected.length) {
-            return false;
-        } else {
-            return _validateWorkflowSteps();
-        }
-    };
+    $scope.validWorkflowSteps = _validateWorkflowSteps;
 
     function _validateWorkflowSteps() {
         var steps = _getSteps();
         var valid = 0;
         angular.forEach(steps, function(step){
-            if (step.roleId &&
+            if (step.title && step.title !== '' &&
+                step.roleId &&
                 step.startDate &&
                 step.endDate &&
                 step.writeToAnswers !== undefined
@@ -57,16 +51,14 @@ angular.module('greyscaleApp')
 
     function _getSteps() {
         var tableData = productWorkflow.tableParams.data;
-        var selected = productWorkflow.multiselect.selected;
         var steps = [];
         angular.forEach(tableData, function(item){
-            if (selected[item.id] && item.step) {
-                steps.push(_.pick(item.step, [
-                    'id', 'roleId', 'stepId', 'startDate', 'endDate',
-                    'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
-                    'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
-                ]));
-            }
+            steps.push(_.pick(item, [
+                'id', 'roleId', 'startDate', 'endDate',
+                'title', 'writeToAnswers', 'sort',
+                'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
+                'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
+            ]));
         });
         return steps;
     }

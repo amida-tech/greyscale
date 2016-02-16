@@ -3,9 +3,11 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleUoasImportTbl', function () {
+    .factory('greyscaleUoasImportTbl', function ($q, greyscaleUoaTypeApi) {
 
         var tns = 'IMPORT.UOAS.';
+
+        var _dicts = {};
 
         var _fields = [{
             field: 'name',
@@ -23,8 +25,20 @@ angular.module('greyscale.tables')
             title: tns + 'RESULTS_TITLE',
             icon: 'fa-upload',
             cols: _fields,
-            pageLength: 10
+            pageLength: 10,
+            dataPromise: _loadData
         };
+
+        function _loadData() {
+            var reqs = {
+                importData: _table.importData || $q.when([]),
+                uoaTypes: greyscaleUoaTypeApi.list()
+            };
+            return $q.all(reqs)
+                .then(function(data){
+                    _dicts.uoaTypes = data.uoaTypes;
+                });
+        }
 
         return _table;
     });
