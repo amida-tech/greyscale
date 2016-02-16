@@ -43,21 +43,6 @@ angular.module('greyscale.tables')
                 getData: _getWriteToAnswersList
             }
         }, {
-            field: 'step.accessToResponses',
-            title: tns + 'RESPONSES_ACCESS',
-            showDataInput: true,
-            dataFormat: 'boolean'
-        }, {
-            field: 'step.accessToDiscussions',
-            title: tns + 'DISCUSSIONS_ACCESS',
-            showDataInput: true,
-            dataFormat: 'boolean'
-        }, {
-            field: 'step.blindReview',
-            title: tns + 'BLIND_REVIEW',
-            showDataInput: true,
-            dataFormat: 'boolean'
-        }, {
             field: 'step.startDate',
             title: tns + 'START_DATE',
             showDataInput: true,
@@ -136,9 +121,12 @@ angular.module('greyscale.tables')
                     stepId: step.id,
                 };
                 step.step.writeToAnswers = !!step.step.writeToAnswers;
-                step.step.accessToResponses = !!step.step.accessToResponses;
-                step.step.accessToDiscussions = !!step.step.accessToDiscussions;
-                step.step.blindReviewer = !!step.step.blindReviewer;
+                step.step.taskAccessToResponses = !!step.step.taskAccessToResponses;
+                step.step.taskAccessToDiscussions = !!step.step.taskAccessToDiscussions;
+                step.step.taskBlindReviewer = !!step.step.taskBlindReviewer;
+                step.step.workflowAccessToResponses = !!step.step.workflowAccessToResponses;
+                step.step.workflowAccessToDiscussions = !!step.step.workflowAccessToDiscussions;
+                step.step.workflowBlindReviewer = !!step.step.workflowBlindReviewer;
             });
             return stepsTableData;
         }

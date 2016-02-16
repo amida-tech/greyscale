@@ -3,16 +3,11 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleImportUsersTbl', function () {
+    .factory('greyscaleUsersImportTbl', function () {
 
         var tns = 'IMPORT.USERS.';
 
         var _fields = [{
-            field: 'id',
-            show: false,
-            title: 'ID',
-            dataReadOnly: 'both'
-        }, {
             field: 'email',
             show: true,
             sortable: 'email',

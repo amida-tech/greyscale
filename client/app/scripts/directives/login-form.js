@@ -19,10 +19,6 @@ angular.module('greyscaleApp')
                     error: null
                 };
 
-                $scope.restorePasswd = function () {
-                    $log.debug('need API call');
-                };
-
                 $scope.submitLogin = function () {
                     if ($scope.loginForm.$valid) {
                         greyscaleUserApi.login($scope.model.login.value, $scope.model.password.value)

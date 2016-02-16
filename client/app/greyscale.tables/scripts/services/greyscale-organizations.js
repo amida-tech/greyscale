@@ -47,7 +47,7 @@ angular.module('greyscale.tables')
             sortable: 'isActive',
             title: 'Is active',
             dataFormat: 'boolean',
-            dataReadOnly: 'both'
+            dataReadOnly: _getActivationMode
         }, {
             field: '',
             title: '',
@@ -137,6 +137,10 @@ angular.module('greyscale.tables')
             }
             msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _getActivationMode() {
+            return greyscaleProfileSrv.isSuperAdmin() ? false : 'both';
         }
 
         return _table;

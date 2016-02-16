@@ -226,10 +226,11 @@ router.route('/:realm/v0.2/organizations')
     .post(authenticate('token').always, organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
-    .get(authenticate('token').always, organizations.selectOne);
+    .get(authenticate('token').always, organizations.selectOne)
+    .put(authenticate('token').always, organizations.editOne);
 
 router.route('/:realm/v0.2/organizations/:id/users_csv')
-    .post(authenticate('token').ifPossible, organizations.csvUsers);
+    .post(authenticate('token').always, organizations.csvUsers);
 
 router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)
@@ -349,6 +350,9 @@ router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('token').always, UnitOfAnalysis.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
+
+router.route('/:realm/v0.2/import_uoas_csv')
+    .post(authenticate('token').ifPossible, UnitOfAnalysis.csvImport);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis Types

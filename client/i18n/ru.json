@@ -11,9 +11,12 @@
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "NO": "",
+        "NO": "Нет",
+        "REMIND": "Напомнить",
         "SAVE": "Сохранить",
-        "YES": ""
+        "SHOW_ALL": "",
+        "SUBMIT": "",
+        "YES": "Да"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -72,6 +75,9 @@
     },
     "IMPORT": {
         "UOAS": {
+            "NAME": "",
+            "RESULTS_TITLE": "",
+            "STATUS": "",
             "TITLE": "Импорт единиц анализа"
         },
         "USERS": {
@@ -89,10 +95,12 @@
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
         "EMAIL": "Эл.почт@",
         "FORGOT_PASSWORD": "Забыл пароль...",
+        "LOGIN_INCORRECT": "",
         "LOGIN_REQUIRED": "Логин обязателен",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
-        "SIGN_IN": "Вход"
+        "SIGN_IN": "Вход",
+        "TOKEN_SENT": ""
     },
     "MY_TASKS": {
         "NO_TASKS": "На данный момент у Вас нет задач.",
@@ -140,6 +148,11 @@
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
+    },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "",
+        "INPUT_MESSAGE": "",
+        "SELECT_QUESTION": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "В проекте нет продуктов",
@@ -195,7 +208,9 @@
                 "RESPONSES_ACCESS": "Доступ к оценкам",
                 "ROLE": "Роль",
                 "START_DATE": "Дата начала",
-                "TITLE": "Шаг"
+                "TASK_PERMISSIONS": "",
+                "TITLE": "Шаг",
+                "WORKFLOW_PERMISSIONS": ""
             },
             "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
             "TITLE": "Название",
@@ -220,7 +235,7 @@
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
-        "CODE_NAME": "Название",
+        "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
@@ -241,6 +256,7 @@
     "SURVEYS": {
         "CONTENT": "Содержание",
         "DESCRIPTION": "Описание",
+        "DISCUSSION": "",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",
         "NAME": "Название",
@@ -257,6 +273,10 @@
             "VALUE": "Не указан перевод"
         },
         "TITLE": "Переводы"
+    },
+    "USERS": {
+        "NOT_LOGGED": "",
+        "ORGANIZATION": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

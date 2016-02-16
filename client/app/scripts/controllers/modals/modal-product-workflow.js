@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscaleApp')
-.controller('ModalProductWorkflowCtrl', function ($scope,
+.controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance,
     product,
     greyscaleProductWorkflowTbl) {
@@ -9,6 +9,8 @@ angular.module('greyscaleApp')
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
+    productWorkflow.expandedRowTemplateUrl = 'views/modals/product-workflow-expanded-row.html';
+    productWorkflow.expandedRowShow = true;
 
     $scope.model = {
         product: angular.copy(product),
@@ -59,7 +61,11 @@ angular.module('greyscaleApp')
         var steps = [];
         angular.forEach(tableData, function(item){
             if (selected[item.id] && item.step) {
-                steps.push(item.step);
+                steps.push(_.pick(item.step, [
+                    'id', 'roleId', 'stepId', 'startDate', 'endDate',
+                    'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
+                    'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
+                ]));
             }
         });
         return steps;

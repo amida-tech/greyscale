@@ -47,7 +47,7 @@ $widget-header-font-weight: bold;
     }
 
     .widget-body {
-        padding: 20px;
+        padding: $panel-body-padding;
 
         table thead {
             background: #fafafa;

@@ -251,13 +251,13 @@ function* checkQuestionData(req, dataObj, isCreate) {
 
     var surveyId = isCreate ? req.params.id : dataObj.surveyId;
 
-    if (surveyId) {
-        var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
-        if (!_.first(survey)) {
-            throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
-        }
-        dataObj.surveyId = surveyId;
-    }
+    //if (surveyId) {
+    //    var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
+    //    if (!_.first(survey)) {
+    //        throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
+    //    }
+    //    dataObj.surveyId = surveyId;
+    //}
 
     if (dataObj.type) {
         if ((parseInt(dataObj.type)) < 0 || (parseInt(dataObj.type) > 10)) {
