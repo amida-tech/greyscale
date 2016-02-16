@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .factory('greyscaleModalsSrv', function ($uibModal,$q) {
+    .factory('greyscaleModalsSrv', function ($uibModal, $q) {
 
         function hndlModalErr(err) {
             return $q.reject('');

@@ -54,7 +54,7 @@ angular.module('greyscaleApp')
                 field: 'organization',
                 title: 'Organization',
                 dataHide: function () {
-                    return (!$scope.user || $scope.user.organization === '')
+                    return (!$scope.user || $scope.user.organization === '');
                 },
                 dataReadOnly: 'both'
             }, {
