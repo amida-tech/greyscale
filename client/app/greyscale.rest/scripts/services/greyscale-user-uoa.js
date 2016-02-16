@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _api(userId) {
-            return greyscaleRestSrv().one('users', userId+'').one('uoa');
+            return greyscaleRestSrv().one('users', userId + '').one('uoa');
         }
 
         function _list(userId, params) {
@@ -29,16 +29,17 @@ angular.module('greyscale.rest')
         function _add(userId, list) {
             return _api(userId).customPOST(list);
         }
+
         function _addOne(userId, uoaId) {
-            return _api(userId).one(uoaId +'').customPOST({});
+            return _api(userId).one(uoaId + '').customPOST({});
         }
 
         function _del(userId, list) {
             return _api(userId).remove(list);
         }
 
-        function _delOne(userId, ouaId) {
-            return _api(userId).one(uoaId+'').remove(list);
+        function _delOne(userId, uoaId) {
+            return _api(userId).one(uoaId + '').remove({});
         }
 
         function _addMocked(list) {

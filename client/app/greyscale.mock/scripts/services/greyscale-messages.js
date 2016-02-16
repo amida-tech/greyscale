@@ -18,10 +18,14 @@ angular.module('greyscale.mock')
             });
         }
 
-        var _threads = [{id: 0, title:'lorem ipsum', messages:_messages}];
+        var _threads = [{
+            id: 0,
+            title: 'lorem ipsum',
+            messages: _messages
+        }];
 
         return function () {
-            $httpBackend.whenGET(/messages.*mock.*\/thread/).respond(function(method,url){
+            $httpBackend.whenGET(/messages.*mock.*\/thread/).respond(function (method, url) {
 
             });
             $httpBackend.whenGET(/messages.*mock.*/).respond(function (method, url) {
