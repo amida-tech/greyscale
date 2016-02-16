@@ -5,54 +5,116 @@
 
 angular.module('greyscaleApp')
     .controller('ProfileCtrl', function ($scope, greyscaleProfileSrv, greyscaleUserApi, greyscaleModalsSrv,
-        greyscaleGlobals, greyscaleUtilsSrv, greyscaleUsersTbl, $log) {
+        greyscaleGlobals, greyscaleUtilsSrv) {
 
-        $scope.org = {
-            loaded: false,
-            name: '',
-            address: '',
-            url: ''
+        $scope.model = {
+            org: {
+                loaded: false,
+                name: '',
+                address: '',
+                url: ''
+            },
+            user: {}
         };
 
-        var _user = greyscaleUsersTbl;
+        $scope.view = {
+            user: [{
+                field: 'email',
+                title: 'E-mail',
+                dataReadOnly: 'both',
+                show: true
+            }, {
+                field: 'created',
+                title: 'Created',
+                dataReadOnly: 'both',
+                dataFormat: 'date'
+            }, {
+                field: 'isActive',
+                title: 'Activated',
+                dataReadOnly: 'both',
+                dataFormat: 'boolean'
+            }, {
+                field: 'lastActive',
+                title: 'Last active',
+                dataReadOnly: 'both',
+                dataFormat: 'date'
+            }, {
+                field: 'firstName',
+                title: 'First Name',
+                show: false
+            }, {
+                field: 'lastName',
+                title: 'Last Name',
+                show: false
+            }, {
+                field: 'lang',
+                title: 'Language',
+                show: true
+            }, {
+                field: 'organization',
+                title: 'Organization',
+                dataHide: function () {
+                    return (!$scope.user || $scope.user.organization === '')
+                },
+                dataReadOnly: 'both'
+            }, {
+                field: 'affiliation',
+                title: 'Affilation'
+            }, {
+                field: 'location',
+                title: 'Location',
+                show: true
+            }, {
+                field: 'timezone',
+                title: 'Timezone',
+                show: false
+            }, {
+                field: 'cell',
+                title: 'Mobile',
+                show: true
+            }, {
+                field: 'phone',
+                title: 'Phone',
+                show: false
+            }, {
+                field: 'address',
+                title: 'Address'
+            }, {
+                field: 'bio',
+                title: 'Bio',
+                dataFormat: 'textarea'
+            }]
+        };
 
-        var _cols = angular.copy(_user.cols);
-
-        var _hide = ['id', 'organizationId', 'roleID', 'isAnonym'];
         var userForm = {
             formTitle: 'profile',
-            cols: _cols
+            cols: $scope.view.user
         };
-
-        $log.debug(_user, _cols.length);
-        for (var c = 0; c < _cols.length; c++) {
-            if (_hide.indexOf(userForm.cols[c].field) !== -1) {
-                $log.debug('hide');
-                userForm.cols.splice(c, 1);
-            }
-//            userForm.cols[c].dataHide = (_hide.indexOf(userForm.cols[c]) !== -1);
-        }
 
         greyscaleProfileSrv.getProfile()
             .then(function (user) {
-                $scope.model = user;
-                $scope.user = user;
+                $scope.model.user = user;
+                $scope.model.user.organization = '';
                 if (greyscaleProfileSrv.isAdmin()) {
                     return greyscaleUserApi.getOrganization()
                         .then(function (resp) {
-                            $scope.org = resp;
-                            $scope.org.loaded = true;
+                            $scope.model.user.organization = resp.name;
+                            $scope.model.org = resp;
+                            $scope.model.org.loaded = true;
                         });
                 }
             })
             .catch(greyscaleUtilsSrv.errorMsg);
 
         $scope.editProfile = function () {
-            greyscaleModalsSrv.editRec($scope.user, userForm)
+            var _userData = angular.copy($scope.model.user);
+            greyscaleModalsSrv.editRec(_userData, userForm)
                 .then(function (_user) {
+                    delete _user.organization;
                     return greyscaleUserApi.save(_user)
                         .then(function (resp) {
-                            $scope.user = _user;
+                            $scope.model.user = _user;
+                            $scope.model.user.organization = $scope.model.org.name;
                             return resp;
                         });
                 })
@@ -60,14 +122,14 @@ angular.module('greyscaleApp')
         };
 
         $scope.editOrg = function () {
-            greyscaleModalsSrv.editUserOrganization($scope.org)
+            greyscaleModalsSrv.editUserOrganization($scope.model.org)
                 .then(function (_org) {
                     if (typeof _org.isActive === 'undefined') {
                         _org.isActive = true;
                     }
                     return greyscaleUserApi.saveOrganization(_org)
                         .then(function (resp) {
-                            $scope.org = _org;
+                            $scope.model.org = _org;
                             return resp;
                         });
                 })

@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 }
             });
 
-        $scope.disableUpload = function(){
+        $scope.disableUpload = function () {
             return !$scope.model.organizationId;
         };
 
