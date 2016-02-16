@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyDiscussion', function (greyscaleGlobals, $log) {
+    .directive('surveyDiscussion', function (greyscaleGlobals, i18n, $log) {
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
         var sectionTypes = [
             fieldTypes.indexOf('section_start'),
@@ -68,6 +68,7 @@ angular.module('greyscaleApp')
                     if (sectionTypes.indexOf(quest.type) === -1) {
                         scope.model.questions.push({
                             id: quest.id,
+                            title: i18n.translate('SURVEYS.QUESTION') + ' '+q,
                             label: quest.label,
                             isOpen: false,
                             messages: [{
