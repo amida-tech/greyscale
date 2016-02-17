@@ -8,6 +8,7 @@
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
         "CLOSE": "Close",
+        "CONTINUE": "Continue",
         "CREATE": "Create",
         "EDIT": "Edit",
         "FURTHER": "Further",
@@ -15,6 +16,7 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVE_AND_CONTINUE": "Save And Continue",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "YES": "Yes"
@@ -76,12 +78,21 @@
     },
     "IMPORT": {
         "UOAS": {
+            "DESCRIPTION": "Description",
+            "DOWNLOAD_EXAMPLE": "Download Example",
+            "ISO": "ISO",
+            "ISO2": "ISO2",
             "NAME": "Name",
+            "NAMEISO": "Name ISO",
             "RESULTS_TITLE": "Import Results",
+            "SHORT_NAME": "Short Name",
             "STATUS": "Status",
-            "TITLE": "Import Units Of Analysis"
+            "TITLE": "Import Units Of Analysis",
+            "UOA_TYPE": "Uoa Type",
+            "VISIBILITY": "Visibility"
         },
         "USERS": {
+            "DOWNLOAD_EXAMPLE": "Download Example",
             "EMAIL": "E-mail",
             "FIRST_NAME": "First Name",
             "LAST_NAME": "Last Name",
@@ -173,6 +184,7 @@
             "START_PRODUCT": "Start Product",
             "STATUS": "Status",
             "SURVEY": "Survey",
+            "SURVEY_STATUS": "Survey Status",
             "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "UoAs",

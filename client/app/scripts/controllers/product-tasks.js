@@ -12,6 +12,7 @@ angular.module('greyscaleApp')
             productId = parseInt($stateParams.productId);
 
         $scope.model = {
+            projectId: projectId,
             $loading: true,
             selectedUser: {},
             selectedRole: {}

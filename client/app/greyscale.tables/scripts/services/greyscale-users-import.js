@@ -25,8 +25,8 @@ angular.module('greyscale.tables')
         }, {
             sortable: 'message',
             title: tns + 'STATUS',
-            cellTemplate: '<span ng-class="{\'text-danger\':(row.parse_status == \'skipped\'), \'text-success\':(row.parse_status == \'Ok\')}">' +
-                '{{row.message}}</span>'
+            cellTemplate: '<div ng-class="{\'text-danger\':(row.parse_status == \'skipped\'), \'text-success\':(row.parse_status == \'Ok\')}">' +
+                '{{row.message}}<div ng-repeat="message in row.messages">{{message}}</div></div>'
         }];
 
         var _table = {
