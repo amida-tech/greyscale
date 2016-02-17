@@ -144,7 +144,7 @@ angular.module('greyscale.rest')
         }
 
         function _resetToken(token) {
-            return userAPI().one('check_restore_token',token).get();
+            return userAPI().one('check_restore_token', token).get();
         }
 
         function _resetPasswd(data) {

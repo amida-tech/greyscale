@@ -31,13 +31,10 @@ angular.module('greyscaleApp')
                     .catch(errHandler);
 
                 $scope.reset = function () {
-
-                    delete $scope.model.password_conf;
-
                     greyscaleUserApi.resetPasswd({
-                        token: $scope.token,
-                        password: $scope.model.password
-                    })
+                            token: $scope.token,
+                            password: $scope.model.password
+                        })
                         .then(function () {
                             $scope.success = 'LOGIN.RESET_SUCCESS';
                         })
