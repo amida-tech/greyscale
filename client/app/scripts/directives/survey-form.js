@@ -7,44 +7,42 @@ angular.module('greyscaleApp')
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
-        var mockedOptions = [
-            {
-                label: 'mocked option 1',
-                skip: null,
-                isSelected: false,
-                value: 'option 1'
-            }, {
-                label: 'mocked option 2',
-                skip: null,
-                isSelected: false,
-                value: 'option 2'
-            }, {
-                label: 'mocked option 3',
-                skip: null,
-                isSelected: false,
-                value: 'option 3'
-            }, {
-                label: 'mocked option 4',
-                skip: null,
-                isSelected: false,
-                value: 'option 4'
-            }, {
-                label: 'mocked option 5',
-                skip: null,
-                isSelected: false,
-                value: 'option 5'
-            }, {
-                label: 'mocked option 6',
-                skip: null,
-                isSelected: false,
-                value: 'option 6'
-            }, {
-                label: 'mocked option 7',
-                skip: null,
-                isSelected: true,
-                value: 'option 7'
-            }
-        ];
+        var mockedOptions = [{
+            label: 'mocked option 1',
+            skip: null,
+            isSelected: false,
+            value: 'option 1'
+        }, {
+            label: 'mocked option 2',
+            skip: null,
+            isSelected: false,
+            value: 'option 2'
+        }, {
+            label: 'mocked option 3',
+            skip: null,
+            isSelected: false,
+            value: 'option 3'
+        }, {
+            label: 'mocked option 4',
+            skip: null,
+            isSelected: false,
+            value: 'option 4'
+        }, {
+            label: 'mocked option 5',
+            skip: null,
+            isSelected: false,
+            value: 'option 5'
+        }, {
+            label: 'mocked option 6',
+            skip: null,
+            isSelected: false,
+            value: 'option 6'
+        }, {
+            label: 'mocked option 7',
+            skip: null,
+            isSelected: true,
+            value: 'option 7'
+        }];
 
         return {
             restrict: 'E',
@@ -60,10 +58,10 @@ angular.module('greyscaleApp')
                 function updateForm(data) {
                     if (data && data.survey) {
 
-                        prepareFields(scope, data);
+                        prepareFields(scope);
 
                         if (data.task && data.userId) {
-                            loadAnswers(scope, data);
+                            loadAnswers(scope);
                         }
 
                         elem.prepend('<p class="subtext"><span class="required"></span>form is under construction</p>');
@@ -78,13 +76,19 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.save = function () {
-                    $log.debug('implement survey saving');
-                    //greyscaleSurveyAnswerApi.save({});
+                    saveAnswers(scope)
                 };
             }
         };
 
-        function prepareFields(scope, surveyData) {
+        function saveAnswers(scope) {
+            $log.debug('survey answers saving');
+            greyscaleSurveyAnswerApi.save({});
+
+        }
+
+        function prepareFields(scope) {
+            $log.debug(scope);
             scope.fields = [];
             scope.answers = {};
             scope.content = [];
@@ -95,11 +99,12 @@ angular.module('greyscaleApp')
                 fields: fields,
                 content: content
             }];
+            var survey = scope.surveyData.survey;
 
             var r = 0;
 
-            for (var q = 0; q < surveyData.survey.questions.length; q++) {
-                var field = surveyData.survey.questions[q];
+            for (var q = 0; q < survey.questions.length; q++) {
+                var field = survey.questions[q];
                 var type = fieldTypes[field.type];
                 if (type) {
                     var item = {
@@ -117,6 +122,7 @@ angular.module('greyscaleApp')
                         options: field.options,
                         minLength: field.minLength,
                         maxLength: field.maxLength,
+                        inWords: field.isWordmml,
                         units: field.units,
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt
@@ -144,13 +150,13 @@ angular.module('greyscaleApp')
             scope.content = content;
         }
 
-        function loadAnswers(scope, surveyData) {
+        function loadAnswers(scope) {
             var params = {
-                surveryId: surveyData.survey.id,
-                productId: surveyData.task.productId,
-                UOAid: surveyData.task.uoaId,
-                wfStepId: surveyData.task.stepId,
-                userId: surveyData.userId
+                surveryId: scope.surveyData.survey.id,
+                productId: scope.surveyData.task.productId,
+                UOAid: scope.surveyData.task.uoaId,
+                wfStepId: scope.surveyData.task.stepId,
+                userId: scope.surveyData.userId
             };
 
             greyscaleSurveyAnswerApi.list(params)

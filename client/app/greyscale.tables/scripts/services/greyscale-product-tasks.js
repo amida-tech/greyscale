@@ -2,7 +2,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q,
-        greyscaleProductApi, greyscaleWorkflowStepsApi,
+        greyscaleProductApi,
         greyscaleProductWorkflowApi, greyscaleEntityTypeRoleApi,
         greyscaleUserApi, greyscaleRoleApi, greyscaleModalsSrv) {
 

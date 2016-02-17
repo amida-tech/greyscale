@@ -106,7 +106,7 @@ angular.module('greyscale.rest')
         }
 
         function _inviteAdmin(userData) {
-            return userAPI().one('invite').customPOST(userData);
+            return orgAPI().one('invite').customPOST(userData);
         }
 
         function _inviteUser(userData) {

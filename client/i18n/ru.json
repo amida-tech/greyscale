@@ -149,6 +149,7 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "RESET": "",
         "SURVEY": "Опрос",
         "TASKS": "Задачи",
         "UOAS": {
@@ -167,6 +168,9 @@
         "ASSIGN_TO": "",
         "INPUT_MESSAGE": "",
         "SELECT_QUESTION": ""
+    },
+    "PM_PRODUCT_DASHBOARD": {
+        "DOWNLOAD_DATA": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "В проекте нет продуктов",
@@ -218,15 +222,20 @@
             "STEPS": {
                 "ANSWERS_ACCESS": "Доступ к ответам",
                 "BLIND_REVIEW": "Слепой просмотр",
-                "DISCUSSIONS_ACCESS": "Доступ к обсуждениям",
+                "DISCUSSION_PARTICIPATION": "",
+                "EDIT_TRANSLATE": "",
                 "END_DATE": "Дата окончания",
+                "OTHER_ACCESS": "",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
-                "RESPONSES_ACCESS": "Доступ к оценкам",
+                "PROVIDE_RESPONSES": "",
                 "ROLE": "Роль",
+                "SEE_OTHERS_RESPONSES": "",
                 "START_DATE": "Дата начала",
                 "TASK_PERMISSIONS": "",
                 "TITLE": "Шаг",
-                "WORKFLOW_PERMISSIONS": ""
+                "WORKFLOW_PERMISSIONS": "",
+                "WRITE_ACCESS_READ": "",
+                "WRITE_ACCESS_WRITE": ""
             },
             "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
             "TITLE": "Название",
@@ -290,6 +299,13 @@
             "VALUE": "Не указан перевод"
         },
         "TITLE": "Переводы"
+    },
+    "UOAS_FILTER": {
+        "DESCRIPTION": "",
+        "NAME": "",
+        "SHORT_NAME": "",
+        "TABLE_TITLE": "",
+        "TYPE": ""
     },
     "USERS": {
         "NOT_LOGGED": "",

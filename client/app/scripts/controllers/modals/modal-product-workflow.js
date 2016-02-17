@@ -9,8 +9,6 @@ angular.module('greyscaleApp')
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
-    //productWorkflow.expandedRowTemplateUrl = 'views/modals/product-workflow-expanded-row.html';
-    //productWorkflow.expandedRowShow = true;
 
     $scope.model = {
         product: angular.copy(product),
@@ -56,8 +54,8 @@ angular.module('greyscaleApp')
             var step = _.pick(item, [
                 'id', 'roleId', 'startDate', 'endDate',
                 'title', 'writeToAnswers',
-                'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
-                'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
+                'discussionParticipation', 'provideResponses', 'seeOthersResponses',
+                'editTranslate', 'blindReview'
             ]);
             step.position = i;
             steps.push(step);
