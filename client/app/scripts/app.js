@@ -425,7 +425,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('survey', {
             parent: 'home',
-            url: 'survey/:surveyId/task/:taskId',
+            url: 'survey/:surveyId/task/:taskId?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/survey.html',
