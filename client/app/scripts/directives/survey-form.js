@@ -7,44 +7,42 @@ angular.module('greyscaleApp')
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
-        var mockedOptions = [
-            {
-                label: 'mocked option 1',
-                skip: null,
-                isSelected: false,
-                value: 'option 1'
-            }, {
-                label: 'mocked option 2',
-                skip: null,
-                isSelected: false,
-                value: 'option 2'
-            }, {
-                label: 'mocked option 3',
-                skip: null,
-                isSelected: false,
-                value: 'option 3'
-            }, {
-                label: 'mocked option 4',
-                skip: null,
-                isSelected: false,
-                value: 'option 4'
-            }, {
-                label: 'mocked option 5',
-                skip: null,
-                isSelected: false,
-                value: 'option 5'
-            }, {
-                label: 'mocked option 6',
-                skip: null,
-                isSelected: false,
-                value: 'option 6'
-            }, {
-                label: 'mocked option 7',
-                skip: null,
-                isSelected: true,
-                value: 'option 7'
-            }
-        ];
+        var mockedOptions = [{
+            label: 'mocked option 1',
+            skip: null,
+            isSelected: false,
+            value: 'option 1'
+        }, {
+            label: 'mocked option 2',
+            skip: null,
+            isSelected: false,
+            value: 'option 2'
+        }, {
+            label: 'mocked option 3',
+            skip: null,
+            isSelected: false,
+            value: 'option 3'
+        }, {
+            label: 'mocked option 4',
+            skip: null,
+            isSelected: false,
+            value: 'option 4'
+        }, {
+            label: 'mocked option 5',
+            skip: null,
+            isSelected: false,
+            value: 'option 5'
+        }, {
+            label: 'mocked option 6',
+            skip: null,
+            isSelected: false,
+            value: 'option 6'
+        }, {
+            label: 'mocked option 7',
+            skip: null,
+            isSelected: true,
+            value: 'option 7'
+        }];
 
         return {
             restrict: 'E',
