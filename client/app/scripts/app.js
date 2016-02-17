@@ -114,7 +114,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.ACTIVATE',
+                name: 'NAV.RESET',
                 accessLevel: systemRoles.nobody.mask
             }
         })
@@ -218,7 +218,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasList', {
@@ -229,7 +229,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.LIST',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasImport', {
@@ -240,7 +240,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.IMPORT',
                 icon: 'fa-upload',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects', {

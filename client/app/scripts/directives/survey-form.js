@@ -115,6 +115,7 @@ angular.module('greyscaleApp')
                         options: field.options,
                         minLength: field.minLength,
                         maxLength: field.maxLength,
+                        inWords: field.isWordmml,
                         units: field.units,
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt
