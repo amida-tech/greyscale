@@ -104,6 +104,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             }
         })
+        .state('reset', {
+            parent: 'main',
+            url: '/reset/:token',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.ACTIVATE',
+                accessLevel: systemRoles.nobody.mask
+            }
+        })
         .state('dashboard', {
             url: '/?returnTo',
             parent: 'main',

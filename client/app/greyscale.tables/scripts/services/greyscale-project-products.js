@@ -57,6 +57,12 @@ angular.module('greyscale.tables')
                 state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
+            field: 'surveyStatus',
+            sortable: 'surveyStatus',
+            title: tns + 'SURVEY_STATUS',
+            show: true,
+            dataHide: true
+        }, {
             field: 'workflow.name',
             sortable: 'workflow.name',
             title: tns + 'WORKFLOW',

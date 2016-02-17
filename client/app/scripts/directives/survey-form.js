@@ -7,18 +7,45 @@ angular.module('greyscaleApp')
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
-        /*
-         var survey;
-         var surveyId;
-         var taskId;
-         var taskInfo;
-         var constUrl = 'http://indaba.ntrlab.ru:83/dev/v0.2/';
-         var dataFields;
-         var currentParent;
-         var content;
-         var userId;
-         var hasChanges = false;
-         */
+        var mockedOptions = [
+            {
+                label: 'mocked option 1',
+                skip: null,
+                isSelected: false,
+                value: 'option 1'
+            }, {
+                label: 'mocked option 2',
+                skip: null,
+                isSelected: false,
+                value: 'option 2'
+            }, {
+                label: 'mocked option 3',
+                skip: null,
+                isSelected: false,
+                value: 'option 3'
+            }, {
+                label: 'mocked option 4',
+                skip: null,
+                isSelected: false,
+                value: 'option 4'
+            }, {
+                label: 'mocked option 5',
+                skip: null,
+                isSelected: false,
+                value: 'option 5'
+            }, {
+                label: 'mocked option 6',
+                skip: null,
+                isSelected: false,
+                value: 'option 6'
+            }, {
+                label: 'mocked option 7',
+                skip: null,
+                isSelected: true,
+                value: 'option 7'
+            }
+        ];
+
         return {
             restrict: 'E',
             //            replace: true,
@@ -82,11 +109,17 @@ angular.module('greyscaleApp')
                     };
 
                     var fld = {
-                        cid: 'c' + field.id,
+                        cid: 'q' + field.id,
                         type: type,
                         label: field.label,
+                        description: field.description,
                         required: field.isRequired,
-                        options: {}
+                        options: field.options,
+                        minLength: field.minLength,
+                        maxLength: field.maxLength,
+                        units: field.units,
+                        intOnly: field.intOnly,
+                        withOther: field.incOtherOpt
                     };
 
                     if (type === 'section_end') { // close section
