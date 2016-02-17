@@ -169,6 +169,9 @@
         "INPUT_MESSAGE": "Entry",
         "SELECT_QUESTION": "Question"
     },
+    "PM_PRODUCT_DASHBOARD": {
+        "DOWNLOAD_DATA": "Download Data"
+    },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No products in project",
         "NO_PROJECTS": "You have no projects to manage",

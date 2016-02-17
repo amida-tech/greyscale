@@ -108,7 +108,8 @@ angular.module('greyscale.tables')
                 };
                 return greyscaleUoaApi.list(params);
             } else {
-                return $q.when([]);
+                return greyscaleUoaApi.list();
+                //return $q.when([]);
             }
         }
 

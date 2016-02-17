@@ -9,8 +9,6 @@ angular.module('greyscaleApp')
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
-    //productWorkflow.expandedRowTemplateUrl = 'views/modals/product-workflow-expanded-row.html';
-    //productWorkflow.expandedRowShow = true;
 
     $scope.model = {
         product: angular.copy(product),

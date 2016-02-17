@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl) {
+        greyscaleProductApi, greyscaleProductTasksTbl, inform) {
 
         var productId = $stateParams.productId;
 
@@ -37,6 +37,12 @@ angular.module('greyscaleApp')
 
             return $q.all(reqs);
         }
+
+        $scope.downloadData = function () {
+            inform.add('waiting for server response .....', {
+                type: 'warning'
+            });
+        };
 
         //function _extendData(data) {
         //    angular.forEach(data.tasks, function (task) {
