@@ -33,7 +33,13 @@ angular.module('greyscaleApp')
 
                 var _field = cell.field;
 
-                if (cell.showDataInput) {
+                var showDataInput;
+                if (typeof cell.showDataInput === 'function') {
+                    showDataInput = cell.showDataInput();
+                } else {
+                    showDataInput = cell.showDataInput;
+                }
+                if (showDataInput) {
                     $scope.model = $scope.rowValue;
                     _compileDataInput();
 
@@ -146,7 +152,15 @@ angular.module('greyscaleApp')
                     if (cell.link.target) {
                         link.attr('target', cell.link.target);
                     }
-                    elem.html(link[0].outerHTML);
+                    if (cell.link.handler) {
+                        link.attr('href', '');
+                        link.on('click', function () {
+                            var tableRow = $scope.$parent.$parent.row;
+                            cell.link.handler(tableRow);
+                        });
+                    }
+                    elem.html('');
+                    elem.append(link);
                     $scope.item = $scope.rowValue;
                     $compile(elem.contents())($scope);
                 }

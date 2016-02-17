@@ -295,11 +295,21 @@ module.exports = {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
-            org = _.first(org);
-            if (!org) {
-                throw new HttpError(400, 'You dont have any organizations');
+            if(req.user.roleID == 1){
+                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
+                }
+            }else{
+                var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'You dont have any organizations');
+                }
             }
+
+
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -341,13 +351,25 @@ module.exports = {
                 token: activationToken
             };
             var mailer = new Emailer(options, data);
-            mailer.send(function (data) {
-                console.log('EMAIL RESULT --->>>');
-                console.log(data);
 
-            });
+            try{
+                yield function*(){
+                    return yield new Promise(function(resolve, reject) {
+                        mailer.send(function (err, data) {
+                            console.log(err);
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve(data);
+                        });
+                    })
+                }()
+            }catch(e){
+                throw new HttpError(400, 'Cannot send invitation email');
+            }
 
             return newClient;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {

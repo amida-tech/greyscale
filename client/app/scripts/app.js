@@ -25,7 +25,8 @@ var _app = angular.module('greyscaleApp', [
     'lodashAngularWrapper',
     'isteven-multi-select',
     'pascalprecht.translate',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ui.sortable'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -101,6 +102,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                     name: 'NAV.FORGOT',
                     accessLevel: systemRoles.nobody.mask
                 }
+            }
+        })
+        .state('reset', {
+            parent: 'main',
+            url: '/reset/:token',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.ACTIVATE',
+                accessLevel: systemRoles.nobody.mask
             }
         })
         .state('dashboard', {

@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .service('widgetTableSrv', function (_, NgTableParams, $filter,
-        $compile, i18n, $timeout, $templateCache, $rootScope) {
+    .service('widgetTableSrv', function (_, $q, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel) {
 
         var _templateCacheIds = [];
 
@@ -14,15 +14,21 @@ angular.module('greyscaleApp')
         };
 
         function _init(config) {
+
             var scope = config.scope;
             var rowSelector = config.rowSelector;
             var model = config.model;
+            model.el = config.el;
 
             if (typeof rowSelector === 'function') {
                 model.current = rowSelector();
             } else {
                 model.current = null;
             }
+
+            scope.sortableOptions = {
+                disabled: true
+            };
 
             _translateParams(model);
 
@@ -63,6 +69,15 @@ angular.module('greyscaleApp')
                 };
             }
 
+            if (model.dragSortable) {
+                scope.sortableOptions = {
+                    handle: '.action-drag-sortable',
+                    start: function (e, ui) {
+                        ui.placeholder.height(ui.item.height());
+                    }
+                };
+            }
+
             scope.isSelected = function (row) {
                 return (typeof scope.rowSelector !== 'undefined' && model.current === row);
             };
@@ -97,6 +112,10 @@ angular.module('greyscaleApp')
                     });
                 }
             });
+
+            if (typeof config.onReload === 'function') {
+                ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
+            }
         }
 
         function _getDataMap(data) {
@@ -226,14 +245,33 @@ angular.module('greyscaleApp')
                 _expandableRowFunctionality(scope, el);
                 _delegateClickFunctionality(scope, el);
             },
-            controller: function ($scope, widgetTableSrv) {
+            controller: function ($scope, $element, widgetTableSrv) {
                 widgetTableSrv.init({
+                    el: $element,
                     scope: $scope,
                     model: $scope.model,
-                    rowSelector: $scope.rowSelector
+                    rowSelector: $scope.rowSelector,
+                    onReload: function () {
+                        $timeout(function () {
+                            _onReload($scope, $element, arguments);
+                        });
+                    }
                 });
             }
         };
+
+        function _onReload(scope, el, args) {
+
+        }
+
+        function _findExpanded(rowEl) {
+            var next = rowEl.next();
+            if (next.hasClass('expand-row')) {
+                return next;
+            } else {
+                return _findExpanded(next);
+            }
+        }
 
         function _expandableRowFunctionality(scope, el) {
             var expandedRowTemplate = scope.model.expandedRowTemplate;

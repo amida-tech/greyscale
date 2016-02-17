@@ -13,6 +13,7 @@
         "FURTHER": "Далее",
         "NO": "Нет",
         "REMIND": "Напомнить",
+        "RESET": "",
         "SAVE": "Сохранить",
         "SHOW_ALL": "",
         "SUBMIT": "",
@@ -95,10 +96,12 @@
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
         "EMAIL": "Эл.почт@",
         "FORGOT_PASSWORD": "Забыл пароль...",
+        "GO_LOGIN": "",
         "LOGIN_INCORRECT": "",
         "LOGIN_REQUIRED": "Логин обязателен",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
+        "RESET_SUCCESS": "",
         "SIGN_IN": "Вход",
         "TOKEN_SENT": ""
     },
@@ -161,6 +164,7 @@
     },
     "PRODUCTS": {
         "TABLE": {
+            "CREATE_WORKFLOW": "",
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
             "PLANNING_NOT_FINISH": "",
