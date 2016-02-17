@@ -109,11 +109,17 @@ angular.module('greyscaleApp')
                     };
 
                     var fld = {
-                        cid: 'c' + field.id,
+                        cid: 'q' + field.id,
                         type: type,
                         label: field.label,
+                        description: field.description,
                         required: field.isRequired,
-                        options: field.options
+                        options: field.options,
+                        minLength: field.minLength,
+                        maxLength: field.maxLength,
+                        units: field.units,
+                        intOnly: field.intOnly,
+                        withOther: field.incOtherOpt
                     };
 
                     if (type === 'section_end') { // close section
