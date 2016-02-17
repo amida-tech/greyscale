@@ -13,10 +13,14 @@
                 <h5>Units of analysis:</h5>
                 <uib-tabset>
                     <uib-tab heading="Public">
-                        <checkbox-list list-items="model.pubUoa" on-item-change="checkItem"></checkbox-list>
+                        <div class="panel panel-default">
+                            <checkbox-list list-items="model.pubUoa" on-item-change="checkItem"></checkbox-list>
+                        </div>
                     </uib-tab>
                     <uib-tab heading="Private">
-                        <checkbox-list list-items="model.privUoa" on-item-change="checkItem"></checkbox-list>
+                        <div class="panel panel-default">
+                            <checkbox-list list-items="model.privUoa" on-item-change="checkItem"></checkbox-list>
+                        </div>
                     </uib-tab>
                 </uib-tabset>
             </div>

@@ -29,12 +29,14 @@ angular.module('greyscaleApp')
 
                         var commonPart = 'id="{{field.cid}}" class="form-control" ng-model="answers[field.cid]" ng-required="{{field.required}}"';
 
-                        var subLeft = 'Left sub';
-                        var subRight = 'Right sub';
+                        var subLeft = '';
+                        var subRight = '';
+                        var o;
 
                         switch (scope.field.type) {
                         case 'paragraph':
-                            body = label + '<textarea ' + commonPart + '></textarea>';
+                            body = '<textarea ' + commonPart + '></textarea>';
+                            subLeft = 'Max count:' + scope.field.maxcount;
                             break;
 
                         case 'section_break':
@@ -42,35 +44,63 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'text':
-                            body = label + '<input type="text" ' + commonPart + '>';
+                            body = '<input type="text" ' + commonPart + '>';
                             break;
 
                         case 'number':
-                            $log.debug(scope.field);
-                            body = label + '<input type="number" ' + commonPart + '>';
+                            body = '<input type="number" ' + commonPart + '>';
                             break;
 
                         case 'email':
-                            $log.debug(scope.field);
-                            body = label + '<input type="email" ' + commonPart + '>';
+                            body = '<input type="email" ' + commonPart + '>';
                             break;
 
                         case 'checkboxes':
-                        case 'radio':
+                            if (scope.field.options && scope.field.options.length > 0) {
+                                for (o = 0; o < scope.field.options.length; o++) {
+                                    angular.extend(scope.field.options[o], {
+                                        checked: scope.field.options[o].isSelected,
+                                        name: scope.field.options[o].label
+                                    });
+                                }
+                                body += '<checkbox-list list-items = "field.options"></checkbox-list>';
+                            }
+                            subLeft = '';
+                            subRight = '';
+                            break;
 
+                        case 'radio':
+                            $log.debug(scope.field);
+                            if (scope.field.options && scope.field.options.length > 0) {
+                                for (o = 0; o < scope.field.options.length; o++) {
+                                    angular.extend(scope.field.options[o], {
+                                        checked: scope.field.options[o].isSelected,
+                                        name: scope.field.options[o].label
+                                    });
+                                }
+                                body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
+                                    'name="field.cid" ng-model="opt.checked"><i class="chk-box"></i>{{opt.label}}</label></div>';
+                            }
+                            subLeft = '';
+                            subRight = '';
+                            break;
                         case 'dropdown':
                         case 'price':
-                            body = label;
                             $log.debug(scope.field);
-
+                            subLeft = '';
+                            subRight = '';
                             break;
                         default:
                             $log.debug(scope.field);
-                            body = label + '<input type="text" ' + commonPart + '>';
+                            body = '<input type="text" ' + commonPart + '>';
                         }
 
-                        body += '<p class="subtext"><span class="pull-right">' + subRight +
-                            '</span><span class="pull-left">' + subLeft + '</span></p>';
+                        body = label + body;
+
+                        if (subLeft || subRight) {
+                            body += '<p class="subtext"><span class="pull-right">' + subRight +
+                                '</span><span class="pull-left">' + subLeft + '</span></p>';
+                        }
                     }
 
                     elem.append(body);
