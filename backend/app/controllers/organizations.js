@@ -193,9 +193,7 @@ module.exports = {
                             if (isExist[0]) {
                                 newUser.message = 'Already exists';
                             }else{
-                                if (existError) {
-                                    newUser.message = 'Admin for this company already exists';
-                                }
+
                                 newUser.password = User.hashPassword(pass);
                                 newUser.activationToken = crypto.randomBytes(32).toString('hex');
                                 var created = yield thunkQuery(
@@ -209,7 +207,11 @@ module.exports = {
                                 if (created[0]) {
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';
-                                    newUser.message = 'Added';
+                                    if (existError) {
+                                        newUser.message = 'Admin for this company already exists, added as user';
+                                    }else{
+                                        newUser.message = 'Added';
+                                    }
                                 }
 
                                 var options = {
