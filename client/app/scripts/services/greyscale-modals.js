@@ -3,7 +3,11 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .factory('greyscaleModalsSrv', function ($uibModal) {
+    .factory('greyscaleModalsSrv', function ($uibModal, $q) {
+
+        function hndlModalErr(err) {
+            return $q.reject('');
+        }
 
         function _simpleForm(tmplUrl, data, ext, size) {
             return $uibModal.open({
@@ -15,7 +19,7 @@ angular.module('greyscaleApp')
                     formData: data,
                     extData: ext
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
         }
 
         function _simpleMiddleForm(tmplUrl, data, ext) {
@@ -36,7 +40,7 @@ angular.module('greyscaleApp')
                     recordData: data,
                     recordForm: tableDescription
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
         }
 
         function _productUoas(product) {
@@ -65,7 +69,7 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/product-workflow.html',
                 controller: 'ModalProductWorkflowCtrl',
                 controllerAs: 'ctrl',
-                size: 'xxl',
+                size: 'lg',
                 windowClass: 'modal fade in layout-compact',
                 resolve: {
                     product: product
@@ -103,9 +107,6 @@ angular.module('greyscaleApp')
             editRec: modalForm,
             editCountry: function (_country) {
                 return _simpleMiddleForm('views/modals/country-form.html', _country, null);
-            },
-            editUserProfile: function (_user) {
-                return _simpleMiddleForm('views/modals/user-profile-form.html', _user, null);
             },
             editUserOrganization: function (_org) {
                 return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);

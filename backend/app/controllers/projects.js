@@ -142,27 +142,32 @@ module.exports = {
 };
 
 function* checkProjectData(req) {
+    var orgId = req.user.organizationId;
+
+    if(req.user.roleID == 1){
+        orgId = req.body.organizationId;
+    }
+
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !req.body.organizationId || !req.body.codeName) {
+        if (!req.body.matrixId || !orgId || !req.body.codeName) {
             throw new HttpError(
                 403,
                 'matrixId, organizationId and codeName fields are required'
             );
         }
+    }
 
-        if(req.body.organizationId){
-            var isExistOrg = yield thunkQuery(
-                Organization.select().where(Organization.id.equals(req.user.organizationId))
+    if(orgId){
+        var isExistOrg = yield thunkQuery(
+            Organization.select().where(Organization.id.equals(orgId))
+        );
+        if (!_.first(isExistOrg)) {
+            throw new HttpError(
+                403,
+                'Organization with id = ' + orgId + ' does not exist'
             );
-            if (!_.first(isExistOrg)) {
-                throw new HttpError(
-                    403,
-                    'By some reason cannot find your organization (id = ' + req.user.organizationId + ')'
-                );
-            }
         }
-
-        req.body.organizationId = req.user.organizationId;
+        req.body.organizationId = orgId;
     }
 
     if(typeof req.body.status != 'undefined'){

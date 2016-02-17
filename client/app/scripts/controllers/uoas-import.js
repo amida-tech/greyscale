@@ -11,6 +11,23 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('UoasImportCtrl', function ($scope) {
+    .controller('UoasImportCtrl', function ($q, $scope, greyscaleUoasImportTbl) {
+
+        var _importUoas = greyscaleUoasImportTbl;
+
+        $scope.model = {
+            importUoas: _importUoas
+        };
+
+        $scope.afterUpload = function (file, data) {
+            _importUoas.dataPromise = function () {
+                return $q.when(data);
+            };
+            if ($scope.model.results) {
+                _importUoas.tableParams.reload();
+            } else {
+                $scope.model.results = true;
+            }
+        };
 
     });

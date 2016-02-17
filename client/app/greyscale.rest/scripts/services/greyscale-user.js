@@ -24,7 +24,8 @@ angular.module('greyscale.rest')
             delete: delUser,
             listUoa: _listUoa,
             addUoa: _addUoa,
-            delUoa: _delUoa
+            delUoa: _delUoa,
+            remindPasswd: _remind
         };
 
         function orgAPI() {
@@ -132,5 +133,11 @@ angular.module('greyscale.rest')
 
         function _delUoa(userId, uoaId) {
             return _uoaAPI(userId).one('uoa', uoaId + '').remove();
+        }
+
+        function _remind(login) {
+            return userAPI().one('forgot').customPOST({
+                email: login
+            });
         }
     });

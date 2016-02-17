@@ -4,11 +4,11 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('UsersImportCtrl', function ($q, $scope, $state, $rootScope, greyscaleProfileSrv,
-        greyscaleGlobals, greyscaleOrganizationApi, greyscaleImportUsersTbl) {
+        greyscaleGlobals, greyscaleOrganizationApi, greyscaleUsersImportTbl) {
 
         var roles = greyscaleGlobals.userRoles;
 
-        var _importUsers = greyscaleImportUsersTbl;
+        var _importUsers = greyscaleUsersImportTbl;
 
         $scope.model = {
             importUsers: _importUsers
@@ -27,6 +27,10 @@ angular.module('greyscaleApp')
                     });
                 }
             });
+
+        $scope.disableUpload = function () {
+            return !$scope.model.organizationId;
+        };
 
         $scope.afterUpload = function (file, data) {
             _importUsers.dataPromise = function () {

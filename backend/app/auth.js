@@ -85,7 +85,16 @@ passport.use(new TokenStrategy({
                 //   return done(null, false);
                 // }
                 req.debug(util.format('Authentication OK for token: %s', tokenBody));
-                return done(null, _.pick(data[0], User.sesInfo));
+                query(
+                    User.update({lastActive: new Date()}).where(User.id.equals(data[0].id)),
+                    function (err, updateData) {
+                        if (err) {
+                            return done(err);
+                        }
+                        return done(null, _.pick(data[0], User.sesInfo));
+                    }
+                )
+
             }
         );
     }

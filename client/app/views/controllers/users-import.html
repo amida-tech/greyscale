@@ -11,6 +11,7 @@
     </div>
     <upload-form
         upload-endpoint="organizations/{{model.organizationId}}/users_csv"
+        upload-disable="disableUpload"
         upload-success="afterUpload"></upload-form>
 
     <div ng-if="model.results">

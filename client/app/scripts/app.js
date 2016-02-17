@@ -89,6 +89,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.nobody.mask
             }
         })
+        .state('forgot', {
+            parent: 'main',
+            url: '/forgot',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                },
+                data: {
+                    name: 'NAV.FORGOT',
+                    accessLevel: systemRoles.nobody.mask
+                }
+            }
+        })
         .state('dashboard', {
             url: '/?returnTo',
             parent: 'main',

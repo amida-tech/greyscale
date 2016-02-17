@@ -5,8 +5,10 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleOrganizationApi) {
         var accessLevel;
+
+        var tns = 'USERS.';
 
         var dicts = {
             roles: []
@@ -17,7 +19,21 @@ angular.module('greyscale.tables')
             title: 'ID',
             show: false,
             sortable: 'id',
-            dataReadOnly: 'both'
+            dataReadOnly: 'both',
+            dataHide: _isProfileEdit
+        }, {
+            field: 'organizationId',
+            show: _isSuperAdmin,
+            sortable: 'organizationId',
+            title: tns + 'ORGANIZATION',
+            dataFormat: 'option',
+            dataReadOnly: 'edit',
+            dataHide: _isNotSuperAdmin,
+            dataSet: {
+                getData: getOrgs,
+                keyField: 'id',
+                valField: 'name'
+            }
         }, {
             field: 'email',
             title: 'E-mail',
@@ -49,12 +65,12 @@ angular.module('greyscale.tables')
             dataReadOnly: 'add'
 
         }, {
-            field: 'created',
-            title: 'Created',
+            field: 'lastActive',
+            title: 'Last Active',
             show: true,
-            sortable: 'created',
-            dataFormat: 'date',
-            dataReadOnly: 'both'
+            sortable: 'lastActive',
+            dataReadOnly: 'both',
+            cellTemplate: '<span ng-hide="cell" translate="USERS.NOT_LOGGED"></span>{{cell|date:\'medium\'}}'
         }, {
             field: 'isActive',
             title: 'Is Active',
@@ -92,6 +108,7 @@ angular.module('greyscale.tables')
             cols: _fields,
             dataPromise: _getUsers,
             pageLength: 10,
+            showAllButton: true,
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord
@@ -100,6 +117,10 @@ angular.module('greyscale.tables')
 
         function _getRoles() {
             return dicts.roles;
+        }
+
+        function getOrgs() {
+            return dicts.orgs;
         }
 
         function _delRecord(rec) {
@@ -139,6 +160,10 @@ angular.module('greyscale.tables')
             return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
 
+        function _isNotSuperAdmin() {
+            return !_isSuperAdmin();
+        }
+
         function _isAdmin() {
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
@@ -161,11 +186,15 @@ angular.module('greyscale.tables')
 
                 var reqs = {
                     users: greyscaleUserApi.list(_table.dataFilter),
-                    roles: greyscaleRoleApi.list(roleFilter)
+                    roles: greyscaleRoleApi.list(roleFilter),
+                    orgs: greyscaleOrganizationApi.list({
+                        organizationId: profile.organizationId
+                    })
                 };
 
                 return $q.all(reqs).then(function (promises) {
                     dicts.roles = _filterRolesByAccessLevel(promises.roles);
+                    dicts.orgs = promises.orgs;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });
@@ -194,6 +223,10 @@ angular.module('greyscale.tables')
             }
             msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _isProfileEdit() {
+            return (!!_table.profileMode);
         }
 
         return _table;
