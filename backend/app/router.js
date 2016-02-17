@@ -328,14 +328,14 @@ router.route('/:realm/v0.2/workflows/:id/steps')
     //.delete(authenticate('token').always, workflows.stepsDelete)
     .put(authenticate('token').always, workflows.stepsUpdate);
 
-router.route('/:realm/v0.2/workflow_steps')
-    .get(authenticate('token').always, workflows.stepListSelect)
-    .post(authenticate('token').always, workflows.stepListAdd);
-
-router.route('/:realm/v0.2/workflow_steps/:id')
-    .get(authenticate('token').always, workflows.stepListSelectOne)
-    .put(authenticate('token').always, workflows.stepListUpdateOne)
-    .delete(authenticate('token').always, workflows.stepListDelete);
+//router.route('/:realm/v0.2/workflow_steps')
+//    .get(authenticate('token').always, workflows.stepListSelect)
+//    .post(authenticate('token').always, workflows.stepListAdd);
+//
+//router.route('/:realm/v0.2/workflow_steps/:id')
+//    .get(authenticate('token').always, workflows.stepListSelectOne)
+//    .put(authenticate('token').always, workflows.stepListUpdateOne)
+//    .delete(authenticate('token').always, workflows.stepListDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis

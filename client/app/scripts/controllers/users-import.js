@@ -33,9 +33,8 @@ angular.module('greyscaleApp')
         };
 
         $scope.afterUpload = function (file, data) {
-            _importUsers.dataPromise = function () {
-                return $q.when(data);
-            };
+            _importUsers.importData = $q.when(data);
+
             if ($scope.model.results) {
                 _importUsers.tableParams.reload();
             } else {

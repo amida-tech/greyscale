@@ -9,8 +9,8 @@ angular.module('greyscaleApp')
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
-    productWorkflow.expandedRowTemplateUrl = 'views/modals/product-workflow-expanded-row.html';
-    productWorkflow.expandedRowShow = true;
+    //productWorkflow.expandedRowTemplateUrl = 'views/modals/product-workflow-expanded-row.html';
+    //productWorkflow.expandedRowShow = true;
 
     $scope.model = {
         product: angular.copy(product),
@@ -31,42 +31,36 @@ angular.module('greyscaleApp')
         $uibModalInstance.close(resolveData);
     };
 
-    $scope.validWorkflowSteps = function(){
-        var selected = productWorkflow.multiselect.selectedMap;
-        if (!selected.length) {
-            return false;
-        } else {
-            return _validateWorkflowSteps();
-        }
-    };
+    $scope.validWorkflowSteps = _validateWorkflowSteps;
 
     function _validateWorkflowSteps() {
         var steps = _getSteps();
         var valid = 0;
         angular.forEach(steps, function(step){
-            if (step.roleId &&
+            if (step.title && step.title !== '' &&
+                step.roleId &&
                 step.startDate &&
                 step.endDate &&
-                step.writeToAnswers !== undefined
+                typeof step.writeToAnswers === 'boolean'
             ) {
                 valid++;
             }
         });
-        return valid == steps.length;
+        return valid !== 0 && valid == steps.length;
     }
 
     function _getSteps() {
         var tableData = productWorkflow.tableParams.data;
-        var selected = productWorkflow.multiselect.selected;
         var steps = [];
-        angular.forEach(tableData, function(item){
-            if (selected[item.id] && item.step) {
-                steps.push(_.pick(item.step, [
-                    'id', 'roleId', 'stepId', 'startDate', 'endDate',
-                    'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
-                    'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
-                ]));
-            }
+        angular.forEach(tableData, function(item, i){
+            var step = _.pick(item, [
+                'id', 'roleId', 'startDate', 'endDate',
+                'title', 'writeToAnswers',
+                'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
+                'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
+            ]);
+            step.position = i;
+            steps.push(step);
         });
         return steps;
     }

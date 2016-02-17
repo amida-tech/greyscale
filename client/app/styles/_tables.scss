@@ -70,4 +70,19 @@
             margin: 10px;
         }
     }
+    tr.ui-sortable-placeholder {
+        visibility: visible !important;
+        @extend .bg-success;
+        td {
+            @extend .bg-success;
+        }
+    }
+    tr.ui-sortable-helper {
+        background: #fff;
+        box-shadow: 0 2px 5px #999;
+        z-index: 1000;
+    }
+    .action-drag-sortable {
+        cursor: move;
+    }
 }

@@ -10,6 +10,14 @@ angular.module('greyscaleApp')
 
         $scope.view = recordForm;
 
+        $scope.showItem = function(item, model){
+            if (typeof item.showFormField === 'function') {
+                return item.showFormField(model);
+            } else {
+                return item.showFormField === undefined || item.showFormField;
+            }
+        };
+
         $scope.close = function () {
             $uibModalInstance.dismiss();
         };

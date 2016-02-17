@@ -40,6 +40,7 @@ angular.module('greyscaleApp')
                         }
 
                         newQuestion.description = fo.description ? fo.description : '';
+                        newQuestion.qid = fo.qid ? fo.qid : '';
                         newQuestion.skip = fo.skip && !isNaN(fo.skip) ? parseInt(fo.skip) : 0;
                         newQuestion.size = fo.size ? sizes.indexOf(fo.size) : 0;
                         newQuestion.minLength = fo.minlength && !isNaN(fo.minlength) ? parseInt(fo.minlength) : undefined;
@@ -136,7 +137,8 @@ angular.module('greyscaleApp')
                                     include_other_option: question.incOtherOpt,
                                     include_blank_option: question.incOtherOpt,
                                     units: question.units,
-                                    integer_only: question.intOnly
+                                    integer_only: question.intOnly,
+                                    qid: question.qid
                                 }
                             };
                             data.push(field);

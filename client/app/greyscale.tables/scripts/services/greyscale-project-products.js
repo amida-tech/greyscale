@@ -61,6 +61,10 @@ angular.module('greyscale.tables')
             sortable: 'workflow.name',
             title: tns + 'WORKFLOW',
             show: true,
+            cellTemplate: '{{cell||\'' + tns + 'CREATE_WORKFLOW' + '\'|translate}}',
+            link: {
+                handler: _editProductWorkflow
+            },
             dataHide: true
         }, {
             field: 'status',
@@ -89,10 +93,6 @@ angular.module('greyscale.tables')
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
-            }, {
-                title: tns + 'WORKFLOW',
-                class: 'info',
-                handler: _editProductWorkflow
             }, {
                 title: tns + 'TASKS',
                 class: 'info',
