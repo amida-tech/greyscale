@@ -2,6 +2,7 @@
   "name": "indaba-backend",
   "version": "0.2.0",
   "description": "Backend code for Indaba app",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/amida-tech/greyscale.git"
@@ -32,7 +33,8 @@
     "nodemailer": "1.3.0",
     "nodemailer-smtp-transport": "0.1.13",
     "moment": "*",
-    "accept-language": "2.0.16"
+    "accept-language": "2.0.16",
+    "csv" : "0.4.6"
   },
   "devDependencies": {
     "chai": "^3.4.1",
@@ -52,7 +54,7 @@
     "supertest": "^0.13.0"
   },
   "engines": {
-    "node": "~0.12.0"
+    "node": "~5.0.0"
   },
   "scripts": {
     "start": "node --harmony app.js",

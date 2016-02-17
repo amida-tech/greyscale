@@ -33,7 +33,13 @@ angular.module('greyscaleApp')
 
                 var _field = cell.field;
 
-                if (cell.showDataInput) {
+                var showDataInput;
+                if (typeof cell.showDataInput === 'function') {
+                    showDataInput = cell.showDataInput();
+                } else {
+                    showDataInput = cell.showDataInput;
+                }
+                if (showDataInput) {
                     $scope.model = $scope.rowValue;
                     _compileDataInput();
 
@@ -44,8 +50,9 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'action':
                         elem.addClass('text-right row-actions');
-                        elem.append('<a ng-repeat="act in widgetCell.actions" class="action action-{{act.class}}" ' +
-                            'ng-click="act.handler(rowValue);$event.stopPropagation();"><i class="fa {{act.icon}}" ng-show="act.icon"> </i>{{act.title|translate}}</a>');
+                        elem.append('<a ng-repeat="act in widgetCell.actions" title="{{act.tooltip||act.getTooltip(rowValue)|translate}}" ' +
+                            'class="action action-{{act.class}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
+                            'ng-click="act.handler && act.handler(rowValue); act.handler && $event.stopPropagation();"><i class="fa {{icon}}" ng-show="icon"> </i>{{act.title|translate}}</a>');
                         $compile(elem.contents())($scope);
                         break;
 
@@ -80,7 +87,7 @@ angular.module('greyscaleApp')
                         if (cell.multiselect) {
                             _compileMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate(cell.cellTemplate);
+                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
                         } else if (cell.cellTemplateUrl) {
                             _compileCellTemplateFromUrl();
                         } else {
@@ -97,31 +104,36 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _compileCellTemplate(template) {
+                function _compileCellTemplate(template, ext) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
                     elem.append(template);
+                    $scope.ext = ext;
                     $compile(elem.contents())($scope);
                 }
 
                 function _compileCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
-                        .then(_compileCellTemplate);
+                        .then(function (template) {
+                            _compileCellTemplate(template, cell.cellTemplateExtData);
+                        });
                 }
 
                 function _getTemplateByUrl(templateUrl) {
-                    return $http.get(templateUrl, {cache: $templateCache})
-                        .then(function(response){
+                    return $http.get(templateUrl, {
+                            cache: $templateCache
+                        })
+                        .then(function (response) {
                             return response.data;
                         });
                 }
 
                 function _compileMultiselectCell() {
                     elem.addClass('text-center');
-                    elem.append('<div class="checkbox"><label>' +
+                    elem.append('<div class="form-group"><div class="checkbox"><label>' +
                         '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
                         'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
-                        '<div class="chk-box"></div></label></div>');
+                        '<div class="chk-box"></div></label></div></div>');
                     $compile(elem.contents())($scope);
                 }
 
@@ -140,7 +152,15 @@ angular.module('greyscaleApp')
                     if (cell.link.target) {
                         link.attr('target', cell.link.target);
                     }
-                    elem.html(link[0].outerHTML);
+                    if (cell.link.handler) {
+                        link.attr('href', '');
+                        link.on('click', function () {
+                            var tableRow = $scope.$parent.$parent.row;
+                            cell.link.handler(tableRow);
+                        });
+                    }
+                    elem.html('');
+                    elem.append(link);
                     $scope.item = $scope.rowValue;
                     $compile(elem.contents())($scope);
                 }
@@ -163,6 +183,9 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'date':
                         elem.addClass('auto-width');
+                        break;
+                    case 'boolean':
+                        elem.addClass('text-center');
                         break;
                     }
                     $compile(elem.contents())($scope);

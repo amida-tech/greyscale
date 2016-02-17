@@ -124,3 +124,36 @@ body {
     }
 }
 
+.truncate {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.disabled,
+:disabled {
+    color: $grey-light;
+}
+
+.subtext {
+    font-size: $font-size-sub;
+    font-weight: normal;
+    color: $grey-medium-light;
+    margin-bottom: 5px;
+
+    &:after {
+        @extend .row:after;
+    }
+}
+
+.required:after {
+    content: ' *';
+    color: $green;
+    display: inline;
+}
+
+.text-danger {
+    font-style: italic;
+}

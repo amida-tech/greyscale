@@ -1,0 +1,40 @@
+<div>
+    <uib-accordion>
+        <uib-accordion-group is-open="item.isOpen" ng-repeat="item in model.questions">
+            <uib-accordion-heading>
+                {{item.title}}
+                <i class="fa pull-right" ng-class="{'fa-caret-up': item.isOpen, 'fa-caret-down': !item.isOpen}"></i>
+            </uib-accordion-heading>
+            <div class="gs-message" gs-message="msg" ng-repeat="msg in item.messages"></div>
+        </uib-accordion-group>
+    </uib-accordion>
+    <div class="form" ng-form="msgForm">
+        <div class="form-group">
+            <select class="form-control"
+                    ng-options="item.id as item.title for item in model.questions"
+                    ng-model="model.msg.thread"
+                    ng-required="true">
+                <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.SELECT_QUESTION"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <textarea class="form-control" ng-model="model.msg.body" ng-reqired="true"
+                      placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"></textarea>
+        </div>
+        <div class="form-group">
+            <select class="form-control"
+                    ng-options="item.id as item.firstName+ ' '+item.lastName for item in model.associate"
+                    ng-model="model.msg.to"
+                    ng-required="true">
+                <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>
+            </select>
+        </div>
+        <div class="form-group">
+            <div class="checkbox"><label class="text-danger"><input type="checkbox" ng-model="model.msg.flagged">Flag<i
+                class="chk-box"></i></label></div>
+            <button class="btn btn-primary pull-right" translate="COMMON.SUBMIT" ng-click="sendMsg()"
+                    ng-disabled="msgForm.$invalid || !msgForm.$dirty"></button>
+        </div>
+    </div>
+</div>

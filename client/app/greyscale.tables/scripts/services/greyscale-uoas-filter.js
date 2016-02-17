@@ -6,6 +6,8 @@ angular.module('greyscale.tables')
         greyscaleLanguageApi, greyscaleUoaApi,
         greyscaleUoaTypeApi) {
 
+        var tns = 'UOAS_FILTER.';
+
         var dicts = {
             languages: [],
             uoaTypes: [],
@@ -15,20 +17,20 @@ angular.module('greyscale.tables')
 
         var resDescr = [{
                 field: 'name',
-                title: 'Name',
+                title: tns + 'NAME',
                 show: true,
                 sortable: 'name',
                 dataFormat: 'text',
                 dataRequired: true
             }, {
                 field: 'description',
-                title: 'Description',
+                title: tns + 'DESCRIPTION',
                 show: true,
                 dataFormat: 'text',
                 dataRequired: true
             }, {
                 field: 'shortName',
-                title: 'Short Name',
+                title: tns + 'SHORT_NAME',
                 show: true,
                 dataFormat: 'text',
                 dataRequired: true,
@@ -39,7 +41,7 @@ angular.module('greyscale.tables')
              */
             {
                 field: 'unitOfAnalysisType',
-                title: 'Type',
+                title: tns + 'TYPE',
                 show: true,
                 sortable: 'unitOfAnalysisType',
                 dataFormat: 'option',
@@ -62,7 +64,7 @@ angular.module('greyscale.tables')
         ];
 
         var _table = {
-            title: 'Search Result For Selected Parameters',
+            title: tns + 'TABLE_TITLE',
             icon: 'fa-table',
             sorting: {
                 id: 'asc'
@@ -108,7 +110,10 @@ angular.module('greyscale.tables')
                 };
                 return greyscaleUoaApi.list(params);
             } else {
-                return $q.when([]);
+                return greyscaleUoaApi.list({
+                    unitOfAnalysisType: 1 // countries
+                });
+                //return $q.when([]);
             }
         }
 

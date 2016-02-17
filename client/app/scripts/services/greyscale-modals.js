@@ -3,7 +3,11 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .factory('greyscaleModalsSrv', function ($uibModal) {
+    .factory('greyscaleModalsSrv', function ($uibModal, $q) {
+
+        function hndlModalErr(err) {
+            return $q.reject('');
+        }
 
         function _simpleForm(tmplUrl, data, ext, size) {
             return $uibModal.open({
@@ -15,7 +19,7 @@ angular.module('greyscaleApp')
                     formData: data,
                     extData: ext
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
         }
 
         function _simpleMiddleForm(tmplUrl, data, ext) {
@@ -36,7 +40,7 @@ angular.module('greyscaleApp')
                     recordData: data,
                     recordForm: tableDescription
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
         }
 
         function _productUoas(product) {
@@ -55,8 +59,8 @@ angular.module('greyscaleApp')
             return $uibModal.open({
                 templateUrl: 'views/modals/uoas-filter.html',
                 controller: 'ModalUoasFilterCtrl',
-                size: 'max',
-                windowClass: 'modal fade in'
+                size: 'xxl',
+                windowClass: 'modal fade in layout-compact'
             }).result;
         }
 
@@ -65,10 +69,24 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/product-workflow.html',
                 controller: 'ModalProductWorkflowCtrl',
                 controllerAs: 'ctrl',
-                size: 'lg',
-                windowClass: 'modal fade in',
+                size: 'xxl',
+                windowClass: 'modal fade in layout-compact',
                 resolve: {
                     product: product
+                }
+            }).result;
+        }
+
+        function _productTask(task, activeBlock) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/product-task.html',
+                controller: 'ModalProductTaskCtrl',
+                controllerAs: 'ctrl',
+                size: 'xxl',
+                windowClass: 'modal fade in',
+                resolve: {
+                    task: task,
+                    activeBlock: activeBlock
                 }
             }).result;
         }
@@ -90,9 +108,6 @@ angular.module('greyscaleApp')
             editCountry: function (_country) {
                 return _simpleMiddleForm('views/modals/country-form.html', _country, null);
             },
-            editUserProfile: function (_user) {
-                return _simpleMiddleForm('views/modals/user-profile-form.html', _user, null);
-            },
             editUserOrganization: function (_org) {
                 return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);
             },
@@ -105,6 +120,7 @@ angular.module('greyscaleApp')
             editTranslations: _translationForm,
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
-            productWorkflow: _productWorkflow
+            productWorkflow: _productWorkflow,
+            productTask: _productTask
         };
     });

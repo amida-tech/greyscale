@@ -47,11 +47,25 @@ module.exports = function(config) {
       'bower_components/ng-table/dist/ng-table.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/angular-translate/angular-translate.js',
+      'bower_components/pivottable/dist/pivot.js',
+      'bower_components/d3/d3.js',
+      'bower_components/c3/c3.js',
       'bower_components/angular-file-upload/dist/angular-file-upload.min.js',
+      'bower_components/angular-ui-sortable/sortable.js',
       // endbower
+      "app/greyscale.core/scripts/greyscale.core.js",
+      "app/greyscale.core/**/*.js",
+      "app/greyscale.mock/**/*.js",
+      "app/greyscale.rest/**/*.js",
+      "app/greyscale.tables/**/*.js",
+      "app/scripts/app.js",
       "app/scripts/**/*.js",
-//      "test/mock/**/*.js",
-//      "test/spec/**/*.js"
+      "app/vendors/rdash/module.js",
+      "app/vendors/rdash/directives/loading.js",
+      "app/vendors/rdash/directives/widget.js",
+      "app/vendors/rdash/directives/widget-body.js",
+      "app/vendors/rdash/directives/widget-footer.js",
+      "app/vendors/rdash/directives/widget-header.js",
     ],
 
     // list of files / patterns to exclude
@@ -70,12 +84,12 @@ module.exports = function(config) {
     // - PhantomJS
     // - IE (only Windows)
     browsers: [
-      "PhantomJS"
+      "Chrome"
     ],
 
     // Which plugins to enable
     plugins: [
-      "karma-phantomjs-launcher",
+      "karma-chrome-launcher",
       "karma-jasmine"
     ],
 

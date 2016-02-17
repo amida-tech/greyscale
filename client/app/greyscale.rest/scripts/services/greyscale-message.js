@@ -12,7 +12,7 @@ angular.module('greyscale.rest')
         };
 
         function _api(userId) {
-            return greyscaleRestSrv().one('messages', userId + '');
+            return greyscaleRestSrv().one('messages').one('mock').one(userId + '');
         }
 
         function _list(userId, params) {

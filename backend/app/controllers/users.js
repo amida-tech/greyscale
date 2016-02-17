@@ -6,7 +6,12 @@ var client = require('app/db_bootstrap'),
     Organization = require('app/models/organizations'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
+    WorkflowStep = require('app/models/workflow_steps'),
+    EssenceRole = require('app/models/essence_roles'),
     Token = require('app/models/token'),
+    Task = require('app/models/tasks'),
+    Product = require('app/models/products'),
+    Survey = require('app/models/surveys'),
     VError = require('verror'),
     logger = require('app/logger'),
     vl = require('validator'),
@@ -289,11 +294,21 @@ module.exports = {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
-            org = _.first(org);
-            if (!org) {
-                throw new HttpError(400, 'You dont have any organizations');
+            if(req.user.roleID == 1){
+                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
+                }
+            }else{
+                var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'You dont have any organizations');
+                }
             }
+
+
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -335,13 +350,25 @@ module.exports = {
                 token: activationToken
             };
             var mailer = new Emailer(options, data);
-            mailer.send(function (data) {
-                console.log('EMAIL RESULT --->>>');
-                console.log(data);
 
-            });
+            try{
+                yield function*(){
+                    return yield new Promise(function(resolve, reject) {
+                        mailer.send(function (err, data) {
+                            console.log(err);
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve(data);
+                        });
+                    })
+                }()
+            }catch(e){
+                throw new HttpError(400, 'Cannot send invitation email');
+            }
 
             return newClient;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -456,16 +483,16 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        co(function*(){
+        co(function* () {
             var user = yield thunkQuery(
                 User.select().where(User.id.equals(req.params.id))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
-        }).then(function(data){
+        }).then(function (data) {
             res.json(!_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -605,6 +632,52 @@ module.exports = {
         }).then(function (data) {
             res.status(200).end();
         }, function (err) {
+            next(err);
+        });
+    },
+
+    tasks: function (req, res, next) {
+        co(function* () {
+            var res = yield thunkQuery(
+                Task
+                .select(
+                    Task.id,
+                    Task.title,
+                    Task.description,
+                    Task.created,
+                    Task.startDate,
+                    Task.endDate,
+                    Task.accessToDiscussions,
+                    Task.accessToResponses,
+                    Task.writeToAnswers,
+                    'row_to_json("UnitOfAnalysis".*) as uoa',
+                    'row_to_json("Products".*) as product',
+                    'row_to_json("EssenceRoles".*) as entityTypeRoleId',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("WorkflowSteps") as step'
+                )
+                .from(
+                    Task
+                    .leftJoin(UOA)
+                    .on(Task.uoaId.equals(UOA.id))
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(Survey)
+                    .on(Product.surveyId.equals(Survey.id))
+                    .leftJoin(EssenceRole)
+                    .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+
+                )
+                .where(Task.entityTypeRoleId.in(
+                    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
+                ))
+            );
+            return res;
+        }).then(function(data) {
+            res.json(data);
+        }, function(err) {
             next(err);
         });
     }

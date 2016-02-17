@@ -1,0 +1,32 @@
+<div translate-namespace="PM_PRODUCT_DASHBOARD">
+
+<div class="pull-right">
+    <a href ng-click="downloadData()" translate=".DOWNLOAD_DATA"></a>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        <p class="indicator-box">
+            Tasks/UoAs<br>
+            <strong>{{model.tasks.length}}/{{model.uoas.length}}</strong>
+        </p>
+    </div>
+    <div class="col-md-3">
+        <p class="indicator-box">
+            tasks started
+            <br>
+            <strong>?</strong>
+        </p>
+    </div>
+    <div class="col-md-3">
+        <p class="indicator-box">
+            tasks flagged
+            <br>
+            <strong>?</strong>
+        </p>
+    </div>
+</div>
+
+
+<widget-table model="model.tasksTable"></widget-table>
+
+</div>

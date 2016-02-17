@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
             },
             restrict: 'AE',
             link: function ($scope) {
-                $scope.toggle = $cookieStore.get('toggle') || false;
+                $scope.toggle = !!$cookieStore.get('toggle');
 
                 $scope.toggleSidebar = function () {
                     $scope.toggle = !$scope.toggle;

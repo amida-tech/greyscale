@@ -8,10 +8,18 @@
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
         "CLOSE": "Закрыть",
+        "CONTINUE": "",
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "SAVE": "Сохранить"
+        "NO": "Нет",
+        "REMIND": "Напомнить",
+        "RESET": "",
+        "SAVE": "Сохранить",
+        "SAVE_AND_CONTINUE": "",
+        "SHOW_ALL": "",
+        "SUBMIT": "",
+        "YES": "Да"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -19,6 +27,10 @@
         "PLACEHOLDER": "ДД.ММ.ГГГГ",
         "RESET": "Сброс",
         "TODAY": "Сегодня"
+    },
+    "ERROR": {
+        "ACCESS_RESTRICTED": "Доступ ограничен к",
+        "TEST": "Тестовая ошибка"
     },
     "FILE": {
         "CONTINUE": "Продолжить",
@@ -29,12 +41,16 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "PRODUCTSTATES": {
+            "CANCELLED": "Отменен",
+            "COMPLETED": "Завершен",
+            "PLANNING": "Планируется",
+            "STARTED": "Начат",
+            "SUSPENDED": "Приостановлен"
+        },
         "PROJECTSTATES": {
-            "ABANDONED": "Устаревший",
-            "COMPLETED": "Завершенный",
-            "IN_FLIGHT": "Активный",
-            "SUSPENDED": "Приостановленный",
-            "WAITING": "В ожидании"
+            "ACTIVE": "Активный",
+            "INACTIVE": "Не активный"
         },
         "UOASTATUS": {
             "ACTIVE": "Активный",
@@ -54,20 +70,60 @@
             "RESEARCH_DIRECTOR": "Директор исследований",
             "REVIEWER": "Рецензент",
             "TRANSLATOR": "Переводчик"
+        },
+        "WRITETOANSWERSLIST": {
+            "READ": "Чтение",
+            "READ_WRITE": "Чтение и запись"
         }
     },
     "IMPORT": {
-        "USERS": "Импорт пользователей"
+        "UOAS": {
+            "DESCRIPTION": "",
+            "DOWNLOAD_EXAMPLE": "",
+            "ISO": "",
+            "ISO2": "",
+            "NAME": "",
+            "NAMEISO": "",
+            "RESULTS_TITLE": "",
+            "SHORT_NAME": "",
+            "STATUS": "",
+            "TITLE": "Импорт единиц анализа",
+            "UOA_TYPE": "",
+            "VISIBILITY": ""
+        },
+        "USERS": {
+            "DOWNLOAD_EXAMPLE": "",
+            "EMAIL": "Эл. почта",
+            "FIRST_NAME": "Имя",
+            "LAST_NAME": "Фамилия",
+            "ORGANIZATION": "Организация",
+            "RESULTS_TITLE": "Результаты импорта",
+            "STATUS": "Статус",
+            "TITLE": "Импорт пользователей"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
         "EMAIL": "Эл.почт@",
         "FORGOT_PASSWORD": "Забыл пароль...",
+        "GO_LOGIN": "",
+        "LOGIN_INCORRECT": "",
         "LOGIN_REQUIRED": "Логин обязателен",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
-        "SIGN_IN": "Вход"
+        "RESET_SUCCESS": "",
+        "SIGN_IN": "Вход",
+        "TOKEN_SENT": ""
+    },
+    "MY_TASKS": {
+        "NO_TASKS": "На данный момент у Вас нет задач.",
+        "PRODUCT": "Продукт",
+        "SURVEY": "Опрос",
+        "TASK": "Задача",
+        "TERMS": "Сроки",
+        "TITLE": "Мои задачи",
+        "UOA": "Единица анализа"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Управление доступом",
@@ -76,14 +132,16 @@
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
         "HOME": "Главная",
+        "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
+        "PM_DASHBOARD": "",
+        "PM_PRODUCT_DASHBOARD": "",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
-            "IMPORT": "Импорт данных",
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
@@ -91,8 +149,13 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
+        "RESET": "",
+        "SURVEY": "Опрос",
         "TASKS": "Задачи",
-        "UOAS": "Единицы анализа",
+        "UOAS": {
+            "LIST": "Список",
+            "TITLE": "Единицы анализа"
+        },
         "USERS": {
             "LIST": "Список",
             "TITLE": "Пользователи",
@@ -101,12 +164,31 @@
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "",
+        "INPUT_MESSAGE": "",
+        "SELECT_QUESTION": ""
+    },
+    "PM_PRODUCT_DASHBOARD": {
+        "DOWNLOAD_DATA": ""
+    },
+    "PM_PROJECTS": {
+        "NO_PRODUCTS": "В проекте нет продуктов",
+        "NO_PROJECTS": "Нет проектов для управления",
+        "PROJECT": ""
+    },
     "PRODUCTS": {
         "TABLE": {
+            "CREATE_WORKFLOW": "",
             "DESCRIPTION": "Описание",
+            "PAUSE_PRODUCT": "Приостановить продукт",
+            "PLANNING_NOT_FINISH": "",
             "PRODUCT": "Продукт",
             "SETTINGS": "Настройки",
+            "START_PRODUCT": "Запустить продукт",
+            "STATUS": "Состояние",
             "SURVEY": "Опрос",
+            "SURVEY_STATUS": "",
             "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",
@@ -114,17 +196,18 @@
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
+            "NO_UOAS": "У этого продукта не заданы единицы анализа.",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_ROLE": "Выберите роль...",
             "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
             "TABLE": {
-                "TASKS_UPDATE_ERROR": "",
-                "TASK_REMOVE_ERROR": "",
-                "TASK_UPDATE_ERROR": "",
-                "TITLE": "Назначение пользователя на выполнение задачи",
-                "UOAS_HEADER": "Единица анализа",
-                "UOAS_TYPE_HEADER": ""
+                "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
+                "TASK_PARAMS": "Параметры задачи",
+                "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
+                "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
+                "TITLE": "Задачи",
+                "UOAS_HEADER": "Единица анализа"
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
@@ -137,26 +220,53 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "STEPS": {
+                "ANSWERS_ACCESS": "Доступ к ответам",
+                "BLIND_REVIEW": "Слепой просмотр",
+                "DISCUSSION_PARTICIPATION": "",
+                "EDIT_TRANSLATE": "",
                 "END_DATE": "Дата окончания",
+                "OTHER_ACCESS": "",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
+                "PROVIDE_RESPONSES": "",
                 "ROLE": "Роль",
+                "SEE_OTHERS_RESPONSES": "",
                 "START_DATE": "Дата начала",
-                "TITLE": "Шаг"
+                "TASK_PERMISSIONS": "",
+                "TITLE": "Шаг",
+                "WORKFLOW_PERMISSIONS": "",
+                "WRITE_ACCESS_READ": "",
+                "WRITE_ACCESS_WRITE": ""
             },
             "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
             "TITLE": "Название",
             "TITLE_REQUIRED": "Название обязательно"
         }
     },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "",
+        "DEADLINE": "",
+        "FLAGS": "",
+        "LAST_INTERACTION": "",
+        "MODAL": {
+            "TITLE": ""
+        },
+        "PROGRESS": "",
+        "ROLE": "",
+        "STEP": "",
+        "TITLE": "",
+        "UOA": "",
+        "USER": ""
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
-        "CODE_NAME": "Название",
+        "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
         "ITEM": "Проект",
         "ORGANIZATION": "Организация",
+        "PAUSE_PROJECT": "",
         "PROJECT": "Проект",
         "PROJECTS": "Проекты",
         "ROLES": {
@@ -164,14 +274,18 @@
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
+        "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
     },
     "SURVEYS": {
+        "CONTENT": "Содержание",
         "DESCRIPTION": "Описание",
+        "DISCUSSION": "",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",
         "NAME": "Название",
+        "QUESTION": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
@@ -185,6 +299,17 @@
             "VALUE": "Не указан перевод"
         },
         "TITLE": "Переводы"
+    },
+    "UOAS_FILTER": {
+        "DESCRIPTION": "",
+        "NAME": "",
+        "SHORT_NAME": "",
+        "TABLE_TITLE": "",
+        "TYPE": ""
+    },
+    "USERS": {
+        "NOT_LOGGED": "",
+        "ORGANIZATION": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

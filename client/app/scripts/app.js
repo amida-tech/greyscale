@@ -23,8 +23,10 @@ var _app = angular.module('greyscaleApp', [
     'greyscale.tables',
     'inform',
     'lodashAngularWrapper',
+    'isteven-multi-select',
     'pascalprecht.translate',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ui.sortable'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -57,7 +59,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.ACTIVATE',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.nobody.mask
             }
         })
         .state('register', {
@@ -85,6 +87,34 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.LOGIN',
+                accessLevel: systemRoles.nobody.mask
+            }
+        })
+        .state('forgot', {
+            parent: 'main',
+            url: '/forgot',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                },
+                data: {
+                    name: 'NAV.FORGOT',
+                    accessLevel: systemRoles.nobody.mask
+                }
+            }
+        })
+        .state('reset', {
+            parent: 'main',
+            url: '/reset/:token',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.RESET',
                 accessLevel: systemRoles.nobody.mask
             }
         })
@@ -118,6 +148,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'access',
             data: {
                 name: 'NAV.ACCESS_MANAGEMENT',
+                icon: 'fa-compass',
                 accessLevel: systemRoles.superAdmin.mask
             },
             views: {
@@ -164,6 +195,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
             }
         })
+        .state('usersImport', {
+            parent: 'users',
+            url: '/import',
+            templateUrl: 'views/controllers/users-import.html',
+            controller: 'UsersImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('uoas', {
             parent: 'home',
             url: 'uoas',
@@ -174,8 +216,31 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.UOAS',
-                accessLevel: systemRoles.superAdmin.mask
+                name: 'NAV.UOAS.TITLE',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('uoasList', {
+            parent: 'uoas',
+            url: '/list',
+            templateUrl: 'views/controllers/uoas-list.html',
+            controller: 'UoasListCtrl',
+            data: {
+                name: 'NAV.UOAS.LIST',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('uoasImport', {
+            parent: 'uoas',
+            url: '/import',
+            templateUrl: 'views/controllers/uoas-import.html',
+            controller: 'UoasImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects', {
@@ -189,6 +254,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROJECTS_MANAGEMENT',
+                icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
@@ -253,12 +319,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        .state('projects.setup.import', {
-            url: '/import',
-            templateUrl: 'views/controllers/project-setup-import.html',
-            controller: 'ProjectSetupImportCtrl',
+        .state('pmProductDashboard', {
+            parent: 'home',
+            url: 'pm/:productId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/pm-dashboard-product.html',
+                    controller: 'PmDashboardProductCtrl'
+                }
+            },
             data: {
-                name: 'NAV.PROJECTS.IMPORT'
+                name: 'NAV.PM_PRODUCT_DASHBOARD',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('orgs', {
@@ -272,21 +344,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.ORGANIZATIONS',
+                icon: 'fa-university',
                 accessLevel: systemRoles.superAdmin.mask
-            }
-        })
-        .state('workflow', {
-            parent: 'home',
-            url: 'workflow',
-            data: {
-                name: 'NAV.WORKFLOW_STEPS',
-                accessLevel: systemRoles.superAdmin.mask
-            },
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/workflow.html',
-                    controller: 'WorkflowCtrl'
-                }
             }
         })
         .state('profile', {
@@ -300,6 +359,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.PROFILE',
+                icon: 'fa-user',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -314,6 +374,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.TASKS',
+                icon: 'fa-tasks',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
@@ -328,7 +389,53 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.VISUALIZATION',
-                isPublic: false
+                icon: 'fa-globe',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('graph', {
+            parent: 'home',
+            url: 'graph',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/graph.html',
+                    controller: 'GraphCtrl'
+                }
+            },
+            data: {
+                name: 'Graph',
+                icon: 'fa-bar-chart',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('table', {
+            parent: 'home',
+            url: 'table',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/table.html',
+                    controller: 'TableCtrl'
+                }
+            },
+            data: {
+                name: 'Table',
+                icon: 'fa-table',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('survey', {
+            parent: 'home',
+            url: 'survey/:surveyId/task/:taskId?',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/survey.html',
+                    controller: 'SurveyCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.SURVEY',
+                icon: 'fa-question',
+                accessLevel: systemRoles.any.mask
             }
         })
         .state('the-wall', {
@@ -341,7 +448,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks'
+                name: 'Page with bricks',
+                accessLevel: systemRoles.any.mask
             }
         });
 
@@ -352,21 +460,37 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
+
+            var params = {
+                reload: true,
+                inherit: false
+            };
+
             greyscaleProfileSrv.getAccessLevel().then(function (_level) {
+
+                if (toParams.returnTo) {
+                    var redirect = $state.get(toParams.returnTo);
+                    if ((_level & redirect.data.accessLevel) !== 0) {
+                        $state.go(redirect.name, {}, params);
+                    }
+                }
+
                 if ((_level & toState.data.accessLevel) === 0) {
                     e.preventDefault();
                     if ((_level & greyscaleGlobals.userRoles.any.mask) !== 0) { //if not admin accessing admin level page
-                        greyscaleUtilsSrv.errorMsg('Access restricted to "' + toState.data.name + '"!');
-                        $state.go('home');
+                        if (toState.name !== 'login') {
+                            greyscaleUtilsSrv.errorMsg(toState.data.name, 'ERROR.ACCESS_RESTRICTED');
+                        }
+                        $state.go('home', {}, params);
                     } else {
-                        $stateParams.returnTo = toState.name;
+                        if (toState.name !== 'home') {
+                            $stateParams.returnTo = toState.name;
+                        }
                         $state.go('login');
                     }
                 } else {
                     if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, {
-                            reload: true
-                        });
+                        $state.go(fromParams.returnTo, {}, params);
                     }
                 }
             });

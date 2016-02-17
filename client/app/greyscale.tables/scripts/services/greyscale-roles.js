@@ -31,6 +31,7 @@ angular.module('greyscale.tables')
             sorting: {
                 'id': 'asc'
             },
-            dataPromise: _getRoles
+            dataPromise: _getRoles,
+            selectable: true
         };
     });

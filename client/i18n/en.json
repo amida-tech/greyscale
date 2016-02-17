@@ -8,10 +8,18 @@
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
         "CLOSE": "Close",
+        "CONTINUE": "Continue",
         "CREATE": "Create",
         "EDIT": "Edit",
         "FURTHER": "Further",
-        "SAVE": "Save"
+        "NO": "No",
+        "REMIND": "Remind",
+        "RESET": "Reset",
+        "SAVE": "Save",
+        "SAVE_AND_CONTINUE": "Save And Continue",
+        "SHOW_ALL": "Show All",
+        "SUBMIT": "Submit",
+        "YES": "Yes"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "yyyy/MM/dd",
@@ -19,6 +27,10 @@
         "PLACEHOLDER": "YYYY/MM/DD",
         "RESET": "Reset",
         "TODAY": "Today"
+    },
+    "ERROR": {
+        "ACCESS_RESTRICTED": "Access restricted to",
+        "TEST": "Test error"
     },
     "FILE": {
         "CONTINUE": "Continue",
@@ -29,12 +41,16 @@
         "WRONG_DATE_FORMAT": "Wrong date format"
     },
     "GLOBALS": {
-        "PROJECTSTATES": {
-            "ABANDONED": "Abandoned",
+        "PRODUCTSTATES": {
+            "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
-            "IN_FLIGHT": "In-flight",
-            "SUSPENDED": "Suspended",
-            "WAITING": "Waiting"
+            "PLANNING": "Planning",
+            "STARTED": "Started",
+            "SUSPENDED": "Suspended"
+        },
+        "PROJECTSTATES": {
+            "ACTIVE": "Active",
+            "INACTIVE": "Inactive"
         },
         "UOASTATUS": {
             "ACTIVE": "Active",
@@ -54,20 +70,60 @@
             "RESEARCH_DIRECTOR": "Research Director",
             "REVIEWER": "Reviewer",
             "TRANSLATOR": "Translator"
+        },
+        "WRITETOANSWERSLIST": {
+            "READ": "Read",
+            "READ_WRITE": "Read And Write"
         }
     },
     "IMPORT": {
-        "USERS": "Import users"
+        "UOAS": {
+            "DESCRIPTION": "Description",
+            "DOWNLOAD_EXAMPLE": "Download Example",
+            "ISO": "ISO",
+            "ISO2": "ISO2",
+            "NAME": "Name",
+            "NAMEISO": "Name ISO",
+            "RESULTS_TITLE": "Import Results",
+            "SHORT_NAME": "Short Name",
+            "STATUS": "Status",
+            "TITLE": "Import Units Of Analysis",
+            "UOA_TYPE": "Uoa Type",
+            "VISIBILITY": "Visibility"
+        },
+        "USERS": {
+            "DOWNLOAD_EXAMPLE": "Download Example",
+            "EMAIL": "E-mail",
+            "FIRST_NAME": "First Name",
+            "LAST_NAME": "Last Name",
+            "ORGANIZATION": "Organization",
+            "RESULTS_TITLE": "Import Results",
+            "STATUS": "Status",
+            "TITLE": "Import users"
+        }
     },
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
         "EMAIL": "E-m@il",
         "FORGOT_PASSWORD": "Forgot password...",
+        "GO_LOGIN": "Go to <a href='/#/login'>login</a> page.",
+        "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
         "LOGIN_REQUIRED": "Login is required.",
         "PASSWORD": "Password",
         "PASSWORD_REQUIRED": "Password is required.",
-        "SIGN_IN": "Sign in"
+        "RESET_SUCCESS": "Password was updated successfully.",
+        "SIGN_IN": "Sign in",
+        "TOKEN_SENT": "Instructions was sent to your e-mail..."
+    },
+    "MY_TASKS": {
+        "NO_TASKS": "You have no tasks at this moment.",
+        "PRODUCT": "Product",
+        "SURVEY": "Survey",
+        "TASK": "Task",
+        "TERMS": "Terms",
+        "TITLE": "My Tasks",
+        "UOA": "Unit Of Analysis"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Access management",
@@ -75,24 +131,31 @@
         "ADMIN_SECTION": "Administration",
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
-        "HOME": "Home",
+        "HOME": "Dashboard",
+        "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
+        "PM_DASHBOARD": "Project Management",
+        "PM_PRODUCT_DASHBOARD": "Product Management: {{ext.productName}}",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
-            "IMPORT": "Import data",
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
             "USER_ROLES": "User Roles"
         },
-        "PROJECTS_MANAGEMENT": "Projects Management",
+        "PROJECTS_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
+        "RESET": "Reset",
+        "SURVEY": "Survey",
         "TASKS": "Tasks",
-        "UOAS": "Units of Analysis",
+        "UOAS": {
+            "LIST": "List",
+            "TITLE": "Units of Analysis"
+        },
         "USERS": {
             "LIST": "List",
             "TITLE": "Users",
@@ -101,12 +164,31 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "Assign to",
+        "INPUT_MESSAGE": "Entry",
+        "SELECT_QUESTION": "Question"
+    },
+    "PM_PRODUCT_DASHBOARD": {
+        "DOWNLOAD_DATA": "Download Data"
+    },
+    "PM_PROJECTS": {
+        "NO_PRODUCTS": "No products in project",
+        "NO_PROJECTS": "You have no projects to manage",
+        "PROJECT": "Project"
+    },
     "PRODUCTS": {
         "TABLE": {
+            "CREATE_WORKFLOW": "Create Workflow",
             "DESCRIPTION": "Description",
+            "PAUSE_PRODUCT": "Suspend Product",
+            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
             "PRODUCT": "Product",
             "SETTINGS": "Settings",
+            "START_PRODUCT": "Start Product",
+            "STATUS": "Status",
             "SURVEY": "Survey",
+            "SURVEY_STATUS": "Survey Status",
             "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "UoAs",
@@ -114,17 +196,18 @@
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
-            "NO_WORKFLOW_STEPS": "This product has no workflow steps.",
+            "NO_UOAS": "This Product has no Units Of Analysis.",
+            "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
             "SELECT_ROLE": "Select Role ...",
             "SELECT_ROLE_LABEL": "Search User By Role",
             "TABLE": {
-                "TASKS_UPDATE_ERROR": "Server error while updating tasks.",
-                "TASK_REMOVE_ERROR": "Server error while removing task.",
-                "TASK_UPDATE_ERROR": "Server error while updating task.",
-                "TITLE": "Assigning Users To Unit Of Analysis And Workflow Step",
-                "UOAS_HEADER": "UoA",
-                "UOAS_TYPE_HEADER": "UoA Type"
+                "TASKS_UPDATE_ERROR": "Server error while updating tasks",
+                "TASK_PARAMS": "Task Parameters",
+                "TASK_REMOVE_ERROR": "Server error while removing task",
+                "TASK_UPDATE_ERROR": "Server error while updating task",
+                "TITLE": "Tasks",
+                "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
             "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
@@ -137,26 +220,53 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
+                "ANSWERS_ACCESS": "Answers Access",
+                "BLIND_REVIEW": "Blind Review",
+                "DISCUSSION_PARTICIPATION": "Discussion Participation",
+                "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
+                "OTHER_ACCESS": "Other Access",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
+                "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
+                "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "START_DATE": "Start Date",
-                "TITLE": "Title"
+                "TASK_PERMISSIONS": "Task Permissions",
+                "TITLE": "Title",
+                "WORKFLOW_PERMISSIONS": "Workflow Permissions",
+                "WRITE_ACCESS_READ": "Read",
+                "WRITE_ACCESS_WRITE": "Read And Write"
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
             "TITLE": "Title",
             "TITLE_REQUIRED": "Title is required."
         }
     },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "Current Step",
+        "DEADLINE": "Deadline",
+        "FLAGS": "Flags",
+        "LAST_INTERACTION": "Last Interaction",
+        "MODAL": {
+            "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
+        },
+        "PROGRESS": "Progress",
+        "ROLE": "Role",
+        "STEP": "Workflow Step",
+        "TITLE": "Product Tasks",
+        "UOA": "Unit Of Analysis",
+        "USER": "User"
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",
         "CLOSE_TIME": "Close Time",
-        "CODE_NAME": "Code Name",
+        "CODE_NAME": "Project Name",
         "CREATED": "Created",
         "DESCRIPTION": "Description",
         "HEADER": "Projects",
         "ITEM": "Project",
         "ORGANIZATION": "Organization",
+        "PAUSE_PROJECT": "Pause Project",
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
@@ -164,14 +274,18 @@
             "ROLE": "Role",
             "USER": "User"
         },
+        "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
     },
     "SURVEYS": {
+        "CONTENT": "Content",
         "DESCRIPTION": "Description",
+        "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
         "ITEM": "Survey",
         "NAME": "Name",
+        "QUESTION": "Question",
         "VIEW": "View"
     },
     "TABLES": {
@@ -185,6 +299,17 @@
             "VALUE": "Translation required"
         },
         "TITLE": "Translations"
+    },
+    "UOAS_FILTER": {
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "SHORT_NAME": "Short Name",
+        "TABLE_TITLE": "Select Units Of Analysis",
+        "TYPE": "Type"
+    },
+    "USERS": {
+        "NOT_LOGGED": "Not Logged",
+        "ORGANIZATION": "Organization"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

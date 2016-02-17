@@ -1,18 +1,37 @@
 var sql = require('sql');
 
 var columns = [
-  'id',
-  'surveyId',
-  'type',
-  'label',
-  'isRequired',
-  'position'
+    'id',
+    'surveyId',
+    'type',
+    'label',
+    'isRequired',
+    'position',
+    'description',
+    'skip',
+    'size',
+    'minLength',
+    'maxLength',
+    'isWordmml',
+    'incOtherOpt',
+    'units',
+    'intOnly',
+    'value',
+    'qid'
 ];
 
 var SurveyQuestion = sql.define({
-  name: 'SurveyQuestions',
-  columns: columns
+    name: 'SurveyQuestions',
+    columns: columns
 });
+
+SurveyQuestion.multiSelectTypes = [2, 3, 4];
+
+SurveyQuestion.editCols = [
+    'label', 'position', 'isRequired', 'description',
+    'skip', 'size', 'minLength', 'maxLength',
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid'
+];
 
 SurveyQuestion.whereCol = columns;
 

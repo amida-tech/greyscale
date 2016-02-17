@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
         greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv, i18n) {
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
@@ -80,6 +80,7 @@ angular.module('greyscale.tables')
             sortable: 'status',
             title: tns + 'STATUS',
             dataFormat: 'option',
+            dataNoEmptyOption: true,
             dataSet: {
                 getData: getStatus,
                 keyField: 'id',
@@ -125,6 +126,9 @@ angular.module('greyscale.tables')
             icon: 'fa-paper-plane',
             pageLength: 10,
             cols: recDescr,
+            sorting: {
+                id: 'asc'
+            },
             selectable: true,
             dataPromise: _getData,
             add: {

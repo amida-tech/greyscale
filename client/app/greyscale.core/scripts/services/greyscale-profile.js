@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi) {
+        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi, greyscaleGlobals) {
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
@@ -32,7 +32,7 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
-                            .then(self._setAssociate)
+                            //                            .then(self._setAssociate) disabled while not need
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -67,6 +67,10 @@ angular.module('greyscale.core')
                     })
                     .then(function (associate) {
                         _associate = associate;
+                        return _profile;
+                    })
+                    .catch(function (err) {
+                        $log.debug(err.message || err);
                         return _profile;
                     });
             } else {
@@ -106,5 +110,13 @@ angular.module('greyscale.core')
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
+        };
+
+        this.isSuperAdmin = function () {
+            return (_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
+        };
+
+        this.isAdmin = function () {
+            return (_accessLevel & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
         };
     });

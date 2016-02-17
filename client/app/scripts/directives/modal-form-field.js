@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                 if (clmn.title) {
                     var field = '';
                     if (!_embedded) {
-                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">' + clmn.title + ':</label>');
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}:</label>');
                         field += '<div class="col-sm-9';
                     }
 
@@ -76,13 +76,21 @@ angular.module('greyscaleApp')
                             }
                             break;
                         case 'option':
-                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"></select>';
+                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
+                                'ng-options="item.id as item.title disable when model.getDisabled(item) for item in model.options" ' +
+                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
+
+                            var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
+                            var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
+                            var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
+                            field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
+                            field += '</select>';
                             break;
                         case 'boolean':
+                            var booleanTitle = _embedded ? ' <span translate="' + clmn.title + '"></span>' : '';
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
                                 '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
-                                '<i class="chk-box"></i></label></div>';
+                                '<i class="chk-box"></i>' + booleanTitle + '</label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
@@ -111,7 +119,8 @@ angular.module('greyscaleApp')
                 }
 
                 $scope.model = {
-                    options: []
+                    options: [],
+                    getDisabled: _getDisabled
                 };
 
                 var _options = [];
@@ -124,12 +133,20 @@ angular.module('greyscaleApp')
                                 title: data[d][clmn.dataSet.valField]
                             });
                         }
+                        _setDefaultOption($scope.modalFormRec, clmn.field, _options);
                         $scope.model.options = _options;
+
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function (data) {
+                            _setDefaultOption($scope.modalFormRec, clmn.field, data);
                             $scope.model.options = data;
                         });
                     }
+                }
+
+                function _getDisabled(item) {
+                    return (clmn.dataSet && typeof clmn.dataSet.getDisabled === 'function') ?
+                        clmn.dataSet.getDisabled(item, $scope.modalFormRec) : false;
                 }
 
                 function _parseParams(params) {
@@ -143,6 +160,12 @@ angular.module('greyscaleApp')
                     });
 
                     return parsedParams;
+                }
+
+                function _setDefaultOption(model, field, data) {
+                    if (clmn.dataNoEmptyOption && data[0] && model[field] === undefined) {
+                        model[field] = data[0][clmn.dataSet.keyField];
+                    }
                 }
             }
         };

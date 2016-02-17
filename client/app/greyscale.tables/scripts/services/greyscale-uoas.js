@@ -102,15 +102,15 @@ angular.module('greyscale.tables')
                     valField: 'name'
                 }
             }, {
-                field: 'createTime',
+                field: 'created',
                 title: 'Created',
                 show: true,
                 dataFormat: 'date',
-                sortable: 'createTime',
+                sortable: 'created',
                 dataRequired: true,
                 dataReadOnly: 'both'
                     /*
-                     field: 'deleteTime',
+                     field: 'deleted',
                      */
             }, {
                 field: '',

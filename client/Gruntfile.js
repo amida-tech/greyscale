@@ -62,11 +62,11 @@ module.exports = function (grunt) {
             },
             js: {
                 files: [
-                    '<%= yeoman.app %>/scripts/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
+                    '<%= yeoman.app %>/scripts/**/*.js',
+                    '<%= yeoman.app %>/greyscale.core/**/*.js',
+                    '<%= yeoman.app %>/greyscale.rest/**/*.js',
+                    '<%= yeoman.app %>/greyscale.tables/**/*.js',
+                    '<%= yeoman.app %>/greyscale.mock/**/*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
                 options: {
@@ -74,11 +74,11 @@ module.exports = function (grunt) {
                 }
             },
             jsTest: {
-                files: ['test/spec/{,*/}*.js'],
+                files: ['test/spec/**/*.js'],
                 tasks: ['newer:jshint:test', 'newer:jscs:test', 'karma']
             },
             compass: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+                files: ['<%= yeoman.app %>/styles/**/*.{scss,sass}'],
                 tasks: ['compass:server', 'postcss:server']
             },
             gruntfile: {
@@ -96,9 +96,9 @@ module.exports = function (grunt) {
                     livereload: '<%= connect.options.livereload %>'
                 },
                 files: [
-                    '<%= yeoman.app %>/{,*/}*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    '<%= yeoman.app %>/**/*.html',
+                    '.tmp/styles/**/*.css',
+                    '<%= yeoman.app %>/images/**/*.{png,jpg,jpeg,gif,webp,svg}'
                 ]
             }
         },
@@ -200,6 +200,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Make sure code formatting is beautiful
         jsbeautifier: {
             beautify: {
                 src: [
@@ -287,6 +288,10 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
+                exclude: [
+                    'bower_components/plotly.js/dist/plotly.min.js',
+                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
+                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -384,32 +389,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // The following *-min tasks will produce minified files in the dist folder
-        // By default, your `index.html`'s <!-- Usemin block --> will take care of
-        // minification. These next options are pre-configured if you do not wish
-        // to use the Usemin blocks.
-        // cssmin: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/styles/main.css': [
-        //         '.tmp/styles/{,*/}*.css'
-        //       ]
-        //     }
-        //   }
-        // },
-        // uglify: {
-        //   dist: {
-        //     files: {
-        //       '<%= yeoman.dist %>/scripts/scripts.js': [
-        //         '<%= yeoman.dist %>/scripts/scripts.js'
-        //       ]
-        //     }
-        //   }
-        // },
-        // concat: {
-        //   dist: {}
-        // },
-
         imagemin: {
             dist: {
                 files: [{
@@ -475,15 +454,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Replace Google CDN references
-        /*
-         cdnify: {
-         dist: {
-         html: ['<%= yeoman.dist %>/*.html']
-         }
-         },
-         */
-
         // Copies remaining files to places other tasks can use
         copy: {
             dist: {
@@ -511,6 +481,11 @@ module.exports = function (grunt) {
                     src: ['**/*.js']
                 }, {
                     expand: true,
+                    cwd: '.tmp/concat',
+                    src: 'scripts/*',
+                    dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
                     cwd: '.',
                     src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
                     dest: '<%= yeoman.dist %>'
@@ -519,14 +494,17 @@ module.exports = function (grunt) {
                     cwd: '.',
                     src: 'bower_components/font-awesome/fonts/*',
                     dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'fixtures/*',
+                    dest: '<%= yeoman.dist %>'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'interviewRenderer/*',
+                    dest: '<%= yeoman.dist %>/'
                 }]
-            },
-            // temporary while imagemin is broken
-            images: {
-                expand: true,
-                cwd: '<%= yeoman.app %>/images',
-                src: '{,*/}*.{png,jpg,jpeg,gif}',
-                dest: '<%= yeoman.dist %>/images'
             },
             styles: {
                 expand: true,
@@ -549,7 +527,15 @@ module.exports = function (grunt) {
             dev: {
                 src: 'dev-Dockerrun.aws.json',
                 dest: 'Dockerrun.aws.json',
-            }
+            },
+            stage: {
+                src: 'staging-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
+            prod: {
+                src: 'prod-Dockerrun.aws.json',
+                dest: 'Dockerrun.aws.json',
+            },
         },
 
         // Run some tasks in parallel to speed up the build process
@@ -562,7 +548,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'compass:dist',
-                // 'imagemin',
+                'imagemin',
                 'svgmin'
             ]
         },
@@ -640,7 +626,7 @@ module.exports = function (grunt) {
                             build: { /* extra options to docker build   */ },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
-                            stop: { /* extra options to docker stop    */ },
+                            stop: { /* extra options to docker stop   */ },
                             kill: { /* extra options to docker kill    */ },
                             logs: { /* extra options to docker logs    */ },
                             pause: { /* extra options to docker pause   */ },
@@ -658,7 +644,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.key
+                        key: dockerConfig.pem
                     }
                 }
             }
@@ -672,6 +658,7 @@ module.exports = function (grunt) {
             }
         },
 
+        // Compress the EBS Dockerrun file
         compress: {
             main: {
                 options: {
@@ -681,23 +668,35 @@ module.exports = function (grunt) {
             }
         },
 
+        // Tasks for Elastic Beanstalk deployment
         awsebtdeploy: {
+            options: {
+                region: 'us-west-2',
+                applicationName: 'greyscale',
+                sourceBundle: 'latest-client.zip',
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                versionLabel: 'client-' + Date.now(),
+                s3: {
+                    bucket: 'amida-greyscale'
+                }
+            },
             dev: {
                 options: {
-                    region: 'us-west-2',
-                    applicationName: 'greyscale',
                     environmentName: 'greyscale-client-dev',
-                    sourceBundle: 'latest-client.zip',
-                    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                    versionLabel: 'client-' + Date.now(),
-                    s3: {
-                        bucket: 'amida-greyscale'
-                    }
+                }
+            },
+            stage: {
+                options: {
+                    environmentName: 'greyscale-client-stage',
+                }
+            },
+            prod: {
+                options: {
+                    environmentName: 'greyscale-client-prod',
                 }
             }
         }
-
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
@@ -744,10 +743,7 @@ module.exports = function (grunt) {
         'i18n',
         'copy:l10n',
         'copy:dist',
-        'copy:images',
-        //'cdnify',
         'cssmin',
-        'uglify',
         'filerev',
         'usemin',
         'htmlmin'
@@ -785,6 +781,16 @@ module.exports = function (grunt) {
         'compress',
         'awsebtdeploy:dev'
     ]);
+    grunt.registerTask('ebsStage', [
+        'copy:stage',
+        'compress',
+        'awsebtdeploy:stage'
+    ]);
+    grunt.registerTask('ebsProd', [
+        'copy:prod',
+        'compress',
+        'awsebtdeploy:prod'
+    ]);
 
     grunt.registerTask('brushIt', [
         'jshint:all',
@@ -800,118 +806,119 @@ module.exports = function (grunt) {
         'build'
     ]);
 
-    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang', function i18nTask() {
+    grunt.registerTask('i18n', 'Generating js lang files from json sources with fallback to default lang',
+        function i18nTask() {
 
-        if (i18nTask.lock) {
-            return;
-        }
+            if (i18nTask.lock) {
+                return;
+            }
 
-        i18nTask.lock = true;
+            i18nTask.lock = true;
 
-        var done = this.async();
+            var done = this.async();
 
-        var i18nDir = i18nConfig.i18nDir;
-        var serveL10nDir = '.tmp/' + i18nConfig.l10nDir;
+            var i18nDir = i18nConfig.i18nDir;
+            var serveL10nDir = '.tmp/' + i18nConfig.l10nDir;
 
-        grunt.file.mkdir(serveL10nDir);
+            grunt.file.mkdir(serveL10nDir);
 
-        var supportedLocales = i18nConfig.supportedLocales;
+            var supportedLocales = i18nConfig.supportedLocales;
 
-        var count = 0;
-        for (var i = 0; i < supportedLocales.length; i++) {
-            count++;
-            _processLocale(supportedLocales[i]);
-        }
+            var count = 0;
+            for (var i = 0; i < supportedLocales.length; i++) {
+                count++;
+                _processLocale(supportedLocales[i]);
+            }
 
-        //////////////////////////
+            //////////////////////////
 
-        function _processLocale(locale) {
-            _generateL10n(locale, function (locale, normSrc) {
-                _normalizeSrc(locale, normSrc, function () {
-                    count--;
-                    if (count === 0) {
-                        setTimeout(function () {
-                            done();
-                            i18nTask.lock = false;
-                        }, 200);
-                    }
+            function _processLocale(locale) {
+                _generateL10n(locale, function (locale, normSrc) {
+                    _normalizeSrc(locale, normSrc, function () {
+                        count--;
+                        if (count === 0) {
+                            setTimeout(function () {
+                                done();
+                                i18nTask.lock = false;
+                            }, 200);
+                        }
+                    });
                 });
-            });
-        }
+            }
 
-        function _generateL10n(locale, callback) {
-            var normSrc, src;
-            if (!_generateL10n.defaultSrc) {
-                src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
-            } else {
-                normSrc = _readSource(locale);
-                src = _applyFallback(normSrc, _generateL10n.defaultSrc, locale);
-            }
-            _writeI18n(locale, src, function () {
-                callback(locale, normSrc);
-            });
-        }
-
-        function _applyFallback(src, fallback) {
-            if (typeof fallback !== 'object') {
-                return fallback;
-            }
-            if (typeof src !== 'object') {
-                src = {};
-            }
-            var fallenSrc = {};
-            for (var fname in fallback) {
-                var fvalue = fallback[fname];
-                var isObject = typeof fvalue === 'object';
-                if (src[fname] === undefined) {
-                    src[fname] = isObject ? {} : '';
-                }
-                if (isObject) {
-                    fallenSrc[fname] = _applyFallback(src[fname], fvalue);
+            function _generateL10n(locale, callback) {
+                var normSrc, src;
+                if (!_generateL10n.defaultSrc) {
+                    src = normSrc = _generateL10n.defaultSrc = _readSource(locale);
                 } else {
-                    fallenSrc[fname] = src[fname] !== '' ? src[fname] : fvalue;
+                    normSrc = _readSource(locale);
+                    src = _applyFallback(normSrc, _generateL10n.defaultSrc, locale);
                 }
+                _writeI18n(locale, src, function () {
+                    callback(locale, normSrc);
+                });
             }
-            for (var sname in src) {
-                if (fallback[sname] === undefined) {
-                    delete src[sname];
+
+            function _applyFallback(src, fallback) {
+                if (typeof fallback !== 'object') {
+                    return fallback;
                 }
+                if (typeof src !== 'object') {
+                    src = {};
+                }
+                var fallenSrc = {};
+                for (var fname in fallback) {
+                    var fvalue = fallback[fname];
+                    var isObject = typeof fvalue === 'object';
+                    if (src[fname] === undefined) {
+                        src[fname] = isObject ? {} : '';
+                    }
+                    if (isObject) {
+                        fallenSrc[fname] = _applyFallback(src[fname], fvalue);
+                    } else {
+                        fallenSrc[fname] = src[fname] !== '' ? src[fname] : fvalue;
+                    }
+                }
+                for (var sname in src) {
+                    if (fallback[sname] === undefined) {
+                        delete src[sname];
+                    }
+                }
+                return fallenSrc;
             }
-            return fallenSrc;
-        }
 
-        function _writeI18n(locale, src, callback) {
-            var file = _getDestFileName(locale);
-            var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
-            fs.writeFile(file, content, callback);
-        }
+            function _writeI18n(locale, src, callback) {
+                var file = _getDestFileName(locale);
+                var content = 'window.L10N = ' + JSON.stringify(_sortObject(src), null, 2) + ';\n';
+                fs.writeFile(file, content, callback);
+            }
 
-        function _normalizeSrc(locale, src, callback) {
-            var file = _getSrcFileName(locale);
-            var content = JSON.stringify(_sortObject(src), null, 4);
-            fs.writeFile(file, content, callback);
-        }
+            function _normalizeSrc(locale, src, callback) {
+                var file = _getSrcFileName(locale);
+                var content = JSON.stringify(_sortObject(src), null, 4);
+                fs.writeFile(file, content, callback);
+            }
 
-        function _readSource(locale) {
-            var file = _getSrcFileName(locale);
-            var src = grunt.file.readJSON(file);
-            return JSON.parse(JSON.stringify(src));
-        }
+            function _readSource(locale) {
+                var file = _getSrcFileName(locale);
+                var src = grunt.file.readJSON(file);
+                return JSON.parse(JSON.stringify(src));
+            }
 
-        function _getSrcFileName(locale) {
-            return i18nDir + '/' + locale + '.json';
-        }
+            function _getSrcFileName(locale) {
+                return i18nDir + '/' + locale + '.json';
+            }
 
-        function _getDestFileName(locale) {
-            return serveL10nDir + '/' + locale + '.js';
-        }
+            function _getDestFileName(locale) {
+                return serveL10nDir + '/' + locale + '.js';
+            }
 
-        function _sortObject(o) {
-            var ordered = {};
-            Object.keys(o).sort().forEach(function (key) {
-                ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
-            });
-            return ordered;
-        }
-    });
+            function _sortObject(o) {
+                var ordered = {};
+                Object.keys(o).sort().forEach(function (key) {
+                    ordered[key] = (typeof o[key] === 'object') ? _sortObject(o[key]) : o[key];
+                });
+                return ordered;
+            }
+        });
 };

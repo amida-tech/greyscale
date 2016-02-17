@@ -7,6 +7,7 @@ var
     Survey = require('app/models/surveys'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
+    Task = require('app/models/tasks'),
     UOA = require('app/models/uoas'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -37,6 +38,83 @@ module.exports = {
     },function(err){
       next(err);
     })
+  },
+
+  tasks: function (req, res, next) {
+    co(function* (){
+      return yield thunkQuery(
+          Task
+              .select(
+                  Task.star()
+              )
+              .from(
+                  Task
+              )
+          .where(Task.productId.equals(req.params.id))
+      );
+    }).then(function(data){
+      res.json(data);
+    },function(err){
+      next(err);
+    })
+  },
+
+  editTasks: function (req, res, next) {
+    co(function* (){
+      var product = yield thunkQuery(
+          Product.select().where(Product.id.equals(req.params.id))
+      );
+      if(!_.first(product)){
+        throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+      }
+      if (!Array.isArray(req.body)) {
+        throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
+      }
+      // TODO validation
+      var res = {
+        inserted: [],
+        updated: []
+      };
+
+      for(var i in req.body){
+        req.body[i].productId = req.params.id;
+
+        if(
+            typeof req.body[i].uoaId            == 'undefined' ||
+            typeof req.body[i].stepId           == 'undefined' ||
+            typeof req.body[i].entityTypeRoleId == 'undefined' ||
+            typeof req.body[i].productId        == 'undefined'
+            //typeof req.body[i].title            == 'undefined'
+        ){
+          throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+        }
+
+        if(req.body[i].id){ // update
+          var updateObj = _.pick(
+              req.body[i],
+              Task.editCols
+          );
+          if(Object.keys(updateObj).length){
+            var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
+            updateObj.id = req.body[i].id;
+            res.updated.push(req.body[i].id);
+          }
+        }else{ // create
+          var id = yield thunkQuery(
+              Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
+          );
+          req.body[i].id = _.first(id).id;
+          res.inserted.push(req.body[i].id);
+        }
+
+      }
+
+      return res;
+    }).then(function (data) {
+      res.json(data);
+    }, function (err) {
+      next(err);
+    });
   },
 
   selectOne: function (req, res, next) {
@@ -179,6 +257,7 @@ module.exports = {
     });
   }
 
+
 };
 
 function* checkProductData(req) {
@@ -188,18 +267,25 @@ function* checkProductData(req) {
         }
     }
 
-    //if (req.body.matrixId) {
-    //    var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-    //    if (!_.first(isExistMatrix)) {
-    //        throw new HttpError(403, 'Matrix with this id does not exist');
-    //    }
-    //}
+    if (typeof req.body.status != 'undefined') {
+        if (Product.statuses.indexOf(req.body.status) == -1) {
+            throw new HttpError(
+                403,
+                'Status can be only: ' +
+                '0 - Planning, ' +
+                '1 - Started, ' +
+                '2 - Suspended, ' +
+                '3 - Completed, ' +
+                '4 - Canceled'
+            );
+        }
+    }
 
     if (req.body.surveyId) {
-      var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-      if (!_.first(isExistSurvey)) {
-        throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-      }
+        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
+        if (!_.first(isExistSurvey)) {
+            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
+        }
     }
 
     if (req.body.projectId) {

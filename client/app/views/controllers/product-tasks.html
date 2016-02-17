@@ -1,13 +1,17 @@
 <div class="row" translate-namespace="PRODUCTS.TASKS">
-    <div ng-if="model.workflowSteps.length" class="col-md-9">
+
+    <div ng-if="model.workflowSteps.length && model.uoas.length" class="col-md-9">
         <div ng-if="model.tasks">
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
+            <br>
+            <div class="pull-right">
+                <a ui-sref="projects.setup.products({projectId:model.projectId})" class="btn btn-success" translate="COMMON.CONTINUE"></a>
+            </div>
+            <div class="clearfix"></div>
         </div>
-
-        <div ng-hide="model.tasks" class="loading"><div class="double-bounce1"></div><div class="double-bounce2"></div></div>
-
     </div>
-    <div ng-if="model.workflowSteps.length" class="col-md-3">
+
+    <div ng-if="!model.$loading && model.tasks" class="col-md-3">
         <div class="form-group">
             <label translate=".SELECT_ROLE_LABEL"></label>
             <select class="form-control"
@@ -38,10 +42,15 @@
             <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></div>
         </div>
     </div>
-    <div ng-if="model.workflowSteps && !model.workflowSteps.length" class="col-md-12">
+
+    <div ng-if="!model.$loading && !model.uoas.length">
+        <div class="alert alert-warning" translate=".NO_UOAS"></div>
+    </div>
+    <div ng-if="!model.$loading && !model.workflowSteps.length">
         <div class="alert alert-warning" translate=".NO_WORKFLOW_STEPS"></div>
     </div>
-    <div ng-if="!model.workflowSteps" class="col-md-12">
+
+    <div ng-if="model.$loading" class="col-md-12">
         <rd-loading></rd-loading>
     </div>
 </div>
