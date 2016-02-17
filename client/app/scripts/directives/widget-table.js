@@ -26,6 +26,10 @@ angular.module('greyscaleApp')
                 model.current = null;
             }
 
+            scope.sortableOptions = {
+                disabled: true
+            };
+
             _translateParams(model);
 
             if (!model.tableParams || !(model.tableParams instanceof NgTableParams)) {
@@ -62,6 +66,15 @@ angular.module('greyscaleApp')
 
                 model.tableParams.custom = {
                     showAllButton: !!model.showAllButton
+                };
+            }
+
+            if (model.dragSortable) {
+                scope.sortableOptions = {
+                    handle: '.action-drag-sortable',
+                    start: function(e, ui){
+                        ui.placeholder.height(ui.item.height());
+                    }
                 };
             }
 
@@ -103,7 +116,6 @@ angular.module('greyscaleApp')
             if (typeof config.onReload === 'function') {
                 ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
             }
-
         }
 
         function _getDataMap(data) {
@@ -249,10 +261,6 @@ angular.module('greyscaleApp')
         };
 
         function _onReload(scope, el, args) {
-            _dragSortFunctionality(scope, el);
-        }
-
-        function _dragSortFunctionality(scope, el) {
 
         }
 

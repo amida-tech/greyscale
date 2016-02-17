@@ -133,7 +133,7 @@
             "TASKS": "Tasks",
             "USER_ROLES": "User Roles"
         },
-        "PROJECTS_MANAGEMENT": "Projects Management",
+        "PROJECTS_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
         "SURVEY": "Survey",
         "TASKS": "Tasks",
@@ -161,6 +161,7 @@
     },
     "PRODUCTS": {
         "TABLE": {
+            "CREATE_WORKFLOW": "Create Workflow",
             "DESCRIPTION": "Description",
             "PAUSE_PRODUCT": "Suspend Product",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
