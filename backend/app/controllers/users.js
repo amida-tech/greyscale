@@ -7,7 +7,6 @@ var client = require('app/db_bootstrap'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
     WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepList = require('app/models/workflow_step_list'),
     EssenceRole = require('app/models/essence_roles'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
@@ -655,7 +654,7 @@ module.exports = {
                     'row_to_json("Products".*) as product',
                     'row_to_json("EssenceRoles".*) as entityTypeRoleId',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json(STEPS) as step'
+                    'row_to_json("WorkflowSteps") as step'
                 )
                 .from(
                     Task
@@ -667,26 +666,13 @@ module.exports = {
                     .on(Product.surveyId.equals(Survey.id))
                     .leftJoin(EssenceRole)
                     .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
 
-                )
-                .from(
-                    WorkflowStep
-                        .subQuery("STEPS")
-                        .select(
-                            WorkflowStepList.title,
-                            WorkflowStepList.description,
-                            WorkflowStep.star()
-                        )
-                        .from(
-                            WorkflowStep
-                            .leftJoin(WorkflowStepList)
-                            .on(WorkflowStepList.id.equals(WorkflowStep.stepId))
-                        )
-                        //.where(WorkflowStep.id.equals(Task.stepId))
                 )
                 .where(Task.entityTypeRoleId.in(
                     EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                )).and('STEPS.id = "Tasks"."stepId"')
+                ))
             );
             return res;
         }).then(function(data) {
