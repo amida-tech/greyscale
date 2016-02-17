@@ -201,7 +201,11 @@ module.exports = {
                                 );
 
                                 if (roleID == 2) {
-                                    yield thunkQuery(Organization.update({adminUserId: created[0].id}));
+                                    yield thunkQuery(
+                                        Organization
+                                        .update({adminUserId: created[0].id})
+                                        .where(Organization.id.equals(org[0].id))
+                                    );
                                     org[0].adminUserId = created[0].id;
                                 }
 
