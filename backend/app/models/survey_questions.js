@@ -15,7 +15,9 @@ var columns = [
     'isWordmml',
     'incOtherOpt',
     'units',
-    'intOnly'
+    'intOnly',
+    'value',
+    'qid'
 ];
 
 var SurveyQuestion = sql.define({
@@ -28,8 +30,9 @@ SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
-    'isWordmml', 'incOtherOpt', 'units', 'intOnly'
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid'
 ];
+
 SurveyQuestion.whereCol = columns;
 
 module.exports = SurveyQuestion;
