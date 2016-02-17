@@ -295,6 +295,13 @@
         },
         "TITLE": "Переводы"
     },
+    "UOAS_FILTER": {
+        "DESCRIPTION": "",
+        "NAME": "",
+        "SHORT_NAME": "",
+        "TABLE_TITLE": "",
+        "TYPE": ""
+    },
     "USERS": {
         "NOT_LOGGED": "",
         "ORGANIZATION": ""

@@ -295,6 +295,13 @@
         },
         "TITLE": "Translations"
     },
+    "UOAS_FILTER": {
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "SHORT_NAME": "Short Name",
+        "TABLE_TITLE": "Select Units Of Analysis",
+        "TYPE": "Type"
+    },
     "USERS": {
         "NOT_LOGGED": "Not Logged",
         "ORGANIZATION": "Organization"
