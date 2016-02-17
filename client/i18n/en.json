@@ -222,15 +222,20 @@
             "STEPS": {
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
-                "DISCUSSIONS_ACCESS": "Discussions Access",
+                "DISCUSSION_PARTICIPATION": "Discussion Participation",
+                "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
+                "OTHER_ACCESS": "Other Access",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
-                "RESPONSES_ACCESS": "Responses Access",
+                "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
+                "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "START_DATE": "Start Date",
                 "TASK_PERMISSIONS": "Task Permissions",
                 "TITLE": "Title",
-                "WORKFLOW_PERMISSIONS": "Workflow Permissions"
+                "WORKFLOW_PERMISSIONS": "Workflow Permissions",
+                "WRITE_ACCESS_READ": "Read",
+                "WRITE_ACCESS_WRITE": "Read And Write"
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
             "TITLE": "Title",

@@ -54,8 +54,8 @@ angular.module('greyscaleApp')
             var step = _.pick(item, [
                 'id', 'roleId', 'startDate', 'endDate',
                 'title', 'writeToAnswers',
-                'taskAccessToDiscussions', 'taskAccessToResponses', 'taskBlindReview',
-                'workflowAccessToDiscussions', 'workflowAccessToResponses', 'workflowBlindReview'
+                'discussionParticipation', 'provideResponses', 'seeOthersResponses',
+                'editTranslate', 'blindReview'
             ]);
             step.position = i;
             steps.push(step);
