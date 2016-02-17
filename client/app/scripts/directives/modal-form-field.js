@@ -87,9 +87,10 @@ angular.module('greyscaleApp')
                             field += '</select>';
                             break;
                         case 'boolean':
+                            var booleanTitle = _embedded ? ' <span translate="' + clmn.title + '"></span>' : '';
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
                                 '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
-                                '<i class="chk-box"></i></label></div>';
+                                '<i class="chk-box"></i>' + booleanTitle + '</label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';

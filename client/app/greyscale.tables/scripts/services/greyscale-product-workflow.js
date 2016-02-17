@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
+        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -118,12 +118,10 @@ angular.module('greyscale.tables')
                 '   <div class="form-group col-md-12" ng-if="rowFormRow.title"><b translate="{{rowFormRow.title}}"></b></div>' +
                 '   <div class="form-group {{item.class}}"' +
                 '           ng-repeat="item in rowFormRow.formRow">' +
-                '       <b ng-if="item.dataFormat != \'boolean\'" translate="{{item.title}}"></b>' +
                 '       <span modal-form-rec="row"' +
                 '           modal-form-field="item" embedded="true"' +
                 '           modal-form-field-model="row[item.field]">' +
                 '       </span>' +
-                '       <label ng-if="item.dataFormat == \'boolean\'" translate="{{item.title}}"></label>' +
                 '   </div>' +
                 '   <div class="clearfix"></div>' +
                 '</div>' +
