@@ -11,7 +11,7 @@
                ng-class="{'table-hover':model.selectable}"
                template-pagination="custom/pager"
                ng-table-dynamic="model.tableParams with model.cols">
-            <tbody>
+            <tbody ui-sortable="sortableOptions" ng-model="$data">
                 <tr ng-if="!model.$loading" ng-repeat="row in $data" ng-click="select(row, $event)"
                     ng-class="{selected: isSelected(row), 'expandable-row':model.expandedRowTemplate || model.expandedRowTemplateUrl}"
                     widget-table-expanded-row-open="model.expandedRowShow"

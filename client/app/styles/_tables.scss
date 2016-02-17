@@ -71,10 +71,18 @@
         }
     }
     tr.ui-sortable-placeholder {
-        border: 1px solid red;
+        visibility: visible !important;
+        @extend .bg-success;
         td {
-            border-top: 1px solid red;
-            border-bottom: 1px solid red;
+            @extend .bg-success;
         }
+    }
+    tr.ui-sortable-helper {
+        background: #fff;
+        box-shadow: 0 2px 5px #999;
+        z-index: 1000;
+    }
+    .action-drag-sortable {
+        cursor: move;
     }
 }

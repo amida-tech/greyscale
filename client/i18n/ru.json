@@ -161,6 +161,7 @@
     },
     "PRODUCTS": {
         "TABLE": {
+            "CREATE_WORKFLOW": "",
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
             "PLANNING_NOT_FINISH": "",

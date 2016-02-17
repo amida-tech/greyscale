@@ -25,7 +25,8 @@ var _app = angular.module('greyscaleApp', [
     'lodashAngularWrapper',
     'isteven-multi-select',
     'pascalprecht.translate',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ui.sortable'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
