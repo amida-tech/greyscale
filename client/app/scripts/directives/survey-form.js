@@ -113,7 +113,7 @@ angular.module('greyscaleApp')
                         type: type,
                         label: field.label,
                         required: field.isRequired,
-                        options: ['checkboxes', 'radio', 'dropdown'].indexOf(type) !== -1 ? mockedOptions : {} //todo: switch to API-data usage
+                        options: field.options
                     };
 
                     if (type === 'section_end') { // close section

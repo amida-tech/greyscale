@@ -46,34 +46,50 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'number':
-                            $log.debug(scope.field);
                             body = label + '<input type="number" ' + commonPart + '>';
                             break;
 
                         case 'email':
-                            $log.debug(scope.field);
                             body = label + '<input type="email" ' + commonPart + '>';
                             break;
 
                         case 'checkboxes':
+                            $log.debug(scope.field);
                             body += label;
+                            if (scope.field.options && scope.field.options.length > 0) {
+                                for (var o=0; o<scope.field.options.length; o++) {
+                                    angular.extend(scope.field.options[o], {
+                                        checked: scope.field.options[o].isSelected,
+                                        name: scope.field.options[o].label
+                                    });
+                                }
+                                body +='<checkbox-list list-items = "field.options"></checkbox-list>';
+                            }
+                            subLeft = '';
+                            subRight = '';
                             break;
 
                         case 'radio':
+                            $log.debug(scope.field);
+                            subLeft = '';
+                            subRight = '';
                             break;
                         case 'dropdown':
                         case 'price':
                             body = label;
                             $log.debug(scope.field);
-
+                            subLeft = '';
+                            subRight = '';
                             break;
                         default:
                             $log.debug(scope.field);
                             body = label + '<input type="text" ' + commonPart + '>';
                         }
 
-                        body += '<p class="subtext"><span class="pull-right">' + subRight +
-                            '</span><span class="pull-left">' + subLeft + '</span></p>';
+                        if (subLeft || subRight) {
+                            body += '<p class="subtext"><span class="pull-right">' + subRight +
+                                '</span><span class="pull-left">' + subLeft + '</span></p>';
+                        }
                     }
 
                     elem.append(body);
