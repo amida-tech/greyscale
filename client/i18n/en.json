@@ -75,12 +75,21 @@
     },
     "IMPORT": {
         "UOAS": {
+            "DESCRIPTION": "Description",
+            "DOWNLOAD_EXAMPLE": "Download Example",
+            "ISO": "ISO",
+            "ISO2": "ISO2",
             "NAME": "Name",
+            "NAMEISO": "Name ISO",
             "RESULTS_TITLE": "Import Results",
+            "SHORT_NAME": "Short Name",
             "STATUS": "Status",
-            "TITLE": "Import Units Of Analysis"
+            "TITLE": "Import Units Of Analysis",
+            "UOA_TYPE": "Uoa Type",
+            "VISIBILITY": "Visibility"
         },
         "USERS": {
+            "DOWNLOAD_EXAMPLE": "Download Example",
             "EMAIL": "E-mail",
             "FIRST_NAME": "First Name",
             "LAST_NAME": "Last Name",

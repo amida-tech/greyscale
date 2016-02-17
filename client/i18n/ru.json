@@ -75,12 +75,21 @@
     },
     "IMPORT": {
         "UOAS": {
+            "DESCRIPTION": "",
+            "DOWNLOAD_EXAMPLE": "",
+            "ISO": "",
+            "ISO2": "",
             "NAME": "",
+            "NAMEISO": "",
             "RESULTS_TITLE": "",
+            "SHORT_NAME": "",
             "STATUS": "",
-            "TITLE": "Импорт единиц анализа"
+            "TITLE": "Импорт единиц анализа",
+            "UOA_TYPE": "",
+            "VISIBILITY": ""
         },
         "USERS": {
+            "DOWNLOAD_EXAMPLE": "",
             "EMAIL": "Эл. почта",
             "FIRST_NAME": "Имя",
             "LAST_NAME": "Фамилия",
