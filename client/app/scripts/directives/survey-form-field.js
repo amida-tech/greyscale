@@ -73,13 +73,12 @@ angular.module('greyscaleApp')
                             $log.debug(scope.field);
                             if (scope.field.options && scope.field.options.length > 0) {
                                 for (o = 0; o < scope.field.options.length; o++) {
-                                    angular.extend(scope.field.options[o], {
-                                        checked: scope.field.options[o].isSelected,
-                                        name: scope.field.options[o].label
-                                    });
+                                    if (scope.field.options[o].isSelected) {
+                                        scope.field.selected = scope.field.options[o];
+                                    }
                                 }
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="field.cid" ng-model="opt.checked"><i class="chk-box"></i>{{opt.label}}</label></div>';
+                                    'name="field.cid" ng-model="field.selected" ng-value="opt"><i class="chk-box"></i>{{opt.label}}</label></div>';
                             }
                             subLeft = '';
                             subRight = '';
