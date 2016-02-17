@@ -8,6 +8,7 @@
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
         "CLOSE": "Закрыть",
+        "CONTINUE": "",
         "CREATE": "Создать",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
@@ -15,6 +16,7 @@
         "REMIND": "Напомнить",
         "RESET": "",
         "SAVE": "Сохранить",
+        "SAVE_AND_CONTINUE": "",
         "SHOW_ALL": "",
         "SUBMIT": "",
         "YES": "Да"
@@ -182,6 +184,7 @@
             "START_PRODUCT": "Запустить продукт",
             "STATUS": "Состояние",
             "SURVEY": "Опрос",
+            "SURVEY_STATUS": "",
             "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",

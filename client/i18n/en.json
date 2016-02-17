@@ -8,6 +8,7 @@
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
         "CLOSE": "Close",
+        "CONTINUE": "Continue",
         "CREATE": "Create",
         "EDIT": "Edit",
         "FURTHER": "Further",
@@ -15,6 +16,7 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVE_AND_CONTINUE": "Save And Continue",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "YES": "Yes"
@@ -182,6 +184,7 @@
             "START_PRODUCT": "Start Product",
             "STATUS": "Status",
             "SURVEY": "Survey",
+            "SURVEY_STATUS": "Survey Status",
             "TASKS": "Tasks",
             "TITLE": "Title",
             "UOAS": "UoAs",
