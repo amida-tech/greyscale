@@ -21,7 +21,8 @@ angular.module('greyscaleApp')
 
                 $scope.model = {
                     login: '',
-                    err: 'qqq'
+                    err: '',
+                    success: ''
                 };
 
                 greyscaleUserApi.resetToken($scope.token)
@@ -36,7 +37,7 @@ angular.module('greyscaleApp')
                             password: $scope.model.password
                         })
                         .then(function () {
-                            $scope.success = 'LOGIN.RESET_SUCCESS';
+                            $scope.model.success = 'LOGIN.RESET_SUCCESS';
                         })
                         .catch(errHandler);
                 };

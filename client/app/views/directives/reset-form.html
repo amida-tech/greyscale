@@ -8,12 +8,17 @@
                     <p class="form-control-static">{{model.email}}</p>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" ng-show="model.success">
+                <div class="col-sm-12 text-center">
+                    <p class="form-control-static">{{model.success|translate}}</p>
+                </div>
+            </div>
+            <div class="form-group" ng-hide="model.success">
                 <label for="password" class="col-sm-4 control-label">Password</label>
 
                 <div class="col-sm-8">
                     <input type="password" class="form-control" name="password" id="password" ng-model="model.password"
-                           required ng-minlength="8">
+                           required ng-minlength="8" ng-disabled="model.success || model.err">
 
                     <div class="text-center" ng-messages="resetForm.password.$error" role="alert"
                          ng-if="resetForm.password.$dirty">
@@ -22,13 +27,14 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group" ng-hide="model.success">
                 <label for="password_conf" class="col-sm-4 control-label">Confirmation</label>
 
                 <div class="col-sm-8">
                     <input type="password" class="form-control" name="password_conf" id="password_conf"
                            ng-model="model.password_conf"
-                           ng-required="true" ng-minlength="8" is-equal="{{model.password}}">
+                           ng-required="true" ng-minlength="8" is-equal="{{model.password}}"
+                           ng-disabled="model.success || model.err">
 
                     <div class="text-center" ng-messages="resetForm.password_conf.$error" role="alert"
                          ng-if="resetForm.password_conf.$dirty">
@@ -43,13 +49,8 @@
                     <button id="main-login-btn" type="submit" class="btn btn-primary pull-right"
                             ng-hide="model.success"
                             ng-click="reset()"
-                            ng-disabled="resetForm.$invalid || !resetForm.$dirty"
+                            ng-disabled="resetForm.$invalid || !resetForm.$dirty || model.success || model.err"
                             translate="COMMON.RESET"></button>
-                </div>
-            </div>
-            <div class="form-group" ng-show="model.success">
-                <div class="col-sm-12">
-                    <p class="form-control-static">{{model.success|translate}}</p>
                 </div>
             </div>
             <div ng-if="model.err" class="text-center text-danger"><i class="fa fa-exclamation-circle"></i>
