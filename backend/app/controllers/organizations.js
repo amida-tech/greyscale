@@ -163,7 +163,7 @@ module.exports = {
 
                         var existError = false;
 
-                        if (roleID == 2 && (org[0].adminUserId || adminIndex !== false)) { // admin already exists
+                        if (roleID == 2 && org[0].adminUserId) { // admin already exists
                             existError = true;
                             roleID = 3;
                         }
@@ -201,7 +201,8 @@ module.exports = {
                                 );
 
                                 if (roleID == 2) {
-                                    yield thunkQuery(Organization.update({adminUserId: created[0].id}))
+                                    yield thunkQuery(Organization.update({adminUserId: created[0].id}));
+                                    org[0].adminUserId = created[0].id;
                                 }
 
                                 if (created[0]) {
