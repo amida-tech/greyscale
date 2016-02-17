@@ -104,7 +104,6 @@ angular.module('greyscale.tables')
             }]
         }];
 
-
         var recDescr = [{
             dataFormat: 'action',
             actions: [{
@@ -113,22 +112,22 @@ angular.module('greyscale.tables')
             }]
         }, {
 
-        },{
+        }, {
             cellTemplate: '<form>' +
-            '<div class="row {{rowFormRow.class}}" ng-repeat="rowFormRow in ext.rowFormRows">' +
-            '   <div class="form-group col-md-12" ng-if="rowFormRow.title"><b translate="{{rowFormRow.title}}"></b></div>' +
-            '   <div class="form-group {{item.class}}"' +
-            '           ng-repeat="item in rowFormRow.formRow">' +
-            '       <b ng-if="item.dataFormat != \'boolean\'" translate="{{item.title}}"></b>' +
-            '       <span modal-form-rec="row"' +
-            '           modal-form-field="item" embedded="true"' +
-            '           modal-form-field-model="row[item.field]">' +
-            '       </span>' +
-            '       <label ng-if="item.dataFormat == \'boolean\'" translate="{{item.title}}"></label>' +
-            '   </div>' +
-            '   <div class="clearfix"></div>' +
-            '</div>' +
-            '</form>',
+                '<div class="row {{rowFormRow.class}}" ng-repeat="rowFormRow in ext.rowFormRows">' +
+                '   <div class="form-group col-md-12" ng-if="rowFormRow.title"><b translate="{{rowFormRow.title}}"></b></div>' +
+                '   <div class="form-group {{item.class}}"' +
+                '           ng-repeat="item in rowFormRow.formRow">' +
+                '       <b ng-if="item.dataFormat != \'boolean\'" translate="{{item.title}}"></b>' +
+                '       <span modal-form-rec="row"' +
+                '           modal-form-field="item" embedded="true"' +
+                '           modal-form-field-model="row[item.field]">' +
+                '       </span>' +
+                '       <label ng-if="item.dataFormat == \'boolean\'" translate="{{item.title}}"></label>' +
+                '   </div>' +
+                '   <div class="clearfix"></div>' +
+                '</div>' +
+                '</form>',
             cellTemplateExtData: {
                 rowFormRows: rowFormRows
             }
@@ -201,8 +200,8 @@ angular.module('greyscale.tables')
             });
         }
 
-        function _deleteWorkflowStep(delStep){
-            angular.forEach(_table.tableParams.data, function(item, i){
+        function _deleteWorkflowStep(delStep) {
+            angular.forEach(_table.tableParams.data, function (item, i) {
                 if (angular.equals(item, delStep)) {
                     _table.tableParams.data.splice(i, 1);
                 }

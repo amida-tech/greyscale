@@ -72,7 +72,7 @@ angular.module('greyscaleApp')
             if (model.dragSortable) {
                 scope.sortableOptions = {
                     handle: '.action-drag-sortable',
-                    start: function(e, ui){
+                    start: function (e, ui) {
                         ui.placeholder.height(ui.item.height());
                     }
                 };
