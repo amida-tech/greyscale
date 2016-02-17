@@ -8,20 +8,14 @@ angular.module('greyscaleApp')
             scope: {},
             controller: function ($scope, $rootScope) {
                 $scope.model = {
-                    login: {
-                        label: 'LOGIN.EMAIL',
-                        value: greyscaleEnv.defaultUser || ''
-                    },
-                    password: {
-                        label: 'LOGIN.PASSWORD',
-                        value: greyscaleEnv.defaultPassword || ''
-                    },
+                    login: greyscaleEnv.defaultUser || '',
+                    password: greyscaleEnv.defaultPassword || '',
                     error: null
                 };
 
                 $scope.submitLogin = function () {
                     if ($scope.loginForm.$valid) {
-                        greyscaleUserApi.login($scope.model.login.value, $scope.model.password.value)
+                        greyscaleUserApi.login($scope.model.login, $scope.model.password)
                             .then(function () {
                                 $rootScope.$emit('login');
                             }).catch(function (err) {

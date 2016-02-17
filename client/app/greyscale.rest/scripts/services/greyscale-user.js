@@ -25,7 +25,9 @@ angular.module('greyscale.rest')
             listUoa: _listUoa,
             addUoa: _addUoa,
             delUoa: _delUoa,
-            remindPasswd: _remind
+            remindPasswd: _remind,
+            resetToken: _resetToken,
+            resetPasswd: _resetPasswd
         };
 
         function orgAPI() {
@@ -139,5 +141,13 @@ angular.module('greyscale.rest')
             return userAPI().one('forgot').customPOST({
                 email: login
             });
+        }
+
+        function _resetToken(token) {
+            return userAPI().one('check_restore_token',token).get();
+        }
+
+        function _resetPasswd(data) {
+            return userAPI().one('reset-password').customPUT(data);
         }
     });
