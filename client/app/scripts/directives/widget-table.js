@@ -93,7 +93,6 @@ angular.module('greyscaleApp')
             };
 
             scope.select = function (row, e) {
-                console.log('ddd');
                 if (!model.selectable) {
                     return;
                 }
