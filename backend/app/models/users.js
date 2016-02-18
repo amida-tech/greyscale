@@ -31,7 +31,8 @@ var columns = [
     'bio',
     'notifyLevel',
     'lastActive',
-    'affiliation'
+    'affiliation',
+    'isAnonymous'
 ];
 
 var User = sql.define({

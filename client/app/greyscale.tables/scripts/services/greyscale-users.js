@@ -110,7 +110,9 @@ angular.module('greyscale.tables')
             pageLength: 10,
             showAllButton: true,
             selectable: true,
-            sorting: {created:'desc'},
+            sorting: {
+                created: 'desc'
+            },
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord
