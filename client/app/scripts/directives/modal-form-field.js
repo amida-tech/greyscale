@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
                             if (scope.modalFormFieldModel === true) {
                                 field += '<span class="text-success"><i class="fa fa-check"></i></span>';
                             } else if (scope.modalFormFieldModel === false) {
-                                field += '<span class="text-danger"><i class="fa fa-warning"></i></span>';
+                                field += '<span class="text-danger"><i class="fa fa-minus"></i></span>';
                             }
                             break;
                         case 'date':
