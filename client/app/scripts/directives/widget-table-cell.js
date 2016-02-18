@@ -74,7 +74,7 @@ angular.module('greyscaleApp')
                         if ($scope.rowValue[_field] === true) {
                             elem.append('<span class="text-success"><i class="fa fa-check"></i></span>');
                         } else if ($scope.rowValue[_field] === false) {
-                            elem.append('<span class="text-danger"><i class="fa fa-warning"></i></span>');
+                            elem.append('<span class="text-danger"><i class="fa fa-minus"></i></span>');
                         }
                         break;
 

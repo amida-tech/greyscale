@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('modalFormField', function ($compile, greyscaleUtilsSrv) {
+    .directive('modalFormField', function ($compile, greyscaleUtilsSrv, $templateCache, $http) {
         return {
             restrict: 'A',
             scope: {
@@ -41,17 +41,26 @@ angular.module('greyscaleApp')
                             if (scope.modalFormFieldModel === true) {
                                 field += '<span class="text-success"><i class="fa fa-check"></i></span>';
                             } else if (scope.modalFormFieldModel === false) {
-                                field += '<span class="text-danger"><i class="fa fa-warning"></i></span>';
+                                field += '<span class="text-danger"><i class="fa fa-minus"></i></span>';
                             }
                             break;
                         case 'date':
-                            field += '{{modalFormFieldModel | date:"short"}}';
+                            field += '{{modalFormFieldModel|date}}';
                             break;
                         case 'option':
                             field += greyscaleUtilsSrv.decode(scope.model.options, 'id', scope.modalFormFieldModel, 'title') || '';
                             break;
                         default:
-                            field += '{{modalFormFieldModel}}';
+                            if (clmn.cellTemplate) {
+                                field += _compileCellTemplate(clmn.cellTemplate, clmn.cellTemplateExtData);
+                            } else if (clmn.cellTemplateUrl) {
+                                _getTemplateByUrl(clmn.cellTemplateUrl)
+                                    .then(function (template) {
+                                        field += _compileCellTemplate(template, clmn.cellTemplateExtData);
+                                    });
+                            } else {
+                                field += '{{modalFormFieldModel}}';
+                            }
                         }
                         if (!_embedded) {
                             field += '</p>';
@@ -87,9 +96,10 @@ angular.module('greyscaleApp')
                             field += '</select>';
                             break;
                         case 'boolean':
+                            var booleanTitle = _embedded ? ' <span translate="' + clmn.title + '"></span>' : '';
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
                                 '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
-                                '<i class="chk-box"></i></label></div>';
+                                '<i class="chk-box"></i>' + booleanTitle + '</label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
@@ -108,6 +118,23 @@ angular.module('greyscaleApp')
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
+                }
+
+                function _compileCellTemplate(template, ext) {
+                    scope.row = scope.modalFormRec;
+                    scope.cell = scope.modalFormFieldModel;
+                    scope.ext = ext;
+                    var elem = $compile('<span>' + template + '</span>')(scope);
+                    return elem.html();
+                }
+
+                function _getTemplateByUrl(templateUrl) {
+                    return $http.get(templateUrl, {
+                            cache: $templateCache
+                        })
+                        .then(function (response) {
+                            return response.data;
+                        });
                 }
             },
             controller: function formFieldController($scope) {

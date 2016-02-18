@@ -43,6 +43,19 @@ angular.module('greyscaleApp')
             }).result.catch(hndlModalErr);
         }
 
+        function modalRecInfo(data, tableDescription) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-rec-info.html',
+                controller: 'ModalRecInfoCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    recordData: data,
+                    recordForm: tableDescription
+                }
+            }).result.catch(hndlModalErr);
+        }
+
         function _productUoas(product) {
             return $uibModal.open({
                 templateUrl: 'views/modals/product-uoas.html',
@@ -105,6 +118,7 @@ angular.module('greyscaleApp')
 
         return {
             editRec: modalForm,
+            showRec: modalRecInfo,
             editCountry: function (_country) {
                 return _simpleMiddleForm('views/modals/country-form.html', _country, null);
             },

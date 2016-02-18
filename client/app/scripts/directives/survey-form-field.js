@@ -5,13 +5,13 @@
 angular.module('greyscaleApp')
     .directive('surveyFormField', function ($compile, $log) {
         return {
-            restrict: 'A',
+            restrict: 'AE',
             scope: {
-                field: '=surveyFormField',
-                answers: '=?'
+                field: '=surveyFormField'
             },
             template: '',
             link: function (scope, elem) {
+
                 if (scope.field) {
                     var body = '';
                     if (scope.field.sub) {
@@ -25,18 +25,29 @@ angular.module('greyscaleApp')
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
                         var label = '<label for="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
-                            '">{{field.label}}</label>';
+                            '">{{field.label}}</label><p class="subtext">{{field.description}}</p>';
 
-                        var commonPart = 'id="{{field.cid}}" class="form-control" ng-model="answers[field.cid]" ng-required="{{field.required}}"';
+                        var commonPart = 'id="{{field.cid}}" name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}"';
 
                         var subLeft = '';
                         var subRight = '';
                         var o;
 
+                        if (scope.field.minLength) {
+                            subLeft = 'Min count:' + scope.field.minLength + ', ';
+                        }
+                        if (scope.field.maxLength) {
+                            subLeft += 'Max count:' + scope.field.maxLength;
+                        }
                         switch (scope.field.type) {
                         case 'paragraph':
                             body = '<textarea ' + commonPart + '></textarea>';
-                            subLeft = 'Max count:' + scope.field.maxcount;
+                            if (scope.field.minLength) {
+                                subLeft = 'Min count:' + scope.field.minLength + ', ';
+                            }
+                            if (scope.field.maxLength) {
+                                subLeft += 'Max count:' + scope.field.maxLength;
+                            }
                             break;
 
                         case 'section_break':
@@ -70,16 +81,14 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'radio':
-                            $log.debug(scope.field);
                             if (scope.field.options && scope.field.options.length > 0) {
                                 for (o = 0; o < scope.field.options.length; o++) {
-                                    angular.extend(scope.field.options[o], {
-                                        checked: scope.field.options[o].isSelected,
-                                        name: scope.field.options[o].label
-                                    });
+                                    if (scope.field.options[o].isSelected) {
+                                        scope.field.answer = scope.field.options[o];
+                                    }
                                 }
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="field.cid" ng-model="opt.checked"><i class="chk-box"></i>{{opt.label}}</label></div>';
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-value="opt"><i class="chk-box"></i>{{opt.label}}</label></div>';
                             }
                             subLeft = '';
                             subRight = '';

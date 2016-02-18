@@ -159,16 +159,25 @@ module.exports = {
                 for (var i in parsed) {
                     if (i != 0) { // skip first string
                         var pass = crypto.randomBytes(5).toString('hex');
+                        var roleID = (req.user.roleID == 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
+
+                        var existError = false;
+
+                        if (roleID == 2 && org[0].adminUserId) { // admin already exists
+                            existError = true;
+                            roleID = 3;
+                        }
+
                         var newUser = {
                             parse_status   : 'skipped',
                             email          : parsed[i][0],
                             firstName      : parsed[i][1],
                             lastName       : parsed[i][2],
-                            roleID         : parsed[i][3] ? 2 : 3, // 2 - client, 3 - user
+                            roleID         : roleID,
                             isActive       : false, //(parsed[i][4]) cannot activate until email confirmation
                             timezone       : parsed[i][5],
                             location       : parsed[i][6],
-                            mobile           : parsed[i][7],
+                            mobile         : parsed[i][7],
                             phone          : parsed[i][8],
                             address        : parsed[i][9],
                             lang           : parsed[i][10],
@@ -184,13 +193,30 @@ module.exports = {
                             if (isExist[0]) {
                                 newUser.message = 'Already exists';
                             }else{
+
                                 newUser.password = User.hashPassword(pass);
                                 newUser.activationToken = crypto.randomBytes(32).toString('hex');
-                                var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
+                                var created = yield thunkQuery(
+                                    User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
+                                );
+
+                                if (roleID == 2) {
+                                    yield thunkQuery(
+                                        Organization
+                                        .update({adminUserId: created[0].id})
+                                        .where(Organization.id.equals(org[0].id))
+                                    );
+                                    org[0].adminUserId = created[0].id;
+                                }
+
                                 if (created[0]) {
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';
-                                    newUser.message = 'Added';
+                                    if (existError) {
+                                        newUser.message = 'Admin for this company already exists, added as user';
+                                    }else{
+                                        newUser.message = 'Added';
+                                    }
                                 }
 
                                 var options = {

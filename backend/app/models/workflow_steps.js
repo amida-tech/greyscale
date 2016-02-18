@@ -6,12 +6,11 @@ var columns = [
     'startDate',
     'endDate',
     'roleId',
-    'taskAccessToResponses',
-    'taskAccessToDiscussions',
-    'taskBlindReview',
-    'workflowAccessToResponses',
-    'workflowAccessToDiscussions',
-    'workflowBlindReview',
+    'blindReview',
+    'provideResponses',
+    'seeOthersResponses',
+    'discussionParticipation',
+    'editTranslate',
     'writeToAnswers',
     'position',
     'title'
@@ -26,15 +25,14 @@ WorkflowStep.editCols = [
     'startDate',
     'endDate',
     'roleId',
-    'taskAccessToResponses',
-    'taskAccessToDiscussions',
-    'taskBlindReview',
-    'workflowAccessToResponses',
-    'workflowAccessToDiscussions',
-    'workflowBlindReview',
     'writeToAnswers',
     'position',
-    'title'
+    'title',
+    'blindReview',
+    'provideResponses',
+    'seeOthersResponses',
+    'discussionParticipation',
+    'editTranslate'
 ];
 
 module.exports = WorkflowStep;

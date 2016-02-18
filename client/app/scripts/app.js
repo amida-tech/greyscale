@@ -114,7 +114,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.ACTIVATE',
+                name: 'NAV.RESET',
                 accessLevel: systemRoles.nobody.mask
             }
         })
@@ -218,7 +218,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasList', {
@@ -229,7 +229,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.LIST',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasImport', {
@@ -240,7 +240,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.IMPORT',
                 icon: 'fa-upload',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects', {
@@ -348,21 +348,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
-        .state('workflow', {
-            parent: 'home',
-            url: 'workflow',
-            data: {
-                name: 'NAV.WORKFLOW_STEPS',
-                icon: 'fa-fast-forward',
-                accessLevel: systemRoles.superAdmin.mask
-            },
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/workflow.html',
-                    controller: 'WorkflowCtrl'
-                }
-            }
-        })
         .state('profile', {
             parent: 'home',
             url: 'profile',
@@ -405,7 +390,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('graph', {
@@ -418,9 +403,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Graph',
+                name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('table', {
@@ -433,14 +418,14 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Table',
+                name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('survey', {
             parent: 'home',
-            url: 'survey/:surveyId/task/:taskId',
+            url: 'survey/:surveyId/task/:taskId?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/survey.html',

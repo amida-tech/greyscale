@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleWorkflowStepsApi, greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
+        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -14,16 +14,16 @@ angular.module('greyscale.tables')
             roles: []
         };
 
-        var rowFormRows = [{
-            formRow: [{
+        var formFields = {
+            title: {
                 field: 'title',
                 show: true,
                 title: tns + 'TITLE',
                 dataRequired: true,
                 dataFormat: 'text',
-                showDataInput: true,
-                class: 'col-md-3'
-            }, {
+                showDataInput: true
+            },
+            roleId: {
                 field: 'roleId',
                 title: tns + 'ROLE',
                 showDataInput: true,
@@ -33,21 +33,21 @@ angular.module('greyscale.tables')
                     keyField: 'id',
                     valField: 'name',
                     getData: getRoles
-                },
-                class: 'col-md-3'
-            }, {
+                }
+            },
+            startDate: {
                 field: 'startDate',
                 title: tns + 'START_DATE',
                 showDataInput: true,
-                dataFormat: 'date',
-                class: 'col-md-2'
-            }, {
+                dataFormat: 'date'
+            },
+            endDate: {
                 field: 'endDate',
                 title: tns + 'END_DATE',
                 showDataInput: true,
-                dataFormat: 'date',
-                class: 'col-md-2'
-            }, {
+                dataFormat: 'date'
+            },
+            writeToAnswers: {
                 field: 'writeToAnswers',
                 title: tns + 'ANSWERS_ACCESS',
                 showDataInput: true,
@@ -57,52 +57,39 @@ angular.module('greyscale.tables')
                     keyField: 'value',
                     valField: 'name',
                     getData: _getWriteToAnswersList
-                },
-                class: 'col-md-2'
-            }]
-        }, {
-            title: tns + 'TASK_PERMISSIONS',
-            formRow: [{
-                field: 'taskAccessToDiscussions',
-                title: tns + 'DISCUSSIONS_ACCESS',
+                }
+            },
+            discussionParticipation: {
+                field: 'discussionParticipation',
+                title: tns + 'DISCUSSION_PARTICIPATION',
                 showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }, {
-                field: 'taskAccessToResponses',
-                title: tns + 'RESPONSES_ACCESS',
+                dataFormat: 'boolean'
+            },
+            provideResponses: {
+                field: 'provideResponses',
+                title: tns + 'PROVIDE_RESPONSES',
                 showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }, {
-                field: 'taskBlindReview',
+                dataFormat: 'boolean'
+            },
+            seeOthersResponses: {
+                field: 'seeOthersResponses',
+                title: tns + 'SEE_OTHERS_RESPONSES',
+                showDataInput: true,
+                dataFormat: 'boolean'
+            },
+            editTranslate: {
+                field: 'editTranslate',
+                title: tns + 'EDIT_TRANSLATE',
+                showDataInput: true,
+                dataFormat: 'boolean'
+            },
+            blindReview: {
+                field: 'blindReview',
                 title: tns + 'BLIND_REVIEW',
                 showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }]
-        }, {
-            title: tns + 'WORKFLOW_PERMISSIONS',
-            formRow: [{
-                field: 'workflowAccessToDiscussions',
-                title: tns + 'DISCUSSIONS_ACCESS',
-                showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }, {
-                field: 'workflowAccessToResponses',
-                title: tns + 'RESPONSES_ACCESS',
-                showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }, {
-                field: 'workflowBlindReview',
-                title: tns + 'BLIND_REVIEW',
-                showDataInput: true,
-                dataFormat: 'boolean',
-                class: 'col-md-4'
-            }]
-        }];
+                dataFormat: 'boolean'
+            }
+        };
 
         var recDescr = [{
             dataFormat: 'action',
@@ -111,28 +98,10 @@ angular.module('greyscale.tables')
                 class: 'drag-sortable'
             }]
         }, {
-
-        }, {
-            cellTemplate: '<form>' +
-                '<div class="row {{rowFormRow.class}}" ng-repeat="rowFormRow in ext.rowFormRows">' +
-                '   <div class="form-group col-md-12" ng-if="rowFormRow.title"><b translate="{{rowFormRow.title}}"></b></div>' +
-                '   <div class="form-group {{item.class}}"' +
-                '           ng-repeat="item in rowFormRow.formRow">' +
-                '       <b ng-if="item.dataFormat != \'boolean\'" translate="{{item.title}}"></b>' +
-                '       <span modal-form-rec="row"' +
-                '           modal-form-field="item" embedded="true"' +
-                '           modal-form-field-model="row[item.field]">' +
-                '       </span>' +
-                '       <label ng-if="item.dataFormat == \'boolean\'" translate="{{item.title}}"></label>' +
-                '   </div>' +
-                '   <div class="clearfix"></div>' +
-                '</div>' +
-                '</form>',
+            cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
-                rowFormRows: rowFormRows
+                formFields: formFields
             }
-        }, {
-
         }, {
             dataFormat: 'action',
             actions: [{

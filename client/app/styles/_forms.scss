@@ -61,8 +61,11 @@ upload-form,
 .help-block {
     font-size: $font-size-sub;
 }
-/*
-.radio, .checkbox {
-    display: inline-block;
+
+.form-condensed {
+
+    .form-group {
+        margin-bottom: 0;
+    }
 }
-*/
+

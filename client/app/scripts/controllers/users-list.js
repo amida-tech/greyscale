@@ -3,8 +3,16 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersListCtrl', function ($scope, greyscaleUsersTbl) {
+    .controller('UsersListCtrl', function ($scope, greyscaleUsersTbl, greyscaleModalsSrv) {
+
+        var usersTable = greyscaleUsersTbl;
+
         $scope.model = {
-            users: greyscaleUsersTbl
+            users: usersTable
         };
+
+        $scope.showUserInfo = function (user) {
+            greyscaleModalsSrv.showRec(user, usersTable);
+        };
+
     });

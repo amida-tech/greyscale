@@ -7,11 +7,11 @@
     }
 }
 
-.card-tiles {
+.cards {
     .card {
         float: left;
-        width: 30%;
-        margin: 0 10px 10px 0;
+        //margin: 0 10px 10px 0;
+        width: 210px;
     }
 
     &:after {
@@ -20,3 +20,8 @@
         clear:both;
     }
 }
+//@media (min-width: 1200px) {
+//    .cards .card {
+//        width: 300px;
+//    }
+//}
