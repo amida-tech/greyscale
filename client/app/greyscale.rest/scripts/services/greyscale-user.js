@@ -102,7 +102,6 @@ angular.module('greyscale.rest')
         }
 
         function _logout() {
-            greyscaleTokenSrv(null);
             return userAPI().one('logout').post();
         }
 
