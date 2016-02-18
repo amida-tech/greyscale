@@ -85,4 +85,17 @@
     .action-drag-sortable {
         cursor: move;
     }
+    .pagination, .ng-table-counts {
+        .pagination-info {
+            padding: 6px 12px 6px 0;
+        }
+        .btn {
+            background: $white;
+            &:hover, &:active, &.active {
+                background: $green;
+                color: $white;
+                border-color: $green;
+            }
+        }
+    }
 }

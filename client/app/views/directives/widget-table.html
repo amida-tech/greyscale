@@ -53,10 +53,10 @@
         <div ng-if="params.settings().counts.length || params.custom.showAllButton" class="ng-table-counts btn-group pull-right">
             <button ng-repeat="count in params.settings().counts" type="button"
                     ng-class="{'active':params.count()==count}" ng-click="params.count(count)"
-                    class="btn">
+                    class="btn btn-default">
                 <span ng-bind="count"></span>
             </button>
-            <button ng-if="params.custom.showAllButton" class="btn"
+            <button ng-if="params.custom.showAllButton" class="btn btn-default"
                     translate="COMMON.SHOW_ALL"
                     ng-init="showCount = 999999999; saveCount = params.count()"
                     ng-class="{active: saveCount == 999999999}"
@@ -64,7 +64,19 @@
 
             </button>
         </div>
-        <ul class="pagination ng-table-pagination pull-left" ng-if="pages.length">
+
+        <div ng-if="pages.length" class="pagination pull-left">
+            <span class="pagination-info text-muted">
+                {{params.pager.itemsName()}}{{params.pager.from()}} - {{params.pager.to()}} <span translate="COMMON.OF"></span> {{params.total()}}
+            </span>
+            <div class="btn-group">
+                <div class="btn btn-default" ng-disabled="params.pager.first()" ng-click="params.pager.prev()"><i class="fa fa-angle-left"></i></div>
+                <div class="btn btn-default" ng-disabled="params.pager.last()" ng-click="params.pager.next()"><i class="fa fa-angle-right"></i></div>
+            </div>
+
+        </div>
+
+        <ul class="pagination ng-table-pagination pull-left" ng-if="spages.length">
             <li ng-class="{'disabled': !page.active && !page.current, 'active': page.current}"
                 ng-repeat="page in pages" ng-switch="page.type"><a ng-switch-when="prev"
                                                                    ng-click="params.page(page.number)"
