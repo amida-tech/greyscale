@@ -62,5 +62,10 @@ upload-form,
     font-size: $font-size-sub;
 }
 
+.form-condensed {
 
+    .form-group {
+        margin-bottom: 0;
+    }
+}
 

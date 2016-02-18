@@ -75,7 +75,6 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
-            $log.debug('do login');
             return greyscaleRestSrv({
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
@@ -95,6 +94,7 @@ angular.module('greyscale.rest')
                         return true;
                     })
                     .catch(function () {
+                        greyscaleTokenSrv(null);
                         return $q.resolve(false);
                     });
             }
@@ -102,6 +102,7 @@ angular.module('greyscale.rest')
         }
 
         function _logout() {
+            greyscaleTokenSrv(null);
             return userAPI().one('logout').post();
         }
 

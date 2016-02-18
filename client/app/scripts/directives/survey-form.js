@@ -7,43 +7,6 @@ angular.module('greyscaleApp')
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
-        var mockedOptions = [{
-            label: 'mocked option 1',
-            skip: null,
-            isSelected: false,
-            value: 'option 1'
-        }, {
-            label: 'mocked option 2',
-            skip: null,
-            isSelected: false,
-            value: 'option 2'
-        }, {
-            label: 'mocked option 3',
-            skip: null,
-            isSelected: false,
-            value: 'option 3'
-        }, {
-            label: 'mocked option 4',
-            skip: null,
-            isSelected: false,
-            value: 'option 4'
-        }, {
-            label: 'mocked option 5',
-            skip: null,
-            isSelected: false,
-            value: 'option 5'
-        }, {
-            label: 'mocked option 6',
-            skip: null,
-            isSelected: false,
-            value: 'option 6'
-        }, {
-            label: 'mocked option 7',
-            skip: null,
-            isSelected: true,
-            value: 'option 7'
-        }];
-
         return {
             restrict: 'E',
             //            replace: true,
@@ -76,13 +39,20 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.save = function () {
-                    saveAnswers(scope)
+                    saveAnswers($scope);
                 };
             }
         };
 
         function saveAnswers(scope) {
             $log.debug('survey answers saving');
+            var answers = [];
+            for (var f = 0; f < scope.fields.length; f++) {
+                var fld = scope.fields[f];
+                $log.debug(fld);
+                answers.push(fld.answer);
+            }
+            $log.debug(answers);
             greyscaleSurveyAnswerApi.save({});
 
         }
@@ -125,7 +95,9 @@ angular.module('greyscaleApp')
                         inWords: field.isWordmml,
                         units: field.units,
                         intOnly: field.intOnly,
-                        withOther: field.incOtherOpt
+                        withOther: field.incOtherOpt,
+                        value: field.value,
+                        answer: null
                     };
 
                     if (type === 'section_end') { // close section
@@ -152,11 +124,13 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var params = {
-                surveryId: scope.surveyData.survey.id,
-                productId: scope.surveyData.task.productId,
-                UOAid: scope.surveyData.task.uoaId,
-                wfStepId: scope.surveyData.task.stepId,
-                userId: scope.surveyData.userId
+                /*
+                                surveryId: scope.surveyData.survey.id,
+                                productId: scope.surveyData.task.productId,
+                                UOAid: scope.surveyData.task.uoaId,
+                                wfStepId: scope.surveyData.task.stepId,
+                                userId: scope.surveyData.userId
+                */
             };
 
             greyscaleSurveyAnswerApi.list(params)
