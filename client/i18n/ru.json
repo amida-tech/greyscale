@@ -132,6 +132,7 @@
         "ADMIN_SECTION": "Администрирование",
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
+        "GRAPH": "",
         "HOME": "Главная",
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
@@ -152,6 +153,7 @@
         "REGISTER": "Регистрация",
         "RESET": "",
         "SURVEY": "Опрос",
+        "TABLE": "",
         "TASKS": "Задачи",
         "UOAS": {
             "LIST": "Список",

@@ -1,5 +1,6 @@
 <div ng-controller="MyTasksWidget">
-    <div class="card-tiles">
+
+    <div class="cards" minigrid minigrid-collection="model.tasks">
         <div class="card" ng-repeat="task in model.tasks">
             <p>{{task.step.title}}</p>
             <p>
@@ -12,9 +13,9 @@
                 </a></small>
             </p>
             <p>
-                {{task.startDate||task.step.startDate|date:'shortDate'}}
-                -
-                {{task.endDate||task.step.endDate|date:'shortDate'}}
+                {{(task.startDate||task.step.startDate)|parseDate|date:'shortDate'}}
+                 -
+                {{(task.endDate||task.step.endDate)|parseDate|date:'shortDate'}}
             </p>
         </div>
     </div>

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "dependencies": {
     "formbuilder": "https://github.com/manticorra/formbuilder.git#gh-pages",
-    "angular": "^1.4.0",
+    "angular": "1.4",
     "bootstrap-sass-official": "^3.2.0",
     "angular-cookies": "^1.4.0",
     "angular-resource": "^1.4.0",
@@ -25,7 +25,8 @@
     "c3": "^0.4.10",
     "d3": "^3.5.14",
     "angular-file-upload": "~2.2.0",
-    "angular-ui-sortable": "~0.13.4"
+    "angular-ui-sortable": "~0.13.4",
+    "minigrid": "~2.2.0"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"
@@ -45,6 +46,9 @@
     },
     "rivets": {
       "main": "dist/rivets.js"
+    },
+    "minigrid": {
+      "main": "src/index.js"
     }
   },
   "resolutions": {
