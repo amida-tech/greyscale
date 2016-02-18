@@ -25,11 +25,13 @@ angular.module('greyscaleApp')
                     success: ''
                 };
 
-                greyscaleUserApi.resetToken($scope.token)
-                    .then(function (user) {
-                        $scope.model = user;
-                    })
-                    .catch(errHandler);
+                if ($state.current.name==='reset') {
+                    greyscaleUserApi.resetToken($scope.token)
+                        .then(function (user) {
+                            $scope.model = user;
+                        })
+                        .catch(errHandler);
+                }
 
                 $scope.reset = function () {
                     greyscaleUserApi.resetPasswd({

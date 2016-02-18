@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, $log,
         greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi, greyscaleGlobals) {
         var _profile = null;
         var _profilePromise = null;
@@ -15,32 +15,37 @@ angular.module('greyscale.core')
 
         this.getProfile = function (force) {
             var self = this;
-            var res;
-            if (!greyscaleTokenSrv()) {
-                _profile = null;
-                _profilePromise = null;
-                res = $q.reject('not logged in');
-            } else {
-                if (_profile && !force) {
-                    self._setAccessLevel();
-                    res = $q.resolve(_profile);
-                } else {
-                    if (!_profilePromise || force) {
-                        _profilePromise = greyscaleUserApi.get()
-                            .then(function (profileData) {
-                                _profile = profileData;
-                                return _profile;
-                            })
-                            .then(self._setAccessLevel)
-                            //                            .then(self._setAssociate) disabled while not need
-                            .finally(function () {
-                                _profilePromise = null;
-                            });
+
+            return greyscaleUserApi.isAuthenticated().then(function (isAuth) {
+                var res;
+
+                if (isAuth) {
+                    if (_profile && !force) {
+                        self._setAccessLevel();
+                        res = $q.resolve(_profile);
+                    } else {
+                        if (!_profilePromise || force) {
+                            _profilePromise = greyscaleUserApi.get()
+                                .then(function (profileData) {
+                                    _profile = profileData;
+                                    return _profile;
+                                })
+                                .then(self._setAccessLevel)
+                                //                            .then(self._setAssociate) disabled while not need
+                                .finally(function () {
+                                    _profilePromise = null;
+                                });
+                        }
+                        res = _profilePromise;
                     }
-                    res = _profilePromise;
+                } else {
+                    _profile = null;
+                    _profilePromise = null;
+                    res = $q.reject('not logged in');
                 }
-            }
-            return res;
+
+                return res;
+            });
         };
 
         this._setAccessLevel = function () {
@@ -63,8 +68,8 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                        organizationId: _profile.organizationId
-                    })
+                    organizationId: _profile.organizationId
+                })
                     .then(function (associate) {
                         _associate = associate;
                         return _profile;
@@ -105,7 +110,6 @@ angular.module('greyscale.core')
 
         this.logout = function () {
             return greyscaleUserApi.logout().finally(function () {
-                greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);

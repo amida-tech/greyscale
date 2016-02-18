@@ -14,7 +14,8 @@
                     ng-options="item.id as item.title for item in model.questions"
                     ng-model="model.msg.thread"
                     ng-required="true">
-                <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.SELECT_QUESTION"></option>
+                <option value="" selected disabled style="display:none;"
+                        translate="PLACEHOLDER.SELECT_QUESTION"></option>
             </select>
         </div>
 
@@ -30,9 +31,11 @@
                 <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>
             </select>
         </div>
-        <div class="form-group">
-            <div class="checkbox"><label class="text-danger"><input type="checkbox" ng-model="model.msg.flagged">Flag<i
-                class="chk-box"></i></label></div>
+        <div class="form-group clearfix">
+            <div class="checkbox-inline"><label class="text-danger">
+                <input type="checkbox" ng-model="model.msg.flagged">Flag<i class="chk-box"></i></label>
+            </div>
+
             <button class="btn btn-primary pull-right" translate="COMMON.SUBMIT" ng-click="sendMsg()"
                     ng-disabled="msgForm.$invalid || !msgForm.$dirty"></button>
         </div>

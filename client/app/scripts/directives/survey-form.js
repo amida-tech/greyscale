@@ -39,14 +39,20 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.save = function () {
-                    saveAnswers(scope)
+                    saveAnswers($scope);
                 };
             }
         };
 
         function saveAnswers(scope) {
             $log.debug('survey answers saving');
-            $log.debug(scope.answers);
+            var answers = [];
+            for (var f=0; f<scope.fields.length; f++) {
+                var fld = scope.fields[f];
+                $log.debug(fld);
+                answers.push(fld.answer);
+            }
+            $log.debug(answers);
             greyscaleSurveyAnswerApi.save({});
 
         }
@@ -89,7 +95,9 @@ angular.module('greyscaleApp')
                         inWords: field.isWordmml,
                         units: field.units,
                         intOnly: field.intOnly,
-                        withOther: field.incOtherOpt
+                        withOther: field.incOtherOpt,
+                        value: field.value,
+                        answer: null
                     };
 
                     if (type === 'section_end') { // close section
@@ -116,11 +124,13 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var params = {
+/*
                 surveryId: scope.surveyData.survey.id,
                 productId: scope.surveyData.task.productId,
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
+*/
             };
 
             greyscaleSurveyAnswerApi.list(params)
