@@ -47,7 +47,7 @@ angular.module('greyscaleApp')
         function saveAnswers(scope) {
             $log.debug('survey answers saving');
             var answers = [];
-            for (var f=0; f<scope.fields.length; f++) {
+            for (var f = 0; f < scope.fields.length; f++) {
                 var fld = scope.fields[f];
                 $log.debug(fld);
                 answers.push(fld.answer);
@@ -124,13 +124,13 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var params = {
-/*
-                surveryId: scope.surveyData.survey.id,
-                productId: scope.surveyData.task.productId,
-                UOAid: scope.surveyData.task.uoaId,
-                wfStepId: scope.surveyData.task.stepId,
-                userId: scope.surveyData.userId
-*/
+                /*
+                                surveryId: scope.surveyData.survey.id,
+                                productId: scope.surveyData.task.productId,
+                                UOAid: scope.surveyData.task.uoaId,
+                                wfStepId: scope.surveyData.task.stepId,
+                                userId: scope.surveyData.userId
+                */
             };
 
             greyscaleSurveyAnswerApi.list(params)

@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
         var reqs = {
             survey: greyscaleSurveyApi.get($stateParams.surveyId),
             profile: greyscaleProfileSrv.getProfile()
-        }
+        };
 
         if ($stateParams.taskId) {
             reqs.task = greyscaleTaskApi.get($stateParams.taskId);

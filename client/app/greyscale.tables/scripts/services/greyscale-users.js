@@ -37,7 +37,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'email',
             title: 'E-mail',
-            show: true,
+            show: false,
             sortable: 'email',
             dataRequired: true
         }, {
@@ -81,7 +81,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'isAnonym',
             title: 'Anonymous',
-            show: false,
+            show: true,
             sortable: 'isAnonym',
             dataFormat: 'boolean'
         }, {
@@ -109,6 +109,7 @@ angular.module('greyscale.tables')
             dataPromise: _getUsers,
             pageLength: 10,
             showAllButton: true,
+            selectable: true,
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord

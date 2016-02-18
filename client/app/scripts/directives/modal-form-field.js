@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('modalFormField', function ($compile, greyscaleUtilsSrv) {
+    .directive('modalFormField', function ($compile, greyscaleUtilsSrv, $templateCache, $http) {
         return {
             restrict: 'A',
             scope: {
@@ -45,13 +45,22 @@ angular.module('greyscaleApp')
                             }
                             break;
                         case 'date':
-                            field += '{{modalFormFieldModel | date:"short"}}';
+                            field += '{{modalFormFieldModel|date}}';
                             break;
                         case 'option':
                             field += greyscaleUtilsSrv.decode(scope.model.options, 'id', scope.modalFormFieldModel, 'title') || '';
                             break;
                         default:
-                            field += '{{modalFormFieldModel}}';
+                            if (clmn.cellTemplate) {
+                                field += _compileCellTemplate(clmn.cellTemplate, clmn.cellTemplateExtData);
+                            } else if (clmn.cellTemplateUrl) {
+                                _getTemplateByUrl(clmn.cellTemplateUrl)
+                                    .then(function (template) {
+                                        field += _compileCellTemplate(template, clmn.cellTemplateExtData);
+                                    });
+                            } else {
+                                field += '{{modalFormFieldModel}}';
+                            }
                         }
                         if (!_embedded) {
                             field += '</p>';
@@ -109,6 +118,23 @@ angular.module('greyscaleApp')
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
+                }
+
+                function _compileCellTemplate(template, ext) {
+                    scope.row = scope.modalFormRec;
+                    scope.cell = scope.modalFormFieldModel;
+                    scope.ext = ext;
+                    var elem = $compile('<span>' + template + '</span>')(scope);
+                    return elem.html();
+                }
+
+                function _getTemplateByUrl(templateUrl) {
+                    return $http.get(templateUrl, {
+                            cache: $templateCache
+                        })
+                        .then(function (response) {
+                            return response.data;
+                        });
                 }
             },
             controller: function formFieldController($scope) {
