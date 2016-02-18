@@ -128,11 +128,18 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleUserApi.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
-                });
+            greyscaleModalsSrv.confirm({
+                message: 'USERS.DELETE_CONFIRM',
+                user: rec,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUserApi.delete(rec.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editRecord(user) {

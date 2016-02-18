@@ -8,8 +8,10 @@
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
         "CLOSE": "Закрыть",
+        "CONFIRM": "",
         "CONTINUE": "",
         "CREATE": "Создать",
+        "DELETE": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "INFO": "",
@@ -310,6 +312,7 @@
         "TYPE": ""
     },
     "USERS": {
+        "DELETE_CONFIRM": "",
         "NOT_LOGGED": "",
         "ORGANIZATION": ""
     },

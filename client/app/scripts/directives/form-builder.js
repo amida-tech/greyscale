@@ -30,6 +30,7 @@ angular.module('greyscaleApp')
                             label: fields[i].label,
                             cid: fields[i].cid,
                             isRequired: fields[i].required,
+                            attachment: fields[i].attachment,
                             type: typeIdx,
                             surveyId: scope.model.survey.id,
                             position: i + 1
@@ -49,6 +50,8 @@ angular.module('greyscaleApp')
                         newQuestion.incOtherOpt = fo.include_other_option || fo.include_blank_option;
                         newQuestion.units = fo.units;
                         newQuestion.intOnly = fo.integer_only;
+                        newQuestion.value = fo.value;
+                        newQuestion.links = fo.links && fo.links.length > 0 ? JSON.stringify(fo.links) : undefined;
 
                         if (!fo.options) {
                             continue;
@@ -59,7 +62,6 @@ angular.module('greyscaleApp')
                             newQuestion.options.push({
                                 label: option.label,
                                 value: option.value,
-                                skip: option.skip && !isNaN(option.skip) ? parseInt(option.skip) : 0,
                                 isSelected: option.checked,
                             });
                         }
@@ -79,14 +81,15 @@ angular.module('greyscaleApp')
 
                         var isAvaliable = false;
                         for (j = questions.length - 1; j >= 0; j--) {
-                            if ('c' + scope.model.survey.questions[i].id === questions[j].cid) {
-                                isAvaliable = true;
-                                delete questions[j].cid;
-                                questions[j].id = scope.model.survey.questions[i].id;
-                                scope.model.survey.questions[i] = questions[j];
-
-                                questions.splice(j, 1);
+                            if ('c' + scope.model.survey.questions[i].id !== questions[j].cid) {
+                                continue;
                             }
+                            isAvaliable = true;
+                            delete questions[j].cid;
+                            questions[j].id = scope.model.survey.questions[i].id;
+                            scope.model.survey.questions[i] = questions[j];
+
+                            questions.splice(j, 1);
                         }
                         if (isAvaliable) {
                             continue;
@@ -127,9 +130,9 @@ angular.module('greyscaleApp')
                                 field_type: type,
                                 label: question.label,
                                 required: question.isRequired,
+                                attachment: question.attachment,
                                 field_options: {
                                     description: question.description,
-                                    skip: question.skip,
                                     size: question.size && question.size > -1 ? sizes[question.size] : 'small',
                                     minlength: question.minLength ? question.minLength : undefined,
                                     maxlength: question.maxLength ? question.maxLength : undefined,
@@ -138,7 +141,9 @@ angular.module('greyscaleApp')
                                     include_blank_option: question.incOtherOpt,
                                     units: question.units,
                                     integer_only: question.intOnly,
-                                    qid: question.qid
+                                    qid: question.qid,
+                                    value: question.value,
+                                    links: question.links ? JSON.parse(question.links) : []
                                 }
                             };
                             data.push(field);
@@ -152,7 +157,6 @@ angular.module('greyscaleApp')
                                 }
                                 field.field_options.options.push({
                                     label: question.options[j].label,
-                                    skip: question.options[j].skip,
                                     value: question.options[j].value,
                                     checked: question.options[j].isSelected,
                                 });
