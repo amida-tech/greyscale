@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
                 field: '=surveyFormField'
             },
             template: '',
-            link: function (scope, elem, attr) {
+            link: function (scope, elem) {
 
                 if (scope.field) {
                     var body = '';
