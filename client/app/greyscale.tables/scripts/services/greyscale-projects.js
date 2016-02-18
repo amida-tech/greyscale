@@ -5,15 +5,14 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
-        greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
+        greyscaleOrganizationApi, greyscaleAccessApi,
         greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
         var dicts = {
             matrices: [],
-            orgs: [],
-            users: []
+            orgs: []
         };
 
         var accessLevel;
@@ -87,18 +86,6 @@ angular.module('greyscale.tables')
                 valField: 'name'
             }
         }, {
-            //    field: 'adminUserId',
-            //    show: _isSuperAdmin,
-            //    sortable: false,
-            //    title: 'Admin',
-            //    dataFormat: 'option',
-            //    dataSet: {
-            //        getData: getUsers,
-            //        keyField: 'id',
-            //        valField: 'email'
-            //    },
-            //    dataReadOnly: 'both'
-            //}, {
             field: 'closeTime',
             dataFormat: 'date',
             show: true,
@@ -145,10 +132,6 @@ angular.module('greyscale.tables')
             return dicts.matrices;
         }
 
-        function getUsers() {
-            return dicts.users;
-        }
-
         function getStatus() {
             return greyscaleGlobals.projectStates;
         }
@@ -177,9 +160,6 @@ angular.module('greyscale.tables')
                     orgs: greyscaleOrganizationApi.list({
                         organizationId: profile.organizationId
                     }),
-                    usrs: greyscaleUserApi.list({
-                        organizationId: profile.organizationId
-                    }),
                     matrices: greyscaleAccessApi.matrices()
                 };
 
@@ -188,7 +168,6 @@ angular.module('greyscale.tables')
 
                     dicts.matrices = promises.matrices;
                     dicts.orgs = promises.orgs;
-                    dicts.users = promises.usrs;
 
                     return promises.prjs;
                 });

@@ -16,15 +16,17 @@ angular.module('greyscaleApp')
         function _init(config) {
 
             var scope = config.scope;
-            var rowSelector = config.rowSelector;
+            //var rowSelector = config.rowSelector;
             var model = config.model;
             model.el = config.el;
 
-            if (typeof rowSelector === 'function') {
-                model.current = rowSelector();
-            } else {
-                model.current = null;
-            }
+            model.current = null;
+
+            //if (typeof rowSelector === 'function') {
+            //    model.current = rowSelector();
+            //} else {
+            //    model.current = null;
+            //}
 
             scope.sortableOptions = {
                 disabled: true
