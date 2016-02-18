@@ -79,10 +79,10 @@ angular.module('greyscale.tables')
             dataFormat: 'boolean',
             dataReadOnly: 'both'
         }, {
-            field: 'isAnonym',
+            field: 'isAnonymous',
             title: 'Anonymous',
             show: true,
-            sortable: 'isAnonym',
+            sortable: 'isAnonymous',
             dataFormat: 'boolean'
         }, {
             field: '',
@@ -110,6 +110,9 @@ angular.module('greyscale.tables')
             pageLength: 10,
             showAllButton: true,
             selectable: true,
+            sorting: {
+                created: 'desc'
+            },
             add: {
                 icon: 'fa-plus',
                 handler: _editRecord

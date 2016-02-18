@@ -1,5 +1,5 @@
 <div>
-    <p class="subtext text-right">last saved: {{(savedAt||'never') | date }}</p>
+    <p class="subtext text-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
     <uib-accordion>
         <uib-accordion-group is-open="contentOpen">
             <uib-accordion-heading>
@@ -22,7 +22,7 @@
             <div class="text-right">
                 <button class="btn btn-primary"
                         ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty">
+                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty || lock">
                     {{"COMMON.SAVE" | translate}}
                 </button>
             </div>

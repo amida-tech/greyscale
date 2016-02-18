@@ -46,8 +46,11 @@ angular.module('greyscaleApp')
                     counts: model.pageLengths || [],
                     getData: function ($defer, params) {
                         if (typeof model.dataPromise === 'function') {
-                            model.$loading = true;
+                            var t = setTimeout(function () {
+                                model.$loading = true;
+                            }, 200);
                             var endLoading = function () {
+                                clearTimeout(t);
                                 model.$loading = false;
                             };
                             model.dataPromise()
@@ -69,6 +72,8 @@ angular.module('greyscaleApp')
                 model.tableParams.custom = {
                     showAllButton: !!model.showAllButton
                 };
+
+                model.tableParams.pager = _newPagination(scope);
             }
 
             if (model.dragSortable) {
@@ -93,7 +98,6 @@ angular.module('greyscaleApp')
             };
 
             scope.select = function (row, e) {
-                console.log('ddd');
                 if (!model.selectable) {
                     return;
                 }
@@ -119,6 +123,43 @@ angular.module('greyscaleApp')
             if (typeof config.onReload === 'function') {
                 ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
             }
+        }
+
+        function _newPagination(scope) {
+            //console.log(scope);
+            //console.log(scope.model.tableParams.count());
+            var params = scope.model.tableParams;
+            return {
+                from: function () {
+                    return 1 + params.count() * (params.page() - 1);
+                },
+                to: function () {
+                    var to = params.count() * params.page();
+                    if (to > params.total()) {
+                        to = params.total();
+                    }
+                    return to;
+                },
+                first: function () {
+                    return params.page() === 1;
+                },
+                last: function () {
+                    return this.to() === params.total();
+                },
+                itemsName: function () {
+                    return scope.model.title ? scope.model.title + ' ' : '';
+                },
+                prev: function () {
+                    if (!this.first()) {
+                        params.page(params.page() - 1);
+                    }
+                },
+                next: function () {
+                    if (!this.last()) {
+                        params.page(params.page() + 1);
+                    }
+                }
+            };
         }
 
         function _getDataMap(data) {

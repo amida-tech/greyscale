@@ -34,17 +34,20 @@
             <label translate="{{ext.formFields.writeToAnswers.title}}"></label>
             <div class="radio"><label><input type="radio" name="writeToAnswers"
                                              ng-checked="!row.writeToAnswers"
-                                             ng-model="row.writeToAnswers" ng-value="false">
+                                             ng-model="row.writeToAnswers"
+                                             ng-value="false">
                 <i class="chk-box"></i><span translate=".WRITE_ACCESS_READ"></span></label>
             </div>
-            <div class="radio"><label><input type="radio" name="writeToAnswers" ng-model="row.writeToAnswers" ng-value="true">
+            <div class="radio"><label><input type="radio" name="writeToAnswers"
+                                             ng-model="row.writeToAnswers"
+                                             ng-value="true">
                 <i class="chk-box"></i><span translate=".WRITE_ACCESS_WRITE"></span></label>
             </div>
         </div>
         <div class="col-md-8">
             <div class="row">
                 <div class="col-md-6">
-                    <label translate=".OTHER_ACCESS"></label>
+                    <label translate=".PERMISSIONS"></label>
                     <span modal-form-rec="row"
                           modal-form-field="ext.formFields.discussionParticipation" embedded="true"
                           modal-form-field-model="row.discussionParticipation">
