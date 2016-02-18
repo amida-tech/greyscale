@@ -390,7 +390,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('graph', {
@@ -403,9 +403,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Graph',
+                name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('table', {
@@ -418,9 +418,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Table',
+                name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('survey', {

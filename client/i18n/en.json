@@ -132,6 +132,7 @@
         "ADMIN_SECTION": "Administration",
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
+        "GRAPH": "Graph",
         "HOME": "Dashboard",
         "IMPORT": "Import",
         "LOGIN": "Login",
@@ -152,6 +153,7 @@
         "REGISTER": "Register",
         "RESET": "Reset",
         "SURVEY": "Survey",
+        "TABLE": "Table",
         "TASKS": "Tasks",
         "UOAS": {
             "LIST": "List",
