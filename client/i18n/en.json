@@ -8,8 +8,10 @@
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
         "CLOSE": "Close",
+        "CONFIRM": "Confirm",
         "CONTINUE": "Continue",
         "CREATE": "Create",
+        "DELETE": "Delete",
         "EDIT": "Edit",
         "FURTHER": "Further",
         "INFO": "Info",
@@ -310,6 +312,7 @@
         "TYPE": "Type"
     },
     "USERS": {
+        "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "NOT_LOGGED": "Not Logged",
         "ORGANIZATION": "Organization"
     },

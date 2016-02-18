@@ -116,6 +116,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _confirm(params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/confirm.html',
+                controller: 'ModalConfirmCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: params
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -135,6 +147,7 @@ angular.module('greyscaleApp')
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
             productWorkflow: _productWorkflow,
-            productTask: _productTask
+            productTask: _productTask,
+            confirm: _confirm
         };
     });
