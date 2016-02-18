@@ -5,6 +5,7 @@ var
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     Survey = require('app/models/surveys'),
+    SurveyQuestion = require('app/models/survey_questions'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
@@ -124,13 +125,16 @@ module.exports = {
           .select(
               'row_to_json("Products".*) as product',
               'row_to_json("Surveys".*) as survey',
+              'row_to_json("SurveyQuestions".*) as question',
               'row_to_json("UnitOfAnalysis".*) as uoa',
-              'row_to_json("Tasks".*) as tasks'
+              'row_to_json("Tasks".*) as task'
           )
           .from(
               Product
               .leftJoin(Survey)
               .on(Survey.id.equals(Product.surveyId))
+              .leftJoin(SurveyQuestion)
+              .on(SurveyQuestion.surveyId.equals(Survey.id))
               .leftJoin(ProductUOA)
               .on(Product.id.equals(ProductUOA.productId))
               .leftJoin(UOA)
