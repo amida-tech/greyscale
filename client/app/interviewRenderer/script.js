@@ -679,48 +679,49 @@
         for (i = 0; i < fields.length; i++) {
             var id = fields[i].id;
             
-            var answer = [];
+            var answer;
             for (j = answers.length - 1; j >= 0; j--) {
                 if ('c' + answers[j].id !== id) continue;
-                answer.push(answers[j]);
+                answer = answers[j];
                 answers.splice(j, 1);
+                break;
             }
-            if (answer.length === 0) continue;
+            if (!answer) continue;
             switch (fields[i]._.getAttribute('data-type')) {
                 case 'text':
                 case 'price':
                 case 'number':
                 case 'email':
-                    $('input', fields[i]).value = answer[answer.length - 1].value;
+                    $('input', fields[i]).value = answer.value;
                     break;
                 case 'checkboxes':
                 case 'radio':
                     var inputs = $$('input', fields[i]);
                     for (j = 0; j < inputs.length; j++) inputs[j].checked = false;
-                    for (j = 0; j < answer.length; j++) {
-                        if (answer[j].optionId) {
-                            var input = $('input[data-id="' + answer[j].optionId + '"]', fields[i]);
-                            input.checked = true;
-                            continue;
-                        }
-                        if (!answer[j].value) continue;
+                    if (answer.value) {
                         var input = $('.other', fields[i]);
                         if (input) input.checked = true;
                         input = $('.other-text', fields[i]);
-                        input.value = answer[j].value;
+                        if (input) input.value = answer.value;
+                    }
+                    for (j = 0; j < answer.optionId.length; j++) {
+                        if (!answer.optionId[j]) continue;
+                        var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
+                        input.checked = true;
                     }
                     break;
                 case 'paragraph':
-                    $('textarea', fields[i]).value = answer[answer.length - 1].value;
+                    $('textarea', fields[i]).value = answer.value;
                     break;
                 case 'dropdown':
-                    //var options = $$('option', fields[i]);
-                    //for (j = 0; j < options.length; j++) {
-                    //    if (options[j].value !== answers[id]) continue;
-                    //    options[j].selected = true;
-                    //    break;
-                    //}
-                    //break;
+                    var options = $$('option', fields[i]);
+                    if (answer.optionId.length === 0) options[j].selected = true;
+                    for (j = 0; j < options.length; j++) {
+                        if (options[j].attributes['data-id'] && parseInt(options[j].attributes['data-id']) !== answer.optionId[0]) continue;
+                        options[j].selected = true;
+                        break;
+                    }
+                    break;
                 default:
                     return;
             }
@@ -741,36 +742,30 @@
         var j;
         var dataToSave = [];
         for (i = 0; i < answers.length; i++) {
+            var data = {
+                surveyId: surveyId,
+                questionId: parseInt(answers[i].id.replace('c', '')),
+                productId: taskInfo.productId,
+                UOAid: taskInfo.uoaId,
+                wfStepId: taskInfo.stepId,
+                userId: userId,
+            };
             switch (answers[i].type) {
                 case 'checkboxes':
                 case 'radio':
                 case 'dropdown':
+                    var optionIds = [];
                     for (j = 0; j < answers[i].value.length; j++) {
-                        var data = {
-                            surveyId: surveyId,
-                            questionId: parseInt(answers[i].id.replace('c', '')),
-                            productId: taskInfo.productId,
-                            UOAid: taskInfo.uoaId,
-                            wfStepId: taskInfo.stepId,
-                            userId: userId
-                        };
-                        if (answers[i].value[j].id) data.optionId = parseInt(answers[i].value[j].id);
-                        else if(!answers[i].value[j].value || !answers[i].value[j].value.trim()) continue;
+                        if (answers[i].value[j].id) optionIds.push(parseInt(answers[i].value[j].id));
+                        else if (!answers[i].value[j].value || !answers[i].value[j].value.trim()) continue;
                         else data.value = answers[i].value[j].value;
-                        dataToSave.push(data);
                     }
+                    data.optionId = optionIds;
                     break;
                 default:
-                    dataToSave.push({
-                        surveyId: surveyId,
-                        questionId: parseInt(answers[i].id.replace('c', '')),
-                        productId: taskInfo.productId,
-                        UOAid: taskInfo.uoaId,
-                        wfStepId: taskInfo.stepId,
-                        userId: userId,
-                        value: answers[i].value
-                    });
+                    data.value = answers[i].value
             }
+            dataToSave.push(data);
         }
         var sendCount = dataToSave.length;
         for (i = 0; i < dataToSave.length; i++) {

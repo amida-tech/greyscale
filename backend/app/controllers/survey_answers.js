@@ -2,7 +2,6 @@ var
     _ = require('underscore'),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
-    SurveyAnswerVersion = require('app/models/survey_answer_versions'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -61,6 +60,10 @@ module.exports = {
 
     add: function (req, res, next) {
         co(function* () {
+            if (!Array.isArray(req.body.optionId)) {
+                req.body.optionId = [req.body.optionId];
+            }
+
             var question = yield thunkQuery(
                 SurveyQuestion.select().from(SurveyQuestion).where(SurveyQuestion.id.equals(req.body.questionId))
             );
@@ -148,13 +151,19 @@ module.exports = {
                 if (!req.body.optionId) {
                     throw new HttpError(403, 'You should provide optionId for this type of question');
                 } else {
-                    var option = yield thunkQuery(SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(req.body.optionId)));
-                    if (!_.first(option)) {
-                        throw new HttpError(403, 'Option with id = ' + req.body.optionId + ' does not exist');
-                    }
+                    for (optIndex in req.body.optionId) {
+                        var option = yield thunkQuery(
+                            SurveyQuestionOption
+                            .select()
+                            .where(SurveyQuestionOption.id.equals(req.body.optionId[optIndex]))
+                        );
+                        if (!_.first(option)) {
+                            throw new HttpError(403, 'Option with id = ' + req.body.optionId[optIndex] + ' does not exist');
+                        }
 
-                    if (_.first(option).questionId !== req.body.questionId) {
-                        throw new HttpError(403, 'This option does not relate to this question');
+                        if (_.first(option).questionId !== req.body.questionId) {
+                            throw new HttpError(403, 'This option does not relate to this question');
+                        }
                     }
                 }
             } else {
@@ -166,7 +175,9 @@ module.exports = {
             req.body.userId = req.user.id;
 
             var version = yield thunkQuery(
-                SurveyAnswer.select('max("SurveyAnswers"."version")').where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
+                SurveyAnswer
+                .select('max("SurveyAnswers"."version")')
+                .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
             );
 
             if (_.first(version).max === null) {
