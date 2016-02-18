@@ -33,6 +33,12 @@ angular.module('greyscaleApp')
                         var subRight = '';
                         var o;
 
+                        if (scope.field.minLength) {
+                            subLeft = 'Min count:' + scope.field.minLength + ', ';
+                        }
+                        if (scope.field.maxLength) {
+                            subLeft += 'Max count:' + scope.field.maxLength;
+                        }
                         switch (scope.field.type) {
                         case 'paragraph':
                             body = '<textarea ' + commonPart + '></textarea>';
