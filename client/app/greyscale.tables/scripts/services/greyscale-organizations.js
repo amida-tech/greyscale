@@ -5,6 +5,9 @@
 angular.module('greyscale.tables')
     .factory('greyscaleOrganizationsTbl', function (_, $q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
         greyscaleProfileSrv, greyscaleModalsSrv) {
+
+        var tns = 'ORGANIZATIONS.';
+
         var _dicts = {
             users: []
         };
@@ -17,16 +20,16 @@ angular.module('greyscale.tables')
             field: 'name',
             show: true,
             sortable: 'name',
-            title: 'Name'
+            title: tns + 'NAME'
         }, {
             field: 'address',
             show: true,
-            title: 'Address'
+            title: tns + 'ADDRESS'
         }, {
             field: 'adminUserId',
             show: true,
             sortable: 'adminUserId',
-            title: 'Admin user',
+            title: tns + 'ADMIN_USER',
             dataFormat: 'option',
             showFormField: _notNewRecord,
             dataSet: {
@@ -37,7 +40,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'url',
             show: true,
-            title: 'Site URL'
+            title: tns + 'SITE_URL'
         }, {
             field: 'enforceApiSecurity',
             show: false,
@@ -46,7 +49,7 @@ angular.module('greyscale.tables')
             field: 'isActive',
             show: true,
             sortable: 'isActive',
-            title: 'Is active',
+            title: tns + 'IS_ACTIVE',
             dataFormat: 'boolean',
             dataReadOnly: _getActivationMode
         }, {
@@ -56,18 +59,18 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editRecord
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
 
         var _table = {
-            formTitle: 'organization',
-            title: 'Organizations',
+            formTitle: tns + 'ORGANIZATION',
+            title: tns + 'ORGANIZATIONS',
             icon: 'fa-university',
             cols: _fields,
             dataPromise: getData,
@@ -90,12 +93,19 @@ angular.module('greyscale.tables')
             }
         }
 
-        function _delRecord(rec) {
-            greyscaleOrganizationApi.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
-                });
+        function _delRecord(organization) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                organization: organization,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleOrganizationApi.delete(organization.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editRecord(organization) {

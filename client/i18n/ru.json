@@ -171,6 +171,16 @@
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
+    "ORGANIZATIONS": {
+        "ADDRESS": "Адрес",
+        "ADMIN_USER": "Админ",
+        "DELETE_CONFIRM": "Подтвердите удаление организации <b>{{organization.name}}</b>",
+        "IS_ACTIVE": "Активная",
+        "NAME": "Название",
+        "ORGANIZATION": "Организация",
+        "ORGANIZATIONS": "Организации",
+        "SITE_URL": "URL сайта"
+    },
     "PLACEHOLDER": {
         "ASSIGN_TO": "",
         "INPUT_MESSAGE": "",
@@ -337,7 +347,6 @@
         "SHORT_NAME": "Короткое название",
         "STATUS": "Статус",
         "TAG": "Тег",
-        "TO_UOA": "Единицу анализа",
         "TYPE": "Тип",
         "TYPE_DESCRIPTION": "Описание",
         "TYPE_NAME": "Название",
@@ -372,9 +381,18 @@
         "TYPE_NAME": "Название"
     },
     "USERS": {
+        "ANONYMOUS": "Анонимный",
         "DELETE_CONFIRM": "Подтвердите удаление пользователя <b>{{user.email}}</b>",
+        "EMAIL": "Эл. почта",
+        "FIRST_NAME": "Имя",
+        "IS_ACTIVE": "Активный",
+        "LAST_ACTIVE": "Последняя активность",
+        "LAST_NAME": "Фамилия",
         "NOT_LOGGED": "Не входил",
-        "ORGANIZATION": "Организация"
+        "ORGANIZATION": "Организация",
+        "ROLE": "Роль",
+        "USER": "Пользователь",
+        "USERS": "Пользователи"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

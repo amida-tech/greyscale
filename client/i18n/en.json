@@ -171,6 +171,16 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "ORGANIZATIONS": {
+        "ADDRESS": "Address",
+        "ADMIN_USER": "Admin user",
+        "DELETE_CONFIRM": "Please confirm deleting of organization <b>{{organization.name}}</b>",
+        "IS_ACTIVE": "Is active",
+        "NAME": "Name",
+        "ORGANIZATION": "Organization",
+        "ORGANIZATIONS": "Organizations",
+        "SITE_URL": "Site URL"
+    },
     "PLACEHOLDER": {
         "ASSIGN_TO": "Assign to",
         "INPUT_MESSAGE": "Entry",
@@ -337,7 +347,6 @@
         "SHORT_NAME": "Short Name",
         "STATUS": "Status",
         "TAG": "Tag",
-        "TO_UOA": "Unit Of Analysis",
         "TYPE": "Type",
         "TYPE_DESCRIPTION": "Type Description",
         "TYPE_NAME": "Type Name",
@@ -372,9 +381,18 @@
         "TYPE_NAME": "Name"
     },
     "USERS": {
+        "ANONYMOUS": "Anonymous",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
+        "EMAIL": "E-Mail",
+        "FIRST_NAME": "First Name",
+        "IS_ACTIVE": "Is Active",
+        "LAST_ACTIVE": "Last Active",
+        "LAST_NAME": "Last name",
         "NOT_LOGGED": "Not Logged",
-        "ORGANIZATION": "Organization"
+        "ORGANIZATION": "Organization",
+        "ROLE": "Role",
+        "USER": "User",
+        "USERS": "Users"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",
