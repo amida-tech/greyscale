@@ -4,8 +4,12 @@ var
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
+    WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
+    SurveyAnswer = require('app/models/survey_answers'),
+    User = require('app/models/users'),
+    EssenceRole = require('app/models/essence_roles'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
@@ -121,28 +125,62 @@ module.exports = {
   export: function (req, res, next) {
     co(function* (){
       var q =
-          Product
+          Task
           .select(
-              'row_to_json("Products".*) as product',
+              'row_to_json("Tasks".*) as task',
+              'row_to_json("UnitOfAnalysis".*) as uoa',
+              'row_to_json("WorkflowSteps".*) as step',
+              'row_to_json("Users".*) as owner',
               'row_to_json("Surveys".*) as survey',
               'row_to_json("SurveyQuestions".*) as question',
-              'row_to_json("UnitOfAnalysis".*) as uoa',
-              'row_to_json("Tasks".*) as task'
+              'row_to_json("SurveyAnswers".*) as answer'
           )
           .from(
-              Product
-              .leftJoin(Survey)
-              .on(Survey.id.equals(Product.surveyId))
-              .leftJoin(SurveyQuestion)
-              .on(SurveyQuestion.surveyId.equals(Survey.id))
-              .leftJoin(ProductUOA)
-              .on(Product.id.equals(ProductUOA.productId))
-              .leftJoin(UOA)
-              .on(UOA.id.equals(ProductUOA.UOAid))
-              .leftJoin(Task)
+              Task
+              .leftJoin(Product)
               .on(Task.productId.equals(Product.id))
+
+              .leftJoin(UOA)
+              .on(Task.uoaId.equals(UOA.id))
+
+              .leftJoin(WorkflowStep)
+              .on(Task.stepId.equals(WorkflowStep.id))
+
+              .leftJoin(EssenceRole)
+              .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+
+              .leftJoin(User)
+              .on(EssenceRole.userId.equals(User.id))
+
+              .leftJoin(Survey)
+              .on(Product.surveyId.equals(Survey.id))
+
+              .leftJoin(SurveyQuestion)
+              .on(Survey.id.equals(SurveyQuestion.surveyId))
+
+              .leftJoin(SurveyAnswer)
+              .on(
+                SurveyAnswer.questionId.equals(SurveyQuestion.id)
+                .and(SurveyAnswer.userId.equals(User.id))
+                .and(SurveyAnswer.UOAid.equals(UOA.id))
+                .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
+              )
           )
-          .where(Product.id.equals(req.params.id));
+          .where(
+              Task.productId.equals(req.params.id)
+              .and(SurveyAnswer.version.in(
+                  SurveyAnswer
+                  .subQuery()
+                  .select(SurveyAnswer.version.max())
+                  .where(
+                      SurveyAnswer.questionId.equals(SurveyQuestion.id)
+                      .and(SurveyAnswer.userId.equals(User.id))
+                      .and(SurveyAnswer.UOAid.equals(UOA.id))
+                      .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
+                  )
+              ))
+          );
+          //.group(Task.id, UOA.id, WorkflowStep.id, SurveyQuestion.id);
       return yield thunkQuery(q);
     }).then(function (data) {
       res.json(data);
