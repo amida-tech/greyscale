@@ -118,6 +118,38 @@ module.exports = {
         });
     },
 
+    export: function (req, res, next) {
+        co(function* (){
+            var q = Product
+                .select(
+                    'row_to_json("Products".*) as product',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("SurveyQuestions".*) as question',
+                    'row_to_json("UnitOfAnalysis".*) as uoa',
+                    'row_to_json("Tasks".*) as task'
+                )
+            .from(
+                Product
+                .leftJoin(Survey)
+                .on(Survey.id.equals(Product.surveyId))
+                .leftJoin(SurveyQuestion)
+                .on(SurveyQuestion.surveyId.equals(Survey.id))
+                .leftJoin(ProductUOA)
+                .on(Product.id.equals(ProductUOA.productId))
+                .leftJoin(UOA)
+                .on(UOA.id.equals(ProductUOA.UOAid))
+                .leftJoin(Task)
+                .on(Task.productId.equals(Product.id))
+            )
+            .where(Product.id.equals(req.params.id));
+            return yield thunkQuery(q);
+        }).then(function (data) {
+            res.json(data);
+        },function (err) {
+            next(err);
+        });
+    },
+
   selectOne: function (req, res, next) {
     co(function* (){
       var product =  yield thunkQuery(
