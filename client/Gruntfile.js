@@ -288,10 +288,6 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
-                exclude: [
-                    'bower_components/plotly.js/dist/plotly.min.js',
-                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
-                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -476,7 +472,7 @@ module.exports = function (grunt) {
                     src: ['generated/*']
                 }, {
                     expand: true,
-                    cwd: '.tmp/' + i18nConfig.l10nDir,
+                    cwd: '.tmp/' + i18nConfig.l10nDir + '/',
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
                     src: ['**/*.js']
                 }, {
@@ -725,6 +721,7 @@ module.exports = function (grunt) {
         'clean:server',
         'wiredep',
         'i18n',
+        'copy:l10n',
         'concurrent:test',
         'postcss',
         'connect:test',

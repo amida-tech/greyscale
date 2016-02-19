@@ -1,0 +1,12 @@
+<div class="modal-system">
+    <modal-form-header>
+        {{params.header||'COMMON.CONFIRMATION'|translate:params}}
+    </modal-form-header>
+    <div class="modal-body">
+        <p ng-bind-html="params.message"></p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-{{params.cancelType||'default'}}" ng-click="close()">{{params.cancelText||'COMMON.CANCEL'|translate:params}}</button>
+        <button class="btn btn-{{params.okType||'default'}}" ng-click="confirm()">{{params.okText||'COMMON.OK'|translate:params}}</button>
+    </div>
+</div>

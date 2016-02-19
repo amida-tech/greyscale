@@ -7,6 +7,8 @@ angular.module('greyscale.tables')
     .factory('greyscaleUoaTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleUoaTypeApi, greyscaleLanguageApi) {
 
+        var tns = 'UOAS.';
+
         var dicts = {
             languages: []
         };
@@ -21,20 +23,20 @@ angular.module('greyscale.tables')
             dataReadOnly: true
         }, {
             field: 'name',
-            title: 'Name',
+            title: tns + 'TYPE_NAME',
             show: true,
             sortable: 'name',
             dataFormat: 'text',
             dataRequired: true
         }, {
             field: 'description',
-            title: 'Description',
+            title: tns + 'TYPE_DESCRIPTION',
             show: true,
             dataFormat: 'text',
             dataRequired: true
         }, {
             field: 'langId',
-            title: 'Original language',
+            title: 'COMMON.ORIGINAL_LANGUAGE',
             show: true,
             sortable: 'langId',
             dataFormat: 'option',
@@ -52,17 +54,18 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editUoaType
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
 
         var _table = {
-            title: 'Unit Types',
+            title: tns + 'UNIT_TYPES',
+            formTitle: tns + 'UNIT_TYPE',
             icon: 'fa-table',
             sorting: {
                 id: 'asc'
@@ -71,7 +74,6 @@ angular.module('greyscale.tables')
             cols: recDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
                 handler: _addUoaType
             }
         };
@@ -103,12 +105,19 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _delRecord(item) {
-            greyscaleUoaTypeApi.delete(item.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+        function _delRecord(uoaType) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM_TYPE',
+                uoaType: uoaType,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUoaTypeApi.delete(uoaType.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _getData() {

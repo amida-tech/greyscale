@@ -58,7 +58,8 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
-            var r = 0, item, fld, qid;
+            var r = 0,
+                item, fld, qid;
 
             for (var q = 0; q < survey.questions.length; q++) {
                 var field = survey.questions[q];

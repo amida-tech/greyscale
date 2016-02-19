@@ -36,24 +36,24 @@ angular.module('greyscale.tables')
             }
         }, {
             field: 'email',
-            title: 'E-mail',
+            title: tns + 'EMAIL',
             show: false,
             sortable: 'email',
             dataRequired: true
         }, {
             field: 'firstName',
-            title: 'First name',
+            title: tns + 'FIRST_NAME',
             show: true,
             sortable: 'firstName',
             dataRequired: true
         }, {
             field: 'lastName',
-            title: 'Last name',
+            title: tns + 'LAST_NAME',
             show: true,
             sortable: 'lastName'
         }, {
             field: 'roleID',
-            title: 'Role',
+            title: tns + 'ROLE',
             show: true,
             sortable: 'roleID',
             dataFormat: 'option',
@@ -66,21 +66,21 @@ angular.module('greyscale.tables')
 
         }, {
             field: 'lastActive',
-            title: 'Last Active',
+            title: tns + 'LAST_ACTIVE',
             show: true,
             sortable: 'lastActive',
             dataReadOnly: 'both',
             cellTemplate: '<span ng-hide="cell" translate="USERS.NOT_LOGGED"></span>{{cell|date:\'medium\'}}'
         }, {
             field: 'isActive',
-            title: 'Is Active',
+            title: tns + 'IS_ACTIVE',
             show: true,
             sortable: 'isActive',
             dataFormat: 'boolean',
             dataReadOnly: 'both'
         }, {
             field: 'isAnonymous',
-            title: 'Anonymous',
+            title: tns + 'ANONYMOUS',
             show: true,
             sortable: 'isAnonymous',
             dataFormat: 'boolean'
@@ -91,19 +91,19 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'primary',
+                tooltip: 'COMMON.EDIT',
                 handler: _editRecord
             }, {
                 icon: 'fa-trash',
-                class: 'secondary',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
 
         var _table = {
             dataFilter: {},
-            formTitle: 'user',
-            title: 'Users',
+            formTitle: tns + 'USER',
+            title: tns + 'USERS',
             icon: 'fa-users',
             cols: _fields,
             dataPromise: _getUsers,
@@ -114,7 +114,6 @@ angular.module('greyscale.tables')
                 created: 'desc'
             },
             add: {
-                icon: 'fa-plus',
                 handler: _editRecord
             }
         };
@@ -128,11 +127,18 @@ angular.module('greyscale.tables')
         }
 
         function _delRecord(rec) {
-            greyscaleUserApi.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
-                });
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                user: rec,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUserApi.delete(rec.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editRecord(user) {

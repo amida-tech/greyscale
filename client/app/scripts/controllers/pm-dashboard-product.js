@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, inform) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv) {
 
         var productId = $stateParams.productId;
 
@@ -11,7 +11,8 @@ angular.module('greyscaleApp')
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
 
         $scope.model = {
-            tasksTable: tasksTable
+            tasksTable: tasksTable,
+            exportHref: greyscaleUtilsSrv.getApiBase() + '/products/' + productId + '/export?token=' + greyscaleTokenSrv()
         };
 
         greyscaleProductApi.get(productId)
@@ -37,12 +38,6 @@ angular.module('greyscaleApp')
 
             return $q.all(reqs);
         }
-
-        $scope.downloadData = function () {
-            inform.add('waiting for server response .....', {
-                type: 'warning'
-            });
-        };
 
         //function _extendData(data) {
         //    angular.forEach(data.tasks, function (task) {
