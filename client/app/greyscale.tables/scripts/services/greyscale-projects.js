@@ -98,11 +98,11 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editProject
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
@@ -175,12 +175,19 @@ angular.module('greyscale.tables')
             });
         }
 
-        function _delRecord(item) {
-            greyscaleProjectApi.delete(item.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+        function _delRecord(project) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                project: project,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleProjectApi.delete(project.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editProject(prj) {

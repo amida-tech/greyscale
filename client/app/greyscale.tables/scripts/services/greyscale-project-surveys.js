@@ -25,19 +25,16 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: '',
                 icon: 'fa-eye',
-                class: 'info',
+                tooltip: 'COMMON.VIEW',
                 handler: _viewSurvey
             }, {
-                title: '',
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editSurvey
             }, {
-                title: '',
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _deleteSurvey
             }]
         }];
@@ -51,7 +48,6 @@ angular.module('greyscale.tables')
             dataFilter: {},
             formTitle: tns + 'ITEM',
             add: {
-                title: 'COMMON.CREATE',
                 handler: _editSurvey
             }
         };
@@ -87,8 +83,15 @@ angular.module('greyscale.tables')
         }
 
         function _deleteSurvey(_survey) {
-            greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
-                inform.add('Survey delete error: ' + err);
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                survey: _survey,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
+                    inform.add('Survey delete error: ' + err);
+                });
             });
         }
 

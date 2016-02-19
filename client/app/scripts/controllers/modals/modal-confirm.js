@@ -7,7 +7,7 @@ angular.module('greyscaleApp')
 
         $scope.params = params;
 
-        $scope.decline = function () {
+        $scope.close = function () {
             $uibModalInstance.dismiss();
         };
 

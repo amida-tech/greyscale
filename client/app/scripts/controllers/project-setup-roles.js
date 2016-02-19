@@ -12,6 +12,7 @@ angular.module('greyscaleApp')
         greyscaleProjectApi.get($stateParams.projectId)
             .then(function (project) {
                 entityRoles.dataFilter.entityId = project.id;
+                entityRoles.dataFilter.organizationId = project.organizationId;
                 entityRoles.tableParams.reload();
             });
 

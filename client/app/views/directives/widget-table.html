@@ -1,8 +1,8 @@
 <rd-widget>
     <rd-widget-header icon="{{model.icon}}" title="{{model.title}}">
         <div class="text-right" ng-show="model.add">
-            <a class="action action-primary" ng-click="model.add.handler()" title="{{model.add.title|translate}}">
-                <i class="fa fa-plus" ng-show="model.add"></i>
+            <a class="action action-primary" ng-click="model.add.handler()" title="{{model.add.tooltip||'COMMON.ADD'|translate}}">
+                <i class="fa {{model.add.icon||'fa-plus'}}" ng-show="model.add"></i>
             </a>
         </div>
     </rd-widget-header>

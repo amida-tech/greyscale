@@ -3,6 +3,7 @@
 /.tmp
 /.sass-cache
 /bower_components
+/app/l10n
 /app/greyscale.core/scripts/config/greyscale-env.js
 Dockerrun.aws.json
 latest-client.zip

@@ -8,21 +8,25 @@
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
         "CLOSE": "Закрыть",
-        "CONFIRM": "",
-        "CONTINUE": "",
+        "CONFIRM": "Подтвердить",
+        "CONFIRMATION": "Подтверждение",
+        "CONTINUE": "Продолжить",
         "CREATE": "Создать",
-        "DELETE": "",
+        "DELETE": "Удалить",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
-        "INFO": "",
+        "INFO": "Информация",
         "NO": "Нет",
-        "OF": "",
+        "OF": "из",
+        "ORIGINAL_LANGUAGE": "Язык создания",
         "REMIND": "Напомнить",
-        "RESET": "",
+        "RESET": "Сброс",
         "SAVE": "Сохранить",
-        "SAVE_AND_CONTINUE": "",
-        "SHOW_ALL": "",
-        "SUBMIT": "",
+        "SAVE_AND_CONTINUE": "Сохранить и продолжить",
+        "SHOW_ALL": "Показать все",
+        "SUBMIT": "Отправить",
+        "UNASSIGN": "Отмена назначения",
+        "VIEW": "Просмотр",
         "YES": "Да"
     },
     "DATEPICKER": {
@@ -82,21 +86,21 @@
     },
     "IMPORT": {
         "UOAS": {
-            "DESCRIPTION": "",
-            "DOWNLOAD_EXAMPLE": "",
+            "DESCRIPTION": "Описание",
+            "DOWNLOAD_EXAMPLE": "Загрузить образец",
             "ISO": "",
             "ISO2": "",
             "NAME": "",
-            "NAMEISO": "",
-            "RESULTS_TITLE": "",
-            "SHORT_NAME": "",
-            "STATUS": "",
+            "NAMEISO": "Название ISO",
+            "RESULTS_TITLE": "Результаты",
+            "SHORT_NAME": "Короткое название",
+            "STATUS": "Статус",
             "TITLE": "Импорт единиц анализа",
-            "UOA_TYPE": "",
-            "VISIBILITY": ""
+            "UOA_TYPE": "Тип единицы анализа",
+            "VISIBILITY": "Видимость"
         },
         "USERS": {
-            "DOWNLOAD_EXAMPLE": "",
+            "DOWNLOAD_EXAMPLE": "Загрузить образец",
             "EMAIL": "Эл. почта",
             "FIRST_NAME": "Имя",
             "LAST_NAME": "Фамилия",
@@ -111,14 +115,14 @@
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
         "EMAIL": "Эл.почт@",
         "FORGOT_PASSWORD": "Забыл пароль...",
-        "GO_LOGIN": "",
-        "LOGIN_INCORRECT": "",
+        "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
+        "LOGIN_INCORRECT": "Пользователь с указанным e-mail не существует.",
         "LOGIN_REQUIRED": "Логин обязателен",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
-        "RESET_SUCCESS": "",
+        "RESET_SUCCESS": "Пароль был успешно обновлен.",
         "SIGN_IN": "Вход",
-        "TOKEN_SENT": ""
+        "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
     },
     "MY_TASKS": {
         "NO_TASKS": "На данный момент у Вас нет задач.",
@@ -135,15 +139,14 @@
         "ADMIN_SECTION": "Администрирование",
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
-        "GRAPH": "",
+        "GRAPH": "График",
         "HOME": "Главная",
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
-        "PM_DASHBOARD": "",
-        "PM_PRODUCT_DASHBOARD": "",
+        "PM_PRODUCT_DASHBOARD": "Панель продукта {{ext.productName}}",
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -154,9 +157,9 @@
         },
         "PROJECTS_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
-        "RESET": "",
+        "RESET": "Сброс",
         "SURVEY": "Опрос",
-        "TABLE": "",
+        "TABLE": "Таблица",
         "TASKS": "Задачи",
         "UOAS": {
             "LIST": "Список",
@@ -170,31 +173,42 @@
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
     },
+    "ORGANIZATIONS": {
+        "ADDRESS": "Адрес",
+        "ADMIN_USER": "Админ",
+        "DELETE_CONFIRM": "Подтвердите удаление организации <b>{{organization.name}}</b>",
+        "IS_ACTIVE": "Активная",
+        "NAME": "Название",
+        "ORGANIZATION": "Организация",
+        "ORGANIZATIONS": "Организации",
+        "SITE_URL": "URL сайта"
+    },
     "PLACEHOLDER": {
         "ASSIGN_TO": "",
         "INPUT_MESSAGE": "",
         "SELECT_QUESTION": ""
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": ""
+        "DOWNLOAD_DATA": "Загрузить данные"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "В проекте нет продуктов",
         "NO_PROJECTS": "Нет проектов для управления",
-        "PROJECT": ""
+        "PROJECT": "Проект"
     },
     "PRODUCTS": {
         "TABLE": {
-            "CREATE_WORKFLOW": "",
+            "CREATE_WORKFLOW": "Создать процесс",
+            "DELETE_CONFIRM": "Подтвердите удаление продукта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
-            "PLANNING_NOT_FINISH": "",
+            "PLANNING_NOT_FINISH": "Планирование не окончено",
             "PRODUCT": "Продукт",
             "SETTINGS": "Настройки",
             "START_PRODUCT": "Запустить продукт",
             "STATUS": "Состояние",
             "SURVEY": "Опрос",
-            "SURVEY_STATUS": "",
+            "SURVEY_STATUS": "Статус опроса",
             "TASKS": "Задачи",
             "TITLE": "Название",
             "UOAS": "Единицы анализа",
@@ -220,7 +234,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
+            "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b> из продукта <b>{{product.title}}</b>",
+            "DESCRIPTION": "Описание",
+            "MODAL_TITLE": "Единицы анализа <small>для продукта \"{{product.title}}\"</small>",
+            "NAME": "Название",
+            "SHORT_NAME": "Короткое название",
+            "TABLE_TITLE": "Единицы анализа продукта",
+            "TYPE": "Тип"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",
@@ -228,18 +248,18 @@
             "STEPS": {
                 "ANSWERS_ACCESS": "Доступ к ответам",
                 "BLIND_REVIEW": "Слепой просмотр",
-                "DISCUSSION_PARTICIPATION": "",
-                "EDIT_TRANSLATE": "",
+                "DISCUSSION_PARTICIPATION": "Участие в обсуждении",
+                "EDIT_TRANSLATE": "Редактирование перевода",
                 "END_DATE": "Дата окончания",
-                "PERMISSIONS": "",
+                "PERMISSIONS": "Разрешения",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
-                "PROVIDE_RESPONSES": "",
+                "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
-                "SEE_OTHERS_RESPONSES": "",
+                "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг",
-                "WRITE_ACCESS_READ": "",
-                "WRITE_ACCESS_WRITE": ""
+                "WRITE_ACCESS_READ": "Чтение",
+                "WRITE_ACCESS_WRITE": "Чтение и запись"
             },
             "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
             "TITLE": "Название",
@@ -247,33 +267,35 @@
         }
     },
     "PRODUCT_TASKS": {
-        "CURRENT_STEP": "",
-        "DEADLINE": "",
-        "FLAGS": "",
-        "LAST_INTERACTION": "",
+        "CURRENT_STEP": "Текущий шаг",
+        "DEADLINE": "Крайний срок",
+        "FLAGS": "Флаги",
+        "LAST_INTERACTION": "Последнее действие",
         "MODAL": {
             "TITLE": ""
         },
-        "PROGRESS": "",
-        "ROLE": "",
-        "STEP": "",
-        "TITLE": "",
-        "UOA": "",
-        "USER": ""
+        "PROGRESS": "Прогресс",
+        "ROLE": "Роль",
+        "STEP": "Шаг",
+        "TITLE": "Название",
+        "UOA": "Единица анализа",
+        "USER": "Пользователь"
     },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
         "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
+        "DELETE_CONFIRM": "Подтвердите удаление проекта <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
         "ITEM": "Проект",
         "ORGANIZATION": "Организация",
-        "PAUSE_PROJECT": "",
+        "PAUSE_PROJECT": "Приостановить проект",
         "PROJECT": "Проект",
         "PROJECTS": "Проекты",
         "ROLES": {
+            "DELETE_CONFIRM": "Подтвердите отмену назначения пользователя <b>{{user.email}}</b> на роль <b>{{role.name}}</b>",
             "ITEM": "Роль в проекте",
             "ROLE": "Роль",
             "USER": "Пользователь"
@@ -282,14 +304,37 @@
         "START_TIME": "Время начала",
         "STATUS": "Статус"
     },
+    "RIGHTS": {
+        "ACTION": "Действие",
+        "DELETE_CONFIRM": "Подтвердите удаление правила <b>{{right.action}}</b>",
+        "DESCRIPTION": "Описание",
+        "ENTITY_TYPE": "Тип объекта",
+        "RIGHT": "Правило",
+        "RIGHTS": "Правила"
+    },
+    "ROLES": {
+        "NAME": "Название",
+        "ROLE": "Роль",
+        "ROLES": "Роли",
+        "SYSTEM_ROLE": "Системная роль"
+    },
+    "ROLE_RIGHTS": {
+        "ACTION": "Действие",
+        "DELETE_CONFIRM": "Подтвердите удаление правила <b>{{roleRight.action}}</b> роли <b>{{role.name}}</b>",
+        "DESCRIPTION": "Описание",
+        "ENTITY_TYPE": "Тип объекта",
+        "ROLE_RIGHT": "Правило роли",
+        "ROLE_RIGHTS": "Правила ролей"
+    },
     "SURVEYS": {
         "CONTENT": "Содержание",
+        "DELETE_CONFIRM": "Подтвердите удаление опроса <b>{{survey.title}}</b>",
         "DESCRIPTION": "Описание",
-        "DISCUSSION": "",
+        "DISCUSSION": "Обсуждение",
         "FIELDS": "Вопросы",
         "ITEM": "Опрос",
         "NAME": "Название",
-        "QUESTION": "",
+        "QUESTION": "Вопрос",
         "VIEW": "Просмотр"
     },
     "TABLES": {
@@ -304,17 +349,63 @@
         },
         "TITLE": "Переводы"
     },
+    "UOAS": {
+        "CREATED": "Создан",
+        "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа единиц анализа <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи единицы анализа <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
+        "DESCRIPTION": "Описание",
+        "NAME": "Название",
+        "SHORT_NAME": "Короткое название",
+        "STATUS": "Статус",
+        "TAG": "Тег",
+        "TYPE": "Тип",
+        "TYPE_DESCRIPTION": "Описание",
+        "TYPE_NAME": "Название",
+        "UNIT_TYPE": "Тип единиц анализа",
+        "UNIT_TYPES": "Типы единиц анализа",
+        "UOA": "Единица анализа",
+        "UOAS": "Единицы анализа",
+        "UOA_TAG_LINK": "Связь единицы анализа и тега",
+        "UOA_TAG_LINKS": "Связь единиц анализа и тегов",
+        "VISIBILITY": "Видимость"
+    },
     "UOAS_FILTER": {
-        "DESCRIPTION": "",
-        "NAME": "",
-        "SHORT_NAME": "",
-        "TABLE_TITLE": "",
-        "TYPE": ""
+        "APPLY_SELECTED": "Применить выбранные",
+        "CREATED": "Создан",
+        "DESCRIPTION": "Описание",
+        "NAME": "Название",
+        "SHORT_NAME": "Короткое название",
+        "STATUS": "Статус",
+        "TABLE_TITLE": "Выберите единицы анализа",
+        "TYPE": "Тип"
+    },
+    "UOA_TAGS": {
+        "CLASSIFICATION_TYPE": "Тип классификации",
+        "DELETE_CONFIRM": "Подтвердите удаление тега <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа тега <b>{{tagType.name}}</b>",
+        "DESCRIPTION": "Описание",
+        "NAME": "Название",
+        "TAG": "Тег",
+        "TAGS": "Теги",
+        "TAG_TYPE": "Тип классификации тегов",
+        "TAG_TYPES": "Типы классификации тегов",
+        "TYPE_DESCRIPTION": "Описание",
+        "TYPE_NAME": "Название"
     },
     "USERS": {
-        "DELETE_CONFIRM": "",
-        "NOT_LOGGED": "",
-        "ORGANIZATION": ""
+        "ANONYMOUS": "Анонимный",
+        "DELETE_CONFIRM": "Подтвердите удаление пользователя <b>{{user.email}}</b>",
+        "EMAIL": "Эл. почта",
+        "FIRST_NAME": "Имя",
+        "IS_ACTIVE": "Активный",
+        "LAST_ACTIVE": "Последняя активность",
+        "LAST_NAME": "Фамилия",
+        "NOT_LOGGED": "Не входил",
+        "ORGANIZATION": "Организация",
+        "ROLE": "Роль",
+        "USER": "Пользователь",
+        "USERS": "Пользователи"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv) {
 
         var productId = $stateParams.productId;
 
@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
 
         $scope.model = {
             tasksTable: tasksTable,
-            exportHref: greyscaleUtilsSrv.getApiBase() + '/products/' + productId + '/export'
+            exportHref: greyscaleUtilsSrv.getApiBase() + '/products/' + productId + '/export?token=' + greyscaleTokenSrv()
         };
 
         greyscaleProductApi.get(productId)

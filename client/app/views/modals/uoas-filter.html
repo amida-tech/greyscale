@@ -1,5 +1,5 @@
 <modal-form-header>
-    Select Unit Of Analysis
+    <span translate="UOAS_FILTER.TABLE_TITLE"></span>
 </modal-form-header>
 <div class="modal-body">
     <!--<div class="row">-->
@@ -21,6 +21,6 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-if="listMode" ng-click="close()">Cancel</button>
-    <button class="btn btn-primary" ng-click="addSelectedUoas()" ng-disabled="!filterResult.length">Apply Selected</button>
+    <button class="btn btn-primary" ng-click="addSelectedUoas()" ng-disabled="!filterResult.length" translate="UOAS_FILTER.APPLY_SELECTED"></button>
 </div>
 

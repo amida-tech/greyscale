@@ -48,7 +48,7 @@ angular.module('greyscaleApp')
                         if (typeof model.dataPromise === 'function') {
                             var t = setTimeout(function () {
                                 model.$loading = true;
-                            }, 200);
+                            }, 150);
                             var endLoading = function () {
                                 clearTimeout(t);
                                 model.$loading = false;

@@ -108,14 +108,12 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: '',
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editProduct
             }, {
-                title: '',
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _removeProduct
             }]
         }];
@@ -132,7 +130,6 @@ angular.module('greyscale.tables')
             formWarning: _getFormWarning,
             pageLength: 10,
             add: {
-                title: 'COMMON.CREATE',
                 handler: _editProduct
             }
         };
@@ -192,11 +189,18 @@ angular.module('greyscale.tables')
         }
 
         function _removeProduct(product) {
-            greyscaleProductApi.delete(product.id)
-                .then(_reload)
-                .catch(function (err) {
-                    inform.add('Product delete error: ' + err);
-                });
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                product: product,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleProductApi.delete(product.id)
+                    .then(_reload)
+                    .catch(function (err) {
+                        inform.add('Product delete error: ' + err);
+                    });
+            });
         }
 
         function _reload() {
