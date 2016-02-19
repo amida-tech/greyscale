@@ -721,6 +721,7 @@ module.exports = function (grunt) {
         'clean:server',
         'wiredep',
         'i18n',
+        'copy:l10n',
         'concurrent:test',
         'postcss',
         'connect:test',
