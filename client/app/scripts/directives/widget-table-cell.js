@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTableCell', function ($filter, $compile, $q, $http, $templateCache) {
+    .directive('widgetTableCell', function (_, $sce, $timeout, $filter, $compile, $q, $http, $templateCache) {
 
         function decode(_set, dict, value) {
             var res = value;
@@ -59,13 +59,24 @@ angular.module('greyscaleApp')
                     case 'option':
                         var _set = cell.dataSet;
                         if (_set.getData) {
-                            elem.append(decode(_set, _set.getData($scope.rowValue), $scope.rowValue[_field]));
+                            _setModelFromData(_set, _set.getData($scope.rowValue));
+                            //$scope.model = decode(_set, _set.getData($scope.rowValue), $scope.rowValue[_field]);
                         } else if (_set.dataPromise) {
+                            _set.dataPromise($scope.rowValue).then(function (data) {
+                                //$scope.model = decode(_set, dict, $scope.model);
+                                _setModelFromData(_set, data);
+                            });
+                        }
+                        if (cell.cellTemplateUrl) {
+                            _getTemplateByUrl(cell.cellTemplateUrl)
+                                .then(function (template) {
+                                    _compileCellTemplate(template, cell.cellTemplateExtData);
+                                });
+                        } else if (cell.cellTemplate) {
+                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
+                        } else {
                             elem.append('{{model}}');
                             $compile(elem.contents())($scope);
-                            _set.dataPromise($scope.rowValue).then(function (dict) {
-                                $scope.model = decode(_set, dict, $scope.model);
-                            });
                         }
                         break;
 
@@ -102,6 +113,26 @@ angular.module('greyscaleApp')
                     if (cell.cellClass) {
                         elem.addClass(cell.cellClass);
                     }
+                }
+
+                function _setModelFromData(_set, data) {
+                    var search = {};
+                    search[_set.keyField] = $scope.rowValue[_field];
+                    var option = _.find(data, search);
+                    $scope.model = '';
+                    if (!option) {
+                        return;
+                    }
+                    $scope.option = option;
+                    if (_set.valField) {
+                        $scope.model = option[_set.valField];
+                    } else if (_set.template) {
+                        var render = $compile('<span>' + _set.template + '</span>')($scope);
+                        $timeout(function () {
+                            $scope.model = render.text();
+                        });
+                    }
+
                 }
 
                 function _compileCellTemplate(template, ext) {

@@ -25,6 +25,8 @@
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "UNASSIGN": "Unassign",
+        "VIEW": "View",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -197,6 +199,7 @@
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
+            "DELETE_CONFIRM": "Please confirm deleting of product <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
             "PAUSE_PRODUCT": "Suspend Product",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
@@ -231,7 +234,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"
+            "DELETE_CONFIRM": "Please confirm deleting unit <b>{{uoa.name}}</b> from product <b>{{product.title}}</b>",
+            "DESCRIPTION": "Description",
+            "MODAL_TITLE": "Units Of Analysis <small>For \"{{product.title}}\" Product</small>",
+            "NAME": "Name",
+            "SHORT_NAME": "Short Name",
+            "TABLE_TITLE": "Product Units of Analysis",
+            "TYPE": "Type"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Description",
@@ -277,6 +286,7 @@
         "CLOSE_TIME": "Close Time",
         "CODE_NAME": "Project Name",
         "CREATED": "Created",
+        "DELETE_CONFIRM": "Please confirm deleting of project <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Description",
         "HEADER": "Projects",
         "ITEM": "Project",
@@ -285,6 +295,7 @@
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
+            "DELETE_CONFIRM": "Please confirm unassigning of user <b>{{user.email}}</b> to role <b>{{role.name}}</b>",
             "ITEM": "Project Role",
             "ROLE": "Role",
             "USER": "User"
@@ -317,6 +328,7 @@
     },
     "SURVEYS": {
         "CONTENT": "Content",
+        "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
@@ -359,6 +371,7 @@
         "VISIBILITY": "Visibility"
     },
     "UOAS_FILTER": {
+        "APPLY_SELECTED": "Apply Selected",
         "CREATED": "Created",
         "DESCRIPTION": "Description",
         "NAME": "Name",

@@ -25,6 +25,8 @@
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
+        "UNASSIGN": "Отмена назначения",
+        "VIEW": "Просмотр",
         "YES": "Да"
     },
     "DATEPICKER": {
@@ -197,6 +199,7 @@
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Создать процесс",
+            "DELETE_CONFIRM": "Подтвердите удаление продукта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
             "PLANNING_NOT_FINISH": "Планирование не окончено",
@@ -231,7 +234,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
+            "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b> из продукта <b>{{product.title}}</b>",
+            "DESCRIPTION": "Описание",
+            "MODAL_TITLE": "Единицы анализа <small>для продукта \"{{product.title}}\"</small>",
+            "NAME": "Название",
+            "SHORT_NAME": "Короткое название",
+            "TABLE_TITLE": "Единицы анализа продукта",
+            "TYPE": "Тип"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",
@@ -277,6 +286,7 @@
         "CLOSE_TIME": "Время закрытия",
         "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
+        "DELETE_CONFIRM": "Подтвердите удаление проекта <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
         "ITEM": "Проект",
@@ -285,6 +295,7 @@
         "PROJECT": "Проект",
         "PROJECTS": "Проекты",
         "ROLES": {
+            "DELETE_CONFIRM": "Подтвердите отмену назначения пользователя <b>{{user.email}}</b> на роль <b>{{role.name}}</b>",
             "ITEM": "Роль в проекте",
             "ROLE": "Роль",
             "USER": "Пользователь"
@@ -317,6 +328,7 @@
     },
     "SURVEYS": {
         "CONTENT": "Содержание",
+        "DELETE_CONFIRM": "Подтвердите удаление опроса <b>{{survey.title}}</b>",
         "DESCRIPTION": "Описание",
         "DISCUSSION": "Обсуждение",
         "FIELDS": "Вопросы",
@@ -359,6 +371,7 @@
         "VISIBILITY": "Видимость"
     },
     "UOAS_FILTER": {
+        "APPLY_SELECTED": "Применить выбранные",
         "CREATED": "Создан",
         "DESCRIPTION": "Описание",
         "NAME": "Название",

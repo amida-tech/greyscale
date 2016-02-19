@@ -24,10 +24,11 @@ angular.module('greyscale.tables')
                 title: tns + 'USER',
                 sortable: 'userId',
                 dataRequired: true,
+                cellTemplate: '{{option.firstName}} {{option.lastName}} <small>({{option.email}})</small>',
                 dataFormat: 'option',
                 dataSet: {
                     keyField: 'id',
-                    valField: 'email',
+                    template: '{{option.firstName}} {{option.lastName}} ({{option.email}})',
                     getData: getUsers
                 }
             }, {
@@ -77,11 +78,11 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 actions: [{
                     icon: 'fa-pencil',
-                    class: 'info',
+                    tooltip: 'COMMON.EDIT',
                     handler: _editRecord
                 }, {
                     icon: 'fa-trash',
-                    class: 'danger',
+                    tooltip: 'COMMON.UNASSIGN',
                     handler: _delRecord
                 }]
             }
@@ -96,8 +97,7 @@ angular.module('greyscale.tables')
             dataPromise: getData,
             pageLength: 10,
             add: {
-                icon: 'fa-plus',
-                title: 'COMMON.ASSIGN',
+                tooltip: 'COMMON.ASSIGN',
                 handler: _editRecord
             }
 
@@ -153,12 +153,26 @@ angular.module('greyscale.tables')
             return res;
         }
 
-        function _delRecord(rec) {
-            _tableRestSrv.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
-                });
+        function _delRecord(entityRole) {
+            var user = _.find(_dicts.users, {
+                id: entityRole.userId
+            });
+            var role = _.find(_dicts.roles, {
+                id: entityRole.roleId
+            });
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                user: user,
+                role: role,
+                okType: 'danger',
+                okText: 'COMMON.UNASSIGN'
+            }).then(function () {
+                _tableRestSrv.delete(entityRole.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editRecord(rec) {
@@ -188,28 +202,25 @@ angular.module('greyscale.tables')
                 })
                 .then(function (types) {
                     _table.dataFilter.essenceId = types[0].id;
+                    var organizationId = _table.dataFilter.organizationId;
+                    var reqs = {
+                        data: _tableRestSrv.list(_table.dataFilter),
+                        users: greyscaleUserApi.list({
+                            organizationId: organizationId
+                        }),
+                        roles: greyscaleRoleApi.list({
+                            isSystem: false
+                        }),
+                        entTypes: greyscaleEntityTypeApi.list()
+                    };
 
-                    return greyscaleProfileSrv.getProfile()
-                        .then(function (profile) {
-                            var reqs = {
-                                data: _tableRestSrv.list(_table.dataFilter),
-                                users: greyscaleUserApi.list({
-                                    organizationId: profile.organizationId
-                                }),
-                                roles: greyscaleRoleApi.list({
-                                    isSystem: false
-                                }),
-                                entTypes: greyscaleEntityTypeApi.list()
-                            };
+                    return $q.all(reqs).then(function (promises) {
+                            _dicts.users = promises.users;
+                            _dicts.roles = promises.roles;
+                            _dicts.entTypes = promises.entTypes;
 
-                            return $q.all(reqs).then(function (promises) {
-                                _dicts.users = promises.users;
-                                _dicts.roles = promises.roles;
-                                _dicts.entTypes = promises.entTypes;
-
-                                greyscaleUtilsSrv.prepareFields(promises.data, _fields);
-                                return promises.data;
-                            });
+                            greyscaleUtilsSrv.prepareFields(promises.data, _fields);
+                            return promises.data;
                         })
                         .catch(errorHandler);
                 });

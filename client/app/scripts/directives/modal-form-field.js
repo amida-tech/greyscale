@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('modalFormField', function ($compile, greyscaleUtilsSrv, $templateCache, $http) {
+    .directive('modalFormField', function ($compile, $timeout, greyscaleUtilsSrv, $templateCache, $http) {
         return {
             restrict: 'A',
             scope: {
@@ -48,6 +48,7 @@ angular.module('greyscaleApp')
                             field += '{{modalFormFieldModel|date}}';
                             break;
                         case 'option':
+                            ///
                             field += greyscaleUtilsSrv.decode(scope.model.options, 'id', scope.modalFormFieldModel, 'title') || '';
                             break;
                         default:
@@ -154,10 +155,7 @@ angular.module('greyscaleApp')
                     if (clmn.dataSet.getData) {
                         var data = clmn.dataSet.getData();
                         for (var d = 0; d < data.length; d++) {
-                            _options.push({
-                                id: data[d][clmn.dataSet.keyField],
-                                title: data[d][clmn.dataSet.valField]
-                            });
+                            _options.push(_resolveOption(clmn.dataSet, data[d]));
                         }
                         _setDefaultOption($scope.modalFormRec, clmn.field, _options);
                         $scope.model.options = _options;
@@ -168,6 +166,23 @@ angular.module('greyscaleApp')
                             $scope.model.options = data;
                         });
                     }
+                }
+
+                function _resolveOption(_set, option) {
+                    var resolvedOption = {
+                        id: option[_set.keyField],
+                    };
+                    if (_set.valField) {
+                        resolvedOption.title = option[_set.valField];
+                    } else if (_set.template) {
+                        var scope = $scope.$new();
+                        scope.option = option;
+                        var render = $compile('<span>' + _set.template + '</span>')(scope);
+                        $timeout(function () {
+                            resolvedOption.title = render.text();
+                        });
+                    }
+                    return resolvedOption;
                 }
 
                 function _getDisabled(item) {
