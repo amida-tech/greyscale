@@ -288,10 +288,6 @@ module.exports = function (grunt) {
                 devDependencies: true,
                 src: '<%= karma.unit.configFile %>',
                 ignorePath: /\.\.\//,
-                exclude: [
-                    'bower_components/plotly.js/dist/plotly.min.js',
-                    'bower_components/isteven-angular-multiselect/isteven-multi-select.js'
-                ],
                 fileTypes: {
                     js: {
                         block: /(([\s\t]*)\/{2}\s*?bower:\s*?(\S*))(\n|\r|.)*?(\/{2}\s*endbower)/gi,
@@ -741,7 +737,6 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'i18n',
-        'copy:l10n',
         'copy:dist',
         'cssmin',
         'filerev',

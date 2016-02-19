@@ -19,6 +19,8 @@ module.exports = function(config) {
       "jasmine"
     ],
 
+    reporters: ['spec'],
+
     // list of files / patterns to load in the browser
     files: [
       // bower:js
@@ -45,7 +47,9 @@ module.exports = function(config) {
       'bower_components/angular-messages/angular-messages.js',
       'bower_components/angular-inform/dist/angular-inform.js',
       'bower_components/ng-table/dist/ng-table.min.js',
+      'bower_components/plotly.js/dist/plotly.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
+      'bower_components/isteven-angular-multiselect/isteven-multi-select.js',
       'bower_components/angular-translate/angular-translate.js',
       'bower_components/pivottable/dist/pivot.js',
       'bower_components/d3/d3.js',
@@ -54,6 +58,7 @@ module.exports = function(config) {
       'bower_components/angular-ui-sortable/sortable.js',
       'bower_components/minigrid/src/index.js',
       // endbower
+      ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",
       "app/greyscale.core/**/*.js",
       "app/greyscale.mock/**/*.js",
@@ -90,6 +95,7 @@ module.exports = function(config) {
 
     // Which plugins to enable
     plugins: [
+      "karma-spec-reporter",
       "karma-chrome-launcher",
       "karma-jasmine"
     ],
@@ -102,8 +108,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-//    logLevel: config.LOG_INFO
-      logLevel: 'LOG_WARN'
+    logLevel: config.LOG_WARN
 
     // Uncomment the following lines if you are using grunt's server to run the tests
     // proxies: {
