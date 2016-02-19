@@ -18,6 +18,7 @@
         "INFO": "Информация",
         "NO": "Нет",
         "OF": "из",
+        "ORIGINAL_LANGUAGE": "Язык создания",
         "REMIND": "Напомнить",
         "RESET": "Сброс",
         "SAVE": "Сохранить",
@@ -326,12 +327,49 @@
         },
         "TITLE": "Переводы"
     },
-    "UOAS_FILTER": {
+    "UOAS": {
+        "CREATED": "Создан",
+        "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа единиц анализа <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи единицы анализа <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
         "DESCRIPTION": "Описание",
         "NAME": "Название",
         "SHORT_NAME": "Короткое название",
+        "STATUS": "Статус",
+        "TAG": "Тег",
+        "TO_UOA": "Единицу анализа",
+        "TYPE": "Тип",
+        "TYPE_DESCRIPTION": "Описание",
+        "TYPE_NAME": "Название",
+        "UNIT_TYPE": "Тип единиц анализа",
+        "UNIT_TYPES": "Типы единиц анализа",
+        "UOA": "Единица анализа",
+        "UOAS": "Единицы анализа",
+        "UOA_TAG_LINK": "Связь единицы анализа и тега",
+        "UOA_TAG_LINKS": "Связь единиц анализа и тегов",
+        "VISIBILITY": "Видимость"
+    },
+    "UOAS_FILTER": {
+        "CREATED": "Создан",
+        "DESCRIPTION": "Описание",
+        "NAME": "Название",
+        "SHORT_NAME": "Короткое название",
+        "STATUS": "Статус",
         "TABLE_TITLE": "Выберите единицы анализа",
         "TYPE": "Тип"
+    },
+    "UOA_TAGS": {
+        "CLASSIFICATION_TYPE": "Тип классификации",
+        "DELETE_CONFIRM": "Подтвердите удаление тега <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа тега <b>{{tagType.name}}</b>",
+        "DESCRIPTION": "Описание",
+        "NAME": "Название",
+        "TAG": "Тег",
+        "TAGS": "Теги",
+        "TAG_TYPE": "Тип классификации тегов",
+        "TAG_TYPES": "Типы классификации тегов",
+        "TYPE_DESCRIPTION": "Описание",
+        "TYPE_NAME": "Название"
     },
     "USERS": {
         "DELETE_CONFIRM": "Подтвердите удаление пользователя <b>{{user.email}}</b>",
