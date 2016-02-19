@@ -91,11 +91,11 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'primary',
+                tooltip: 'COMMON.EDIT',
                 handler: _editRecord
             }, {
                 icon: 'fa-trash',
-                class: 'secondary',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
@@ -114,7 +114,6 @@ angular.module('greyscale.tables')
                 created: 'desc'
             },
             add: {
-                icon: 'fa-plus',
                 handler: _editRecord
             }
         };
@@ -129,7 +128,7 @@ angular.module('greyscale.tables')
 
         function _delRecord(rec) {
             greyscaleModalsSrv.confirm({
-                message: 'USERS.DELETE_CONFIRM',
+                message: tns + 'DELETE_CONFIRM',
                 user: rec,
                 okType: 'danger',
                 okText: 'COMMON.DELETE'

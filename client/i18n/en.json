@@ -9,6 +9,7 @@
         "CANCEL": "Cancel",
         "CLOSE": "Close",
         "CONFIRM": "Confirm",
+        "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
         "CREATE": "Create",
         "DELETE": "Delete",
@@ -111,7 +112,7 @@
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
         "EMAIL": "E-m@il",
         "FORGOT_PASSWORD": "Forgot password...",
-        "GO_LOGIN": "Go to <a href='/#/login'>login</a> page.",
+        "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
         "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
         "LOGIN_REQUIRED": "Login is required.",
         "PASSWORD": "Password",
@@ -142,8 +143,7 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
-        "PM_DASHBOARD": "Project Management",
-        "PM_PRODUCT_DASHBOARD": "Product Management: {{ext.productName}}",
+        "PM_PRODUCT_DASHBOARD": "{{ext.productName}} Product Dashboard",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -281,6 +281,28 @@
         "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
+    },
+    "RIGHTS": {
+        "ACTION": "Action",
+        "DELETE_CONFIRM": "Please confirm deleting of right <b>{{right.action}}</b>",
+        "DESCRIPTION": "Description",
+        "ENTITY_TYPE": "Entity Type",
+        "RIGHT": "Right",
+        "RIGHTS": "Rights"
+    },
+    "ROLES": {
+        "NAME": "Name",
+        "ROLE": "Role",
+        "ROLES": "Roles",
+        "SYSTEM_ROLE": "System Role"
+    },
+    "ROLE_RIGHTS": {
+        "ACTION": "Action",
+        "DELETE_CONFIRM": "Please confirm deleting of right <b>{{roleRight.action}}</b> for role <b>{{role.name}}</b> ",
+        "DESCRIPTION": "Description",
+        "ENTITY_TYPE": "Entity Type",
+        "ROLE_RIGHT": "Role Right",
+        "ROLE_RIGHTS": "Role Rights"
     },
     "SURVEYS": {
         "CONTENT": "Content",
