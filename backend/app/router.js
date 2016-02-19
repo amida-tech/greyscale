@@ -208,7 +208,7 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/export')
-    .get(authenticate('token').always, products.export);
+    .get(/*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)

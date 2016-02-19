@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     config = require('config'),
+    csv = require('express-csv'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -125,65 +126,113 @@ module.exports = {
   export: function (req, res, next) {
     co(function* (){
       var q =
-          Task
-          .select(
-              'row_to_json("Tasks".*) as task',
-              'row_to_json("UnitOfAnalysis".*) as uoa',
-              'row_to_json("WorkflowSteps".*) as step',
-              'row_to_json("Users".*) as owner',
-              'row_to_json("Surveys".*) as survey',
-              'row_to_json("SurveyQuestions".*) as question',
-              'row_to_json("SurveyAnswers".*) as answer'
-          )
-          .from(
-              Task
-              .leftJoin(Product)
-              .on(Task.productId.equals(Product.id))
+              'SELECT * ' +
+              //'row_to_json("Tasks".*) as task, ' +
+              //'row_to_json("UnitOfAnalysis".*) as uoa, ' +
+              //'row_to_json("WorkflowSteps".*) as step, ' +
+              //'row_to_json("Users".*) as owner, ' +
+              //'row_to_json("Surveys".*) as survey, ' +
+              //'row_to_json("SurveyQuestions".*) as question, ' +
+              //'row_to_json("sa".*) as answer ' +
+              'FROM "Tasks" ' +
+              'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
+              'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
+              'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
+              'LEFT JOIN "EssenceRoles" ON ("Tasks"."entityTypeRoleId" = "EssenceRoles"."id") ' +
+              'LEFT JOIN "Users" ON ("EssenceRoles"."userId" = "Users"."id") ' +
+              'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
+              'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
 
-              .leftJoin(UOA)
-              .on(Task.uoaId.equals(UOA.id))
+              'LEFT JOIN ( ' +
+                  'SELECT ' +
+                    'max("SurveyAnswers"."version") as max,' +
+                    '"SurveyAnswers"."questionId",' +
+                    '"SurveyAnswers"."userId",' +
+                    '"SurveyAnswers"."UOAid",' +
+                    '"SurveyAnswers"."wfStepId" ' +
+              'FROM "SurveyAnswers" ' +
+              'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
+              ') as "sa" ' +
 
-              .leftJoin(WorkflowStep)
-              .on(Task.stepId.equals(WorkflowStep.id))
+              'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
+              'AND ("sa"."userId" = "Users"."id")) ' +
+              'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
+              'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
 
-              .leftJoin(EssenceRole)
-              .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+              'LEFT JOIN "SurveyAnswers" ON ( ' +
+                  '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
+              'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
+              'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
+              'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
+              'AND ("SurveyAnswers"."version" = "sa"."max") ' +
+              ') ' +
+              'WHERE ( ' +
+                  '("Tasks"."productId" = ' + parseInt(req.params.id) + ') ' +
+              ')'
 
-              .leftJoin(User)
-              .on(EssenceRole.userId.equals(User.id))
 
-              .leftJoin(Survey)
-              .on(Product.surveyId.equals(Survey.id))
 
-              .leftJoin(SurveyQuestion)
-              .on(Survey.id.equals(SurveyQuestion.surveyId))
-
-              .leftJoin(SurveyAnswer)
-              .on(
-                SurveyAnswer.questionId.equals(SurveyQuestion.id)
-                .and(SurveyAnswer.userId.equals(User.id))
-                .and(SurveyAnswer.UOAid.equals(UOA.id))
-                .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
-              )
-          )
-          .where(
-              Task.productId.equals(req.params.id)
-              .and(SurveyAnswer.version.in(
-                  SurveyAnswer
-                  .subQuery()
-                  .select(SurveyAnswer.version.max())
-                  .where(
-                      SurveyAnswer.questionId.equals(SurveyQuestion.id)
-                      .and(SurveyAnswer.userId.equals(User.id))
-                      .and(SurveyAnswer.UOAid.equals(UOA.id))
-                      .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
-                  )
-              ))
-          );
+      //Task
+          //.select(
+          //    'row_to_json("Tasks".*) as task',
+          //    'row_to_json("UnitOfAnalysis".*) as uoa',
+          //    'row_to_json("WorkflowSteps".*) as step',
+          //    'row_to_json("Users".*) as owner',
+          //    'row_to_json("Surveys".*) as survey',
+          //    'row_to_json("SurveyQuestions".*) as question',
+          //    'row_to_json("SurveyAnswers".*) as answer'
+          //)
+          //.from(
+          //    Task
+          //    .leftJoin(Product)
+          //    .on(Task.productId.equals(Product.id))
+          //
+          //    .leftJoin(UOA)
+          //    .on(Task.uoaId.equals(UOA.id))
+          //
+          //    .leftJoin(WorkflowStep)
+          //    .on(Task.stepId.equals(WorkflowStep.id))
+          //
+          //    .leftJoin(EssenceRole)
+          //    .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+          //
+          //    .leftJoin(User)
+          //    .on(EssenceRole.userId.equals(User.id))
+          //
+          //    .leftJoin(Survey)
+          //    .on(Product.surveyId.equals(Survey.id))
+          //
+          //    .leftJoin(SurveyQuestion)
+          //    .on(Survey.id.equals(SurveyQuestion.surveyId))
+          //
+          //    .leftJoin(SurveyAnswer)
+          //    .on(
+          //      SurveyAnswer.questionId.equals(SurveyQuestion.id)
+          //      .and(SurveyAnswer.userId.equals(User.id))
+          //      .and(SurveyAnswer.UOAid.equals(UOA.id))
+          //      .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
+          //    )
+          //)
+          //.where(
+          //    Task.productId.equals(req.params.id)
+          //    .and(SurveyAnswer.version.in(
+          //        SurveyAnswer
+          //        .subQuery()
+          //        .select(SurveyAnswer.version.max())
+          //        .where(
+          //            SurveyAnswer.questionId.equals(SurveyQuestion.id)
+          //            .and(SurveyAnswer.userId.equals(User.id))
+          //            .and(SurveyAnswer.UOAid.equals(UOA.id))
+          //            .and(SurveyAnswer.wfStepId.equals(WorkflowStep.id))
+          //        )
+          //    ))
+          //);
           //.group(Task.id, UOA.id, WorkflowStep.id, SurveyQuestion.id);
       return yield thunkQuery(q);
     }).then(function (data) {
-      res.json(data);
+        //console.log(data[0]);
+        res.csv(data);
+        //res.csv([[1,2,3],[4,5,6],[7,8,9]]);
     },function (err) {
       next(err);
     });
