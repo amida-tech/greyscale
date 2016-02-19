@@ -101,6 +101,8 @@
                     size: question.size && question.size > -1 ? sizes[question.size] : 'small',
                     minlength: question.minLength ? question.minLength : undefined,
                     maxlength: question.maxLength ? question.maxLength : undefined,
+                    min: question.minLength ? question.minLength : undefined,
+                    max: question.maxLength ? question.maxLength : undefined,
                     min_max_length_units: question.isWordmml ? 'words' : 'charecters',
                     include_other_option: question.incOtherOpt,
                     include_blank_option: question.incOtherOpt,
