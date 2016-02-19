@@ -341,6 +341,18 @@ router.route('/:realm/v0.2/workflows/:id/steps')
 //    .delete(authenticate('token').always, workflows.stepListDelete);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    DISCUSSIONS
+//----------------------------------------------------------------------------------------------------------------------
+var discussions = require('app/controllers/discussions');
+
+router.route('/:realm/v0.2/discussions')
+    .get(authenticate('token').always, discussions.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/:id')
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.updateOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysis = require('app/controllers/uoas');
