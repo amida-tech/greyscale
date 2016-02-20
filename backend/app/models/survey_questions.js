@@ -17,7 +17,9 @@ var columns = [
     'units',
     'intOnly',
     'value',
-    'qid'
+    'qid',
+    'links',
+    'attachment'
 ];
 
 var SurveyQuestion = sql.define({
