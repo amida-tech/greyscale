@@ -138,6 +138,82 @@ function* checkOneId(val, model, key, keyName, modelName) {
     return parseInt(val);
 }
 
+function* checkUserId(userId, taskId) {
+    var result;
+    if (!userId) {
+        throw new HttpError(403, 'User id (userId) must be specified');
+    }
+    else if (!isInt(userId)) {
+        throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
+    }
+    else if (parseInt(userId).toString() !== userId) {
+        throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
+    }
+    else {
+        var exist = yield thunkQuery(User.select().from(User).where(User.id.equals(parseInt(userId))));
+        if (!_.first(exist)) {
+            throw new HttpError(403, 'User with userId=`'+userId+'` does not exist');
+        }
+        // user Id must be in list of available users for this survey
+        // 1st - get productId and uoaId for this task
+        var query1 =
+            'SELECT '+
+            '"Tasks"."uoaId", '+
+            '"Tasks"."productId" '+
+            'FROM '+
+            '"Tasks" '+
+            'WHERE '+
+            '"Tasks"."id" = '+taskId;
+        result = yield thunkQuery(query1);
+        if (!_.first(result)) {
+            throw new HttpError(403, 'Task with taskId=`'+taskId+'` does not exist'); // just in case - not possible case!
+        }
+        var productId = result[0].productId;
+        var uoaId = result[0].uoaId;
+
+        var query2 =
+             'SELECT '+
+             '"Users".id '+
+             'FROM '+
+             '"Tasks" '+
+             'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" '+
+             'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" '+
+             'WHERE '+
+             '"Tasks"."productId" = '+productId+' AND '+
+             '"Tasks"."uoaId" = '+uoaId;
+        result = yield thunkQuery(query2);
+        if (!_.first(result)) {
+            throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
+        }
+        var userList=[];
+        result.forEach(function(item, i, arr) {
+                userList.push(item.id);
+            }
+        );
+        if (userList.indexOf(parseInt(userId)) == -1) {
+            throw new HttpError(403, 'User with userId=`'+userId+'` does not available user for this survey');
+        }
+
+    }
+    return parseInt(userId);
+}
+
+function* getTaskId(id) {
+    var result;
+    var query1 =
+        'SELECT '+
+        '"Discussions"."taskId" '+
+        'FROM '+
+        '"Discussions" '+
+        'WHERE '+
+        '"Discussions"."id" = '+id;
+        result = yield thunkQuery(query1);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
+    }
+    return result[0].taskId;
+}
+
 function* checkString(val, keyName) {
     if (!val) {
         throw new HttpError(403, keyName +' must be specified');
@@ -148,11 +224,12 @@ function* checkString(val, keyName) {
 function* checkInsert(req) {
     var questionId = yield * checkOneId(req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
     var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task');
-    var userId = yield * checkOneId(req.body.userId, User, 'id', 'userId', 'User');
+    var userId = yield * checkUserId(req.body.userId, req.body.taskId);
     var entry = yield * checkString(req.body.entry, 'Entry');
 }
 
 function* checkUpdate(req) {
-    var userId = yield * checkOneId(req.body.userId, User, 'id', 'userId', 'User');
+    var taskId = yield * getTaskId(req.params.id);
+    var userId = yield * checkUserId(req.body.userId, taskId);
     var entry = yield * checkString(req.body.entry, 'Entry');
 }
