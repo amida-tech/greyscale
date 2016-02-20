@@ -235,6 +235,9 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function* () {
             yield * checkProductData(req);
+            if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                yield * updateCurrentStepId(req);
+            }
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
         }).then(function (data) {
             res.status(202).end();
@@ -379,5 +382,53 @@ function* checkProductData(req) {
             throw new HttpError(403, 'Project with this id does not exist');
         }
     }
+
+}
+
+function* updateCurrentStepId(req) {
+
+    var result;
+    // get min step position for specified productId
+    var minStepPositionQuery =
+        'SELECT '+
+        'min("WorkflowSteps"."position") as "minPosition", '+
+        '"Workflows"."productId" '+
+        'FROM '+
+        '"WorkflowSteps" '+
+        'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
+        'WHERE '+
+        '"Workflows"."productId" = '+req.params.id+' '+
+        'group by "Workflows"."productId"';
+
+
+    result = yield thunkQuery(minStepPositionQuery);
+    if (!_.first(result)) {
+        return;
+    }
+    var minStepPosition = result[0].minPosition;
+
+    // get step ID with min step position for specified productId
+    var stepIdMinPositionQuery =
+        'SELECT '+
+        '"WorkflowSteps"."id" '+
+        'FROM '+
+        '"WorkflowSteps" '+
+        'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
+        'WHERE '+
+        '"Workflows"."productId" = '+req.params.id+' AND '+
+        '"WorkflowSteps"."position" = '+minStepPosition;
+
+    result = yield thunkQuery(stepIdMinPositionQuery);
+    if (!_.first(result)) {
+        return;
+    }
+    var stepIdMinPosition = result[0].id;
+
+    // update all currentStepId with min position step ID for specified productId
+    var updateProductUOAQuery =
+        'UPDATE "ProductUOA" '+
+        'SET "currentStepId" = ' +stepIdMinPosition+ ' '+
+        'WHERE "productId"= '+req.params.id+ ' AND "currentStepId" is NULL';
+    result = yield thunkQuery(updateProductUOAQuery);
 
 }
