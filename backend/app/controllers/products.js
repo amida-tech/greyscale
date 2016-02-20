@@ -179,13 +179,17 @@ module.exports = {
               ') ' +
               'WHERE ( ' +
                   '("Tasks"."productId" = ' + parseInt(req.params.id) + ') ' +
-              ')'// +
+              ')';
+        console.log(q);
 
 
       return yield thunkQuery(q);
     }).then(function (data) {
-        data.unshift(Object.keys(data[0]));
+        if(data[0]){
+            data.unshift(Object.keys(data[0]));
+        }
         res.csv(data);
+
     },function (err) {
       next(err);
     });
