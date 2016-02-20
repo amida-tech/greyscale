@@ -332,9 +332,12 @@
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
+        "IS_COMPLETE": "Complete",
+        "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
         "NAME": "Name",
         "QUESTION": "Question",
+        "STATUS": "Status",
         "VIEW": "View"
     },
     "TABLES": {

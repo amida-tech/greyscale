@@ -332,9 +332,12 @@
         "DESCRIPTION": "Описание",
         "DISCUSSION": "Обсуждение",
         "FIELDS": "Вопросы",
+        "IS_COMPLETE": "",
+        "IS_DRAFT": "",
         "ITEM": "Опрос",
         "NAME": "Название",
         "QUESTION": "Вопрос",
+        "STATUS": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {

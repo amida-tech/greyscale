@@ -70,13 +70,13 @@ angular.module('greyscaleApp')
                         if (cell.cellTemplateUrl) {
                             _getTemplateByUrl(cell.cellTemplateUrl)
                                 .then(function (template) {
-                                    _compileCellTemplate(template, cell.cellTemplateExtData);
+                                    _resolveCellTemplate(template, cell.cellTemplateExtData);
                                 });
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
+                            _resolveCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
                         } else {
                             elem.append('{{model}}');
-                            $compile(elem.contents())($scope);
+
                         }
                         break;
 
@@ -96,23 +96,26 @@ angular.module('greyscaleApp')
 
                     default:
                         if (cell.multiselect) {
-                            _compileMultiselectCell();
+                            _resolveMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
+                            _resolveCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
                         } else if (cell.cellTemplateUrl) {
-                            _compileCellTemplateFromUrl();
+                            _resolveCellTemplateFromUrl();
                         } else {
-                            _compileDefaultCell();
+                            _resolveDefaultCell();
                         }
                     }
 
                     if (cell.link) {
-                        _compileLinkCell();
+                        _resolveLinkCell();
                     }
 
                     if (cell.cellClass) {
                         elem.addClass(cell.cellClass);
                     }
+
+                    $compile(elem.contents())($scope);
+                    elem.addClass('compiled');
                 }
 
                 function _setModelFromData(_set, data) {
@@ -135,18 +138,27 @@ angular.module('greyscaleApp')
 
                 }
 
-                function _compileCellTemplate(template, ext) {
+                function _resolveCellTemplate(template, ext) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
-                    elem.append(template);
                     $scope.ext = ext;
-                    $compile(elem.contents())($scope);
+                    if (elem.hasClass('compiled')) {
+                        var linkCell = elem.find('>a');
+                        var compiledTemplate = $compile(template)($scope);
+                        if (linkCell.length) {
+                            linkCell.append(compiledTemplate);
+                        } else {
+                            elem.append(compiledTemplate);
+                        }
+                    } else {
+                        elem.append(template);
+                    }
                 }
 
-                function _compileCellTemplateFromUrl() {
+                function _resolveCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
                         .then(function (template) {
-                            _compileCellTemplate(template, cell.cellTemplateExtData);
+                            _resolveCellTemplate(template, cell.cellTemplateExtData);
                         });
                 }
 
@@ -159,21 +171,21 @@ angular.module('greyscaleApp')
                         });
                 }
 
-                function _compileMultiselectCell() {
+                function _resolveMultiselectCell() {
                     elem.addClass('text-center');
                     elem.append('<div class="form-group"><div class="checkbox"><label>' +
                         '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
                         'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
                         '<div class="chk-box"></div></label></div></div>');
-                    $compile(elem.contents())($scope);
+
                 }
 
-                function _compileDefaultCell() {
+                function _resolveDefaultCell() {
                     elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
                 }
 
-                function _compileLinkCell() {
-                    var label = elem.text();
+                function _resolveLinkCell() {
+                    var label = elem.html();
                     var link = angular.element('<a>' + label + '</a>');
                     if (cell.link.state) {
                         link.attr('ui-sref', cell.link.state);
@@ -193,7 +205,7 @@ angular.module('greyscaleApp')
                     elem.html('');
                     elem.append(link);
                     $scope.item = $scope.rowValue;
-                    $compile(elem.contents())($scope);
+
                 }
 
                 function _resolveDotNotation() {
