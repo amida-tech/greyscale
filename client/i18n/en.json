@@ -337,6 +337,7 @@
         "ITEM": "Survey",
         "NAME": "Name",
         "QUESTION": "Question",
+        "SELECT_ONE": "select one",
         "STATUS": "Status",
         "VIEW": "View"
     },
