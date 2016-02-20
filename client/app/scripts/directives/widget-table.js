@@ -7,8 +7,6 @@ angular.module('greyscaleApp')
     .service('widgetTableSrv', function (_, $q, NgTableParams, $filter,
         $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel) {
 
-        var _templateCacheIds = [];
-
         return {
             init: _init
         };
@@ -16,7 +14,7 @@ angular.module('greyscaleApp')
         function _init(config) {
 
             var scope = config.scope;
-            //var rowSelector = config.rowSelector;
+
             var model = config.model;
             model.el = config.el;
 
@@ -46,9 +44,14 @@ angular.module('greyscaleApp')
                     counts: model.pageLengths || [],
                     getData: function ($defer, params) {
                         if (typeof model.dataPromise === 'function') {
-                            var t = setTimeout(function () {
+                            var t;
+                            if (model.$loading === undefined) {
                                 model.$loading = true;
-                            }, 150);
+                            } else {
+                                t = setTimeout(function () {
+                                    model.$loading = true;
+                                }, 200);
+                            }
                             var endLoading = function () {
                                 clearTimeout(t);
                                 model.$loading = false;
@@ -113,11 +116,7 @@ angular.module('greyscaleApp')
                 if (model.multiselect && model.multiselect.reset) {
                     model.multiselect.reset();
                 }
-                if (_templateCacheIds.length) {
-                    angular.forEach(_templateCacheIds, function (templateId) {
-                        $templateCache.remove(templateId);
-                    });
-                }
+                model.$loading = undefined;
             });
 
             if (typeof config.onReload === 'function') {
@@ -126,8 +125,6 @@ angular.module('greyscaleApp')
         }
 
         function _newPagination(scope) {
-            //console.log(scope);
-            //console.log(scope.model.tableParams.count());
             var params = scope.model.tableParams;
             return {
                 from: function () {
@@ -197,7 +194,6 @@ angular.module('greyscaleApp')
         function _setTitleTemplate(col) {
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
-            _templateCacheIds.push(templateId);
             var scope = $rootScope.$new();
             angular.extend(scope, col.titleTemplateData || {});
             template = $compile(template)(scope);

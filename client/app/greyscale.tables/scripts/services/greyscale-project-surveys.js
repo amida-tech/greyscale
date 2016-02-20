@@ -20,6 +20,11 @@ angular.module('greyscale.tables')
             dataRequired: false,
             dataFormat: 'text'
         }, {
+            field: 'isDraft',
+            title: tns + 'STATUS',
+            show: true,
+            cellTemplate: '<span ng-if="cell" class="text-warning" translate="SURVEYS.IS_DRAFT"></span><span ng-if="!cell" class="text-success" translate="SURVEYS.IS_COMPLETE"></span>'
+        }, {
             field: '',
             title: '',
             show: true,

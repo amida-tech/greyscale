@@ -45,6 +45,7 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'surveyId',
             dataFormat: 'option',
+            cellTemplate: '<span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
             //dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
@@ -57,17 +58,11 @@ angular.module('greyscale.tables')
                 state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
-            field: 'surveyStatus',
-            sortable: 'surveyStatus',
-            title: tns + 'SURVEY_STATUS',
-            show: true,
-            dataHide: true
-        }, {
             field: 'workflow.name',
             sortable: 'workflow.name',
             title: tns + 'WORKFLOW',
             show: true,
-            cellTemplate: '{{cell||\'' + tns + 'CREATE_WORKFLOW' + '\'|translate}}',
+            cellTemplate: '{{cell}}<span ng-if="!cell" class="action" translate="' + tns + 'CREATE_WORKFLOW"></span>',
             link: {
                 handler: _editProductWorkflow
             },
