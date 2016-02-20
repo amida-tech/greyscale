@@ -338,7 +338,8 @@
         "IS_DRAFT": "",
         "ITEM": "Опрос",
         "NAME": "Название",
-        "QUESTION": "Вопрос",
+        "QUESTION": "",
+        "SELECT_ONE": "",
         "STATUS": "",
         "VIEW": "Просмотр"
     },
