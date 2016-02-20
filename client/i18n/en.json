@@ -290,6 +290,7 @@
         "ITEM": "Survey",
         "NAME": "Name",
         "QUESTION": "Question",
+        "SELECT_ONE": "select one",
         "VIEW": "View"
     },
     "TABLES": {

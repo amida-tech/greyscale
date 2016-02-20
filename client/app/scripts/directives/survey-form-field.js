@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'number':
-                            body = '<input type="number" ' + commonPart + '>';
+                            body = '<div class="input-group"><input type="number" ' + commonPart + '><span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
                             break;
 
                         case 'email':
@@ -68,12 +68,6 @@ angular.module('greyscaleApp')
 
                         case 'checkboxes':
                             if (scope.field.options && scope.field.options.length > 0) {
-                                for (o = 0; o < scope.field.options.length; o++) {
-                                    angular.extend(scope.field.options[o], {
-                                        checked: scope.field.options[o].isSelected,
-                                        name: scope.field.options[o].label
-                                    });
-                                }
                                 body += '<checkbox-list list-items = "field.options"></checkbox-list>';
                             }
                             subLeft = '';
@@ -82,18 +76,24 @@ angular.module('greyscaleApp')
 
                         case 'radio':
                             if (scope.field.options && scope.field.options.length > 0) {
-                                for (o = 0; o < scope.field.options.length; o++) {
-                                    if (scope.field.options[o].isSelected) {
-                                        scope.field.answer = scope.field.options[o];
-                                    }
-                                }
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-value="opt"><i class="chk-box"></i>{{opt.label}}</label></div>';
                             }
                             subLeft = '';
                             subRight = '';
                             break;
+
                         case 'dropdown':
+                            if (scope.field.options && scope.field.options.length > 0) {
+                                body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options">';
+                                if (scope.field.required) {
+                                    body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
+                                }
+                                body += '</select>';
+
+                            }
+                            break;
+
                         case 'price':
                             $log.debug(scope.field);
                             subLeft = '';

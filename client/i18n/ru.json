@@ -290,6 +290,7 @@
         "ITEM": "Опрос",
         "NAME": "Название",
         "QUESTION": "",
+        "SELECT_ONE": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
