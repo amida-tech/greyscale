@@ -4,15 +4,20 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, $state, greyscaleProjectsTbl, greyscaleProfileSrv, greyscaleOrganizationApi, greyscaleGlobals) {
+    .controller('ProjectsCtrl', function ($rootScope, $scope, $state, greyscaleProjectsTbl) {
 
-        var accessLevel;
+        var _projectsTable = greyscaleProjectsTbl;
 
-        var projectsTable = greyscaleProjectsTbl;
+        $scope.model = {};
 
-        $scope.model = {
-            $loading: true
-        };
+        $rootScope.showOrganizationSelector = true;
+
+        var off = $scope.$watch('globalModel.organization', _renderProjectsTable);
+
+        $scope.$on('$destroy', function () {
+            off();
+            $rootScope.showOrganizationSelector = false;
+        });
 
         $scope.projectSelect = function (row) {
             if (typeof row !== 'undefined') {
@@ -23,37 +28,16 @@ angular.module('greyscaleApp')
             return row;
         };
 
-        greyscaleProfileSrv.getProfile().then(function (profile) {
-
-            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-            if (_isSuperAdmin()) {
-                greyscaleOrganizationApi.list().then(function (organizations) {
-                    $scope.model.$loading = false;
-                    $scope.model.organizations = organizations;
-                });
-            } else {
-                $scope.model.$loading = false;
-                projectsTable.dataFilter.organizationId = profile.organizationId;
-                $scope.model.projects = projectsTable;
-            }
-        });
-
-        $scope.organizationSelected = function () {
-            if (!$scope.model.organizationId) {
+        function _renderProjectsTable(organization) {
+            if (!organization) {
                 return;
             }
-
-            projectsTable.dataFilter.organizationId = $scope.model.organizationId;
-
-            if (!$scope.model.projects) {
-                $scope.model.projects = projectsTable;
+            _projectsTable.dataFilter.organizationId = organization.id;
+            if ($scope.model.projects) {
+                $scope.model.projects.tableParams.reload();
             } else {
-                projectsTable.tableParams.reload();
+                $scope.model.projects = _projectsTable;
             }
-        };
-
-        function _isSuperAdmin() {
-            return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
+
     });

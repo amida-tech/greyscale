@@ -1,4 +1,4 @@
-<div ng-if="tabsModel.organizationId">
+<div ng-if="globalModel.organization">
     <div class="section">
         <div class="pull-right">
             <a href="fixtures/users_import_err.csv" translate="IMPORT.USERS.DOWNLOAD_EXAMPLE"></a>
@@ -17,4 +17,4 @@
     </div>
 </div>
 
-<div ng-if="!tabsModel.organizationId" class="alert alert-warning" translate="USERS.SELECT_ORGANIZATION"></div>
+<rd-loading ng-if="!globalModel.organization" class="compact"></rd-loading>

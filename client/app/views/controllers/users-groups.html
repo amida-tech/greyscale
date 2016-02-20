@@ -2,4 +2,4 @@
     <widget-table model="model.userGroups" row-selector="showUserInfo"></widget-table>
 </div>
 
-<div ng-if="!model.userGroups" class="alert alert-warning" translate="USERS.SELECT_ORGANIZATION"></div>
+<rd-loading ng-if="!model.userGroups" class="compact"></rd-loading>

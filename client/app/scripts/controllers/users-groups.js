@@ -3,23 +3,26 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersGroupsCtrl', function ($scope, greyscaleUsersGroupsTbl) {
+    .controller('UsersGroupsCtrl', function ($rootScope, $scope, greyscaleUsersGroupsTbl) {
 
         var _userGroupsTable = greyscaleUsersGroupsTbl;
 
         $scope.model = {};
 
-        var off = $scope.$watch('tabsModel.organizationId', _renderUserGroupsTable);
+        $rootScope.showOrganizationSelector = true;
 
-        $scope.$on('$destroy', function(){
+        var off = $scope.$watch('globalModel.organization', _renderUserGroupsTable);
+
+        $scope.$on('$destroy', function () {
             off();
+            $rootScope.showOrganizationSelector = false;
         });
 
-        function _renderUserGroupsTable(organizationId) {
-            if (!organizationId) {
+        function _renderUserGroupsTable(organization) {
+            if (!organization) {
                 return;
             }
-            _userGroupsTable.dataFilter.organizationId = organizationId;
+            _userGroupsTable.dataFilter.organizationId = organization.id;
             if ($scope.model.userGroups) {
                 $scope.model.userGroups.tableParams.reload();
             } else {

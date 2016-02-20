@@ -59,7 +59,8 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
-            var r = 0, o,
+            var r = 0,
+                o,
                 item, fld, qid;
 
             for (var q = 0; q < survey.questions.length; q++) {
@@ -103,9 +104,14 @@ angular.module('greyscaleApp')
 
                     case 'dropdown':
                         if (!fld.required) {
-                            fld.options.unshift({id: null, label: '', value: null});
+                            fld.options.unshift({
+                                id: null,
+                                label: '',
+                                value: null
+                            });
                             fld.answer = fld.options[0];
                         }
+                        break;
 
                     case 'radio':
                         for (o = 0; o < field.options.length; o++) {
@@ -115,9 +121,9 @@ angular.module('greyscaleApp')
                         }
                         break;
 
-                    case "number":
+                    case 'number':
                         if (fld.intOnly) {
-                            fld.answer = parseInt(fld.value)
+                            fld.answer = parseInt(fld.value);
                         } else {
                             fld.answer = parseFloat(fld.value);
                         }
@@ -202,9 +208,9 @@ angular.module('greyscaleApp')
                                 }
                                 break;
 
-                            case "number":
+                            case 'number':
                                 if (fld.intOnly) {
-                                    fld.answer = parseInt(answer.value)
+                                    fld.answer = parseInt(answer.value);
                                 } else {
                                     fld.answer = parseFloat(answer.value);
                                 }
@@ -258,6 +264,7 @@ angular.module('greyscaleApp')
                         case 'dropdown':
                             answer.optionId = [];
                             answer.value = null;
+                            break;
 
                         case 'radio':
                             if (fld.answer.id) {

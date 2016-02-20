@@ -10,9 +10,11 @@ angular.module('greyscaleApp')
         tasksTable.dataFilter.productId = productId;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
 
+        var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
+
         $scope.model = {
             tasksTable: tasksTable,
-            exportHref: greyscaleUtilsSrv.getApiBase() + '/products/' + productId + '/export?token=' + greyscaleTokenSrv()
+            exportHref: greyscaleUtilsSrv.getApiBase() + _exportUri
         };
 
         greyscaleProductApi.get(productId)

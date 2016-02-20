@@ -3,27 +3,30 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersListCtrl', function ($scope, greyscaleUsersTbl, greyscaleModalsSrv) {
+    .controller('UsersListCtrl', function ($rootScope, $scope, greyscaleUsersTbl, greyscaleModalsSrv) {
 
         var _usersTable = greyscaleUsersTbl;
 
         $scope.model = {};
 
-        var off = $scope.$watch('tabsModel.organizationId', _renderUsersTable);
+        $rootScope.showOrganizationSelector = true;
 
-        $scope.$on('$destroy', function(){
-           off();
+        var off = $scope.$watch('globalModel.organization', _renderUsersTable);
+
+        $scope.$on('$destroy', function () {
+            off();
+            $rootScope.showOrganizationSelector = false;
         });
 
         $scope.showUserInfo = function (user) {
             greyscaleModalsSrv.showRec(user, _usersTable);
         };
 
-        function _renderUsersTable(organizationId) {
-            if (!organizationId) {
+        function _renderUsersTable(organization) {
+            if (!organization) {
                 return;
             }
-            _usersTable.dataFilter.organizationId = organizationId;
+            _usersTable.dataFilter.organizationId = organization.id;
             if ($scope.model.users) {
                 $scope.model.users.tableParams.reload();
             } else {

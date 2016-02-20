@@ -54,7 +54,7 @@ angular.module('greyscaleApp')
             $state.go(_parentState + state);
         };
 
-        $scope.organizationReady = function(){
+        $scope.organizationReady = function () {
 
         };
 
