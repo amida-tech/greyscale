@@ -171,6 +171,9 @@
     position: relative;
     margin: 100px auto;
 }
+.compact .loading {
+    margin: 20px auto;
+}
 
 .double-bounce1,
 .double-bounce2 {
@@ -449,4 +452,13 @@ ul.sidebar .sidebar-list .menu-icon {
         font-weight: normal;
     }
     color: #fff;
+}
+
+.section {
+    margin: 20px 0;
+}
+.organization-selector {
+    display: inline-block;
+    margin-top: 16px;
+    margin-right: 40px;
 }

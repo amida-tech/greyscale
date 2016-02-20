@@ -168,6 +168,7 @@
             "TITLE": "Единицы анализа"
         },
         "USERS": {
+            "GROUPS": "Группы",
             "LIST": "Список",
             "TITLE": "Пользователи",
             "UOA": "Единицы анализа"
@@ -302,6 +303,7 @@
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
+        "SELECT_ORGANIZATION": "",
         "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
@@ -415,8 +417,18 @@
         "NOT_LOGGED": "Не входил",
         "ORGANIZATION": "Организация",
         "ROLE": "Роль",
+        "SELECT_ORGANIZATION": "",
         "USER": "Пользователь",
         "USERS": "Пользователи"
+    },
+    "USER_GROUPS": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "ORGANIZATION": "",
+        "SELECT_ORGANIZATION": "",
+        "USER_GROUP": "",
+        "USER_GROUPS": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",
