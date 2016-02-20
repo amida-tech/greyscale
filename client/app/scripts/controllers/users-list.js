@@ -3,51 +3,31 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersListCtrl', function ($scope, greyscaleProfileSrv, greyscaleUsersTbl, greyscaleOrganizationApi, greyscaleModalsSrv, greyscaleGlobals) {
+    .controller('UsersListCtrl', function ($scope, greyscaleUsersTbl, greyscaleModalsSrv) {
 
-        var accessLevel;
+        var _usersTable = greyscaleUsersTbl;
 
-        var usersTable = greyscaleUsersTbl;
+        $scope.model = {};
 
-        $scope.model = {
-            $loading: true
-        };
+        var off = $scope.$watch('tabsModel.organizationId', _renderUsersTable);
 
-        $scope.showUserInfo = function (user) {
-            greyscaleModalsSrv.showRec(user, usersTable);
-        };
-
-        greyscaleProfileSrv.getProfile().then(function (profile) {
-
-            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-            if (_isSuperAdmin()) {
-                greyscaleOrganizationApi.list().then(function (organizations) {
-                    $scope.model.$loading = false;
-                    $scope.model.organizations = organizations;
-                });
-            } else {
-                $scope.model.$loading = false;
-                usersTable.dataFilter.organizationId = profile.organizationId;
-                $scope.model.users = usersTable;
-            }
+        $scope.$on('$destroy', function(){
+           off();
         });
 
-        $scope.organizationSelected = function () {
-            if (!$scope.model.organizationId) {
-                return;
-            }
-
-            usersTable.dataFilter.organizationId = $scope.model.organizationId;
-
-            if (!$scope.model.users) {
-                $scope.model.users = usersTable;
-            } else {
-                usersTable.tableParams.reload();
-            }
+        $scope.showUserInfo = function (user) {
+            greyscaleModalsSrv.showRec(user, _usersTable);
         };
 
-        function _isSuperAdmin() {
-            return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
+        function _renderUsersTable(organizationId) {
+            if (!organizationId) {
+                return;
+            }
+            _usersTable.dataFilter.organizationId = organizationId;
+            if ($scope.model.users) {
+                $scope.model.users.tableParams.reload();
+            } else {
+                $scope.model.users = _usersTable;
+            }
         }
     });

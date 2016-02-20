@@ -1,3 +1,16 @@
+<div ng-if="tabsModel.organizations" class="section" translate-namespace="USERS">
+    <div class="form-inline">
+        <div class="form-group">
+            <label translate=".ORGANIZATION"></label>:
+            <select class="form-control"
+                    ng-model="tabsModel.organizationId"
+                    ng-change="organizationReady()"
+                    ng-options="org.id as org.name for org in tabsModel.organizations">
+            </select>
+        </div>
+    </div>
+</div>
+
 <uib-tabset>
     <uib-tab ng-click="go(tab.state)" ng-repeat="tab in tabs track by $index" active="tab.active">
         <uib-tab-heading>

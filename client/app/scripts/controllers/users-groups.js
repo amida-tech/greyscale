@@ -3,48 +3,28 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersGroupsCtrl', function ($scope, greyscaleUsersGroupsTbl, greyscaleProfileSrv,
-        greyscaleOrganizationApi, greyscaleGlobals) {
+    .controller('UsersGroupsCtrl', function ($scope, greyscaleUsersGroupsTbl) {
 
-        var accessLevel;
+        var _userGroupsTable = greyscaleUsersGroupsTbl;
 
-        var userGroupsTable = greyscaleUsersGroupsTbl;
+        $scope.model = {};
 
-        $scope.model = {
-            $loading: true
-        };
+        var off = $scope.$watch('tabsModel.organizationId', _renderUserGroupsTable);
 
-        greyscaleProfileSrv.getProfile().then(function (profile) {
-
-            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-            if (_isSuperAdmin()) {
-                greyscaleOrganizationApi.list().then(function (organizations) {
-                    $scope.model.$loading = false;
-                    $scope.model.organizations = organizations;
-                });
-            } else {
-                $scope.model.$loading = false;
-                userGroupsTable.dataFilter.organizationId = profile.organizationId;
-                $scope.model.userGroups = userGroupsTable;
-            }
+        $scope.$on('$destroy', function(){
+            off();
         });
 
-        $scope.organizationSelected = function () {
-            if (!$scope.model.organizationId) {
+        function _renderUserGroupsTable(organizationId) {
+            if (!organizationId) {
                 return;
             }
-
-            userGroupsTable.dataFilter.organizationId = $scope.model.organizationId;
-
-            if (!$scope.model.userGroups) {
-                $scope.model.userGroups = userGroupsTable;
+            _userGroupsTable.dataFilter.organizationId = organizationId;
+            if ($scope.model.userGroups) {
+                $scope.model.userGroups.tableParams.reload();
             } else {
-                userGroupsTable.tableParams.reload();
+                $scope.model.userGroups = _userGroupsTable;
             }
-        };
-
-        function _isSuperAdmin() {
-            return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
+
     });
