@@ -4,12 +4,15 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleRolesTbl', function (greyscaleRoleApi) {
+
+        var tns = 'ROLES.';
+
         var _getRoles = function () {
             return greyscaleRoleApi.list();
         };
 
         return {
-            title: 'Roles',
+            title: tns + 'ROLES',
             icon: 'fa-users',
             cols: [{
                 field: 'id',
@@ -18,12 +21,12 @@ angular.module('greyscale.tables')
                 sortable: 'id'
             }, {
                 field: 'name',
-                title: 'Name',
+                title: tns + 'NAME',
                 show: true,
                 sortable: 'name'
             }, {
                 field: 'isSystem',
-                title: 'System Role',
+                title: tns + 'SYSTEM_ROLE',
                 show: true,
                 sortable: 'isSystem',
                 dataFormat: 'boolean'

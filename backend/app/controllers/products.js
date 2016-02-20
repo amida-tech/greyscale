@@ -1,11 +1,16 @@
 var
     _ = require('underscore'),
     config = require('config'),
+    csv = require('express-csv'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
+    WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
+    SurveyAnswer = require('app/models/survey_answers'),
+    User = require('app/models/users'),
+    EssenceRole = require('app/models/essence_roles'),
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
@@ -118,37 +123,74 @@ module.exports = {
         });
     },
 
-    export: function (req, res, next) {
-        co(function* (){
-            var q = Product
-                .select(
-                    'row_to_json("Products".*) as product',
-                    'row_to_json("Surveys".*) as survey',
-                    'row_to_json("SurveyQuestions".*) as question',
-                    'row_to_json("UnitOfAnalysis".*) as uoa',
-                    'row_to_json("Tasks".*) as task'
-                )
-            .from(
-                Product
-                .leftJoin(Survey)
-                .on(Survey.id.equals(Product.surveyId))
-                .leftJoin(SurveyQuestion)
-                .on(SurveyQuestion.surveyId.equals(Survey.id))
-                .leftJoin(ProductUOA)
-                .on(Product.id.equals(ProductUOA.productId))
-                .leftJoin(UOA)
-                .on(UOA.id.equals(ProductUOA.UOAid))
-                .leftJoin(Task)
-                .on(Task.productId.equals(Product.id))
-            )
-            .where(Product.id.equals(req.params.id));
-            return yield thunkQuery(q);
-        }).then(function (data) {
-            res.json(data);
-        },function (err) {
-            next(err);
-        });
-    },
+  export: function (req, res, next) {
+    co(function* (){
+      var q =
+              'SELECT ' +
+              '"Tasks"."id" as "taskId", ' +
+              '"UnitOfAnalysis"."name" as "uoaName", ' +
+              '"UnitOfAnalysisType"."name" as "uoaTypeName", ' +
+              'array(' +
+                'SELECT "UnitOfAnalysisTag"."name" ' +
+                'FROM "UnitOfAnalysisTagLink" ' +
+                'LEFT JOIN "UnitOfAnalysisTag" ' +
+                'ON ("UnitOfAnalysisTagLink"."uoaTagId" = "UnitOfAnalysisTag"."id")' +
+                'WHERE "UnitOfAnalysisTagLink"."uoaId" = "UnitOfAnalysis"."id"' +
+              ') as "uoaTags", ' +
+              '"WorkflowSteps"."title" as "stepTitle", "WorkflowSteps"."position" as "stepPosition", ' +
+              '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", "Roles"."name" as "ownerRole", ' +
+              '"Surveys"."title" as "surveyTitle", ' +
+              '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."value" as "questionWeight", ' +
+              '"SurveyAnswers"."value" as "answerText", "SurveyAnswers"."optionId" as "answerValue" ' +
+
+              'FROM "Tasks" ' +
+              'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
+              'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
+              'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
+              'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
+              'LEFT JOIN "EssenceRoles" ON ("Tasks"."entityTypeRoleId" = "EssenceRoles"."id") ' +
+              'LEFT JOIN "Users" ON ("EssenceRoles"."userId" = "Users"."id") ' +
+              'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
+              'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
+              'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
+
+              'LEFT JOIN ( ' +
+                  'SELECT ' +
+                    'max("SurveyAnswers"."version") as max,' +
+                    '"SurveyAnswers"."questionId",' +
+                    '"SurveyAnswers"."userId",' +
+                    '"SurveyAnswers"."UOAid",' +
+                    '"SurveyAnswers"."wfStepId" ' +
+              'FROM "SurveyAnswers" ' +
+              'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
+              ') as "sa" ' +
+
+              'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
+              'AND ("sa"."userId" = "Users"."id")) ' +
+              'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
+              'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
+
+              'LEFT JOIN "SurveyAnswers" ON ( ' +
+                  '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
+              'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
+              'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
+              'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
+              'AND ("SurveyAnswers"."version" = "sa"."max") ' +
+              ') ' +
+              'WHERE ( ' +
+                  '("Tasks"."productId" = ' + parseInt(req.params.id) + ') ' +
+              ')'// +
+
+
+      return yield thunkQuery(q);
+    }).then(function (data) {
+        data.unshift(Object.keys(data[0]));
+        res.csv(data);
+    },function (err) {
+      next(err);
+    });
+  },
+
 
   selectOne: function (req, res, next) {
     co(function* (){

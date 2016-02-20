@@ -87,7 +87,9 @@
     }
     .pagination, .ng-table-counts {
         .pagination-info {
-            padding: 6px 12px 6px 0;
+            padding: 0 12px 0 0;
+            position: relative;
+            top: 2px;
         }
         .btn {
             background: $white;
@@ -97,5 +99,8 @@
                 border-color: $green;
             }
         }
+    }
+    tr td .action:first-child {
+        margin: 0
     }
 }

@@ -39,13 +39,20 @@ angular.module('greyscaleApp')
                         if (!fo) {
                             continue;
                         }
-
                         newQuestion.description = fo.description ? fo.description : '';
                         newQuestion.qid = fo.qid ? fo.qid : '';
                         newQuestion.skip = fo.skip && !isNaN(fo.skip) ? parseInt(fo.skip) : 0;
                         newQuestion.size = fo.size ? sizes.indexOf(fo.size) : 0;
-                        newQuestion.minLength = fo.minlength && !isNaN(fo.minlength) ? parseInt(fo.minlength) : undefined;
-                        newQuestion.maxLength = fo.maxlength && !isNaN(fo.maxlength) ? parseInt(fo.maxlength) : undefined;
+                        if (fo.minlength && !isNaN(fo.minlength)) {
+                            newQuestion.minLength = parseInt(fo.minlength);
+                        } else if (fo.min && !isNaN(fo.min)) {
+                            newQuestion.minLength = parseInt(fo.min);
+                        }
+                        if (fo.maxlength && !isNaN(fo.maxlength)) {
+                            newQuestion.maxLength = parseInt(fo.maxlength);
+                        } else if (fo.max && !isNaN(fo.max)) {
+                            newQuestion.maxLength = parseInt(fo.max);
+                        }
                         newQuestion.isWordmml = fo.min_max_length_units ? fo.min_max_length_units === 'words' : undefined;
                         newQuestion.incOtherOpt = fo.include_other_option || fo.include_blank_option;
                         newQuestion.units = fo.units;
@@ -62,7 +69,7 @@ angular.module('greyscaleApp')
                             newQuestion.options.push({
                                 label: option.label,
                                 value: option.value,
-                                isSelected: option.checked,
+                                isSelected: option.checked
                             });
                         }
                     }
@@ -137,6 +144,8 @@ angular.module('greyscaleApp')
                                     minlength: question.minLength ? question.minLength : undefined,
                                     maxlength: question.maxLength ? question.maxLength : undefined,
                                     min_max_length_units: question.isWordmml ? 'words' : 'charecters',
+                                    min: question.minLength ? question.minLength : undefined,
+                                    max: question.maxLength ? question.maxLength : undefined,
                                     include_other_option: question.incOtherOpt,
                                     include_blank_option: question.incOtherOpt,
                                     units: question.units,

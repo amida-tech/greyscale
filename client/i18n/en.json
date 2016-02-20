@@ -9,6 +9,7 @@
         "CANCEL": "Cancel",
         "CLOSE": "Close",
         "CONFIRM": "Confirm",
+        "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
         "CREATE": "Create",
         "DELETE": "Delete",
@@ -17,12 +18,15 @@
         "INFO": "Info",
         "NO": "No",
         "OF": "of",
+        "ORIGINAL_LANGUAGE": "Original language",
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "UNASSIGN": "Unassign",
+        "VIEW": "View",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -111,7 +115,7 @@
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
         "EMAIL": "E-m@il",
         "FORGOT_PASSWORD": "Forgot password...",
-        "GO_LOGIN": "Go to <a href='/#/login'>login</a> page.",
+        "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
         "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
         "LOGIN_REQUIRED": "Login is required.",
         "PASSWORD": "Password",
@@ -142,8 +146,7 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
-        "PM_DASHBOARD": "Project Management",
-        "PM_PRODUCT_DASHBOARD": "Product Management: {{ext.productName}}",
+        "PM_PRODUCT_DASHBOARD": "{{ext.productName}} Product Dashboard",
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -170,6 +173,16 @@
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
+    "ORGANIZATIONS": {
+        "ADDRESS": "Address",
+        "ADMIN_USER": "Admin user",
+        "DELETE_CONFIRM": "Please confirm deleting of organization <b>{{organization.name}}</b>",
+        "IS_ACTIVE": "Is active",
+        "NAME": "Name",
+        "ORGANIZATION": "Organization",
+        "ORGANIZATIONS": "Organizations",
+        "SITE_URL": "Site URL"
+    },
     "PLACEHOLDER": {
         "ASSIGN_TO": "Assign to",
         "INPUT_MESSAGE": "Entry",
@@ -186,6 +199,7 @@
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
+            "DELETE_CONFIRM": "Please confirm deleting of product <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
             "PAUSE_PRODUCT": "Suspend Product",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
@@ -220,7 +234,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"
+            "DELETE_CONFIRM": "Please confirm deleting unit <b>{{uoa.name}}</b> from product <b>{{product.title}}</b>",
+            "DESCRIPTION": "Description",
+            "MODAL_TITLE": "Units Of Analysis <small>For \"{{product.title}}\" Product</small>",
+            "NAME": "Name",
+            "SHORT_NAME": "Short Name",
+            "TABLE_TITLE": "Product Units of Analysis",
+            "TYPE": "Type"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Description",
@@ -266,6 +286,7 @@
         "CLOSE_TIME": "Close Time",
         "CODE_NAME": "Project Name",
         "CREATED": "Created",
+        "DELETE_CONFIRM": "Please confirm deleting of project <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Description",
         "HEADER": "Projects",
         "ITEM": "Project",
@@ -274,6 +295,7 @@
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
+            "DELETE_CONFIRM": "Please confirm unassigning of user <b>{{user.email}}</b> to role <b>{{role.name}}</b>",
             "ITEM": "Project Role",
             "ROLE": "Role",
             "USER": "User"
@@ -282,15 +304,41 @@
         "START_TIME": "Start Time",
         "STATUS": "Status"
     },
+    "RIGHTS": {
+        "ACTION": "Action",
+        "DELETE_CONFIRM": "Please confirm deleting of right <b>{{right.action}}</b>",
+        "DESCRIPTION": "Description",
+        "ENTITY_TYPE": "Entity Type",
+        "RIGHT": "Right",
+        "RIGHTS": "Rights"
+    },
+    "ROLES": {
+        "NAME": "Name",
+        "ROLE": "Role",
+        "ROLES": "Roles",
+        "SYSTEM_ROLE": "System Role"
+    },
+    "ROLE_RIGHTS": {
+        "ACTION": "Action",
+        "DELETE_CONFIRM": "Please confirm deleting of right <b>{{roleRight.action}}</b> for role <b>{{role.name}}</b> ",
+        "DESCRIPTION": "Description",
+        "ENTITY_TYPE": "Entity Type",
+        "ROLE_RIGHT": "Role Right",
+        "ROLE_RIGHTS": "Role Rights"
+    },
     "SURVEYS": {
         "CONTENT": "Content",
+        "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
+        "IS_COMPLETE": "Complete",
+        "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
         "NAME": "Name",
         "QUESTION": "Question",
         "SELECT_ONE": "select one",
+        "STATUS": "Status",
         "VIEW": "View"
     },
     "TABLES": {
@@ -305,17 +353,63 @@
         },
         "TITLE": "Translations"
     },
-    "UOAS_FILTER": {
+    "UOAS": {
+        "CREATED": "Created",
+        "DELETE_CONFIRM": "Please confirm deleting of unit of analysis <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Please confirm deleting of unit of analysis type <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Please confirm deleting of link unit of analysis <b>{{uoa.name}}</b> to tag <b>{{tag.name}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "SHORT_NAME": "Short Name",
+        "STATUS": "Status",
+        "TAG": "Tag",
+        "TYPE": "Type",
+        "TYPE_DESCRIPTION": "Type Description",
+        "TYPE_NAME": "Type Name",
+        "UNIT_TYPE": "Unit Type",
+        "UNIT_TYPES": "Unit Types",
+        "UOA": "Unit Of Analysis",
+        "UOAS": "Units Of Analysis",
+        "UOA_TAG_LINK": "Unit to Tag link",
+        "UOA_TAG_LINKS": "Unit to Tag links",
+        "VISIBILITY": "Visibility"
+    },
+    "UOAS_FILTER": {
+        "APPLY_SELECTED": "Apply Selected",
+        "CREATED": "Created",
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "SHORT_NAME": "Short Name",
+        "STATUS": "Status",
         "TABLE_TITLE": "Select Units Of Analysis",
         "TYPE": "Type"
     },
+    "UOA_TAGS": {
+        "CLASSIFICATION_TYPE": "Classification Type",
+        "DELETE_CONFIRM": "Please confirm deleting of tag <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "",
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "TAG": "Tag",
+        "TAGS": "Tags",
+        "TAG_TYPE": "Tag Classification Type",
+        "TAG_TYPES": "Tag Classification Types",
+        "TYPE_DESCRIPTION": "Description",
+        "TYPE_NAME": "Name"
+    },
     "USERS": {
+        "ANONYMOUS": "Anonymous",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
+        "EMAIL": "E-Mail",
+        "FIRST_NAME": "First Name",
+        "IS_ACTIVE": "Is Active",
+        "LAST_ACTIVE": "Last Active",
+        "LAST_NAME": "Last name",
         "NOT_LOGGED": "Not Logged",
-        "ORGANIZATION": "Organization"
+        "ORGANIZATION": "Organization",
+        "ROLE": "Role",
+        "USER": "User",
+        "USERS": "Users"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

@@ -7,6 +7,8 @@ angular.module('greyscale.tables')
     .factory('greyscaleRightsTbl', function ($q, greyscaleRightApi, greyscaleModalsSrv, greyscaleEntityTypeApi,
         greyscaleUtilsSrv) {
 
+        var tns = 'RIGHTS.';
+
         var _dicts = {
             entityTypes: []
         };
@@ -20,18 +22,18 @@ angular.module('greyscale.tables')
             dataReadOnly: 'both'
         }, {
             field: 'action',
-            title: 'Action',
+            title: tns + 'ACTION',
             show: true,
             sortable: 'action'
         }, {
             field: 'description',
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             show: true,
             sortable: false,
             dataFromat: 'textarea'
         }, {
             field: 'essenceId',
-            title: 'Entity Type',
+            title: tns + 'ENTITY_TYPE',
             show: true,
             sortable: false,
             dataFormat: 'option',
@@ -46,24 +48,23 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: 'Edit',
-                class: 'info',
+                icon: 'fa-pencil',
+                tooltip: 'COMMON.EDIT',
                 handler: _edtRight
             }, {
-                title: 'Delete',
-                class: 'danger',
+                icon: 'fa-trash',
+                tooltip: 'COMMON.DELETE',
                 handler: delRigth
             }]
         }];
 
         var _table = {
-            formTitle: 'right',
-            title: 'Rights',
+            formTitle: tns + 'RIGHT',
+            title: tns + 'RIGHTS',
             icon: 'fa-tasks',
             cols: _fields,
             dataPromise: _getRights,
             add: {
-                title: 'add',
                 handler: _edtRight
             }
         };
@@ -113,11 +114,18 @@ angular.module('greyscale.tables')
         }
 
         function delRigth(right) {
-            greyscaleRightApi.delete(right.id)
-                .then(_reloadRights)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                right: right,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleRightApi.delete(right.id)
+                    .then(_reloadRights)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function errHandler(err, action) {
