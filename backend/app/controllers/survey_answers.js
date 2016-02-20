@@ -177,7 +177,7 @@ module.exports = {
             var version = yield thunkQuery(
                 SurveyAnswer
                 .select('max("SurveyAnswers"."version")')
-                .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
+                .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
             );
 
             if (_.first(version).max === null) {
@@ -188,7 +188,7 @@ module.exports = {
 
             var existsNullVer = yield thunkQuery(
                 SurveyAnswer.select()
-                    .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId', 'userId', 'productId']))
+                    .where(_.pick(req.body, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
                     .and(SurveyAnswer.version.isNull())
             );
 

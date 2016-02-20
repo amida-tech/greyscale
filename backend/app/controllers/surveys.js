@@ -89,7 +89,7 @@ module.exports = {
             yield * checkSurveyData(req);
             return yield thunkQuery(
                 Survey
-                .update(_.pick(req.body, Survey.table._initialConfig.columns))
+                .update(_.pick(req.body, Survey.editCols))
                 .where(Survey.id.equals(req.params.id))
             );
         }).then(function (data) {
