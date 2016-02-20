@@ -7,6 +7,7 @@
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
+        "CHARS": "",
         "CLOSE": "Закрыть",
         "CONFIRM": "Подтвердить",
         "CONFIRMATION": "Подтверждение",
@@ -27,6 +28,7 @@
         "SUBMIT": "Отправить",
         "UNASSIGN": "Отмена назначения",
         "VIEW": "Просмотр",
+        "WORDS": "",
         "YES": "Да"
     },
     "DATEPICKER": {
@@ -327,7 +329,10 @@
         "ROLE_RIGHTS": "Правила ролей"
     },
     "SURVEYS": {
+        "ABOVE": "",
+        "BELOW": "",
         "CONTENT": "Содержание",
+        "CURRENT_COUNT": "",
         "DELETE_CONFIRM": "Подтвердите удаление опроса <b>{{survey.title}}</b>",
         "DESCRIPTION": "Описание",
         "DISCUSSION": "Обсуждение",
@@ -335,6 +340,8 @@
         "IS_COMPLETE": "",
         "IS_DRAFT": "",
         "ITEM": "Опрос",
+        "MAX": "",
+        "MIN": "",
         "NAME": "Название",
         "QUESTION": "",
         "SELECT_ONE": "",

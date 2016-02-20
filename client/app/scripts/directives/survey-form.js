@@ -59,7 +59,8 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
-            var r = 0, o,
+            var r = 0,
+                o,
                 item, fld, qid;
 
             for (var q = 0; q < survey.questions.length; q++) {
@@ -102,12 +103,18 @@ angular.module('greyscaleApp')
                         break;
 
                     case 'dropdown':
-                        if (!fld.required) {
-                            fld.options.unshift({id: null, label: '', value: null});
-                            fld.answer = fld.options[0];
+                    case 'radio':
+                        if (type === 'dropdown') {
+                            if (!fld.required) {
+                                fld.options.unshift({
+                                    id: null,
+                                    label: '',
+                                    value: null
+                                });
+                                fld.answer = fld.options[0];
+                            }
                         }
 
-                    case 'radio':
                         for (o = 0; o < field.options.length; o++) {
                             if (field.options[o].isSelected) {
                                 fld.answer = field.options[o];
@@ -115,9 +122,9 @@ angular.module('greyscaleApp')
                         }
                         break;
 
-                    case "number":
+                    case 'number':
                         if (fld.intOnly) {
-                            fld.answer = parseInt(fld.value)
+                            fld.answer = parseInt(fld.value);
                         } else {
                             fld.answer = parseFloat(fld.value);
                         }
@@ -175,8 +182,6 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    $log.debug('anwers', answers);
-
                     for (v = 0; v < scope.fields.length; v++) {
                         fld = scope.fields[v];
                         answer = answers[fld.cid];
@@ -202,9 +207,9 @@ angular.module('greyscaleApp')
                                 }
                                 break;
 
-                            case "number":
+                            case 'number':
                                 if (fld.intOnly) {
-                                    fld.answer = parseInt(answer.value)
+                                    fld.answer = parseInt(answer.value);
                                 } else {
                                     fld.answer = parseFloat(answer.value);
                                 }
@@ -256,10 +261,12 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'dropdown':
-                            answer.optionId = [];
-                            answer.value = null;
-
                         case 'radio':
+                            if (fld.type === 'dropdown') {
+                                answer.optionId = [];
+                                answer.value = null;
+                            }
+
                             if (fld.answer.id) {
                                 answer.optionId = [fld.answer.id];
                                 answer.value = fld.answer.value;

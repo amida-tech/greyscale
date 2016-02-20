@@ -7,6 +7,7 @@
         "APPLY": "Apply",
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
+        "CHARS": "character(s)",
         "CLOSE": "Close",
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
@@ -27,6 +28,7 @@
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
         "VIEW": "View",
+        "WORDS": "word(s)",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -327,7 +329,10 @@
         "ROLE_RIGHTS": "Role Rights"
     },
     "SURVEYS": {
+        "ABOVE": "above",
+        "BELOW": "below",
         "CONTENT": "Content",
+        "CURRENT_COUNT": "Current count",
         "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
@@ -335,6 +340,8 @@
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "MAX": "max",
+        "MIN": "min",
         "NAME": "Name",
         "QUESTION": "Question",
         "SELECT_ONE": "select one",

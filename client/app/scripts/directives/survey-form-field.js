@@ -3,7 +3,39 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, $log) {
+    .directive('surveyFormField', function ($compile, i18n, $log) {
+        function getBorders(field) {
+            var borders = [];
+
+            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
+                field.maxLength = null;
+            }
+            field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
+            switch (field.type) {
+            case 'paragraph':
+            case 'text':
+                var suffix = ' ' + field.lengthMeasure;
+                if (field.minLength !== null && field.minLength >= 0) {
+                    borders.push(i18n.translate('SURVEYS.MIN') + ': ' + field.minLength + suffix);
+                }
+                if (field.maxLength !== null && field.maxLength >= 0) {
+                    borders.push(i18n.translate('SURVEYS.MAX') + ': ' + field.maxLength + suffix);
+                }
+                break;
+
+            case 'number':
+                if (field.minLength !== null && field.minLength >= 0) {
+                    borders.push(i18n.translate('SURVEYS.ABOVE') + ': ' + field.minLength);
+                }
+                if (field.maxLength !== null && field.maxLength) {
+                    borders.push(i18n.translate('SURVEYS.BELOW') + ': ' + field.maxLength);
+                }
+                break;
+            }
+
+            return borders.join(', ');
+        }
+
         return {
             restrict: 'AE',
             scope: {
@@ -29,33 +61,29 @@ angular.module('greyscaleApp')
 
                         var commonPart = 'id="{{field.cid}}" name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}"';
 
-                        var subLeft = '';
-                        var subRight = '';
-                        var o;
+                        var borders = getBorders(scope.field);
+                        var message = '';
 
-                        if (scope.field.minLength) {
-                            subLeft = 'Min count:' + scope.field.minLength + ', ';
-                        }
-                        if (scope.field.maxLength) {
-                            subLeft += 'Max count:' + scope.field.maxLength;
-                        }
                         switch (scope.field.type) {
                         case 'paragraph':
-                            body = '<textarea ' + commonPart + '></textarea>';
-                            if (scope.field.minLength) {
-                                subLeft = 'Min count:' + scope.field.minLength + ', ';
+                        case 'text':
+                            if (scope.field.type === 'text') {
+                                body = '<input type="text" ';
+                            } else {
+                                body = '<textarea ';
                             }
-                            if (scope.field.maxLength) {
-                                subLeft += 'Max count:' + scope.field.maxLength;
+
+                            body += commonPart + ' gs-length="field" gs-min-length="{{field.minLength}}" gs-max-length="{{field.maxLength}}" gs-in-words="{{field.inWords}}">';
+
+                            if (scope.field.type === 'paragraph') {
+                                body += '</textarea>';
                             }
+
+                            message = i18n.translate('SURVEYS.CURRENT_COUNT') + ': {{field.length}} {{field.lengthMeasure}}';
                             break;
 
                         case 'section_break':
                             body = '<div id="{{field.cid}}}" class="section-break"><label>{{field.label}}</label></div>';
-                            break;
-
-                        case 'text':
-                            body = '<input type="text" ' + commonPart + '>';
                             break;
 
                         case 'number':
@@ -70,8 +98,6 @@ angular.module('greyscaleApp')
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<checkbox-list list-items = "field.options"></checkbox-list>';
                             }
-                            subLeft = '';
-                            subRight = '';
                             break;
 
                         case 'radio':
@@ -79,8 +105,6 @@ angular.module('greyscaleApp')
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-value="opt"><i class="chk-box"></i>{{opt.label}}</label></div>';
                             }
-                            subLeft = '';
-                            subRight = '';
                             break;
 
                         case 'dropdown':
@@ -90,26 +114,15 @@ angular.module('greyscaleApp')
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
                                 body += '</select>';
-
                             }
                             break;
 
-                        case 'price':
-                            $log.debug(scope.field);
-                            subLeft = '';
-                            subRight = '';
-                            break;
                         default:
                             $log.debug(scope.field);
                             body = '<input type="text" ' + commonPart + '>';
                         }
-
-                        body = label + body;
-
-                        if (subLeft || subRight) {
-                            body += '<p class="subtext"><span class="pull-right">' + subRight +
-                                '</span><span class="pull-left">' + subLeft + '</span></p>';
-                        }
+                        body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{ \'error\' : !field.valid }">' +
+                            message + '</span><span class="pull-left">' + borders + '</span></p>';
                     }
 
                     elem.append(body);
