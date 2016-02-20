@@ -166,6 +166,7 @@
             "TITLE": "Units of Analysis"
         },
         "USERS": {
+            "GROUPS": "Groups",
             "LIST": "List",
             "TITLE": "Users",
             "UOA": "Units of analysis"
@@ -300,6 +301,7 @@
             "ROLE": "Role",
             "USER": "User"
         },
+        "SELECT_ORGANIZATION": "Select Organization",
         "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
@@ -407,8 +409,18 @@
         "NOT_LOGGED": "Not Logged",
         "ORGANIZATION": "Organization",
         "ROLE": "Role",
+        "SELECT_ORGANIZATION": "Select Organization",
         "USER": "User",
         "USERS": "Users"
+    },
+    "USER_GROUPS": {
+        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "ORGANIZATION": "Organization",
+        "SELECT_ORGANIZATION": "Select Organization",
+        "USER_GROUP": "User Group",
+        "USER_GROUPS": "User Groups"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

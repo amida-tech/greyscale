@@ -1,26 +1,17 @@
 /**
- * Created by igi on 22.12.15.
+ * Created by igi on 21.12.15.
  */
 'use strict';
-
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($scope, $state, greyscaleProjectsTbl, greyscaleProfileSrv, greyscaleOrganizationApi, greyscaleGlobals) {
+    .controller('UsersGroupsCtrl', function ($scope, greyscaleUsersGroupsTbl, greyscaleProfileSrv,
+        greyscaleOrganizationApi, greyscaleGlobals) {
 
         var accessLevel;
 
-        var projectsTable = greyscaleProjectsTbl;
+        var userGroupsTable = greyscaleUsersGroupsTbl;
 
         $scope.model = {
             $loading: true
-        };
-
-        $scope.projectSelect = function (row) {
-            if (typeof row !== 'undefined') {
-                $state.go('projects.setup', {
-                    projectId: row.id
-                });
-            }
-            return row;
         };
 
         greyscaleProfileSrv.getProfile().then(function (profile) {
@@ -34,8 +25,8 @@ angular.module('greyscaleApp')
                 });
             } else {
                 $scope.model.$loading = false;
-                projectsTable.dataFilter.organizationId = profile.organizationId;
-                $scope.model.projects = projectsTable;
+                userGroupsTable.dataFilter.organizationId = profile.organizationId;
+                $scope.model.userGroups = userGroupsTable;
             }
         });
 
@@ -44,12 +35,12 @@ angular.module('greyscaleApp')
                 return;
             }
 
-            projectsTable.dataFilter.organizationId = $scope.model.organizationId;
+            userGroupsTable.dataFilter.organizationId = $scope.model.organizationId;
 
-            if (!$scope.model.projects) {
-                $scope.model.projects = projectsTable;
+            if (!$scope.model.userGroups) {
+                $scope.model.userGroups = userGroupsTable;
             } else {
-                projectsTable.tableParams.reload();
+                userGroupsTable.tableParams.reload();
             }
         };
 

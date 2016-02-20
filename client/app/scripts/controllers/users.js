@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
     .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv) {
         var _parentState = 'users';
 
-        var _states = ['List', 'Uoa', 'Import'];
+        var _states = ['List', 'Groups', 'Uoa', 'Import'];
         $scope.tabs = [];
 
         greyscaleProfileSrv.getProfile().then(function (profile) {
@@ -23,14 +23,18 @@ angular.module('greyscaleApp')
                     });
                 }
             }
-            $scope.go($scope.tabs[0].state);
+
+            _resolveState($state.current);
+
         });
+
+        _onStateChange(_resolveState);
 
         $scope.go = function (state) {
             $state.go(_parentState + state);
         };
 
-        _onStateChange(function (state) {
+        function _resolveState(state) {
             if (state.name === _parentState) {
                 if ($scope.tabs.length > 0) {
                     $scope.go($scope.tabs[0].state);
@@ -38,7 +42,7 @@ angular.module('greyscaleApp')
             } else {
                 _setActiveTab(state);
             }
-        });
+        }
 
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState, '');

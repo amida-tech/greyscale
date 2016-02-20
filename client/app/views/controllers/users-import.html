@@ -1,15 +1,16 @@
 <div translate-namespace="IMPORT.USERS">
-    <div class="pull-right">
-        <a href="fixtures/users_import_err.csv" translate=".DOWNLOAD_EXAMPLE"></a>
-    </div>
-    <h4 translate=".TITLE"></h4>
-    <div ng-if="model.organizations" class="form-inline">
-        <div class="form-group">
-            <label translate=".ORGANIZATION"></label>:
-            <select class="form-control"
-                    ng-model="model.organizationId"
-                    ng-options="org.id as org.name for org in model.organizations">
-            </select>
+    <div class="section">
+        <div class="pull-right">
+            <a href="fixtures/users_import_err.csv" translate=".DOWNLOAD_EXAMPLE"></a>
+        </div>
+        <div ng-if="model.organizations" class="form-inline">
+            <div class="form-group">
+                <label translate=".ORGANIZATION"></label>:
+                <select class="form-control"
+                        ng-model="model.organizationId"
+                        ng-options="org.id as org.name for org in model.organizations">
+                </select>
+            </div>
         </div>
     </div>
     <upload-form
