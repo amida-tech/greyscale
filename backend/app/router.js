@@ -207,7 +207,7 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
-router.route('/:realm/v0.2/products/:id/export')
+router.route('/:realm/v0.2/products/:id/export.csv')
     .get(/*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/uoa')
