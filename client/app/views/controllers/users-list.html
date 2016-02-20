@@ -1,1 +1,6 @@
-<widget-table model="model.users" row-selector="showUserInfo"></widget-table>
+<div ng-if="model.users">
+    <widget-table model="model.users" row-selector="showUserInfo"></widget-table>
+</div>
+
+<div ng-if="!tabsModel.organizationId" class="alert alert-warning" translate="USERS.SELECT_ORGANIZATION"></div>
+

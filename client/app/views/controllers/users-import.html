@@ -1,24 +1,20 @@
-<div translate-namespace="IMPORT.USERS">
-    <div class="pull-right">
-        <a href="fixtures/users_import_err.csv" translate=".DOWNLOAD_EXAMPLE"></a>
-    </div>
-    <h4 translate=".TITLE"></h4>
-    <div ng-if="model.organizations" class="form-inline">
-        <div class="form-group">
-            <label translate=".ORGANIZATION"></label>:
-            <select class="form-control"
-                    ng-model="model.organizationId"
-                    ng-options="org.id as org.name for org in model.organizations">
-            </select>
+<div ng-if="tabsModel.organizationId">
+    <div class="section">
+        <div class="pull-right">
+            <a href="fixtures/users_import_err.csv" translate="IMPORT.USERS.DOWNLOAD_EXAMPLE"></a>
         </div>
     </div>
-    <upload-form
-        upload-endpoint="organizations/{{model.organizationId}}/users_csv"
-        upload-disable="disableUpload"
-        upload-success="afterUpload"></upload-form>
+    <div class="clearfix"></div>
 
-    <div ng-if="model.results">
+    <upload-form
+        upload-endpoint="organizations/{{tabsModel.organizationId}}/users_csv"
+        upload-disable="disableUpload"
+        upload-success="afterUpload">
+    </upload-form>
+
+    <div ng-if="model.importResults">
         <widget-table model="model.importUsers" class="table-bordered"></widget-table>
     </div>
-
 </div>
+
+<div ng-if="!tabsModel.organizationId" class="alert alert-warning" translate="USERS.SELECT_ORGANIZATION"></div>

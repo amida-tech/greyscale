@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals, greyscaleOrganizationApi) {
+        greyscaleProfileSrv, greyscaleGlobals) {
         var accessLevel;
 
         var tns = 'USERS.';
@@ -21,19 +21,6 @@ angular.module('greyscale.tables')
             sortable: 'id',
             dataReadOnly: 'both',
             dataHide: _isProfileEdit
-        }, {
-            field: 'organizationId',
-            show: _isSuperAdmin,
-            sortable: 'organizationId',
-            title: tns + 'ORGANIZATION',
-            dataFormat: 'option',
-            dataReadOnly: 'edit',
-            dataHide: _isNotSuperAdmin,
-            dataSet: {
-                getData: getOrgs,
-                keyField: 'id',
-                valField: 'name'
-            }
         }, {
             field: 'email',
             title: tns + 'EMAIL',
@@ -103,8 +90,6 @@ angular.module('greyscale.tables')
         var _table = {
             dataFilter: {},
             formTitle: tns + 'USER',
-            title: tns + 'USERS',
-            icon: 'fa-users',
             cols: _fields,
             dataPromise: _getUsers,
             pageLength: 10,
@@ -120,10 +105,6 @@ angular.module('greyscale.tables')
 
         function _getRoles() {
             return dicts.roles;
-        }
-
-        function getOrgs() {
-            return dicts.orgs;
         }
 
         function _delRecord(rec) {
@@ -149,6 +130,7 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserApi.update(newRec);
                     } else {
+                        newRec.organizationId = _getOrganizationId();
                         if (_isSuperAdmin()) {
                             return greyscaleUserApi.inviteAdmin(newRec);
                         } else if (_isAdmin()) {
@@ -170,41 +152,40 @@ angular.module('greyscale.tables')
             return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
 
-        function _isNotSuperAdmin() {
-            return !_isSuperAdmin();
-        }
-
         function _isAdmin() {
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
 
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
+
         function _getUsers() {
+
+            var organizationId = _getOrganizationId();
+
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
                 accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
                 var roleFilter = {};
+                var listFilter = {
+                    organizationId: organizationId
+                };
 
-                if (_isAdmin()) {
-                    _table.dataFilter.organizationId = profile.organizationId;
-                } else {
-                    delete _table.dataFilter.organizationId;
+                if (!_isAdmin()) {
                     roleFilter = {
                         isSystem: true
                     };
                 }
 
                 var reqs = {
-                    users: greyscaleUserApi.list(_table.dataFilter),
+                    users: greyscaleUserApi.list(listFilter),
                     roles: greyscaleRoleApi.list(roleFilter),
-                    orgs: greyscaleOrganizationApi.list({
-                        organizationId: profile.organizationId
-                    })
                 };
 
                 return $q.all(reqs).then(function (promises) {
                     dicts.roles = _filterRolesByAccessLevel(promises.roles);
-                    dicts.orgs = promises.orgs;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });
