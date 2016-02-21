@@ -97,8 +97,19 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'checkboxes':
+                            scope.selectedOpts = function (options) {
+                                var res = false;
+                                for (var o = 0; o < options.length && !res; o++) {
+                                    res = res || options[o].checked;
+                                }
+                                return res;
+                            };
+
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body += '<checkbox-list list-items="field.options"></checkbox-list>';
+                                body += '<div class="checkbox-list"> <div ng-repeat="opt in field.options"><div class="checkbox">' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ' +
+                                    'ng-required="field.required && !selectedOpts(field.options)" gs-valid="field">' +
+                                    '<div class="chk-box"></div>{{opt.label}}</label></div></div>';
                             }
                             break;
 
