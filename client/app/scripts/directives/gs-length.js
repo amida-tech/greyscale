@@ -15,10 +15,20 @@ angular.module('greyscaleApp')
                 if (ngModel) {
 
                     var validate = function () {
-                        var val = ngModel.$viewValue;
                         if (scope.field) {
-                            scope.field.length = attrs.gsInWords ? greyscaleUtilsSrv.countWords(val) : val;
-                            scope.field.valid = ngModel.$valid;
+                            var val = ngModel.$viewValue;
+                            var max = scope.field.maxLength;
+                            var min = scope.field.minLength;
+                            if (val) {
+                                scope.field.length = scope.field.inWords ? greyscaleUtilsSrv.countWords(val) : val.length;
+                            } else {
+                                scope.field.length = 0;
+                            }
+
+                            ngModel.$setValidity('minlength', min <= scope.field.length);
+                            ngModel.$setValidity('maxlength', max >= scope.field.length);
+
+                            scope.field.ngModel = ngModel;
                         }
                     };
 

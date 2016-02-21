@@ -48,6 +48,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
+        "MUST_BE_INT": "",
+        "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {

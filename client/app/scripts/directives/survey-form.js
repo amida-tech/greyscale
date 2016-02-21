@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $log) {
+    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location,
+        $anchorScroll, greyscaleUtilsSrv) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
@@ -29,8 +30,14 @@ angular.module('greyscaleApp')
             },
             controller: function ($scope) {
 
+                $scope.model = {
+                    contentOpen: false
+                };
+
                 $scope.goField = function (elemId) {
-                    $log.debug('going to', elemId);
+                    $scope.model.contentOpen = !$scope.model.contentOpen;
+                    $location.hash(elemId);
+                    $anchorScroll();
                 };
 
                 $scope.save = function () {
@@ -39,7 +46,6 @@ angular.module('greyscaleApp')
 
                 $interval(function () {
                     if (1 === 2) { //disabled autosave while develop
-                        $log.debug('autosaving...');
                         saveAnswers($scope, true);
                     }
                 }, 15000);
@@ -89,6 +95,7 @@ angular.module('greyscaleApp')
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt,
                         value: field.value,
+                        ngModel: {},
                         answer: null
                     };
 
@@ -291,9 +298,10 @@ angular.module('greyscaleApp')
                             }
                         }
                         scope.surveyForm.$dirty = isAuto;
+                        scope.recentSaved = new Date();
                     })
                     .catch(function (err) {
-                        $log.debug(err);
+                        greyscaleUtilsSrv.errorMsg(err);
                     })
                     .finally(function () {
                         scope.lock = false;

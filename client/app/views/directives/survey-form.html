@@ -1,10 +1,10 @@
 <div>
     <p class="subtext text-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
     <uib-accordion>
-        <uib-accordion-group is-open="contentOpen">
+        <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>
                 {{'SURVEYS.CONTENT' | translate}}
-                <i class="fa pull-right" ng-class="{'fa-caret-up': contentOpen, 'fa-caret-down': !contentOpen}"></i>
+                <i class="fa pull-right" ng-class="{'fa-caret-up': model.contentOpen, 'fa-caret-down': !model.contentOpen}"></i>
             </uib-accordion-heading>
             <ul class="survey-content">
                 <survey-form-content-item content-item="item" ng-repeat="item in content"
