@@ -294,14 +294,15 @@ module.exports = {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            if(req.user.roleID == 1){
-                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
+            var org;
+            if(req.user.roleID === 1){
+                org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
                 org = _.first(org);
                 if (!org) {
                     throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
                 }
             }else{
-                var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+                org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
                 org = _.first(org);
                 if (!org) {
                     throw new HttpError(400, 'You dont have any organizations');
@@ -361,7 +362,7 @@ module.exports = {
                             }
                             resolve(data);
                         });
-                    })
+                    });
                 }()
             }catch(e){
                 throw new HttpError(400, 'Cannot send invitation email');

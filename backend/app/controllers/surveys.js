@@ -260,7 +260,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
     //}
 
     if (dataObj.type) {
-        if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) == -1) {
+        if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) === -1) {
             throw new HttpError(
                 403,
                 'Type value should be from 0 till ' + SurveyQuestion.types[SurveyQuestion.types.length-1]
