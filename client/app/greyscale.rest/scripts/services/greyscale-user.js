@@ -24,7 +24,10 @@ angular.module('greyscale.rest')
             delete: delUser,
             listUoa: _listUoa,
             addUoa: _addUoa,
-            delUoa: _delUoa
+            delUoa: _delUoa,
+            remindPasswd: _remind,
+            resetToken: _resetToken,
+            resetPasswd: _resetPasswd
         };
 
         function orgAPI() {
@@ -72,7 +75,6 @@ angular.module('greyscale.rest')
         }
 
         function _login(user, passwd) {
-            $log.debug('do login');
             return greyscaleRestSrv({
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
@@ -92,6 +94,7 @@ angular.module('greyscale.rest')
                         return true;
                     })
                     .catch(function () {
+                        greyscaleTokenSrv(null);
                         return $q.resolve(false);
                     });
             }
@@ -103,7 +106,7 @@ angular.module('greyscale.rest')
         }
 
         function _inviteAdmin(userData) {
-            return userAPI().one('invite').customPOST(userData);
+            return orgAPI().one('invite').customPOST(userData);
         }
 
         function _inviteUser(userData) {
@@ -132,5 +135,19 @@ angular.module('greyscale.rest')
 
         function _delUoa(userId, uoaId) {
             return _uoaAPI(userId).one('uoa', uoaId + '').remove();
+        }
+
+        function _remind(login) {
+            return userAPI().one('forgot').customPOST({
+                email: login
+            });
+        }
+
+        function _resetToken(token) {
+            return userAPI().one('check_restore_token', token).get();
+        }
+
+        function _resetPasswd(data) {
+            return userAPI().one('reset-password').customPUT(data);
         }
     });

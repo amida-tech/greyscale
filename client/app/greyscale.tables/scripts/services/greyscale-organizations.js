@@ -3,8 +3,11 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleOrganizationsTbl', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
+    .factory('greyscaleOrganizationsTbl', function (_, $q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
         greyscaleProfileSrv, greyscaleModalsSrv) {
+
+        var tns = 'ORGANIZATIONS.';
+
         var _dicts = {
             users: []
         };
@@ -17,17 +20,18 @@ angular.module('greyscale.tables')
             field: 'name',
             show: true,
             sortable: 'name',
-            title: 'Name'
+            title: tns + 'NAME'
         }, {
             field: 'address',
             show: true,
-            title: 'Address'
+            title: tns + 'ADDRESS'
         }, {
             field: 'adminUserId',
             show: true,
             sortable: 'adminUserId',
-            title: 'Admin user',
+            title: tns + 'ADMIN_USER',
             dataFormat: 'option',
+            showFormField: _notNewRecord,
             dataSet: {
                 keyField: 'id',
                 valField: 'email',
@@ -36,7 +40,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'url',
             show: true,
-            title: 'Site URL'
+            title: tns + 'SITE_URL'
         }, {
             field: 'enforceApiSecurity',
             show: false,
@@ -45,9 +49,9 @@ angular.module('greyscale.tables')
             field: 'isActive',
             show: true,
             sortable: 'isActive',
-            title: 'Is active',
+            title: tns + 'IS_ACTIVE',
             dataFormat: 'boolean',
-            dataReadOnly: 'both'
+            dataReadOnly: _getActivationMode
         }, {
             field: '',
             title: '',
@@ -55,44 +59,58 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editRecord
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
 
         var _table = {
-            formTitle: 'organization',
-            title: 'Organizations',
+            formTitle: tns + 'ORGANIZATION',
+            title: tns + 'ORGANIZATIONS',
             icon: 'fa-university',
             cols: _fields,
             dataPromise: getData,
+            dataFilter: {},
             pageLength: 10,
             add: {
-                title: 'Add',
                 handler: _editRecord
             }
 
         };
 
         function getUsers() {
-            return _dicts.users;
-        }
-
-        function _delRecord(rec) {
-            greyscaleOrganizationApi.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
+            if (_table.dataFilter.formRecord !== undefined && _table.dataFilter.formRecord.id) {
+                return _.filter(_dicts.users, {
+                    organizationId: _table.dataFilter.formRecord.id
                 });
+            } else {
+                return _dicts.users;
+            }
         }
 
-        function _editRecord(user) {
+        function _delRecord(organization) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                organization: organization,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleOrganizationApi.delete(organization.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
+            });
+        }
+
+        function _editRecord(organization) {
             var action = 'adding';
-            return greyscaleModalsSrv.editRec(user, _table)
+            _table.dataFilter.formRecord = organization;
+            return greyscaleModalsSrv.editRec(organization, _table)
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
@@ -104,24 +122,27 @@ angular.module('greyscale.tables')
                 .then(reloadTable)
                 .catch(function (err) {
                     errorHandler(err, action);
+                })
+                .finally(function () {
+                    delete(_table.dataFilter.formRecord);
                 });
         }
 
-        function getData() {
-            return greyscaleProfileSrv.getProfile()
-                .then(function (profile) {
-                    var reqs = {
-                        orgs: greyscaleOrganizationApi.list(),
-                        users: greyscaleUserApi.list({
-                            organizationId: profile.organizationId
-                        })
-                    };
+        function _notNewRecord(record) {
+            return !!record.id;
+        }
 
-                    return $q.all(reqs).then(function (promises) {
-                        _dicts.users = promises.users;
-                        greyscaleUtilsSrv.prepareFields(promises.orgs, _fields);
-                        return promises.orgs;
-                    });
+        function getData() {
+            var reqs = {
+                orgs: greyscaleOrganizationApi.list(),
+                users: greyscaleUserApi.list()
+            };
+
+            return $q.all(reqs)
+                .then(function (promises) {
+                    _dicts.users = promises.users;
+                    greyscaleUtilsSrv.prepareFields(promises.orgs, _fields);
+                    return promises.orgs;
                 })
                 .catch(errorHandler);
         }
@@ -137,6 +158,10 @@ angular.module('greyscale.tables')
             }
             msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _getActivationMode() {
+            return greyscaleProfileSrv.isSuperAdmin() ? false : 'both';
         }
 
         return _table;

@@ -38,4 +38,5 @@ angular.module('greyscale.rest')
         function _del(id) {
             return _api().one(id + '').remove();
         }
+
     });

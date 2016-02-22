@@ -1,0 +1,82 @@
+<form style="padding: 0 15px;" translate-namespace="PRODUCTS.WORKFLOW.STEPS">
+    <div class="row">
+        <div class="col-md-3 form-group">
+            <label translate="{{ext.formFields.title.title}}"></label>
+            <span modal-form-rec="row"
+                    modal-form-field="ext.formFields.title" embedded="true"
+                    modal-form-field-model="row.title">
+            </span>
+        </div>
+        <div class="col-md-3">
+            <label translate="{{ext.formFields.roleId.title}}"></label>
+            <span modal-form-rec="row"
+                  modal-form-field="ext.formFields.roleId" embedded="true"
+                  modal-form-field-model="row.roleId">
+            </span>
+        </div>
+        <div class="col-md-3">
+            <label translate="{{ext.formFields.startDate.title}}"></label>
+            <span modal-form-rec="row"
+                  modal-form-field="ext.formFields.startDate" embedded="true"
+                  modal-form-field-model="row.startDate">
+            </span>
+        </div>
+        <div class="col-md-3">
+            <label translate="{{ext.formFields.endDate.title}}"></label>
+            <span modal-form-rec="row"
+                  modal-form-field="ext.formFields.endDate" embedded="true"
+                  modal-form-field-model="row.endDate">
+            </span>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <label translate="{{ext.formFields.writeToAnswers.title}}"></label>
+            <div class="radio"><label><input type="radio" name="writeToAnswers"
+                                             ng-checked="!row.writeToAnswers"
+                                             ng-model="row.writeToAnswers"
+                                             ng-value="false">
+                <i class="chk-box"></i><span translate=".WRITE_ACCESS_READ"></span></label>
+            </div>
+            <div class="radio"><label><input type="radio" name="writeToAnswers"
+                                             ng-model="row.writeToAnswers"
+                                             ng-value="true">
+                <i class="chk-box"></i><span translate=".WRITE_ACCESS_WRITE"></span></label>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-md-6">
+                    <label translate=".PERMISSIONS"></label>
+                    <span modal-form-rec="row"
+                          modal-form-field="ext.formFields.discussionParticipation" embedded="true"
+                          modal-form-field-model="row.discussionParticipation">
+                    </span>
+
+                    <span modal-form-rec="row"
+                          modal-form-field="ext.formFields.provideResponses" embedded="true"
+                          modal-form-field-model="row.provideResponses">
+                    </span>
+
+                    <span modal-form-rec="row"
+                          modal-form-field="ext.formFields.seeOthersResponses" embedded="true"
+                          modal-form-field-model="row.seeOthersResponses">
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <br>
+                    <span modal-form-rec="row"
+                          modal-form-field="ext.formFields.editTranslate" embedded="true"
+                          modal-form-field-model="row.editTranslate">
+                    </span>
+
+                    <span modal-form-rec="row"
+                          modal-form-field="ext.formFields.blindReview" embedded="true"
+                          modal-form-field-model="row.blindReview">
+                    </span>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

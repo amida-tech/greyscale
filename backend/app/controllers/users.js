@@ -7,7 +7,6 @@ var client = require('app/db_bootstrap'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
     WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepList = require('app/models/workflow_step_list'),
     EssenceRole = require('app/models/essence_roles'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
@@ -295,11 +294,21 @@ module.exports = {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
-            org = _.first(org);
-            if (!org) {
-                throw new HttpError(400, 'You dont have any organizations');
+            if(req.user.roleID == 1){
+                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
+                }
+            }else{
+                var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'You dont have any organizations');
+                }
             }
+
+
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -341,13 +350,25 @@ module.exports = {
                 token: activationToken
             };
             var mailer = new Emailer(options, data);
-            mailer.send(function (data) {
-                console.log('EMAIL RESULT --->>>');
-                console.log(data);
 
-            });
+            try{
+                yield function*(){
+                    return yield new Promise(function(resolve, reject) {
+                        mailer.send(function (err, data) {
+                            console.log(err);
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve(data);
+                        });
+                    })
+                }()
+            }catch(e){
+                throw new HttpError(400, 'Cannot send invitation email');
+            }
 
             return newClient;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -633,7 +654,7 @@ module.exports = {
                     'row_to_json("Products".*) as product',
                     'row_to_json("EssenceRoles".*) as entityTypeRoleId',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json(STEPS) as step'
+                    'row_to_json("WorkflowSteps") as step'
                 )
                 .from(
                     Task
@@ -645,26 +666,13 @@ module.exports = {
                     .on(Product.surveyId.equals(Survey.id))
                     .leftJoin(EssenceRole)
                     .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
 
-                )
-                .from(
-                    WorkflowStep
-                        .subQuery("STEPS")
-                        .select(
-                            WorkflowStepList.title,
-                            WorkflowStepList.description,
-                            WorkflowStep.star()
-                        )
-                        .from(
-                            WorkflowStep
-                            .leftJoin(WorkflowStepList)
-                            .on(WorkflowStepList.id.equals(WorkflowStep.stepId))
-                        )
-                        //.where(WorkflowStep.id.equals(Task.stepId))
                 )
                 .where(Task.entityTypeRoleId.in(
                     EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                )).and('STEPS.id = "Tasks"."stepId"')
+                ))
             );
             return res;
         }).then(function(data) {

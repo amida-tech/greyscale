@@ -29,6 +29,11 @@ var Project = sql.define({
     columns: columns
 });
 
+Project.statuses = [
+    0, //active
+    1 //inactive
+]
+
 Project.whereCol = columns;
 
 module.exports = Project;

@@ -1,10 +1,17 @@
 .action,
 .action-secondary {
     @extend a;
-    margin: 0 3px;
+    margin: 0 0 0 5px;
     color: $grey-medium-light;
     &:hover {
         color: $grey-medium-dark;
+    }
+}
+
+a, .action, .action-secondary, .action-primary {
+    cursor: pointer;
+    &:hover {
+        text-decoration: none;
     }
 }
 

@@ -18,9 +18,9 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-terms.html">
-    {{row.startDate||row.step.startDate|parseDate|date}}
-    &mdash;
-    {{row.endDate||row.step.endDate|parseDate|date}}
+    {{row.startDate|date}}
+    -
+    {{row.endDate|date}}
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-product.html">

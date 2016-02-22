@@ -5,7 +5,6 @@
 }
 
 [uib-datepicker-popup].form-control {
-    min-width: 150px;
     &.embedded.ng-invalid-date {
         border: 1px solid red;
         z-index: 3;
@@ -35,8 +34,13 @@ upload-form,
         height: initial;
     }
     .progress {
-        margin-top: 3px;
-        margin-bottom: 10px;
+        margin: 10px 0 0 0;
+        .progress-bar {
+            transition: initial;
+        }
+    }
+    .upload-file-button {
+        margin-top: 10px;
     }
 }
 
@@ -55,9 +59,20 @@ upload-form,
 }
 
 .help-block {
-    font-size: 10pt;
+    font-size: $font-size-sub;
 }
 
-.radio, .checkbox {
-    display: inline-block;
+.form-condensed {
+
+    .form-group {
+        margin-bottom: 0;
+    }
+}
+
+$shadow: 10px;
+
+.form-group .subtext {
+    max-height: 3.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

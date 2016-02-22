@@ -1,20 +1,18 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    crypto = require('crypto'),
     Project = require('app/models/projects'),
     Product = require('app/models/products'),
     Workflow = require('app/models/workflows'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
     AccessMatrix = require('app/models/access_matrices'),
-    Translation = require('app/models/translations'),
-    Language = require('app/models/languages'),
-    Essence = require('app/models/essences'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
     co = require('co'),
     Query = require('app/util').Query,
-    getTranslateQuery = require('app/util').getTranslateQuery,
+    vl = require('validator'),
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
@@ -137,104 +135,45 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },
-
-    csvUsers: function (req, res, next) {
-        // fields order
-        // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
-        // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
-
-        var csv = require('csv');
-        var fs = require('fs');
-
-        co(function* () {
-
-
-
-            var upload = new Promise(function(resolve, reject){
-                if(req.files.image) {
-
-                    fs.readFile(req.files.image.path, 'utf8', function (err, data) {
-                        if (err) {
-                            reject(err);
-                        }
-                        resolve(data);
-                    });
-                }else{
-                    reject('File has not uploaded');
-                }
-            });
-
-            var parser = new Promise(function(resolve, reject){
-                csv.parse(data, function (err, data) {
-                    //console.log(data);
-                    //for (var i in data) {
-                    //    if (i != 0) { // skip first string
-                    //        console.log('email = ' + data[i][0] + ',firstname=' + data[i][1] + ',lastname=' + data[i][2]);
-                    //        var newUser = {
-                    //            email: data[i][0],
-                    //            firstName: data[i][1],
-                    //            lastName: data[i][2]
-                    //        }
-                    //        var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
-                    //        console.log(isExist);
-                    //    }
-                    //}
-                });
-            });
-
-            var doUpload = yield upload.then(
-                function(data){
-                    return data;
-                },function(err){
-                    return err;
-                }
-            );
-            if(doUpload.code){
-                throw new HttpError(403, 'Upload file problem');
-            }else{
-                //parser.then(
-                //    function(data){
-                //
-                //    },function(err){
-                //
-                //    }
-                //);
-                return doUpload;
-            }
-            //return data;
-
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
     }
+
+
 
 };
 
 function* checkProjectData(req) {
+    var orgId = req.user.organizationId;
+
+    if(req.user.roleID == 1){
+        orgId = req.body.organizationId;
+    }
+
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !req.body.organizationId || !req.body.codeName) {
+        if (!req.body.matrixId || !orgId || !req.body.codeName) {
             throw new HttpError(
                 403,
                 'matrixId, organizationId and codeName fields are required'
             );
         }
+    }
 
-        if (req.body.organizationId) {
-            var isExistOrg = yield thunkQuery(
-                Organization.select().where(Organization.id.equals(req.user.organizationId))
+    if(orgId){
+        var isExistOrg = yield thunkQuery(
+            Organization.select().where(Organization.id.equals(orgId))
+        );
+        if (!_.first(isExistOrg)) {
+            throw new HttpError(
+                403,
+                'Organization with id = ' + orgId + ' does not exist'
             );
-            if (!_.first(isExistOrg)) {
-                throw new HttpError(
-                    403,
-                    'By some reason cannot find your organization (id = ' + req.user.organizationId + ')'
-                );
-            }
         }
+        req.body.organizationId = orgId;
+    }
 
-        req.body.organizationId = req.user.organizationId;
+    if(typeof req.body.status != 'undefined'){
+        if (Project.statuses.indexOf(req.body.status) == -1) {
+            throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
+        }
     }
 
     if (req.body.matrixId) {

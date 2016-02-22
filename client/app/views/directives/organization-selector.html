@@ -1,0 +1,8 @@
+<span class="organization-selector" ng-show="ready && $root.showOrganizationSelector">
+    <select ng-model="$root.globalModel.organization"
+            ng-options="org as org.name for org in organizations track by org.id"
+            ng-change="organizationChanged()"
+            class="form-control">
+        <option value="" disabled="disabled" style="display:none" translate="USERS.SELECT_ORGANIZATION"></option>
+    </select>
+</span>

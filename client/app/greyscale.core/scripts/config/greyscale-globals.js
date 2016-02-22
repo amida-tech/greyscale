@@ -7,19 +7,26 @@ angular.module('greyscale.core')
         var self = {
             projectStates: [{
                 id: 0,
-                name: 'WAITING'
+                name: 'INACTIVE'
             }, {
                 id: 1,
-                name: 'IN_FLIGHT'
+                name: 'ACTIVE'
+            }],
+            productStates: [{
+                id: 0,
+                name: 'PLANNING'
+            }, {
+                id: 1,
+                name: 'STARTED'
             }, {
                 id: 2,
-                name: 'COMPLETED'
-            }, {
-                id: 3,
                 name: 'SUSPENDED'
             }, {
+                id: 3,
+                name: 'COMPLETED'
+            }, {
                 id: 4,
-                name: 'ABANDONED'
+                name: 'CANCELLED'
             }],
             uoaVisibility: [{
                 id: 1,
@@ -99,6 +106,19 @@ angular.module('greyscale.core')
                     mask: 0xffff
                 }
             },
+            formBuilderFieldTypes: [
+                'text',
+                'paragraph',
+                'checkboxes',
+                'radio',
+                'dropdown',
+                'number',
+                'email',
+                'price',
+                'section_start',
+                'section_end',
+                'section_break'
+            ],
             writeToAnswersList: [{
                 value: false,
                 name: 'READ'

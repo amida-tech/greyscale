@@ -73,8 +73,7 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-router.route('/:realm/v0.2/projects/:id/csv_users')
-    .post(/*authenticate('token').always,*/ projects.csvUsers);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
@@ -208,6 +207,9 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
+router.route('/:realm/v0.2/products/:id/export.csv')
+    .get(/*authenticate('token').always,*/ products.export);
+
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAaddMultiple);
@@ -227,7 +229,11 @@ router.route('/:realm/v0.2/organizations')
     .post(authenticate('token').always, organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
-    .get(authenticate('token').always, organizations.selectOne);
+    .get(authenticate('token').always, organizations.selectOne)
+    .put(authenticate('token').always, organizations.editOne);
+
+router.route('/:realm/v0.2/organizations/:id/users_csv')
+    .post(authenticate('token').always, organizations.csvUsers);
 
 router.route('/:realm/v0.2/users/self/organization')
     .get(authenticate('token').always, users.selfOrganization)
@@ -325,14 +331,26 @@ router.route('/:realm/v0.2/workflows/:id/steps')
     //.delete(authenticate('token').always, workflows.stepsDelete)
     .put(authenticate('token').always, workflows.stepsUpdate);
 
-router.route('/:realm/v0.2/workflow_steps')
-    .get(authenticate('token').always, workflows.stepListSelect)
-    .post(authenticate('token').always, workflows.stepListAdd);
+//router.route('/:realm/v0.2/workflow_steps')
+//    .get(authenticate('token').always, workflows.stepListSelect)
+//    .post(authenticate('token').always, workflows.stepListAdd);
+//
+//router.route('/:realm/v0.2/workflow_steps/:id')
+//    .get(authenticate('token').always, workflows.stepListSelectOne)
+//    .put(authenticate('token').always, workflows.stepListUpdateOne)
+//    .delete(authenticate('token').always, workflows.stepListDelete);
 
-router.route('/:realm/v0.2/workflow_steps/:id')
-    .get(authenticate('token').always, workflows.stepListSelectOne)
-    .put(authenticate('token').always, workflows.stepListUpdateOne)
-    .delete(authenticate('token').always, workflows.stepListDelete);
+//----------------------------------------------------------------------------------------------------------------------
+//    DISCUSSIONS
+//----------------------------------------------------------------------------------------------------------------------
+var discussions = require('app/controllers/discussions');
+
+router.route('/:realm/v0.2/discussions')
+    .get(authenticate('token').always, discussions.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/:id')
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.updateOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
@@ -347,6 +365,9 @@ router.route('/:realm/v0.2/uoas/:id')
     .get(authenticate('token').always, UnitOfAnalysis.selectOne)
     .put(authenticate('token').always, checkRight('unitofanalysis_update_one'), UnitOfAnalysis.updateOne)
     .delete(authenticate('token').always, checkRight('unitofanalysis_delete_one'), UnitOfAnalysis.deleteOne);
+
+router.route('/:realm/v0.2/import_uoas_csv')
+    .post(authenticate('token').ifPossible, UnitOfAnalysis.csvImport);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis Types

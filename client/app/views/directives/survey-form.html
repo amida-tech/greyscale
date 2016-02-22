@@ -1,0 +1,31 @@
+<div>
+    <p class="subtext text-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
+    <uib-accordion>
+        <uib-accordion-group is-open="model.contentOpen">
+            <uib-accordion-heading>
+                {{'SURVEYS.CONTENT' | translate}}
+                <i class="fa pull-right" ng-class="{'fa-caret-up': model.contentOpen, 'fa-caret-down': !model.contentOpen}"></i>
+            </uib-accordion-heading>
+            <ul class="survey-content">
+                <survey-form-content-item content-item="item" ng-repeat="item in content"
+                                          goto-field="goField"></survey-form-content-item>
+            </ul>
+        </uib-accordion-group>
+    </uib-accordion>
+    <div class="row">
+        <div class="col-sm-12">
+            <div name="surveyForm" role="form" ng-form="surveyForm">
+                <div class="form-group"
+                     ng-repeat="fld in fields"
+                     survey-form-field="fld"></div>
+            </div>
+            <div class="text-right">
+                <button class="btn btn-primary"
+                        ng-click="save()"
+                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty || lock">
+                    {{"COMMON.SAVE" | translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

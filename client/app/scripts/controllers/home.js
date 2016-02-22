@@ -4,12 +4,6 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('HomeCtrl', function ($scope, greyscaleMyTasksTbl) {
-
-        $scope.model = {};
-
-        greyscaleMyTasksTbl.dataPromise().then(function (data) {
-            $scope.model.tasks = data;
-        });
+    .controller('HomeCtrl', function ($scope) {
 
     });

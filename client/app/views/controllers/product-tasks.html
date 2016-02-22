@@ -3,6 +3,11 @@
     <div ng-if="model.workflowSteps.length && model.uoas.length" class="col-md-9">
         <div ng-if="model.tasks">
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
+            <br>
+            <div class="pull-right">
+                <a ui-sref="projects.setup.products({projectId:model.projectId})" class="btn btn-success" translate="COMMON.CONTINUE"></a>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div>
 

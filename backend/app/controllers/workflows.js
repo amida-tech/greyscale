@@ -5,7 +5,6 @@ var client = require('app/db_bootstrap'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepList = require('app/models/workflow_step_list'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -73,30 +72,19 @@ module.exports = {
 
     steps: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(
-                WorkflowStep.select(WorkflowStepList.star(), WorkflowStep.star())
-                .from(
-                    WorkflowStep
-                    .leftJoin(WorkflowStepList)
-                    .on(WorkflowStep.stepId.equals(WorkflowStepList.id))
-                ).where(WorkflowStep.workflowId.equals(req.params.id))
-            );
+            var q = WorkflowStep
+                .select()
+                .where(WorkflowStep.workflowId.equals(req.params.id));
+            if (!req.query.order) {
+                q = q.order(WorkflowStep.position)
+            }
+            return yield thunkQuery(q);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
             next(err);
         });
     },
-
-    //stepsDelete: function (req, res, next) {
-    //    co(function* () {
-    //        return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body)));
-    //    }).then(function (data) {
-    //        res.json(data);
-    //    }, function (err) {
-    //        next(err);
-    //    });
-    //},
 
     stepsUpdate: function (req, res, next) {
         co(function* () {
@@ -111,11 +99,6 @@ module.exports = {
 
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
             var relIds = rels.map(function (value) {
-                //if (relIds.indexOf(req.body[i].id) == -1) {
-                //    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
-                //    needDel = true;
-                //}
-
                 return value.id;
             });
 
@@ -126,7 +109,7 @@ module.exports = {
             var insertIds = [];
 
             for (var i in req.body) {
-                var updateObj = _.pick(req.body[i], ['startDate', 'endDate', 'roleId']);
+                var updateObj = _.pick(req.body[i], WorkflowStep.editCols);
                 if (req.body[i].id) { // need update
                     passedIds.push(req.body[i].id);
                     if (Object.keys(updateObj).length && relIds.indexOf(req.body[i].id) !== -1) { // have data to update  and exists
@@ -138,7 +121,7 @@ module.exports = {
                         );
                     }
                 } else {
-                    var insertObj = _.pick(req.body[i], ['stepId', 'startDate', 'endDate', 'roleId']);
+                    var insertObj = _.pick(req.body[i], WorkflowStep.table._initialConfig.columns);
                     insertObj.workflowId = req.params.id;
                     insertArr.push(insertObj);
                 }
@@ -175,7 +158,7 @@ module.exports = {
         });
 
     },
-
+    /*
     stepsAdd: function (req, res, next) {
         co(function* () {
             if (!Array.isArray(req.body)) {
@@ -219,6 +202,7 @@ module.exports = {
             next(err);
         });
     },
+
 
     stepListSelect: function (req, res, next) {
         co(function* () {
@@ -273,6 +257,7 @@ module.exports = {
             next(err);
         });
     },
+    */
 
 };
 

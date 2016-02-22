@@ -4,9 +4,11 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUoaTagLinksTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
+    .factory('greyscaleUoaTagLinksTbl', function (_, $q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
         greyscaleUoaApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi,
         greyscaleUoaTagLinkApi, $log) {
+
+        var tns = 'UOAS.';
 
         var dicts = {
             uoas: [],
@@ -24,7 +26,7 @@ angular.module('greyscale.tables')
             dataReadOnly: 'both'
         }, {
             field: 'uoaId',
-            title: 'Unit',
+            title: tns + 'UOA',
             show: true,
             sortable: 'uoaId',
             dataFormat: 'option',
@@ -36,7 +38,7 @@ angular.module('greyscale.tables')
             }
         }, {
             field: 'uoaTagId',
-            title: 'Tag',
+            title: tns + 'TAG',
             show: true,
             sortable: 'uoaTagId',
             dataFormat: 'option',
@@ -53,13 +55,14 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
 
         var _table = {
-            title: 'Unit to Tag link',
+            title: tns + 'UOA_TAG_LINKS',
+            formTitle: tns + 'UOA_TAG_LINK',
             icon: 'fa-table',
             sorting: {
                 id: 'asc'
@@ -67,7 +70,6 @@ angular.module('greyscale.tables')
             cols: resDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
                 handler: _addUoaTagLink
             },
             query: {}
@@ -85,12 +87,26 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _delRecord(item) {
-            greyscaleUoaTagLinkApi.delete(item.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+        function _delRecord(uoaTagLink) {
+            var uoa = _.find(dicts.uoas, {
+                id: uoaTagLink.uoaId
+            });
+            var tag = _.find(dicts.uoaTags, {
+                id: uoaTagLink.uoaTagId
+            });
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM_UOA_TAG_LINK',
+                uoa: uoa,
+                tag: tag,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUoaTagLinkApi.delete(uoaTagLink.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _getData() {

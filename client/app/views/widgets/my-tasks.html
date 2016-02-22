@@ -1,0 +1,28 @@
+<div ng-controller="MyTasksWidget">
+
+    <div class="cards" minigrid minigrid-collection="model.tasks">
+        <div class="card" ng-repeat="task in model.tasks">
+            <p>{{task.step.title}}</p>
+            <p>
+                <a ng-href="#/survey/{{task.survey.id}}/task/{{task.id}}">
+                    {{task.survey.title}}
+                </a>
+                <br>
+                <small><a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
+                    {{task.survey.title}} (low bandwidth link)
+                </a></small>
+            </p>
+            <p>
+                {{(task.startDate||task.step.startDate)|parseDate|date:'shortDate'}}
+                 -
+                {{(task.endDate||task.step.endDate)|parseDate|date:'shortDate'}}
+            </p>
+        </div>
+    </div>
+
+    <rd-loading ng-if="!model.tasks"></rd-loading>
+
+    <div ng-if="model.tasks && !model.tasks.length" class="alert alert-warning">
+        {{'MY_TASKS.NO_TASKS'|translate}}
+    </div>
+</div>

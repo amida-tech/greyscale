@@ -5,12 +5,13 @@
         <div class="unassign-user action"><i class="fa fa-trash"></i></div>
         <div class="edit-task action"><i class="fa fa-pencil"></i></div>
     </span>
-    <a ng-if="product.surveyId" ng-href="/interviewRenderer/?surveyId={{product.surveyId}}&taskId={{cell.id}}">
+    <a ng-if="ext.product.surveyId" ng-href="/interviewRenderer/?surveyId={{ext.product.surveyId}}&taskId={{cell.id}}">
         <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
         <br><small>{{cell.assignee.user.email}}</small>
     </a>
-    <span ng-if="!product.surveyId">
+    <span ng-if="!ext.product.surveyId">
         <b>{{cell.assignee.user.firstName}} {{cell.assignee.user.lastName}}</b>
         <br><small>{{cell.assignee.user.email}}</small>
     </span>
+    <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
 </span>&nbsp;

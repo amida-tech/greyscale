@@ -1,21 +1,9 @@
-<div class="row">
-    <div class="col-md-12">
-        <widget-table model="model.uoas" row-selector="selectUoa"></widget-table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <widget-table model="model.uoaTagLinks"></widget-table>
-    </div>
-    <div class="col-md-6">
-        <widget-table model="model.uoaTags"></widget-table>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-6">
-        <widget-table model="model.uoaTypes"></widget-table>
-    </div>
-    <div class="col-md-6">
-        <widget-table model="model.uoaClassTypes"></widget-table>
-    </div>
-</div>
+<uib-tabset>
+    <uib-tab ng-click="go(tab.state)" ng-repeat="tab in tabs track by $index" active="tab.active">
+        <uib-tab-heading>
+            <i class="fa {{::tab.icon}}"></i> {{::tab.title|translate}}
+        </uib-tab-heading>
+    </uib-tab>
+</uib-tabset>
+
+<div ui-view></div>

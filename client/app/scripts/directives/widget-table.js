@@ -4,97 +4,160 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTable', function (_, NgTableParams, $filter,
-        $compile, i18n, $timeout, $templateCache, $rootScope) {
-        var _templateCacheIds = [];
+    .service('widgetTableSrv', function (_, $q, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel) {
+
         return {
-            restrict: 'E',
-            templateUrl: 'views/directives/widget-table.html',
-            scope: {
-                model: '=',
-                rowSelector: '=',
-                classes: '@class'
-            },
-            link: function (scope, el) {
-                el.removeAttr('class');
-            },
-            controller: function ($scope) {
-                if (typeof $scope.rowSelector === 'function') {
-                    $scope.model.current = $scope.rowSelector();
-                } else {
-                    $scope.model.current = null;
-                }
+            init: _init
+        };
 
-                _translateParams($scope.model);
+        function _init(config) {
 
-                if (!$scope.model.tableParams || !($scope.model.tableParams instanceof NgTableParams)) {
+            var scope = config.scope;
 
-                    _parseColumns($scope.model);
+            var model = config.model;
+            model.el = config.el;
 
-                    $scope.model.tableParams = new NgTableParams({
-                        page: 1,
-                        count: $scope.model.pageLength || 5,
-                        sorting: $scope.model.sorting || null
-                    }, {
-                        counts: [],
-                        getData: function ($defer, params) {
-                            if (typeof $scope.model.dataPromise === 'function') {
-                                $scope.model.$loading = true;
-                                var endLoading = function () {
-                                    $scope.model.$loading = false;
-                                };
-                                $scope.model.dataPromise()
-                                    .then(function (data) {
-                                        $scope.model.dataMap = _getDataMap(data);
-                                        if (data) {
-                                            params.total(data.length);
-                                            var orderedData = params.sorting() ?
-                                                $filter('orderBy')(data, params.orderBy()) : data;
-                                            $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-                                        }
-                                        endLoading();
-                                    })
-                                    .catch(endLoading);
+            model.current = null;
+
+            //if (typeof rowSelector === 'function') {
+            //    model.current = rowSelector();
+            //} else {
+            //    model.current = null;
+            //}
+
+            scope.sortableOptions = {
+                disabled: true
+            };
+
+            _translateParams(model);
+
+            if (!model.tableParams || !(model.tableParams instanceof NgTableParams)) {
+
+                _parseColumns(model);
+
+                model.tableParams = new NgTableParams({
+                    page: 1,
+                    count: model.pageLength || 5,
+                    sorting: model.sorting || null
+                }, {
+                    counts: model.pageLengths || [],
+                    getData: function ($defer, params) {
+                        if (typeof model.dataPromise === 'function') {
+                            var t;
+                            if (model.$loading === undefined) {
+                                model.$loading = true;
+                            } else {
+                                t = setTimeout(function () {
+                                    model.$loading = true;
+                                }, 200);
                             }
+                            var endLoading = function () {
+                                clearTimeout(t);
+                                model.$loading = false;
+                            };
+                            model.dataPromise()
+                                .then(function (data) {
+                                    model.dataMap = _getDataMap(data);
+                                    if (data) {
+                                        params.total(data.length);
+                                        var orderedData = params.sorting() ?
+                                            $filter('orderBy')(data, params.orderBy()) : data;
+                                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                    }
+                                    endLoading();
+                                })
+                                .catch(endLoading);
                         }
-                    });
-                }
-                $scope.isSelected = function (row) {
-                    return (typeof $scope.rowSelector !== 'undefined' && $scope.model.current === row);
-                };
-
-                $scope.isDisabled = function (row) {
-                    if (!$scope.model.multiselect) {
-                        return false;
-                    } else {
-                        return $scope.model.multiselect.disableOnUncheck && !$scope.model.multiselect.selected[row.id];
-                    }
-                };
-
-                $scope.select = function (row, e) {
-                    if (!$scope.model.selectable) {
-                        return;
-                    }
-                    $scope.model.current = row;
-                    if (typeof $scope.rowSelector === 'function') {
-                        $scope.rowSelector(row);
-                    } else {
-                        $scope.rowSelector = row;
-                    }
-                };
-
-                $scope.$on('$destroy', function () {
-                    if ($scope.model.multiselect && $scope.model.multiselect.reset) {
-                        $scope.model.multiselect.reset();
-                    }
-                    if (_templateCacheIds.length) {
-                        angular.forEach(_templateCacheIds, function (templateId) {
-                            $templateCache.remove(templateId);
-                        });
                     }
                 });
+
+                model.tableParams.custom = {
+                    showAllButton: !!model.showAllButton
+                };
+
+                model.tableParams.pager = _newPagination(scope);
             }
-        };
+
+            if (model.dragSortable) {
+                scope.sortableOptions = {
+                    handle: '.action-drag-sortable',
+                    start: function (e, ui) {
+                        ui.placeholder.height(ui.item.height());
+                    }
+                };
+            }
+
+            scope.isSelected = function (row) {
+                return (typeof scope.rowSelector !== 'undefined' && model.current === row);
+            };
+
+            scope.isDisabled = function (row) {
+                if (!model.multiselect) {
+                    return false;
+                } else {
+                    return model.multiselect.disableOnUncheck && !model.multiselect.selected[row.id];
+                }
+            };
+
+            scope.select = function (row, e) {
+                if (!model.selectable) {
+                    return;
+                }
+                model.current = row;
+                if (typeof scope.rowSelector === 'function') {
+                    scope.rowSelector(row);
+                } else {
+                    scope.rowSelector = row;
+                }
+            };
+
+            scope.$on('$destroy', function () {
+                if (model.multiselect && model.multiselect.reset) {
+                    model.multiselect.reset();
+                }
+                model.$loading = undefined;
+            });
+
+            if (typeof config.onReload === 'function') {
+                ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
+            }
+        }
+
+        function _newPagination(scope) {
+            var params = scope.model.tableParams;
+            return {
+                from: function () {
+                    return 1 + params.count() * (params.page() - 1);
+                },
+                to: function () {
+                    var to = params.count() * params.page();
+                    if (to > params.total()) {
+                        to = params.total();
+                    }
+                    return to;
+                },
+                first: function () {
+                    return params.page() === 1;
+                },
+                last: function () {
+                    return this.to() === params.total();
+                },
+                itemsName: function () {
+                    return scope.model.title ? scope.model.title + ' ' : '';
+                },
+                prev: function () {
+                    if (!this.first()) {
+                        params.page(params.page() - 1);
+                    }
+                },
+                next: function () {
+                    if (!this.last()) {
+                        params.page(params.page() + 1);
+                    }
+                }
+            };
+        }
 
         function _getDataMap(data) {
             var map = [];
@@ -131,7 +194,6 @@ angular.module('greyscaleApp')
         function _setTitleTemplate(col) {
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
-            _templateCacheIds.push(templateId);
             var scope = $rootScope.$new();
             angular.extend(scope, col.titleTemplateData || {});
             template = $compile(template)(scope);
@@ -208,5 +270,136 @@ angular.module('greyscaleApp')
                 });
             }
         }
+    })
+    .directive('widgetTable', function ($templateCache, $compile, $http, $timeout) {
+        return {
+            restrict: 'E',
+            templateUrl: 'views/directives/widget-table.html',
+            scope: {
+                model: '=',
+                rowSelector: '=',
+                classes: '@class'
+            },
+            link: function (scope, el) {
+                el.removeAttr('class');
+                _expandableRowFunctionality(scope, el);
+                _delegateClickFunctionality(scope, el);
+            },
+            controller: function ($scope, $element, widgetTableSrv) {
+                widgetTableSrv.init({
+                    el: $element,
+                    scope: $scope,
+                    model: $scope.model,
+                    rowSelector: $scope.rowSelector,
+                    onReload: function () {
+                        $timeout(function () {
+                            _onReload($scope, $element, arguments);
+                        });
+                    }
+                });
+            }
+        };
 
+        function _onReload(scope, el, args) {
+
+        }
+
+        function _findExpanded(rowEl) {
+            var next = rowEl.next();
+            if (next.hasClass('expand-row')) {
+                return next;
+            } else {
+                return _findExpanded(next);
+            }
+        }
+
+        function _expandableRowFunctionality(scope, el) {
+            var expandedRowTemplate = scope.model.expandedRowTemplate;
+            var expandedRowTemplateUrl = scope.model.expandedRowTemplateUrl;
+            if (!expandedRowTemplate && !expandedRowTemplateUrl) {
+                return;
+            }
+
+            if (expandedRowTemplateUrl) {
+                _getTemplateByUrl(expandedRowTemplateUrl)
+                    .then(function (template) {
+                        _controlRowExpanding(el, template, scope);
+                    });
+            } else if (expandedRowTemplate) {
+                _controlRowExpanding(el, expandedRowTemplate, scope);
+            }
+        }
+
+        function _getTemplateByUrl(templateUrl) {
+            return $http.get(templateUrl, {
+                    cache: $templateCache
+                })
+                .then(function (response) {
+                    return response.data;
+                });
+        }
+
+        function _controlRowExpanding(el, template, scope) {
+            el.on('click', '.action-expand-row', function (e) {
+                var row = $(e.target).closest('.expandable-row');
+                if (!row.hasClass('is-expanded')) {
+                    _showExpandedRow(row, template, scope);
+                } else {
+                    _hideExpandedRow(row);
+                }
+            });
+            scope.$openExpandedRow = function (rowEl) {
+                _showExpandedRow(rowEl, template, scope);
+            };
+        }
+
+        function _showExpandedRow(rowEl, template, scope) {
+            rowEl.addClass('is-expanded');
+            var colspan = scope.model.cols.length;
+            var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
+            rowEl.after(expand);
+            var rowScope = rowEl.scope().$parent;
+            $compile(expand)(rowScope);
+            $timeout(function () {
+                rowScope.$digest();
+            });
+        }
+
+        function _hideExpandedRow(rowEl) {
+            rowEl.removeClass('is-expanded');
+            var expand = rowEl.next();
+            if (expand.hasClass('expand-row')) {
+                expand.remove();
+            }
+        }
+
+        function _delegateClickFunctionality(scope, el) {
+            var handlers = scope.model.delegateClick;
+            if (handlers && angular.isObject(handlers)) {
+                angular.forEach(handlers, function (handler, selector) {
+                    if (typeof handler === 'function') {
+                        el.on('click', selector, function (e) {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            var trigger = angular.element(e.target);
+                            handler(e, trigger.scope());
+                        });
+                    }
+                });
+            }
+        }
+    })
+    .directive('widgetTableExpandedRowOpen', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                open: '=widgetTableExpandedRowOpen'
+            },
+            link: function (scope, el) {
+                if (scope.open) {
+                    scope.$parent.$openExpandedRow(el);
+                }
+            }
+
+        };
     });

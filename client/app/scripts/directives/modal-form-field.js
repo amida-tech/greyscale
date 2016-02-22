@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('modalFormField', function ($compile, greyscaleUtilsSrv) {
+    .directive('modalFormField', function ($compile, $timeout, greyscaleUtilsSrv, $templateCache, $http) {
         return {
             restrict: 'A',
             scope: {
@@ -41,17 +41,27 @@ angular.module('greyscaleApp')
                             if (scope.modalFormFieldModel === true) {
                                 field += '<span class="text-success"><i class="fa fa-check"></i></span>';
                             } else if (scope.modalFormFieldModel === false) {
-                                field += '<span class="text-danger"><i class="fa fa-warning"></i></span>';
+                                field += '<span class="text-danger"><i class="fa fa-minus"></i></span>';
                             }
                             break;
                         case 'date':
-                            field += '{{modalFormFieldModel | date:"short"}}';
+                            field += '{{modalFormFieldModel|date}}';
                             break;
                         case 'option':
+                            ///
                             field += greyscaleUtilsSrv.decode(scope.model.options, 'id', scope.modalFormFieldModel, 'title') || '';
                             break;
                         default:
-                            field += '{{modalFormFieldModel}}';
+                            if (clmn.cellTemplate) {
+                                field += _compileCellTemplate(clmn.cellTemplate, clmn.cellTemplateExtData);
+                            } else if (clmn.cellTemplateUrl) {
+                                _getTemplateByUrl(clmn.cellTemplateUrl)
+                                    .then(function (template) {
+                                        field += _compileCellTemplate(template, clmn.cellTemplateExtData);
+                                    });
+                            } else {
+                                field += '{{modalFormFieldModel}}';
+                            }
                         }
                         if (!_embedded) {
                             field += '</p>';
@@ -76,20 +86,21 @@ angular.module('greyscaleApp')
                             }
                             break;
                         case 'option':
-                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-options="item.id as item.title for item in model.options" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
+                            field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
+                                'ng-options="item.id as item.title disable when model.getDisabled(item) for item in model.options" ' +
+                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
                             var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
                             var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
                             field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
-
                             field += '</select>';
                             break;
                         case 'boolean':
+                            var booleanTitle = _embedded ? ' <span translate="' + clmn.title + '"></span>' : '';
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
                                 '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>' +
-                                '<i class="chk-box"></i></label></div>';
+                                '<i class="chk-box"></i>' + booleanTitle + '</label></div>';
                             break;
                         default:
                             field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired"/>';
@@ -109,6 +120,23 @@ angular.module('greyscaleApp')
                     elem.append(field);
                     $compile(elem.contents())(scope);
                 }
+
+                function _compileCellTemplate(template, ext) {
+                    scope.row = scope.modalFormRec;
+                    scope.cell = scope.modalFormFieldModel;
+                    scope.ext = ext;
+                    var elem = $compile('<span>' + template + '</span>')(scope);
+                    return elem.html();
+                }
+
+                function _getTemplateByUrl(templateUrl) {
+                    return $http.get(templateUrl, {
+                            cache: $templateCache
+                        })
+                        .then(function (response) {
+                            return response.data;
+                        });
+                }
             },
             controller: function formFieldController($scope) {
                 var clmn = $scope.modalFormField = _parseParams($scope.modalFormField);
@@ -118,7 +146,8 @@ angular.module('greyscaleApp')
                 }
 
                 $scope.model = {
-                    options: []
+                    options: [],
+                    getDisabled: _getDisabled
                 };
 
                 var _options = [];
@@ -126,10 +155,7 @@ angular.module('greyscaleApp')
                     if (clmn.dataSet.getData) {
                         var data = clmn.dataSet.getData();
                         for (var d = 0; d < data.length; d++) {
-                            _options.push({
-                                id: data[d][clmn.dataSet.keyField],
-                                title: data[d][clmn.dataSet.valField]
-                            });
+                            _options.push(_resolveOption(clmn.dataSet, data[d]));
                         }
                         _setDefaultOption($scope.modalFormRec, clmn.field, _options);
                         $scope.model.options = _options;
@@ -140,6 +166,28 @@ angular.module('greyscaleApp')
                             $scope.model.options = data;
                         });
                     }
+                }
+
+                function _resolveOption(_set, option) {
+                    var resolvedOption = {
+                        id: option[_set.keyField],
+                    };
+                    if (_set.valField) {
+                        resolvedOption.title = option[_set.valField];
+                    } else if (_set.template) {
+                        var scope = $scope.$new();
+                        scope.option = option;
+                        var render = $compile('<span>' + _set.template + '</span>')(scope);
+                        $timeout(function () {
+                            resolvedOption.title = render.text();
+                        });
+                    }
+                    return resolvedOption;
+                }
+
+                function _getDisabled(item) {
+                    return (clmn.dataSet && typeof clmn.dataSet.getDisabled === 'function') ?
+                        clmn.dataSet.getDisabled(item, $scope.modalFormRec) : false;
                 }
 
                 function _parseParams(params) {

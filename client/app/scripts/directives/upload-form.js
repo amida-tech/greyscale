@@ -8,11 +8,15 @@ angular.module('greyscaleApp')
             scope: {
                 uploadEndpoint: '@',
                 uploadError: '=',
-                uploadSuccess: '='
+                uploadSuccess: '=',
+                uploadBefore: '=',
+                uploadDisable: '='
             },
-            controller: function ($scope, greyscaleUtilsSrv, FileUploader) {
+            controller: function ($scope, $element, $timeout, greyscaleUtilsSrv, FileUploader, greyscaleTokenSrv) {
+                var _token = greyscaleTokenSrv();
+
                 var uploader = $scope.uploader = new FileUploader({
-                    url: greyscaleUtilsSrv.getApiBase() + $scope.uploadEndpoint,
+                    url: _getAbsoluteUrl($scope.uploadEndpoint),
                     withCredentials: false,
                     method: 'POST',
                     removeAfterUpload: 1,
@@ -20,23 +24,52 @@ angular.module('greyscaleApp')
                     filters: [{
                         name: 'CSV',
                         fn: function (item) {
-                            var mimeType = '|' + item.type.slice(item.type.lastIndexOf('/') + 1) + '|';
-                            return '|csv|'.indexOf(mimeType) !== -1;
+                            var types = '|csv|';
+                            var _ext = '|' + item.name.slice(item.name.lastIndexOf('.') + 1) + '|';
+                            return (types.indexOf(_ext) !== -1);
                         }
                     }]
                 });
 
-                uploader.onBeforeUploadItem = function () {
+                uploader.onBeforeUploadItem = function (item) {
+                    item.url = _getAbsoluteUrl($scope.uploadEndpoint);
+                    item.headers.token = _token;
+                    if (typeof $scope.uploadBefore === 'function') {
+                        $scope.uploadBefore(item);
+                    }
                     $scope.model = {};
                 };
 
-                uploader.onSuccessItem = $scope.uploadSuccess;
+                uploader.onCompleteItem = function (file, data) {
+                    uploader.clearQueue();
+
+                    $element[0].reset();
+
+                    $timeout(function () {
+                        $scope.$digest();
+                    });
+
+                    if ($scope.uploadSuccess) {
+                        $scope.uploadSuccess(file, data);
+                    }
+                };
 
                 uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
                     $scope.model = {
                         issues: colorIssues(response.issue)
                     };
                 };
+
+                $scope.disableUploadButton = function () {
+                    var noFile = !uploader.getNotUploadedItems().length;
+                    var customReason = typeof $scope.uploadDisable === 'function' ?
+                        $scope.uploadDisable() : false;
+                    return noFile || customReason;
+                };
+
+                function _getAbsoluteUrl(url) {
+                    return greyscaleUtilsSrv.getApiBase() + '/' + url;
+                }
 
                 function colorIssues(issues) {
                     if (issues && issues.length) {

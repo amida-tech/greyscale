@@ -1,36 +1,44 @@
 'use strict';
 
-angular.module('greyscale.rest').factory('greyscaleSurveyApi', function (greyscaleRestSrv) {
+angular.module('greyscale.rest')
+    .factory('greyscaleSurveyApi', function (greyscaleRestSrv) {
 
-    var _api = function () {
-        return greyscaleRestSrv().one('surveys');
-    };
+        return {
+            list: _surveys,
+            get: _getSurvey,
+            add: _addSurvey,
+            update: _updateSurvey,
+            delete: _deleteSurvey
+        };
 
-    function _surveys() {
-        return _api().get();
-    }
+        function _plainResp(resp) {
+            if (resp && resp.plain && typeof resp.plain === 'function') {
+                resp = resp.plain();
+            }
+            return resp;
+        }
 
-    function _getSurvey(surveyId) {
-        return _api().one(surveyId + '');
-    }
+        function _api() {
+            return greyscaleRestSrv().one('surveys');
+        }
 
-    function _addSurvey(survey) {
-        return _api().customPOST(survey);
-    }
+        function _surveys() {
+            return _api().get().then(_plainResp);
+        }
 
-    function _deleteSurvey(survey) {
-        return _api().one(survey.id + '').remove();
-    }
+        function _getSurvey(surveyId) {
+            return _api().one(surveyId + '').get().then(_plainResp);
+        }
 
-    var _updateSurvey = function (survey) {
-        return _api().one(survey.id + '').customPUT(survey);
-    };
+        function _addSurvey(survey) {
+            return _api().customPOST(survey).then(_plainResp);
+        }
 
-    return {
-        list: _surveys,
-        get: _getSurvey,
-        add: _addSurvey,
-        update: _updateSurvey,
-        delete: _deleteSurvey,
-    };
-});
+        function _deleteSurvey(survey) {
+            return _api().one(survey.id + '').remove().then(_plainResp);
+        }
+
+        function _updateSurvey(survey) {
+            return _api().one(survey.id + '').customPUT(survey).then(_plainResp);
+        }
+    });
