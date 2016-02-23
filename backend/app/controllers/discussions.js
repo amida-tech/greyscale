@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     Product = require('app/models/products'),
+    ProductUOA = require('app/models/product_uoa'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     EssenceRole = require('app/models/essence_roles'),
@@ -31,6 +32,32 @@ var setWhereInt = function(selectQuery, val, model, key){
     }
     return selectQuery;
 };
+
+function* checkOneId(val, model, key, keyName, modelName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    else if (!isInt(val)) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else if (parseInt(val).toString() !== val) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else {
+        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
+        if (!_.first(exist)) {
+            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
+        }
+    }
+    return parseInt(val);
+}
+
+function* checkString(val, keyName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    return val;
+}
 
 module.exports = {
 
@@ -85,8 +112,19 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            yield * checkInsert(req);
-            return yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
+            var isReturn = req.body.isReturn;
+            var isResolve = req.body.isResolve;
+            var returnObject = yield * checkInsert(req);
+            var entryId = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
+            var newStep;
+            if (isReturn) {
+                newStep = yield * updateProductUOAStep(returnObject);
+            }
+            if (isResolve) {
+                var returnTask = yield * updateReturnTask(returnObject.discussionId);
+                newStep = yield * checkUpdateProductUOAStep(returnObject);
+            }
+            return entryId;
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -97,7 +135,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function* () {
             yield * checkUpdate(req);
-            req.body = _.pick(req.body, 'userId', 'entry', 'flag'); // update only userId, entry, flag (NOT taskId and questionId)
+            req.body = _.pick(req.body, 'entry'); // update only entry (NOT else)
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
             return yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
@@ -115,30 +153,64 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    getEntryScope: function (req, res, next) {
+        co(function* () {
+            return yield * getAvailableUsers(req);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+    getEntryUpdate: function (req, res, next) {
+        co(function* () {
+            /*
+             Possible update ONLY discussion`s message (entry) if discussion`s entry does not have next message for current Question
+             */
+            // check next entry
+            return yield * checkNextEntry(req.params.id, true);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
 
-function* checkOneId(val, model, key, keyName, modelName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
+function* checkInsert(req) {
+    var questionId = yield * checkOneId(req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
+    var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task');
+    var entry = yield * checkString(req.body.entry, 'Entry');
+    // get next order for entry
+    var nextOrder = yield * getNextOrder(taskId, questionId);
+    req.body = _.extend(req.body, {order: nextOrder}); // add nextOrder (if order was presented in body replace it)
+
+    // if discussion`s entry is entry with "returning" (isReturn flag is true)
+    var returnObject=null;
+    if (req.body.isReturn) {
+        returnObject = yield * checkForReturnAndResolve(taskId, req.body.userId, 'return');
+        req.body = _.extend(req.body, {returnTaskId: returnObject.taskId}); // add returnTaskId
     }
-    else if (!isInt(val)) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    else if (req.body.isResolve) {
+        returnObject = yield * checkForReturnAndResolve(taskId, req.body.userId, 'resolve');
+        req.body = _.omit(req.body, 'isReturn', 'isResolve'); // remove isReturn flag from body
     }
-    else if (parseInt(val).toString() !== val) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    }
-    else {
-        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
-        if (!_.first(exist)) {
-            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
-        }
-    }
-    return parseInt(val);
+    return returnObject; // {returnUserId, returnTaskId, returnStepId}
 }
 
-function* checkUserId(userId, taskId) {
+function* checkUpdate(req) {
+    /*
+     Possible update ONLY discussion`s message (entry) if discussion`s entry does not have next message for current Question
+     */
+    // check next entry
+    var nextEntry = yield * checkNextEntry(req.params.id);
+    var entry = yield * checkString(req.body.entry, 'Entry');
+}
+
+function* checkUserId(userId, taskId, tag, currentStepPosition) {
     var result;
     if (!userId) {
         throw new HttpError(403, 'User id (userId) must be specified');
@@ -149,87 +221,301 @@ function* checkUserId(userId, taskId) {
     else if (parseInt(userId).toString() !== userId) {
         throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
     }
-    else {
-        var exist = yield thunkQuery(User.select().from(User).where(User.id.equals(parseInt(userId))));
-        if (!_.first(exist)) {
-            throw new HttpError(403, 'User with userId=`'+userId+'` does not exist');
-        }
-        // user Id must be in list of available users for this survey
-        // 1st - get productId and uoaId for this task
-        var query1 =
-            'SELECT '+
-            '"Tasks"."uoaId", '+
-            '"Tasks"."productId" '+
-            'FROM '+
-            '"Tasks" '+
-            'WHERE '+
-            '"Tasks"."id" = '+taskId;
-        result = yield thunkQuery(query1);
-        if (!_.first(result)) {
-            throw new HttpError(403, 'Task with taskId=`'+taskId+'` does not exist'); // just in case - not possible case!
-        }
-        var productId = result[0].productId;
-        var uoaId = result[0].uoaId;
 
-        var query2 =
-             'SELECT '+
-             '"Users".id '+
-             'FROM '+
-             '"Tasks" '+
-             'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" '+
-             'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" '+
-             'WHERE '+
-             '"Tasks"."productId" = '+productId+' AND '+
-             '"Tasks"."uoaId" = '+uoaId;
-        result = yield thunkQuery(query2);
-        if (!_.first(result)) {
-            throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
-        }
-        var userList=[];
-        result.forEach(function(item, i, arr) {
-                userList.push(item.id);
-            }
-        );
-        if (userList.indexOf(parseInt(userId)) == -1) {
-            throw new HttpError(403, 'User with userId=`'+userId+'` does not available user for this survey');
-        }
-
+    var exist = yield thunkQuery(User.select().from(User).where(User.id.equals(parseInt(userId))));
+    if (!_.first(exist)) {
+        throw new HttpError(403, 'User with userId=`'+userId+'` does not exist');
     }
-    return parseInt(userId);
+    // user Id must be in list of available users for this survey
+    // 1st - get productId and uoaId for this task
+    var ids = yield * getProductAndUoaIds(taskId);
+    var productId = ids.productId;
+    var uoaId = ids.uoaId;
+
+    result = yield * getUserList(productId, uoaId, tag, currentStepPosition);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
+    }
+    var retObject=null;
+
+    for (var i = 0; i < result.length; i++) {
+            if (result[i].id === parseInt(userId)){
+                retObject =
+                {
+                    userId: result[i].id,
+                    taskId: result[i].taskid,
+                    stepId: result[i].stepid,
+                    productId: result[i].productid,
+                    uoaId: result[i].uoaid,
+                    discussionId: null
+                };
+                break;
+            }
+    }
+    if (!retObject) {
+        throw new HttpError(403, 'User with userId=`'+userId+'` does not available user for this survey');
+    }
+    // if "resolve", check that returnTaskId is exist with returnTaskId = currentTaskId, isReturn=true, isResolve=false
+    if (tag === 'resolve') {
+        query =
+            'SELECT "Discussions".id ' +
+            'FROM "Discussions" ' +
+            'WHERE "Discussions"."returnTaskId" = ' + taskId.toString() +
+            ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+        result = yield thunkQuery(query);
+        if (!_.first(result)) {
+            retObject=null;
+            throw new HttpError(403, 'It is not possible to post entry with "resolve" flag, because there are not found "return" task');
+        }
+        retObject = _.extend(retObject, {discussionId: result[0].id})
+    }
+
+    return retObject;
 }
 
-function* getTaskId(id) {
+function* getUserList(productId, uoaId, tag, currentStepPosition) {
+    var query =
+        'SELECT ' +
+        '"Users".id, ' +
+        '"Tasks"."id" as taskid, '+
+        '"Tasks"."stepId" as stepid, '+
+        '"Tasks"."productId" as productid, '+
+        '"Tasks"."uoaId" as uoaid '+
+        'FROM ' +
+        '"Tasks" ' +
+        'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" ' +
+        'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" ' +
+        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
+    // available all users for this survey
+    var where =
+        'WHERE ' +
+        '"Tasks"."productId" = ' + productId + ' AND ' +
+        '"Tasks"."uoaId" = ' + uoaId;
+    if (tag === 'return'){
+        // get user list for "returning"
+        // available only users for previous steps
+        where = where + ' AND "WorkflowSteps"."position" < '+currentStepPosition.toString();
+    } else if (tag == 'resolve') {
+        // get user list for "resolving"
+        // available only users for following steps
+        where = where + ' AND "WorkflowSteps"."position" > '+currentStepPosition.toString();
+    }
+    query = query + where;
+    return yield thunkQuery(query);
+}
+
+function* getAvailableUsers(req) {
     var result;
-    var query1 =
+
+    var returnList=[];
+    var resolve={};
+
+    var taskId = yield * checkOneId(req.query.taskId, Task, 'id', 'taskId', 'Task');
+    var ids = yield * getProductAndUoaIds(taskId);
+    var productId = ids.productId;
+    var uoaId = ids.uoaId;
+    var currentStepPosition = yield * getCurrentStepPosition(taskId);
+
+    result = yield * getUserList(productId, uoaId, 'return', currentStepPosition);
+    if (_.first(result)) {
+        for (var i = 0; i < result.length; i++) {
+            returnList.push(
+                {
+                    userId: result[i].id,
+                    taskId: result[i].taskid,
+                    stepId: result[i].stepid
+                }
+            );
+        }
+    }
+    result = yield * getUserList(productId, uoaId, 'resolve', currentStepPosition);
+    if (_.first(result)) {
+        for (var j = 0; j < result.length; j++) {
+            resolve = {
+                    userId: result[j].id,
+                    taskId: result[j].taskid,
+                    stepId: result[j].stepid
+            };
+        }
+    }
+
+    return {
+        returnList : returnList,
+        resolve : resolve
+    };
+}
+
+
+function* getTask(id) {
+    var result;
+    var query =
         'SELECT '+
-        '"Discussions"."taskId" '+
+        '"Discussions"."taskId", '+
+        '"Discussions"."order" '+
         'FROM '+
         '"Discussions" '+
         'WHERE '+
         '"Discussions"."id" = '+id;
-        result = yield thunkQuery(query1);
+    result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
     }
-    return result[0].taskId;
+    return result[0];
 }
 
-function* checkString(val, keyName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
+function* checkNextEntry(id, checkOnly) {
+    var result;
+    var task = yield * getTask(id);
+    var ids = yield * getProductAndUoaIds(task.taskId);
+    var productId = ids.productId;
+    var uoaId = ids.uoaId;
+
+    var query =
+        'SELECT '+
+        '"Discussions"."questionId" '+
+        'FROM "Discussions" '+
+        'INNER JOIN "public"."Tasks" ON "public"."Discussions"."taskId" = "public"."Tasks"."id" '+
+        'WHERE '+
+            '"Tasks"."uoaId" = '+ids.uoaId.toString()+' AND '+
+            '"Tasks"."productId" = '+ids.productId.toString()+' AND '+
+            '"Discussions".order > '+task.order.toString();
+    result = yield thunkQuery(query);
+    if (_.first(result)) {
+        if (checkOnly) return false;
+        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated, there are have following entries');
     }
-    return val;
+    return true;
 }
 
-function* checkInsert(req) {
-    var questionId = yield * checkOneId(req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
-    var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task');
-    var userId = yield * checkUserId(req.body.userId, req.body.taskId);
-    var entry = yield * checkString(req.body.entry, 'Entry');
+function* getNextOrder(taskId, questionId) {
+
+    // 1st - get productId and uoaId for this task
+    var ids = yield * getProductAndUoaIds(taskId);
+    var productId = ids.productId;
+    var uoaId = ids.uoaId;
+
+    // then get max order for question
+    var result;
+    var query =
+        'SELECT '+
+        'max("Discussions".order) as maxorder '+
+        'FROM '+
+        '"Discussions" '+
+        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+        'WHERE  '+
+        '"Tasks"."uoaId" = '+uoaId.toString()+
+        ' AND "Tasks"."productId" = '+productId.toString()+
+        ' AND "Discussions"."questionId" = '+questionId.toString()+' '+
+        'GROUP BY '+
+        '"Discussions"."questionId", '+
+        '"Tasks"."uoaId", '+
+        '"Tasks"."productId" ';
+    result = yield thunkQuery(query);
+    // get next order
+    // if not found records, nextOrder must be 1  - the first entry for question
+    return (!_.first(result)) ? 1 : result[0].maxorder + 1;
 }
 
-function* checkUpdate(req) {
-    var taskId = yield * getTaskId(req.params.id);
-    var userId = yield * checkUserId(req.body.userId, taskId);
-    var entry = yield * checkString(req.body.entry, 'Entry');
+function* getProductAndUoaIds(taskId) {
+    var query =
+        'SELECT '+
+        '"Tasks"."uoaId", '+
+        '"Tasks"."productId" '+
+        'FROM '+
+        '"Tasks" '+
+        'WHERE '+
+        '"Tasks"."id" = '+taskId;
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with taskId=`'+taskId+'` does not exist'); // just in case - not possible case!
+    }
+    return {productId:result[0].productId, uoaId:result[0].uoaId};
+}
+
+function* checkForReturnAndResolve(taskId, userId, tag) {
+    var result;
+    // get current step for survey
+    var query =
+        'SELECT '+
+            '"Tasks"."stepId" as stepid, '+
+            '"ProductUOA"."currentStepId" as currentstepid '+
+        'FROM '+
+            '"Tasks" '+
+        'INNER JOIN "ProductUOA" ON '+
+            '"ProductUOA"."productId" = "Tasks"."productId" AND '+
+            '"ProductUOA"."UOAid" = "Tasks"."uoaId" '+
+        'WHERE '+
+            '"Tasks"."id" = '+taskId;
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with id=`'+id+'` does not exist in Tasks'); // just in case - not possible case!
+    }
+    if (result[0].currentstepid !== result[0].stepid) {
+        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because Task stepId=`'+result[0].stepid
+            +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
+    }
+
+    var currentStepPosition = yield * getCurrentStepPosition(taskId);
+    if (currentStepPosition === 0) {
+        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because there are not previous steps');
+    }
+
+    return yield * checkUserId(userId, taskId, tag, currentStepPosition); // {returnUserId, returnTaskId, returnStepId}
+}
+
+function* getCurrentStepPosition(taskId) {
+    // get current step position
+    query =
+        'SELECT '+
+        '"WorkflowSteps"."position" as position '+
+        'FROM "Tasks" '+
+        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+        'WHERE "Tasks"."id" = '+taskId.toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find taskId='+taskId.toString()); // just in case - I think, it is not possible case!
+    }
+    return (isInt(result[0].position)) ? result[0].position : 0;
+}
+
+function* updateProductUOAStep(object) {
+    var updateProductUOAQuery =
+        'UPDATE "ProductUOA" '+
+        'SET "currentStepId" = ' +object.stepId.toString()+ ' '+
+        'WHERE "productId"= '+object.productId.toString()+
+        ' AND "UOAid" = '+object.uoaId.toString();
+    return yield thunkQuery(updateProductUOAQuery);
+}
+
+function* checkUpdateProductUOAStep(object) {
+    /*
+        After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
+        If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
+        then change current step of survey to step from "return" Task.
+     */
+    var query =
+        'SELECT "Discussions"."questionId" '+
+        'FROM "Discussions" '+
+        'INNER JOIN "public"."Tasks" ON "public"."Discussions"."taskId" = "public"."Tasks"."id" '+
+        'WHERE '+
+        '"Discussions"."isResolve" <> "Discussions"."isReturn" AND '+
+        '"Tasks"."uoaId" = '+object.uoaId.toString()+' AND '+
+        '"Tasks"."productId" = '+object.productId.toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        var updateProductUOAQuery =
+            'UPDATE "ProductUOA" '+
+            'SET "currentStepId" = ' +object.stepId.toString()+ ' '+
+            'WHERE "productId"= '+object.productId.toString()+
+            ' AND "UOAid" = '+object.uoaId.toString();
+        return yield thunkQuery(updateProductUOAQuery);
+    }
+}
+
+function* updateReturnTask(discussionId) {
+    var updateReturnTaskQuery =
+        'UPDATE "Discussions" '+
+        'SET "isResolve" = true, "updated" = now() '+
+        'WHERE "id"= '+discussionId.toString();
+    return yield thunkQuery(updateReturnTaskQuery);
 }
