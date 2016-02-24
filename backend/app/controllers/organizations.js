@@ -122,7 +122,7 @@ module.exports = {
                     reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
                 }
             });
-        }
+        };
 
         var parser = function* (data) {
             return yield new Promise(function(resolve, reject){
@@ -133,7 +133,7 @@ module.exports = {
                     resolve(data);
                 });
             });
-        }
+        };
 
         co(function* () {
             var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.params.id)));
@@ -141,7 +141,7 @@ module.exports = {
                 throw new HttpError(403, 'Organization with id = '+req.params.id+' does not exist');
             }
 
-            if (req.user.roleID != 1 && req.user.organizationId != req.params.id) {
+            if (req.user.roleID !== 1 && req.user.organizationId !== req.params.id) {
                 throw new HttpError(403, 'You cannot add user to other organizations');
             }
 
@@ -154,16 +154,16 @@ module.exports = {
                     level = parseInt(level);
                     level = (isNaN(level) || level < 0 || level >  2) ? 0 : level;
                     return level;
-                }
+                };
 
                 for (var i in parsed) {
-                    if (i != 0) { // skip first string
+                    if (i !== 0) { // skip first string
                         var pass = crypto.randomBytes(5).toString('hex');
-                        var roleID = (req.user.roleID == 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
+                        var roleID = (req.user.roleID === 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
 
                         var existError = false;
 
-                        if (roleID == 2 && org[0].adminUserId) { // admin already exists
+                        if (roleID === 2 && org[0].adminUserId) { // admin already exists
                             existError = true;
                             roleID = 3;
                         }

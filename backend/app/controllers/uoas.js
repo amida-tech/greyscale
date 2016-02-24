@@ -161,7 +161,7 @@ module.exports = {
                 };
 
                 for (var i in parsed) {
-                    if (i != 0) { // skip first string
+                    if (i !== 0) { // skip first string
                         var newUoa = {
                             parse_status   : 'skipped',
                             name           : parsed[i][0],
@@ -284,7 +284,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     }
 
 };
