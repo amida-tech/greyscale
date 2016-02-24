@@ -167,6 +167,7 @@
         },
         "USERS": {
             "GROUPS": "Группы",
+            "IN_GROUPS": "",
             "LIST": "Список",
             "TITLE": "Пользователи",
             "UOA": "Единицы анализа"
@@ -420,6 +421,8 @@
         "NAME": "",
         "ORGANIZATION": "",
         "SELECT_ORGANIZATION": "",
+        "USER": "",
+        "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
     },

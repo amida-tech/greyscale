@@ -4,19 +4,19 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($rootScope, $scope, $state, greyscaleProjectsTbl) {
+    .controller('ProjectsCtrl', function ($rootScope, $scope, $state, greyscaleProjectsTbl, OrganizationSelector) {
 
         var _projectsTable = greyscaleProjectsTbl;
 
         $scope.model = {};
 
-        $rootScope.showOrganizationSelector = true;
+        OrganizationSelector.show = true;
 
-        var off = $scope.$watch('globalModel.organization', _renderProjectsTable);
+        var off = $scope.$watch('OrganizationSelector.organization', _renderProjectsTable);
 
         $scope.$on('$destroy', function () {
             off();
-            $rootScope.showOrganizationSelector = false;
+            OrganizationSelector.show = false;
         });
 
         $scope.projectSelect = function (row) {
