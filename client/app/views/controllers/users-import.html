@@ -7,7 +7,7 @@
     <div class="clearfix"></div>
 
     <upload-form
-        upload-endpoint="organizations/{{tabsModel.organizationId}}/users_csv"
+        upload-endpoint="organizations/{{globalModel.organization.id}}/users_csv"
         upload-disable="disableUpload"
         upload-success="afterUpload">
     </upload-form>

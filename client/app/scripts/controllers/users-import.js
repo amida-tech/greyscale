@@ -7,7 +7,9 @@ angular.module('greyscaleApp')
 
         var _usersImportTable = greyscaleUsersImportTbl;
 
-        $scope.model = {};
+        $scope.model = {
+            importResults: false
+        };
 
         $rootScope.showOrganizationSelector = true;
 
@@ -35,7 +37,7 @@ angular.module('greyscaleApp')
                 return;
             }
             _usersImportTable.dataFilter.organizationId = organization.id;
-            if ($scope.model.importUsers) {
+            if ($scope.model.importUsers && $scope.model.importUsers.tableParamst) {
                 $scope.model.importUsers.tableParams.reload();
             } else {
                 $scope.model.importUsers = _usersImportTable;
