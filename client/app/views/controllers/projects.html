@@ -1,25 +1,7 @@
-<div translate-namespace="PROJECTS">
-    <div ng-if="model.organizations" class="section">
-        <div class="form-inline">
-            <div class="form-group">
-                <label translate=".ORGANIZATION"></label>:
-                <select class="form-control"
-                        ng-model="model.organizationId"
-                        ng-change="organizationSelected()"
-                        ng-options="org.id as org.name for org in model.organizations">
-                </select>
-            </div>
-        </div>
-    </div>
-
     <div ng-if="model.projects">
         <widget-table model="model.projects" row-selector="projectSelect"></widget-table>
     </div>
 
-    <div ng-if="!model.$loading && !model.projects" class="alert alert-warning" translate=".SELECT_ORGANIZATION"></div>
-
-    <rd-loading ng-if="model.$loading" class="compact"></rd-loading>
-
-</div>
+    <rd-loading ng-if="!model.projects" class="compact"></rd-loading>
 
 

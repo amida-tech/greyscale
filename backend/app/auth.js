@@ -93,7 +93,7 @@ passport.use(new TokenStrategy({
                         }
                         return done(null, _.pick(data[0], User.sesInfo));
                     }
-                )
+                );
 
             }
         );

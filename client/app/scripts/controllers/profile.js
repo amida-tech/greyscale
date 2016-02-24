@@ -14,6 +14,7 @@ angular.module('greyscaleApp')
                 address: '',
                 url: ''
             },
+            orgReadonly: true,
             user: {}
         };
 
@@ -95,7 +96,8 @@ angular.module('greyscaleApp')
             .then(function (user) {
                 $scope.model.user = user;
                 $scope.model.user.organization = '';
-                if (greyscaleProfileSrv.isAdmin()) {
+                $scope.model.orgReadonly = !greyscaleProfileSrv.isAdmin();
+                if (!greyscaleProfileSrv.isSuperAdmin()) {
                     return greyscaleUserApi.getOrganization()
                         .then(function (resp) {
                             $scope.model.user.organization = resp.name;

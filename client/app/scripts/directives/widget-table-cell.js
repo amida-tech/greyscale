@@ -144,7 +144,7 @@ angular.module('greyscaleApp')
                     $scope.ext = ext;
                     if (elem.hasClass('compiled')) {
                         var linkCell = elem.find('>a');
-                        var compiledTemplate = $compile(template)($scope);
+                        var compiledTemplate = $compile('<div>' + template + '</div>')($scope);
                         if (linkCell.length) {
                             linkCell.append(compiledTemplate);
                         } else {

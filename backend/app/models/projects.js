@@ -32,7 +32,7 @@ var Project = sql.define({
 Project.statuses = [
     0, //active
     1 //inactive
-]
+];
 
 Project.whereCol = columns;
 

@@ -7,6 +7,7 @@
         "APPLY": "Apply",
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
+        "CHARS": "character(s)",
         "CLOSE": "Close",
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
@@ -27,6 +28,7 @@
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
         "VIEW": "View",
+        "WORDS": "word(s)",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -46,7 +48,9 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
-        "WRONG_DATE_FORMAT": "Wrong date format"
+        "MUST_BE_INT": " Value must be integer.",
+        "MUST_BE_NUMBER": " Not a number.",
+        "WRONG_DATE_FORMAT": "Wrong date format."
     },
     "GLOBALS": {
         "PRODUCTSTATES": {
@@ -167,6 +171,7 @@
         },
         "USERS": {
             "GROUPS": "Groups",
+            "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
             "UOA": "Units of analysis"
@@ -329,7 +334,10 @@
         "ROLE_RIGHTS": "Role Rights"
     },
     "SURVEYS": {
+        "ABOVE": "above",
+        "BELOW": "below",
         "CONTENT": "Content",
+        "CURRENT_COUNT": "Current count",
         "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
@@ -337,6 +345,8 @@
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "MAX": "max",
+        "MIN": "min",
         "NAME": "Name",
         "QUESTION": "Question",
         "SELECT_ONE": "select one",
@@ -420,6 +430,8 @@
         "NAME": "Name",
         "ORGANIZATION": "Organization",
         "SELECT_ORGANIZATION": "Select Organization",
+        "USER": "User",
+        "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
     },

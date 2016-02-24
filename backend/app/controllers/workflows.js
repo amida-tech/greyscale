@@ -76,7 +76,7 @@ module.exports = {
                 .select()
                 .where(WorkflowStep.workflowId.equals(req.params.id));
             if (!req.query.order) {
-                q = q.order(WorkflowStep.position)
+                q = q.order(WorkflowStep.position);
             }
             return yield thunkQuery(q);
         }).then(function (data) {
