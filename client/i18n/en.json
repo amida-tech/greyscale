@@ -157,7 +157,8 @@
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
-            "USER_ROLES": "User Roles"
+            "USERS_IN_GROUPS": "Users In Groups",
+            "USER_GROUPS": "User Groups"
         },
         "PROJECTS_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
@@ -252,11 +253,14 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
+                "ADD_GROUP": "Add Group",
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
                 "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
+                "GROUPS": "User Groups",
+                "NO_GROUPS": "No groups added",
                 "PERMISSIONS": "Permissions",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",
@@ -309,7 +313,13 @@
         "SELECT_ORGANIZATION": "Select Organization",
         "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
-        "STATUS": "Status"
+        "STATUS": "Status",
+        "USER_GROUPS": {
+            "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+            "DESCRIPTION": "Description",
+            "NAME": "Name",
+            "USER_GROUP": "User Group"
+        }
     },
     "RIGHTS": {
         "ACTION": "Action",

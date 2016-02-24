@@ -36,10 +36,10 @@ angular.module('greyscaleApp')
         var valid = 0;
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
-                step.roleId &&
+                step.role &&
                 step.startDate &&
                 step.endDate &&
-                typeof step.writeToAnswers === 'boolean'
+                step.groups && step.groups.length
             ) {
                 valid++;
             }
@@ -52,11 +52,12 @@ angular.module('greyscaleApp')
         var steps = [];
         angular.forEach(tableData, function(item, i){
             var step = _.pick(item, [
-                'id', 'roleId', 'startDate', 'endDate',
-                'title', 'writeToAnswers',
+                'id', 'role', 'startDate', 'endDate',
+                'title', 'writeToAnswers', 'groups',
                 'discussionParticipation', 'provideResponses', 'seeOthersResponses',
                 'editTranslate', 'blindReview'
             ]);
+            step.groups = _.map(step.groups, 'id');
             step.position = i;
             steps.push(step);
         });

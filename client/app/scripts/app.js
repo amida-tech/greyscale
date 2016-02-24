@@ -184,28 +184,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        .state('usersGroups', {
-            parent: 'users',
-            url: '/groups',
-            templateUrl: 'views/controllers/users-groups.html',
-            controller: 'UsersGroupsCtrl',
-            data: {
-                name: 'NAV.USERS.GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })
-        .state('usersInGroups', {
-            parent: 'users',
-            url: '/in-groups',
-            templateUrl: 'views/controllers/users-in-groups.html',
-            controller: 'UsersInGroupsCtrl',
-            data: {
-                name: 'NAV.USERS.IN_GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })
         .state('usersUoa', {
             parent: 'users',
             url: '/uoa',
@@ -292,12 +270,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: '{{ext.projectName}}'
             }
         })
-        .state('projects.setup.roles', {
-            url: '/roles',
-            templateUrl: 'views/controllers/project-setup-roles.html',
-            controller: 'ProjectSetupRolesCtrl',
+        .state('projects.setup.userGroups', {
+            url: '/usergroups',
+            templateUrl: 'views/controllers/project-setup-usergroups.html',
+            controller: 'ProjectSetupUserGroupsCtrl',
             data: {
-                name: 'NAV.PROJECTS.USER_ROLES'
+                name: 'NAV.PROJECTS.USER_GROUPS'
+            }
+        })
+        .state('projects.setup.usersInGroups', {
+            url: '/users-in-groups',
+            templateUrl: 'views/controllers/project-setup-users-in-groups.html',
+            controller: 'ProjectSetupUsersInGroupsCtrl',
+            data: {
+                name: 'NAV.PROJECTS.USERS_IN_GROUPS'
             }
         })
         .state('projects.setup.surveys', {
