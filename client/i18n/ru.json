@@ -7,6 +7,7 @@
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
         "CANCEL": "Отмена",
+        "CHARS": "",
         "CLOSE": "Закрыть",
         "CONFIRM": "Подтвердить",
         "CONFIRMATION": "Подтверждение",
@@ -25,6 +26,9 @@
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
+        "UNASSIGN": "Отмена назначения",
+        "VIEW": "Просмотр",
+        "WORDS": "",
         "YES": "Да"
     },
     "DATEPICKER": {
@@ -44,6 +48,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
+        "MUST_BE_INT": "",
+        "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
@@ -164,6 +170,8 @@
             "TITLE": "Единицы анализа"
         },
         "USERS": {
+            "GROUPS": "Группы",
+            "IN_GROUPS": "",
             "LIST": "Список",
             "TITLE": "Пользователи",
             "UOA": "Единицы анализа"
@@ -197,6 +205,7 @@
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Создать процесс",
+            "DELETE_CONFIRM": "Подтвердите удаление продукта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
             "PAUSE_PRODUCT": "Приостановить продукт",
             "PLANNING_NOT_FINISH": "Планирование не окончено",
@@ -231,7 +240,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Единицы анализа <small>для продукта \"{{product}}\"</small>"
+            "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b> из продукта <b>{{product.title}}</b>",
+            "DESCRIPTION": "Описание",
+            "MODAL_TITLE": "Единицы анализа <small>для продукта \"{{product.title}}\"</small>",
+            "NAME": "Название",
+            "SHORT_NAME": "Короткое название",
+            "TABLE_TITLE": "Единицы анализа продукта",
+            "TYPE": "Тип"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Описание",
@@ -277,6 +292,7 @@
         "CLOSE_TIME": "Время закрытия",
         "CODE_NAME": "Название проекта",
         "CREATED": "Создан",
+        "DELETE_CONFIRM": "Подтвердите удаление проекта <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Описание",
         "HEADER": "Проекты",
         "ITEM": "Проект",
@@ -285,10 +301,12 @@
         "PROJECT": "Проект",
         "PROJECTS": "Проекты",
         "ROLES": {
+            "DELETE_CONFIRM": "Подтвердите отмену назначения пользователя <b>{{user.email}}</b> на роль <b>{{role.name}}</b>",
             "ITEM": "Роль в проекте",
             "ROLE": "Роль",
             "USER": "Пользователь"
         },
+        "SELECT_ORGANIZATION": "",
         "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
         "STATUS": "Статус"
@@ -316,13 +334,23 @@
         "ROLE_RIGHTS": "Правила ролей"
     },
     "SURVEYS": {
+        "ABOVE": "",
+        "BELOW": "",
         "CONTENT": "Содержание",
+        "CURRENT_COUNT": "",
+        "DELETE_CONFIRM": "Подтвердите удаление опроса <b>{{survey.title}}</b>",
         "DESCRIPTION": "Описание",
         "DISCUSSION": "Обсуждение",
         "FIELDS": "Вопросы",
+        "IS_COMPLETE": "",
+        "IS_DRAFT": "",
         "ITEM": "Опрос",
+        "MAX": "",
+        "MIN": "",
         "NAME": "Название",
-        "QUESTION": "Вопрос",
+        "QUESTION": "",
+        "SELECT_ONE": "",
+        "STATUS": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
@@ -359,6 +387,7 @@
         "VISIBILITY": "Видимость"
     },
     "UOAS_FILTER": {
+        "APPLY_SELECTED": "Применить выбранные",
         "CREATED": "Создан",
         "DESCRIPTION": "Описание",
         "NAME": "Название",
@@ -391,8 +420,20 @@
         "NOT_LOGGED": "Не входил",
         "ORGANIZATION": "Организация",
         "ROLE": "Роль",
+        "SELECT_ORGANIZATION": "",
         "USER": "Пользователь",
         "USERS": "Пользователи"
+    },
+    "USER_GROUPS": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "ORGANIZATION": "",
+        "SELECT_ORGANIZATION": "",
+        "USER": "",
+        "USERS_IN_GROUPS": "",
+        "USER_GROUP": "",
+        "USER_GROUPS": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

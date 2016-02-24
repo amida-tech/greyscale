@@ -89,7 +89,7 @@ module.exports = {
             yield * checkSurveyData(req);
             return yield thunkQuery(
                 Survey
-                .update(_.pick(req.body, Survey.table._initialConfig.columns))
+                .update(_.pick(req.body, Survey.editCols))
                 .where(Survey.id.equals(req.params.id))
             );
         }).then(function (data) {
@@ -260,8 +260,11 @@ function* checkQuestionData(req, dataObj, isCreate) {
     //}
 
     if (dataObj.type) {
-        if ((parseInt(dataObj.type)) < 0 || (parseInt(dataObj.type) > 10)) {
-            throw new HttpError(403, 'Type value should be from 0 till 11');
+        if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) === -1) {
+            throw new HttpError(
+                403,
+                'Type value should be from 0 till ' + SurveyQuestion.types[SurveyQuestion.types.length-1]
+            );
         }
     }
 

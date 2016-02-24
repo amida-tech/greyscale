@@ -184,6 +184,28 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('usersGroups', {
+            parent: 'users',
+            url: '/groups',
+            templateUrl: 'views/controllers/users-groups.html',
+            controller: 'UsersGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.GROUPS',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('usersInGroups', {
+            parent: 'users',
+            url: '/in-groups',
+            templateUrl: 'views/controllers/users-in-groups.html',
+            controller: 'UsersInGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.IN_GROUPS',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('usersUoa', {
             parent: 'users',
             url: '/uoa',

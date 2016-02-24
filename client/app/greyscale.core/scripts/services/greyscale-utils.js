@@ -15,7 +15,8 @@ angular.module('greyscale.core')
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
-            capitalize: _capitalize
+            capitalize: _capitalize,
+            countWords: _countWords
         };
 
         function _decode(dict, key, code, name) {
@@ -132,5 +133,9 @@ angular.module('greyscale.core')
 
         function _capitalize(_str) {
             return _str.charAt(0).toUpperCase() + _str.substr(1).toLowerCase();
+        }
+
+        function _countWords(str) {
+            return (str ? str.split(/\s+/).length : 0);
         }
     });

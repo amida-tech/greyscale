@@ -7,6 +7,7 @@
         "APPLY": "Apply",
         "ASSIGN": "Assign",
         "CANCEL": "Cancel",
+        "CHARS": "character(s)",
         "CLOSE": "Close",
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
@@ -25,6 +26,9 @@
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "UNASSIGN": "Unassign",
+        "VIEW": "View",
+        "WORDS": "word(s)",
         "YES": "Yes"
     },
     "DATEPICKER": {
@@ -44,7 +48,9 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
-        "WRONG_DATE_FORMAT": "Wrong date format"
+        "MUST_BE_INT": " Value must be integer.",
+        "MUST_BE_NUMBER": " Not a number.",
+        "WRONG_DATE_FORMAT": "Wrong date format."
     },
     "GLOBALS": {
         "PRODUCTSTATES": {
@@ -164,6 +170,8 @@
             "TITLE": "Units of Analysis"
         },
         "USERS": {
+            "GROUPS": "Groups",
+            "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
             "UOA": "Units of analysis"
@@ -197,6 +205,7 @@
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
+            "DELETE_CONFIRM": "Please confirm deleting of product <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
             "PAUSE_PRODUCT": "Suspend Product",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
@@ -231,7 +240,13 @@
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
-            "UOAS_FOR": "Units Of Analysis <small>for \"{{product}}\" Product</small>"
+            "DELETE_CONFIRM": "Please confirm deleting unit <b>{{uoa.name}}</b> from product <b>{{product.title}}</b>",
+            "DESCRIPTION": "Description",
+            "MODAL_TITLE": "Units Of Analysis <small>For \"{{product.title}}\" Product</small>",
+            "NAME": "Name",
+            "SHORT_NAME": "Short Name",
+            "TABLE_TITLE": "Product Units of Analysis",
+            "TYPE": "Type"
         },
         "WORKFLOW": {
             "DESCRIPTION": "Description",
@@ -277,6 +292,7 @@
         "CLOSE_TIME": "Close Time",
         "CODE_NAME": "Project Name",
         "CREATED": "Created",
+        "DELETE_CONFIRM": "Please confirm deleting of project <b>{{project.codeName}}</b>",
         "DESCRIPTION": "Description",
         "HEADER": "Projects",
         "ITEM": "Project",
@@ -285,10 +301,12 @@
         "PROJECT": "Project",
         "PROJECTS": "Projects",
         "ROLES": {
+            "DELETE_CONFIRM": "Please confirm unassigning of user <b>{{user.email}}</b> to role <b>{{role.name}}</b>",
             "ITEM": "Project Role",
             "ROLE": "Role",
             "USER": "User"
         },
+        "SELECT_ORGANIZATION": "Select Organization",
         "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
         "STATUS": "Status"
@@ -316,13 +334,23 @@
         "ROLE_RIGHTS": "Role Rights"
     },
     "SURVEYS": {
+        "ABOVE": "above",
+        "BELOW": "below",
         "CONTENT": "Content",
+        "CURRENT_COUNT": "Current count",
+        "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISCUSSION": "Group discussion",
         "FIELDS": "Fields",
+        "IS_COMPLETE": "Complete",
+        "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "MAX": "max",
+        "MIN": "min",
         "NAME": "Name",
         "QUESTION": "Question",
+        "SELECT_ONE": "select one",
+        "STATUS": "Status",
         "VIEW": "View"
     },
     "TABLES": {
@@ -359,6 +387,7 @@
         "VISIBILITY": "Visibility"
     },
     "UOAS_FILTER": {
+        "APPLY_SELECTED": "Apply Selected",
         "CREATED": "Created",
         "DESCRIPTION": "Description",
         "NAME": "Name",
@@ -391,8 +420,20 @@
         "NOT_LOGGED": "Not Logged",
         "ORGANIZATION": "Organization",
         "ROLE": "Role",
+        "SELECT_ORGANIZATION": "Select Organization",
         "USER": "User",
         "USERS": "Users"
+    },
+    "USER_GROUPS": {
+        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+        "DESCRIPTION": "Description",
+        "NAME": "Name",
+        "ORGANIZATION": "Organization",
+        "SELECT_ORGANIZATION": "Select Organization",
+        "USER": "User",
+        "USERS_IN_GROUPS": "Users In Groups",
+        "USER_GROUP": "User Group",
+        "USER_GROUPS": "User Groups"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

@@ -6,7 +6,7 @@
         <p ng-bind-html="params.message"></p>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-{{params.cancelType||'default'}}" ng-click="close()">{{params.cancelText||'COMMON.CANCEL'|translate:params}}</button>
-        <button class="btn btn-{{params.okType||'default'}}" ng-click="confirm()">{{params.okText||'COMMON.OK'|translate:params}}</button>
+        <button class="btn btn-lg btn-{{params.cancelType||'default'}}" ng-click="close()">{{params.cancelText||'COMMON.CANCEL'|translate:params}}</button>
+        <button class="btn btn-lg btn-{{params.okType||'default'}}" ng-click="confirm()">{{params.okText||'COMMON.OK'|translate:params}}</button>
     </div>
 </div>

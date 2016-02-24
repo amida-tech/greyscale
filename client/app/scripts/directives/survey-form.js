@@ -3,18 +3,18 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $log) {
+    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location,
+        $anchorScroll, greyscaleUtilsSrv) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
         return {
             restrict: 'E',
-            //            replace: true,
             templateUrl: 'views/directives/survey-form.html',
             scope: {
                 surveyData: '='
             },
-            link: function (scope, elem) {
+            link: function (scope) {
 
                 scope.$watch('surveyData', updateForm);
 
@@ -30,8 +30,14 @@ angular.module('greyscaleApp')
             },
             controller: function ($scope) {
 
+                $scope.model = {
+                    contentOpen: false
+                };
+
                 $scope.goField = function (elemId) {
-                    $log.debug('going to', elemId);
+                    $scope.model.contentOpen = !$scope.model.contentOpen;
+                    $location.hash(elemId);
+                    $anchorScroll();
                 };
 
                 $scope.save = function () {
@@ -39,8 +45,9 @@ angular.module('greyscaleApp')
                 };
 
                 $interval(function () {
-                    $log.debug('autosaving...');
-                    saveAnswers($scope, true);
+                    if (1 === 2) { //disabled autosave while develop
+                        saveAnswers($scope, true);
+                    }
                 }, 15000);
             }
         };
@@ -59,6 +66,7 @@ angular.module('greyscaleApp')
             }];
             var survey = scope.surveyData.survey;
             var r = 0,
+                o,
                 item, fld, qid;
 
             for (var q = 0; q < survey.questions.length; q++) {
@@ -87,8 +95,51 @@ angular.module('greyscaleApp')
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt,
                         value: field.value,
+                        ngModel: {},
                         answer: null
                     };
+
+                    switch (type) {
+                    case 'checkboxes':
+                        for (o = 0; o < field.options.length; o++) {
+                            angular.extend(fld.options[o], {
+                                checked: field.options[o].isSelected,
+                                name: field.options[o].label
+                            });
+                        }
+                        break;
+
+                    case 'dropdown':
+                    case 'radio':
+                        if (type === 'dropdown') {
+                            if (!fld.required) {
+                                fld.options.unshift({
+                                    id: null,
+                                    label: '',
+                                    value: null
+                                });
+                                fld.answer = fld.options[0];
+                            }
+                        }
+
+                        for (o = 0; o < field.options.length; o++) {
+                            if (field.options[o].isSelected) {
+                                fld.answer = field.options[o];
+                            }
+                        }
+                        break;
+
+                    case 'number':
+                        if (fld.intOnly) {
+                            fld.answer = parseInt(fld.value);
+                        } else {
+                            fld.answer = parseFloat(fld.value);
+                        }
+                        break;
+
+                    default:
+                        fld.answer = fld.value;
+                    }
 
                     if (type === 'section_end') { // close section
                         r--;
@@ -144,7 +195,6 @@ angular.module('greyscaleApp')
                         if (answer) {
                             switch (fld.type) {
                             case 'checkboxes':
-
                                 for (o = 0; o < fld.options.length; o++) {
                                     fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
                                     fld.options[o].checked = fld.options[o].isSelected;
@@ -154,12 +204,21 @@ angular.module('greyscaleApp')
                                 }
                                 break;
 
+                            case 'dropdown':
                             case 'radio':
                                 for (o = 0; o < fld.options.length; o++) {
                                     fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
                                     if (fld.options[o].isSelected) {
                                         fld.answer = fld.options[o];
                                     }
+                                }
+                                break;
+
+                            case 'number':
+                                if (fld.intOnly) {
+                                    fld.answer = parseInt(answer.value);
+                                } else {
+                                    fld.answer = parseFloat(answer.value);
                                 }
                                 break;
 
@@ -208,9 +267,17 @@ angular.module('greyscaleApp')
                             }
                             break;
 
+                        case 'dropdown':
                         case 'radio':
-                            answer.optionId = [fld.answer.id];
-                            answer.value = fld.answer.value;
+                            if (fld.type === 'dropdown') {
+                                answer.optionId = [];
+                                answer.value = null;
+                            }
+
+                            if (fld.answer.id) {
+                                answer.optionId = [fld.answer.id];
+                                answer.value = fld.answer.value;
+                            }
                             break;
 
                         default:
@@ -231,9 +298,10 @@ angular.module('greyscaleApp')
                             }
                         }
                         scope.surveyForm.$dirty = isAuto;
+                        scope.recentSaved = new Date();
                     })
                     .catch(function (err) {
-                        $log.debug(err);
+                        greyscaleUtilsSrv.errorMsg(err);
                     })
                     .finally(function () {
                         scope.lock = false;

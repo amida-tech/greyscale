@@ -21,7 +21,9 @@ angular.module('greyscaleApp')
                 var i, j;
                 for (i = 0; i < fields.length; i++) {
                     var typeIdx = types.indexOf(fields[i].field_type === 'yes_no' ? 'radio' : fields[i].field_type);
-                    if (typeIdx === -1) continue;
+                        if (typeIdx === -1) {
+                            continue;
+                        }
                     var fo = fields[i].field_options;
                     var newQuestion = {
                         label: fields[i].label,
@@ -38,10 +40,16 @@ angular.module('greyscaleApp')
                     newQuestion.qid = fo.qid ? fo.qid : '';
                     newQuestion.skip = fo.skip && !isNaN(fo.skip) ? parseInt(fo.skip) : 0;
                     newQuestion.size = fo.size ? sizes.indexOf(fo.size) : 0;
-                    if (fo.minlength && !isNaN(fo.minlength)) newQuestion.minLength = parseInt(fo.minlength);
-                    else if (fo.min && !isNaN(fo.min)) newQuestion.minLength = parseInt(fo.min);
-                    if (fo.maxlength && !isNaN(fo.maxlength)) newQuestion.maxLength = parseInt(fo.maxlength);
-                    else if (fo.max && !isNaN(fo.max)) newQuestion.maxLength = parseInt(fo.max);
+                        if (fo.minlength && !isNaN(fo.minlength)) {
+                            newQuestion.minLength = parseInt(fo.minlength);
+                        } else if (fo.min && !isNaN(fo.min)) {
+                            newQuestion.minLength = parseInt(fo.min);
+                        }
+                        if (fo.maxlength && !isNaN(fo.maxlength)) {
+                            newQuestion.maxLength = parseInt(fo.maxlength);
+                        } else if (fo.max && !isNaN(fo.max)) {
+                            newQuestion.maxLength = parseInt(fo.max);
+                        }
                     newQuestion.isWordmml = fo.min_max_length_units ? fo.min_max_length_units === 'words' : undefined;
                     newQuestion.incOtherOpt = fo.include_other_option || fo.include_blank_option;
                     newQuestion.units = fo.units;
@@ -53,7 +61,11 @@ angular.module('greyscaleApp')
                     newQuestion.options = [];
                     for (j = 0; j < fo.options.length; j++) {
                         var option = fo.options[j];
-                        newQuestion.options.push({ label: option.label, value: option.value, isSelected: option.checked });
+                            newQuestion.options.push({
+                                label: option.label,
+                                value: option.value,
+                                isSelected: option.checked
+                            });
                     }
                 }
                 if (!scope.model.survey.questions) scope.model.survey.questions = [];

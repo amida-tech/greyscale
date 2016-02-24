@@ -3,45 +3,45 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersImportCtrl', function ($q, $scope, $state, $rootScope, greyscaleProfileSrv,
-        greyscaleGlobals, greyscaleOrganizationApi, greyscaleUsersImportTbl) {
+    .controller('UsersImportCtrl', function ($rootScope, $q, $scope, greyscaleUsersImportTbl, OrganizationSelector) {
 
-        var roles = greyscaleGlobals.userRoles;
-
-        var _importUsers = greyscaleUsersImportTbl;
+        var _usersImportTable = greyscaleUsersImportTbl;
 
         $scope.model = {
-            importUsers: _importUsers
+            importResults: false
         };
 
-        greyscaleProfileSrv.getProfile()
-            .then(function (profile) {
-                $scope.model.organizationId = profile.organizationId;
-            });
+        OrganizationSelector.show = true;
 
-        greyscaleProfileSrv.getAccessLevel()
-            .then(function (roleMask) {
-                if (roleMask & roles.superAdmin.mask) {
-                    greyscaleOrganizationApi.list().then(function (organizations) {
-                        $scope.model.organizations = organizations;
-                    });
-                }
-            });
+        var off = $scope.$watch('globalModel.organization', _renderUsersImportTable);
 
-        $scope.disableUpload = function () {
-            return !$scope.model.organizationId;
-        };
+        $scope.$on('$destroy', function () {
+            off();
+            OrganizationSelector.show = false;
+        });
 
         $scope.afterUpload = function (file, data) {
-            _importUsers.dataPromise = function () {
+            _usersImportTable.dataPromise = function () {
                 return $q.when(data);
             };
 
-            if ($scope.model.results) {
-                _importUsers.tableParams.reload();
+            if ($scope.model.importResults) {
+                $scope.model.importUsers.tableParams.reload();
             } else {
-                $scope.model.results = true;
+                $scope.model.importResults = true;
             }
         };
+
+        function _renderUsersImportTable(organization) {
+            if (!organization) {
+                return;
+            }
+            _usersImportTable.dataFilter.organizationId = organization.id;
+            if ($scope.model.importUsers && $scope.model.importUsers.tableParamst) {
+                $scope.model.importUsers.tableParams.reload();
+            } else {
+                $scope.model.importUsers = _usersImportTable;
+            }
+        }
 
     });

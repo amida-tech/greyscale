@@ -207,8 +207,8 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
-router.route('/:realm/v0.2/products/:id/export')
-    .get(authenticate('token').always, products.export);
+router.route('/:realm/v0.2/products/:id/export.csv')
+    .get(/*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
@@ -339,6 +339,22 @@ router.route('/:realm/v0.2/workflows/:id/steps')
 //    .get(authenticate('token').always, workflows.stepListSelectOne)
 //    .put(authenticate('token').always, workflows.stepListUpdateOne)
 //    .delete(authenticate('token').always, workflows.stepListDelete);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    DISCUSSIONS
+//----------------------------------------------------------------------------------------------------------------------
+var discussions = require('app/controllers/discussions');
+
+router.route('/:realm/v0.2/discussions')
+    .get(authenticate('token').always, discussions.select)
+    .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/entryscope')
+    .get(authenticate('token').always, discussions.getEntryScope);
+router.route('/:realm/v0.2/discussions/entryscope/:id')
+    .get(authenticate('token').always, discussions.getEntryUpdate);
+router.route('/:realm/v0.2/discussions/:id')
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.updateOne)
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis

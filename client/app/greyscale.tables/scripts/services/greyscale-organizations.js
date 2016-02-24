@@ -77,7 +77,6 @@ angular.module('greyscale.tables')
             dataFilter: {},
             pageLength: 10,
             add: {
-                title: 'Add',
                 handler: _editRecord
             }
 
