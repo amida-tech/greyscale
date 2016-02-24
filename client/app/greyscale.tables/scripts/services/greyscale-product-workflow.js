@@ -106,18 +106,19 @@ angular.module('greyscale.tables')
                 formFields: formFields,
                 hd: hd,
                 getGroups: _getGroups,
-                stepAddGroup: function(row, group){
+                stepAddGroup: function (row, group) {
                     row.groups = row.groups || [];
-                    row.groups.push(group)
+                    row.groups.push(group);
                 },
-                stepRemoveGroup: function(row, i){
+                stepRemoveGroup: function (row, i) {
                     row.groups.splice(i, 1);
-                    hd.update();
                 },
-                disableGroup: function(row, group){
-                    return !!_.find(row.groups, {id: group.id});
+                disableGroup: function (row, group) {
+                    return !!_.find(row.groups, {
+                        id: group.id
+                    });
                 },
-                noFreeGroups: function(row){
+                noFreeGroups: function (row) {
                     return row.groups && row.groups.length === _dicts.groups.length;
                 }
             }

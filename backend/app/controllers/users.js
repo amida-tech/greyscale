@@ -242,14 +242,30 @@ module.exports = {
 
     selfOrganization: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID !== 2) {
-                throw new HttpError(400, 'Your role is not "client". Only clients can have organization');
+            var org = false;
+
+            if (req.user.roleID == 2) {
+                var org = yield thunkQuery(
+                    Organization
+                        .select(Organization.star())
+                        .from(Organization)
+                        .where(Organization.adminUserId.equals(req.user.id))
+                );
+                org = _.first(org);
+            } else if (req.user.roleID == 3) {
+                var org = yield thunkQuery(
+                    Organization
+                        .select(Organization.star())
+                        .from(Organization)
+                        .where(Organization.id.equals(req.user.organizationId))
+                );
+                org = _.first(org);
             }
-            var Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)));
-            if (!_.first(Org)) {
+
+            if (!org) {
                 throw new HttpError(404, 'Not found');
             }
-            return _.first(Org);
+            return org;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -268,7 +284,12 @@ module.exports = {
                 url: req.body.url,
                 isActive: true
             };
-            var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id));
+            var updated = yield thunkQuery(
+                Organization
+                    .update(data)
+                    .where(Organization.adminUserId.equals(req.user.id))
+                    .returning(Organization.id)
+            );
             if (!_.first(updated)) {
                 throw new HttpError(404, 'Not found');
             }

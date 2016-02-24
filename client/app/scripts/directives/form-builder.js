@@ -11,7 +11,6 @@ angular.module('greyscaleApp')
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
             link: function (scope, elem, attr) {
-
                 var formbuilder;
                 var types = greyscaleGlobals.formBuilderFieldTypes;
                 var sizes = ['small', 'medium', 'large'];
@@ -21,7 +20,7 @@ angular.module('greyscaleApp')
                     var questions = [];
                     var i, j;
                     for (i = 0; i < fields.length; i++) {
-                        var typeIdx = types.indexOf(fields[i].field_type);
+                        var typeIdx = types.indexOf(fields[i].field_type === 'yes_no' ? 'radio' : fields[i].field_type);
                         if (typeIdx === -1) {
                             continue;
                         }

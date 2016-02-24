@@ -80,7 +80,9 @@ angular.module('greyscale.tables')
                 return $q.reject();
             } else {
                 var req = {
-                    usergroups: greyscaleUserGroupApi.list({projectId: projectId})
+                    usergroups: greyscaleUserGroupApi.list({
+                        projectId: projectId
+                    })
                 };
                 return $q.all(req).then(function (promises) {
                     return promises.usergroups;
