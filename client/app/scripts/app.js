@@ -195,6 +195,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('usersInGroups', {
+            parent: 'users',
+            url: '/in-groups',
+            templateUrl: 'views/controllers/users-in-groups.html',
+            controller: 'UsersInGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.IN_GROUPS',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('usersUoa', {
             parent: 'users',
             url: '/uoa',

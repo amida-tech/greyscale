@@ -3,19 +3,19 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersListCtrl', function ($rootScope, $scope, greyscaleUsersTbl, greyscaleModalsSrv) {
+    .controller('UsersListCtrl', function ($rootScope, $scope, greyscaleUsersTbl, greyscaleModalsSrv, OrganizationSelector) {
 
         var _usersTable = greyscaleUsersTbl;
 
         $scope.model = {};
 
-        $rootScope.showOrganizationSelector = true;
+        OrganizationSelector.show = true;
 
-        var off = $scope.$watch('globalModel.organization', _renderUsersTable);
+        var off = $scope.$watch('OrganizationSelector.organization', _renderUsersTable);
 
         $scope.$on('$destroy', function () {
             off();
-            $rootScope.showOrganizationSelector = false;
+            OrganizationSelector.show = false;
         });
 
         $scope.showUserInfo = function (user) {

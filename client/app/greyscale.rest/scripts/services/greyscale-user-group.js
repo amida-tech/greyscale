@@ -19,8 +19,32 @@ angular.module('greyscale.rest')
                 .catch(function () {
                     return $q.when([{
                         id: 1,
-                        name: 'ddddddddd',
-                        description: 'ffffffffffffffffff'
+                        name: 'Employees/Staff',
+                        description: 'Those who works'
+                    }, {
+                        id: 2,
+                        name: 'Contractors',
+                        description: 'Those who deals'
+                    }, {
+                        id: 3,
+                        name: 'Researchers',
+                        description: 'Those who looks'
+                    }, {
+                        id: 4,
+                        name: 'Translators',
+                        description: 'Those who knows'
+                    }, {
+                        id: 5,
+                        name: 'Management',
+                        description: 'Those who asks'
+                    }, {
+                        id: 6,
+                        name: 'Support',
+                        description: 'Those who serves'
+                    }, {
+                        id: 7,
+                        name: 'Government Employees',
+                        description: 'Those who works too'
                     }]);
                 });
         }

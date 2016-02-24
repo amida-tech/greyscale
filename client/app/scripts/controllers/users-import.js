@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersImportCtrl', function ($rootScope, $q, $scope, greyscaleUsersImportTbl) {
+    .controller('UsersImportCtrl', function ($rootScope, $q, $scope, greyscaleUsersImportTbl, OrganizationSelector) {
 
         var _usersImportTable = greyscaleUsersImportTbl;
 
@@ -11,13 +11,13 @@ angular.module('greyscaleApp')
             importResults: false
         };
 
-        $rootScope.showOrganizationSelector = true;
+        OrganizationSelector.show = true;
 
         var off = $scope.$watch('globalModel.organization', _renderUsersImportTable);
 
         $scope.$on('$destroy', function () {
             off();
-            $rootScope.showOrganizationSelector = false;
+            OrganizationSelector.show = false;
         });
 
         $scope.afterUpload = function (file, data) {

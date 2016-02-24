@@ -171,6 +171,7 @@
         },
         "USERS": {
             "GROUPS": "Groups",
+            "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
             "UOA": "Units of analysis"
@@ -429,6 +430,8 @@
         "NAME": "Name",
         "ORGANIZATION": "Organization",
         "SELECT_ORGANIZATION": "Select Organization",
+        "USER": "User",
+        "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
     },
