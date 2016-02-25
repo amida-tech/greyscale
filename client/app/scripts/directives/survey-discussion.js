@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyDiscussion', function (greyscaleGlobals, i18n, $log) {
+    .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleUserApi, $log) {
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
         var sectionTypes = [
             fieldTypes.indexOf('section_start'),
@@ -63,6 +63,10 @@ angular.module('greyscaleApp')
 
         function updateDicscussion(survey, scope) {
             if (survey) {
+                //grey
+                greyscaleDiscussionApi.list().then(function (resp) {
+                    $log.debug('discussions list', resp);
+                });
                 for (var q = 0; q < survey.questions.length; q++) {
                     var quest = survey.questions[q];
                     if (sectionTypes.indexOf(quest.type) === -1) {
