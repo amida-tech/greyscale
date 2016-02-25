@@ -35,7 +35,7 @@ angular.module('greyscale.rest')
         }
 
         function _del(userId, list) {
-            return _api(userId).remove(list);
+            return _api(userId).customOperation('remove','',null,null,list);
         }
 
         function _delOne(userId, uoaId) {
