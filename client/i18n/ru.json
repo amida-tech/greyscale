@@ -157,10 +157,9 @@
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
-            "USERS_IN_GROUPS": "",
-            "USER_GROUPS": ""
+            "USERS_IN_GROUPS": ""
         },
-        "PROJECTS_MANAGEMENT": "Проекты",
+        "PROJECT_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
         "RESET": "Сброс",
         "SURVEY": "Опрос",
@@ -313,13 +312,7 @@
         "SELECT_ORGANIZATION": "",
         "START_PROJECT": "Начать проект",
         "START_TIME": "Время начала",
-        "STATUS": "Статус",
-        "USER_GROUPS": {
-            "DELETE_CONFIRM": "",
-            "DESCRIPTION": "",
-            "NAME": "",
-            "USER_GROUP": ""
-        }
+        "STATUS": "Статус"
     },
     "RIGHTS": {
         "ACTION": "Действие",

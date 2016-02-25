@@ -157,10 +157,9 @@
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
-            "USERS_IN_GROUPS": "Users In Groups",
-            "USER_GROUPS": "User Groups"
+            "USERS_IN_GROUPS": "Users In Groups"
         },
-        "PROJECTS_MANAGEMENT": "Project Management",
+        "PROJECT_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
         "RESET": "Reset",
         "SURVEY": "Survey",
@@ -313,13 +312,7 @@
         "SELECT_ORGANIZATION": "Select Organization",
         "START_PROJECT": "Start Project",
         "START_TIME": "Start Time",
-        "STATUS": "Status",
-        "USER_GROUPS": {
-            "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
-            "DESCRIPTION": "Description",
-            "NAME": "Name",
-            "USER_GROUP": "User Group"
-        }
+        "STATUS": "Status"
     },
     "RIGHTS": {
         "ACTION": "Action",

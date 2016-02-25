@@ -1,34 +1,20 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectUserGroupsTbl', function ($q, _,
+    .factory('greyscaleUsersGroupsTbl', function ($q, _,
         greyscaleUserGroupApi,
-        greyscaleProjectApi,
-        greyscaleProductApi,
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
-        greyscaleProductWorkflowApi,
-        greyscaleGlobals,
-        $state,
-        inform, i18n) {
+        inform) {
 
-        var tns = 'PROJECTS.USER_GROUPS.';
-
-        var _dicts = {
-            surveys: []
-        };
-
-        var _const = {
-            STATUS_PLANNING: 0,
-            STATUS_STARTED: 1,
-            STATUS_SUSPENDED: 2,
-            STATUS_CANCELLED: 4
-        };
-
-        var _statusIcons = {};
-        _statusIcons[_const.STATUS_STARTED] = 'fa-pause';
-        _statusIcons[_const.STATUS_SUSPENDED] = 'fa-play';
+        var tns = 'USER_GROUPS.';
 
         var _cols = [{
+            field: 'id',
+            title: 'ID',
+            show: false,
+            sortable: 'id',
+            dataReadOnly: 'both'
+        }, {
             field: 'name',
             title: tns + 'NAME',
             show: true,
@@ -63,25 +49,24 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'USER_GROUP',
-            //formWarning: _getFormWarning,
             pageLength: 10,
             add: {
                 handler: _editGroup
             }
         };
 
-        function _getProjectId() {
-            return _table.dataFilter.projectId;
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
         }
 
         function _getData() {
-            var projectId = _getProjectId();
-            if (!projectId) {
+            var organizationId = _getOrganizationId();
+            if (!organizationId) {
                 return $q.reject();
             } else {
                 var req = {
                     usergroups: greyscaleUserGroupApi.list({
-                        projectId: projectId
+                        organizationId: organizationId
                     })
                 };
                 return $q.all(req).then(function (promises) {
@@ -98,7 +83,7 @@ angular.module('greyscale.tables')
                         return greyscaleUserGroupApi.update(editGroup);
                     } else {
                         op = 'adding';
-                        editGroup.projectId = _getProjectId();
+                        editGroup.organizationId = _getOrganizationId();
                         return greyscaleUserGroupApi.add(editGroup);
                     }
                 })

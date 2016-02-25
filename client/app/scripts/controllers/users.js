@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
 
         var _parentState = 'users';
 
-        var _states = ['List', /*'Groups', 'InGroups',*/ 'Uoa', 'Import'];
+        var _states = ['List', 'Groups', 'Uoa', 'Import'];
         $scope.tabs = [];
 
         $scope.tabsModel = {};
@@ -39,10 +39,6 @@ angular.module('greyscaleApp')
 
         $scope.go = function (state) {
             $state.go(_parentState + state);
-        };
-
-        $scope.organizationReady = function () {
-
         };
 
         function _resolveState(state) {

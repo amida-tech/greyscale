@@ -184,6 +184,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('usersGroups', {
+            parent: 'users',
+            url: '/groups',
+            templateUrl: 'views/controllers/users-groups.html',
+            controller: 'UsersGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.GROUPS'
+            }
+        })
         .state('usersUoa', {
             parent: 'users',
             url: '/uoa',
@@ -253,7 +262,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.PROJECTS_MANAGEMENT',
+                name: 'NAV.PROJECT_MANAGEMENT',
                 icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
@@ -268,14 +277,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: '{{ext.projectName}}'
-            }
-        })
-        .state('projects.setup.userGroups', {
-            url: '/usergroups',
-            templateUrl: 'views/controllers/project-setup-usergroups.html',
-            controller: 'ProjectSetupUserGroupsCtrl',
-            data: {
-                name: 'NAV.PROJECTS.USER_GROUPS'
             }
         })
         .state('projects.setup.usersInGroups', {
