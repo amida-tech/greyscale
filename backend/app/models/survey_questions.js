@@ -40,7 +40,8 @@ SurveyQuestion.types = [
     9, // Section end
     10, // Section separator
     11, // Bullet points
-    12 // Date
+    12, // Date
+    13 // Scale
 ];
 SurveyQuestion.multiSelectTypes = [2, 3, 4];
 
