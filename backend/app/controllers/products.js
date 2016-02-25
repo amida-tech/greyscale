@@ -263,7 +263,7 @@ module.exports = {
     UOAselect: function (req, res, next) {
         co(function* () {
             return yield thunkQuery(
-                ProductUOA.select(UOA.star())
+                ProductUOA.select(UOA.star(), ProductUOA.currentStepId)
                 .from(
                     ProductUOA
                     .leftJoin(UOA)
