@@ -76,7 +76,7 @@ module.exports = {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
             }
-            // TODO validation
+
             var res = {
                 inserted: [],
                 updated: []
@@ -88,30 +88,29 @@ module.exports = {
                 if (
                     typeof req.body[i].uoaId === 'undefined' ||
                     typeof req.body[i].stepId === 'undefined' ||
-                    typeof req.body[i].entityTypeRoleId === 'undefined' ||
+                    typeof req.body[i].userId === 'undefined' ||
                     typeof req.body[i].productId === 'undefined'
-                    //typeof req.body[i].title            === 'undefined'
                 ) {
-                    throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+                    throw new HttpError(403, 'uoaId, stepId, userId and productId fields are required');
                 }
 
-        if(req.body[i].id){ // update
-          var updateObj = _.pick(
-              req.body[i],
-              Task.editCols
-          );
-          if(Object.keys(updateObj).length){
-            var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
-            updateObj.id = req.body[i].id;
-            res.updated.push(req.body[i].id);
-          }
-        }else{ // create
-          var id = yield thunkQuery(
-              Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
-          );
-          req.body[i].id = _.first(id).id;
-          res.inserted.push(req.body[i].id);
-        }
+                if (req.body[i].id) { // update
+                    var updateObj = _.pick(
+                      req.body[i],
+                      Task.editCols
+                    );
+                    if(Object.keys(updateObj).length){
+                        var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
+                        updateObj.id = req.body[i].id;
+                        res.updated.push(req.body[i].id);
+                    }
+                } else { // create
+                    var id = yield thunkQuery(
+                      Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
+                    );
+                    req.body[i].id = _.first(id).id;
+                    res.inserted.push(req.body[i].id);
+                }
 
             }
 
