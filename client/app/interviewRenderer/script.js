@@ -15,7 +15,8 @@
         'section_end',
         'section_break',
         'bullet_points',
-        'date'
+        'date',
+        'scale'
     ];
     var sizes = ['small', 'medium', 'large'];
     
@@ -135,6 +136,10 @@
         $.inside(content, contentDiv);
         
         for (i = 0; i < dataFields.length; i++) fieldCreate(dataFields[i]);
+        
+        $('#submit')._.events({
+            'click': submitSurvey
+        });
     }
     
     function getField(cid) { return $('#' + cid); }
@@ -178,6 +183,9 @@
             case 'number':
                 fieldText(data);
                 $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
+                break;
+            case 'scale':
+                fieldScale(data);
                 break;
             case 'checkboxes':
             case 'radio':
@@ -309,7 +317,29 @@
             $.inside(option, select);
         }
     }
-    
+    function fieldScale(data) {
+        fieldText(data);
+        var input = $('input', getField(data.cid));
+        $.after($.create('span', { contents: [' ', data.field_options.units] }), input);
+        var minus = $.create('a', { contents: ['<'], className: 'less' });
+        $.before(minus, input);
+        minus._.events({
+            'click': function () {
+                var number = parseFloat(input.value);
+                number = isNaN(number) ? 0 : number;
+                input.value = data.field_options.min !== undefined ? Math.max(number - 1, data.field_options.min) : number - 1;
+            }
+        });
+        var plus = $.create('a', { contents: ['>'], className: 'more' });
+        $.after(plus, input);
+        plus._.events({
+            'click': function () {
+                var number = parseFloat(input.value);
+                number = isNaN(number) ? 0 : number;
+                input.value = data.field_options.max !== undefined ? Math.min(number + 1, data.field_options.max) : number + 1;
+            }
+        });
+    }
     function fieldBullet(data) {
         var last;
         
@@ -348,12 +378,6 @@
             var inputs = $$('input', field);
             for (var i = 0; i < inputs.length; i++) inputs[i]._.unbind('blur');
             validationRule(data);
-
-            //if (!data.required) return;
-            ////TODO: bad  variant
-            //last._.events({
-            //    'blur': function () { validateRequired(data); }
-            //});
         }
         
         function addBulletEvents(input) {
@@ -383,31 +407,7 @@
             field: input,
             format: 'YYYY/MM/DD'
         });
-    }
-    
-    function showErrors(data) {
-        var field = getField(data.cid);
-        var error = $('.error', field);
-        error.innerHTML = '';
-        for (var i = 0; i < data.errors.length; i++)
-            $.inside($.create('div', { contents: [data.errors[i].text] }), error);
-        field.classList.add(data.errors.length ? 'invalid' : 'valid');
-        field.classList.remove(data.errors.length ? 'valid' : 'invalid');
-    }
-    function addRemoveError(data, error, mustHaveError) {
-        if (!data.errors) data.errors = [];
-        
-        var index = -1;
-        for (var i = 0; i < data.errors.length; i++) {
-            if (data.errors[i].type !== error.type) continue;
-            index = i;
-            break
-        }
-        if (index === -1 && mustHaveError) data.errors.push(error)
-        else if (index > -1 && !mustHaveError) data.errors.splice(index, 1);
-        else if (index > -1 && mustHaveError) data.errors[index].text = error.text;
-        showErrors(data);
-    }
+    }    
     //End Generate Survey
     
     //Validation
@@ -426,6 +426,7 @@
         switch (data.field_type) {
             case 'text':
             case 'number':
+            case 'scale':
             case 'date':
                 mustHaveError = $('input', field).value.length === 0;
                 break;
@@ -496,7 +497,7 @@
         }
     }
     function validateNumber(data) {
-        if (data.field_type !== 'number') return;
+        if (data.field_type !== 'number' || data.field_type !== 'scale') return;
         
         var val = $('input', getField(data.cid)).value.trim();
         var mustHaveError = false;
@@ -567,6 +568,7 @@
         switch (data.field_type) {
             case 'text':
             case 'number':
+            case 'scale':
                 $('input', field)._.events({
                     'blur': function () { validateRequired(data); }
                 });
@@ -618,7 +620,7 @@
         });
     }
     function validationRuleNumber(data) {
-        if (data.field_type !== 'number') return;
+        if (data.field_type !== 'number' || data.field_type !== 'scale') return;
         $('input', getField(data.cid))._.events({
             'blur': function () { validateNumber(data); }
         });
@@ -654,6 +656,32 @@
     //            return;
     //    }
     //}
+    
+    function showErrors(data) {
+        var field = getField(data.cid);
+        var error = $('.error', field);
+        error.innerHTML = '';
+        for (var i = 0; i < data.errors.length; i++)
+            $.inside($.create('div', { contents: [data.errors[i].text] }), error);
+        field.classList.add(data.errors.length ? 'invalid' : 'valid');
+        field.classList.remove(data.errors.length ? 'valid' : 'invalid');
+
+        submitCheck();
+    }
+    function addRemoveError(data, error, mustHaveError) {
+        if (!data.errors) data.errors = [];
+        
+        var index = -1;
+        for (var i = 0; i < data.errors.length; i++) {
+            if (data.errors[i].type !== error.type) continue;
+            index = i;
+            break
+        }
+        if (index === -1 && mustHaveError) data.errors.push(error)
+        else if (index > -1 && !mustHaveError) data.errors.splice(index, 1);
+        else if (index > -1 && mustHaveError) data.errors[index].text = error.text;
+        showErrors(data);
+    }
     //End Validation
     
     //Load
@@ -716,6 +744,8 @@
             switch (type) {
                 case 'text':
                 case 'number':
+                case 'scale':
+                case 'date':
                     val = $('input', fields[i]).value;
                     break;
                 case 'paragraph':
@@ -776,6 +806,8 @@
             switch (fields[i]._.getAttribute('data-type')) {
                 case 'text':
                 case 'number':
+                case 'scale':
+                case 'date':
                     $('input', fields[i]).value = answer.value;
                     validateAll(getData(id));
                     break;
@@ -839,7 +871,7 @@
     //End Values
     
     //Save
-    function save(callback) {
+    function save(draft, callback) {
         if (!hasChanges) {
             if (callback) callback();
             return;
@@ -876,8 +908,9 @@
             dataToSave.push(data);
         }
         var sendCount = dataToSave.length;
+        var url = constUrl + 'survey_answers' + draft ? '?autosave=true' : '';
         for (i = 0; i < dataToSave.length; i++) {
-            $.fetch(constUrl + 'survey_answers?autosave=true', {
+            $.fetch(url, {
                 method: 'POST',
                 data: JSON.stringify(dataToSave[i]),
                 responseType: 'json',
@@ -896,7 +929,23 @@
             });
         }
     }
-    function autosave() { setTimeout(function () { save(function () { autosave(); }); }, 5000); }
+    function autosave() { setTimeout(function () { save(true, function () { autosave(); }); }, 5000); }
+    function submitSurvey() {
+        for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
+        if (!submitCheck()) return;
+        save(false, function () {
+            document.location.href = "/";
+        });
+    }
+    function submitCheck() {
+        $('#submit').disabled = false;
+        for (var i = 0; i < dataFields.length; i++) {
+            if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
+            $('#submit').disabled = true;
+            return false;
+        }
+        return true;
+    }
     //End Save
     
     $.ready().then(function () { readySurvey(); });

@@ -9,9 +9,7 @@ angular.module('greyscale.rest')
             add: _add,
             del: _del,
             addOne: _addOne,
-            delOne: _delOne,
-            addMocked: _addMocked,
-            delMocked: _delMocked
+            delOne: _delOne
         };
 
         function _resp(respObj) {
@@ -35,18 +33,10 @@ angular.module('greyscale.rest')
         }
 
         function _del(userId, list) {
-            return _api(userId).remove(list);
+            return _api(userId).customOperation('remove', '', null, null, list);
         }
 
         function _delOne(userId, uoaId) {
             return _api(userId).one(uoaId + '').remove({});
-        }
-
-        function _addMocked(list) {
-            return _api().one('mock').customPOST(list);
-        }
-
-        function _delMocked(list) {
-            return _api().one('mock').remove(list);
         }
     });
