@@ -20,6 +20,8 @@ angular.module('greyscaleApp')
             del: []
         };
 
+        // var userChecks = {};
+
         $scope.onUserSelect = onUserSelect;
         $scope.checkItem = onUoaCheck;
         $scope.applyChanges = apply;
@@ -67,21 +69,22 @@ angular.module('greyscaleApp')
         }
 
         function onUserSelect() {
-            var queries = [];
+            var queries = {};
             var l = $scope.model.selectedUsers.length, u = 0;
             if (l > 0) {
                 for (u = 0; u < l; u++) {
-                    queries.push(greyscaleUserUoaApi.list($scope.model.selectedUsers[u]));
+                    queries[$scope.model.selectedUsers[u]] = greyscaleUserUoaApi.list($scope.model.selectedUsers[u]);
                 }
 
                 $q.all(queries).then(function (data) {
                     var uoas = {}, uoaId;
-                    var d, dataLength = data.length;
+                    var d, dataLength = l, uid;
 
                     for (d = 0; d < dataLength; d += 1) {
-                        l = data[d].length;
+                        uid = $scope.model.selectedUsers[d];
+                        l = data[uid].length;
                         for (u = 0; u < l; u += 1) {
-                            uoaId = data[d][u].id;
+                            uoaId = data[uid][u].id;
                             if (uoas[uoaId]) {
                                 uoas[uoaId] += 1;
                             } else {
