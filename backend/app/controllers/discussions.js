@@ -289,15 +289,27 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
 function* getUserList(productId, uoaId, tag, currentStepPosition) {
     var query =
         'SELECT ' +
-        '"Users".id, ' +
+        '"Tasks"."userId" as userid, ' +
+        '(SELECT  '+
+            'CAST( '+
+                'CASE  '+
+                    'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                        'THEN \'Anonymous\'  '+
+                        'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                'END as char(80) '+
+            ') '+
+        'FROM "public"."Users" '+
+        'WHERE "public"."Users"."id" =  "public"."Tasks"."userId" '+
+        ') AS "username", '+
         '"Tasks"."id" as taskid, '+
+        '"Tasks"."title" as taskname, '+
         '"Tasks"."stepId" as stepid, '+
+        '"WorkflowSteps"."title" as stepname, '+
         '"Tasks"."productId" as productid, '+
         '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
         '"Tasks" ' +
-        'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" ' +
-        'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" ' +
+        'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
     // available all users for this survey
     var where =
@@ -334,9 +346,12 @@ function* getAvailableUsers(req) {
         for (var i = 0; i < result.length; i++) {
             returnList.push(
                 {
-                    userId: result[i].id,
+                    userId: result[i].userid,
+                    userName: result[i].username,
                     taskId: result[i].taskid,
-                    stepId: result[i].stepid
+                    taskName: result[i].taskname,
+                    stepId: result[i].stepid,
+                    stepName: result[i].stepname
                 }
             );
         }
@@ -345,9 +360,12 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolve = {
-                    userId: result[j].id,
-                    taskId: result[j].taskid,
-                    stepId: result[j].stepid
+                userId: result[j].userid,
+                userName: result[j].username,
+                taskId: result[j].taskid,
+                taskName: result[j].taskname,
+                stepId: result[j].stepid,
+                stepName: result[j].stepname
             };
         }
     }
