@@ -428,7 +428,7 @@
         "USERS": "Users"
     },
     "USER_GROUPS": {
-        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.title}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "ORGANIZATION": "Organization",

@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
 
                     if (_isSuperAdmin()) {
                         greyscaleOrganizationApi.list().then(function (organizations) {
-                            $scope.organizations = organizations;
+                            $scope.organizations = _.sortBy(organizations, 'name');
 
                             var organizationId = parseInt($cookies.get('orgId'));
 

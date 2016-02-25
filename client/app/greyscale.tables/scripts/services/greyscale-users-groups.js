@@ -15,17 +15,11 @@ angular.module('greyscale.tables')
             sortable: 'id',
             dataReadOnly: 'both'
         }, {
-            field: 'name',
+            field: 'title',
             title: tns + 'NAME',
             show: true,
-            sortable: 'name',
+            sortable: 'title',
             dataRequired: true
-        }, {
-            field: 'description',
-            title: tns + 'DESCRIPTION',
-            show: true,
-            dataRequired: true,
-            dataFormat: 'textarea'
         }, {
             show: true,
             dataFormat: 'action',
@@ -65,9 +59,7 @@ angular.module('greyscale.tables')
                 return $q.reject();
             } else {
                 var req = {
-                    usergroups: greyscaleUserGroupApi.list({
-                        organizationId: organizationId
-                    })
+                    usergroups: greyscaleUserGroupApi.list(organizationId)
                 };
                 return $q.all(req).then(function (promises) {
                     return promises.usergroups;
@@ -83,8 +75,8 @@ angular.module('greyscale.tables')
                         return greyscaleUserGroupApi.update(editGroup);
                     } else {
                         op = 'adding';
-                        editGroup.organizationId = _getOrganizationId();
-                        return greyscaleUserGroupApi.add(editGroup);
+                        var organizationId = _getOrganizationId();
+                        return greyscaleUserGroupApi.add(organizationId, editGroup);
                     }
                 })
                 .then(_reload)
