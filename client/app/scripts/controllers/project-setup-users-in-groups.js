@@ -1,19 +1,21 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupUsersInGroupsCtrl', function ($scope, greyscaleEntityRolesTbl, greyscaleProjectApi, $stateParams) {
+    .controller('ProjectSetupUsersInGroupsCtrl', function ($scope, greyscaleUsersUserGroupsTbl, greyscaleProjectApi, $stateParams) {
 
-        var entityRoles = greyscaleEntityRolesTbl;
+        var projectId = $stateParams.projectId;
+
+        var usersUserGroups = greyscaleUsersUserGroupsTbl;
 
         $scope.model = {
-            entRoles: entityRoles
+            usersUserGroups: usersUserGroups
         };
 
-        greyscaleProjectApi.get($stateParams.projectId)
+        greyscaleProjectApi.get(projectId)
             .then(function (project) {
-                entityRoles.dataFilter.entityId = project.id;
-                entityRoles.dataFilter.organizationId = project.organizationId;
-                entityRoles.tableParams.reload();
+                usersUserGroups.dataFilter.projectId = project.id;
+                usersUserGroups.dataFilter.organizationId = project.organizationId;
+                usersUserGroups.tableParams.reload();
             });
 
     });

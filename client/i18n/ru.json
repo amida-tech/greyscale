@@ -225,9 +225,10 @@
             "NO_UOAS": "У этого продукта не заданы единицы анализа.",
             "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
-            "SELECT_ROLE": "Выберите роль...",
-            "SELECT_ROLE_LABEL": "Найдите пользователя по роли",
+            "SELECT_USERGROUP": "Выберите роль...",
+            "SELECT_USERGROUP_LABEL": "Найдите пользователя по группе",
             "TABLE": {
+                "DELETE_CONFIRM": "",
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
                 "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
@@ -236,7 +237,7 @@
                 "UOAS_HEADER": "Единица анализа"
             },
             "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Не найдеы пользователи с ролью \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_GROUP": "Не найдеы пользователи с группой \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
@@ -437,6 +438,12 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "USER_USER_GROUPS": {
+        "DELETE_CONFIRM": "",
+        "ITEM": "",
+        "USER": "",
+        "USER_GROUP": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

@@ -225,9 +225,10 @@
             "NO_UOAS": "This Product has no Units Of Analysis.",
             "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
-            "SELECT_ROLE": "Select Role ...",
-            "SELECT_ROLE_LABEL": "Search User By Role",
+            "SELECT_USERGROUP": "Select User Group ...",
+            "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
+                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.assignee.user.firstName}} {{task.assignee.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -236,7 +237,7 @@
                 "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_GROUP": "Can't Found Users With User group \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
@@ -428,7 +429,7 @@
         "USERS": "Users"
     },
     "USER_GROUPS": {
-        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.title}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "ORGANIZATION": "Organization",
@@ -437,6 +438,12 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
+    },
+    "USER_USER_GROUPS": {
+        "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.firstName}} {{user.lastName}}</b> from usergroup <b>{{usergroup.name}}</b>",
+        "ITEM": "User Link to User Group",
+        "USER": "User",
+        "USER_GROUP": "User Group"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

@@ -195,7 +195,7 @@ angular.module('greyscaleApp')
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
             var scope = $rootScope.$new();
-            angular.extend(scope, col.titleTemplateData || {});
+            scope.ext = col.titleTemplateExtData || {};
             template = $compile(template)(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {

@@ -13,11 +13,11 @@
 
     <div ng-if="!model.$loading && model.tasks" class="col-md-3">
         <div class="form-group">
-            <label translate=".SELECT_ROLE_LABEL"></label>
+            <label translate=".SELECT_USERGROUP_LABEL"></label>
             <select class="form-control"
-                    ng-model="model.selectedRole"
+                    ng-model="model.selectedGroup"
                     ng-change="searchUsers()"
-                    ng-options="role as role.name for role in model.roles">
+                    ng-options="group as group.title for group in model.usergroups">
                 <option value=""></option>
             </select>
         </div>
@@ -37,8 +37,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedRole.id || model.searchText)">
-            <div ng-show="model.selectedRole.id" translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name}"></div>
+        <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedGroup.id || model.searchText)">
+            <div ng-show="model.selectedGroup.id" translate=".USERS_NOT_FOUND_BY_GROUP" translate-values="{group:model.selectedGroup.name}"></div>
             <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></div>
         </div>
     </div>

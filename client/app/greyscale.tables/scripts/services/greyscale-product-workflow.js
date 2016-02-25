@@ -92,8 +92,6 @@ angular.module('greyscale.tables')
             }
         };
 
-        var hd = {};
-
         var recDescr = [{
             dataFormat: 'action',
             actions: [{
@@ -104,7 +102,6 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
                 formFields: formFields,
-                hd: hd,
                 getGroups: _getGroups,
                 stepAddGroup: function (row, group) {
                     row.groups = row.groups || [];
@@ -160,16 +157,21 @@ angular.module('greyscale.tables')
             return _table.dataFilter.workflowId;
         }
 
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
+
         function _getData() {
 
             var workflowId = _getWorkflowId();
+            var organizationId = _getOrganizationId();
             var roleFilter = {
                 isSystem: false
             };
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
                 roles: greyscaleRoleApi.list(roleFilter),
-                groups: greyscaleUserGroupApi.list()
+                groups: greyscaleUserGroupApi.list(organizationId)
             };
 
             return $q.all(req).then(function (promises) {
@@ -177,6 +179,7 @@ angular.module('greyscale.tables')
                 _dicts.groups = promises.groups;
                 return promises.steps;
             });
+
         }
 
         function _addWorkflowStep() {
