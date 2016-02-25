@@ -70,15 +70,18 @@ angular.module('greyscaleApp')
 
         function onUserSelect() {
             var queries = {};
-            var l = $scope.model.selectedUsers.length, u = 0;
+            var l = $scope.model.selectedUsers.length,
+                u = 0;
             if (l > 0) {
                 for (u = 0; u < l; u++) {
                     queries[$scope.model.selectedUsers[u]] = greyscaleUserUoaApi.list($scope.model.selectedUsers[u]);
                 }
 
                 $q.all(queries).then(function (data) {
-                    var uoas = {}, uoaId;
-                    var d, dataLength = l, uid;
+                    var uoas = {},
+                        uoaId;
+                    var d, dataLength = l,
+                        uid;
 
                     for (d = 0; d < dataLength; d += 1) {
                         uid = $scope.model.selectedUsers[d];

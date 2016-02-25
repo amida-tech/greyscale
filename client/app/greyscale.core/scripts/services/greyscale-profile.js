@@ -4,8 +4,9 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi, greyscaleGlobals) {
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
+        greyscaleUtilsSrv, greyscaleGlobals, $log) {
+
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
