@@ -119,7 +119,8 @@ angular.module('greyscale.core')
                 'section_end',
                 'section_break',
                 'bullet_points',
-                'date'
+                'date',
+                'scale'
             ],
             writeToAnswersList: [{
                 value: false,

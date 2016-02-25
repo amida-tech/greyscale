@@ -7,57 +7,30 @@ angular.module('greyscale.rest')
             list: _list,
             add: _add,
             update: _update,
-            del: _del
+            delete: _delete
         };
 
         function _userGroupAPI() {
-            return greyscaleRestSrv().one('usergroups');
+            return greyscaleRestSrv().one('groups');
         }
 
-        function _list(params) {
-            return _userGroupAPI().get(params)
-                .catch(function () {
-                    return $q.when([{
-                        id: 1,
-                        name: 'Employees/Staff',
-                        description: 'Those who works'
-                    }, {
-                        id: 2,
-                        name: 'Contractors',
-                        description: 'Those who deals'
-                    }, {
-                        id: 3,
-                        name: 'Researchers',
-                        description: 'Those who looks'
-                    }, {
-                        id: 4,
-                        name: 'Translators',
-                        description: 'Those who knows'
-                    }, {
-                        id: 5,
-                        name: 'Management',
-                        description: 'Those who asks'
-                    }, {
-                        id: 6,
-                        name: 'Support',
-                        description: 'Those who serves'
-                    }, {
-                        id: 7,
-                        name: 'Government Employees',
-                        description: 'Those who works too'
-                    }]);
-                });
+        function _orgUserGroupAPI(orgId) {
+            return greyscaleRestSrv().one('organizations').one('' + orgId).one('groups');
         }
 
-        function _add(group) {
-            return _userGroupAPI().customPOST(group);
+        function _list(orgId, params) {
+            return _orgUserGroupAPI(orgId).get(params);
+        }
+
+        function _add(orgId, group) {
+            return _orgUserGroupAPI(orgId).customPOST(group);
         }
 
         function _update(group) {
             return _userGroupAPI().one(group.id + '').customPUT(group);
         }
 
-        function _del(groupId) {
+        function _delete(groupId) {
             return _userGroupAPI().one(groupId + '').remove();
         }
 

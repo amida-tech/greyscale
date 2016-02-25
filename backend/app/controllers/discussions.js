@@ -63,37 +63,29 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            var selectQuery = Discussion
-                .select(
-                    Discussion.star(),
-                    Task.title.as('taskName'),
-                    Task.uoaId,
-                    Task.stepId,
-                    Task.productId,
-                    SurveyQuestion.surveyId,
-                    User.email.as('userName'),
-                    UOA.name.as('uoaName'),
-                    WorkflowStep.title.as('stepName'),
-                    Product.title.as('productName'),
-                    Survey.title.as('surveyName')
-                )
-                    .from(
-                    Discussion
-                        .leftJoin(Task)
-                        .on(Discussion.taskId.equals(Task.id))
-                        .leftJoin(SurveyQuestion)
-                        .on(Discussion.questionId.equals(SurveyQuestion.id))
-                        .leftJoin(User)
-                        .on(Discussion.userId.equals(User.id))
-                        .leftJoin(UOA)
-                        .on(Task.uoaId.equals(UOA.id))
-                        .leftJoin(Product)
-                        .on(Task.productId.equals(Product.id))
-                        .leftJoin(WorkflowStep)
-                        .on(Task.stepId.equals(WorkflowStep.id))
-                        .leftJoin(Survey)
-                        .on(SurveyQuestion.surveyId.equals(Survey.id))
-                );
+            var selectQuery =
+                'SELECT '+
+                '"Discussions".*, '+
+                '"Tasks"."uoaId", '+
+                '"Tasks"."stepId", '+
+                '"Tasks"."productId", '+
+                '"SurveyQuestions"."surveyId", '+
+                '"Tasks".title as "taskName", '+
+                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userId") as "userName", '+
+                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userFromId") as "userFromName", '+
+                '"UnitOfAnalysis"."name" as "uoaName", '+
+                '"WorkflowSteps".title as "stepName",  '+
+                '"Products".title as "productName", '+
+                '"Surveys".title as "surveyName" '+
+                'FROM '+
+                '"Discussions" '+
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "SurveyQuestions" ON "Discussions"."questionId" = "SurveyQuestions"."id" '+
+                'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
+                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" AND "Products"."surveyId" = "Surveys"."id" ';
+
             selectQuery = setWhereInt(selectQuery, req.query.questionId, Discussion, 'questionId');
             selectQuery = setWhereInt(selectQuery, req.query.userId, User, 'id');
             selectQuery = setWhereInt(selectQuery, req.query.taskId, Discussion, 'taskId');
@@ -115,6 +107,7 @@ module.exports = {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
+            req.body = _.extend(req.body, {userFromId: req.user.id}); // add from user id
             var entryId = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             var newStep;
             if (isReturn) {
