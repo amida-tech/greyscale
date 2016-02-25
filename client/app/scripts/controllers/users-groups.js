@@ -1,15 +1,15 @@
-/**
- * Created by igi on 21.12.15.
- */
 'use strict';
+
 angular.module('greyscaleApp')
-    .controller('UsersGroupsCtrl', function ($rootScope, $scope, greyscaleUsersGroupsTbl, OrganizationSelector) {
+    .controller('UsersGroupsCtrl', function ($scope, OrganizationSelector, greyscaleUsersGroupsTbl, greyscaleProjectApi, $stateParams) {
 
         var _userGroupsTable = greyscaleUsersGroupsTbl;
 
-        $scope.model = {};
-
         OrganizationSelector.show = true;
+
+        $scope.model = {
+            userGroups: _userGroupsTable
+        };
 
         var off = $scope.$watch('OrganizationSelector.organization', _renderUserGroupsTable);
 
@@ -29,5 +29,4 @@ angular.module('greyscaleApp')
                 $scope.model.userGroups = _userGroupsTable;
             }
         }
-
     });

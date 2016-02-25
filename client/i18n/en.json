@@ -157,9 +157,9 @@
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
-            "USER_ROLES": "User Roles"
+            "USERS_IN_GROUPS": "Users In Groups"
         },
-        "PROJECTS_MANAGEMENT": "Project Management",
+        "PROJECT_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
         "RESET": "Reset",
         "SURVEY": "Survey",
@@ -252,11 +252,14 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
+                "ADD_GROUP": "Add Group",
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
                 "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
+                "GROUPS": "User Groups",
+                "NO_GROUPS": "No groups added",
                 "PERMISSIONS": "Permissions",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",

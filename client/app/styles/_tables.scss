@@ -103,4 +103,7 @@
     tr td .action:first-child {
         margin: 0
     }
+    label + .radio {
+        margin-top: 0;
+    }
 }

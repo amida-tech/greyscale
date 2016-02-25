@@ -1,19 +1,14 @@
-/**
- * Created by igi on 23.12.15.
- */
 'use strict';
-
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersGroupsTbl', function ($q, greyscaleModalsSrv,
-        greyscaleUserGroupApi, greyscaleUtilsSrv) {
+    .factory('greyscaleUsersGroupsTbl', function ($q, _,
+        greyscaleUserGroupApi,
+        greyscaleModalsSrv,
+        greyscaleUtilsSrv,
+        inform) {
 
         var tns = 'USER_GROUPS.';
 
-        var dicts = {
-
-        };
-
-        var _fields = [{
+        var _cols = [{
             field: 'id',
             title: 'ID',
             show: false,
@@ -23,111 +18,102 @@ angular.module('greyscale.tables')
             field: 'name',
             title: tns + 'NAME',
             show: true,
-            sortable: 'email',
+            sortable: 'name',
             dataRequired: true
         }, {
             field: 'description',
             title: tns + 'DESCRIPTION',
             show: true,
-            sortable: 'description'
+            dataRequired: true,
+            dataFormat: 'textarea'
         }, {
-            field: '',
-            title: '',
             show: true,
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
-                handler: _editRecord
+                handler: _editGroup
             }, {
                 icon: 'fa-trash',
                 tooltip: 'COMMON.DELETE',
-                handler: _delRecord
+                handler: _removeGroup
             }]
         }];
 
         var _table = {
+            title: '',
+            cols: _cols,
+            sorting: {
+                'id': 'asc'
+            },
+            dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'USER_GROUP',
-            cols: _fields,
-            dataPromise: _getUserGroups,
             pageLength: 10,
-            sorting: {
-                created: 'desc'
-            },
             add: {
-                handler: _editRecord
+                handler: _editGroup
             }
         };
-
-        function _delRecord(rec) {
-            greyscaleModalsSrv.confirm({
-                message: tns + 'DELETE_CONFIRM',
-                group: rec,
-                okType: 'danger',
-                okText: 'COMMON.DELETE'
-            }).then(function () {
-                greyscaleUserGroupApi.del(rec.id)
-                    .then(reloadTable)
-                    .catch(function (err) {
-                        errorHandler(err, 'deleting');
-                    });
-            });
-        }
-
-        function _editRecord(group) {
-            var action = 'adding';
-            return greyscaleModalsSrv.editRec(group, _table)
-                .then(function (rec) {
-                    if (rec.id) {
-                        action = 'editing';
-                        return greyscaleUserGroupApi.update(rec);
-                    } else {
-                        rec.organizationId = _getOrganizationId();
-                        return greyscaleUserGroupApi.id(rec);
-                    }
-                })
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, action);
-                });
-        }
-
-        function reloadTable() {
-            _table.tableParams.reload();
-        }
 
         function _getOrganizationId() {
             return _table.dataFilter.organizationId;
         }
 
-        function _getUserGroups() {
+        function _getData() {
             var organizationId = _getOrganizationId();
-
             if (!organizationId) {
-                return $q.reject('400');
+                return $q.reject();
+            } else {
+                var req = {
+                    usergroups: greyscaleUserGroupApi.list({
+                        organizationId: organizationId
+                    })
+                };
+                return $q.all(req).then(function (promises) {
+                    return promises.usergroups;
+                });
             }
-
-            var filter = {
-                organizationId: organizationId
-            };
-
-            var reqs = {
-                groups: greyscaleUserGroupApi.list(filter),
-            };
-
-            return $q.all(reqs).then(function (promises) {
-                greyscaleUtilsSrv.prepareFields(promises.groups, _fields);
-                return promises.groups;
-            }).catch(errorHandler);
         }
 
-        function errorHandler(err, action) {
-            var msg = _table.formTitle;
-            if (action) {
-                msg += ' ' + action;
-            }
-            msg += ' error';
+        function _editGroup(group) {
+            var op = 'editing';
+            greyscaleModalsSrv.editRec(group, _table)
+                .then(function (editGroup) {
+                    if (editGroup.id) {
+                        return greyscaleUserGroupApi.update(editGroup);
+                    } else {
+                        op = 'adding';
+                        editGroup.organizationId = _getOrganizationId();
+                        return greyscaleUserGroupApi.add(editGroup);
+                    }
+                })
+                .then(_reload)
+                .catch(function (err) {
+                    return _errHandler(err, op);
+                });
+        }
+
+        function _removeGroup(group) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                group: group,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUserGroupApi.delete(group.id)
+                    .then(_reload)
+                    .catch(function (err) {
+                        inform.add('Usergroup delete error: ' + err);
+                    });
+            });
+        }
+
+        function _reload() {
+            _table.tableParams.reload();
+        }
+
+        function _errHandler(err, operation) {
+            var msg = _table.formTitle + ' ' + operation + ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
 

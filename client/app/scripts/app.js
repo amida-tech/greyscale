@@ -190,20 +190,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/users-groups.html',
             controller: 'UsersGroupsCtrl',
             data: {
-                name: 'NAV.USERS.GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-            }
-        })
-        .state('usersInGroups', {
-            parent: 'users',
-            url: '/in-groups',
-            templateUrl: 'views/controllers/users-in-groups.html',
-            controller: 'UsersInGroupsCtrl',
-            data: {
-                name: 'NAV.USERS.IN_GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: 'NAV.USERS.GROUPS'
             }
         })
         .state('usersUoa', {
@@ -275,7 +262,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.PROJECTS_MANAGEMENT',
+                name: 'NAV.PROJECT_MANAGEMENT',
                 icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
@@ -292,12 +279,12 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: '{{ext.projectName}}'
             }
         })
-        .state('projects.setup.roles', {
-            url: '/roles',
-            templateUrl: 'views/controllers/project-setup-roles.html',
-            controller: 'ProjectSetupRolesCtrl',
+        .state('projects.setup.usersInGroups', {
+            url: '/users-in-groups',
+            templateUrl: 'views/controllers/project-setup-users-in-groups.html',
+            controller: 'ProjectSetupUsersInGroupsCtrl',
             data: {
-                name: 'NAV.PROJECTS.USER_ROLES'
+                name: 'NAV.PROJECTS.USERS_IN_GROUPS'
             }
         })
         .state('projects.setup.surveys', {

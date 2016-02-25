@@ -157,9 +157,9 @@
             "PRODUCTS": "Продукты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
-            "USER_ROLES": "Роли пользователей"
+            "USERS_IN_GROUPS": ""
         },
-        "PROJECTS_MANAGEMENT": "Проекты",
+        "PROJECT_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
         "RESET": "Сброс",
         "SURVEY": "Опрос",
@@ -252,11 +252,14 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "STEPS": {
+                "ADD_GROUP": "",
                 "ANSWERS_ACCESS": "Доступ к ответам",
                 "BLIND_REVIEW": "Слепой просмотр",
                 "DISCUSSION_PARTICIPATION": "Участие в обсуждении",
                 "EDIT_TRANSLATE": "Редактирование перевода",
                 "END_DATE": "Дата окончания",
+                "GROUPS": "",
+                "NO_GROUPS": "",
                 "PERMISSIONS": "Разрешения",
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
                 "PROVIDE_RESPONSES": "Предоставление ответов",

@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupRolesCtrl', function ($scope, greyscaleEntityRolesTbl, greyscaleProjectApi, $stateParams) {
+    .controller('ProjectSetupUsersInGroupsCtrl', function ($scope, greyscaleEntityRolesTbl, greyscaleProjectApi, $stateParams) {
 
         var entityRoles = greyscaleEntityRolesTbl;
 
