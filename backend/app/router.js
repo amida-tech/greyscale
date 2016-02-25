@@ -300,6 +300,21 @@ router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
     .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    GROUPS
+//----------------------------------------------------------------------------------------------------------------------
+
+var groups = require('app/controllers/groups');
+
+router.route('/:realm/v0.2/organizations/:organizationId/groups')
+    .get(authenticate('token').always, groups.selectByOrg)
+    .post(authenticate('token').always, groups.insertOne);
+
+router.route('/:realm/v0.2/groups/:id')
+    .get(authenticate('token').always, groups.selectOne)
+    .put(authenticate('token').always, groups.updateOne)
+    .delete(authenticate('token').always, checkRight('groups_delete'), groups.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    COUNTRIES
 //----------------------------------------------------------------------------------------------------------------------
 var countries = require('app/controllers/countries');
