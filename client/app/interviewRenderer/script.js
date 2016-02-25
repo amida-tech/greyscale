@@ -933,7 +933,9 @@
     function submitSurvey() {
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
-        alert('save');
+        save(false, function () {
+            document.location.href = "/";
+        });
     }
     function submitCheck() {
         $('#submit').disabled = false;
