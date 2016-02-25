@@ -71,8 +71,28 @@ module.exports = {
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId", '+
                 '"Tasks".title as "taskName", '+
-                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userId") as "userName", '+
-                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userFromId") as "userFromName", '+
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userId" '+
+                ') AS "userName", '+
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userFromId" '+
+                ') AS "userFromName", '+
                 '"UnitOfAnalysis"."name" as "uoaName", '+
                 '"WorkflowSteps".title as "stepName",  '+
                 '"Products".title as "productName", '+
@@ -84,7 +104,7 @@ module.exports = {
                 'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
                 'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
-                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" AND "Products"."surveyId" = "Surveys"."id" ';
+                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" ';
 
             selectQuery = setWhereInt(selectQuery, req.query.questionId, Discussion, 'questionId');
             selectQuery = setWhereInt(selectQuery, req.query.userId, User, 'id');
@@ -444,13 +464,13 @@ function* checkForReturnAndResolve(taskId, userId, tag) {
         throw new HttpError(403, 'Task with id=`'+id+'` does not exist in Tasks'); // just in case - not possible case!
     }
     if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because Task stepId=`'+result[0].stepid
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because Task stepId=`'+result[0].stepid
             +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
     }
 
     var currentStepPosition = yield * getCurrentStepPosition(taskId);
     if (currentStepPosition === 0) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because there are not previous steps');
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
     }
 
     return yield * checkUserId(userId, taskId, tag, currentStepPosition); // {returnUserId, returnTaskId, returnStepId}
