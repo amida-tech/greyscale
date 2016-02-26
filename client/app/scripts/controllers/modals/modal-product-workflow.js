@@ -57,7 +57,7 @@ angular.module('greyscaleApp')
                 'id', 'role', 'startDate', 'endDate',
                 'title', 'writeToAnswers',
                 'discussionParticipation', 'provideResponses', 'seeOthersResponses',
-                'editTranslate', 'blindReview'
+                'allowEdit', 'allowTranslate', 'blindReview'
             ]);
             step.usergroupId = _.map(item.groups, 'id');
             step.position = i;

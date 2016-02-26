@@ -10,10 +10,11 @@ var columns = [
     'provideResponses',
     'seeOthersResponses',
     'discussionParticipation',
-    'editTranslate',
+    'allowTranslate',
     'writeToAnswers',
     'position',
-    'title'
+    'title',
+    'allowEdit'
 ];
 
 var WorkflowStep = sql.define({
@@ -32,7 +33,8 @@ WorkflowStep.editCols = [
     'provideResponses',
     'seeOthersResponses',
     'discussionParticipation',
-    'editTranslate'
+    'allowTranslate',
+    'allowEdit'
 ];
 
 module.exports = WorkflowStep;

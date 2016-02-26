@@ -82,21 +82,7 @@ angular.module('greyscale.tables')
                 getGroups: _getGroups,
                 editGroups: _editGroups
             },
-            //link: {
-            //    handler: _editGroups
-            //}
-            //actions: [{
-            //    title: tns + 'GROUPS',
-            //    handler: _editGroups
-            //}]
         }, {
-            //    dataFormat: 'action',
-            //    actions: [{
-            //        icon: 'fa-users',
-            //        tooltip: tns + 'EDIT_GROUPS',
-            //        handler: _editGroups
-            //    }]
-            //}, {
             field: '',
             title: '',
             show: true,

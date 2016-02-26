@@ -19,7 +19,8 @@ var columns = [
     'value',
     'qid',
     'links',
-    'attachment'
+    'attachment',
+    'optionNumbering'
 ];
 
 var SurveyQuestion = sql.define({
@@ -48,7 +49,8 @@ SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
-    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid'
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid',
+    'links', 'attachment', 'optionNumbering'
 ];
 
 SurveyQuestion.whereCol = columns;

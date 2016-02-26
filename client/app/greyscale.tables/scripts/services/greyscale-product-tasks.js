@@ -4,7 +4,7 @@ angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q,
         greyscaleProductApi,
         greyscaleProductWorkflowApi, greyscaleEntityTypeRoleApi,
-        greyscaleUserApi, greyscaleRoleApi, greyscaleModalsSrv) {
+        greyscaleUserApi, greyscaleGroupApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCT_TASKS.';
 
@@ -20,8 +20,8 @@ angular.module('greyscale.tables')
             sortable: 'step.title'
         }, {
             title: tns + 'FLAGS',
-            field: 'flags',
-            sortable: 'flags',
+            field: 'flagged',
+            sortable: 'flagged',
             cellTemplate: '<span ng-if="cell" class="text-danger" translate="COMMON.YES"></span><span ng-if="!cell" translate="COMMON.NO"></span>'
         }, {
             title: tns + 'DEADLINE',
@@ -62,6 +62,10 @@ angular.module('greyscale.tables')
             return _table.dataFilter.productId;
         }
 
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
+
         function _getData() {
 
             var productId = _getProductId();
@@ -75,7 +79,7 @@ angular.module('greyscale.tables')
 
         function _getProductTasksData(product) {
             var reqs = {
-                roles: greyscaleRoleApi.list(),
+                //groups: greyscaleGroupApi.list(_getOrganizationId),
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
                 tasks: greyscaleProductApi.product(product.id).tasksList(),
                 steps: greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList()
@@ -83,7 +87,7 @@ angular.module('greyscale.tables')
 
             return $q.all(reqs)
                 .then(function (data) {
-                    _dicts.roles = data.roles;
+                    _dicts.groups = data.groups;
                     _dicts.uoas = data.uoas;
                     _dicts.steps = data.steps;
                     _dicts.tasks = data.tasks;
@@ -93,27 +97,21 @@ angular.module('greyscale.tables')
         }
 
         function _extendTasksWithRelations(tasks) {
-            return _loadTasksExtendedData(tasks)
-                .then(function () {
-                    angular.forEach(tasks, function (task) {
-                        task.uoa = _.find(_dicts.uoas, {
-                            id: task.uoaId
-                        });
-                        task.step = _.find(_dicts.steps, {
-                            id: task.stepId
-                        });
-                        var entityTypeRole = _.find(_dicts.entityTypeRoles, {
-                            id: task.entityTypeRoleId
-                        });
-                        task.user = _.find(_dicts.users, {
-                            id: entityTypeRole.userId
-                        });
-                        task.role = _.find(_dicts.roles, {
-                            id: entityTypeRole.roleId
-                        });
-                    });
-                    return tasks;
+            angular.forEach(tasks, function (task) {
+                task.uoa = _.find(_dicts.uoas, {
+                    id: task.uoaId
                 });
+                task.step = _.find(_dicts.steps, {
+                    id: task.stepId
+                });
+                task.user = _.find(_dicts.users, {
+                    id: task.userId
+                });
+                task.groups = _.filter(_dicts.groups, function(o){
+                    return ~task.step.usergroupId.indexOf(o.id);
+                });
+            });
+            return $q.when(tasks);
         }
 
         function _extendTasksWithProgressData(tasks) {
@@ -132,7 +130,7 @@ angular.module('greyscale.tables')
                 if (task.uoaId !== uoaId) {
                     return;
                 }
-                var progressTask = _.pick(task, ['id', 'startDate', 'endDate', 'step', 'role', 'user']);
+                var progressTask = _.pick(task, ['id', 'startDate', 'endDate', 'step', 'user']);
                 var i = progress.length;
                 progress[i] = progressTask;
                 progressTask.status = {};
@@ -142,7 +140,7 @@ angular.module('greyscale.tables')
                 var uoa = _.find(_dicts.uoas, {
                     id: uoaId
                 });
-                if (uoa && (uoa.currentStepId === task.stepId || uoa.id === 1)) {
+                if (uoa && (uoa.currentStepId === task.stepId)) {
                     currentStep = i;
                     progressTask.status['step-current'] = true;
                 }
@@ -156,21 +154,6 @@ angular.module('greyscale.tables')
             }
 
             return progress;
-        }
-
-        function _loadTasksExtendedData(tasks) {
-            var entityTypeRoleIds = _.uniq(_.map(tasks, 'entityTypeRoleId'));
-            return greyscaleEntityTypeRoleApi.get(entityTypeRoleIds.join('|'))
-                .then(function (entityTypeRoles) {
-                    _dicts.entityTypeRoles = entityTypeRoles;
-                    var userIds = _.uniq(_.map(entityTypeRoles, 'userId'));
-                    return greyscaleUserApi.list({
-                            id: userIds.join('|')
-                        })
-                        .then(function (users) {
-                            _dicts.users = users;
-                        });
-                });
         }
 
         function _dateIsOverdue(date) {

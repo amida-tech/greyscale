@@ -228,7 +228,7 @@
             "SELECT_USERGROUP": "Select User Group ...",
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
-                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.assignee.user.firstName}} {{task.assignee.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
+                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -254,10 +254,11 @@
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
+                "ALLOW_EDIT": "Edit",
+                "ALLOW_TRANSLATE": "Translate",
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
-                "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
                 "GROUPS": "User Groups",
                 "NO_GROUPS": "No groups added",
@@ -279,7 +280,7 @@
     "PRODUCT_TASKS": {
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
-        "FLAGS": "Flags",
+        "FLAGS": "Flag",
         "LAST_INTERACTION": "Last Interaction",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
