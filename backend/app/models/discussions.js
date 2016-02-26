@@ -6,6 +6,7 @@ var Discussion = sql.define({
         'id',
         'taskId',
         'questionId',
+        'userFromId',
         'userId',
         'order',
         'entry',
@@ -19,6 +20,7 @@ var Discussion = sql.define({
 
 Discussion.editCols = [
     'questionId',
+    'userFromId',
     'userId',
     'order',
     'entry',

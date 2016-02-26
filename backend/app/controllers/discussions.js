@@ -26,8 +26,7 @@ var isInt = function(val){
 var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
-            //selectQuery = selectQuery.whereClause ? selectQuery.andWhere(model[key].equals(parseInt(val))) : selectQuery.where(model[key].equals(parseInt(val)));
-            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
+            selectQuery = selectQuery +' AND "'+model+'"."'+key+'" = '+val;
         }
     }
     return selectQuery;
@@ -63,44 +62,57 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            var selectQuery = Discussion
-                .select(
-                    Discussion.star(),
-                    Task.title.as('taskName'),
-                    Task.uoaId,
-                    Task.stepId,
-                    Task.productId,
-                    SurveyQuestion.surveyId,
-                    User.email.as('userName'),
-                    UOA.name.as('uoaName'),
-                    WorkflowStep.title.as('stepName'),
-                    Product.title.as('productName'),
-                    Survey.title.as('surveyName')
-                )
-                    .from(
-                    Discussion
-                        .leftJoin(Task)
-                        .on(Discussion.taskId.equals(Task.id))
-                        .leftJoin(SurveyQuestion)
-                        .on(Discussion.questionId.equals(SurveyQuestion.id))
-                        .leftJoin(User)
-                        .on(Discussion.userId.equals(User.id))
-                        .leftJoin(UOA)
-                        .on(Task.uoaId.equals(UOA.id))
-                        .leftJoin(Product)
-                        .on(Task.productId.equals(Product.id))
-                        .leftJoin(WorkflowStep)
-                        .on(Task.stepId.equals(WorkflowStep.id))
-                        .leftJoin(Survey)
-                        .on(SurveyQuestion.surveyId.equals(Survey.id))
-                );
-            selectQuery = setWhereInt(selectQuery, req.query.questionId, Discussion, 'questionId');
-            selectQuery = setWhereInt(selectQuery, req.query.userId, User, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.taskId, Discussion, 'taskId');
-            selectQuery = setWhereInt(selectQuery, req.query.uoaId, UOA, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.productId, Product, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.stepId, WorkflowStep, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.surveyId, Survey, 'id');
+            var selectQuery =
+                'SELECT '+
+                '"Discussions".*, '+
+                '"Tasks"."uoaId", '+
+                '"Tasks"."stepId", '+
+                '"Tasks"."productId", '+
+                '"SurveyQuestions"."surveyId", '+
+                '"Tasks".title as "taskName", '+
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userId" '+
+                ') AS "userName", '+
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userFromId" '+
+                ') AS "userFromName", '+
+                '"UnitOfAnalysis"."name" as "uoaName", '+
+                '"WorkflowSteps".title as "stepName",  '+
+                '"Products".title as "productName", '+
+                '"Surveys".title as "surveyName" '+
+                'FROM '+
+                '"Discussions" '+
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "SurveyQuestions" ON "Discussions"."questionId" = "SurveyQuestions"."id" '+
+                'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
+                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" '+
+                'WHERE 1=1 ';
+
+            selectQuery = setWhereInt(selectQuery, req.query.questionId, 'Discussions', 'questionId');
+            //selectQuery = setWhereInt(selectQuery, req.query.userId, 'Users', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.taskId, 'Discussions', 'taskId');
+            selectQuery = setWhereInt(selectQuery, req.query.uoaId, 'UnitOfAnalysis', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.productId, 'Products', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.stepId, 'WorkflowSteps', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.surveyId, 'Surveys', 'id');
 
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
@@ -115,6 +127,7 @@ module.exports = {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
+            req.body = _.extend(req.body, {userFromId: req.user.id}); // add from user id
             var entryId = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             var newStep;
             if (isReturn) {
@@ -276,15 +289,27 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
 function* getUserList(productId, uoaId, tag, currentStepPosition) {
     var query =
         'SELECT ' +
-        '"Users".id, ' +
+        '"Tasks"."userId" as userid, ' +
+        '(SELECT  '+
+            'CAST( '+
+                'CASE  '+
+                    'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                        'THEN \'Anonymous\'  '+
+                        'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                'END as char(80) '+
+            ') '+
+        'FROM "public"."Users" '+
+        'WHERE "public"."Users"."id" =  "public"."Tasks"."userId" '+
+        ') AS "username", '+
         '"Tasks"."id" as taskid, '+
+        '"Tasks"."title" as taskname, '+
         '"Tasks"."stepId" as stepid, '+
+        '"WorkflowSteps"."title" as stepname, '+
         '"Tasks"."productId" as productid, '+
         '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
         '"Tasks" ' +
-        'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" ' +
-        'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" ' +
+        'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
     // available all users for this survey
     var where =
@@ -321,9 +346,12 @@ function* getAvailableUsers(req) {
         for (var i = 0; i < result.length; i++) {
             returnList.push(
                 {
-                    userId: result[i].id,
+                    userId: result[i].userid,
+                    userName: result[i].username,
                     taskId: result[i].taskid,
-                    stepId: result[i].stepid
+                    taskName: result[i].taskname,
+                    stepId: result[i].stepid,
+                    stepName: result[i].stepname
                 }
             );
         }
@@ -332,9 +360,12 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolve = {
-                    userId: result[j].id,
-                    taskId: result[j].taskid,
-                    stepId: result[j].stepid
+                userId: result[j].userid,
+                userName: result[j].username,
+                taskId: result[j].taskid,
+                taskName: result[j].taskname,
+                stepId: result[j].stepid,
+                stepName: result[j].stepname
             };
         }
     }
@@ -451,13 +482,13 @@ function* checkForReturnAndResolve(taskId, userId, tag) {
         throw new HttpError(403, 'Task with id=`'+id+'` does not exist in Tasks'); // just in case - not possible case!
     }
     if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because Task stepId=`'+result[0].stepid
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because Task stepId=`'+result[0].stepid
             +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
     }
 
     var currentStepPosition = yield * getCurrentStepPosition(taskId);
     if (currentStepPosition === 0) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because there are not previous steps');
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
     }
 
     return yield * checkUserId(userId, taskId, tag, currentStepPosition); // {returnUserId, returnTaskId, returnStepId}

@@ -20,6 +20,7 @@ var client = require('app/db_bootstrap'),
     async = require('async'),
     Emailer = require('lib/mailer'),
     UserUOA = require('app/models/user_uoa'),
+    UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas');
 
 var Role = require('app/models/roles');
@@ -97,8 +98,16 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            var _counter = thunkQuery(User.select(User.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var user = thunkQuery(User.select(), _.omit(req.query, 'offset', 'limit', 'order'));
+            var _counter = thunkQuery(User.select(User.count('counter')), req.query);
+            var user = thunkQuery(
+                User.select(
+                    User.star(),
+                    'array(' +
+                    'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+                    ') as "usergroupId"'
+                ),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
             return yield [_counter, user];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -507,29 +516,57 @@ module.exports = {
     selectOne: function (req, res, next) {
         co(function* () {
             var user = yield thunkQuery(
-                User.select().where(User.id.equals(req.params.id))
+                User
+                    .select(
+                        User.star(),
+                        'array(' +
+                        'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+                        ') as "usergroupId"'
+                    )
+                    .where(User.id.equals(req.params.id))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
+            return user;
         }).then(function (data) {
-            res.json(!_.first(data));
+            res.json(_.first(data));
         }, function (err) {
             next(err);
         });
     },
 
     updateOne: function (req, res, next) {
-        query(
-            User.update(_.pick(req.body, User.whereCol)).where(User.id.equals(req.params.id)),
-            function (err, data) {
-                if (!err) {
-                    res.status(202).end();
-                } else {
-                    next(err);
-                }
+        co(function*(){
+            var updateObj = _.pick(req.body, User.whereCol);
+            if (Object.keys(updateObj).length) {
+                yield thunkQuery(
+                    User.update().where(User.id.equals(req.params.id))
+                );
             }
-        );
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.userId.equals(req.params.id))
+            );
+            var groupObjs = [];
+            for (var i in req.body.usergroupId) {
+                groupObjs.push(
+                    {
+                        groupId : req.body.usergroupId[i],
+                        userId  : req.params.id
+                    }
+                );
+            }
+            if (groupObjs.length) {
+                yield thunkQuery(
+                    UserGroup.insert(groupObjs)
+                );
+            }
+        }).then(function(){
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
+
     },
 
     deleteOne: function (req, res, next) {
@@ -551,7 +588,10 @@ module.exports = {
             ' ON ("RolesRights"."rightID" = "Rights"."id")' +
             ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
             ') AS rights';
-        query(User.select(User.star(), request).where(User.id.equals(req.user.id)), function (err, user) {
+        var groupReq = 'ARRAY(' +
+            'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+            ') as "usergroupId"';
+        query(User.select(User.star(), request, groupReq).where(User.id.equals(req.user.id)), function (err, user) {
             if (!err) {
                 res.json(_.first(user));
             } else {
@@ -674,7 +714,7 @@ module.exports = {
                     Task.writeToAnswers,
                     'row_to_json("UnitOfAnalysis".*) as uoa',
                     'row_to_json("Products".*) as product',
-                    'row_to_json("EssenceRoles".*) as entityTypeRoleId',
+                    //'row_to_json("EssenceRoles".*) as entityTypeRoleId',
                     'row_to_json("Surveys".*) as survey',
                     'row_to_json("WorkflowSteps") as step'
                 )
@@ -686,15 +726,18 @@ module.exports = {
                     .on(Task.productId.equals(Product.id))
                     .leftJoin(Survey)
                     .on(Product.surveyId.equals(Survey.id))
-                    .leftJoin(EssenceRole)
-                    .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+                    //.leftJoin(EssenceRole)
+                    //.on(Task.entityTypeRoleId.equals(EssenceRole.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
 
                 )
-                .where(Task.entityTypeRoleId.in(
-                    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                ))
+                .where(
+                    //Task.entityTypeRoleId.in(
+                    //    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
+                    //)
+                    Task.userId.equals(req.user.id)
+                )
             );
             return res;
         }).then(function(data) {
