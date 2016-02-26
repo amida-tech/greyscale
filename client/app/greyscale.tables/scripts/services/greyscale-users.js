@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function ($q, greyscaleModalsSrv, greyscaleUserApi, greyscaleRoleApi, greyscaleUtilsSrv,
+    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals) {
         var accessLevel;
 
@@ -72,6 +72,31 @@ angular.module('greyscale.tables')
             sortable: 'isAnonymous',
             dataFormat: 'boolean'
         }, {
+            show: true,
+            title: tns + 'GROUPS',
+            cellClass: 'text-center col-sm-2',
+            dataReadOnly: 'both',
+            dataHide: true,
+            cellTemplate: '<small>{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' + tns + 'NO_GROUPS"></small> <a ng-show="widgetCell" class="action" ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+            cellTemplateExtData: {
+                getGroups: _getGroups,
+                editGroups: _editGroups
+            },
+            //link: {
+            //    handler: _editGroups
+            //}
+            //actions: [{
+            //    title: tns + 'GROUPS',
+            //    handler: _editGroups
+            //}]
+        }, {
+            //    dataFormat: 'action',
+            //    actions: [{
+            //        icon: 'fa-users',
+            //        tooltip: tns + 'EDIT_GROUPS',
+            //        handler: _editGroups
+            //    }]
+            //}, {
             field: '',
             title: '',
             show: true,
@@ -105,6 +130,12 @@ angular.module('greyscale.tables')
 
         function _getRoles() {
             return dicts.roles;
+        }
+
+        function _getGroups(user) {
+            return _.map(_.filter(dicts.groups, function (o) {
+                return ~user.usergroupId.indexOf(o.id);
+            }), 'title').join(', ');
         }
 
         function _delRecord(rec) {
@@ -144,6 +175,14 @@ angular.module('greyscale.tables')
                 });
         }
 
+        function _editGroups(user) {
+            greyscaleModalsSrv.userGroups(user)
+                .then(function (selectedGroupIds) {
+                    user.usergroupId = selectedGroupIds;
+                    greyscaleUserApi.update(user);
+                });
+        }
+
         function reloadTable() {
             _table.tableParams.reload();
         }
@@ -173,19 +212,13 @@ angular.module('greyscale.tables')
                     organizationId: organizationId
                 };
 
-                if (!_isAdmin()) {
-                    roleFilter = {
-                        isSystem: true
-                    };
-                }
-
                 var reqs = {
                     users: greyscaleUserApi.list(listFilter),
-                    roles: greyscaleRoleApi.list(roleFilter),
+                    groups: greyscaleGroupApi.list(organizationId),
                 };
 
                 return $q.all(reqs).then(function (promises) {
-                    dicts.roles = _filterRolesByAccessLevel(promises.roles);
+                    dicts.groups = promises.groups;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });
@@ -193,19 +226,19 @@ angular.module('greyscale.tables')
             }).catch(errorHandler);
         }
 
-        function _filterRolesByAccessLevel(roles) {
-            var filteredRoles = [];
-            if (_isAdmin()) {
-                angular.forEach(roles, function (role, i) {
-                    if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
-                        filteredRoles.push(role);
-                    }
-                });
-            } else {
-                filteredRoles = roles;
-            }
-            return filteredRoles;
-        }
+        //function _filterRolesByAccessLevel(roles) {
+        //    var filteredRoles = [];
+        //    if (_isAdmin()) {
+        //        angular.forEach(roles, function (role, i) {
+        //            if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
+        //                filteredRoles.push(role);
+        //            }
+        //        });
+        //    } else {
+        //        filteredRoles = roles;
+        //    }
+        //    return filteredRoles;
+        //}
 
         function errorHandler(err, action) {
             var msg = _table.formTitle;

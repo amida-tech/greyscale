@@ -128,6 +128,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _userGroups(user) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/user-groups.html',
+                controller: 'ModalUserGroupsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -148,6 +160,7 @@ angular.module('greyscaleApp')
             productUoas: _productUoas,
             productWorkflow: _productWorkflow,
             productTask: _productTask,
+            userGroups: _userGroups,
             confirm: _confirm
         };
     });
