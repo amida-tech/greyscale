@@ -228,7 +228,7 @@
             "SELECT_USERGROUP": "Select User Group ...",
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
-                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.assignee.user.firstName}} {{task.assignee.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
+                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",

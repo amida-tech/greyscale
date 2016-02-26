@@ -2,12 +2,13 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, OrganizationSelector) {
 
         var productId = $stateParams.productId;
 
         var tasksTable = greyscaleProductTasksTbl;
         tasksTable.dataFilter.productId = productId;
+        //tasksTable.dataFilter.organizationId = OrganizationSelector.organization.id;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
 
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
