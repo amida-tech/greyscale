@@ -83,7 +83,7 @@ module.exports = {
                             'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
                                 'THEN \'Anonymous\'  '+
                                 'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as char(80) '+
+                        'END as varchar '+
                     ') '+
                     'FROM "Users" '+
                     'WHERE "Users"."id" =  "Discussions"."userId" '+
@@ -95,7 +95,7 @@ module.exports = {
                             'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
                                 'THEN \'Anonymous\'  '+
                                 'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as char(80) '+
+                        'END as varchar '+
                     ') '+
                     'FROM "Users" '+
                     'WHERE "Users"."id" =  "Discussions"."userFromId" '+
@@ -198,7 +198,37 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+    getUsers: function (req, res, next) {
+        co(function* () {
+            var userList=[];
+
+            var taskId = yield * checkOneId(req.params.taskId, Task, 'id', 'taskId', 'Task');
+            var ids = yield * getProductAndUoaIds(taskId);
+            var productId = ids.productId;
+            var uoaId = ids.uoaId;
+
+            var result = yield * getUserList(taskId, productId, uoaId);
+            if (_.first(result)) {
+                for (var i = 0; i < result.length; i++) {
+                    userList.push(
+                        {
+                            userId: result[i].userid,
+                            firstName: result[i].firstName,
+                            lastName: result[i].lastName,
+                            stepName: result[i].stepname
+                        }
+                    );
+                }
+            }
+            return userList;
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
     }
+
 
 };
 
@@ -312,10 +342,24 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
                     'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
                     'THEN \'Anonymous\'  '+
                     'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                'END as char(80) '+
+                'END as varchar '+
             ') AS "username", '+
-        '"Tasks"."productId" as productid, '+
-        '"Tasks"."uoaId" as uoaid '+
+            'CAST( '+
+                'CASE  '+
+                    'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
+                        'THEN \'Anonymous\'  '+
+                        'ELSE "Users"."firstName" '+
+                'END as varchar '+
+            ') AS "firstName", '+
+            'CAST( '+
+                'CASE  '+
+                    'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
+                        'THEN \'Anonymous\'  '+
+                        'ELSE "Users"."lastName" '+
+                'END as varchar '+
+            ') AS "lastName", '+
+            '"Tasks"."productId" as productid, '+
+            '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
             '"Tasks" '+
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
@@ -338,7 +382,7 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
                         'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
                             'THEN \'Anonymous\'  '+
                             'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                    'END as char(80) '+
+                    'END as varchar '+
                 ') AS "username", '+
             '"Tasks"."productId" as productid, '+
             '"Tasks"."uoaId" as uoaid '+
