@@ -103,10 +103,6 @@ textarea {
     padding: 5px 0;
 }
 
-.variant {
-    display: block;
-}
-
 .required {
     color: red;
 }
