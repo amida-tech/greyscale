@@ -624,7 +624,7 @@ module.exports = {
                 .where(User.id.equals(req.user.id))
             );
         }).then(function (data) {
-            res.json(data);
+            res.json(data[0]);
         }, function (err) {
             next(err);
         });
