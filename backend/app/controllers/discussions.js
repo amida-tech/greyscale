@@ -26,8 +26,7 @@ var isInt = function(val){
 var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
-            //selectQuery = selectQuery.whereClause ? selectQuery.andWhere(model[key].equals(parseInt(val))) : selectQuery.where(model[key].equals(parseInt(val)));
-            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
+            selectQuery = selectQuery +' AND "'+model+'"."'+key+'" = '+val;
         }
     }
     return selectQuery;
@@ -69,14 +68,36 @@ module.exports = {
                 '"Tasks"."uoaId", '+
                 '"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
-                '"SurveyQuestions"."surveyId", '+
-                '"Tasks".title as "taskName", '+
-                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userId") as "userName", '+
-                '(SELECT CONCAT("Users"."firstName", \' \', "Users"."lastName") FROM "Users" where "Users"."id" =  "Discussions"."userFromId") as "userFromName", '+
+                '"SurveyQuestions"."surveyId" '+
+                //'"Tasks".title as "taskName" '+
+/*
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userId" '+
+                ') AS "userName", '+
+                '(SELECT  '+
+                    'CAST( '+
+                        'CASE  '+
+                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                                'THEN \'Anonymous\'  '+
+                                'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                            'END as char(80) '+
+                    ') '+
+                    'FROM "public"."Users" '+
+                    'WHERE "public"."Users"."id" =  "public"."Discussions"."userFromId" '+
+                ') AS "userFromName", '+
                 '"UnitOfAnalysis"."name" as "uoaName", '+
                 '"WorkflowSteps".title as "stepName",  '+
                 '"Products".title as "productName", '+
                 '"Surveys".title as "surveyName" '+
+ */
                 'FROM '+
                 '"Discussions" '+
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
@@ -84,15 +105,17 @@ module.exports = {
                 'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
                 'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
-                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" AND "Products"."surveyId" = "Surveys"."id" ';
+                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" '+
+                'WHERE 1=1 ';
 
-            selectQuery = setWhereInt(selectQuery, req.query.questionId, Discussion, 'questionId');
-            selectQuery = setWhereInt(selectQuery, req.query.userId, User, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.taskId, Discussion, 'taskId');
-            selectQuery = setWhereInt(selectQuery, req.query.uoaId, UOA, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.productId, Product, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.stepId, WorkflowStep, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.surveyId, Survey, 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.questionId, 'Discussions', 'questionId');
+            selectQuery = setWhereInt(selectQuery, req.query.userId, 'Discussions', 'userId');
+            selectQuery = setWhereInt(selectQuery, req.query.userFromId, 'Discussions', 'userFromId');
+            selectQuery = setWhereInt(selectQuery, req.query.taskId, 'Discussions', 'taskId');
+            selectQuery = setWhereInt(selectQuery, req.query.uoaId, 'UnitOfAnalysis', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.productId, 'Products', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.stepId, 'WorkflowSteps', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.surveyId, 'Surveys', 'id');
 
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
@@ -269,15 +292,29 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
 function* getUserList(productId, uoaId, tag, currentStepPosition) {
     var query =
         'SELECT ' +
-        '"Users".id, ' +
+        '"Tasks"."userId" as userid, ' +
+/*
+        '(SELECT  '+
+            'CAST( '+
+                'CASE  '+
+                    'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
+                        'THEN \'Anonymous\'  '+
+                        'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
+                'END as char(80) '+
+            ') '+
+        'FROM "public"."Users" '+
+        'WHERE "public"."Users"."id" =  "public"."Tasks"."userId" '+
+        ') AS "username", '+
+*/
         '"Tasks"."id" as taskid, '+
+        //'"Tasks"."title" as taskname, '+
         '"Tasks"."stepId" as stepid, '+
+        //'"WorkflowSteps"."title" as stepname, '+
         '"Tasks"."productId" as productid, '+
         '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
-        '"Tasks" ' +
-        'INNER JOIN "EssenceRoles" ON "Tasks"."entityTypeRoleId" = "EssenceRoles"."id" ' +
-        'INNER JOIN "Users" ON "EssenceRoles"."userId" = "Users"."id" ' +
+        '"Tasks" '+
+        //'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
     // available all users for this survey
     var where =
@@ -314,9 +351,12 @@ function* getAvailableUsers(req) {
         for (var i = 0; i < result.length; i++) {
             returnList.push(
                 {
-                    userId: result[i].id,
+                    userId: result[i].userid,
+                    //userName: result[i].username,
                     taskId: result[i].taskid,
+                    //taskName: result[i].taskname,
                     stepId: result[i].stepid
+                    //stepName: result[i].stepname
                 }
             );
         }
@@ -325,9 +365,12 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolve = {
-                    userId: result[j].id,
-                    taskId: result[j].taskid,
-                    stepId: result[j].stepid
+                userId: result[j].userid,
+                //userName: result[j].username,
+                taskId: result[j].taskid,
+                //taskName: result[j].taskname,
+                stepId: result[j].stepid
+                //stepName: result[j].stepname
             };
         }
     }
@@ -444,13 +487,13 @@ function* checkForReturnAndResolve(taskId, userId, tag) {
         throw new HttpError(403, 'Task with id=`'+id+'` does not exist in Tasks'); // just in case - not possible case!
     }
     if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because Task stepId=`'+result[0].stepid
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because Task stepId=`'+result[0].stepid
             +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
     }
 
     var currentStepPosition = yield * getCurrentStepPosition(taskId);
     if (currentStepPosition === 0) {
-        throw new HttpError(403, 'It is not possible to post entry with "return" flag, because there are not previous steps');
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
     }
 
     return yield * checkUserId(userId, taskId, tag, currentStepPosition); // {returnUserId, returnTaskId, returnStepId}

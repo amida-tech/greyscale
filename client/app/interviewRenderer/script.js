@@ -1,4 +1,4 @@
-﻿//http://localhost:8081/interviewRenderer/?surveyId=68&taskId=99
+﻿//http://localhost:8081/interviewRenderer/?surveyId=86&taskId=95
 (function () {
     'use strict';
     
@@ -138,6 +138,9 @@
         for (i = 0; i < dataFields.length; i++) fieldCreate(dataFields[i]);
         
         $('#submit')._.events({
+            'click': submitSurvey
+        });
+        $('#submit2')._.events({
             'click': submitSurvey
         });
     }
@@ -368,6 +371,7 @@
                 'click': function () {
                     input._.unbind();
                     input.parentNode._.remove();
+                    setChangeFlag();
                 }
             });
             del._.after(input)
@@ -407,7 +411,7 @@
             field: input,
             format: 'YYYY/MM/DD'
         });
-    }    
+    }
     //End Generate Survey
     
     //Validation
@@ -665,7 +669,7 @@
             $.inside($.create('div', { contents: [data.errors[i].text] }), error);
         field.classList.add(data.errors.length ? 'invalid' : 'valid');
         field.classList.remove(data.errors.length ? 'valid' : 'invalid');
-
+        
         submitCheck();
     }
     function addRemoveError(data, error, mustHaveError) {
@@ -710,6 +714,7 @@
             for (var i = 0; i < request.response.length; i++) {
                 var answer = request.response[i];
                 if (!savedAnswers) savedAnswers = [];
+                if (answer.version !== null) continue;
                 savedAnswers.push({ id: answer.questionId, optionId: answer.optionId, value: answer.value });
             }
             checkSavedAnswers(savedAnswers);
@@ -756,7 +761,7 @@
                     var values = [];
                     for (j = 0; j < inputs.length; j++)
                         if (inputs[j].value)
-                            values.push(inputs[j].valu);
+                            values.push(inputs[j].value);
                     val = JSON.stringify(values);
                     break;
                 case 'checkboxes':
@@ -826,7 +831,7 @@
                     }
                     if (answer.optionId) {
                         for (j = 0; j < answer.optionId.length; j++) {
-                            if (!answer.optionId || answer.optionId[j]) continue;
+                            if (!answer.optionId[j]) continue;
                             var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
                             input.checked = true;
                         }
@@ -841,7 +846,7 @@
                     var options = $$('option', fields[i]);
                     if (!answer.optionId || answer.optionId.length === 0) continue;
                     for (j = 0; j < options.length; j++) {
-                        if (options[j].attributes['data-id'] && parseInt(options[j].attributes['data-id']) !== answer.optionId[0]) continue;
+                        if (!options[j].attributes['data-id'].value && parseInt(options[j].attributes['data-id'].value) !== answer.optionId[0]) continue;
                         options[j].selected = true;
                         break;
                     }
@@ -878,10 +883,8 @@
         }
         var answers = getAnswersState();
         localStorage.clear();
-        var i;
-        var j;
         var dataToSave = [];
-        for (i = 0; i < answers.length; i++) {
+        for (var i = 0; i < answers.length; i++) {
             var data = {
                 surveyId: surveyId,
                 questionId: parseInt(answers[i].id.replace('c', '')),
@@ -895,7 +898,7 @@
                 case 'radio':
                 case 'dropdown':
                     var optionIds = [];
-                    for (j = 0; j < answers[i].value.length; j++) {
+                    for (var j = 0; j < answers[i].value.length; j++) {
                         if (answers[i].value[j].id) optionIds.push(parseInt(answers[i].value[j].id));
                         else if (!answers[i].value[j].value || !answers[i].value[j].value.trim()) continue;
                         else data.value = answers[i].value[j].value;
@@ -907,27 +910,19 @@
             }
             dataToSave.push(data);
         }
-        var sendCount = dataToSave.length;
-        var url = constUrl + 'survey_answers' + draft ? '?autosave=true' : '';
-        for (i = 0; i < dataToSave.length; i++) {
-            $.fetch(url, {
-                method: 'POST',
-                data: JSON.stringify(dataToSave[i]),
-                responseType: 'json',
-                headers: { token: token, 'Content-type': 'application/json' }
-            }).then(function () {
-                console.log('saved to server');
-                sendCount--;
-                if (sendCount > 0) return;
-                hasChanges = false;
-                if (callback) callback();
-            }).catch(function (error) {
-                console.error(error);
-                sendCount--;
-                if (sendCount > 0) return;
-                if (callback) callback();
-            });
-        }
+        $.fetch(constUrl + 'survey_answers' + (draft ? '?autosave=true' : ''), {
+            method: 'POST',
+            data: JSON.stringify(dataToSave),
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        }).then(function () {
+            console.log('saved to server');
+            hasChanges = false;
+            if (callback) callback();
+        }).catch(function (error) {
+            console.error(error);
+            if (callback) callback();
+        });
     }
     function autosave() { setTimeout(function () { save(true, function () { autosave(); }); }, 5000); }
     function submitSurvey() {
@@ -939,9 +934,11 @@
     }
     function submitCheck() {
         $('#submit').disabled = false;
+        $('#submit2').disabled = false;
         for (var i = 0; i < dataFields.length; i++) {
             if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
             $('#submit').disabled = true;
+            $('#submit2').disabled = true;
             return false;
         }
         return true;
