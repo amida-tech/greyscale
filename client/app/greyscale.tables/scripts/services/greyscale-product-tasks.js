@@ -111,7 +111,7 @@ angular.module('greyscale.tables')
                     return ~task.step.usergroupId.indexOf(o.id);
                 });
             });
-            return tasks;
+            return $q.when(tasks);
         }
 
         function _extendTasksWithProgressData(tasks) {

@@ -279,7 +279,7 @@
     "PRODUCT_TASKS": {
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
-        "FLAGS": "Flags",
+        "FLAGS": "Flag",
         "LAST_INTERACTION": "Last Interaction",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
