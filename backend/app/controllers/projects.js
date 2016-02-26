@@ -149,10 +149,10 @@ function* checkProjectData(req) {
     }
 
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !orgId || !req.body.codeName) {
+        if (!orgId || !req.body.codeName) {
             throw new HttpError(
                 403,
-                'matrixId, organizationId and codeName fields are required'
+                'organizationId and codeName fields are required'
             );
         }
     }
@@ -167,12 +167,12 @@ function* checkProjectData(req) {
                 'Organization with id = ' + orgId + ' does not exist'
             );
         }
-        //var projects = yield thunkQuery(
-        //    Project.select().where(Project.organizationId.equals(orgId))
-        //);
-        //if (projects.length) {
-        //    throw new HttpError(400, 'You can create only one project for each organization');
-        //}
+        var projects = yield thunkQuery(
+            Project.select().where(Project.organizationId.equals(orgId))
+        );
+        if (projects.length) {
+            throw new HttpError(400, 'You can create only one project for each organization');
+        }
         req.body.organizationId = orgId;
     }
 
