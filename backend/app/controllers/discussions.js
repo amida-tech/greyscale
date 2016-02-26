@@ -68,8 +68,9 @@ module.exports = {
                 '"Tasks"."uoaId", '+
                 '"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
-                '"SurveyQuestions"."surveyId", '+
-                '"Tasks".title as "taskName", '+
+                '"SurveyQuestions"."surveyId" '+
+                //'"Tasks".title as "taskName" '+
+/*
                 '(SELECT  '+
                     'CAST( '+
                         'CASE  '+
@@ -96,6 +97,7 @@ module.exports = {
                 '"WorkflowSteps".title as "stepName",  '+
                 '"Products".title as "productName", '+
                 '"Surveys".title as "surveyName" '+
+ */
                 'FROM '+
                 '"Discussions" '+
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
@@ -107,7 +109,8 @@ module.exports = {
                 'WHERE 1=1 ';
 
             selectQuery = setWhereInt(selectQuery, req.query.questionId, 'Discussions', 'questionId');
-            //selectQuery = setWhereInt(selectQuery, req.query.userId, 'Users', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.userId, 'Discussions', 'userId');
+            selectQuery = setWhereInt(selectQuery, req.query.userFromId, 'Discussions', 'userFromId');
             selectQuery = setWhereInt(selectQuery, req.query.taskId, 'Discussions', 'taskId');
             selectQuery = setWhereInt(selectQuery, req.query.uoaId, 'UnitOfAnalysis', 'id');
             selectQuery = setWhereInt(selectQuery, req.query.productId, 'Products', 'id');
@@ -290,6 +293,7 @@ function* getUserList(productId, uoaId, tag, currentStepPosition) {
     var query =
         'SELECT ' +
         '"Tasks"."userId" as userid, ' +
+/*
         '(SELECT  '+
             'CAST( '+
                 'CASE  '+
@@ -301,15 +305,16 @@ function* getUserList(productId, uoaId, tag, currentStepPosition) {
         'FROM "public"."Users" '+
         'WHERE "public"."Users"."id" =  "public"."Tasks"."userId" '+
         ') AS "username", '+
+*/
         '"Tasks"."id" as taskid, '+
-        '"Tasks"."title" as taskname, '+
+        //'"Tasks"."title" as taskname, '+
         '"Tasks"."stepId" as stepid, '+
-        '"WorkflowSteps"."title" as stepname, '+
+        //'"WorkflowSteps"."title" as stepname, '+
         '"Tasks"."productId" as productid, '+
         '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
-        '"Tasks" ' +
-        'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+        '"Tasks" '+
+        //'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
     // available all users for this survey
     var where =
@@ -347,11 +352,11 @@ function* getAvailableUsers(req) {
             returnList.push(
                 {
                     userId: result[i].userid,
-                    userName: result[i].username,
+                    //userName: result[i].username,
                     taskId: result[i].taskid,
-                    taskName: result[i].taskname,
-                    stepId: result[i].stepid,
-                    stepName: result[i].stepname
+                    //taskName: result[i].taskname,
+                    stepId: result[i].stepid
+                    //stepName: result[i].stepname
                 }
             );
         }
@@ -361,11 +366,11 @@ function* getAvailableUsers(req) {
         for (var j = 0; j < result.length; j++) {
             resolve = {
                 userId: result[j].userid,
-                userName: result[j].username,
+                //userName: result[j].username,
                 taskId: result[j].taskid,
-                taskName: result[j].taskname,
-                stepId: result[j].stepid,
-                stepName: result[j].stepname
+                //taskName: result[j].taskname,
+                stepId: result[j].stepid
+                //stepName: result[j].stepname
             };
         }
     }
