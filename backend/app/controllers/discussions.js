@@ -26,8 +26,7 @@ var isInt = function(val){
 var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
-            //selectQuery = selectQuery.whereClause ? selectQuery.andWhere(model[key].equals(parseInt(val))) : selectQuery.where(model[key].equals(parseInt(val)));
-            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
+            selectQuery = selectQuery +' AND "'+model+'"."'+key+'" = '+val;
         }
     }
     return selectQuery;
@@ -104,15 +103,16 @@ module.exports = {
                 'INNER JOIN "UnitOfAnalysis" ON "Tasks"."uoaId" = "UnitOfAnalysis"."id" '+
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
                 'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
-                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" ';
+                'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id" '+
+                'WHERE 1=1 ';
 
-            selectQuery = setWhereInt(selectQuery, req.query.questionId, Discussion, 'questionId');
-            selectQuery = setWhereInt(selectQuery, req.query.userId, User, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.taskId, Discussion, 'taskId');
-            selectQuery = setWhereInt(selectQuery, req.query.uoaId, UOA, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.productId, Product, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.stepId, WorkflowStep, 'id');
-            selectQuery = setWhereInt(selectQuery, req.query.surveyId, Survey, 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.questionId, 'Discussions', 'questionId');
+            //selectQuery = setWhereInt(selectQuery, req.query.userId, 'Users', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.taskId, 'Discussions', 'taskId');
+            selectQuery = setWhereInt(selectQuery, req.query.uoaId, 'UnitOfAnalysis', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.productId, 'Products', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.stepId, 'WorkflowSteps', 'id');
+            selectQuery = setWhereInt(selectQuery, req.query.surveyId, 'Surveys', 'id');
 
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
