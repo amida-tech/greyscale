@@ -173,7 +173,15 @@ module.exports = {
 
                 var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
 
-                console.log(_.first(organizationId).id);
+                // TODO creates project in background, may be need to disable in future
+                yield thunkQuery(
+                    Project.insert(
+                        {
+                            organizationId: organizationId[0].id,
+                            codeName: 'Org_' + organizationId[0].id + '_project'
+                        }
+                    )
+                );
 
                 yield thunkQuery(User.update({
                     organizationId: _.first(organizationId).id
