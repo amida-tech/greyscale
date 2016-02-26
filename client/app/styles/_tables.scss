@@ -55,8 +55,14 @@
     margin-right: 2px;
     background: #ddd;
     border: 1px solid #ddd;
-    &.current {
+    &.active {
         border-color: #bbb;
+    }
+    .step-current {
+
+    }
+    .step-complete {
+
     }
 }
 
