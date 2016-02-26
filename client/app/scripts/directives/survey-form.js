@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location,
+    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
         $anchorScroll, greyscaleUtilsSrv, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
@@ -18,6 +18,14 @@ angular.module('greyscaleApp')
 
                 scope.$watch('surveyData', updateForm);
 
+                scope.autosave = $interval(function () {
+                    saveAnswers(scope, true);
+                }, 15000);
+
+                scope.$on('$destroy', function(){
+                    $interval.cancel(scope.autosave);
+                });
+
                 function updateForm(data) {
                     if (data && data.survey) {
                         prepareFields(scope);
@@ -27,6 +35,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
             },
             controller: function ($scope) {
 
@@ -36,17 +45,15 @@ angular.module('greyscaleApp')
 
                 $scope.goField = function (elemId) {
                     $scope.model.contentOpen = !$scope.model.contentOpen;
-                    $location.hash(elemId);
-                    $anchorScroll();
+                    $timeout(function () {
+                        $anchorScroll(elemId);
+                    }, 10);
                 };
 
                 $scope.save = function () {
                     saveAnswers($scope);
                 };
 
-                $interval(function () {
-                    saveAnswers($scope, true);
-                }, 15000);
             }
         };
 
@@ -63,24 +70,25 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
-            var r = 0,
-                o,
-                item, fld, qid;
+            var o, item, fld, fldId, q, field, type,
+                r = 0,
+                qid = 0,
+                qQty = survey.questions.length;
 
-            for (var q = 0; q < survey.questions.length; q++) {
-                var field = survey.questions[q];
-                var type = fieldTypes[field.type];
+            for (q = 0; q < qQty; q++) {
+                field = survey.questions[q];
+                type = fieldTypes[field.type];
                 if (type) {
-                    qid = 'q' + field.id;
+                    fldId = 'fld' + field.id;
                     item = {
                         type: type,
                         title: field.label,
-                        href: qid
+                        href: fldId
                     };
 
                     fld = {
                         id: field.id,
-                        cid: qid,
+                        cid: fldId,
                         type: type,
                         label: field.label,
                         description: field.description,
@@ -142,8 +150,11 @@ angular.module('greyscaleApp')
                     if (type === 'section_end') { // close section
                         r--;
                     } else { //push data into current section
+                        qid++;
+                        fld.qid = qid;
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
+
                     }
 
                     if (type === 'section_start') { // create subsection, move pointer to it
@@ -225,7 +236,6 @@ angular.module('greyscaleApp')
                             }
                         }
                     }
-                    $log.debug(scope.fields);
                 })
                 .finally(function () {
                     scope.lock = false;
@@ -234,7 +244,7 @@ angular.module('greyscaleApp')
 
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
-            if (scope.surveyForm.$dirty) {
+            if (scope.surveyForm && scope.surveyForm.$dirty) {
                 scope.lock = true;
                 var params = {
                     surveryId: scope.surveyData.survey.id,

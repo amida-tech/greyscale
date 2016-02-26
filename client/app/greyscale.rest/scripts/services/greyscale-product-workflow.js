@@ -27,7 +27,14 @@ angular.module('greyscale.rest')
 
         function _stepsList(workflowId) {
             return function (params) {
-                return _workflowStepsApi(workflowId).get(params);
+                return _workflowStepsApi(workflowId).get(params)
+                    .then(function (steps) {
+                        angular.forEach(steps, function (step) {
+                            step.usergroupId = step.usergroupId || [1, 2];
+                        });
+
+                        return steps;
+                    });
             };
         }
 

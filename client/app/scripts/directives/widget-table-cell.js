@@ -197,7 +197,9 @@ angular.module('greyscaleApp')
                     }
                     if (cell.link.handler) {
                         link.attr('href', '');
-                        link.on('click', function () {
+                        link.on('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
                             var tableRow = $scope.$parent.$parent.row;
                             cell.link.handler(tableRow);
                         });

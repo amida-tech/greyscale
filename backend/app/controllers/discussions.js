@@ -39,7 +39,7 @@ function* checkOneId(val, model, key, keyName, modelName) {
     else if (!isInt(val)) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
     }
-    else if (parseInt(val).toString() !== val) {
+    else if (_.isString(val) && parseInt(val).toString() !== val) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
     }
     else {
@@ -234,7 +234,7 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     else if (!isInt(userId)) {
         throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
     }
-    else if (parseInt(userId).toString() !== userId) {
+    else if (_.isString(userId) && parseInt(userId).toString() !== userId) {
         throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
     }
 
@@ -248,7 +248,7 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     var productId = ids.productId;
     var uoaId = ids.uoaId;
 
-    result = yield * getUserList(productId, uoaId, tag, currentStepPosition);
+    result = yield * getUserList(taskId, productId, uoaId, tag, currentStepPosition);
     if (!_.first(result)) {
         throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
     }
@@ -289,48 +289,35 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     return retObject;
 }
 
-function* getUserList(productId, uoaId, tag, currentStepPosition) {
-    var query =
-        'SELECT ' +
-        '"Tasks"."userId" as userid, ' +
-/*
-        '(SELECT  '+
-            'CAST( '+
-                'CASE  '+
-                    'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
-                        'THEN \'Anonymous\'  '+
-                        'ELSE CONCAT("public"."Users"."firstName", \' \', "public"."Users"."lastName") '+
-                'END as char(80) '+
-            ') '+
-        'FROM "public"."Users" '+
-        'WHERE "public"."Users"."id" =  "public"."Tasks"."userId" '+
-        ') AS "username", '+
-*/
-        '"Tasks"."id" as taskid, '+
-        //'"Tasks"."title" as taskname, '+
-        '"Tasks"."stepId" as stepid, '+
-        //'"WorkflowSteps"."title" as stepname, '+
-        '"Tasks"."productId" as productid, '+
-        '"Tasks"."uoaId" as uoaid '+
-        'FROM ' +
-        '"Tasks" '+
-        //'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
-        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ';
-    // available all users for this survey
-    var where =
-        'WHERE ' +
-        '"Tasks"."productId" = ' + productId + ' AND ' +
-        '"Tasks"."uoaId" = ' + uoaId;
+function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
+    var query;
     if (tag === 'return'){
-        // get user list for "returning"
-        // available only users for previous steps
-        where = where + ' AND "WorkflowSteps"."position" < '+currentStepPosition.toString();
+        query =
+            'SELECT ' +
+                '"Tasks"."userId" as userid, ' +
+                '"Tasks"."id" as taskid, '+
+                '"Tasks"."stepId" as stepid, '+
+                '"Tasks"."productId" as productid, '+
+                '"Tasks"."uoaId" as uoaid '+
+            'FROM ' +
+                '"Tasks" '+
+            'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+            'WHERE ' +
+                '"Tasks"."productId" = ' + productId + ' AND ' +
+                '"Tasks"."uoaId" = ' + uoaId +' '+
+                'AND "WorkflowSteps"."position" < '+currentStepPosition.toString();
+    // available all users for this survey
     } else if (tag == 'resolve') {
-        // get user list for "resolving"
-        // available only users for following steps
-        where = where + ' AND "WorkflowSteps"."position" > '+currentStepPosition.toString();
+        query =
+            'SELECT '+
+                '"Tasks"."userId" as userid, ' +
+                '"Tasks"."id" as taskid, '+
+                '"Tasks"."stepId" as stepid '+
+            'FROM "Discussions" ' +
+            'INNER JOIN "Tasks" ON "Discussions"."returnTaskId" = "Tasks"."id" '+
+            'WHERE "Discussions"."returnTaskId" = ' + taskId.toString() + ' '+
+                'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
     }
-    query = query + where;
     return yield thunkQuery(query);
 }
 
@@ -346,7 +333,7 @@ function* getAvailableUsers(req) {
     var uoaId = ids.uoaId;
     var currentStepPosition = yield * getCurrentStepPosition(taskId);
 
-    result = yield * getUserList(productId, uoaId, 'return', currentStepPosition);
+    result = yield * getUserList(taskId, productId, uoaId, 'return', currentStepPosition);
     if (_.first(result)) {
         for (var i = 0; i < result.length; i++) {
             returnList.push(
@@ -361,7 +348,7 @@ function* getAvailableUsers(req) {
             );
         }
     }
-    result = yield * getUserList(productId, uoaId, 'resolve', currentStepPosition);
+    result = yield * getUserList(taskId, productId, uoaId, 'resolve', currentStepPosition);
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolve = {
