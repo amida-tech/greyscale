@@ -31,15 +31,15 @@
             <label translate=".DRAG_USER"></label>
             <table class="table table-bordered table-hover">
                 <tbody>
-                    <tr ng-repeat="item in model.usersSearchResult track by item.id">
-                        <td class="drag-user" ng-bind-html="item.user.firstName + ' ' + item.user.lastName + ' (' + item.user.email + ')' | highlight:model.searchText"></td>
+                    <tr ng-repeat="user in model.usersSearchResult track by user.id">
+                        <td class="drag-user" ng-bind-html="user.firstName + ' ' + user.lastName + ' (' + user.email + ')' | highlight:model.searchText"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
         <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedGroup.id || model.searchText)">
-            <div ng-show="model.selectedGroup.id" translate=".USERS_NOT_FOUND_BY_GROUP" translate-values="{group:model.selectedGroup.name}"></div>
-            <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></div>
+            <div ng-show="model.selectedGroup.id" translate=".USERS_NOT_FOUND_BY_GROUP" translate-values="{group:model.selectedGroup.title}"></div>
+            <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchText}"></div>
         </div>
     </div>
 
