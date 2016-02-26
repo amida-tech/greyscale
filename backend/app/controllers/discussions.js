@@ -39,7 +39,7 @@ function* checkOneId(val, model, key, keyName, modelName) {
     else if (!isInt(val)) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
     }
-    else if (parseInt(val).toString() !== val) {
+    else if (_.isString(val) && parseInt(val).toString() !== val) {
         throw new HttpError(403, keyName + ' must be integer (' + val + ')');
     }
     else {
@@ -234,7 +234,7 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     else if (!isInt(userId)) {
         throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
     }
-    else if (parseInt(userId).toString() !== userId) {
+    else if (_.isString(userId) && parseInt(userId).toString() !== userId) {
         throw new HttpError(403, 'User id (userId) must be integer (' + userId + ')');
     }
 
