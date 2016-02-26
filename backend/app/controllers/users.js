@@ -11,6 +11,7 @@ var client = require('app/db_bootstrap'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    Project = require('app/models/projects'),
     Survey = require('app/models/surveys'),
     VError = require('verror'),
     logger = require('app/logger'),
@@ -714,7 +715,7 @@ module.exports = {
                     Task.writeToAnswers,
                     'row_to_json("UnitOfAnalysis".*) as uoa',
                     'row_to_json("Products".*) as product',
-                    //'row_to_json("EssenceRoles".*) as entityTypeRoleId',
+                    'row_to_json("Projects".*) as project',
                     'row_to_json("Surveys".*) as survey',
                     'row_to_json("WorkflowSteps") as step'
                 )
@@ -724,19 +725,18 @@ module.exports = {
                     .on(Task.uoaId.equals(UOA.id))
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
+                    .leftJoin(Project)
+                    .on(Product.projectId.equals(Project.id))
                     .leftJoin(Survey)
                     .on(Product.surveyId.equals(Survey.id))
-                    //.leftJoin(EssenceRole)
-                    //.on(Task.entityTypeRoleId.equals(EssenceRole.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
 
                 )
                 .where(
-                    //Task.entityTypeRoleId.in(
-                    //    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                    //)
                     Task.userId.equals(req.user.id)
+                    .and(Project.status.equals(1))
+                    .and(Product.status.equals(1))
                 )
             );
             return res;
