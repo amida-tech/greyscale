@@ -13,9 +13,9 @@ var co = require('co'),
 module.exports = {
 
     select: function (req, res, next) {
-    	
-    	req.query.realm = req.param('realm');
-    	
+
+        req.query.realm = req.param('realm');
+
         co(function* () {
             return yield thunkQuery(Role.select().from(Role), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
@@ -26,7 +26,9 @@ module.exports = {
 
     },
     selectOne: function (req, res, next) {
-        query(Role.select().where(_.pick(req.params, ['id'])),{'realm': req.param('realm')}, function (err, role) {
+        query(Role.select().where(_.pick(req.params, ['id'])), {
+            'realm': req.param('realm')
+        }, function (err, role) {
             if (!err) {
                 res.json(_.first(role));
             } else {
@@ -35,10 +37,10 @@ module.exports = {
         });
     },
     insertOne: function (req, res, next) {
-    	req.query.realm = req.param('realm');
-    	
+        req.query.realm = req.param('realm');
+
         query(Role.insert(req.body).returning(Role.id),
-        	_.omit(req.query, 'offset', 'limit', 'order'),
+            _.omit(req.query, 'offset', 'limit', 'order'),
             function (err, data) {
                 if (!err) {
                     res.status(201).json(_.first(data));
@@ -48,11 +50,11 @@ module.exports = {
             });
     },
     updateOne: function (req, res, next) {
-    	req.query.realm = req.param('realm');
-    	
+        req.query.realm = req.param('realm');
+
         query(
             Role.update(req.body).where(Role.id.equals(req.params.id)),
-        	_.omit(req.query, 'offset', 'limit', 'order'),
+            _.omit(req.query, 'offset', 'limit', 'order'),
             function (err, data) {
                 if (!err) {
                     res.status(202).end();

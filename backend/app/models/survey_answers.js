@@ -25,7 +25,6 @@ SurveyAnswer.editCols = [
     'optionId'
 ];
 
-
 SurveyAnswer.whereCol = columns;
 
 module.exports = SurveyAnswer;

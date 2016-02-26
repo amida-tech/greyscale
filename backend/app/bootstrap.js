@@ -162,42 +162,42 @@ app.on('start', function () {
                         console.log(err);
                     }
                     client.end();
-                	var userReq = {
-                    		body:{
-                    			'firstName':'Test',
-            	        		'lastName':'User',
-            	        		'email':'no@mail.net',
-            	        		'password':'something',
-            	        		'roleID':1,
-            	        		'realm':'public'
-                    		},
-                    		user:{
-                    			'role':'admin'
-                    		}
-                    	};
+                    var userReq = {
+                        body: {
+                            'firstName': 'Test',
+                            'lastName': 'User',
+                            'email': 'no@mail.net',
+                            'password': 'something',
+                            'roleID': 1,
+                            'realm': 'public'
+                        },
+                        user: {
+                            'role': 'admin'
+                        }
+                    };
                     var userResp = {};
                     console.log('populating database');
-                	data.instantiate(userReq, userResp);
+                    data.instantiate(userReq, userResp);
                 });
             });
         } else {
             //database already exists so try to initialize the schema.
-        	//executing this as an admin user
-        	var userReq = {
-        		body:{
-        			'firstName':'Test',
-	        		'lastName':'User',
-	        		'email':'no@mail.net',
-	        		'password':'something',
-	        		'roleID':1,
-	        		'realm':'public'
-        		},
-        		user:{
-        			'role':'admin'
-        		}
-        	};
-        	var userResp = {};
-        	data.instantiate(userReq, userResp);
+            //executing this as an admin user
+            var userReq = {
+                body: {
+                    'firstName': 'Test',
+                    'lastName': 'User',
+                    'email': 'no@mail.net',
+                    'password': 'something',
+                    'roleID': 1,
+                    'realm': 'public'
+                },
+                user: {
+                    'role': 'admin'
+                }
+            };
+            var userResp = {};
+            data.instantiate(userReq, userResp);
         }
     });
 

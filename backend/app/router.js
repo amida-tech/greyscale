@@ -73,8 +73,6 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -208,7 +206,7 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/export.csv')
-    .get(/*authenticate('token').always,*/ products.export);
+    .get( /*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
@@ -451,7 +449,6 @@ var Data = require('app/controllers/data');
 
 router.route('/admin/v0.2/realms')
     .post(authenticate('token').always, checkRight('schema_create'), Data.instantiate);
-
 
 //----------------------------------------------------------------------------------------------------------------------
 module.exports = router;

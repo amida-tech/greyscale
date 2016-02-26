@@ -56,8 +56,8 @@ User.validPassword = function (pas, checkpas) {
 
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday',
-    'updated', 'timezone','location','cell','address',
-    'lang','bio','notifyLevel','affiliation'
+    'updated', 'timezone', 'location', 'cell', 'address',
+    'lang', 'bio', 'notifyLevel', 'affiliation'
 ];
 
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];

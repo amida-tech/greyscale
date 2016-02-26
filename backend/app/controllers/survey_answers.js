@@ -24,7 +24,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
+            req.query.realm = req.param('realm');
             return yield thunkQuery(SurveyAnswer.select().from(SurveyAnswer), _.omit(req.query));
         }).then(function (data) {
             res.json(data);
@@ -36,7 +36,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        query(q, {'realm': req.param('realm')}, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -51,7 +53,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id));
-        query(q,{'realm': req.param('realm')}, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -62,17 +66,17 @@ module.exports = {
     add: function (req, res, next) {
         co(function* () {
 
-            if(!Array.isArray(req.body)){
+            if (!Array.isArray(req.body)) {
                 req.body = [req.body];
             }
             var result = [];
-            for (var i in req.body){
-                try{
-                    var answer = yield *addAnswer(req, req.body[i]);
+            for (var i in req.body) {
+                try {
+                    var answer = yield * addAnswer(req, req.body[i]);
                     req.body[i].status = 'Ok';
                     req.body[i].id = answer.id;
                     req.body[i].message = 'Added';
-                }catch(err){
+                } catch (err) {
                     req.body[i].status = 'Fail';
                     req.body[i].message = err.message.message;
                 }
@@ -88,7 +92,7 @@ module.exports = {
     }
 };
 
-function *addAnswer (req, dataObject) {
+function* addAnswer(req, dataObject) {
 
     if (!Array.isArray(dataObject.optionId)) {
         dataObject.optionId = [dataObject.optionId];
@@ -125,23 +129,23 @@ function *addAnswer (req, dataObject) {
 
     var member = yield thunkQuery(
         EssenceRole
-            .select(EssenceRole.star())
-            .from(
-                EssenceRole
-                    .join(Role)
-                    .on(EssenceRole.roleId.equals(Role.id))
-                    .join(Product)
-                    .on(
-                        EssenceRole.entityId.equals(Product.projectId)
-                            .and(Product.id.equals(dataObject.productId))
-                    )
+        .select(EssenceRole.star())
+        .from(
+            EssenceRole
+            .join(Role)
+            .on(EssenceRole.roleId.equals(Role.id))
+            .join(Product)
+            .on(
+                EssenceRole.entityId.equals(Product.projectId)
+                .and(Product.id.equals(dataObject.productId))
             )
-            .where(
-                EssenceRole.essenceId.in(
-                    Essence.subQuery().select(Essence.id).where(Essence.tableName.equals('Projects'))
-                )
+        )
+        .where(
+            EssenceRole.essenceId.in(
+                Essence.subQuery().select(Essence.id).where(Essence.tableName.equals('Projects'))
             )
-            .and(EssenceRole.userId.equals(req.user.id))
+        )
+        .and(EssenceRole.userId.equals(req.user.id))
     );
 
     if (!_.first(member)) {
@@ -150,19 +154,19 @@ function *addAnswer (req, dataObject) {
 
     var workflow = yield thunkQuery(
         Workflow
-            .select(
-                Workflow.star(),
-                'row_to_json("WorkflowSteps".*) as step'
+        .select(
+            Workflow.star(),
+            'row_to_json("WorkflowSteps".*) as step'
+        )
+        .from(
+            Workflow
+            .leftJoin(WorkflowStep)
+            .on(
+                WorkflowStep.workflowId.equals(Workflow.id)
+                .and(WorkflowStep.id.equals(dataObject.wfStepId))
             )
-            .from(
-                Workflow
-                    .leftJoin(WorkflowStep)
-                    .on(
-                        WorkflowStep.workflowId.equals(Workflow.id)
-                            .and(WorkflowStep.id.equals(dataObject.wfStepId))
-                    )
-            )
-            .where(Workflow.productId.equals(dataObject.productId))
+        )
+        .where(Workflow.productId.equals(dataObject.productId))
     );
 
     if (!_.first(workflow)) {
@@ -184,8 +188,8 @@ function *addAnswer (req, dataObject) {
             for (optIndex in dataObject.optionId) {
                 var option = yield thunkQuery(
                     SurveyQuestionOption
-                        .select()
-                        .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
+                    .select()
+                    .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
                 );
                 if (!_.first(option)) {
                     throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
@@ -206,8 +210,8 @@ function *addAnswer (req, dataObject) {
 
     var version = yield thunkQuery(
         SurveyAnswer
-            .select('max("SurveyAnswers"."version")')
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
+        .select('max("SurveyAnswers"."version")')
+        .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId' /*, 'userId'*/ , 'productId']))
     );
 
     if (_.first(version).max === null) {
@@ -218,8 +222,8 @@ function *addAnswer (req, dataObject) {
 
     var existsNullVer = yield thunkQuery(
         SurveyAnswer.select()
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
-            .and(SurveyAnswer.version.isNull())
+        .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId' /*, 'userId'*/ , 'productId']))
+        .and(SurveyAnswer.version.isNull())
     );
 
     var editFields = SurveyAnswer.editCols;
@@ -229,18 +233,20 @@ function *addAnswer (req, dataObject) {
     }
 
     if (existsNullVer[0]) {
-        var answer = {id : existsNullVer[0].id};
+        var answer = {
+            id: existsNullVer[0].id
+        };
         editFields.push('version');
         yield thunkQuery(
             SurveyAnswer
-                .update(_.pick(dataObject, editFields))
-                .where(SurveyAnswer.id.equals(existsNullVer[0].id))
+            .update(_.pick(dataObject, editFields))
+            .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
-    }else {
+    } else {
         var answer = yield thunkQuery(
             SurveyAnswer
-                .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
-                .returning(SurveyAnswer.id)
+            .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
+            .returning(SurveyAnswer.id)
         );
         answer = answer[0];
     }

@@ -29,8 +29,9 @@ module.exports = {
                     Task
                     //.leftJoin(Workflow)
                     //.on(Product.id.equals(Workflow.productId))
-                ), 
-                {'realm': req.param('realm')}
+                ), {
+                    'realm': req.param('realm')
+                }
             );
         }).then(function (data) {
             res.json(data);
@@ -52,8 +53,9 @@ module.exports = {
                     //.leftJoin(Workflow)
                     //.on(Product.id.equals(Workflow.productId))
                 )
-                .where(Task.id.equals(req.params.id)),
-                {'realm': req.param('realm')}
+                .where(Task.id.equals(req.params.id)), {
+                    'realm': req.param('realm')
+                }
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -68,7 +70,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Task.delete().where(Task.id.equals(req.params.id));
-        query(q, {'realm': req.param('realm')}, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -81,8 +85,9 @@ module.exports = {
             return yield thunkQuery(
                 Task
                 .update(_.pick(req.body, Task.editCols))
-                .where(Task.id.equals(req.params.id)),
-                {'realm': req.param('realm')}
+                .where(Task.id.equals(req.params.id)), {
+                    'realm': req.param('realm')
+                }
             );
         }).then(function (data) {
             res.status(202).end();
@@ -99,8 +104,9 @@ module.exports = {
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
-                .returning(Task.id),
-                {'realm': req.param('realm')}
+                .returning(Task.id), {
+                    'realm': req.param('realm')
+                }
             );
             return result;
         }).then(function (data) {

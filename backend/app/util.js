@@ -7,13 +7,13 @@ var HttpError = require('app/error').HttpError,
 exports.Query = function () {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
-        
+
         var schema = 'public';
-        if (options.realm !== undefined){
-        	schema = options.realm;
-        	delete options['realm'];
+        if (options.realm !== undefined) {
+            schema = options.realm;
+            delete options['realm'];
         }
-        
+
         if (arguments.length === 2) {
             cb = options;
         }
@@ -25,7 +25,7 @@ exports.Query = function () {
             }
             //START
             if (typeof queryObject === 'string') {
-                client.query(queryObject.replace(/proto_amida/g,schema), options, function (err, result) {
+                client.query(queryObject.replace(/proto_amida/g, schema), options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
                     if (err) {
@@ -81,12 +81,12 @@ exports.Query = function () {
                     if (options.limit) {
                         queryObject.limit(options.limit);
                     }
-                    
+
                 }
-                
+
                 var q = queryObject.toQuery();
-                q.text = q.text.replace(/proto_amida/g,schema);
-                
+                q.text = q.text.replace(/proto_amida/g, schema);
+
                 client.query(q, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');

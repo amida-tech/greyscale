@@ -51,8 +51,8 @@ module.exports = {
                 throw new HttpError(400, 'Title is required');
             }
             var objToInsert = {
-                organizationId : req.params.organizationId,
-                title : req.body.title
+                organizationId: req.params.organizationId,
+                title: req.body.title
             };
             return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
         }).then(function (data) {
@@ -71,7 +71,7 @@ module.exports = {
                 throw new HttpError(400, 'Title is required');
             }
             var objToUpdate = {
-                title : req.body.title
+                title: req.body.title
             };
             return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
         }).then(function () {
@@ -99,7 +99,7 @@ module.exports = {
             var result = yield thunkQuery(
                 Group.select().where(Group.id.equals(req.params.id))
             );
-            if(!result[0]){
+            if (!result[0]) {
                 throw new HttpError(404, 'Not found');
             }
             return result[0];

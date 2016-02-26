@@ -19,7 +19,7 @@ module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
+            req.query.realm = req.param('realm');
             var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             req.query.realm = req.param('realm');
             var uoaType = thunkQuery(UnitOfAnalysisType.select(), req.query);
@@ -34,10 +34,12 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
+            req.query.realm = req.param('realm');
             var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var langId = yield * detectLanguage(req);
-            var uoaType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType),  {'realm': req.param('realm')});
+            var uoaType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType), {
+                'realm': req.param('realm')
+            });
             return yield [_counter, uoaType];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -49,8 +51,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id)),
-            		 {'realm': req.param('realm')});
+            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             res.json(_.first(data));
         }, function (err) {
@@ -60,8 +63,9 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(UnitOfAnalysisType.insert(req.body).returning(UnitOfAnalysisType.id),
-            		 {'realm': req.param('realm')});
+            return yield thunkQuery(UnitOfAnalysisType.insert(req.body).returning(UnitOfAnalysisType.id), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -71,8 +75,9 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(UnitOfAnalysisType.update(req.body).where(UnitOfAnalysisType.id.equals(req.params.id)),
-            		 {'realm': req.param('realm')});
+            return yield thunkQuery(UnitOfAnalysisType.update(req.body).where(UnitOfAnalysisType.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
         }).then(function () {
             res.status(202).end();
         }, function (err) {
@@ -82,8 +87,9 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(UnitOfAnalysisType.delete().where(UnitOfAnalysisType.id.equals(req.params.id)), 
-            		 {'realm': req.param('realm')});
+            return yield thunkQuery(UnitOfAnalysisType.delete().where(UnitOfAnalysisType.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
         }).then(function () {
             res.status(204).end();
         }, function (err) {

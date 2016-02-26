@@ -68,13 +68,13 @@ angular.module('greyscaleApp')
 
                 var acceptText = false;
                 if (searchText) {
-                    if ((' '+ user.firstName).match(searchText)) {
+                    if ((' ' + user.firstName).match(searchText)) {
                         acceptText = true;
                     }
-                    if ((' '+ user.lastName).match(searchText)) {
+                    if ((' ' + user.lastName).match(searchText)) {
                         acceptText = true;
                     }
-                    if ((' '+ user.email).match(searchText)) {
+                    if ((' ' + user.email).match(searchText)) {
                         acceptText = true;
                     }
                 }
@@ -536,7 +536,9 @@ angular.module('greyscaleApp')
                 angular.forEach(tableData.workflowSteps, function (step) {
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
-                    var user = task ? _.find(_dicts.users, {id: task.userId}) : undefined;
+                    var user = task ? _.find(_dicts.users, {
+                        id: task.userId
+                    }) : undefined;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
