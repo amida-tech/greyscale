@@ -1,5 +1,7 @@
 .radio,
-.checkbox {
+.radio-inline,
+.checkbox,
+.checkbox-inline {
     input {
         display: none;
         visibility: hidden;
@@ -30,5 +32,12 @@
             opacity: 0.65;
             cursor: not-allowed;
         }
+    }
+}
+
+.radio-inline,
+.checkbox-inline {
+    input + .chk-box {
+        bottom: 5px;
     }
 }

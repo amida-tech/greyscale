@@ -1,0 +1,10 @@
+<modal-form-header>
+    <span translate="USERS.GROUPS_MODAL.TITLE" translate-values="{user:model.user}"></span>
+</modal-form-header>
+<div class="modal-body">
+    <widget-table model="model.userGroups"></widget-table>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
+    <button class="btn btn-success" ng-click="save()" translate="COMMON.SAVE"></button>
+</div>

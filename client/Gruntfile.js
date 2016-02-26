@@ -472,7 +472,7 @@ module.exports = function (grunt) {
                     src: ['generated/*']
                 }, {
                     expand: true,
-                    cwd: '.tmp/' + i18nConfig.l10nDir,
+                    cwd: '.tmp/' + i18nConfig.l10nDir + '/',
                     dest: '<%= yeoman.dist %>/' + i18nConfig.l10nDir,
                     src: ['**/*.js']
                 }, {
@@ -721,6 +721,7 @@ module.exports = function (grunt) {
         'clean:server',
         'wiredep',
         'i18n',
+        'copy:l10n',
         'concurrent:test',
         'postcss',
         'connect:test',
@@ -737,6 +738,7 @@ module.exports = function (grunt) {
         'concat',
         'ngAnnotate',
         'i18n',
+        'copy:l10n',
         'copy:dist',
         'cssmin',
         'filerev',

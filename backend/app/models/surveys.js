@@ -8,8 +8,11 @@ var Survey = sql.define({
         'title',
         'description',
         'created',
-        'projectId'
+        'projectId',
+        'isDraft'
     ]
 });
+
+Survey.editCols = ['title','description','isDraft'];
 
 module.exports = Survey;

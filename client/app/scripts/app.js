@@ -25,7 +25,8 @@ var _app = angular.module('greyscaleApp', [
     'lodashAngularWrapper',
     'isteven-multi-select',
     'pascalprecht.translate',
-    'angularFileUpload'
+    'angularFileUpload',
+    'ui.sortable'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -86,6 +87,34 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.LOGIN',
+                accessLevel: systemRoles.nobody.mask
+            }
+        })
+        .state('forgot', {
+            parent: 'main',
+            url: '/forgot',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                },
+                data: {
+                    name: 'NAV.FORGOT',
+                    accessLevel: systemRoles.nobody.mask
+                }
+            }
+        })
+        .state('reset', {
+            parent: 'main',
+            url: '/reset/:token',
+            views: {
+                'body@main': {
+                    templateUrl: 'views/controllers/login.html',
+                    controller: 'LoginCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.RESET',
                 accessLevel: systemRoles.nobody.mask
             }
         })
@@ -155,6 +184,15 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('usersGroups', {
+            parent: 'users',
+            url: '/groups',
+            templateUrl: 'views/controllers/users-groups.html',
+            controller: 'UsersGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.GROUPS'
+            }
+        })
         .state('usersUoa', {
             parent: 'users',
             url: '/uoa',
@@ -189,7 +227,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.TITLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasList', {
@@ -200,7 +238,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.UOAS.LIST',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('uoasImport', {
@@ -211,7 +249,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.IMPORT',
                 icon: 'fa-upload',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects', {
@@ -224,7 +262,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.PROJECTS_MANAGEMENT',
+                name: 'NAV.PROJECT_MANAGEMENT',
                 icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
@@ -239,14 +277,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: '{{ext.projectName}}'
-            }
-        })
-        .state('projects.setup.roles', {
-            url: '/roles',
-            templateUrl: 'views/controllers/project-setup-roles.html',
-            controller: 'ProjectSetupRolesCtrl',
-            data: {
-                name: 'NAV.PROJECTS.USER_ROLES'
             }
         })
         .state('projects.setup.surveys', {
@@ -319,21 +349,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
-        .state('workflow', {
-            parent: 'home',
-            url: 'workflow',
-            data: {
-                name: 'NAV.WORKFLOW_STEPS',
-                icon: 'fa-fast-forward',
-                accessLevel: systemRoles.superAdmin.mask
-            },
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/workflow.html',
-                    controller: 'WorkflowCtrl'
-                }
-            }
-        })
         .state('profile', {
             parent: 'home',
             url: 'profile',
@@ -376,7 +391,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('graph', {
@@ -389,9 +404,9 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Graph',
+                name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('table', {
@@ -404,14 +419,14 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Table',
+                name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('survey', {
             parent: 'home',
-            url: 'survey/:surveyId/task/:taskId',
+            url: 'survey/:surveyId/task/:taskId?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/survey.html',

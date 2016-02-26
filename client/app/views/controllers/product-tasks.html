@@ -3,16 +3,21 @@
     <div ng-if="model.workflowSteps.length && model.uoas.length" class="col-md-9">
         <div ng-if="model.tasks">
             <widget-table model="model.tasks" class="table-bordered"></widget-table>
+            <br>
+            <div class="pull-right">
+                <a ui-sref="projects.setup.products({projectId:model.projectId})" class="btn btn-success" translate="COMMON.CONTINUE"></a>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div>
 
     <div ng-if="!model.$loading && model.tasks" class="col-md-3">
         <div class="form-group">
-            <label translate=".SELECT_ROLE_LABEL"></label>
+            <label translate=".SELECT_USERGROUP_LABEL"></label>
             <select class="form-control"
-                    ng-model="model.selectedRole"
+                    ng-model="model.selectedGroup"
                     ng-change="searchUsers()"
-                    ng-options="role as role.name for role in model.roles">
+                    ng-options="group as group.title for group in model.groups">
                 <option value=""></option>
             </select>
         </div>
@@ -26,15 +31,15 @@
             <label translate=".DRAG_USER"></label>
             <table class="table table-bordered table-hover">
                 <tbody>
-                    <tr ng-repeat="item in model.usersSearchResult track by item.id">
-                        <td class="drag-user" ng-bind-html="item.user.firstName + ' ' + item.user.lastName + ' (' + item.user.email + ')' | highlight:model.searchText"></td>
+                    <tr ng-repeat="user in model.usersSearchResult track by user.id">
+                        <td class="drag-user" ng-bind-html="user.firstName + ' ' + user.lastName + ' (' + user.email + ')' | highlight:model.searchText"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedRole.id || model.searchText)">
-            <div ng-show="model.selectedRole.id" translate=".USERS_NOT_FOUND_BY_ROLE" translate-values="{role:model.selectedRole.name}"></div>
-            <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchUser}"></div>
+        <div class="alert alert-warning" ng-if="!model.usersSearchResult.length && (model.selectedGroup.id || model.searchText)">
+            <div ng-show="model.selectedGroup.id" translate=".USERS_NOT_FOUND_BY_GROUP" translate-values="{group:model.selectedGroup.title}"></div>
+            <div ng-show="model.searchText" translate=".USERS_NOT_FOUND_BY_SEARCH" translate-values="{search:model.searchText}"></div>
         </div>
     </div>
 

@@ -117,16 +117,12 @@ function* checkTaskData(req) {
         if (
             typeof req.body.uoaId === 'undefined' ||
             typeof req.body.stepId === 'undefined' ||
-            typeof req.body.entityTypeRoleId === 'undefined' ||
+            typeof req.body.userId === 'undefined' ||
             typeof req.body.productId === 'undefined'
-            //typeof req.body.title            === 'undefined'
         ) {
 
-            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+            throw new HttpError(403, 'uoaId, stepId, userId, productId and title fields are required');
         }
     }
 
-    //var uoa = yield thunkQuery(
-    //    UOA.select().where(UOA.id.equals)
-    //);
 }

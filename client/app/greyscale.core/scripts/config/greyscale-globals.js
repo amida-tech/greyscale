@@ -117,7 +117,10 @@ angular.module('greyscale.core')
                 'price',
                 'section_start',
                 'section_end',
-                'section_break'
+                'section_break',
+                'bullet_points',
+                'date',
+                'scale'
             ],
             writeToAnswersList: [{
                 value: false,

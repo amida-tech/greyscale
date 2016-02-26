@@ -91,7 +91,7 @@ module.exports = {
             yield * checkSurveyData(req);
             return yield thunkQuery(
                 Survey
-                .update(_.pick(req.body, Survey.table._initialConfig.columns))
+                .update(_.pick(req.body, Survey.editCols))
                 .where(Survey.id.equals(req.params.id)),
                 {'realm': req.param('realm')}
             );
@@ -259,17 +259,20 @@ function* checkQuestionData(req, dataObj, isCreate) {
 
     var surveyId = isCreate ? req.params.id : dataObj.surveyId;
 
-    if (surveyId) {
-        var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
-        if (!_.first(survey)) {
-            throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
-        }
-        dataObj.surveyId = surveyId;
-    }
+    //if (surveyId) {
+    //    var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
+    //    if (!_.first(survey)) {
+    //        throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
+    //    }
+    //    dataObj.surveyId = surveyId;
+    //}
 
     if (dataObj.type) {
-        if ((parseInt(dataObj.type)) < 0 || (parseInt(dataObj.type) > 10)) {
-            throw new HttpError(403, 'Type value should be from 0 till 11');
+        if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) === -1) {
+            throw new HttpError(
+                403,
+                'Type value should be from 0 till ' + SurveyQuestion.types[SurveyQuestion.types.length-1]
+            );
         }
     }
 

@@ -7,11 +7,11 @@ var client = require('app/db_bootstrap'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
     WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepList = require('app/models/workflow_step_list'),
-    EssenceRole = require('app/models/essence_roles'),
+    Discussion = require('app/models/discussions'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    Project = require('app/models/projects'),
     Survey = require('app/models/surveys'),
     VError = require('verror'),
     logger = require('app/logger'),
@@ -21,6 +21,7 @@ var client = require('app/db_bootstrap'),
     async = require('async'),
     Emailer = require('lib/mailer'),
     UserUOA = require('app/models/user_uoa'),
+    UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas');
 
 var Role = require('app/models/roles');
@@ -100,10 +101,20 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-        	req.query.realm = req.param('realm');
-            var _counter = thunkQuery(User.select(User.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+
+			req.query.realm = req.param('realm');
+            var _counter = thunkQuery(User.select(User.count('counter')), req.query);
             req.query.realm = req.param('realm');
-            var user = thunkQuery(User.select(), _.omit(req.query, 'offset', 'limit', 'order'));
+            //TODO:  make the select schema aware
+            var user = thunkQuery(
+                User.select(
+                    User.star(),
+                    'array(' +
+                    'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+                    ') as "usergroupId"'
+                ),
+                _.omit(req.query, 'offset', 'limit', 'order')
+            );
             return yield [_counter, user];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -170,7 +181,15 @@ module.exports = {
                 var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id), 
                 		 {'realm': req.param('realm')});
 
-                console.log(_.first(organizationId).id);
+                // TODO creates project in background, may be need to disable in future
+                yield thunkQuery(
+                    Project.insert(
+                        {
+                            organizationId: organizationId[0].id,
+                            codeName: 'Org_' + organizationId[0].id + '_project'
+                        }
+                    )
+                );
 
                 yield thunkQuery(User.update({
                     organizationId: _.first(organizationId).id
@@ -252,15 +271,32 @@ module.exports = {
 
     selfOrganization: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID !== 2) {
-                throw new HttpError(400, 'Your role is not "client". Only clients can have organization');
+            var org = false;
+
+            if (req.user.roleID == 2) {
+                var org = yield thunkQuery(
+                    Organization
+                        .select(Organization.star())
+                        .from(Organization)
+                        .where(Organization.adminUserId.equals(req.user.id)),
+               		 {'realm': req.param('realm')}
+                );
+                org = _.first(org);
+            } else if (req.user.roleID == 3) {
+                var org = yield thunkQuery(
+                    Organization
+                        .select(Organization.star())
+                        .from(Organization)
+                        .where(Organization.id.equals(req.user.organizationId)),
+               		 {'realm': req.param('realm')}
+                );
+                org = _.first(org);
             }
-            var Org = yield thunkQuery(Organization.select(Organization.star()).from(Organization).where(Organization.adminUserId.equals(req.user.id)),
-            		 {'realm': req.param('realm')});
-            if (!_.first(Org)) {
+
+            if (!org) {
                 throw new HttpError(404, 'Not found');
             }
-            return _.first(Org);
+            return org;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -279,8 +315,14 @@ module.exports = {
                 url: req.body.url,
                 isActive: true
             };
-            var updated = yield thunkQuery(Organization.update(data).where(Organization.adminUserId.equals(req.user.id)).returning(Organization.id),
-            		 {'realm': req.param('realm')});
+            
+            var updated = yield thunkQuery(
+                Organization
+                    .update(data)
+                    .where(Organization.adminUserId.equals(req.user.id))
+                    .returning(Organization.id),
+           		 {'realm': req.param('realm')}
+            );
             if (!_.first(updated)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -307,12 +349,24 @@ module.exports = {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)),
-            		 {'realm': req.param('realm')});
-            org = _.first(org);
-            if (!org) {
-                throw new HttpError(400, 'You dont have any organizations');
+            var org;
+            if(req.user.roleID === 1){
+                org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)),
+               		 {'realm': req.param('realm')});
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
+                }
+            }else{
+                org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)),
+               		 {'realm': req.param('realm')});
+                org = _.first(org);
+                if (!org) {
+                    throw new HttpError(400, 'You dont have any organizations');
+                }
             }
+
+
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -354,13 +408,25 @@ module.exports = {
                 token: activationToken
             };
             var mailer = new Emailer(options, data);
-            mailer.send(function (data) {
-                console.log('EMAIL RESULT --->>>');
-                console.log(data);
 
-            });
+            try{
+                yield function*(){
+                    return yield new Promise(function(resolve, reject) {
+                        mailer.send(function (err, data) {
+                            console.log(err);
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve(data);
+                        });
+                    });
+                }()
+            }catch(e){
+                throw new HttpError(400, 'Cannot send invitation email');
+            }
 
             return newClient;
+
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -478,31 +544,63 @@ module.exports = {
     selectOne: function (req, res, next) {
         co(function* () {
             var user = yield thunkQuery(
-                User.select().where(User.id.equals(req.params.id)),
-                {'realm': req.param('realm')}
+                User
+                    .select(
+                    	//TODO: make schema aware
+                        User.star(),
+                        'array(' +
+                        'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
+                        ') as "usergroupId"'
+                    )
+                    .where(User.id.equals(req.params.id)),
+                    {'realm': req.param('realm')}
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
+            return user;
         }).then(function (data) {
-            res.json(!_.first(data));
+            res.json(_.first(data));
         }, function (err) {
             next(err);
         });
     },
 
     updateOne: function (req, res, next) {
-        query(
-            User.update(_.pick(req.body, User.whereCol)).where(User.id.equals(req.params.id)),
-            {'realm': req.param('realm')},
-            function (err, data) {
-                if (!err) {
-                    res.status(202).end();
-                } else {
-                    next(err);
-                }
+
+        co(function*(){
+            var updateObj = _.pick(req.body, User.whereCol);
+            if (Object.keys(updateObj).length) {
+                yield thunkQuery(
+                    User.update(updateObj).where(User.id.equals(req.params.id)),
+                    {'realm': req.param('realm')}
+                );
             }
-        );
+            //TODO:  is this delete supposed to be here?
+            yield thunkQuery(
+                UserGroup.delete().where(UserGroup.userId.equals(req.params.id)),
+                {'realm': req.param('realm')}
+            );
+            var groupObjs = [];
+            for (var i in req.body.usergroupId) {
+                groupObjs.push(
+                    {
+                        groupId : req.body.usergroupId[i],
+                        userId  : req.params.id
+                    }
+                );
+            }
+            if (groupObjs.length) {
+                yield thunkQuery(
+                    UserGroup.insert(groupObjs)
+                );
+            }
+        }).then(function(){
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
+
     },
 
     deleteOne: function (req, res, next) {
@@ -519,18 +617,51 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
-        var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "proto_amida"."RolesRights" ' +
-            ' LEFT JOIN "proto_amida"."Rights"' +
-            ' ON ("RolesRights"."rightID" = "Rights"."id")' +
-            ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
-            ') AS rights';
-        query(User.select(User.star(), request).where(User.id.equals(req.user.id)), {'realm': req.param('realm')}, function (err, user) {
-            if (!err) {
-                res.json(_.first(user));
-            } else {
-                next(err);
-            }
+        co(function* (){
+        	//TODO: make schema aware
+            var rightsReq =
+                'ARRAY(' +
+                    ' SELECT "Rights"."action" FROM "RolesRights" ' +
+                    ' LEFT JOIN "Rights"' +
+                    ' ON ("RolesRights"."rightID" = "Rights"."id")' +
+                    ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
+                ') AS rights';
+            var groupReq =
+                'ARRAY(' +
+                    'SELECT "UserGroups"."groupId" ' +
+                    'FROM "UserGroups" ' +
+                    'WHERE "UserGroups"."userId" = "Users"."id"' +
+                ') as "usergroupId"';
+
+            var projectReq =
+                '(' +
+                    'SELECT row_to_json("Projects".*) ' +
+                    'FROM "Projects" ' +
+                    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+                    'LIMIT 1' +
+                ') as "project"';
+
+            return yield thunkQuery(
+                User
+                .select(
+                    User.star(),
+                    rightsReq,
+                    groupReq,
+                    'row_to_json("Organizations".*) as organization',
+                    projectReq
+                )
+                .from(
+                    User
+                    .leftJoin(Organization)
+                    .on(User.organizationId.equals(Organization.id))
+                )
+                .where(User.id.equals(req.user.id)),
+        		{'realm': req.param('realm')}
+            );
+        }).then(function (data) {
+            res.json(data[0]);
+        }, function (err) {
+            next(err);
         });
     },
 
@@ -651,9 +782,42 @@ module.exports = {
                     Task.writeToAnswers,
                     'row_to_json("UnitOfAnalysis".*) as uoa',
                     'row_to_json("Products".*) as product',
-                    'row_to_json("EssenceRoles".*) as entityTypeRoleId',
+                    'row_to_json("Projects".*) as project',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json(STEPS) as step'
+                    'row_to_json("WorkflowSteps") as step',
+                    'CASE ' +
+                        'WHEN (' +
+                            'SELECT ' +
+                            '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isReturn" = true ' +
+                            'AND "Discussions"."isResolve" = false ' +
+                            'LIMIT 1' +
+                        ') IS NULL ' +
+                        'THEN FALSE ' +
+                        'ELSE TRUE ' +
+                    'END as flagged',
+                    '(WITH "curStep" as ' +
+                    '(' +
+                        'SELECT ' +
+                            'CASE ' +
+                                'WHEN "WorkflowSteps"."position" IS NULL THEN 0 ' +
+                                'ELSE "WorkflowSteps"."position" ' +
+                            'END ' +
+                        'FROM "ProductUOA" ' +
+                        'LEFT JOIN "WorkflowSteps" ' +
+                        'ON "ProductUOA"."currentStepId" = "WorkflowSteps"."id"' +
+                        'WHERE "ProductUOA"."productId" = "Products"."id" ' +
+                        'AND "ProductUOA"."UOAid" = "UnitOfAnalysis"."id"' +
+                    ') '+
+                    'SELECT ' +
+                        'CASE ' +
+                            'WHEN "curStep"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                            'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
+                            'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'END as status ' +
+                    'FROM "curStep")'
                 )
                 .from(
                     Task
@@ -661,31 +825,23 @@ module.exports = {
                     .on(Task.uoaId.equals(UOA.id))
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
+                    .leftJoin(Project)
+                    .on(Product.projectId.equals(Project.id))
                     .leftJoin(Survey)
                     .on(Product.surveyId.equals(Survey.id))
-                    .leftJoin(EssenceRole)
-                    .on(Task.entityTypeRoleId.equals(EssenceRole.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(Discussion)
+                    .on(Task.id.equals(Discussion.taskId))
 
                 )
-                .from(
-                    WorkflowStep
-                        .subQuery("STEPS")
-                        .select(
-                            WorkflowStepList.title,
-                            WorkflowStepList.description,
-                            WorkflowStep.star()
-                        )
-                        .from(
-                            WorkflowStep
-                            .leftJoin(WorkflowStepList)
-                            .on(WorkflowStepList.id.equals(WorkflowStep.stepId))
-                        )
-                        //.where(WorkflowStep.id.equals(Task.stepId))
-                )
-                .where(Task.entityTypeRoleId.in(
-                    EssenceRole.subQuery().select(EssenceRole.id).where(EssenceRole.userId.equals(req.user.id))
-                )).and('STEPS.id = "Tasks"."stepId"'),
+                .where(
+                    Task.userId.equals(req.user.id)
+                    .and(Project.status.equals(1))
+                    .and(Product.status.equals(1))
+                ),
                 {'realm': req.param('realm')} 
+
             );
             return res;
         }).then(function(data) {

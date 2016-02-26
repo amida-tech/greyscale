@@ -47,7 +47,7 @@ $widget-header-font-weight: bold;
     }
 
     .widget-body {
-        padding: 20px;
+        padding: $panel-body-padding;
 
         table thead {
             background: #fafafa;
@@ -63,6 +63,7 @@ $widget-header-font-weight: bold;
 
         .error {
             color: $red;
+            font-style: italic;
         }
 
         button {

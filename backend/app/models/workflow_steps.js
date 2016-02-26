@@ -3,10 +3,18 @@ var sql = require('sql');
 var columns = [
     'id',
     'workflowId',
-    'stepId',
     'startDate',
     'endDate',
-    'roleId'
+    'blindReview',
+    'provideResponses',
+    'seeOthersResponses',
+    'discussionParticipation',
+    'allowTranslate',
+    'writeToAnswers',
+    'position',
+    'title',
+    'allowEdit',
+    'role'
 ];
 
 var WorkflowStep = sql.define({
@@ -14,5 +22,20 @@ var WorkflowStep = sql.define({
     schema: 'proto_amida',
     columns: columns
 });
+
+WorkflowStep.editCols = [
+    'startDate',
+    'endDate',
+    'writeToAnswers',
+    'position',
+    'title',
+    'blindReview',
+    'provideResponses',
+    'seeOthersResponses',
+    'discussionParticipation',
+    'allowTranslate',
+    'allowEdit',
+    'role'
+];
 
 module.exports = WorkflowStep;

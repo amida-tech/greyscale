@@ -9,6 +9,8 @@ angular.module('greyscale.tables')
         greyscaleLanguageApi, greyscaleUoaApi,
         greyscaleUoaTypeApi) {
 
+        var tns = 'UOAS.';
+
         var dicts = {
             languages: [],
             uoaTypes: [],
@@ -37,20 +39,20 @@ angular.module('greyscale.tables')
              */
             {
                 field: 'name',
-                title: 'Name',
+                title: tns + 'NAME',
                 show: true,
                 sortable: 'name',
                 dataFormat: 'text',
                 dataRequired: true
             }, {
                 field: 'description',
-                title: 'Description',
+                title: tns + 'DESCRIPTION',
                 show: true,
                 dataFormat: 'text',
                 dataRequired: true
             }, {
                 field: 'shortName',
-                title: 'Short Name',
+                title: tns + 'SHORT_NAME',
                 show: true,
                 dataFormat: 'text',
                 dataRequired: true,
@@ -61,7 +63,7 @@ angular.module('greyscale.tables')
              */
             {
                 field: 'unitOfAnalysisType',
-                title: 'Type',
+                title: tns + 'TYPE',
                 show: true,
                 sortable: 'unitOfAnalysisType',
                 dataFormat: 'option',
@@ -79,7 +81,7 @@ angular.module('greyscale.tables')
              */
             {
                 field: 'visibility',
-                title: 'Visibility',
+                title: tns + 'VISIBILITY',
                 show: true,
                 sortable: 'visibility',
                 dataFormat: 'option',
@@ -91,7 +93,7 @@ angular.module('greyscale.tables')
                 }
             }, {
                 field: 'status',
-                title: 'Status',
+                title: tns + 'STATUS',
                 show: true,
                 sortable: 'status',
                 dataFormat: 'option',
@@ -102,15 +104,15 @@ angular.module('greyscale.tables')
                     valField: 'name'
                 }
             }, {
-                field: 'createTime',
-                title: 'Created',
+                field: 'created',
+                title: tns + 'CREATED',
                 show: true,
                 dataFormat: 'date',
-                sortable: 'createTime',
+                sortable: 'created',
                 dataRequired: true,
                 dataReadOnly: 'both'
                     /*
-                     field: 'deleteTime',
+                     field: 'deleted',
                      */
             }, {
                 field: '',
@@ -119,18 +121,19 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 actions: [{
                     icon: 'fa-pencil',
-                    class: 'info',
+                    tooltip: 'COMMON.EDIT',
                     handler: _editUoa
                 }, {
                     icon: 'fa-trash',
-                    class: 'danger',
+                    tooltip: 'COMMON.DELETE',
                     handler: _delRecord
                 }]
             }
         ];
 
         var _table = {
-            title: 'Unit of Analysis',
+            title: tns + 'UOAS',
+            formTitle: tns + 'UOA',
             icon: 'fa-table',
             sorting: {
                 id: 'asc'
@@ -138,7 +141,6 @@ angular.module('greyscale.tables')
             cols: resDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
                 handler: _addUoa
             }
         };
@@ -189,12 +191,19 @@ angular.module('greyscale.tables')
             });
         }
 
-        function _delRecord(item) {
-            greyscaleUoaApi.delete(item.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+        function _delRecord(uoa) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                uoa: uoa,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleUoaApi.delete(uoa.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function getLanguages() {

@@ -3,7 +3,11 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .factory('greyscaleModalsSrv', function ($uibModal) {
+    .factory('greyscaleModalsSrv', function ($uibModal, $q) {
+
+        function hndlModalErr(err) {
+            return $q.reject('');
+        }
 
         function _simpleForm(tmplUrl, data, ext, size) {
             return $uibModal.open({
@@ -15,7 +19,7 @@ angular.module('greyscaleApp')
                     formData: data,
                     extData: ext
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
         }
 
         function _simpleMiddleForm(tmplUrl, data, ext) {
@@ -36,7 +40,20 @@ angular.module('greyscaleApp')
                     recordData: data,
                     recordForm: tableDescription
                 }
-            }).result;
+            }).result.catch(hndlModalErr);
+        }
+
+        function modalRecInfo(data, tableDescription) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/modal-rec-info.html',
+                controller: 'ModalRecInfoCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    recordData: data,
+                    recordForm: tableDescription
+                }
+            }).result.catch(hndlModalErr);
         }
 
         function _productUoas(product) {
@@ -99,13 +116,35 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _confirm(params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/confirm.html',
+                controller: 'ModalConfirmCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: params
+                }
+            }).result;
+        }
+
+        function _userGroups(user) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/user-groups.html',
+                controller: 'ModalUserGroupsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
+            showRec: modalRecInfo,
             editCountry: function (_country) {
                 return _simpleMiddleForm('views/modals/country-form.html', _country, null);
-            },
-            editUserProfile: function (_user) {
-                return _simpleMiddleForm('views/modals/user-profile-form.html', _user, null);
             },
             editUserOrganization: function (_org) {
                 return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);
@@ -120,6 +159,8 @@ angular.module('greyscaleApp')
             uoasFilter: _uoasFilter,
             productUoas: _productUoas,
             productWorkflow: _productWorkflow,
-            productTask: _productTask
+            productTask: _productTask,
+            userGroups: _userGroups,
+            confirm: _confirm
         };
     });

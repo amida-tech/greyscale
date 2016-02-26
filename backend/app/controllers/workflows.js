@@ -5,7 +5,7 @@ var client = require('app/db_bootstrap'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepList = require('app/models/workflow_step_list'),
+    WorkflowStepGroup = require('app/models/workflow_step_groups'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -75,32 +75,27 @@ module.exports = {
 
     steps: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(
-                WorkflowStep.select(WorkflowStepList.star(), WorkflowStep.star())
-                .from(
-                    WorkflowStep
-                    .leftJoin(WorkflowStepList)
-                    .on(WorkflowStep.stepId.equals(WorkflowStepList.id))
-                ).where(WorkflowStep.workflowId.equals(req.params.id)),
-                {'realm': req.param('realm')} 
-            );
+            var q = WorkflowStep
+                .select(
+                    WorkflowStep.star(),
+                    'array(' +
+                    'SELECT "WorkflowStepGroups"."groupId" ' +
+                    'FROM "WorkflowStepGroups" ' +
+                    'WHERE "WorkflowStepGroups"."stepId" = "WorkflowSteps"."id"' +
+                    ') as "usergroupId"'
+                )
+                .from(WorkflowStep)
+                .where(WorkflowStep.workflowId.equals(req.params.id));
+            if (!req.query.order) {
+                q = q.order(WorkflowStep.position);
+            }
+            return yield thunkQuery(q, {'realm': req.param('realm')} );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
             next(err);
         });
     },
-
-    //stepsDelete: function (req, res, next) {
-    //    co(function* () {
-    //        return yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.stepId.in(req.body))
-	//				{'realm': req.param('realm')} );
-    //    }).then(function (data) {
-    //        res.json(data);
-    //    }, function (err) {
-    //        next(err);
-    //    });
-    //},
 
     stepsUpdate: function (req, res, next) {
         co(function* () {
@@ -117,22 +112,16 @@ module.exports = {
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)),
             		{'realm': req.param('realm')});
             var relIds = rels.map(function (value) {
-                //if (relIds.indexOf(req.body[i].id) == -1) {
-                //    deleteQ = deleteQ.or({productId: req.params.id, UOAid: req.body[i].id});
-                //    needDel = true;
-                //}
-
                 return value.id;
             });
 
-            var deleteQ = WorkflowStep.delete();
-            var insertArr = [];
+
             var passedIds = [];
             var updatedIds = [];
             var insertIds = [];
 
             for (var i in req.body) {
-                var updateObj = _.pick(req.body[i], ['startDate', 'endDate', 'roleId']);
+                var updateObj = _.pick(req.body[i], WorkflowStep.editCols);
                 if (req.body[i].id) { // need update
                     passedIds.push(req.body[i].id);
                     if (Object.keys(updateObj).length && relIds.indexOf(req.body[i].id) !== -1) { // have data to update  and exists
@@ -143,29 +132,41 @@ module.exports = {
                             .where(WorkflowStep.id.equals(req.body[i].id)),
                             {'realm': req.param('realm')}
                         );
+                        yield thunkQuery(
+                            WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
+                        );
                     }
                 } else {
-                    var insertObj = _.pick(req.body[i], ['stepId', 'startDate', 'endDate', 'roleId']);
+                    var insertObj = _.pick(req.body[i], WorkflowStep.table._initialConfig.columns);
                     insertObj.workflowId = req.params.id;
-                    insertArr.push(insertObj);
+                    var insertId = yield thunkQuery(WorkflowStep.insert(insertObj).returning(WorkflowStep.id));
+                    insertIds.push(insertId[0].id);
+                    req.body[i].id = insertId[0].id;
+                    //insertArr.push(insertObj);
+                }
+                var insertGroupObjs = [];
+                for (var groupIndex in req.body[i].usergroupId) {
+                    insertGroupObjs.push(
+                        {
+                            stepId : req.body[i].id,
+                            groupId: req.body[i].usergroupId[groupIndex]
+                        }
+                    );
+                }
+                console.log(insertGroupObjs);
+                if (insertGroupObjs.length) {
+                    yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
                 }
             }
 
             var deleteIds = _.difference(relIds, passedIds);
 
-            for (var j in deleteIds) {
-                deleteQ = deleteQ.or({
-                    id: deleteIds[j]
-                });
-            }
-
-            if (deleteIds.length) {
-                yield thunkQuery(deleteQ, {'realm': req.param('realm')});
-            }
-
-            if (insertArr.length) {
-                insertIds = yield thunkQuery(WorkflowStep.insert(insertArr).returning(WorkflowStep.id),
+            for (var i in deleteIds) {
+                yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])),
                 		{'realm': req.param('realm')});
+                yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])),
+                		{'realm': req.param('realm')});
+
             }
 
             return {
@@ -182,112 +183,7 @@ module.exports = {
             next(err);
         });
 
-    },
-
-    stepsAdd: function (req, res, next) {
-        co(function* () {
-            if (!Array.isArray(req.body)) {
-                throw new HttpError(403, 'You should pass an array of step ids in request body');
-            }
-
-            var workflow = yield thunkQuery(Workflow.select().where(Workflow.id.equals(req.params.id)),
-            		{'realm': req.param('realm')} );
-            if (!_.first(workflow)) {
-                throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
-            }
-
-            var result = yield thunkQuery(WorkflowStepList.select(WorkflowStepList.id).where(WorkflowStepList.id.in(req.body)),
-            		{'realm': req.param('realm')} );
-            var stepsInList = result.map(function (value) {
-                return value.id;
-            });
-
-            result = yield thunkQuery(WorkflowStep.select(WorkflowStep.stepId).where(WorkflowStep.workflowId.equals(req.params.id)),
-            		{'realm': req.param('realm')} );
-            var stepsInRel = result.map(function (value) {
-                return value.stepId;
-            });
-
-            var insertArr = [];
-
-            for (var i in req.body) {
-                if (stepsInList.indexOf(req.body[i]) === -1) {
-                    throw new HttpError(403, 'Workflow step with id = ' + req.body[i] + ' does not exist');
-                }
-                if (stepsInRel.indexOf(req.body[i]) > -1) {
-                    throw new HttpError(403, 'Relation for workflow step with id = ' + req.body[i] + ' has already existed');
-                }
-                insertArr.push({
-                    workflowId: req.params.id,
-                    stepId: req.body[i]
-                });
-            }
-
-            return yield thunkQuery(WorkflowStep.insert(insertArr),{'realm': req.param('realm')} );
-        }).then(function (data) {
-            res.status(201).end();
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    stepListSelect: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList),{'realm': req.param('realm')} );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    stepListAdd: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(WorkflowStepList.insert(req.body).returning(WorkflowStepList.id),{'realm': req.param('realm')} );
-        }).then(function (data) {
-            res.status(201).json(_.first(data));
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    stepListSelectOne: function (req, res, next) {
-        co(function* () {
-            var result = yield thunkQuery(WorkflowStepList.select().from(WorkflowStepList).where(WorkflowStepList.id.equals(req.params.id)),
-            		{'realm': req.param('realm')} );
-            if (!_.first(result)) {
-                throw new HttpError(404, 'Not found');
-            }
-            return result;
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    stepListUpdateOne: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(WorkflowStepList.update(req.body).where(WorkflowStepList.id.equals(req.params.id)),
-            		{'realm': req.param('realm')} );
-        }).then(function (data) {
-            res.status(202).end();
-        }, function (err) {
-            next(err);
-        });
-    },
-
-    stepListDelete: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(WorkflowStepList.delete().where(WorkflowStepList.id.equals(req.params.id)),
-            		{'realm': req.param('realm')} );
-        }).then(function (data) {
-            res.status(204).end();
-        }, function (err) {
-            next(err);
-        });
-    },
-
+    }
 };
 
 function* checkData(req) {

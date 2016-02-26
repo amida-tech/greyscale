@@ -15,7 +15,12 @@ var columns = [
     'isWordmml',
     'incOtherOpt',
     'units',
-    'intOnly'
+    'intOnly',
+    'value',
+    'qid',
+    'links',
+    'attachment',
+    'optionNumbering'
 ];
 
 var SurveyQuestion = sql.define({
@@ -24,13 +29,31 @@ var SurveyQuestion = sql.define({
     columns: columns
 });
 
+SurveyQuestion.types = [
+    0, // Text
+    1, // Paragraph
+    2, // Checkbox
+    3, // Radio
+    4, // Dropdown
+    5, // Digit
+    6, // Email
+    7, // Currency
+    8, // Section start
+    9, // Section end
+    10, // Section separator
+    11, // Bullet points
+    12, // Date
+    13 // Scale
+];
 SurveyQuestion.multiSelectTypes = [2, 3, 4];
 
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
-    'isWordmml', 'incOtherOpt', 'units', 'intOnly'
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid',
+    'links', 'attachment', 'optionNumbering'
 ];
+
 SurveyQuestion.whereCol = columns;
 
 module.exports = SurveyQuestion;

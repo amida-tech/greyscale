@@ -36,12 +36,13 @@ angular.module('greyscaleApp')
         function _save() {
             _survey = $scope.model.survey;
             _survey.projectId = projectId;
+            var questions = _survey.questions;
+            _survey.questions = undefined;
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey)).then(function (survey) {
                 if (!survey) {
                     survey = _survey;
-                } else {
-                    survey.questions = _survey.questions;
                 }
+                survey.questions = questions;
                 for (var j = survey.questions.length - 1; j >= 0; j--) {
                     if (!survey.questions[j]) {
                         survey.questions.splice(j, 1);

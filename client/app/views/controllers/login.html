@@ -1,10 +1,12 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="col-sm-4 col-sm-offset-4">
+        <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
             <div class="panel panel-body">
                 <div language-selector class="pull-right" style="margin-top: 16px"></div>
                 <div class="logo"></div>
-                <div login-form></div>
+                <div login-form ng-show="model.state ==='login'"></div>
+                <div remind-form ng-show="model.state ==='forgot'"></div>
+                <div reset-form="model.token" ng-show="model.state ==='reset'"></div>
             </div>
         </div>
     </div>

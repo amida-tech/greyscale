@@ -4,43 +4,54 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, _, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi) {
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
+        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log) {
+
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
         var _messages = [];
-        var _associate = [];
+        var _associate = {};
+        var _associateArray = [];
+
+        this.isSuperAdmin = _isSuperAdmin;
+
+        this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
             var self = this;
-            var res;
-            if (!greyscaleTokenSrv()) {
-                _profile = null;
-                _profilePromise = null;
-                res = $q.reject('not logged in');
-            } else {
-                if (_profile && !force) {
-                    self._setAccessLevel();
-                    res = $q.resolve(_profile);
-                } else {
-                    if (!_profilePromise || force) {
-                        _profilePromise = greyscaleUserApi.get()
-                            .then(function (profileData) {
-                                _profile = profileData;
-                                return _profile;
-                            })
-                            .then(self._setAccessLevel)
-                            //                            .then(self._setAssociate) disabled while not need
-                            .finally(function () {
-                                _profilePromise = null;
-                            });
+
+            return greyscaleUserApi.isAuthenticated().then(function (isAuth) {
+                var res;
+
+                if (isAuth) {
+                    if (_profile && !force) {
+                        self._setAccessLevel();
+                        res = $q.resolve(_profile);
+                    } else {
+                        if (!_profilePromise || force) {
+                            _profilePromise = greyscaleUserApi.get()
+                                .then(function (profileData) {
+                                    _profile = profileData;
+                                    return _profile;
+                                })
+                                .then(self._setAccessLevel)
+                                .then(self._setAssociate)
+                                .finally(function () {
+                                    _profilePromise = null;
+                                });
+                        }
+                        res = _profilePromise;
                     }
-                    res = _profilePromise;
+                } else {
+                    _profile = null;
+                    _profilePromise = null;
+                    res = $q.reject('not logged in');
                 }
-            }
-            return res;
+
+                return res;
+            });
         };
 
         this._setAccessLevel = function () {
@@ -63,19 +74,60 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                        organizationId: _profile.organizationId
-                    })
+                    organizationId: _profile.organizationId // while API users/self/associate not implemented
+                })
                     .then(function (associate) {
-                        _associate = associate;
+                        var i, user,
+                            qty = associate.length;
+                        _associate = {};
+                        _associateArray = [];
+                        for (i = 0; i < qty; i++) {
+                            user = associate[i];
+                            if (!user.isAnonymous || _isAdmin()) {
+                                _associate[user.id] = {
+                                    id: user.id,
+                                    firstName: user.firstName || '',
+                                    lastName: user.lastName || '',
+                                    email: user.email || ''
+                                };
+                                _associateArray.push(_associate[user.id]);
+                            }
+
+                        }
                         return _profile;
                     })
                     .catch(function (err) {
                         $log.debug(err.message || err);
+                        _associate = {};
+                        _associateArray = [];
                         return _profile;
                     });
             } else {
                 return $q.reject('no user data loaded');
             }
+        };
+
+        this.getAssociate = function () {
+            return this.getProfile()
+                .then(function () {
+                    return _associate;
+                })
+                .catch(function () {
+                    return [];
+                });
+        };
+
+        this.getMember = function (userId) {
+            var member = _associate[userId];
+            if (!member) {
+                member = {
+                    id: userId,
+                    firstName: i18n.translate('USERS.ANONYMOUS'),
+                    lastName: '',
+                    email: ''
+                };
+            }
+            return member;
         };
 
         this.recentMessages = function () {
@@ -105,10 +157,17 @@ angular.module('greyscale.core')
 
         this.logout = function () {
             return greyscaleUserApi.logout().finally(function () {
-                greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
             });
         };
+
+        function _isSuperAdmin() {
+            return (_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
+
+        function _isAdmin() {
+            return (_accessLevel & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
+        }
     });

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('widgetTableCell', function ($filter, $compile, $q, $http, $templateCache) {
+    .directive('widgetTableCell', function (_, $sce, $timeout, $filter, $compile, $q, $http, $templateCache) {
 
         function decode(_set, dict, value) {
             var res = value;
@@ -33,7 +33,13 @@ angular.module('greyscaleApp')
 
                 var _field = cell.field;
 
-                if (cell.showDataInput) {
+                var showDataInput;
+                if (typeof cell.showDataInput === 'function') {
+                    showDataInput = cell.showDataInput();
+                } else {
+                    showDataInput = cell.showDataInput;
+                }
+                if (showDataInput) {
                     $scope.model = $scope.rowValue;
                     _compileDataInput();
 
@@ -53,13 +59,24 @@ angular.module('greyscaleApp')
                     case 'option':
                         var _set = cell.dataSet;
                         if (_set.getData) {
-                            elem.append(decode(_set, _set.getData($scope.rowValue), $scope.rowValue[_field]));
+                            _setModelFromData(_set, _set.getData($scope.rowValue));
+                            //$scope.model = decode(_set, _set.getData($scope.rowValue), $scope.rowValue[_field]);
                         } else if (_set.dataPromise) {
-                            elem.append('{{model}}');
-                            $compile(elem.contents())($scope);
-                            _set.dataPromise($scope.rowValue).then(function (dict) {
-                                $scope.model = decode(_set, dict, $scope.model);
+                            _set.dataPromise($scope.rowValue).then(function (data) {
+                                //$scope.model = decode(_set, dict, $scope.model);
+                                _setModelFromData(_set, data);
                             });
+                        }
+                        if (cell.cellTemplateUrl) {
+                            _getTemplateByUrl(cell.cellTemplateUrl)
+                                .then(function (template) {
+                                    _resolveCellTemplate(template, cell.cellTemplateExtData);
+                                });
+                        } else if (cell.cellTemplate) {
+                            _resolveCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
+                        } else {
+                            elem.append('{{model}}');
+
                         }
                         break;
 
@@ -68,7 +85,7 @@ angular.module('greyscaleApp')
                         if ($scope.rowValue[_field] === true) {
                             elem.append('<span class="text-success"><i class="fa fa-check"></i></span>');
                         } else if ($scope.rowValue[_field] === false) {
-                            elem.append('<span class="text-danger"><i class="fa fa-warning"></i></span>');
+                            elem.append('<span class="text-danger"><i class="fa fa-minus"></i></span>');
                         }
                         break;
 
@@ -79,37 +96,69 @@ angular.module('greyscaleApp')
 
                     default:
                         if (cell.multiselect) {
-                            _compileMultiselectCell();
+                            _resolveMultiselectCell();
                         } else if (cell.cellTemplate) {
-                            _compileCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
+                            _resolveCellTemplate(cell.cellTemplate, cell.cellTemplateExtData);
                         } else if (cell.cellTemplateUrl) {
-                            _compileCellTemplateFromUrl();
+                            _resolveCellTemplateFromUrl();
                         } else {
-                            _compileDefaultCell();
+                            _resolveDefaultCell();
                         }
                     }
 
                     if (cell.link) {
-                        _compileLinkCell();
+                        _resolveLinkCell();
                     }
 
                     if (cell.cellClass) {
                         elem.addClass(cell.cellClass);
                     }
+
+                    $compile(elem.contents())($scope);
+                    elem.addClass('compiled');
                 }
 
-                function _compileCellTemplate(template, ext) {
+                function _setModelFromData(_set, data) {
+                    var search = {};
+                    search[_set.keyField] = $scope.rowValue[_field];
+                    var option = _.find(data, search);
+                    $scope.model = '';
+                    if (!option) {
+                        return;
+                    }
+                    $scope.option = option;
+                    if (_set.valField) {
+                        $scope.model = option[_set.valField];
+                    } else if (_set.template) {
+                        var render = $compile('<span>' + _set.template + '</span>')($scope);
+                        $timeout(function () {
+                            $scope.model = render.text();
+                        });
+                    }
+
+                }
+
+                function _resolveCellTemplate(template, ext) {
                     $scope.row = $scope.rowValue;
                     $scope.cell = $scope.model;
-                    elem.append(template);
                     $scope.ext = ext;
-                    $compile(elem.contents())($scope);
+                    if (elem.hasClass('compiled')) {
+                        var linkCell = elem.find('>a');
+                        var compiledTemplate = $compile('<div>' + template + '</div>')($scope);
+                        if (linkCell.length) {
+                            linkCell.append(compiledTemplate);
+                        } else {
+                            elem.append(compiledTemplate);
+                        }
+                    } else {
+                        elem.append(template);
+                    }
                 }
 
-                function _compileCellTemplateFromUrl() {
+                function _resolveCellTemplateFromUrl() {
                     _getTemplateByUrl(cell.cellTemplateUrl)
                         .then(function (template) {
-                            _compileCellTemplate(template, cell.cellTemplateExtData);
+                            _resolveCellTemplate(template, cell.cellTemplateExtData);
                         });
                 }
 
@@ -122,21 +171,21 @@ angular.module('greyscaleApp')
                         });
                 }
 
-                function _compileMultiselectCell() {
+                function _resolveMultiselectCell() {
                     elem.addClass('text-center');
                     elem.append('<div class="form-group"><div class="checkbox"><label>' +
                         '<input type="checkbox" class="multiselect-checkbox disable-control" ' +
                         'ng-model="modelMultiselect.selected[rowValue.id]" ng-change="modelMultiselect.fireChange()" />' +
                         '<div class="chk-box"></div></label></div></div>');
-                    $compile(elem.contents())($scope);
+
                 }
 
-                function _compileDefaultCell() {
+                function _resolveDefaultCell() {
                     elem.append((cell.dataFormat) ? $filter(cell.dataFormat)($scope.rowValue[_field]) : $scope.rowValue[_field]);
                 }
 
-                function _compileLinkCell() {
-                    var label = elem.text();
+                function _resolveLinkCell() {
+                    var label = elem.html();
                     var link = angular.element('<a>' + label + '</a>');
                     if (cell.link.state) {
                         link.attr('ui-sref', cell.link.state);
@@ -146,9 +195,19 @@ angular.module('greyscaleApp')
                     if (cell.link.target) {
                         link.attr('target', cell.link.target);
                     }
-                    elem.html(link[0].outerHTML);
+                    if (cell.link.handler) {
+                        link.attr('href', '');
+                        link.on('click', function (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var tableRow = $scope.$parent.$parent.row;
+                            cell.link.handler(tableRow);
+                        });
+                    }
+                    elem.html('');
+                    elem.append(link);
                     $scope.item = $scope.rowValue;
-                    $compile(elem.contents())($scope);
+
                 }
 
                 function _resolveDotNotation() {

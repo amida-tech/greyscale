@@ -145,27 +145,40 @@ module.exports = {
 };
 
 function* checkProjectData(req) {
+    var orgId = req.user.organizationId;
+
+    if(req.user.roleID == 1){
+        orgId = req.body.organizationId;
+    }
+
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !req.body.organizationId || !req.body.codeName) {
+        if (!orgId || !req.body.codeName) {
             throw new HttpError(
                 403,
-                'matrixId, organizationId and codeName fields are required'
+                'organizationId and codeName fields are required'
             );
         }
+    }
 
-        if (req.body.organizationId) {
-            var isExistOrg = yield thunkQuery(
-                Organization.select().where(Organization.id.equals(req.user.organizationId)), {'realm': req.param('realm')}
+    if(orgId){
+        var isExistOrg = yield thunkQuery(
+            Organization.select().where(Organization.id.equals(orgId)),
+    		{'realm': req.param('realm')}
+        );
+        if (!_.first(isExistOrg)) {
+            throw new HttpError(
+                403,
+                'Organization with id = ' + orgId + ' does not exist'
             );
-            if (!_.first(isExistOrg)) {
-                throw new HttpError(
-                    403,
-                    'By some reason cannot find your organization (id = ' + req.user.organizationId + ')'
-                );
-            }
         }
-
-        req.body.organizationId = req.user.organizationId;
+        var projects = yield thunkQuery(
+            Project.select().where(Project.organizationId.equals(orgId)),
+    		{'realm': req.param('realm')}
+        );
+        if (projects.length) {
+            throw new HttpError(400, 'You can create only one project for each organization');
+        }
+        req.body.organizationId = orgId;
     }
 
     if(typeof req.body.status != 'undefined'){
@@ -174,9 +187,9 @@ function* checkProjectData(req) {
         }
     }
 
-    if(req.body.matrixId){
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId))
-        		,{'realm': req.param('realm')});
+    if (req.body.matrixId) {
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)),
+        		{'realm': req.param('realm')});
         if (!_.first(isExistMatrix)) {
             throw new HttpError(403, 'Matrix with this id does not exist');
         }

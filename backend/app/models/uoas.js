@@ -20,8 +20,9 @@ var columns = [
     'ownerId',
     'visibility',
     'status',
-    'createTime',
-    'deleteTime',
+    'created',
+    'updated',
+    'deleted',
     'langId'
 ];
 

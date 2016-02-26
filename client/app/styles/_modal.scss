@@ -11,3 +11,19 @@
     }
 }
 
+.modal-system {
+    .modal-header {
+        @extend h2;
+        margin: 0;
+        padding-bottom: 10px;
+        border: none;
+    }
+    .modal-footer {
+        padding-bottom: 20px;
+        padding-top: 10px;
+    }
+    .modal-title, .modal-body, .modal-footer {
+        text-align: center;
+        border: none;
+    }
+}

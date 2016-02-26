@@ -9,6 +9,8 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleLanguageApi) {
 
+        var tns = 'PRODUCTS.UOAS.';
+
         var dicts = {
             languages: [],
             uoaTypes: []
@@ -16,17 +18,17 @@ angular.module('greyscale.tables')
 
         var resDescr = [{
                 field: 'name',
-                title: 'Name',
+                title: tns + 'NAME',
                 show: true,
                 sortable: 'name'
             }, {
                 field: 'description',
-                title: 'Description',
+                title: tns + 'DESCRIPTION',
                 show: true,
                 dataFormat: 'text'
             }, {
                 field: 'shortName',
-                title: 'Short Name',
+                title: tns + 'SHORT_NAME',
                 show: true
             },
             /*
@@ -34,7 +36,7 @@ angular.module('greyscale.tables')
              */
             {
                 field: 'unitOfAnalysisType',
-                title: 'Type',
+                title: tns + 'TYPE',
                 show: true,
                 sortable: 'unitOfAnalysisType',
                 dataFormat: 'option',
@@ -50,14 +52,14 @@ angular.module('greyscale.tables')
                 dataFormat: 'action',
                 actions: [{
                     icon: 'fa-trash',
-                    class: 'danger',
+                    tooltip: 'COMMON.DELETE',
                     handler: _delRecord
                 }]
             }
         ];
 
         var _table = {
-            title: 'Product Units of Analysis',
+            title: tns + 'TABLE_TITLE',
             icon: 'fa-table',
             dataFilter: {},
             sorting: {
@@ -66,7 +68,6 @@ angular.module('greyscale.tables')
             cols: resDescr,
             dataPromise: _getData,
             add: {
-                title: 'Add',
                 handler: _addUoa
             }
         };
@@ -93,6 +94,7 @@ angular.module('greyscale.tables')
             return greyscaleProfileSrv.getProfile().then(function () {
                 var productId = _getProductId();
                 var req = {
+                    product: greyscaleProductApi.get(productId),
                     uoas: greyscaleProductApi.product(productId).uoasList(),
                     uoaTypes: greyscaleUoaTypeApi.list(),
                     languages: greyscaleLanguageApi.list()
@@ -103,6 +105,7 @@ angular.module('greyscale.tables')
                     }
                     dicts.languages = promises.languages;
                     dicts.uoaTypes = promises.uoaTypes;
+                    dicts.product = promises.product;
 
                     return promises.uoas;
                 });
@@ -115,11 +118,20 @@ angular.module('greyscale.tables')
 
         function _delRecord(uoa) {
             var productId = _getProductId();
-            greyscaleProductApi.product(productId).uoasDel(uoa.id)
-                .then(_reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                uoa: uoa,
+                product: dicts.product,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleProductApi.product(productId).uoasDel(uoa.id)
+                    .then(_reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function getUoaTypes() {

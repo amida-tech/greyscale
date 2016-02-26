@@ -134,17 +134,37 @@ body {
 
 .disabled,
 :disabled {
-    color: $grey-medium-light;
+    color: $grey-light;
 }
 
 .subtext {
     font-size: $font-size-sub;
     font-weight: normal;
     color: $grey-medium-light;
+    margin-bottom: 5px;
+
+    &:after {
+        @extend .row:after;
+    }
 }
 
 .required:after {
     content: ' *';
     color: $green;
     display: inline;
+}
+
+.text-danger {
+    font-style: italic;
+}
+
+.weight-normal {
+    font-weight: normal;
+}
+
+.break-words {
+    word-wrap:break-word;
+}
+.super-small {
+    font-size: 0.8em;
 }

@@ -4,25 +4,31 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .service('widgetTableSrv', function (_, NgTableParams, $filter,
-        $compile, i18n, $timeout, $templateCache, $rootScope) {
-
-        var _templateCacheIds = [];
+    .service('widgetTableSrv', function (_, $q, NgTableParams, $filter,
+        $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel) {
 
         return {
             init: _init
         };
 
         function _init(config) {
-            var scope = config.scope;
-            var rowSelector = config.rowSelector;
-            var model = config.model;
 
-            if (typeof rowSelector === 'function') {
-                model.current = rowSelector();
-            } else {
-                model.current = null;
-            }
+            var scope = config.scope;
+
+            var model = config.model;
+            model.el = config.el;
+
+            model.current = null;
+
+            //if (typeof rowSelector === 'function') {
+            //    model.current = rowSelector();
+            //} else {
+            //    model.current = null;
+            //}
+
+            scope.sortableOptions = {
+                disabled: true
+            };
 
             _translateParams(model);
 
@@ -35,11 +41,19 @@ angular.module('greyscaleApp')
                     count: model.pageLength || 5,
                     sorting: model.sorting || null
                 }, {
-                    counts: [],
+                    counts: model.pageLengths || [],
                     getData: function ($defer, params) {
                         if (typeof model.dataPromise === 'function') {
-                            model.$loading = true;
+                            var t;
+                            if (model.$loading === undefined) {
+                                model.$loading = true;
+                            } else {
+                                t = setTimeout(function () {
+                                    model.$loading = true;
+                                }, 200);
+                            }
                             var endLoading = function () {
+                                clearTimeout(t);
                                 model.$loading = false;
                             };
                             model.dataPromise()
@@ -57,7 +71,23 @@ angular.module('greyscaleApp')
                         }
                     }
                 });
+
+                model.tableParams.custom = {
+                    showAllButton: !!model.showAllButton
+                };
+
+                model.tableParams.pager = _newPagination(scope);
             }
+
+            if (model.dragSortable) {
+                scope.sortableOptions = {
+                    handle: '.action-drag-sortable',
+                    start: function (e, ui) {
+                        ui.placeholder.height(ui.item.height());
+                    }
+                };
+            }
+
             scope.isSelected = function (row) {
                 return (typeof scope.rowSelector !== 'undefined' && model.current === row);
             };
@@ -86,12 +116,47 @@ angular.module('greyscaleApp')
                 if (model.multiselect && model.multiselect.reset) {
                     model.multiselect.reset();
                 }
-                if (_templateCacheIds.length) {
-                    angular.forEach(_templateCacheIds, function (templateId) {
-                        $templateCache.remove(templateId);
-                    });
-                }
+                model.$loading = undefined;
             });
+
+            if (typeof config.onReload === 'function') {
+                ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
+            }
+        }
+
+        function _newPagination(scope) {
+            var params = scope.model.tableParams;
+            return {
+                from: function () {
+                    return 1 + params.count() * (params.page() - 1);
+                },
+                to: function () {
+                    var to = params.count() * params.page();
+                    if (to > params.total()) {
+                        to = params.total();
+                    }
+                    return to;
+                },
+                first: function () {
+                    return params.page() === 1;
+                },
+                last: function () {
+                    return this.to() === params.total();
+                },
+                itemsName: function () {
+                    return scope.model.title ? scope.model.title + ' ' : '';
+                },
+                prev: function () {
+                    if (!this.first()) {
+                        params.page(params.page() - 1);
+                    }
+                },
+                next: function () {
+                    if (!this.last()) {
+                        params.page(params.page() + 1);
+                    }
+                }
+            };
         }
 
         function _getDataMap(data) {
@@ -129,9 +194,8 @@ angular.module('greyscaleApp')
         function _setTitleTemplate(col) {
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
-            _templateCacheIds.push(templateId);
             var scope = $rootScope.$new();
-            angular.extend(scope, col.titleTemplateData || {});
+            scope.ext = col.titleTemplateExtData || {};
             template = $compile(template)(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {
@@ -199,15 +263,21 @@ angular.module('greyscaleApp')
 
             function _setSelected(list, field) {
                 _reset();
-                field = field || 'id';
-                angular.forEach(_.filter(list, field), function (item) {
-                    model.multiselect.selectedMap.push(item[field]);
-                    model.multiselect.selected[item[field]] = true;
-                });
+                if (field) {
+                    angular.forEach(_.filter(list, field), function (item) {
+                        model.multiselect.selectedMap.push(item[field]);
+                        model.multiselect.selected[item[field]] = true;
+                    });
+                } else {
+                    angular.forEach(list, function (id) {
+                        model.multiselect.selectedMap.push(id);
+                        model.multiselect.selected[id] = true;
+                    });
+                }
             }
         }
     })
-    .directive('widgetTable', function ($templateCache, $compile, $http) {
+    .directive('widgetTable', function ($templateCache, $compile, $http, $timeout) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -221,14 +291,33 @@ angular.module('greyscaleApp')
                 _expandableRowFunctionality(scope, el);
                 _delegateClickFunctionality(scope, el);
             },
-            controller: function ($scope, widgetTableSrv) {
+            controller: function ($scope, $element, widgetTableSrv) {
                 widgetTableSrv.init({
+                    el: $element,
                     scope: $scope,
                     model: $scope.model,
-                    rowSelector: $scope.rowSelector
+                    rowSelector: $scope.rowSelector,
+                    onReload: function () {
+                        $timeout(function () {
+                            _onReload($scope, $element, arguments);
+                        });
+                    }
                 });
             }
         };
+
+        function _onReload(scope, el, args) {
+
+        }
+
+        function _findExpanded(rowEl) {
+            var next = rowEl.next();
+            if (next.hasClass('expand-row')) {
+                return next;
+            } else {
+                return _findExpanded(next);
+            }
+        }
 
         function _expandableRowFunctionality(scope, el) {
             var expandedRowTemplate = scope.model.expandedRowTemplate;
@@ -249,15 +338,15 @@ angular.module('greyscaleApp')
 
         function _getTemplateByUrl(templateUrl) {
             return $http.get(templateUrl, {
-                cache: $templateCache
-            })
-            .then(function (response) {
-                return response.data;
-            });
+                    cache: $templateCache
+                })
+                .then(function (response) {
+                    return response.data;
+                });
         }
 
         function _controlRowExpanding(el, template, scope) {
-            el.on('click', '.action-expand-row', function(e){
+            el.on('click', '.action-expand-row', function (e) {
                 var row = $(e.target).closest('.expandable-row');
                 if (!row.hasClass('is-expanded')) {
                     _showExpandedRow(row, template, scope);
@@ -265,21 +354,26 @@ angular.module('greyscaleApp')
                     _hideExpandedRow(row);
                 }
             });
+            scope.$openExpandedRow = function (rowEl) {
+                _showExpandedRow(rowEl, template, scope);
+            };
         }
 
-        function _showExpandedRow(row, template, scope) {
-            row.addClass('is-expanded');
+        function _showExpandedRow(rowEl, template, scope) {
+            rowEl.addClass('is-expanded');
             var colspan = scope.model.cols.length;
             var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
-            row.after(expand);
-            var rowScope = row.scope().$parent;
+            rowEl.after(expand);
+            var rowScope = rowEl.scope().$parent;
             $compile(expand)(rowScope);
-            rowScope.$apply();
+            $timeout(function () {
+                rowScope.$digest();
+            });
         }
 
-        function _hideExpandedRow(row) {
-            row.removeClass('is-expanded');
-            var expand = row.next();
+        function _hideExpandedRow(rowEl) {
+            rowEl.removeClass('is-expanded');
+            var expand = rowEl.next();
             if (expand.hasClass('expand-row')) {
                 expand.remove();
             }
@@ -288,9 +382,9 @@ angular.module('greyscaleApp')
         function _delegateClickFunctionality(scope, el) {
             var handlers = scope.model.delegateClick;
             if (handlers && angular.isObject(handlers)) {
-                angular.forEach(handlers, function(handler, selector){
+                angular.forEach(handlers, function (handler, selector) {
                     if (typeof handler === 'function') {
-                        el.on('click', selector, function(e){
+                        el.on('click', selector, function (e) {
                             e.stopPropagation();
                             e.preventDefault();
                             var trigger = angular.element(e.target);
@@ -300,4 +394,18 @@ angular.module('greyscaleApp')
                 });
             }
         }
+    })
+    .directive('widgetTableExpandedRowOpen', function () {
+        return {
+            restrict: 'A',
+            scope: {
+                open: '=widgetTableExpandedRowOpen'
+            },
+            link: function (scope, el) {
+                if (scope.open) {
+                    scope.$parent.$openExpandedRow(el);
+                }
+            }
+
+        };
     });

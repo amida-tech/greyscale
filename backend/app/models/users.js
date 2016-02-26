@@ -14,7 +14,7 @@ var columns = [
     'lastName',
     'password',
     'roleID',
-    'mobile',
+    'cell',
     'birthday',
     'resetPasswordToken',
     'resetPasswordExpires',
@@ -25,11 +25,14 @@ var columns = [
     'organizationId',
     'timezone',
     'location',
-    'cell',
+    'phone',
     'address',
     'lang',
     'bio',
-    'notifyLevel'
+    'notifyLevel',
+    'lastActive',
+    'affiliation',
+    'isAnonymous'
 ];
 
 var User = sql.define({
@@ -46,13 +49,17 @@ User.hashPassword = function (password) {
     hash.update(temp);
     return hash.digest('hex');
 };
+
 User.validPassword = function (pas, checkpas) {
     return pas === this.hashPassword(checkpas);
 };
+
 User.editCols = [
-    'firstName', 'lastName', 'mobile', 'birthday', 'updated',
-    'timezone','location','cell','address','lang','bio','notifyLevel'
+    'firstName', 'lastName', 'phone', 'birthday',
+    'updated', 'timezone','location','cell','address',
+    'lang','bio','notifyLevel','affiliation'
 ];
+
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
 User.whereCol = columns;
 

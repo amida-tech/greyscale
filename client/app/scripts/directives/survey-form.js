@@ -3,949 +3,318 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $log) {
+    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
+        $anchorScroll, greyscaleUtilsSrv, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
-        /*
-        var survey;
-        var surveyId;
-        var taskId;
-        var taskInfo;
-        var constUrl = 'http://indaba.ntrlab.ru:83/dev/v0.2/';
-        var dataFields;
-        var currentParent;
-        var content;
-        var userId;
-        var hasChanges = false;
-*/
         return {
             restrict: 'E',
-            //            replace: true,
             templateUrl: 'views/directives/survey-form.html',
             scope: {
                 surveyData: '='
             },
-            link: function (scope, elem) {
+            link: function (scope) {
 
                 scope.$watch('surveyData', updateForm);
 
+                scope.autosave = $interval(function () {
+                    saveAnswers(scope, true);
+                }, 15000);
+
+                scope.$on('$destroy', function(){
+                    $interval.cancel(scope.autosave);
+                });
+
                 function updateForm(data) {
-                    if (data && data.task && data.userId && data.survey) {
-                        /*
-                        taskInfo = data.task;
-                        survey = data.survey;
-                        userId = data.userId;
-                        surveyId = data.survey.id;
-                        taskId = data.task.id;
-*/
-                        prepareFields(scope, data);
+                    if (data && data.survey) {
+                        prepareFields(scope);
 
-                        loadAnswers(scope, data);
-
-                        elem.prepend('<p class="subtext"><span class="required"></span>form is under construction</p>');
-
+                        if (data.task && data.userId) {
+                            loadAnswers(scope);
+                        }
                     }
                 }
+
             },
             controller: function ($scope) {
-                $scope.goField = function (elemId) {
-                    $log.debug('going to', elemId);
+
+                $scope.model = {
+                    contentOpen: false
                 };
+
+                $scope.goField = function (elemId) {
+                    $scope.model.contentOpen = !$scope.model.contentOpen;
+                    $timeout(function () {
+                        $anchorScroll(elemId);
+                    }, 10);
+                };
+
+                $scope.save = function () {
+                    saveAnswers($scope);
+                };
+
             }
         };
 
-        function prepareFields(scope, surveyData) {
+        function prepareFields(scope) {
             scope.fields = [];
-            scope.answers = {};
             scope.content = [];
+            scope.recentSaved = null;
+            scope.lock = true;
 
-            var content = [scope.content];
+            var content = [];
             var fields = [];
-            var fieldsRef = fields;
+            var ref = [{
+                fields: fields,
+                content: content
+            }];
+            var survey = scope.surveyData.survey;
+            var o, item, fld, fldId, q, field, type,
+                r = 0,
+                qid = 0,
+                qQty = survey.questions.length;
 
-            $log.debug(surveyData.survey.questions);
-
-            for (var q = 0; q < surveyData.survey.questions.length; q++) {
-                var field = surveyData.survey.questions[q];
-                var type = fieldTypes[field.type];
+            for (q = 0; q < qQty; q++) {
+                field = survey.questions[q];
+                type = fieldTypes[field.type];
                 if (type) {
-                    var item = {
+                    fldId = 'fld' + field.id;
+                    item = {
                         type: type,
                         title: field.label,
-                        href: '#c' + field.id
+                        href: fldId
                     };
 
-                    var fld = {
-                        cid: 'c' + field.id,
-                        fieldType: type,
+                    fld = {
+                        id: field.id,
+                        cid: fldId,
+                        type: type,
                         label: field.label,
+                        description: field.description,
                         required: field.isRequired,
-                        fieldOptions: {}
+                        options: field.options,
+                        minLength: field.minLength,
+                        maxLength: field.maxLength,
+                        inWords: field.isWordmml,
+                        units: field.units,
+                        intOnly: field.intOnly,
+                        withOther: field.incOtherOpt,
+                        value: field.value,
+                        ngModel: {},
+                        answer: null
                     };
-
-                    if (type === 'section_end') {
-                        content.pop();
-                        fieldsRef = fields;
-                    } else {
-                        content[content.length - 1].push(item);
-                        fieldsRef.push(fld);
-                    }
-                    if (type === 'section_start') {
-                        item.sub = [];
-                        fld.sub = [];
-                        fieldsRef = fld.sub;
-                        content.push(item.sub);
-                    }
-
-                    fieldsRef.push();
-                }
-            }
-            $log.debug(scope.content, fields);
-            scope.fields = fields;
-        }
-
-        function loadAnswers(scope, surveyData) {
-            var params = {
-                surveryId: surveyData.survey.id,
-                productId: surveyData.task.productId,
-                UOAid: surveyData.task.uoaId,
-                wfStepId: surveyData.task.stepId,
-                userId: surveyData.userId
-            };
-
-            greyscaleSurveyAnswerApi.list(params)
-                .then(function (_answers) {
-                    $log.debug('answers', _answers);
-                    for (var v = 0; v < _answers.length; v++) {
-                        scope.answers[_answers[v].questionId] = _answers[v].value;
-                    }
-                });
-        }
-        /*
-                function generateSurvey(fields) {
-                    var i;
-                    survey = $('#survey');
-                    currentParent = survey;
-                    dataFields = [];
-                    for (i = 0; i < fields.length; i++) {
-                        var type = fieldTypes[fields[i].type];
-                        if (type) {
-                            dataFields.push({
-                                cid: 'c' + fields[i].id,
-                                field_type: type,
-                                label: fields[i].label,
-                                required: fields[i].isRequired,
-                                field_options: {}
-                            });
-                        }
-                    }
-                    var contentDiv = $.create('div', {className: 'content-container compact'});
-                    $.start(contentDiv, survey);
-                    $.inside($.create('span', {contents: ['Content'], className: 'content-title'}), contentDiv);
-                    var button = $.create('a', {className: 'expand-button'});
-                    button._.events({
-                        'click': function () {
-                            contentDiv.classList.toggle('compact');
-                        }
-                    });
-                    $.inside(button, contentDiv);
-                    content = $.create('ul', {className: 'content'});
-                    $.inside(content, contentDiv);
-
-                    for (i = 0; i < dataFields.length; i++) {
-                        fieldCreate(dataFields[i]);
-                    }
-                }
-
-                function getField(cid) {
-                    return $('#' + cid);
-                }
-
-                function getData(cid) {
-                    for (var i = 0; i < dataFields.length; i++) {
-                        if (dataFields[i].cid === cid) {
-                            return dataFields[i];
-                        }
-                    }
-                }
-
-                function fieldCreate(data) {
-                    var type = data.field_type;
-                    if (type === 'date' || type === 'time' || type === 'website' || type === 'address') {
-                        return;
-                    }
-
-                    if (type !== 'section_end') {
-                        var contentElement = $.create('li', {contents: [data.label]});
-                        contentElement._.events({
-                            'click': function () {
-                                getField(data.cid).scrollIntoView();
-                            }
-                        });
-                        $.inside(contentElement, content);
-                    }
-
-                    var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'section_start' || type === 'section_end' ? 'div' : 'label';
-
-                    var field = $.create(tag, {id: data.cid, className: 'field ' + type, 'data-type': type});
-                    $.inside($.create('span', {contents: [data.label], className: 'field-label'}), field);
-
-                    if (data.required && type !== 'section_break' && type !== 'section_start' && type !== 'section_end') {
-                        $.inside($.create('span',
-                            {
-                                contents: ['*'],
-                                className: 'required'
-                            }), field);
-                    }
-                    if (data.field_options && data.field_options.description) {
-                        $.inside($.create('div', {
-                            contents: [data.field_options.description],
-                            className: 'description'
-                        }), field);
-                    }
-                    if (field) {
-                        $.inside(field, currentParent);
-                    }
 
                     switch (type) {
-                        case 'section_start':
-                            fieldSectionStart(data);
-                            break;
-                        case 'section_end':
-                            fieldSectionEnd(data);
-                            break;
-                        case 'text':
-                        case 'email':
-                            fieldText(data);
-                            break;
-                        case 'price':
-                            fieldText(data);
-                            $.before($.create('span', {contents: ['$: ']}), $('input', field));
-                            break;
-                        case 'number':
-                            fieldText(data);
-                            $.after($.create('span', {contents: [' ', data.field_options.units]}), $('input', field));
-                            break;
-                        case 'checkboxes':
-                        case 'radio':
-                            fieldRadioCheckboxes(data);
-                            break;
-                        case 'paragraph':
-                            fieldTextarea(data);
-                            break;
-                        case 'dropdown':
-                            fieldDropdown(data);
-                            break;
-                        default:
-                            return;
-                    }
-                    validationRule(data);
-                }
-
-                function fieldSectionStart(data) {
-                    currentParent = getField(data.cid);
-                    var button = $.create('a', {className: 'expand-button'});
-                    var cur = currentParent;
-                    button._.events({
-                        'click': function () {
-                            cur.classList.toggle('compact');
+                    case 'checkboxes':
+                        for (o = 0; o < field.options.length; o++) {
+                            angular.extend(fld.options[o], {
+                                checked: field.options[o].isSelected,
+                                name: field.options[o].label
+                            });
                         }
-                    });
-                    $.inside(button, currentParent);
-                }
-
-                function fieldSectionEnd(data) {
-                    if (currentParent === survey) {
-                        return;
-                    }
-
-                    currentParent = currentParent.parentNode;
-                }
-
-                function fieldText(data) {
-                    var div = $.create('div');
-                    $.inside(div, getField(data.cid));
-                    var input = $.create('input', {
-                        type: 'text',
-                        className: data.field_options.size ? data.field_options.size : '',
-                        name: data.cid
-                    });
-                    $.inside(input, div);
-
-                    input._.events({
-                        'change': function () {
-                            hasChanges = true;
-                        },
-                        'keypress': function () {
-                            hasChanges = true;
-                        }
-                    });
-                }
-
-                function fieldTextarea(data) {
-                    var div = $.create('div');
-                    $.inside(div, getField(data.cid));
-                    var input = $.create('textarea', {className: data.field_options.size, name: data.cid});
-                    $.inside(input, div);
-
-                    input._.events({
-                        'change': function () {
-                            hasChanges = true;
-                        },
-                        'keypress': function () {
-                            hasChanges = true;
-                        }
-                    });
-                }
-
-                function setChangeFlag() {
-                    hasChanges = true;
-                }
-
-                function fieldRadioCheckboxes(data) {
-                    var type = data.field_type === 'radio' ? 'radio' : 'checkbox';
-                    var input;
-
-                    if (!data.field_options || !data.field_options.options || !data.field_options.options.length) {
-                        return;
-                    }
-                    var fieldSet = $.create('fieldset');
-                    $.inside(fieldSet, getField(data.cid));
-                    for (var i = 0; i < data.field_options.options.length; i++) {
-                        var checkboxLabel = $.create('label', {className: 'variant'});
-                        $.inside(checkboxLabel, fieldSet);
-
-                        input = $.create('input', {
-                            type: type,
-                            value: data.field_options.options[i].label,
-                            checked: data.field_options.options[i].checked,
-                            name: data.cid,
-                            className: 'option'
-                        });
-                        $.inside(input, checkboxLabel);
-                        input._.events({
-                            'change': setChangeFlag
-                        });
-
-                        $.inside($.create('span', {contents: [data.field_options.options[i].label]}), checkboxLabel);
-                    }
-
-                    if (data.field_options.include_other_option) {
-                        var block = $.create('div', {className: 'variant'});
-                        $.inside(block, fieldSet);
-                        input = $.create('input', {type: type, value: 'Other', name: data.cid, className: 'other'});
-                        $.inside(input, block);
-                        input._.events({
-                            'change': setChangeFlag
-                        });
-                        var inputVariant = $.create('input', {type: 'text', name: data.cid, className: 'other-text'});
-                        $.inside(inputVariant, block);
-                        inputVariant._.events({
-                            'change': setChangeFlag,
-                            'keypress': setChangeFlag
-                        });
-                    }
-                }
-
-                function fieldDropdown(data) {
-                    var option;
-                    if (!data.field_options || !data.field_options.options || !data.field_options.options.length) {
-                        return;
-                    }
-                    var div = $.create('div');
-                    $.inside(div, getField(data.cid));
-                    var select = $.create('select', {name: data.cid});
-                    $.inside(select, div);
-                    select._.events({
-                        'change': setChangeFlag
-                    });
-
-                    if (data.field_options.include_blank_option) {
-                        option = $.create('option', {text: ' ', value: ' '});
-                        $.inside(option, select);
-                    }
-
-                    for (var i = 0; i < data.field_options.options.length; i++) {
-                        option = $.create('option', {
-                            text: data.field_options.options[i].label,
-                            value: data.field_options.options[i].label,
-                            selected: data.field_options.options[i].checked
-                        });
-                        $.inside(option, select);
-                    }
-                }
-
-                function showErrors(data) {
-                    var field = getField(data.cid);
-                    var error = $('.error', field);
-                    error.innerHTML = '';
-                    for (var i = 0; i < data.errors.length; i++) {
-                        $.inside($.create('div', {contents: [data.errors[i].text]}), error);
-                    }
-                    field.classList.add(data.errors.length ? 'invalid' : 'valid');
-                    field.classList.remove(data.errors.length ? 'valid' : 'invalid');
-                }
-
-                function addRemoveError(data, error, mustHaveError) {
-                    if (!data.errors) {
-                        data.errors = [];
-                    }
-
-                    var index = -1;
-                    for (var i = 0; i < data.errors.length; i++) {
-                        if (data.errors[i].type !== error.type) {
-                            continue;
-                        }
-                        index = i;
                         break;
-                    }
-                    if (index === -1 && mustHaveError) {
-                        data.errors.push(error);
-                    } else if (index > -1 && !mustHaveError) {
-                        data.errors.splice(index, 1);
-                    } else if (index > -1 && mustHaveError) {
-                        data.errors[index].text = error.text;
-                    }
-                    showErrors(data);
-                }
 
-        //End Generate Survey
-
-        //Validation
-                function validateAll(data) {
-                    validateRequired(data);
-                    validateLength(data);
-                    validateNumber(data);
-                    validateEmail(data);
-                    validateSkip(data);
-                }
-
-                function validateRequired(data) {
-                    if (!data.required) {
-                        return;
-                    }
-
-                    var field = getField(data.cid);
-                    var errorText = 'It\'s a required field. It\'s must have value.';
-                    var mustHaveError = false;
-                    switch (data.field_type) {
-                        case 'text':
-                        case 'price':
-                        case 'number':
-                        case 'email':
-                            mustHaveError = $('input', field).value.length === 0;
-                            break;
-                        case 'checkboxes':
-                        case 'radio':
-                            mustHaveError = true;
-                            $$('.option', field).forEach(function (input) {
-                                if (input.checked) {
-                                    mustHaveError = false;
-                                }
-                            });
-                            if (mustHaveError) {
-                                var other = $('.other', field);
-                                var otherText = $('.other-text', field);
-                                if (other && other.checked && otherText && otherText.value.length > 0) {
-                                    mustHaveError = false;
-                                }
+                    case 'dropdown':
+                    case 'radio':
+                        if (type === 'dropdown') {
+                            if (!fld.required) {
+                                fld.options.unshift({
+                                    id: null,
+                                    label: '',
+                                    value: null
+                                });
+                                fld.answer = fld.options[0];
                             }
-                            break;
-                        case 'paragraph':
-                            mustHaveError = $('textarea', field).value.length === 0;
-                            break;
-                        case 'dropdown':
-                            mustHaveError = !$('select', field).value.trim();
-                            break;
-                        default:
-                            return;
-                    }
-                    addRemoveError(data, {type: 'required', text: errorText}, mustHaveError);
-                }
+                        }
 
-                function validateLength(data) {
-                    if (data.field_type !== 'text' && data.field_type !== 'paragraph') {
-                        return;
-                    }
-
-                    var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
-                    var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
-
-                    if ((minlength || maxlength) && minlength <= maxlength) {
-                        var errorText;
-                        var errorTextMin = 'Text is too short. It must be ' + minlength + ' ' + data.field_options.min_max_length_units + ' at least.';
-                        var errorTextMax = 'Text is too long. It must be less then ' + maxlength + ' ' + data.field_options.min_max_length_units + '.';
-
-                        var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea',
-                            getField(data.cid));
-                        var mustHaveError = false;
-                        if (data.field_options.min_max_length_units === 'characters') {
-                            var characters = input.value ? input.value.length : 0;
-                            if (minlength && characters < minlength) {
-                                errorText = errorTextMin + ' You have ' + characters + '.';
-                                mustHaveError = true;
-                            } else if (maxlength && characters > maxlength) {
-                                errorText = errorTextMax + ' You have ' + characters + '.';
-                                mustHaveError = true;
+                        for (o = 0; o < field.options.length; o++) {
+                            if (field.options[o].isSelected) {
+                                fld.answer = field.options[o];
                             }
+                        }
+                        break;
+
+                    case 'number':
+                        if (fld.intOnly) {
+                            fld.answer = parseInt(fld.value);
                         } else {
-                            var words = input.value ? input.value.match(/\S+/g).length : 0;
-                            if (minlength && words < minlength) {
-                                errorText = errorTextMin + ' You have ' + words + '.';
-                                mustHaveError = true;
-                            } else if (maxlength && words > maxlength) {
-                                errorText = errorTextMax + ' You have ' + words + '.';
-                                mustHaveError = true;
+                            fld.answer = parseFloat(fld.value);
+                        }
+                        break;
+
+                    default:
+                        fld.answer = fld.value;
+                    }
+
+                    if (type === 'section_end') { // close section
+                        r--;
+                    } else { //push data into current section
+                        qid++;
+                        fld.qid = qid;
+                        ref[r].content.push(item);
+                        ref[r].fields.push(fld);
+
+                    }
+
+                    if (type === 'section_start') { // create subsection, move pointer to it
+                        item.sub = [];
+                        fld.sub = [];
+                        ref[++r] = {
+                            fields: fld.sub,
+                            content: item.sub
+                        };
+                    }
+                }
+            }
+
+            scope.fields = fields;
+            scope.content = content;
+            scope.lock = false;
+        }
+
+        function loadAnswers(scope) {
+            var params = {
+                surveryId: scope.surveyData.survey.id,
+                productId: scope.surveyData.task.productId,
+                UOAid: scope.surveyData.task.uoaId,
+                wfStepId: scope.surveyData.task.stepId,
+                userId: scope.surveyData.userId
+            };
+            scope.lock = true;
+            greyscaleSurveyAnswerApi.list(params)
+                .then(function (_answers) {
+                    var v, answer, o, fld, _date;
+                    var answers = {};
+
+                    for (v = 0; v < _answers.length; v++) {
+                        answer = answers['q' + _answers[v].questionId];
+                        if (!answer || answer.version < _answers[v].version) {
+                            answers['q' + _answers[v].questionId] = _answers[v];
+                            answers['q' + _answers[v].questionId].created = new Date(_answers[v].created);
+                            if (!scope.savedAt || scope.savedAt < answers['q' + _answers[v].questionId].created) {
+                                scope.savedAt = answers['q' + _answers[v].questionId].created;
                             }
                         }
-                        addRemoveError(data, {type: 'length', text: errorText}, mustHaveError);
-                    }
-                }
-
-                function validateNumber(data) {
-                    if (data.field_type !== 'number' && data.field_type !== 'price') {
-                        return;
                     }
 
-                    var val = $('input', getField(data.cid)).value.trim();
-                    var mustHaveError = false;
-                    var errorText;
-                    if (data.field_options.integer_only) {
-                        mustHaveError = isNaN(val) || parseFloat(val) !== parseInt(val);
-                        errorText = 'Value must be integer number.';
-                    } else {
-                        mustHaveError = isNaN(val);
-                        errorText = 'Value must be number.';
-                    }
-
-                    if (!mustHaveError) {
-                        var number = parseFloat(val);
-                        if (data.field_options.min !== undefined && number < data.field_options.min) {
-                            mustHaveError = true;
-                            errorText = 'Value must be greater then ' + data.field_options.min + '.';
-                        } else if (data.field_options.max !== undefined && number > data.field_options.max) {
-                            mustHaveError = true;
-                            errorText = 'Value must be less then ' + data.field_options.max + '.';
-                        }
-                    }
-
-                    addRemoveError(data, {type: 'number', text: errorText}, mustHaveError);
-                }
-
-                function validateEmail(data) {
-                    if (data.field_type !== 'email') {
-                        return;
-                    }
-                    var re = /^(([^<>()[\]\.,;:\s@\']+(\.[^<>()[\]\.,;:\s@\']+)*)|(\'.+\'))@(([^<>()[\]\.,;:\s@\']+\.)+[^<>()[\]\.,;:\s@\']{2,})$/i;
-                    var mustHaveError = !re.test($('input', getField(data.cid)).value.trim());
-                    addRemoveError(data, {type: 'email', text: 'Email address is not correct.'}, mustHaveError);
-                }
-
-                function validateSkip(data) {
-                    skipLogic();
-                }
-
-                function validationRule(data) {
-                    var error = $.create('div', {className: 'error'});
-                    $.inside(error, getField(data.cid));
-                    validationRuleRequired(data);
-                    validationRuleLength(data);
-                    validationRuleNumber(data);
-                    validationRuleEmail(data);
-                    validationRuleSkip(data);
-                }
-
-                function validationRuleRequired(data) {
-                    if (!data.required) {
-                        return;
-                    }
-                    var field = getField(data.cid);
-                    switch (data.field_type) {
-                        case 'text':
-                        case 'price':
-                        case 'number':
-                        case 'email':
-                            $('input', field)._.events({
-                                'blur': function () {
-                                    validateRequired(data);
+                    for (v = 0; v < scope.fields.length; v++) {
+                        fld = scope.fields[v];
+                        answer = answers[fld.cid];
+                        if (answer) {
+                            switch (fld.type) {
+                            case 'checkboxes':
+                                for (o = 0; o < fld.options.length; o++) {
+                                    fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
+                                    fld.options[o].checked = fld.options[o].isSelected;
+                                    if (fld.options[o].isSelected) {
+                                        fld.answer = fld.options[o];
+                                    }
                                 }
-                            });
-                            break;
-                        case 'checkboxes':
-                        case 'radio':
-                            $$('input', field)._.events({
-                                'change': function () {
-                                    validateRequired(data);
-                                },
-                                'blur': function () {
-                                    validateRequired(data);
+                                break;
+
+                            case 'dropdown':
+                            case 'radio':
+                                for (o = 0; o < fld.options.length; o++) {
+                                    fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
+                                    if (fld.options[o].isSelected) {
+                                        fld.answer = fld.options[o];
+                                    }
                                 }
-                            });
-                            break;
-                        case 'paragraph':
-                            $('textarea', field)._.events({
-                                'blur': function () {
-                                    validateRequired(data);
-                                }
-                            });
-                            break;
-                        case 'dropdown':
-                            $('select', field)._.events({
-                                'change': function () {
-                                    validateRequired(data);
-                                },
-                                'blur': function () {
-                                    validateRequired(data);
-                                }
-                            });
-                            break;
-                        default:
-                            return;
-                    }
-                }
+                                break;
 
-                function validationRuleLength(data) {
-                    if (data.field_type !== 'text' && data.field_type !== 'paragraph') {
-                        return;
-                    }
-
-                    var minlength = data.field_options.minlength ? parseInt(data.field_options.minlength) : 0;
-                    var maxlength = data.field_options.maxlength ? parseInt(data.field_options.maxlength) : 0;
-                    if (!minlength && !maxlength) {
-                        return;
-                    }
-                    if (maxlength && minlength > maxlength) {
-                        return;
-                    }
-
-                    var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
-                    input._.events({
-                        'blur': function () {
-                            validateLength(data);
-                        }
-                    });
-                }
-
-                function validationRuleNumber(data) {
-                    if (data.field_type !== 'number' && data.field_type !== 'price') {
-                        return;
-                    }
-                    $('input', getField(data.cid))._.events({
-                        'blur': function () {
-                            validateNumber(data);
-                        }
-                    });
-                }
-
-                function validationRuleEmail(data) {
-                    if (data.field_type !== 'email') {
-                        return;
-                    }
-                    $('input', getField(data.cid))._.events({
-                        'blur': function () {
-                            validateEmail(data);
-                        }
-                    });
-                }
-
-                function validationRuleSkip(data) {
-                    var field = getField(data.cid);
-                    switch (data.field_type) {
-                        case 'text':
-                        case 'price':
-                        case 'number':
-                        case 'email':
-                            $('input', field)._.events({
-                                'blur': function () {
-                                    validateSkip(data);
-                                }
-                            });
-                            break;
-                        case 'checkboxes':
-                        case 'radio':
-                            $$('input', field)._.events({
-                                'change': function () {
-                                    validateSkip(data);
-                                },
-                                'blur': function () {
-                                    validateSkip(data);
-                                }
-                            });
-                            break;
-                        case 'paragraph':
-                            $('textarea', field)._.events({
-                                'blur': function () {
-                                    validateSkip(data);
-                                }
-                            });
-                            break;
-                        case 'dropdown':
-                            $('select', field)._.events({
-                                'change': function () {
-                                    validateSkip(data);
-                                },
-                                'blur': function () {
-                                    validateSkip(data);
-                                }
-                            });
-                            break;
-                        default:
-                            return;
-                    }
-                }
-
-        //Validation
-
-        //Load
-
-                function setCurrentAnswers(surveyAnswers) {
-                    if (!surveyAnswers) {
-                        surveyAnswers = {};
-                        for (var i = 0; i < dataFields.length; i++) {
-                            surveyAnswers[dataFields[i].cid] = localStorage.getItem(dataFields[i].cid);
-                        }
-                    }
-                    setValues(surveyAnswers);
-                    skipLogic();
-                    autosave();
-                }
-
-                function setValues(vals) {
-                    var fields = $$('.field');
-                    var i, j;
-                    for (i = 0; i < fields.length; i++) {
-                        var id = fields[i].id;
-
-                        if (vals[id] === null || vals[id] === undefined) {
-                            continue;
-                        }
-                        switch (fields[i]._.getAttribute('data-type')) {
-                            case 'text':
-                            case 'price':
                             case 'number':
-                            case 'email':
-                                $('input', fields[i]).value = vals[id];
-                                break;
-                            case 'checkboxes':
-                            case 'radio':
-                                var inputs = $$('input', fields[i]);
-                                var list = vals[id].split('|');
-                                for (j = 0; j < inputs.length; j++) {
-                                    var index = list.indexOf(inputs[j].value);
-                                    inputs[j].checked = false;
-                                    if (index === -1) {
-                                        continue;
-                                    }
-                                    inputs[j].checked = true;
-                                    list.splice(index, 1);
-                                }
-                                if (list.length > 0) {
-                                    var input = $('.other', fields[i]);
-                                    if (input) {
-                                        input.checked = true;
-                                    }
-                                    input = $('.other-text', fields[i]);
-                                    if (input) {
-                                        input.value = list.join(', ');
-                                    }
+                                if (fld.intOnly) {
+                                    fld.answer = parseInt(answer.value);
+                                } else {
+                                    fld.answer = parseFloat(answer.value);
                                 }
                                 break;
-                            case 'paragraph':
-                                $('textarea', fields[i]).value = vals[id];
-                                break;
-                            case 'dropdown':
-                                var options = $$('option', fields[i]);
-                                for (j = 0; j < options.length; j++) {
-                                    if (options[j].value !== vals[id]) {
-                                        continue;
-                                    }
-                                    options[j].selected = true;
-                                    break;
-                                }
-                                break;
+
                             default:
-                                return;
-                        }
-                        validateAll(getData(id));
-                    }
-                }
-
-                function skipLogic() {
-                    var vals = getValues();
-                    var skip = 0;
-                    for (var i = 0; i < vals.length; i++) {
-                        var data = getData(vals[i].id);
-                        var field = getField(vals[i].id);
-                        switch (data.field_type) {
-                            //case 'section_start':
-                            //case 'section_end':
-                            //case 'section_break':
-                            //case 'date':
-                            //case 'time':
-                            //case 'website':
-                            //case 'address':
-                            //    if (skip > 0) field.classList.add('hidden');
-                            //    continue;
-                            //    break;
-                            case 'checkboxes':
-                            case 'radio':
-                            case 'dropdown':
-                                if (skip > 0) {
-                                    skip--;
-                                    field.classList.add('hidden');
-                                    continue;
-                                }
-                                if (vals[i].val) {
-                                    for (var j = 0; j < data.field_options.options.length; j++) {
-                                        if (vals[i].val !== data.field_options.options[j].label) {
-                                            continue;
-                                        }
-                                        skip = data.field_options.options[j].skip;
-                                        break;
-                                    }
-                                    break;
-                                }
-                                break;
-                            default:
-                                if (skip > 0) {
-                                    skip--;
-                                    field.classList.add('hidden');
-                                    continue;
-                                }
-                                if (data.field_options.skip) {
-                                    skip = data.field_options.skip;
-                                }
-                                break;
-                        }
-                        field.classList.remove('hidden');
-                    }
-                }
-
-        //End Load
-
-                function getParameterByName(name, url) {
-                    if (!url) {
-                        url = window.location.href;
-                    }
-                    name = name.replace(/[\[\]]/g, "\\$&");
-                    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-                        results = regex.exec(url);
-                    if (!results) {
-                        return null;
-                    }
-                    if (!results[2]) {
-                        return '';
-                    }
-                    return decodeURIComponent(results[2].replace(/\+/g, " "));
-                }
-
-        //Save
-                function save(callback) {
-                    if (hasChanges) {
-                        var vals = getValues();
-                        localStorage.clear();
-
-                        var url = constUrl + 'survey_answers';
-                        var method = 'POST';
-
-                        var sendCount = vals.length - 1;
-                        for (var i = 0; i < vals.length; i++) {
-                            var data = {
-                                surveyId: surveyId,
-                                questionId: parseInt(vals[i].id.replace('c', '')),
-                                productId: taskInfo.productId,
-                                UOAid: taskInfo.uoaId,
-                                wfStepId: taskInfo.stepId,
-                                userId: userId,
-                                value: vals[i].val
-                            };
-                            $.fetch(url, {
-                                method: method,
-                                data: JSON.stringify(data),
-                                responseType: 'json',
-                                headers: {token: token, 'Content-type': 'application/json'}
-                            }).then(function () {
-                                console.log('saved to server');
-                                sendCount--;
-                                if (sendCount > 0) {
-                                    return;
-                                }
-                                hasChanges = false;
-                                if (typeof callback === 'function') {
-                                    callback();
-                                }
-                            }).catch(function (error) {
-                                console.error(error);
-                                sendCount--;
-                                if (sendCount > 0) {
-                                    return;
-                                }
-                                if (typeof callback === 'function') {
-                                    callback();
-                                }
-                            });
+                                fld.answer = answer.value;
+                            }
                         }
                     }
+                })
+                .finally(function () {
+                    scope.lock = false;
+                });
+        }
 
-                    if (typeof callback === 'function') {
-                        callback();
-                    }
+        function saveAnswers(scope, isAuto) {
+            isAuto = !!isAuto;
+            if (scope.surveyForm && scope.surveyForm.$dirty) {
+                scope.lock = true;
+                var params = {
+                    surveryId: scope.surveyData.survey.id,
+                    productId: scope.surveyData.task.productId,
+                    UOAid: scope.surveyData.task.uoaId,
+                    wfStepId: scope.surveyData.task.stepId,
+                    userId: scope.surveyData.userId
+                };
+                if (isAuto) {
+                    params.autosave = true;
                 }
-
-                function getValues() {
-                    var j;
-                    var fields = $$('.field');
-                    var vals = [];
-                    for (var i = 0; i < fields.length; i++) {
-                        var id = fields[i].id;
-                        var type = fields[i]._.getAttribute('data-type');
-                        switch (type) {
-                            case 'text':
-                            case 'price':
-                            case 'number':
-                            case 'email':
-                                vals.push({id: id, val: $('input', fields[i]).value});
-                                break;
-                            case 'checkboxes':
-                            case 'radio':
-                                var inputs = $$('input', fields[i]);
-                                var list = [];
-                                for (j = 0; j < inputs.length; j++) {
-                                    if (!inputs[j].checked) {
-                                        continue;
-                                    }
-                                    if (inputs[j].className.indexOf('other') === -1) {
-                                        list.push(inputs[j].value);
-                                    } else {
-                                        list.push($('.other-text', fields[i]).value);
+                var answers = {};
+                for (var f = 0; f < scope.fields.length; f++) {
+                    var fld = scope.fields[f];
+                    if (fld.answer || fld.type === 'checkboxes') {
+                        var answer = {
+                            questionId: fld.id
+                        };
+                        switch (fld.type) {
+                        case 'checkboxes':
+                            answer.optionId = [];
+                            for (var o = 0; o < fld.options.length; o++) {
+                                if (fld.options[o].checked) {
+                                    answer.optionId.push(fld.options[o].id);
+                                    if (fld.options[o].value) {
+                                        answer.value = fld.options[o].value;
                                     }
                                 }
-                                vals.push({id: id, val: list.join('|')});
-                                break;
-                            case 'paragraph':
-                                vals.push({id: id, val: $('textarea', fields[i]).value});
-                                break;
-                            case 'dropdown':
-                                vals.push({id: id, val: $('select', fields[i]).value});
-                                break;
-                            case 'section_start':
-                            case 'section_end':
-                            case 'section_break':
-                                break;
+                            }
+                            break;
+
+                        case 'dropdown':
+                        case 'radio':
+                            if (fld.type === 'dropdown') {
+                                answer.optionId = [];
+                                answer.value = null;
+                            }
+
+                            if (fld.answer.id) {
+                                answer.optionId = [fld.answer.id];
+                                answer.value = fld.answer.value;
+                            }
+                            break;
+
+                        default:
+                            answer.optionId = null;
+                            answer.value = fld.answer;
                         }
+                        angular.extend(answer, params);
+
+                        answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer);
                     }
-                    return vals;
                 }
 
-                function autosave() {
-                    /*
-                     window.setTimeout(function () {
-                     save(function () {
-                     autosave();
-                     });
-                     }, 60000);
-                     * /
-                }
-                */
+                $q.all(answers)
+                    .then(function (resp) {
+                        for (var r in resp) {
+                            if (resp.hasOwnProperty(r) && scope.surveyForm[r]) {
+                                scope.surveyForm[r].$dirty = false;
+                            }
+                        }
+                        scope.surveyForm.$dirty = isAuto;
+                        scope.recentSaved = new Date();
+                    })
+                    .catch(function (err) {
+                        greyscaleUtilsSrv.errorMsg(err);
+                    })
+                    .finally(function () {
+                        scope.lock = false;
+                    });
+            }
+        }
     });

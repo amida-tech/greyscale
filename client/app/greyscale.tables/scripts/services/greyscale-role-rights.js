@@ -7,6 +7,8 @@ angular.module('greyscale.tables')
         greyscaleModalsSrv,
         greyscaleUtilsSrv) {
 
+        var tns = 'ROLE_RIGHTS.';
+
         var _dicts = {
             rights: null,
             entityTypes: null
@@ -19,17 +21,17 @@ angular.module('greyscale.tables')
             sortable: 'id'
         }, {
             field: 'action',
-            title: 'Action',
+            title: tns + 'ACTION',
             show: true,
             sortable: 'action'
         }, {
             field: 'description',
-            title: 'Description',
+            title: tns + 'DESCRIPTION',
             show: true,
             sortable: false
         }, {
             field: 'essenceId',
-            title: 'Entity Type',
+            title: tns + 'ENTITY_TYPE',
             show: true,
             sortable: 'essenceId',
             dataFormat: 'option',
@@ -44,21 +46,20 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                title: 'Delete',
-                class: 'danger',
+                icon: 'fa-trash',
+                tooltip: 'COMMON.DELETE',
                 handler: _deleteRoleRight
             }]
         }];
 
         var _table = {
             dataFilter: {},
-            formTitle: 'Role right',
-            title: 'Role Rights',
+            formTitle: tns + 'ROLE_RIGHT',
+            title: tns + 'ROLE_RIGHTS',
             icon: 'fa-tasks',
             cols: _fields,
             dataPromise: _getData,
             add: {
-                title: 'Add',
                 handler: _addRoleRight
             }
         };
@@ -66,11 +67,19 @@ angular.module('greyscale.tables')
         function _deleteRoleRight(roleRight) {
             var role = _table.dataFilter.role;
             if (role) {
-                greyscaleRoleApi.delRight(role.id, roleRight.id)
-                    .then(_reloadTable)
-                    .catch(function (err) {
-                        _errorHandler(err, 'deleting');
-                    });
+                greyscaleModalsSrv.confirm({
+                    message: tns + 'DELETE_CONFIRM',
+                    role: role,
+                    roleRight: roleRight,
+                    okType: 'danger',
+                    okText: 'COMMON.DELETE'
+                }).then(function () {
+                    greyscaleRoleApi.delRight(role.id, roleRight.id)
+                        .then(_reloadTable)
+                        .catch(function (err) {
+                            _errorHandler(err, 'deleting');
+                        });
+                });
             }
         }
 

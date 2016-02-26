@@ -9,26 +9,26 @@ var Task = sql.define({
         'description',
         'uoaId',
         'stepId',
-        'entityTypeRoleId',
         'created',
         'productId',
         'startDate',
         'endDate',
         'accessToDiscussions',
         'accessToResponses',
-        'writeToAnswers'
+        'writeToAnswers',
+        'userId'
     ]
 });
 
 Task.editCols = [
     'title',
     'description',
-    'entityTypeRoleId',
     'startDate',
     'endDate',
     'accessToDiscussions',
     'accessToResponses',
-    'writeToAnswers'
+    'writeToAnswers',
+    'userId'
 ];
 
 module.exports = Task;

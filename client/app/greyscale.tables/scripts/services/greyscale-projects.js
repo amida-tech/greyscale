@@ -5,18 +5,15 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProjectsTbl', function ($q, greyscaleGlobals, greyscaleProjectApi, greyscaleProfileSrv,
-        greyscaleOrganizationApi, greyscaleUserApi, greyscaleAccessApi,
+        greyscaleOrganizationApi, greyscaleAccessApi,
         greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'PROJECTS.';
 
         var dicts = {
             matrices: [],
-            orgs: [],
-            users: []
+            orgs: []
         };
-
-        var accessLevel;
 
         var recDescr = [{
             field: 'id',
@@ -25,19 +22,6 @@ angular.module('greyscale.tables')
             title: 'ID',
             dataFormat: 'text',
             dataReadOnly: 'both'
-        }, {
-            field: 'organizationId',
-            show: _isSuperAdmin,
-            sortable: 'organizationId',
-            title: tns + 'ORGANIZATION',
-            dataFormat: 'option',
-            dataReadOnly: 'edit',
-            dataHide: _isNotSuperAdmin,
-            dataSet: {
-                getData: getOrgs,
-                keyField: 'id',
-                valField: 'name'
-            }
         }, {
             field: 'codeName',
             show: true,
@@ -87,18 +71,6 @@ angular.module('greyscale.tables')
                 valField: 'name'
             }
         }, {
-            //    field: 'adminUserId',
-            //    show: _isSuperAdmin,
-            //    sortable: false,
-            //    title: 'Admin',
-            //    dataFormat: 'option',
-            //    dataSet: {
-            //        getData: getUsers,
-            //        keyField: 'id',
-            //        valField: 'email'
-            //    },
-            //    dataReadOnly: 'both'
-            //}, {
             field: 'closeTime',
             dataFormat: 'date',
             show: true,
@@ -111,11 +83,11 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-pencil',
-                class: 'info',
+                tooltip: 'COMMON.EDIT',
                 handler: _editProject
             }, {
                 icon: 'fa-trash',
-                class: 'danger',
+                tooltip: 'COMMON.DELETE',
                 handler: _delRecord
             }]
         }];
@@ -134,74 +106,63 @@ angular.module('greyscale.tables')
             add: {
                 title: 'COMMON.CREATE',
                 handler: _editProject
-            }
+            },
+            dataFilter: {}
         };
-
-        function getOrgs() {
-            return dicts.orgs;
-        }
 
         function getMatrices() {
             return dicts.matrices;
-        }
-
-        function getUsers() {
-            return dicts.users;
         }
 
         function getStatus() {
             return greyscaleGlobals.projectStates;
         }
 
-        function _isSuperAdmin() {
-            return accessLevel === greyscaleGlobals.userRoles.superAdmin.mask;
-        }
-
-        function _isNotSuperAdmin() {
-            return !_isSuperAdmin();
-        }
-
-        function _setAccessLevel() {
-            accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
         }
 
         function _getData() {
-            return greyscaleProfileSrv.getProfile().then(function (profile) {
 
-                _setAccessLevel();
+            var organizationId = _getOrganizationId();
 
-                var req = {
-                    prjs: greyscaleProjectApi.list({
-                        organizationId: profile.organizationId
-                    }),
-                    orgs: greyscaleOrganizationApi.list({
-                        organizationId: profile.organizationId
-                    }),
-                    usrs: greyscaleUserApi.list({
-                        organizationId: profile.organizationId
-                    }),
-                    matrices: greyscaleAccessApi.matrices()
-                };
+            if (!organizationId) {
+                return $q.reject('400');
+            }
 
-                return $q.all(req).then(function (promises) {
+            var req = {
+                prjs: greyscaleProjectApi.list({
+                    organizationId: organizationId
+                }),
+                matrices: greyscaleAccessApi.matrices()
+            };
+
+            return $q.all(req).then(function (promises) {
                     greyscaleUtilsSrv.prepareFields(promises.prjs, recDescr);
 
                     dicts.matrices = promises.matrices;
-                    dicts.orgs = promises.orgs;
-                    dicts.users = promises.usrs;
 
                     return promises.prjs;
+                })
+                .catch(function (err) {
+                    return errHandler(err);
                 });
 
-            });
         }
 
-        function _delRecord(item) {
-            greyscaleProjectApi.delete(item.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errHandler(err, 'deleting');
-                });
+        function _delRecord(project) {
+            greyscaleModalsSrv.confirm({
+                message: tns + 'DELETE_CONFIRM',
+                project: project,
+                okType: 'danger',
+                okText: 'COMMON.DELETE'
+            }).then(function () {
+                greyscaleProjectApi.delete(project.id)
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errHandler(err, 'deleting');
+                    });
+            });
         }
 
         function _editProject(prj) {
@@ -212,6 +173,7 @@ angular.module('greyscale.tables')
                         return greyscaleProjectApi.update(newPrj);
                     } else {
                         op = 'adding';
+                        newPrj.organizationId = _getOrganizationId();
                         return greyscaleProjectApi.add(newPrj);
                     }
                 })

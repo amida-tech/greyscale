@@ -4,22 +4,26 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('SurveyCtrl', function ($scope, $stateParams, $log, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv) {
+    .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
+        greyscaleProfileSrv, $log) {
 
         $scope.loading = true;
-        $log.debug('survey params', $stateParams);
 
         $scope.model = {
             title: '',
             surveyData: null
         };
 
-        $q.all({
-                task: greyscaleTaskApi.get($stateParams.taskId),
-                survey: greyscaleSurveyApi.get($stateParams.surveyId),
-                profile: greyscaleProfileSrv.getProfile()
-            })
+        var reqs = {
+            survey: greyscaleSurveyApi.get($stateParams.surveyId),
+            profile: greyscaleProfileSrv.getProfile()
+        };
+
+        if ($stateParams.taskId) {
+            reqs.task = greyscaleTaskApi.get($stateParams.taskId);
+        }
+
+        $q.all(reqs)
             .then(function (resp) {
                 $scope.model.surveyData = {
                     survey: resp.survey,

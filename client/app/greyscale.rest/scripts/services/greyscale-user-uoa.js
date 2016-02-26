@@ -8,35 +8,35 @@ angular.module('greyscale.rest')
             list: _list,
             add: _add,
             del: _del,
-            addMocked: _addMocked,
-            delMocked: _delMocked
+            addOne: _addOne,
+            delOne: _delOne
         };
 
         function _resp(respObj) {
             return respObj.plain();
         }
 
-        function _api() {
-            return greyscaleRestSrv().one('user-uoa');
+        function _api(userId) {
+            return greyscaleRestSrv().one('users', userId + '').one('uoa');
         }
 
-        function _list(params) {
-            return _api().get(params).then(_resp);
+        function _list(userId, params) {
+            return _api(userId).get(params).then(_resp);
         }
 
-        function _add(list) {
-            return _api().customPOST(list);
+        function _add(userId, list) {
+            return _api(userId).customPOST(list);
         }
 
-        function _del(list) {
-            return _api().remove(list);
+        function _addOne(userId, uoaId) {
+            return _api(userId).one(uoaId + '').customPOST({});
         }
 
-        function _addMocked(list) {
-            return _api().one('mock').customPOST(list);
+        function _del(userId, list) {
+            return _api(userId).customOperation('remove', '', null, null, list);
         }
 
-        function _delMocked(list) {
-            return _api().one('mock').remove(list);
+        function _delOne(userId, uoaId) {
+            return _api(userId).one(uoaId + '').remove({});
         }
     });

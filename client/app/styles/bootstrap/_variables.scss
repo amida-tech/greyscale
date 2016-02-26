@@ -7,6 +7,7 @@ $btn-info-bg: $grey-medium-light;
 
 $link-color: $green;
 $link-hover-color: $green-dark;
+$link-hover-decoration: none;
 
 $font-family-base: "Helvetica";
 $headings-font-family: "Helvetica";
@@ -18,11 +19,14 @@ $panel-default-text: $grey-dark;
 $panel-default-heading-bg: $grey-light;
 $panel-default-border: $grey-medium-light;
 
+$nav-tabs-active-link-hover-border-color: $grey-medium-light;
+$nav-tabs-border-color: $grey-medium-light;
+
 $dropdown-link-color: $grey-medium-dark;
 $dropdown-link-hover-color: $grey-medium-dark;
 $dropdown-link-hover-bg: $grey-light;
 
-$font-size-h1: 26pt;
+$font-size-h1: 20pt;
 $font-size-h2: 16pt;
 $font-size-h3: 12pt;
 $font-size-h4: 12pt;

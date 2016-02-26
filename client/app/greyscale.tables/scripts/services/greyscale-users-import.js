@@ -3,16 +3,11 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleImportUsersTbl', function () {
+    .factory('greyscaleUsersImportTbl', function () {
 
         var tns = 'IMPORT.USERS.';
 
         var _fields = [{
-            field: 'id',
-            show: false,
-            title: 'ID',
-            dataReadOnly: 'both'
-        }, {
             field: 'email',
             show: true,
             sortable: 'email',
@@ -30,15 +25,16 @@ angular.module('greyscale.tables')
         }, {
             sortable: 'message',
             title: tns + 'STATUS',
-            cellTemplate: '<span ng-class="{\'text-danger\':(row.parse_status == \'skipped\'), \'text-success\':(row.parse_status == \'Ok\')}">' +
-                '{{row.message}}</span>'
+            cellTemplate: '<div ng-class="{\'text-danger\':(row.parse_status == \'skipped\'), \'text-success\':(row.parse_status == \'Ok\')}">' +
+                '{{row.message}}<div ng-repeat="message in row.messages">{{message}}</div></div>'
         }];
 
         var _table = {
             title: tns + 'RESULTS_TITLE',
             icon: 'fa-upload',
             cols: _fields,
-            pageLength: 10
+            pageLength: 10,
+            dataFilter: {}
         };
 
         return _table;
