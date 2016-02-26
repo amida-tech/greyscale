@@ -363,6 +363,8 @@ var discussions = require('app/controllers/discussions');
 router.route('/:realm/v0.2/discussions')
     .get(authenticate('token').always, discussions.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/users/:taskId')
+    .get(authenticate('token').always, discussions.getUsers);
 router.route('/:realm/v0.2/discussions/entryscope')
     .get(authenticate('token').always, discussions.getEntryScope);
 router.route('/:realm/v0.2/discussions/entryscope/:id')
