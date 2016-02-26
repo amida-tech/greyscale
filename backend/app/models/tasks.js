@@ -15,7 +15,8 @@ var Task = sql.define({
         'endDate',
         'accessToDiscussions',
         'accessToResponses',
-        'writeToAnswers'
+        'writeToAnswers',
+        'userId'
     ]
 });
 
@@ -27,7 +28,8 @@ Task.editCols = [
     'endDate',
     'accessToDiscussions',
     'accessToResponses',
-    'writeToAnswers'
+    'writeToAnswers',
+    'userId'
 ];
 
 module.exports = Task;
