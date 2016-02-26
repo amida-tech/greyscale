@@ -104,7 +104,7 @@
                     maxlength: question.maxLength ? question.maxLength : undefined,
                     min: question.minLength ? question.minLength : undefined,
                     max: question.maxLength ? question.maxLength : undefined,
-                    min_max_length_units: question.isWordmml ? 'words' : 'charecters',
+                    min_max_length_units: question.isWordmml ? 'words' : 'characters',
                     include_other_option: question.incOtherOpt,
                     include_blank_option: question.incOtherOpt,
                     units: question.units,
@@ -209,6 +209,7 @@
             default:
                 return;
         }
+        //fieldAddAttachments(data);
         validationRule(data);
     }
     function fieldSectionStart(data) {
@@ -360,7 +361,10 @@
             $.inside(input, div);
             
             last = input;
-            addBulletEvents(input);
+            input._.events({
+                'change': function () { bulletChange(input); },
+                'keypress': function () { bulletChange(input); }
+            });
         }
         
         function bulletChange(input) {
@@ -384,12 +388,6 @@
             validationRule(data);
         }
         
-        function addBulletEvents(input) {
-            input._.events({
-                'change': function () { bulletChange(input); },
-                'keypress': function () { bulletChange(input); }
-            });
-        }
         createInput();
     }
     function fieldDate(data) {
@@ -410,6 +408,55 @@
         var picker = new Pikaday({
             field: input,
             format: 'YYYY/MM/DD'
+        });
+    }
+    function fieldAddAttachments(data) {
+        if (data.attachment) return;
+        if (data.field_type !== 'text') return;
+        
+        var last;
+        var field = getField(data.cid);
+        var groupDiv = $.create('div');
+        $.inside(groupDiv, field);
+        
+        function createInput() {
+            var div = $.create('div');
+            $.inside(div, groupDiv);
+            var input = $.create('input', {
+                type: 'file',
+                name: data.cid
+            });
+            $.inside(input, div);
+            
+            last = input;
+            input._.events({
+                'change': function () { fileChange(input); },
+            });
+        }
+        
+        function fileChange(input) {
+            setChangeFlag();
+            if (input !== last) return;
+            var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+            del._.events({
+                'click': function () {
+                    input._.unbind();
+                    input.parentNode._.remove();
+                    setChangeFlag();
+                }
+            });
+            del._.after(input)
+            createInput();            
+        }
+        
+        createInput();
+
+        var send = $.create('button', { contents: ['send'], type: 'button' });
+        $.inside(send, field);
+        send._.events({
+            'click': function () {
+                alert(1);
+            }
         });
     }
     //End Generate Survey
@@ -501,8 +548,7 @@
         }
     }
     function validateNumber(data) {
-        if (data.field_type !== 'number' || data.field_type !== 'scale') return;
-        
+        if (data.field_type !== 'number' && data.field_type !== 'scale') return;
         var val = $('input', getField(data.cid)).value.trim();
         var mustHaveError = false;
         var errorText;
@@ -624,7 +670,7 @@
         });
     }
     function validationRuleNumber(data) {
-        if (data.field_type !== 'number' || data.field_type !== 'scale') return;
+        if (data.field_type !== 'number' && data.field_type !== 'scale') return;
         $('input', getField(data.cid))._.events({
             'blur': function () { validateNumber(data); }
         });
@@ -800,7 +846,7 @@
         for (i = 0; i < fields.length; i++) {
             var id = fields[i].id;
             
-            var answer;
+            var answer = null;
             for (j = answers.length - 1; j >= 0; j--) {
                 if ('c' + answers[j].id !== id) continue;
                 answer = answers[j];
