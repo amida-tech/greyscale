@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleUserGroupApi) {
+        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -171,15 +171,24 @@ angular.module('greyscale.tables')
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
                 roles: greyscaleRoleApi.list(roleFilter),
-                groups: greyscaleUserGroupApi.list(organizationId)
+                groups: greyscaleGroupApi.list(organizationId)
             };
 
             return $q.all(req).then(function (promises) {
                 _dicts.roles = promises.roles;
                 _dicts.groups = promises.groups;
-                return promises.steps;
+                return _prepareGroups(promises.steps);
             });
 
+        }
+
+        function _prepareGroups(steps) {
+            angular.forEach(steps, function (step) {
+                step.groups = _.filter(_dicts.groups, function (o) {
+                    return ~step.usergroupId.indexOf(o.id);
+                });
+            });
+            return steps;
         }
 
         function _addWorkflowStep() {

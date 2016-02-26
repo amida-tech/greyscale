@@ -125,19 +125,35 @@ angular.module('greyscale.tables')
 
         function _getTaskProgressData(currentTask) {
             var progress = [];
-            var id = currentTask.id;
-            var uoaId = currentTask.uoaId;
+            var id = parseInt(currentTask.id);
+            var uoaId = parseInt(currentTask.uoaId);
+            var currentStep;
             angular.forEach(_dicts.tasks, function (task) {
                 if (task.uoaId !== uoaId) {
                     return;
                 }
                 var progressTask = _.pick(task, ['id', 'startDate', 'endDate', 'step', 'role', 'user']);
+                var i = progress.length;
+                progress[i] = progressTask;
                 progressTask.status = {};
                 if (task.id === id) {
-                    progressTask.status.current = true;
+                    progressTask.status.active = true;
                 }
-                progress.push(progressTask);
+                var uoa = _.find(_dicts.uoas, {
+                    id: uoaId
+                });
+                if (uoa && (uoa.currentStepId === task.stepId || uoa.id === 1)) {
+                    currentStep = i;
+                    progressTask.status['step-current'] = true;
+                }
             });
+
+            if (currentStep) {
+                while (currentStep > 0) {
+                    currentStep--;
+                    progress[currentStep].status['step-complete'] = true;
+                }
+            }
 
             return progress;
         }

@@ -279,14 +279,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: '{{ext.projectName}}'
             }
         })
-        .state('projects.setup.usersInGroups', {
-            url: '/users-in-groups',
-            templateUrl: 'views/controllers/project-setup-users-in-groups.html',
-            controller: 'ProjectSetupUsersInGroupsCtrl',
-            data: {
-                name: 'NAV.PROJECTS.USERS_IN_GROUPS'
-            }
-        })
         .state('projects.setup.surveys', {
             url: '/surveys',
             templateUrl: 'views/controllers/project-setup-surveys.html',

@@ -2,9 +2,9 @@ angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams,
         $timeout,
         greyscaleProductWorkflowApi, greyscaleProjectApi,
-        greyscaleProductApi, greyscaleUserApi, greyscaleUserUserGroupApi,
-        greyscaleUtilsSrv, greyscaleUsersUserGroupsTbl, greyscaleUoaTypeApi,
-        greyscaleUserGroupApi, greyscaleTaskApi, greyscaleModalsSrv) {
+        greyscaleProductApi, greyscaleUserApi, greyscaleUserGroupApi,
+        greyscaleUtilsSrv, greyscaleUserGroupsTbl, greyscaleUoaTypeApi,
+        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -38,10 +38,10 @@ angular.module('greyscaleApp')
         };
 
         _loadProject(projectId)
-            .then(_loadUsersUserGroupsData)
-            .then(function (userUserGroups) {
-                $scope.model.userUserGroups = userUserGroups;
-                $scope.model.usergroups = _dicts.usergroups;
+            .then(_loadUserGroupsData)
+            .then(function (userGroups) {
+                $scope.model.userGroups = userGroups;
+                $scope.model.groups = _dicts.groups;
             });
 
         _getTaskTableData();
@@ -63,7 +63,7 @@ angular.module('greyscaleApp')
             var searchText = $scope.model.searchText && $scope.model.searchText !== '' ?
                 $scope.model.searchText : null;
 
-            $scope.model.usersSearchResult = _.filter($scope.model.userUserGroups, function (userUserGroup) {
+            $scope.model.usersSearchResult = _.filter($scope.model.userGroups, function (userUserGroup) {
                 var acceptGroup = searchGroupId && userUserGroup.usergroupId === searchGroupId;
 
                 var acceptText = false;
@@ -399,13 +399,13 @@ angular.module('greyscaleApp')
             var step = _.find($scope.model.workflowSteps, {
                 id: stepId
             });
-            var userUsergroupId = assigneeViewModel.id;
+            var userId = assigneeViewModel.user.id;
             // assign user
             var saveTasks = [];
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function (uoaId) {
                 var task = _findTask(uoaId, stepId);
-                if (task && task.userUsergroupId && task.userUsergroupId === userUsergroupId) {
+                if (task && task.userId && task.userId === userId) {
                     return;
                 }
                 var saveTask = task ? angular.copy(task) : {
@@ -415,7 +415,7 @@ angular.module('greyscaleApp')
                     startDate: step.startDate,
                     endDate: step.endDate
                 };
-                saveTask.userUsergroupId = userUsergroupId;
+                saveTask.userId = userId;
                 saveTasks.push(saveTask);
                 if (!task) {
                     newTasks.push(saveTask);
@@ -494,7 +494,7 @@ angular.module('greyscaleApp')
                         '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
                     titleTemplateExtData: {
                         step: step,
-                        groups: _.map(step.usergroups, 'title').join(', ')
+                        groups: _.map(step.groups, 'title').join(', ')
                     },
                     show: true,
                     class: 'drop-zone drop-user-bulk ' + usergroupIdClass + ' step-id-' + step.id,
@@ -532,28 +532,24 @@ angular.module('greyscaleApp')
 
         function _getTasksData(tableData) {
             _initTasksStorage(tableData.tasks);
-            angular.forEach(tableData.uoas, function (uoa) {
-                uoa.steps = {};
-                angular.forEach(tableData.workflowSteps, function (step) {
-                    var task = _findTask(uoa.id, step.id);
-                    var taskViewModel = uoa.steps[step.id] = {};
-                    var _role = _.find(_dicts.roles, {
-                        id: step.roleId
-                    });
-                    angular.extend(taskViewModel, {
-                        id: task ? task.id : undefined,
-                        uoaId: uoa.id,
-                        stepId: step.id,
-                        startDate: task && task.startDate || step.startDate,
-                        endDate: task && task.endDate || step.endDate,
-
-                        roleId: step.roleId,
-                        step: step,
-                        role: _role,
-                        assignee: _getTaskAssignee(uoa.id, step.id)
-                    });
-                });
-            });
+            //angular.forEach(tableData.uoas, function (uoa) {
+            //    uoa.steps = {};
+            //    angular.forEach(tableData.workflowSteps, function (step) {
+            //        var task = _findTask(uoa.id, step.id);
+            //        var taskViewModel = uoa.steps[step.id] = {};
+            //        var user = _.find(_dicts.users, {id: task.userId});
+            //        angular.extend(taskViewModel, {
+            //            id: task ? task.id : undefined,
+            //            uoaId: uoa.id,
+            //            stepId: step.id,
+            //            startDate: task && task.startDate || step.startDate,
+            //            endDate: task && task.endDate || step.endDate,
+            //            userId: task.userId,
+            //            user: user,
+            //            step: step
+            //        });
+            //    });
+            //});
             return tableData.uoas;
         }
 
@@ -565,21 +561,21 @@ angular.module('greyscaleApp')
                     'productId',
                     'stepId',
                     'uoaId',
-                    'userUsergroupId',
+                    'userId',
                     'startDate',
                     'endDate'
                 ]));
             });
         }
 
-        function _getTaskAssignee(uoaId, stepId) {
-            var task = _findTask(uoaId, stepId);
-            if (task) {
-                return _.find(_dicts.userUserGroups, {
-                    id: task.userUsergroupId
-                });
-            }
-        }
+        //function _getTaskAssignee(uoaId, stepId) {
+        //    var task = _findTask(uoaId, stepId);
+        //    if (task) {
+        //        return _.find(_dicts.userGroups, {
+        //            id: task.usergroupId
+        //        });
+        //    }
+        //}
 
         function _findTask(uoaId, stepId) {
             return _.find(_tasks, {
@@ -617,29 +613,29 @@ angular.module('greyscaleApp')
 
         //////////////////// initial loading /////////////////////
 
-        function _loadUsersUserGroupsData(project) {
+        function _loadUserGroupsData(project) {
             var reqs = {
                 users: greyscaleUserApi.list({
                     organizationId: project.organizationId
                 }),
-                usergroups: greyscaleUserGroupApi.list(project.organizationId),
-                userUserGroups: greyscaleUserUserGroupApi.list({
+                groups: greyscaleGroupApi.list(project.organizationId),
+                userGroups: greyscaleUserGroupApi.list({
                     projectId: project.id
                 })
             };
 
             return $q.all(reqs).then(function (promises) {
                 _dicts.users = promises.users;
-                _dicts.usergroups = promises.usergroups;
-                _dicts.userUserGroups = promises.userUserGroups;
+                _dicts.groups = promises.groups;
+                _dicts.userGroups = promises.userGroups;
 
-                return _addUserUserGroupsRelations(promises.userUserGroups);
+                return _addUserGroupsRelations(promises.userGroups);
             });
 
         }
 
-        function _addUserUserGroupsRelations(userUserGroups) {
-            angular.forEach(userUserGroups, function (item) {
+        function _addUserGroupsRelations(userGroups) {
+            angular.forEach(userGroups, function (item) {
                 var user = _.find(_dicts.users, {
                     id: item.userId
                 });
@@ -647,7 +643,7 @@ angular.module('greyscaleApp')
                     item.user = _.pick(user, ['id', 'email', 'firstName', 'lastName']);
                 }
             });
-            return userUserGroups;
+            return userGroups;
         }
 
         function _addUoasRelations(uoas) {
@@ -661,9 +657,9 @@ angular.module('greyscaleApp')
 
         function _addWorkflowStepsRelations(workflowSteps) {
             angular.forEach(workflowSteps, function (step) {
-                step.usergroups = [];
+                step.groups = [];
                 angular.forEach(step.usergroupId, function (usergroupId) {
-                    step.usergroups.push(_.find(_dicts.usergroups, {
+                    step.groups.push(_.find(_dicts.groups, {
                         id: usergroupId
                     }));
                 });

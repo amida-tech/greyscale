@@ -418,10 +418,16 @@
         "DELETE_CONFIRM": "Подтвердите удаление пользователя <b>{{user.email}}</b>",
         "EMAIL": "Эл. почта",
         "FIRST_NAME": "Имя",
+        "GROUPS": "",
+        "GROUPS_MODAL": {
+            "NAME": "",
+            "TITLE": ""
+        },
         "IS_ACTIVE": "Активный",
         "LAST_ACTIVE": "Последняя активность",
         "LAST_NAME": "Фамилия",
         "NOT_LOGGED": "Не входил",
+        "NO_GROUPS": "",
         "ORGANIZATION": "Организация",
         "ROLE": "Роль",
         "SELECT_ORGANIZATION": "",
@@ -438,12 +444,6 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
-    },
-    "USER_USER_GROUPS": {
-        "DELETE_CONFIRM": "",
-        "ITEM": "",
-        "USER": "",
-        "USER_GROUP": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

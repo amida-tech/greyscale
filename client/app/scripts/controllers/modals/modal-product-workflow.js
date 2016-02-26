@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
                 step.role &&
                 step.startDate &&
                 step.endDate &&
-                step.groups && step.groups.length
+                step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
             }
@@ -55,11 +55,11 @@ angular.module('greyscaleApp')
         angular.forEach(tableData, function(item, i){
             var step = _.pick(item, [
                 'id', 'role', 'startDate', 'endDate',
-                'title', 'writeToAnswers', 'groups',
+                'title', 'writeToAnswers',
                 'discussionParticipation', 'provideResponses', 'seeOthersResponses',
                 'editTranslate', 'blindReview'
             ]);
-            step.groups = _.map(step.groups, 'id');
+            step.usergroupId = _.map(item.groups, 'id');
             step.position = i;
             steps.push(step);
         });

@@ -1,111 +1,60 @@
+/**
+ * Created by igi on 28.12.15.
+ */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersGroupsTbl', function ($q, _,
-        greyscaleUserGroupApi,
-        greyscaleModalsSrv,
-        greyscaleUtilsSrv,
-        inform) {
+    .factory('greyscaleUserGroupsTbl', function ($q, _, greyscaleGroupApi, greyscaleUtilsSrv) {
 
-        var tns = 'USER_GROUPS.';
+        var tns = 'USERS.GROUPS_MODAL.';
 
-        var _cols = [{
-            field: 'id',
-            title: 'ID',
-            show: false,
-            sortable: 'id',
-            dataReadOnly: 'both'
-        }, {
+        var _fields = [{
             field: 'title',
-            title: tns + 'NAME',
             show: true,
-            sortable: 'title',
-            dataRequired: true
+            title: tns + 'NAME',
+            sortable: 'title'
         }, {
             show: true,
-            dataFormat: 'action',
-            actions: [{
-                icon: 'fa-pencil',
-                tooltip: 'COMMON.EDIT',
-                handler: _editGroup
-            }, {
-                icon: 'fa-trash',
-                tooltip: 'COMMON.DELETE',
-                handler: _removeGroup
-            }]
+            multiselect: true
         }];
 
         var _table = {
-            title: '',
-            cols: _cols,
-            sorting: {
-                'id': 'asc'
-            },
-            dataPromise: _getData,
             dataFilter: {},
-            formTitle: tns + 'USER_GROUP',
+            title: '',
+            cols: _fields,
+            dataPromise: getData,
             pageLength: 10,
-            add: {
-                handler: _editGroup
-            }
+            multiselect: {},
         };
 
-        function _getOrganizationId() {
-            return _table.dataFilter.organizationId;
-        }
-
-        function _getData() {
-            var organizationId = _getOrganizationId();
+        function getData() {
+            var organizationId = _table.dataFilter.organizationId;
             if (!organizationId) {
-                return $q.reject();
-            } else {
-                var req = {
-                    usergroups: greyscaleUserGroupApi.list(organizationId)
-                };
-                return $q.all(req).then(function (promises) {
-                    return promises.usergroups;
-                });
+                return $q.reject('400');
             }
-        }
+            var reqs = {
+                groups: greyscaleGroupApi.list(organizationId)
+            };
 
-        function _editGroup(group) {
-            var op = 'editing';
-            greyscaleModalsSrv.editRec(group, _table)
-                .then(function (editGroup) {
-                    if (editGroup.id) {
-                        return greyscaleUserGroupApi.update(editGroup);
-                    } else {
-                        op = 'adding';
-                        var organizationId = _getOrganizationId();
-                        return greyscaleUserGroupApi.add(organizationId, editGroup);
-                    }
+            return $q.all(reqs).then(function (promises) {
+                    return promises.groups;
                 })
-                .then(_reload)
-                .catch(function (err) {
-                    return _errHandler(err, op);
-                });
+                .then(_setSelected)
+                .catch(errorHandler);
+
         }
 
-        function _removeGroup(group) {
-            greyscaleModalsSrv.confirm({
-                message: tns + 'DELETE_CONFIRM',
-                group: group,
-                okType: 'danger',
-                okText: 'COMMON.DELETE'
-            }).then(function () {
-                greyscaleUserGroupApi.delete(group.id)
-                    .then(_reload)
-                    .catch(function (err) {
-                        inform.add('Usergroup delete error: ' + err);
-                    });
-            });
+        function _setSelected(groups) {
+            var selectedIds = _table.dataFilter.selectedIds;
+            _table.multiselect.setSelected(selectedIds);
+            return groups;
         }
 
-        function _reload() {
-            _table.tableParams.reload();
-        }
-
-        function _errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
+        function errorHandler(err, action) {
+            var msg = _table.formTitle;
+            if (action) {
+                msg += ' ' + action;
+            }
+            msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
 

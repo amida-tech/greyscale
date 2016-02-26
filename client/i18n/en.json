@@ -418,10 +418,16 @@
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "EMAIL": "E-Mail",
         "FIRST_NAME": "First Name",
+        "GROUPS": "Groups",
+        "GROUPS_MODAL": {
+            "NAME": "Group Name",
+            "TITLE": "Assign groups to user {{user.email}}"
+        },
         "IS_ACTIVE": "Is Active",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
         "NOT_LOGGED": "Not Logged",
+        "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
@@ -438,12 +444,6 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
-    },
-    "USER_USER_GROUPS": {
-        "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.firstName}} {{user.lastName}}</b> from usergroup <b>{{usergroup.name}}</b>",
-        "ITEM": "User Link to User Group",
-        "USER": "User",
-        "USER_GROUP": "User Group"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

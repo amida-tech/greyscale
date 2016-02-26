@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('UsersGroupsCtrl', function ($scope, OrganizationSelector, greyscaleUsersGroupsTbl, greyscaleProjectApi, $stateParams) {
+    .controller('UsersGroupsCtrl', function ($scope, OrganizationSelector, greyscaleGroupsTbl, greyscaleProjectApi, $stateParams) {
 
-        var _userGroupsTable = greyscaleUsersGroupsTbl;
+        var _groupsTable = greyscaleGroupsTbl;
 
         OrganizationSelector.show = true;
 
         $scope.model = {
-            userGroups: _userGroupsTable
+            groups: _groupsTable
         };
 
         var off = $scope.$watch('OrganizationSelector.organization', _renderUserGroupsTable);
@@ -22,11 +22,11 @@ angular.module('greyscaleApp')
             if (!organization) {
                 return;
             }
-            _userGroupsTable.dataFilter.organizationId = organization.id;
-            if ($scope.model.userGroups) {
-                $scope.model.userGroups.tableParams.reload();
+            _groupsTable.dataFilter.organizationId = organization.id;
+            if ($scope.model.groups) {
+                $scope.model.groups.tableParams.reload();
             } else {
-                $scope.model.userGroups = _userGroupsTable;
+                $scope.model.groups = _groupsTable;
             }
         }
     });
