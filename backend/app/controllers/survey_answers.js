@@ -24,6 +24,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(SurveyAnswer.select().from(SurveyAnswer), _.omit(req.query));
         }).then(function (data) {
             res.json(data);
@@ -35,7 +36,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -50,7 +51,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q,{'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -60,6 +61,7 @@ module.exports = {
 
     add: function (req, res, next) {
         co(function* () {
+
             if(!Array.isArray(req.body)){
                 req.body = [req.body];
             }

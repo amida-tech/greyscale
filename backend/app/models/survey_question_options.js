@@ -11,6 +11,7 @@ var columns = [
 
 var SurveyQuestionOption = sql.define({
     name: 'SurveyQuestionOptions',
+    schema: 'proto_amida',
     columns: columns
 });
 

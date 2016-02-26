@@ -6,7 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProductWorkflowTbl', function (_, $q, greyscaleModalsSrv,
         greyscaleProductApi, greyscaleUtilsSrv, greyscaleRoleApi,
-        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout) {
+        greyscaleProductWorkflowApi, greyscaleGlobals, $timeout, greyscaleGroupApi) {
 
         var tns = 'PRODUCTS.WORKFLOW.STEPS.';
 
@@ -23,17 +23,18 @@ angular.module('greyscale.tables')
                 dataFormat: 'text',
                 showDataInput: true
             },
-            roleId: {
-                field: 'roleId',
+            role: {
+                field: 'role',
                 title: tns + 'ROLE',
                 showDataInput: true,
-                dataFormat: 'option',
-                dataNoEmptyOption: true,
-                dataSet: {
-                    keyField: 'id',
-                    valField: 'name',
-                    getData: getRoles
-                }
+                show: true,
+                dataFormat: 'text',
+                //dataNoEmptyOption: true,
+                //dataSet: {
+                //    keyField: 'id',
+                //    valField: 'name',
+                //    getData: getRoles
+                //}
             },
             startDate: {
                 field: 'startDate',
@@ -77,9 +78,15 @@ angular.module('greyscale.tables')
                 showDataInput: true,
                 dataFormat: 'boolean'
             },
-            editTranslate: {
-                field: 'editTranslate',
-                title: tns + 'EDIT_TRANSLATE',
+            allowEdit: {
+                field: 'allowEdit',
+                title: tns + 'ALLOW_EDIT',
+                showDataInput: true,
+                dataFormat: 'boolean'
+            },
+            allowTranslate: {
+                field: 'allowTranslate',
+                title: tns + 'ALLOW_TRANSLATE',
                 showDataInput: true,
                 dataFormat: 'boolean'
             },
@@ -100,7 +107,23 @@ angular.module('greyscale.tables')
         }, {
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
-                formFields: formFields
+                formFields: formFields,
+                getGroups: _getGroups,
+                stepAddGroup: function (row, group) {
+                    row.groups = row.groups || [];
+                    row.groups.push(group);
+                },
+                stepRemoveGroup: function (row, i) {
+                    row.groups.splice(i, 1);
+                },
+                disableGroup: function (row, group) {
+                    return !!_.find(row.groups, {
+                        id: group.id
+                    });
+                },
+                noFreeGroups: function (row) {
+                    return row.groups && row.groups.length === _dicts.groups.length;
+                }
             }
         }, {
             dataFormat: 'action',
@@ -124,6 +147,10 @@ angular.module('greyscale.tables')
             }
         };
 
+        function _getGroups() {
+            return _dicts.groups;
+        }
+
         function getRoles() {
             return _dicts.roles;
         }
@@ -136,21 +163,38 @@ angular.module('greyscale.tables')
             return _table.dataFilter.workflowId;
         }
 
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
+
         function _getData() {
 
             var workflowId = _getWorkflowId();
+            var organizationId = _getOrganizationId();
             var roleFilter = {
                 isSystem: false
             };
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
-                roles: greyscaleRoleApi.list(roleFilter)
+                roles: greyscaleRoleApi.list(roleFilter),
+                groups: greyscaleGroupApi.list(organizationId)
             };
 
             return $q.all(req).then(function (promises) {
                 _dicts.roles = promises.roles;
-                return promises.steps;
+                _dicts.groups = promises.groups;
+                return _prepareGroups(promises.steps);
             });
+
+        }
+
+        function _prepareGroups(steps) {
+            angular.forEach(steps, function (step) {
+                step.groups = _.filter(_dicts.groups, function (o) {
+                    return ~step.usergroupId.indexOf(o.id);
+                });
+            });
+            return steps;
         }
 
         function _addWorkflowStep() {

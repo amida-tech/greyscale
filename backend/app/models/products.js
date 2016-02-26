@@ -23,6 +23,7 @@ var translate = [
 
 var Product = sql.define({
     name: 'Products',
+    schema: 'proto_amida',
     columns: columns
 });
 

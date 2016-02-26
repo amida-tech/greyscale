@@ -37,7 +37,8 @@ module.exports = {
                     Product
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
-                )
+                ),
+                {'realm': req.param('realm')}
             );
         }).then(function (data) {
             res.json(data);
@@ -76,7 +77,7 @@ module.exports = {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of task objects in request\'s body');
             }
-            // TODO validation
+
             var res = {
                 inserted: [],
                 updated: []
@@ -88,31 +89,30 @@ module.exports = {
                 if (
                     typeof req.body[i].uoaId === 'undefined' ||
                     typeof req.body[i].stepId === 'undefined' ||
-                    typeof req.body[i].entityTypeRoleId === 'undefined' ||
+                    typeof req.body[i].userId === 'undefined' ||
                     typeof req.body[i].productId === 'undefined'
-                    //typeof req.body[i].title            === 'undefined'
                 ) {
-                    throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+                    throw new HttpError(403, 'uoaId, stepId, userId and productId fields are required');
                 }
 
-        if(req.body[i].id){ // update
-          var updateObj = _.pick(
-              req.body[i],
-              Task.editCols
-          );
-          if(Object.keys(updateObj).length){
-            var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
-            updateObj.id = req.body[i].id;
-            res.updated.push(req.body[i].id);
-          }
-        }else{ // create
-          var id = yield thunkQuery(
-              Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
-          );
-          req.body[i].id = _.first(id).id;
-          res.inserted.push(req.body[i].id);
-        }
-
+                if (req.body[i].id) { // update
+                    var updateObj = _.pick(
+                      req.body[i],
+                      Task.editCols
+                    );
+                    if(Object.keys(updateObj).length){
+                        var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)), {'realm': req.param('realm')});
+                        updateObj.id = req.body[i].id;
+                        res.updated.push(req.body[i].id);
+                    }
+                } else { // create
+                    var id = yield thunkQuery(
+                      Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id),
+                      {'realm': req.param('realm')}
+                    );
+                    req.body[i].id = _.first(id).id;
+                    res.inserted.push(req.body[i].id);
+                }
             }
 
             return res;
@@ -123,6 +123,7 @@ module.exports = {
         });
     },
 
+//TODO: make schema aware 
   export: function (req, res, next) {
     co(function* (){
       var q =
@@ -195,7 +196,6 @@ module.exports = {
     });
   },
 
-
   selectOne: function (req, res, next) {
     co(function* (){
       var product =  yield thunkQuery(
@@ -209,7 +209,8 @@ module.exports = {
                       .leftJoin(Workflow)
                       .on(Product.id.equals(Workflow.productId))
               )
-          .where(Product.id.equals(req.params.id))
+          .where(Product.id.equals(req.params.id)),  
+          {'realm': req.param('realm')}  
       );
       if(!_.first(product)){
         throw new HttpError(403, 'Not found');
@@ -224,7 +225,7 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Product.delete().where(Product.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -238,7 +239,8 @@ module.exports = {
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
                 yield * updateCurrentStepId(req);
             }
-            return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
+            return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)),  
+            		{'realm': req.param('realm')});
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -248,10 +250,10 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            yield * checkProductData(req);
+            yield * checkProductData(req);            
             var result = yield thunkQuery(
-                Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id)
-            );
+                Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id),
+           			{'realm': req.param('realm')} );
             return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -263,13 +265,14 @@ module.exports = {
     UOAselect: function (req, res, next) {
         co(function* () {
             return yield thunkQuery(
-                ProductUOA.select(UOA.star())
+                ProductUOA.select(UOA.star(), ProductUOA.currentStepId)
                 .from(
                     ProductUOA
                     .leftJoin(UOA)
                     .on(ProductUOA.UOAid.equals(UOA.id))
                 )
-                .where(ProductUOA.productId.equals(req.params.id))
+                .where(ProductUOA.productId.equals(req.params.id)),
+                {'realm': req.param('realm')} 
             );
         }).then(function (data) {
             res.json(data);
@@ -282,7 +285,7 @@ module.exports = {
         query(ProductUOA.insert({
             productId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, data) {
+        }),{'realm': req.param('realm')} , function (err, data) {
             if (!err) {
                 res.status(201).end();
             } else {
@@ -297,16 +300,18 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of unit ids in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)));
+            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
             }
 
-            var result = yield thunkQuery(ProductUOA.select(ProductUOA.UOAid).from(ProductUOA).where(ProductUOA.productId.equals(req.params.id)));
+            var result = yield thunkQuery(ProductUOA.select(ProductUOA.UOAid).from(ProductUOA).where(ProductUOA.productId.equals(req.params.id)),
+            		{'realm': req.param('realm')} );
             var existIds = result.map(function (value, key) {
                 return value.UOAid;
             });
-            result = yield thunkQuery(UOA.select(UOA.id).from(UOA).where(UOA.id.in(req.body)));
+            result = yield thunkQuery(UOA.select(UOA.id).from(UOA).where(UOA.id.in(req.body)),{'realm': req.param('realm')} );
             var ids = result.map(function (value, key) {
                 return value.id;
             });
@@ -324,7 +329,7 @@ module.exports = {
                 });
             }
 
-            return yield thunkQuery(ProductUOA.insert(insertArr));
+            return yield thunkQuery(ProductUOA.insert(insertArr),{'realm': req.param('realm')} );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -337,7 +342,7 @@ module.exports = {
         query(ProductUOA.delete().where({
             productId: req.params.id,
             UOAid: req.params.uoaid
-        }), function (err, data) {
+        }), {'realm': req.param('realm')}, function (err, data) {
             if (!err) {
                 res.status(204).end();
             } else {
@@ -370,7 +375,7 @@ function* checkProductData(req) {
     }
 
     if (req.body.surveyId) {
-        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
+        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)),{'realm': req.param('realm')});        
         if (!_.first(isExistSurvey)) {
             throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
         }

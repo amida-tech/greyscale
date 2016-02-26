@@ -6,9 +6,13 @@ var Discussion = sql.define({
         'id',
         'taskId',
         'questionId',
+        'userFromId',
         'userId',
+        'order',
         'entry',
-        'flag',
+        'isReturn',
+        'isResolve',
+        'returnTaskId',
         'created',
         'updated'
     ]
@@ -16,9 +20,13 @@ var Discussion = sql.define({
 
 Discussion.editCols = [
     'questionId',
+    'userFromId',
     'userId',
+    'order',
     'entry',
-    'flag'
+    'isReturn',
+    'isResolve',
+    'returnTaskId'
 ];
 
 module.exports = Discussion;

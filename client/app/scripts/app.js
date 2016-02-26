@@ -190,9 +190,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/users-groups.html',
             controller: 'UsersGroupsCtrl',
             data: {
-                name: 'NAV.USERS.GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: 'NAV.USERS.GROUPS'
             }
         })
         .state('usersUoa', {
@@ -264,7 +262,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'NAV.PROJECTS_MANAGEMENT',
+                name: 'NAV.PROJECT_MANAGEMENT',
                 icon: 'fa-paper-plane',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
@@ -279,14 +277,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: '{{ext.projectName}}'
-            }
-        })
-        .state('projects.setup.roles', {
-            url: '/roles',
-            templateUrl: 'views/controllers/project-setup-roles.html',
-            controller: 'ProjectSetupRolesCtrl',
-            data: {
-                name: 'NAV.PROJECTS.USER_ROLES'
             }
         })
         .state('projects.setup.surveys', {

@@ -103,10 +103,6 @@ textarea {
     padding: 5px 0;
 }
 
-.variant {
-    display: block;
-}
-
 .required {
     color: red;
 }
@@ -185,6 +181,9 @@ input.address-val {
     display: none;
 }
 
+.bullet_points div {
+    margin: 3px 0;
+}
 
 .expand-button {
     height: 10px;
@@ -239,3 +238,28 @@ input.address-val {
         .content li:hover {
             color: green;
         }
+
+.del-bullet {
+    margin-left: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    background-color: red;
+    border: 1px solid black;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.more, .less {
+    background: lightgray none repeat scroll 0 0;
+    border: 1px solid black;
+    border-radius: 15px;
+    margin: 0 3px;
+    padding: 2px 6px 3px;
+    cursor: pointer;
+}
+
+.more:hover, .less:hover {
+    border-color: green;
+    color: green;
+}
+

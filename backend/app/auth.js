@@ -25,8 +25,8 @@ var Right = require('app/models/rights'),
     UserRights = false;
 
 var requestRights = 'ARRAY(' +
-    ' SELECT "Rights"."action" FROM "RolesRights" ' +
-    ' LEFT JOIN "Rights"' +
+    ' SELECT "Rights"."action" FROM "proto_amida"."RolesRights" ' +
+    ' LEFT JOIN "proto_amida"."Rights"' +
     ' ON ("RolesRights"."rightID" = "Rights"."id")' +
     ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
     ') AS rights';
@@ -38,6 +38,7 @@ passport.use(new BasicStrategy({
     function (req, email, password, done) {
         query(
             User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([User.email.equals(email)]),
+            {'realm': req.param('realm')},
             function (err, user) {
                 if (err) {
                     return done(err);
@@ -72,6 +73,7 @@ passport.use(new TokenStrategy({
                 .leftJoin(Role).on(User.roleID.equals(Role.id))
             )
             .where(Token.body.equals(tokenBody)),
+            {'realm': req.param('realm')},
             function (err, data) {
                 if (err) {
                     return done(err);
@@ -122,6 +124,7 @@ module.exports = {
         };
     },
     authorize: function (role) {
+    	
         return function (req, res, next) {
             var success = false;
             if (Array.isArray(role)) {
@@ -133,7 +136,7 @@ module.exports = {
                 req.debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
                 next();
             } else {
-                req.debug(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
+                console.log(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
                 next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
             }
         };
@@ -157,13 +160,13 @@ module.exports = {
                     return true;
                 }
 
-                var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)));
+                var Action = yield thunkQuery(Right.select(Right.star()).from(Right).where(Right.action.equals(action)), {'realm': req.param('realm')});
                 Action = _.first(Action);
                 if (typeof Action === 'undefined') {
                     return true;
                 }
 
-                var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)));
+                var Essence = yield thunkQuery(Essences.select(Essences.star()).from(Essences).where(Essences.id.equals(Action.essenceId)), {'realm': req.param('realm')});
                 Essence = _.first(Essence);
                 if (!Essence) {
                     throw new HttpError(403, 'Essence does not exist: ' + Action.essenceId);
@@ -184,7 +187,8 @@ module.exports = {
                         EssenceRoles.essenceId.equals(Essence.id)
                         .and(EssenceRoles.entityId.equals(req.params.id))
                         .and(EssenceRoles.userId.equals(req.user.id))
-                    )
+                    ), 
+                    {'realm': req.param('realm')}
                 );
                 Membership = _.first(Membership);
 
@@ -192,7 +196,7 @@ module.exports = {
                     throw new HttpError(403, 'This user does not have membership on this entity');
                 }
 
-                var Matrix = yield thunkQuery(model.select(model.matrixId).where(model.id.equals(req.params.id))); // TODO subquery
+                var Matrix = yield thunkQuery(model.select(model.matrixId).where(model.id.equals(req.params.id)), {'realm': req.param('realm')}); // TODO subquery
                 Matrix = _.first(Matrix);
 
                 var Permissions = yield thunkQuery(
@@ -206,7 +210,7 @@ module.exports = {
                     )
                 );
                 if (!_.first(Permissions)) {
-                    throw new HttpError(401, 'User\'s role has not permission for this action');
+                    throw new HttpError(401, 'User\'s role does not have permission for this action');
                 }
                 return Permissions;
             }).then(function (data) {
@@ -240,7 +244,7 @@ module.exports = {
                     query.where(Right.action.equals(action), RoleRights.roleID.equals(req.user.roleID));
                 }
 
-                var data = yield thunkQuery(query);
+                var data = yield thunkQuery(query, {'realm': req.param('realm')});
 
                 if (!data.length) {
                     next(new HttpError(401, 'User\'s role has not permission for this action(s): ' + strAction));

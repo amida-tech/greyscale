@@ -16,6 +16,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
         }).then(function (data) {
             res.json(data);
@@ -49,7 +50,7 @@ module.exports = {
                     'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq )'
                 )
                 .where(Survey.id.equals(req.params.id))
-                .group(Survey.id)
+                .group(Survey.id), {'realm': req.param('realm')}
             );
             if (_.first(data)) {
                 return data;
@@ -65,11 +66,12 @@ module.exports = {
 
     delete: function (req, res, next) {
         co(function* () {
-            var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.params.id)));
+            var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.params.id)), {'realm': req.param('realm')});
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
             }
-            var questions = yield thunkQuery(SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id)));
+            var questions = yield thunkQuery(SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id)), 
+            		{'realm': req.param('realm')});
             if (questions.length) {
                 for (var i in questions) {
                     yield thunkQuery(SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))); // delete options
@@ -90,7 +92,8 @@ module.exports = {
             return yield thunkQuery(
                 Survey
                 .update(_.pick(req.body, Survey.editCols))
-                .where(Survey.id.equals(req.params.id))
+                .where(Survey.id.equals(req.params.id)),
+                {'realm': req.param('realm')}
             );
         }).then(function (data) {
             res.status(202).end();
@@ -104,7 +107,8 @@ module.exports = {
             yield * checkSurveyData(req);
 
             var survey = yield thunkQuery(
-                Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id)
+                Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id),
+                {'realm': req.param('realm')}
             );
 
             survey = survey[0];
@@ -144,7 +148,8 @@ module.exports = {
                     .on(SurveyQuestion.id.equals(SurveyQuestionOption.questionId))
                 )
                 .where(SurveyQuestion.surveyId.equals(req.params.id))
-                .group(SurveyQuestion.id)
+                .group(SurveyQuestion.id),
+                {'realm': req.param('realm')} 
             );
             return result;
         }).then(function (data) {
@@ -170,7 +175,8 @@ module.exports = {
             return yield thunkQuery(
                 SurveyQuestion
                 .update(_.pick(req.body, SurveyQuestion.editCols))
-                .where(SurveyQuestion.id.equals(req.params.id))
+                .where(SurveyQuestion.id.equals(req.params.id)),
+                {'realm': req.param('realm')}
             );
         }).then(function (data) {
             res.status(202).end();
@@ -180,12 +186,13 @@ module.exports = {
     },
 
     questionDelete: function (req, res, next) {
-        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
-            }
-            res.status(204).end();
-        });
+        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)),{'realm': req.param('realm')} , 
+        	function (err, data) {
+	            if (err) {
+	                return next(err);
+	            }
+	            res.status(204).end();
+            });
     }
 
 };
@@ -208,7 +215,8 @@ function* addQuestion (req, dataObj) {
             insertArr.push(insertObj);
         }
         result.options = yield thunkQuery(
-            SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
+            SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id),
+            {'realm': req.param('realm')}
         );
     }
 
@@ -278,6 +286,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
         nextPos = _.first(maxPos).max + 1;
     }
 
+    //TODO: Need to update the manual queries below to specify schema
     if (isCreate || typeof dataObj.position !== 'undefined') {
         dataObj.position = isNaN(parseInt(dataObj.position)) ? 0 : parseInt(dataObj.position);
 

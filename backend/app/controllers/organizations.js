@@ -1,6 +1,7 @@
 var _ = require('underscore'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
+    Project = require('app/models/projects'),
     crypto = require('crypto'),
     vl = require('validator'),
     HttpError = require('app/error').HttpError,
@@ -17,7 +18,7 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -32,6 +33,7 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
+        	req.query.realm = req.param('realm');
             return yield thunkQuery(
                 Organization.select().from(Organization), _.omit(req.query, 'offset', 'limit', 'order')
             );
@@ -64,13 +66,23 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield *checkOrgData(req);
-            return yield thunkQuery(
+            var org = yield thunkQuery(
                 Organization
                 .insert(
                     _.pick(req.body, Organization.table._initialConfig.columns)
                 )
-                .returning(Organization.id)
+                .returning(Organization.id),  {'realm': req.param('realm')}
             );
+            // TODO creates project in background, may be need to disable in future
+            yield thunkQuery(
+                Project.insert(
+                    {
+                        organizationId: org[0].id,
+                        codeName: 'Org_' + org[0].id + '_project'
+                    }
+                ),  {'realm': req.param('realm')}
+            );
+            return org;
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -78,7 +90,6 @@ module.exports = {
         });
 
     },
-
     csvUsers: function (req, res, next) {
         // fields order
         // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
@@ -86,28 +97,6 @@ module.exports = {
 
         var csv = require('csv');
         var fs = require('fs');
-
-        //if (!req.user) { // TODO temporary, for tests
-        //    req.user = {
-        //        id: 76,
-        //        firstName: 'Semyon',
-        //        lastName: 'Babushkin',
-        //        role: 'admin',
-        //        email: 'next15@mail.ru',
-        //        roleID: 1,
-        //        rights:[
-        //            'rights_view_one',
-        //            'rights_add_one',
-        //            'rights_delete_one',
-        //            'rights_view_all',
-        //            'product_delete',
-        //            'users_token',
-        //            'product_uoa'
-        //        ],
-        //        organizationId: 10
-        //    };
-        //}
-
 
         var upload = function*(){
             return yield new Promise(function(resolve, reject) {
@@ -189,7 +178,7 @@ module.exports = {
                         if (!vl.isEmail(newUser.email)) {
                             newUser.message = 'Email is not valid';
                         }else{
-                            var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
+                            var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)),{'realm': req.param('realm')});
                             if (isExist[0]) {
                                 newUser.message = 'Already exists';
                             }else{
@@ -197,18 +186,19 @@ module.exports = {
                                 newUser.password = User.hashPassword(pass);
                                 newUser.activationToken = crypto.randomBytes(32).toString('hex');
                                 var created = yield thunkQuery(
-                                    User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
+                                    User.insert(_.pick(newUser, User.whereCol)).returning(User.id),
+                                    {'realm': req.param('realm')}
                                 );
 
                                 if (roleID == 2) {
                                     yield thunkQuery(
                                         Organization
                                         .update({adminUserId: created[0].id})
-                                        .where(Organization.id.equals(org[0].id))
+                                        .where(Organization.id.equals(org[0].id)),
+                                        {'realm': req.param('realm')}
                                     );
                                     org[0].adminUserId = created[0].id;
                                 }
-
                                 if (created[0]) {
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';

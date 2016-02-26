@@ -37,6 +37,7 @@ var columns = [
 
 var User = sql.define({
     name: 'Users',
+    schema: 'proto_amida',
     columns: columns
 });
 

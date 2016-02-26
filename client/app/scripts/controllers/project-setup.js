@@ -10,10 +10,6 @@ angular.module('greyscaleApp')
         var _parentState = 'projects.setup';
 
         $scope.tabs = [{
-            state: 'roles',
-            title: 'NAV.PROJECTS.USER_ROLES',
-            icon: 'fa-users'
-        }, {
             state: 'surveys',
             title: 'NAV.PROJECTS.SURVEYS',
             icon: 'fa-list'

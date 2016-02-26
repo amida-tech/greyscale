@@ -14,8 +14,11 @@ var _ = require('underscore'),
 module.exports = {
 
     select: function (req, res, next) {
+    	req.query.realm = req.param('realm');
+    	
         co(function* () {
             var _counter = thunkQuery(Country.select(Country.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            req.query.realm = req.param('realm');
             var country = thunkQuery(Country.select(), req.query);
             return yield [_counter, country];
         }).then(function (data) {
@@ -27,8 +30,8 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        co(function* () {
-            return yield thunkQuery(Country.insert(req.body).returning(Country.id));
+        co(function* () {   	
+            return yield thunkQuery(Country.insert(req.body).returning(Country.id), {'realm': req.param('realm')});
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -38,7 +41,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.params.id)));
+            return yield thunkQuery(Country.update(req.body).where(Country.id.equals(req.params.id)),{'realm': req.param('realm')});
         }).then(function () {
             res.status(200).end();
         }, function (err) {
@@ -48,7 +51,7 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Country.delete().where(Country.id.equals(req.params.id)));
+            return yield thunkQuery(Country.delete().where(Country.id.equals(req.params.id)),{'realm': req.param('realm')});
         }).then(function () {
             res.status(204).end();
         }, function (err) {

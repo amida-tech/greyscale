@@ -2,15 +2,21 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
+    <link rel="stylesheet" href="pikaday.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="text/javascript" src="bliss.js"></script>
+    <script type="text/javascript" src="moment.min.js"></script>
+    <script type="text/javascript" src="pikaday.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <title>Form render</title>
 </head>
 <body>
     <h1 id="title">Form render</h1>
     <div id="decription"></div>
-    <form id="survey"></form>
+    <form id="survey">
+        <button id="submit" disabled="disabled" type="button">Submit survey</button>
+    </form>    
+    <button id="submit2" disabled="disabled" type="button">Submit survey</button>
     <div style="position: absolute; top: 20px; right: 20px; border: 1px solid black; width: 400px; height: 600px; background-color: lightgray; padding: 10px; overflow: auto;">
         <div>
             <div>

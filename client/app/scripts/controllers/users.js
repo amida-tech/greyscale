@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv, greyscaleGlobals, greyscaleOrganizationApi) {
+    .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv) {
 
         var _userAccessLevel;
 
@@ -17,19 +17,6 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile().then(function (profile) {
 
             _userAccessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-            if (!_isSuperAdmin()) {
-
-            }
-
-            if (_isSuperAdmin()) {
-                greyscaleOrganizationApi.list().then(function (organizations) {
-                    $scope.tabsModel.organizations = organizations;
-                });
-            } else {
-                $scope.tabsModel.organizationId = profile.organizationId;
-                $scope.organizationReady();
-            }
 
             for (var s = 0; s < _states.length; s++) {
 
@@ -53,14 +40,6 @@ angular.module('greyscaleApp')
         $scope.go = function (state) {
             $state.go(_parentState + state);
         };
-
-        $scope.organizationReady = function () {
-
-        };
-
-        function _isSuperAdmin() {
-            return ((_userAccessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
-        }
 
         function _resolveState(state) {
             if (state.name === _parentState) {

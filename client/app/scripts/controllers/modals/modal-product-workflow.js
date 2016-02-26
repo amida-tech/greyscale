@@ -2,13 +2,15 @@
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance,
-    product,
+    product, OrganizationSelector,
     greyscaleProductWorkflowTbl) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
+    productWorkflow.dataFilter.organizationId = OrganizationSelector.organization.id;
+
 
     $scope.model = {
         product: angular.copy(product),
@@ -36,10 +38,10 @@ angular.module('greyscaleApp')
         var valid = 0;
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
-                step.roleId &&
+                step.role &&
                 step.startDate &&
                 step.endDate &&
-                typeof step.writeToAnswers === 'boolean'
+                step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
             }
@@ -52,11 +54,12 @@ angular.module('greyscaleApp')
         var steps = [];
         angular.forEach(tableData, function(item, i){
             var step = _.pick(item, [
-                'id', 'roleId', 'startDate', 'endDate',
+                'id', 'role', 'startDate', 'endDate',
                 'title', 'writeToAnswers',
                 'discussionParticipation', 'provideResponses', 'seeOthersResponses',
-                'editTranslate', 'blindReview'
+                'allowEdit', 'allowTranslate', 'blindReview'
             ]);
+            step.usergroupId = _.map(item.groups, 'id');
             step.position = i;
             steps.push(step);
         });

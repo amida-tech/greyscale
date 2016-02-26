@@ -24,7 +24,9 @@ angular.module('greyscaleApp')
         var projects = [];
         angular.forEach(entities, function(entity){
             var project = entity.entity;
-            projects.push(project);
+            if (project) {
+                projects.push(project);
+            }
         });
         return projects;
     }

@@ -14,6 +14,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+		req.query.realm = req.param('realm');
         co(function* () {
             return yield thunkQuery(
                 Translations
@@ -30,6 +31,8 @@ module.exports = {
     },
 
     selectByParams: function (req, res, next) {
+
+		req.query.realm = req.param('realm');
         co(function* () {
             return yield thunkQuery(
                 Translations
@@ -59,7 +62,7 @@ module.exports = {
                 ]
             )
         );
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -76,7 +79,7 @@ module.exports = {
                 'field'
             ]
         ));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -96,18 +99,18 @@ module.exports = {
                 'field': req.body.field,
                 'langId': req.body.langId,
             };
-            var item = yield thunkQuery(Translations.select().from(Translations).where(condition));
+            var item = yield thunkQuery(Translations.select().from(Translations).where(condition),  {'realm': req.param('realm')});
             if (_.first(item)) {
                 throw new HttpError(400, 'This translation item has already exist');
             }
 
-            var LanguageOne = yield thunkQuery(Language.select().where(Language.id.equals(req.body.langId)));
+            var LanguageOne = yield thunkQuery(Language.select().where(Language.id.equals(req.body.langId)),  {'realm': req.param('realm')});
             LanguageOne = _.first(LanguageOne);
             if (!LanguageOne) {
                 throw new HttpError(403, 'Language with this id does not exist');
             }
 
-            var EssenceOne = yield thunkQuery(Essence.select().where(Essence.id.equals(req.body.essenceId)));
+            var EssenceOne = yield thunkQuery(Essence.select().where(Essence.id.equals(req.body.essenceId)),  {'realm': req.param('realm')});
             EssenceOne = _.first(EssenceOne);
             if (!EssenceOne) {
                 throw new HttpError(403, 'Essence with this id does not exist');
@@ -123,13 +126,13 @@ module.exports = {
                 throw new HttpError(400, 'Field "' + req.body.field + '" in ' + model._name + ' is not translatable');
             }
 
-            var Entity = yield thunkQuery(model.select().where(model.id.equals(req.body.entityId)));
+            var Entity = yield thunkQuery(model.select().where(model.id.equals(req.body.entityId)),  {'realm': req.param('realm')});
             Entity = _.first(Entity);
             if (!Entity) {
                 throw new HttpError(403, 'Entity with this id does not exist');
             }
 
-            yield thunkQuery(Translations.insert(req.body));
+            yield thunkQuery(Translations.insert(req.body),  {'realm': req.param('realm')});
 
         }).then(function () {
             res.status(201).end();

@@ -1,6 +1,7 @@
 angular.module('greyscaleApp')
-    .directive('organizationSelector', function ($rootScope, greyscaleProfileSrv,
-        greyscaleGlobals, greyscaleOrganizationApi, $cookies) {
+    .value('OrganizationSelector', {})
+    .directive('organizationSelector', function (_, $rootScope, greyscaleProfileSrv,
+        greyscaleGlobals, greyscaleOrganizationApi, $cookies, OrganizationSelector) {
         return {
             restrict: 'A',
             replace: true,
@@ -8,7 +9,7 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 var _userAccessLevel;
 
-                $rootScope.globalModel = $rootScope.globalModel || {};
+                $rootScope.OrganizationSelector = OrganizationSelector;
 
                 greyscaleProfileSrv.getProfile().then(function (profile) {
 
@@ -16,20 +17,22 @@ angular.module('greyscaleApp')
 
                     if (_isSuperAdmin()) {
                         greyscaleOrganizationApi.list().then(function (organizations) {
-                            $scope.organizations = organizations;
-                            var organizationId = $cookies.get('orgId');
-                            angular.forEach(organizations, function (org) {
-                                if (org.id === organizationId) {
-                                    $rootScope.globalModel.organization = org;
-                                }
+                            $scope.organizations = _.sortBy(organizations, 'name');
+
+                            var organizationId = parseInt($cookies.get('orgId'));
+
+                            OrganizationSelector.organization = _.find(organizations, {
+                                id: organizationId
                             });
-                            if (!$rootScope.globalModel.organization && organizations.length) {
-                                $rootScope.globalModel.organization = organizations[0];
+
+                            if (!OrganizationSelector.organization && organizations.length) {
+                                OrganizationSelector.organization = organizations[0];
                             }
+
                             $scope.ready = true;
                         });
                     } else {
-                        $rootScope.globalModel.organization = {
+                        OrganizationSelector.organization = {
                             id: profile.organizationId
                         };
                     }
@@ -37,7 +40,7 @@ angular.module('greyscaleApp')
                 });
 
                 $scope.organizationChanged = function () {
-                    $cookies.put('orgId', $rootScope.globalModel.organization.id);
+                    $cookies.put('orgId', OrganizationSelector.organization.id);
                 };
 
                 function _isSuperAdmin() {

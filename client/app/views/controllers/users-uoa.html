@@ -6,7 +6,7 @@
                 <select multiple class="form-control"
                         ng-change="onUserSelect()"
                         ng-model="model.selectedUsers"
-                        ng-options="item.id as item.email for item in model.users">
+                        ng-options="item.id as item.firstName + ' ' +item.lastName + ' ('+item.email+')' for item in model.users">
                 </select>
             </div>
             <div class="col-md-6">

@@ -4,6 +4,7 @@ if (process.env.NODE_ENV === 'production') {
 
 var config = require('config'),
     logger = require('app/logger'),
+    data = require('app/controllers/data'),
     bodyParser = require('body-parser'),
     multer = require('multer'),
     passport = require('passport'),
@@ -161,32 +162,42 @@ app.on('start', function () {
                         console.log(err);
                     }
                     client.end();
-
-                    // Load the schema if it is not there   
-                    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-                        if (err) {
-                            console.log(err);
-                            return;
-                        }
-                        client.query(sql, function (err) {
-                            if (err) {
-                                console.log('Schema already initialized');
-                            }
-                            client.end();
-                        });
-                    });
-
+                	var userReq = {
+                    		body:{
+                    			'firstName':'Test',
+            	        		'lastName':'User',
+            	        		'email':'no@mail.net',
+            	        		'password':'something',
+            	        		'roleID':1,
+            	        		'realm':'public'
+                    		},
+                    		user:{
+                    			'role':'admin'
+                    		}
+                    	};
+                    var userResp = {};
+                    console.log('populating database');
+                	data.instantiate(userReq, userResp);
                 });
             });
         } else {
             //database already exists so try to initialize the schema.
-            client.query(sql, function (err) {
-                if (err) {
-                    console.log(err);
-                    console.log('Schema already initialized');
-                }
-                client.end();
-            });
+        	//executing this as an admin user
+        	var userReq = {
+        		body:{
+        			'firstName':'Test',
+	        		'lastName':'User',
+	        		'email':'no@mail.net',
+	        		'password':'something',
+	        		'roleID':1,
+	        		'realm':'public'
+        		},
+        		user:{
+        			'role':'admin'
+        		}
+        	};
+        	var userResp = {};
+        	data.instantiate(userReq, userResp);
         }
     });
 

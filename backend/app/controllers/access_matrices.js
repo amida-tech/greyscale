@@ -17,7 +17,7 @@ module.exports = {
 
     select: function (req, res, next) {
         var q = AccessMatrix.select().from(AccessMatrix);
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -30,7 +30,7 @@ module.exports = {
             if (!req.body.name) {
                 throw new HttpError(403, 'Name field is required');
             }
-            return yield thunkQuery(AccessMatrix.insert(req.body).returning(AccessMatrix.id));
+            return yield thunkQuery(AccessMatrix.insert(req.body).returning(AccessMatrix.id), {'realm': req.param('realm')});
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -41,7 +41,7 @@ module.exports = {
 
     permissionsSelect: function (req, res, next) {
         var q = AccessPermission.select().from(AccessPermission).where(AccessPermission.matrixId.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -51,7 +51,7 @@ module.exports = {
 
     permissionsDeleteOne: function (req, res, next) {
         var q = AccessPermission.delete().where(AccessPermission.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {'realm': req.param('realm')}, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -61,22 +61,26 @@ module.exports = {
 
     permissionsInsertOne: function (req, res, next) {
         co(function* () {
-            var existMatrix = yield thunkQuery(AccessMatrix.select().from(AccessMatrix).where(AccessMatrix.id.equals(req.body.matrixId)));
+            var existMatrix = yield thunkQuery(AccessMatrix.select().from(AccessMatrix).where(AccessMatrix.id.equals(req.body.matrixId)), 
+            		{'realm': req.param('realm')});
             if (!_.first(existMatrix)) {
                 throw new HttpError(403, 'Matrix with this id does not exist');
             }
 
-            var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
+            var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)),
+            		{'realm': req.param('realm')});
             if (!_.first(existRole)) {
                 throw new HttpError(403, 'Role with this id does not exist');
             }
 
-            var existRight = yield thunkQuery(Right.select().from(Right).where(Right.id.equals(req.body.rightId)));
+            var existRight = yield thunkQuery(Right.select().from(Right).where(Right.id.equals(req.body.rightId)),
+            		{'realm': req.param('realm')});
             if (!_.first(existRight)) {
                 throw new HttpError(403, 'Right with this id does not exist');
             }
 
-            return yield thunkQuery(AccessPermission.insert(req.body).returning(AccessPermission.id));
+            return yield thunkQuery(AccessPermission.insert(req.body).returning(AccessPermission.id), 
+            		{'realm': req.param('realm')});
         }).then(function (data) {
             console.log(_.first(data));
             res.status(201).json(_.first(data));

@@ -1,125 +1,52 @@
 /**
- * Created by igi on 23.12.15.
+ * Created by igi on 28.12.15.
  */
 'use strict';
-
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersGroupsTbl', function ($q, greyscaleModalsSrv,
-        greyscaleUserGroupApi, greyscaleUtilsSrv) {
+    .factory('greyscaleUserGroupsTbl', function ($q, _, greyscaleGroupApi, greyscaleUtilsSrv) {
 
-        var tns = 'USER_GROUPS.';
-
-        var dicts = {
-
-        };
+        var tns = 'USERS.GROUPS_MODAL.';
 
         var _fields = [{
-            field: 'id',
-            title: 'ID',
-            show: false,
-            sortable: 'id',
-            dataReadOnly: 'both'
-        }, {
-            field: 'name',
+            field: 'title',
+            show: true,
             title: tns + 'NAME',
-            show: true,
-            sortable: 'email',
-            dataRequired: true
+            sortable: 'title'
         }, {
-            field: 'description',
-            title: tns + 'DESCRIPTION',
             show: true,
-            sortable: 'description'
-        }, {
-            field: '',
-            title: '',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                icon: 'fa-pencil',
-                tooltip: 'COMMON.EDIT',
-                handler: _editRecord
-            }, {
-                icon: 'fa-trash',
-                tooltip: 'COMMON.DELETE',
-                handler: _delRecord
-            }]
+            multiselect: true
         }];
 
         var _table = {
             dataFilter: {},
-            formTitle: tns + 'USER_GROUP',
+            title: '',
             cols: _fields,
-            dataPromise: _getUserGroups,
+            dataPromise: getData,
             pageLength: 10,
-            sorting: {
-                created: 'desc'
-            },
-            add: {
-                handler: _editRecord
-            }
+            multiselect: {},
         };
 
-        function _delRecord(rec) {
-            greyscaleModalsSrv.confirm({
-                message: tns + 'DELETE_CONFIRM',
-                group: rec,
-                okType: 'danger',
-                okText: 'COMMON.DELETE'
-            }).then(function () {
-                greyscaleUserGroupApi.del(rec.id)
-                    .then(reloadTable)
-                    .catch(function (err) {
-                        errorHandler(err, 'deleting');
-                    });
-            });
-        }
-
-        function _editRecord(group) {
-            var action = 'adding';
-            return greyscaleModalsSrv.editRec(group, _table)
-                .then(function (rec) {
-                    if (rec.id) {
-                        action = 'editing';
-                        return greyscaleUserGroupApi.update(rec);
-                    } else {
-                        rec.organizationId = _getOrganizationId();
-                        return greyscaleUserGroupApi.id(rec);
-                    }
-                })
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, action);
-                });
-        }
-
-        function reloadTable() {
-            _table.tableParams.reload();
-        }
-
-        function _getOrganizationId() {
-            return _table.dataFilter.organizationId;
-        }
-
-        function _getUserGroups() {
-            var organizationId = _getOrganizationId();
-
+        function getData() {
+            var organizationId = _table.dataFilter.organizationId;
             if (!organizationId) {
                 return $q.reject('400');
             }
-
-            var filter = {
-                organizationId: organizationId
-            };
-
             var reqs = {
-                groups: greyscaleUserGroupApi.list(filter),
+                groups: greyscaleGroupApi.list(organizationId)
             };
 
             return $q.all(reqs).then(function (promises) {
-                greyscaleUtilsSrv.prepareFields(promises.groups, _fields);
-                return promises.groups;
-            }).catch(errorHandler);
+                    return promises.groups;
+                })
+                .then(_setSelected)
+                .catch(errorHandler);
+
+        }
+
+        function _setSelected(groups) {
+            var selectedIds = _table.dataFilter.selectedIds;
+            _table.multiselect.setSelected(selectedIds);
+            return groups;
         }
 
         function errorHandler(err, action) {

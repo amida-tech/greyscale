@@ -1325,6 +1325,53 @@ ALTER TABLE public."Workflows_id_seq" OWNER TO indaba;
 ALTER SEQUENCE "Workflows_id_seq" OWNED BY "Workflows".id;
 
 
+
+CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+CREATE TABLE "UnitOfAnalysisTagLink"
+(
+  id integer NOT NULL DEFAULT nextval('"UnitOfAnalysisTagLink_id_seq"'::regclass),
+  "uoaId" integer NOT NULL,
+  "uoaTagId" integer NOT NULL,
+  CONSTRAINT "UnitOfAnalysisTagLink_uoaId_fkey" FOREIGN KEY ("uoaId")
+      REFERENCES "UnitOfAnalysis" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UnitOfAnalysisTagLink_uoaTagId_fkey" FOREIGN KEY ("uoaTagId")
+      REFERENCES "UnitOfAnalysisTag" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT "UnitOfAnalysisTagLink_uoaId_uoaTagId_key" UNIQUE ("uoaId", "uoaTagId")
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "UnitOfAnalysisTagLink"
+  OWNER TO postgres;
+
+-- Index: "UnitOfAnalysisTagLink_uoaId_idx"
+
+-- DROP INDEX "UnitOfAnalysisTagLink_uoaId_idx";
+
+CREATE INDEX "UnitOfAnalysisTagLink_uoaId_idx"
+  ON "UnitOfAnalysisTagLink"
+  USING btree
+  ("uoaId");
+
+-- Index: "UnitOfAnalysisTagLink_uoaTagId_idx"
+
+-- DROP INDEX "UnitOfAnalysisTagLink_uoaTagId_idx";
+
+CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx"
+  ON "UnitOfAnalysisTagLink"
+  USING btree
+  ("uoaTagId");
+
+
+
 --
 -- Name: brand_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --

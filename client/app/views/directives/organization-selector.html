@@ -1,5 +1,5 @@
-<span class="organization-selector" ng-show="ready && $root.showOrganizationSelector">
-    <select ng-model="$root.globalModel.organization"
+<span class="organization-selector" ng-show="ready && OrganizationSelector.show">
+    <select ng-model="OrganizationSelector.organization"
             ng-options="org as org.name for org in organizations track by org.id"
             ng-change="organizationChanged()"
             class="form-control">

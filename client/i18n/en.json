@@ -157,9 +157,9 @@
             "PRODUCTS": "Products",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
-            "USER_ROLES": "User Roles"
+            "USERS_IN_GROUPS": "Users In Groups"
         },
-        "PROJECTS_MANAGEMENT": "Project Management",
+        "PROJECT_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
         "RESET": "Reset",
         "SURVEY": "Survey",
@@ -171,6 +171,7 @@
         },
         "USERS": {
             "GROUPS": "Groups",
+            "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
             "UOA": "Units of analysis"
@@ -224,9 +225,10 @@
             "NO_UOAS": "This Product has no Units Of Analysis.",
             "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
-            "SELECT_ROLE": "Select Role ...",
-            "SELECT_ROLE_LABEL": "Search User By Role",
+            "SELECT_USERGROUP": "Select User Group ...",
+            "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
+                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -235,7 +237,7 @@
                 "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_GROUP": "Can't Found Users With User group \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
@@ -251,11 +253,15 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
+                "ADD_GROUP": "Add Group",
+                "ALLOW_EDIT": "Edit",
+                "ALLOW_TRANSLATE": "Translate",
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
-                "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
+                "GROUPS": "User Groups",
+                "NO_GROUPS": "No groups added",
                 "PERMISSIONS": "Permissions",
                 "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",
@@ -274,7 +280,7 @@
     "PRODUCT_TASKS": {
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
-        "FLAGS": "Flags",
+        "FLAGS": "Flag",
         "LAST_INTERACTION": "Last Interaction",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
@@ -413,10 +419,16 @@
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "EMAIL": "E-Mail",
         "FIRST_NAME": "First Name",
+        "GROUPS": "Groups",
+        "GROUPS_MODAL": {
+            "NAME": "Group Name",
+            "TITLE": "Assign groups to user {{user.email}}"
+        },
         "IS_ACTIVE": "Is Active",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
         "NOT_LOGGED": "Not Logged",
+        "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
@@ -424,11 +436,13 @@
         "USERS": "Users"
     },
     "USER_GROUPS": {
-        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.name}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of user group <b>{{group.title}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "ORGANIZATION": "Organization",
         "SELECT_ORGANIZATION": "Select Organization",
+        "USER": "User",
+        "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
     },

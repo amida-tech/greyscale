@@ -12,6 +12,7 @@ var columns = [
 
 var Organization = sql.define({
     name: 'Organizations',
+    schema: 'proto_amida',
     columns: columns
 });
 

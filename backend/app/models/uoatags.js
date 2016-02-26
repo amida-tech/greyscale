@@ -10,6 +10,7 @@ var columns = [
 
 var UnitOfAnalysisTag = sql.define({
     name: 'UnitOfAnalysisTag',
+    schema: 'proto_amida',
     columns: columns
 });
 var translate = [

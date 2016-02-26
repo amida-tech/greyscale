@@ -48,7 +48,7 @@
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
-                <button class="btn btn-success" ng-click="editOrg()">Edit</button>
+                <button class="btn btn-success" ng-click="editOrg()" ng-disabled="model.orgReadonly">Edit</button>
             </rd-widget-footer>
         </rd-widget>
     </div>
