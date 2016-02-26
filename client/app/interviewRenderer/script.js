@@ -140,6 +140,9 @@
         $('#submit')._.events({
             'click': submitSurvey
         });
+        $('#submit2')._.events({
+            'click': submitSurvey
+        });
     }
     
     function getField(cid) { return $('#' + cid); }
@@ -931,9 +934,11 @@
     }
     function submitCheck() {
         $('#submit').disabled = false;
+        $('#submit2').disabled = false;
         for (var i = 0; i < dataFields.length; i++) {
             if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
             $('#submit').disabled = true;
+            $('#submit2').disabled = true;
             return false;
         }
         return true;
