@@ -254,10 +254,11 @@
             "DESCRIPTION_REQUIRED": "Description is required.",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
+                "ALLOW_EDIT": "Edit",
+                "ALLOW_TRANSLATE": "Translate",
                 "ANSWERS_ACCESS": "Answers Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
-                "EDIT_TRANSLATE": "Edit Translate",
                 "END_DATE": "End Date",
                 "GROUPS": "User Groups",
                 "NO_GROUPS": "No groups added",

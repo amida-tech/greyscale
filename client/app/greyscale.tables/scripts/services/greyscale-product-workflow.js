@@ -78,9 +78,15 @@ angular.module('greyscale.tables')
                 showDataInput: true,
                 dataFormat: 'boolean'
             },
-            editTranslate: {
-                field: 'editTranslate',
-                title: tns + 'EDIT_TRANSLATE',
+            allowEdit: {
+                field: 'allowEdit',
+                title: tns + 'ALLOW_EDIT',
+                showDataInput: true,
+                dataFormat: 'boolean'
+            },
+            allowTranslate: {
+                field: 'allowTranslate',
+                title: tns + 'ALLOW_TRANSLATE',
                 showDataInput: true,
                 dataFormat: 'boolean'
             },
