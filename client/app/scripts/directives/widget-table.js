@@ -195,7 +195,7 @@ angular.module('greyscaleApp')
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
             var scope = $rootScope.$new();
-            angular.extend(scope, col.titleTemplateData || {});
+            scope.ext = col.titleTemplateExtData || {};
             template = $compile(template)(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {
@@ -263,11 +263,17 @@ angular.module('greyscaleApp')
 
             function _setSelected(list, field) {
                 _reset();
-                field = field || 'id';
-                angular.forEach(_.filter(list, field), function (item) {
-                    model.multiselect.selectedMap.push(item[field]);
-                    model.multiselect.selected[item[field]] = true;
-                });
+                if (field) {
+                    angular.forEach(_.filter(list, field), function (item) {
+                        model.multiselect.selectedMap.push(item[field]);
+                        model.multiselect.selected[item[field]] = true;
+                    });
+                } else {
+                    angular.forEach(list, function (id) {
+                        model.multiselect.selectedMap.push(id);
+                        model.multiselect.selected[id] = true;
+                    });
+                }
             }
         }
     })

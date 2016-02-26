@@ -225,9 +225,10 @@
             "NO_UOAS": "This Product has no Units Of Analysis.",
             "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
-            "SELECT_ROLE": "Select Role ...",
-            "SELECT_ROLE_LABEL": "Search User By Role",
+            "SELECT_USERGROUP": "Select User Group ...",
+            "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
+                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.assignee.user.firstName}} {{task.assignee.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -236,7 +237,7 @@
                 "UOAS_HEADER": "UoA"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
-            "USERS_NOT_FOUND_BY_ROLE": "Can't Found Users With Role \"{{role}}\".",
+            "USERS_NOT_FOUND_BY_GROUP": "Can't Found Users With User group \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
@@ -417,10 +418,16 @@
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "EMAIL": "E-Mail",
         "FIRST_NAME": "First Name",
+        "GROUPS": "Groups",
+        "GROUPS_MODAL": {
+            "NAME": "Group Name",
+            "TITLE": "Assign groups to user {{user.email}}"
+        },
         "IS_ACTIVE": "Is Active",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
         "NOT_LOGGED": "Not Logged",
+        "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
