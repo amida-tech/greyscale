@@ -8,7 +8,6 @@ var Task = sql.define({
         'description',
         'uoaId',
         'stepId',
-        'entityTypeRoleId',
         'created',
         'productId',
         'startDate',
@@ -23,7 +22,6 @@ var Task = sql.define({
 Task.editCols = [
     'title',
     'description',
-    'entityTypeRoleId',
     'startDate',
     'endDate',
     'accessToDiscussions',
