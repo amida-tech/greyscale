@@ -7,7 +7,7 @@ var client = require('app/db_bootstrap'),
     Rights = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
     WorkflowStep = require('app/models/workflow_steps'),
-    EssenceRole = require('app/models/essence_roles'),
+    Discussion = require('app/models/discussions'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
@@ -542,7 +542,7 @@ module.exports = {
             var updateObj = _.pick(req.body, User.whereCol);
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
-                    User.update().where(User.id.equals(req.params.id))
+                    User.update(updateObj).where(User.id.equals(req.params.id))
                 );
             }
             yield thunkQuery(
@@ -717,7 +717,40 @@ module.exports = {
                     'row_to_json("Products".*) as product',
                     'row_to_json("Projects".*) as project',
                     'row_to_json("Surveys".*) as survey',
-                    'row_to_json("WorkflowSteps") as step'
+                    'row_to_json("WorkflowSteps") as step',
+                    'CASE ' +
+                        'WHEN (' +
+                            'SELECT ' +
+                            '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isReturn" = true ' +
+                            'AND "Discussions"."isResolve" = false ' +
+                            'LIMIT 1' +
+                        ') IS NULL ' +
+                        'THEN FALSE ' +
+                        'ELSE TRUE ' +
+                    'END as flagged',
+                    '(WITH "curStep" as ' +
+                    '(' +
+                        'SELECT ' +
+                            'CASE ' +
+                                'WHEN "WorkflowSteps"."position" IS NULL THEN 0 ' +
+                                'ELSE "WorkflowSteps"."position" ' +
+                            'END ' +
+                        'FROM "ProductUOA" ' +
+                        'LEFT JOIN "WorkflowSteps" ' +
+                        'ON "ProductUOA"."currentStepId" = "WorkflowSteps"."id"' +
+                        'WHERE "ProductUOA"."productId" = "Products"."id" ' +
+                        'AND "ProductUOA"."UOAid" = "UnitOfAnalysis"."id"' +
+                    ') '+
+                    'SELECT ' +
+                        'CASE ' +
+                            'WHEN "curStep"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                            'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
+                            'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'END as status ' +
+                    'FROM "curStep")'
                 )
                 .from(
                     Task
@@ -731,6 +764,8 @@ module.exports = {
                     .on(Product.surveyId.equals(Survey.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(Discussion)
+                    .on(Task.id.equals(Discussion.taskId))
 
                 )
                 .where(
