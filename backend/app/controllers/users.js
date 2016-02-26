@@ -583,21 +583,50 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
-        var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "RolesRights" ' +
-            ' LEFT JOIN "Rights"' +
-            ' ON ("RolesRights"."rightID" = "Rights"."id")' +
-            ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
-            ') AS rights';
-        var groupReq = 'ARRAY(' +
-            'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
-            ') as "usergroupId"';
-        query(User.select(User.star(), request, groupReq).where(User.id.equals(req.user.id)), function (err, user) {
-            if (!err) {
-                res.json(_.first(user));
-            } else {
-                next(err);
-            }
+        co(function* (){
+
+            var rightsReq =
+                'ARRAY(' +
+                    ' SELECT "Rights"."action" FROM "RolesRights" ' +
+                    ' LEFT JOIN "Rights"' +
+                    ' ON ("RolesRights"."rightID" = "Rights"."id")' +
+                    ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
+                ') AS rights';
+            var groupReq =
+                'ARRAY(' +
+                    'SELECT "UserGroups"."groupId" ' +
+                    'FROM "UserGroups" ' +
+                    'WHERE "UserGroups"."userId" = "Users"."id"' +
+                ') as "usergroupId"';
+
+            var projectReq =
+                '(' +
+                    'SELECT row_to_json("Projects".*) ' +
+                    'FROM "Projects" ' +
+                    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+                    'LIMIT 1' +
+                ') as "project"';
+
+            return yield thunkQuery(
+                User
+                .select(
+                    User.star(),
+                    rightsReq,
+                    groupReq,
+                    'row_to_json("Organizations".*) as organization',
+                    projectReq
+                )
+                .from(
+                    User
+                    .leftJoin(Organization)
+                    .on(User.organizationId.equals(Organization.id))
+                )
+                .where(User.id.equals(req.user.id))
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
         });
     },
 
