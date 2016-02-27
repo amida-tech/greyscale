@@ -58,6 +58,7 @@ angular.module('greyscaleApp')
                         newQuestion.intOnly = fo.integer_only;
                         newQuestion.value = fo.value;
                         newQuestion.links = fo.links && fo.links.length > 0 ? JSON.stringify(fo.links) : undefined;
+                        newQuestion.optionNumbering = fo.option_numbering ? fo.option_numbering : undefined;
 
                         if (!fo.options) {
                             continue;
@@ -151,7 +152,8 @@ angular.module('greyscaleApp')
                                     integer_only: question.intOnly,
                                     qid: question.qid,
                                     value: question.value,
-                                    links: question.links ? JSON.parse(question.links) : []
+                                    links: question.links ? JSON.parse(question.links) : [],
+                                    option_numbering: question.optionNumbering
                                 }
                             };
                             data.push(field);

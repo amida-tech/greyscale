@@ -173,7 +173,15 @@ module.exports = {
 
                 var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
 
-                console.log(_.first(organizationId).id);
+                // TODO creates project in background, may be need to disable in future
+                yield thunkQuery(
+                    Project.insert(
+                        {
+                            organizationId: organizationId[0].id,
+                            codeName: 'Org_' + organizationId[0].id + '_project'
+                        }
+                    )
+                );
 
                 yield thunkQuery(User.update({
                     organizationId: _.first(organizationId).id
@@ -583,21 +591,50 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
-        var request = 'ARRAY(' +
-            ' SELECT "Rights"."action" FROM "RolesRights" ' +
-            ' LEFT JOIN "Rights"' +
-            ' ON ("RolesRights"."rightID" = "Rights"."id")' +
-            ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
-            ') AS rights';
-        var groupReq = 'ARRAY(' +
-            'SELECT "UserGroups"."groupId" FROM "UserGroups" WHERE "UserGroups"."userId" = "Users"."id"' +
-            ') as "usergroupId"';
-        query(User.select(User.star(), request, groupReq).where(User.id.equals(req.user.id)), function (err, user) {
-            if (!err) {
-                res.json(_.first(user));
-            } else {
-                next(err);
-            }
+        co(function* (){
+
+            var rightsReq =
+                'ARRAY(' +
+                    ' SELECT "Rights"."action" FROM "RolesRights" ' +
+                    ' LEFT JOIN "Rights"' +
+                    ' ON ("RolesRights"."rightID" = "Rights"."id")' +
+                    ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
+                ') AS rights';
+            var groupReq =
+                'ARRAY(' +
+                    'SELECT "UserGroups"."groupId" ' +
+                    'FROM "UserGroups" ' +
+                    'WHERE "UserGroups"."userId" = "Users"."id"' +
+                ') as "usergroupId"';
+
+            var projectReq =
+                '(' +
+                    'SELECT row_to_json("Projects".*) ' +
+                    'FROM "Projects" ' +
+                    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+                    'LIMIT 1' +
+                ') as "project"';
+
+            return yield thunkQuery(
+                User
+                .select(
+                    User.star(),
+                    rightsReq,
+                    groupReq,
+                    'row_to_json("Organizations".*) as organization',
+                    projectReq
+                )
+                .from(
+                    User
+                    .leftJoin(Organization)
+                    .on(User.organizationId.equals(Organization.id))
+                )
+                .where(User.id.equals(req.user.id))
+            );
+        }).then(function (data) {
+            res.json(data[0]);
+        }, function (err) {
+            next(err);
         });
     },
 

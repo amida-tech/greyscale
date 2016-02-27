@@ -10,9 +10,7 @@ angular.module('greyscale.tables')
 
         var tns = 'USERS.';
 
-        var dicts = {
-            roles: []
-        };
+        var dicts = {};
 
         var _fields = [{
             field: 'id',
@@ -38,19 +36,6 @@ angular.module('greyscale.tables')
             title: tns + 'LAST_NAME',
             show: true,
             sortable: 'lastName'
-        }, {
-            field: 'roleID',
-            title: tns + 'ROLE',
-            show: true,
-            sortable: 'roleID',
-            dataFormat: 'option',
-            dataSet: {
-                getData: _getRoles,
-                keyField: 'id',
-                valField: 'name'
-            },
-            dataReadOnly: 'add'
-
         }, {
             field: 'lastActive',
             title: tns + 'LAST_ACTIVE',
@@ -81,22 +66,8 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
-            },
-            //link: {
-            //    handler: _editGroups
-            //}
-            //actions: [{
-            //    title: tns + 'GROUPS',
-            //    handler: _editGroups
-            //}]
+            }
         }, {
-            //    dataFormat: 'action',
-            //    actions: [{
-            //        icon: 'fa-users',
-            //        tooltip: tns + 'EDIT_GROUPS',
-            //        handler: _editGroups
-            //    }]
-            //}, {
             field: '',
             title: '',
             show: true,
@@ -127,10 +98,6 @@ angular.module('greyscale.tables')
                 handler: _editRecord
             }
         };
-
-        function _getRoles() {
-            return dicts.roles;
-        }
 
         function _getGroups(user) {
             return _.map(_.filter(dicts.groups, function (o) {
@@ -203,11 +170,14 @@ angular.module('greyscale.tables')
 
             var organizationId = _getOrganizationId();
 
+            if (!organizationId) {
+                return $q.reject('400');
+            }
+
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
                 accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
-                var roleFilter = {};
                 var listFilter = {
                     organizationId: organizationId
                 };
@@ -225,20 +195,6 @@ angular.module('greyscale.tables')
 
             }).catch(errorHandler);
         }
-
-        //function _filterRolesByAccessLevel(roles) {
-        //    var filteredRoles = [];
-        //    if (_isAdmin()) {
-        //        angular.forEach(roles, function (role, i) {
-        //            if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
-        //                filteredRoles.push(role);
-        //            }
-        //        });
-        //    } else {
-        //        filteredRoles = roles;
-        //    }
-        //    return filteredRoles;
-        //}
 
         function errorHandler(err, action) {
             var msg = _table.formTitle;

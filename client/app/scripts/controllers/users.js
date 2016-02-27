@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv) {
+    .controller('UsersCtrl', function ($scope, $state, greyscaleProfileSrv, Organization) {
 
         var _userAccessLevel;
 
@@ -13,6 +13,8 @@ angular.module('greyscaleApp')
         $scope.tabs = [];
 
         $scope.tabsModel = {};
+
+        Organization.$watch($scope);
 
         greyscaleProfileSrv.getProfile().then(function (profile) {
 

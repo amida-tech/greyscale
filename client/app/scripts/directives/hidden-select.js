@@ -39,7 +39,7 @@ angular.module('greyscaleApp')
                 $compile(select)(scope);
                 el.append(select);
 
-                select.on('click', function (e) {
+                select.on('change', function (e) {
                     if (select.val() === '') {
                         return;
                     }

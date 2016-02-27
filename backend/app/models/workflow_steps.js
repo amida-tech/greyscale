@@ -5,15 +5,16 @@ var columns = [
     'workflowId',
     'startDate',
     'endDate',
-    'roleId',
     'blindReview',
     'provideResponses',
     'seeOthersResponses',
     'discussionParticipation',
-    'editTranslate',
+    'allowTranslate',
     'writeToAnswers',
     'position',
-    'title'
+    'title',
+    'allowEdit',
+    'role'
 ];
 
 var WorkflowStep = sql.define({
@@ -24,7 +25,6 @@ var WorkflowStep = sql.define({
 WorkflowStep.editCols = [
     'startDate',
     'endDate',
-    'roleId',
     'writeToAnswers',
     'position',
     'title',
@@ -32,7 +32,9 @@ WorkflowStep.editCols = [
     'provideResponses',
     'seeOthersResponses',
     'discussionParticipation',
-    'editTranslate'
+    'allowTranslate',
+    'allowEdit',
+    'role'
 ];
 
 module.exports = WorkflowStep;
