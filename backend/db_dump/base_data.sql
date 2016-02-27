@@ -32,7 +32,7 @@ INSERT INTO "Organizations" VALUES (1, 'Your new organization', NULL, NULL, NULL
 SELECT pg_catalog.setval('"Organizations_id_seq"', 2, true);
 
 
-
+INSERT INTO "Users" VALUES (1, 112, 'no@mail.net', 'Test', 'Super Admin', '2d97fa50e82fb50e883dfd491565f276349eed70dbf0ed0c188b051018ede809', '+7888888888888', '2015-12-28', '506121c70fbf65e181d9080b11f60dd37d6e5702ab90d77f0b44c6e8ddc4a171', 1455870884562, '2015-11-26 12:52:45.264+00', '2016-02-27 21:06:59.495905', true, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2016-02-27 21:06:59.475+00', NULL, false);
 --
 -- TOC entry 2289 (class 0 OID 16933)
 -- Dependencies: 178
