@@ -19,7 +19,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- TOC entry 2399 (class 0 OID 0)
+-- TOC entry 2422 (class 0 OID 0)
 -- Dependencies: 234
 -- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
@@ -32,7 +32,7 @@ CREATE SCHEMA IF NOT EXISTS CLIENT_SCHEMA;
 SET search_path = CLIENT_SCHEMA, pg_catalog;
 
 --
--- TOC entry 593 (class 1247 OID 42713)
+-- TOC entry 593 (class 1247 OID 45318)
 -- Name: event_status; Type: TYPE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -50,7 +50,7 @@ CREATE TYPE event_status AS ENUM (
 ALTER TYPE event_status OWNER TO postgres;
 
 --
--- TOC entry 596 (class 1247 OID 42728)
+-- TOC entry 596 (class 1247 OID 45334)
 -- Name: order_status; Type: TYPE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -66,7 +66,7 @@ CREATE TYPE order_status AS ENUM (
 ALTER TYPE order_status OWNER TO postgres;
 
 --
--- TOC entry 599 (class 1247 OID 42740)
+-- TOC entry 599 (class 1247 OID 45346)
 -- Name: tour_status; Type: TYPE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -84,7 +84,7 @@ CREATE TYPE tour_status AS ENUM (
 ALTER TYPE tour_status OWNER TO postgres;
 
 --
--- TOC entry 602 (class 1247 OID 42756)
+-- TOC entry 602 (class 1247 OID 45362)
 -- Name: transport_status; Type: TYPE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -101,7 +101,7 @@ CREATE TYPE transport_status AS ENUM (
 ALTER TYPE transport_status OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1255 OID 42769)
+-- TOC entry 235 (class 1255 OID 45375)
 -- Name: order_before_update(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -117,7 +117,7 @@ END$$;
 ALTER FUNCTION CLIENT_SCHEMA.order_before_update() OWNER TO postgres;
 
 --
--- TOC entry 248 (class 1255 OID 42770)
+-- TOC entry 248 (class 1255 OID 45376)
 -- Name: tours_before_insert(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -134,7 +134,7 @@ END;$$;
 ALTER FUNCTION CLIENT_SCHEMA.tours_before_insert() OWNER TO postgres;
 
 --
--- TOC entry 249 (class 1255 OID 42771)
+-- TOC entry 249 (class 1255 OID 45377)
 -- Name: tours_before_update(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -150,7 +150,7 @@ END;$$;
 ALTER FUNCTION CLIENT_SCHEMA.tours_before_update() OWNER TO postgres;
 
 --
--- TOC entry 250 (class 1255 OID 42772)
+-- TOC entry 250 (class 1255 OID 45378)
 -- Name: twc_delete_old_token(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -165,7 +165,7 @@ END;$$;
 ALTER FUNCTION CLIENT_SCHEMA.twc_delete_old_token() OWNER TO postgres;
 
 --
--- TOC entry 251 (class 1255 OID 42773)
+-- TOC entry 251 (class 1255 OID 45379)
 -- Name: twc_get_token(character varying, character varying); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -184,7 +184,7 @@ END$$;
 ALTER FUNCTION CLIENT_SCHEMA.twc_get_token(body character varying, exp character varying) OWNER TO postgres;
 
 --
--- TOC entry 252 (class 1255 OID 42774)
+-- TOC entry 252 (class 1255 OID 45380)
 -- Name: user_company_check(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -210,7 +210,7 @@ END;$$;
 ALTER FUNCTION CLIENT_SCHEMA.user_company_check() OWNER TO postgres;
 
 --
--- TOC entry 253 (class 1255 OID 42775)
+-- TOC entry 253 (class 1255 OID 45381)
 -- Name: users_before_update(); Type: FUNCTION; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -230,7 +230,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- TOC entry 172 (class 1259 OID 42776)
+-- TOC entry 172 (class 1259 OID 45382)
 -- Name: AccessMatrices; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -245,7 +245,7 @@ CREATE TABLE "AccessMatrices" (
 ALTER TABLE "AccessMatrices" OWNER TO postgres;
 
 --
--- TOC entry 173 (class 1259 OID 42782)
+-- TOC entry 173 (class 1259 OID 45388)
 -- Name: AccessMatix_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -260,7 +260,7 @@ CREATE SEQUENCE "AccessMatix_id_seq"
 ALTER TABLE "AccessMatix_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2400 (class 0 OID 0)
+-- TOC entry 2423 (class 0 OID 0)
 -- Dependencies: 173
 -- Name: AccessMatix_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -269,7 +269,7 @@ ALTER SEQUENCE "AccessMatix_id_seq" OWNED BY "AccessMatrices".id;
 
 
 --
--- TOC entry 174 (class 1259 OID 42784)
+-- TOC entry 174 (class 1259 OID 45390)
 -- Name: AccessPermissions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -285,7 +285,7 @@ CREATE TABLE "AccessPermissions" (
 ALTER TABLE "AccessPermissions" OWNER TO postgres;
 
 --
--- TOC entry 175 (class 1259 OID 42787)
+-- TOC entry 175 (class 1259 OID 45393)
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -300,7 +300,7 @@ CREATE SEQUENCE "AccessPermissions_id_seq"
 ALTER TABLE "AccessPermissions_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2401 (class 0 OID 0)
+-- TOC entry 2424 (class 0 OID 0)
 -- Dependencies: 175
 -- Name: AccessPermissions_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -309,38 +309,54 @@ ALTER SEQUENCE "AccessPermissions_id_seq" OWNED BY "AccessPermissions".id;
 
 
 --
--- TOC entry 176 (class 1259 OID 42789)
--- Name: country_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
+-- TOC entry 176 (class 1259 OID 45395)
+-- Name: Discussions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
-CREATE SEQUENCE country_id_seq
-    START WITH 240
+CREATE TABLE "Discussions" (
+    id integer NOT NULL,
+    "taskId" integer NOT NULL,
+    "questionId" integer NOT NULL,
+    "userId" integer NOT NULL,
+    entry text NOT NULL,
+    "isReturn" boolean DEFAULT false NOT NULL,
+    created timestamp(6) with time zone DEFAULT now() NOT NULL,
+    updated timestamp(6) with time zone,
+    "isResolve" boolean DEFAULT false NOT NULL,
+    "order" smallint DEFAULT 1 NOT NULL,
+    "returnTaskId" integer,
+    "userFromId" integer NOT NULL
+);
+
+
+ALTER TABLE "Discussions" OWNER TO postgres;
+
+--
+-- TOC entry 177 (class 1259 OID 45405)
+-- Name: Discussions_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+CREATE SEQUENCE "Discussions_id_seq"
+    START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
 
 
-ALTER TABLE country_id_seq OWNER TO postgres;
+ALTER TABLE "Discussions_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 177 (class 1259 OID 42791)
--- Name: Countries; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+-- TOC entry 2425 (class 0 OID 0)
+-- Dependencies: 177
+-- Name: Discussions_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
-CREATE TABLE "Countries" (
-    id integer DEFAULT nextval('country_id_seq'::regclass) NOT NULL,
-    name character varying(75) NOT NULL,
-    alpha2 character varying(2) NOT NULL,
-    alpha3 character varying(3) NOT NULL,
-    nbr integer NOT NULL
-);
+ALTER SEQUENCE "Discussions_id_seq" OWNED BY "Discussions".id;
 
-
-ALTER TABLE "Countries" OWNER TO postgres;
 
 --
--- TOC entry 178 (class 1259 OID 42795)
+-- TOC entry 178 (class 1259 OID 45407)
 -- Name: Essences; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -356,7 +372,7 @@ CREATE TABLE "Essences" (
 ALTER TABLE "Essences" OWNER TO postgres;
 
 --
--- TOC entry 2402 (class 0 OID 0)
+-- TOC entry 2426 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: COLUMN "Essences".name; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -365,7 +381,7 @@ COMMENT ON COLUMN "Essences".name IS 'Human readable name of essence';
 
 
 --
--- TOC entry 2403 (class 0 OID 0)
+-- TOC entry 2427 (class 0 OID 0)
 -- Dependencies: 178
 -- Name: COLUMN "Essences"."fileName"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -374,7 +390,7 @@ COMMENT ON COLUMN "Essences"."fileName" IS 'File name in models path';
 
 
 --
--- TOC entry 179 (class 1259 OID 42801)
+-- TOC entry 179 (class 1259 OID 45413)
 -- Name: Entities_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -389,7 +405,7 @@ CREATE SEQUENCE "Entities_id_seq"
 ALTER TABLE "Entities_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2404 (class 0 OID 0)
+-- TOC entry 2428 (class 0 OID 0)
 -- Dependencies: 179
 -- Name: Entities_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -398,7 +414,7 @@ ALTER SEQUENCE "Entities_id_seq" OWNED BY "Essences".id;
 
 
 --
--- TOC entry 180 (class 1259 OID 42803)
+-- TOC entry 180 (class 1259 OID 45415)
 -- Name: EssenceRoles; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -414,7 +430,7 @@ CREATE TABLE "EssenceRoles" (
 ALTER TABLE "EssenceRoles" OWNER TO postgres;
 
 --
--- TOC entry 181 (class 1259 OID 42806)
+-- TOC entry 181 (class 1259 OID 45418)
 -- Name: EntityRoles_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -429,7 +445,7 @@ CREATE SEQUENCE "EntityRoles_id_seq"
 ALTER TABLE "EntityRoles_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2405 (class 0 OID 0)
+-- TOC entry 2429 (class 0 OID 0)
 -- Dependencies: 181
 -- Name: EntityRoles_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -438,7 +454,45 @@ ALTER SEQUENCE "EntityRoles_id_seq" OWNED BY "EssenceRoles".id;
 
 
 --
--- TOC entry 182 (class 1259 OID 42808)
+-- TOC entry 182 (class 1259 OID 45420)
+-- Name: Groups; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE "Groups" (
+    id integer NOT NULL,
+    title character varying,
+    "organizationId" integer
+);
+
+
+ALTER TABLE "Groups" OWNER TO postgres;
+
+--
+-- TOC entry 183 (class 1259 OID 45426)
+-- Name: Groups_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+CREATE SEQUENCE "Groups_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Groups_id_seq" OWNER TO postgres;
+
+--
+-- TOC entry 2430 (class 0 OID 0)
+-- Dependencies: 183
+-- Name: Groups_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER SEQUENCE "Groups_id_seq" OWNED BY "Groups".id;
+
+
+--
+-- TOC entry 184 (class 1259 OID 45428)
 -- Name: Surveys; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -447,14 +501,15 @@ CREATE TABLE "Surveys" (
     title character varying,
     description text,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    "projectId" integer
+    "projectId" integer,
+    "isDraft" boolean DEFAULT false NOT NULL
 );
 
 
 ALTER TABLE "Surveys" OWNER TO postgres;
 
 --
--- TOC entry 183 (class 1259 OID 42815)
+-- TOC entry 185 (class 1259 OID 45436)
 -- Name: JSON_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -469,8 +524,8 @@ CREATE SEQUENCE "JSON_id_seq"
 ALTER TABLE "JSON_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2406 (class 0 OID 0)
--- Dependencies: 183
+-- TOC entry 2431 (class 0 OID 0)
+-- Dependencies: 185
 -- Name: JSON_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -478,7 +533,7 @@ ALTER SEQUENCE "JSON_id_seq" OWNED BY "Surveys".id;
 
 
 --
--- TOC entry 184 (class 1259 OID 42817)
+-- TOC entry 186 (class 1259 OID 45438)
 -- Name: Languages; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -493,7 +548,7 @@ CREATE TABLE "Languages" (
 ALTER TABLE "Languages" OWNER TO postgres;
 
 --
--- TOC entry 185 (class 1259 OID 42820)
+-- TOC entry 187 (class 1259 OID 45441)
 -- Name: Languages_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -508,8 +563,8 @@ CREATE SEQUENCE "Languages_id_seq"
 ALTER TABLE "Languages_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2407 (class 0 OID 0)
--- Dependencies: 185
+-- TOC entry 2432 (class 0 OID 0)
+-- Dependencies: 187
 -- Name: Languages_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -517,7 +572,7 @@ ALTER SEQUENCE "Languages_id_seq" OWNED BY "Languages".id;
 
 
 --
--- TOC entry 186 (class 1259 OID 42822)
+-- TOC entry 188 (class 1259 OID 45443)
 -- Name: Organizations; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -535,7 +590,7 @@ CREATE TABLE "Organizations" (
 ALTER TABLE "Organizations" OWNER TO postgres;
 
 --
--- TOC entry 187 (class 1259 OID 42828)
+-- TOC entry 189 (class 1259 OID 45449)
 -- Name: Organizations_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -550,8 +605,8 @@ CREATE SEQUENCE "Organizations_id_seq"
 ALTER TABLE "Organizations_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2408 (class 0 OID 0)
--- Dependencies: 187
+-- TOC entry 2433 (class 0 OID 0)
+-- Dependencies: 189
 -- Name: Organizations_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -559,20 +614,21 @@ ALTER SEQUENCE "Organizations_id_seq" OWNED BY "Organizations".id;
 
 
 --
--- TOC entry 188 (class 1259 OID 42830)
+-- TOC entry 190 (class 1259 OID 45451)
 -- Name: ProductUOA; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
-    "UOAid" integer NOT NULL
+    "UOAid" integer NOT NULL,
+    "currentStepId" integer
 );
 
 
 ALTER TABLE "ProductUOA" OWNER TO postgres;
 
 --
--- TOC entry 189 (class 1259 OID 42833)
+-- TOC entry 191 (class 1259 OID 45454)
 -- Name: Products; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -582,14 +638,15 @@ CREATE TABLE "Products" (
     description text,
     "originalLangId" integer,
     "projectId" integer,
-    "surveyId" integer
+    "surveyId" integer,
+    status smallint DEFAULT 0 NOT NULL
 );
 
 
 ALTER TABLE "Products" OWNER TO postgres;
 
 --
--- TOC entry 190 (class 1259 OID 42839)
+-- TOC entry 192 (class 1259 OID 45461)
 -- Name: Products_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -604,8 +661,8 @@ CREATE SEQUENCE "Products_id_seq"
 ALTER TABLE "Products_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2409 (class 0 OID 0)
--- Dependencies: 190
+-- TOC entry 2434 (class 0 OID 0)
+-- Dependencies: 192
 -- Name: Products_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -613,7 +670,7 @@ ALTER SEQUENCE "Products_id_seq" OWNED BY "Products".id;
 
 
 --
--- TOC entry 191 (class 1259 OID 42841)
+-- TOC entry 193 (class 1259 OID 45463)
 -- Name: Projects; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -634,7 +691,7 @@ CREATE TABLE "Projects" (
 ALTER TABLE "Projects" OWNER TO postgres;
 
 --
--- TOC entry 192 (class 1259 OID 42848)
+-- TOC entry 194 (class 1259 OID 45470)
 -- Name: Projects_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -649,8 +706,8 @@ CREATE SEQUENCE "Projects_id_seq"
 ALTER TABLE "Projects_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2410 (class 0 OID 0)
--- Dependencies: 192
+-- TOC entry 2435 (class 0 OID 0)
+-- Dependencies: 194
 -- Name: Projects_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -658,7 +715,7 @@ ALTER SEQUENCE "Projects_id_seq" OWNED BY "Projects".id;
 
 
 --
--- TOC entry 193 (class 1259 OID 42850)
+-- TOC entry 195 (class 1259 OID 45472)
 -- Name: Rights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -673,7 +730,7 @@ CREATE TABLE "Rights" (
 ALTER TABLE "Rights" OWNER TO postgres;
 
 --
--- TOC entry 194 (class 1259 OID 42856)
+-- TOC entry 196 (class 1259 OID 45478)
 -- Name: Rights_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -688,8 +745,8 @@ CREATE SEQUENCE "Rights_id_seq"
 ALTER TABLE "Rights_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2411 (class 0 OID 0)
--- Dependencies: 194
+-- TOC entry 2436 (class 0 OID 0)
+-- Dependencies: 196
 -- Name: Rights_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -697,7 +754,7 @@ ALTER SEQUENCE "Rights_id_seq" OWNED BY "Rights".id;
 
 
 --
--- TOC entry 195 (class 1259 OID 42858)
+-- TOC entry 197 (class 1259 OID 45480)
 -- Name: role_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -712,7 +769,7 @@ CREATE SEQUENCE role_id_seq
 ALTER TABLE role_id_seq OWNER TO postgres;
 
 --
--- TOC entry 196 (class 1259 OID 42860)
+-- TOC entry 198 (class 1259 OID 45482)
 -- Name: Roles; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -726,7 +783,7 @@ CREATE TABLE "Roles" (
 ALTER TABLE "Roles" OWNER TO postgres;
 
 --
--- TOC entry 197 (class 1259 OID 42865)
+-- TOC entry 199 (class 1259 OID 45487)
 -- Name: RolesRights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -739,48 +796,7 @@ CREATE TABLE "RolesRights" (
 ALTER TABLE "RolesRights" OWNER TO postgres;
 
 --
--- TOC entry 198 (class 1259 OID 42868)
--- Name: SurveyAnswerVersions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE "SurveyAnswerVersions" (
-    value character varying,
-    "optionId" integer,
-    created timestamp with time zone DEFAULT now() NOT NULL,
-    "userId" integer,
-    comment character varying,
-    id integer NOT NULL
-);
-
-
-ALTER TABLE "SurveyAnswerVersions" OWNER TO postgres;
-
---
--- TOC entry 199 (class 1259 OID 42875)
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-CREATE SEQUENCE "SurveyAnswerVersions_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "SurveyAnswerVersions_id_seq" OWNER TO postgres;
-
---
--- TOC entry 2412 (class 0 OID 0)
--- Dependencies: 199
--- Name: SurveyAnswerVersions_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER SEQUENCE "SurveyAnswerVersions_id_seq" OWNED BY "SurveyAnswerVersions".id;
-
-
---
--- TOC entry 200 (class 1259 OID 42877)
+-- TOC entry 200 (class 1259 OID 45490)
 -- Name: SurveyAnswers; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -790,18 +806,19 @@ CREATE TABLE "SurveyAnswers" (
     "userId" integer,
     value text,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    "optionId" integer,
     "productId" integer,
     "UOAid" integer,
     "wfStepId" integer,
-    version integer
+    version integer,
+    "surveyId" integer,
+    "optionId" integer[]
 );
 
 
 ALTER TABLE "SurveyAnswers" OWNER TO postgres;
 
 --
--- TOC entry 201 (class 1259 OID 42884)
+-- TOC entry 201 (class 1259 OID 45497)
 -- Name: SurveyAnswers_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -816,7 +833,7 @@ CREATE SEQUENCE "SurveyAnswers_id_seq"
 ALTER TABLE "SurveyAnswers_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2413 (class 0 OID 0)
+-- TOC entry 2437 (class 0 OID 0)
 -- Dependencies: 201
 -- Name: SurveyAnswers_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -825,21 +842,24 @@ ALTER SEQUENCE "SurveyAnswers_id_seq" OWNED BY "SurveyAnswers".id;
 
 
 --
--- TOC entry 202 (class 1259 OID 42886)
+-- TOC entry 202 (class 1259 OID 45499)
 -- Name: SurveyQuestionOptions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE "SurveyQuestionOptions" (
     id integer NOT NULL,
     "questionId" integer,
-    value character varying
+    value character varying,
+    label character varying,
+    skip smallint,
+    "isSelected" boolean DEFAULT false NOT NULL
 );
 
 
 ALTER TABLE "SurveyQuestionOptions" OWNER TO postgres;
 
 --
--- TOC entry 203 (class 1259 OID 42892)
+-- TOC entry 203 (class 1259 OID 45506)
 -- Name: SurveyQuestions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -849,14 +869,27 @@ CREATE TABLE "SurveyQuestions" (
     type smallint,
     label character varying,
     "isRequired" boolean DEFAULT false NOT NULL,
-    "position" integer
+    "position" integer,
+    description text,
+    skip smallint,
+    size smallint,
+    "minLength" smallint,
+    "maxLength" smallint,
+    "isWordmml" boolean DEFAULT false NOT NULL,
+    "incOtherOpt" boolean DEFAULT false NOT NULL,
+    units character varying,
+    "intOnly" boolean DEFAULT false NOT NULL,
+    value character varying,
+    qid character varying,
+    links text,
+    attachment boolean
 );
 
 
 ALTER TABLE "SurveyQuestions" OWNER TO postgres;
 
 --
--- TOC entry 204 (class 1259 OID 42899)
+-- TOC entry 204 (class 1259 OID 45516)
 -- Name: SurveyQuestions_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -871,7 +904,7 @@ CREATE SEQUENCE "SurveyQuestions_id_seq"
 ALTER TABLE "SurveyQuestions_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2414 (class 0 OID 0)
+-- TOC entry 2438 (class 0 OID 0)
 -- Dependencies: 204
 -- Name: SurveyQuestions_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -880,7 +913,7 @@ ALTER SEQUENCE "SurveyQuestions_id_seq" OWNED BY "SurveyQuestions".id;
 
 
 --
--- TOC entry 205 (class 1259 OID 42901)
+-- TOC entry 205 (class 1259 OID 45518)
 -- Name: Tasks; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -904,7 +937,7 @@ CREATE TABLE "Tasks" (
 ALTER TABLE "Tasks" OWNER TO postgres;
 
 --
--- TOC entry 2415 (class 0 OID 0)
+-- TOC entry 2439 (class 0 OID 0)
 -- Dependencies: 205
 -- Name: COLUMN "Tasks"."entityTypeRoleId"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -913,7 +946,7 @@ COMMENT ON COLUMN "Tasks"."entityTypeRoleId" IS 'table EssenceRoles';
 
 
 --
--- TOC entry 206 (class 1259 OID 42911)
+-- TOC entry 206 (class 1259 OID 45528)
 -- Name: Tasks_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -928,7 +961,7 @@ CREATE SEQUENCE "Tasks_id_seq"
 ALTER TABLE "Tasks_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2416 (class 0 OID 0)
+-- TOC entry 2440 (class 0 OID 0)
 -- Dependencies: 206
 -- Name: Tasks_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -937,7 +970,7 @@ ALTER SEQUENCE "Tasks_id_seq" OWNED BY "Tasks".id;
 
 
 --
--- TOC entry 207 (class 1259 OID 42913)
+-- TOC entry 207 (class 1259 OID 45530)
 -- Name: Token; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -951,7 +984,7 @@ CREATE TABLE "Token" (
 ALTER TABLE "Token" OWNER TO postgres;
 
 --
--- TOC entry 208 (class 1259 OID 42917)
+-- TOC entry 208 (class 1259 OID 45534)
 -- Name: Translations; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -967,7 +1000,7 @@ CREATE TABLE "Translations" (
 ALTER TABLE "Translations" OWNER TO postgres;
 
 --
--- TOC entry 209 (class 1259 OID 42923)
+-- TOC entry 209 (class 1259 OID 45540)
 -- Name: UnitOfAnalysis_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -982,7 +1015,7 @@ CREATE SEQUENCE "UnitOfAnalysis_id_seq"
 ALTER TABLE "UnitOfAnalysis_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 210 (class 1259 OID 42925)
+-- TOC entry 210 (class 1259 OID 45542)
 -- Name: UnitOfAnalysis; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1006,16 +1039,17 @@ CREATE TABLE "UnitOfAnalysis" (
     "ownerId" integer NOT NULL,
     visibility smallint DEFAULT 1 NOT NULL,
     status smallint DEFAULT 1 NOT NULL,
-    "createTime" timestamp(6) without time zone NOT NULL,
-    "deleteTime" timestamp(6) without time zone,
-    "langId" smallint DEFAULT 1 NOT NULL
+    created timestamp(6) without time zone DEFAULT now() NOT NULL,
+    deleted timestamp(6) without time zone,
+    "langId" smallint DEFAULT 1 NOT NULL,
+    updated timestamp(6) without time zone
 );
 
 
 ALTER TABLE "UnitOfAnalysis" OWNER TO postgres;
 
 --
--- TOC entry 2417 (class 0 OID 0)
+-- TOC entry 2441 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."gadmId0"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1024,7 +1058,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId0" IS 'ID0 for use with GADM shapefile
 
 
 --
--- TOC entry 2418 (class 0 OID 0)
+-- TOC entry 2442 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."gadmId1"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1033,7 +1067,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId1" IS 'ID1 for use with GADM shapefile
 
 
 --
--- TOC entry 2419 (class 0 OID 0)
+-- TOC entry 2443 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."gadmId2"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1042,7 +1076,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId2" IS 'ID2 for use with GADM shapefile
 
 
 --
--- TOC entry 2420 (class 0 OID 0)
+-- TOC entry 2444 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."gadmId3"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1051,7 +1085,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmId3" IS 'ID3 for use with GADM shapefile
 
 
 --
--- TOC entry 2421 (class 0 OID 0)
+-- TOC entry 2445 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."gadmObjectId"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1060,7 +1094,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."gadmObjectId" IS 'OBJECTID for use with GADM
 
 
 --
--- TOC entry 2422 (class 0 OID 0)
+-- TOC entry 2446 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."ISO"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1069,7 +1103,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ISO" IS 'only for Country level Unit Of Anal
 
 
 --
--- TOC entry 2423 (class 0 OID 0)
+-- TOC entry 2447 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."ISO2"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1078,7 +1112,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ISO2" IS 'only for Country level Unit Of Ana
 
 
 --
--- TOC entry 2424 (class 0 OID 0)
+-- TOC entry 2448 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."nameISO"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1087,7 +1121,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."nameISO" IS 'only for Country level Unit Of 
 
 
 --
--- TOC entry 2425 (class 0 OID 0)
+-- TOC entry 2449 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis".name; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1096,7 +1130,7 @@ COMMENT ON COLUMN "UnitOfAnalysis".name IS 'Multilanguage';
 
 
 --
--- TOC entry 2426 (class 0 OID 0)
+-- TOC entry 2450 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis".description; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1105,7 +1139,7 @@ COMMENT ON COLUMN "UnitOfAnalysis".description IS 'Multilanguage';
 
 
 --
--- TOC entry 2427 (class 0 OID 0)
+-- TOC entry 2451 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."shortName"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1114,7 +1148,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."shortName" IS 'Multilanguage';
 
 
 --
--- TOC entry 2428 (class 0 OID 0)
+-- TOC entry 2452 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."HASC"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1123,7 +1157,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."HASC" IS '(example RU.AD.OK)';
 
 
 --
--- TOC entry 2429 (class 0 OID 0)
+-- TOC entry 2453 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."unitOfAnalysisType"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1132,7 +1166,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."unitOfAnalysisType" IS 'reference to table U
 
 
 --
--- TOC entry 2430 (class 0 OID 0)
+-- TOC entry 2454 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."parentId"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1141,7 +1175,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."parentId" IS 'Link to Parent Unit of Analysi
 
 
 --
--- TOC entry 2431 (class 0 OID 0)
+-- TOC entry 2455 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."creatorId"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1150,7 +1184,7 @@ COMMENT ON COLUMN "UnitOfAnalysis"."creatorId" IS 'Creator Id (User Id)';
 
 
 --
--- TOC entry 2432 (class 0 OID 0)
+-- TOC entry 2456 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis"."ownerId"; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1159,16 +1193,16 @@ COMMENT ON COLUMN "UnitOfAnalysis"."ownerId" IS 'Owner Id (User Id)';
 
 
 --
--- TOC entry 2433 (class 0 OID 0)
+-- TOC entry 2457 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis".visibility; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
-COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = Public; 2 = private;';
+COMMENT ON COLUMN "UnitOfAnalysis".visibility IS '1 = CLIENT_SCHEMA; 2 = private;';
 
 
 --
--- TOC entry 2434 (class 0 OID 0)
+-- TOC entry 2458 (class 0 OID 0)
 -- Dependencies: 210
 -- Name: COLUMN "UnitOfAnalysis".status; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1177,7 +1211,7 @@ COMMENT ON COLUMN "UnitOfAnalysis".status IS '1 = active; 2 = inactive; 3 = dele
 
 
 --
--- TOC entry 211 (class 1259 OID 42935)
+-- TOC entry 211 (class 1259 OID 45553)
 -- Name: UnitOfAnalysisClassType_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1192,7 +1226,7 @@ CREATE SEQUENCE "UnitOfAnalysisClassType_id_seq"
 ALTER TABLE "UnitOfAnalysisClassType_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 212 (class 1259 OID 42937)
+-- TOC entry 212 (class 1259 OID 45555)
 -- Name: UnitOfAnalysisClassType; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1207,7 +1241,7 @@ CREATE TABLE "UnitOfAnalysisClassType" (
 ALTER TABLE "UnitOfAnalysisClassType" OWNER TO postgres;
 
 --
--- TOC entry 2435 (class 0 OID 0)
+-- TOC entry 2459 (class 0 OID 0)
 -- Dependencies: 212
 -- Name: COLUMN "UnitOfAnalysisClassType".name; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1216,7 +1250,7 @@ COMMENT ON COLUMN "UnitOfAnalysisClassType".name IS 'Classification Name (for ex
 
 
 --
--- TOC entry 2436 (class 0 OID 0)
+-- TOC entry 2460 (class 0 OID 0)
 -- Dependencies: 212
 -- Name: COLUMN "UnitOfAnalysisClassType".description; Type: COMMENT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1225,7 +1259,7 @@ COMMENT ON COLUMN "UnitOfAnalysisClassType".description IS 'Classification Name 
 
 
 --
--- TOC entry 213 (class 1259 OID 42942)
+-- TOC entry 213 (class 1259 OID 45560)
 -- Name: UnitOfAnalysisTag; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1241,7 +1275,7 @@ CREATE TABLE "UnitOfAnalysisTag" (
 ALTER TABLE "UnitOfAnalysisTag" OWNER TO postgres;
 
 --
--- TOC entry 214 (class 1259 OID 42946)
+-- TOC entry 214 (class 1259 OID 45564)
 -- Name: UnitOfAnalysisTagLink_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1256,7 +1290,7 @@ CREATE SEQUENCE "UnitOfAnalysisTagLink_id_seq"
 ALTER TABLE "UnitOfAnalysisTagLink_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 215 (class 1259 OID 42948)
+-- TOC entry 215 (class 1259 OID 45566)
 -- Name: UnitOfAnalysisTagLink; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1270,7 +1304,7 @@ CREATE TABLE "UnitOfAnalysisTagLink" (
 ALTER TABLE "UnitOfAnalysisTagLink" OWNER TO postgres;
 
 --
--- TOC entry 216 (class 1259 OID 42952)
+-- TOC entry 216 (class 1259 OID 45570)
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1285,7 +1319,7 @@ CREATE SEQUENCE "UnitOfAnalysisTag_id_seq"
 ALTER TABLE "UnitOfAnalysisTag_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2437 (class 0 OID 0)
+-- TOC entry 2461 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: UnitOfAnalysisTag_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1294,7 +1328,7 @@ ALTER SEQUENCE "UnitOfAnalysisTag_id_seq" OWNED BY "UnitOfAnalysisTag".id;
 
 
 --
--- TOC entry 217 (class 1259 OID 42954)
+-- TOC entry 217 (class 1259 OID 45572)
 -- Name: UnitOfAnalysisType_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1309,7 +1343,7 @@ CREATE SEQUENCE "UnitOfAnalysisType_id_seq"
 ALTER TABLE "UnitOfAnalysisType_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 218 (class 1259 OID 42956)
+-- TOC entry 218 (class 1259 OID 45574)
 -- Name: UnitOfAnalysisType; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1324,7 +1358,7 @@ CREATE TABLE "UnitOfAnalysisType" (
 ALTER TABLE "UnitOfAnalysisType" OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 42961)
+-- TOC entry 219 (class 1259 OID 45579)
 -- Name: UserRights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1338,7 +1372,7 @@ CREATE TABLE "UserRights" (
 ALTER TABLE "UserRights" OWNER TO postgres;
 
 --
--- TOC entry 220 (class 1259 OID 42964)
+-- TOC entry 220 (class 1259 OID 45582)
 -- Name: UserUOA; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1351,7 +1385,7 @@ CREATE TABLE "UserUOA" (
 ALTER TABLE "UserUOA" OWNER TO postgres;
 
 --
--- TOC entry 221 (class 1259 OID 42967)
+-- TOC entry 221 (class 1259 OID 45585)
 -- Name: user_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1366,7 +1400,7 @@ CREATE SEQUENCE user_id_seq
 ALTER TABLE user_id_seq OWNER TO postgres;
 
 --
--- TOC entry 222 (class 1259 OID 42969)
+-- TOC entry 222 (class 1259 OID 45587)
 -- Name: Users; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1377,7 +1411,7 @@ CREATE TABLE "Users" (
     "firstName" character varying(80) NOT NULL,
     "lastName" character varying(80),
     password character varying(200) NOT NULL,
-    mobile character varying(20),
+    cell character varying(20),
     birthday date,
     "resetPasswordToken" character varying(100),
     "resetPasswordExpires" bigint,
@@ -1385,69 +1419,61 @@ CREATE TABLE "Users" (
     updated timestamp without time zone,
     "isActive" boolean,
     "activationToken" character varying(100),
-    "organizationId" integer
+    "organizationId" integer,
+    location character varying,
+    phone character varying,
+    address character varying,
+    lang character varying,
+    bio text,
+    "notifyLevel" smallint,
+    timezone character varying,
+    "lastActive" timestamp with time zone,
+    affiliation character varying,
+    "isAnonymous" boolean DEFAULT false NOT NULL
 );
 
 
 ALTER TABLE "Users" OWNER TO postgres;
 
 --
--- TOC entry 223 (class 1259 OID 42977)
--- Name: WorkflowStepList; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+-- TOC entry 223 (class 1259 OID 45596)
+-- Name: WorkflowStepGroups; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
-CREATE TABLE "WorkflowStepList" (
-    id integer NOT NULL,
-    title character varying(100),
-    description text
+CREATE TABLE "WorkflowStepGroups" (
+    "stepId" integer NOT NULL,
+    "groupId" integer NOT NULL
 );
 
 
-ALTER TABLE "WorkflowStepList" OWNER TO postgres;
+ALTER TABLE "WorkflowStepGroups" OWNER TO postgres;
 
 --
--- TOC entry 224 (class 1259 OID 42983)
--- Name: WorkflowStepList_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-CREATE SEQUENCE "WorkflowStepList_id_seq"
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE "WorkflowStepList_id_seq" OWNER TO postgres;
-
---
--- TOC entry 2438 (class 0 OID 0)
--- Dependencies: 224
--- Name: WorkflowStepList_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER SEQUENCE "WorkflowStepList_id_seq" OWNED BY "WorkflowStepList".id;
-
-
---
--- TOC entry 225 (class 1259 OID 42985)
+-- TOC entry 224 (class 1259 OID 45599)
 -- Name: WorkflowSteps; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE "WorkflowSteps" (
     "workflowId" integer NOT NULL,
-    "stepId" integer NOT NULL,
     id integer NOT NULL,
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
-    "roleId" integer
+    "roleId" integer,
+    title character varying,
+    "provideResponses" boolean,
+    "discussionParticipation" boolean,
+    "blindReview" boolean,
+    "seeOthersResponses" boolean,
+    "editTranslate" boolean,
+    "position" integer,
+    "writeToAnswers" boolean
 );
 
 
 ALTER TABLE "WorkflowSteps" OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 42988)
+-- TOC entry 225 (class 1259 OID 45605)
 -- Name: WorkflowSteps_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1462,8 +1488,8 @@ CREATE SEQUENCE "WorkflowSteps_id_seq"
 ALTER TABLE "WorkflowSteps_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2439 (class 0 OID 0)
--- Dependencies: 226
+-- TOC entry 2462 (class 0 OID 0)
+-- Dependencies: 225
 -- Name: WorkflowSteps_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1471,7 +1497,7 @@ ALTER SEQUENCE "WorkflowSteps_id_seq" OWNED BY "WorkflowSteps".id;
 
 
 --
--- TOC entry 227 (class 1259 OID 42990)
+-- TOC entry 226 (class 1259 OID 45607)
 -- Name: Workflows; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1487,7 +1513,7 @@ CREATE TABLE "Workflows" (
 ALTER TABLE "Workflows" OWNER TO postgres;
 
 --
--- TOC entry 228 (class 1259 OID 42997)
+-- TOC entry 227 (class 1259 OID 45614)
 -- Name: Workflows_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1502,8 +1528,8 @@ CREATE SEQUENCE "Workflows_id_seq"
 ALTER TABLE "Workflows_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2440 (class 0 OID 0)
--- Dependencies: 228
+-- TOC entry 2463 (class 0 OID 0)
+-- Dependencies: 227
 -- Name: Workflows_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1511,7 +1537,7 @@ ALTER SEQUENCE "Workflows_id_seq" OWNED BY "Workflows".id;
 
 
 --
--- TOC entry 229 (class 1259 OID 42999)
+-- TOC entry 228 (class 1259 OID 45616)
 -- Name: brand_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1526,7 +1552,22 @@ CREATE SEQUENCE brand_id_seq
 ALTER TABLE brand_id_seq OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 43001)
+-- TOC entry 229 (class 1259 OID 45618)
+-- Name: country_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+CREATE SEQUENCE country_id_seq
+    START WITH 240
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE country_id_seq OWNER TO postgres;
+
+--
+-- TOC entry 230 (class 1259 OID 45620)
 -- Name: order_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1541,7 +1582,7 @@ CREATE SEQUENCE order_id_seq
 ALTER TABLE order_id_seq OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 43003)
+-- TOC entry 231 (class 1259 OID 45622)
 -- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1556,7 +1597,7 @@ CREATE SEQUENCE "surveyQuestionOptions_id_seq"
 ALTER TABLE "surveyQuestionOptions_id_seq" OWNER TO postgres;
 
 --
--- TOC entry 2441 (class 0 OID 0)
+-- TOC entry 2464 (class 0 OID 0)
 -- Dependencies: 231
 -- Name: surveyQuestionOptions_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: postgres
 --
@@ -1565,7 +1606,7 @@ ALTER SEQUENCE "surveyQuestionOptions_id_seq" OWNED BY "SurveyQuestionOptions".i
 
 
 --
--- TOC entry 232 (class 1259 OID 43005)
+-- TOC entry 232 (class 1259 OID 45624)
 -- Name: transport_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1580,7 +1621,7 @@ CREATE SEQUENCE transport_id_seq
 ALTER TABLE transport_id_seq OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 43007)
+-- TOC entry 233 (class 1259 OID 45626)
 -- Name: transportmodel_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1595,7 +1636,7 @@ CREATE SEQUENCE transportmodel_id_seq
 ALTER TABLE transportmodel_id_seq OWNER TO postgres;
 
 --
--- TOC entry 2103 (class 2604 OID 43009)
+-- TOC entry 2104 (class 2604 OID 45628)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1603,7 +1644,7 @@ ALTER TABLE ONLY "AccessMatrices" ALTER COLUMN id SET DEFAULT nextval('"AccessMa
 
 
 --
--- TOC entry 2104 (class 2604 OID 43010)
+-- TOC entry 2105 (class 2604 OID 45629)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1611,7 +1652,15 @@ ALTER TABLE ONLY "AccessPermissions" ALTER COLUMN id SET DEFAULT nextval('"Acces
 
 
 --
--- TOC entry 2107 (class 2604 OID 43011)
+-- TOC entry 2110 (class 2604 OID 45630)
+-- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions" ALTER COLUMN id SET DEFAULT nextval('"Discussions_id_seq"'::regclass);
+
+
+--
+-- TOC entry 2112 (class 2604 OID 45631)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1619,7 +1668,7 @@ ALTER TABLE ONLY "EssenceRoles" ALTER COLUMN id SET DEFAULT nextval('"EntityRole
 
 
 --
--- TOC entry 2106 (class 2604 OID 43012)
+-- TOC entry 2111 (class 2604 OID 45632)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1627,7 +1676,15 @@ ALTER TABLE ONLY "Essences" ALTER COLUMN id SET DEFAULT nextval('"Entities_id_se
 
 
 --
--- TOC entry 2110 (class 2604 OID 43013)
+-- TOC entry 2113 (class 2604 OID 45633)
+-- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Groups" ALTER COLUMN id SET DEFAULT nextval('"Groups_id_seq"'::regclass);
+
+
+--
+-- TOC entry 2117 (class 2604 OID 45634)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1635,7 +1692,7 @@ ALTER TABLE ONLY "Languages" ALTER COLUMN id SET DEFAULT nextval('"Languages_id_
 
 
 --
--- TOC entry 2111 (class 2604 OID 43014)
+-- TOC entry 2118 (class 2604 OID 45635)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1643,7 +1700,7 @@ ALTER TABLE ONLY "Organizations" ALTER COLUMN id SET DEFAULT nextval('"Organizat
 
 
 --
--- TOC entry 2112 (class 2604 OID 43015)
+-- TOC entry 2120 (class 2604 OID 45636)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1651,7 +1708,7 @@ ALTER TABLE ONLY "Products" ALTER COLUMN id SET DEFAULT nextval('"Products_id_se
 
 
 --
--- TOC entry 2114 (class 2604 OID 43016)
+-- TOC entry 2122 (class 2604 OID 45637)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1659,7 +1716,7 @@ ALTER TABLE ONLY "Projects" ALTER COLUMN id SET DEFAULT nextval('"Projects_id_se
 
 
 --
--- TOC entry 2115 (class 2604 OID 43017)
+-- TOC entry 2123 (class 2604 OID 45638)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1667,15 +1724,7 @@ ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"':
 
 
 --
--- TOC entry 2119 (class 2604 OID 43018)
--- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "SurveyAnswerVersions" ALTER COLUMN id SET DEFAULT nextval('"SurveyAnswerVersions_id_seq"'::regclass);
-
-
---
--- TOC entry 2121 (class 2604 OID 43019)
+-- TOC entry 2127 (class 2604 OID 45639)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1683,7 +1732,7 @@ ALTER TABLE ONLY "SurveyAnswers" ALTER COLUMN id SET DEFAULT nextval('"SurveyAns
 
 
 --
--- TOC entry 2122 (class 2604 OID 43020)
+-- TOC entry 2129 (class 2604 OID 45640)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1691,7 +1740,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions" ALTER COLUMN id SET DEFAULT nextval('"s
 
 
 --
--- TOC entry 2124 (class 2604 OID 43021)
+-- TOC entry 2134 (class 2604 OID 45641)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1699,7 +1748,7 @@ ALTER TABLE ONLY "SurveyQuestions" ALTER COLUMN id SET DEFAULT nextval('"SurveyQ
 
 
 --
--- TOC entry 2109 (class 2604 OID 43022)
+-- TOC entry 2116 (class 2604 OID 45642)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1707,7 +1756,7 @@ ALTER TABLE ONLY "Surveys" ALTER COLUMN id SET DEFAULT nextval('"JSON_id_seq"'::
 
 
 --
--- TOC entry 2129 (class 2604 OID 43023)
+-- TOC entry 2139 (class 2604 OID 45643)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1715,7 +1764,7 @@ ALTER TABLE ONLY "Tasks" ALTER COLUMN id SET DEFAULT nextval('"Tasks_id_seq"'::r
 
 
 --
--- TOC entry 2138 (class 2604 OID 43024)
+-- TOC entry 2149 (class 2604 OID 45644)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1723,15 +1772,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag" ALTER COLUMN id SET DEFAULT nextval('"UnitO
 
 
 --
--- TOC entry 2144 (class 2604 OID 43025)
--- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "WorkflowStepList" ALTER COLUMN id SET DEFAULT nextval('"WorkflowStepList_id_seq"'::regclass);
-
-
---
--- TOC entry 2145 (class 2604 OID 43026)
+-- TOC entry 2156 (class 2604 OID 45645)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1739,7 +1780,7 @@ ALTER TABLE ONLY "WorkflowSteps" ALTER COLUMN id SET DEFAULT nextval('"WorkflowS
 
 
 --
--- TOC entry 2147 (class 2604 OID 43027)
+-- TOC entry 2158 (class 2604 OID 45646)
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -1747,7 +1788,7 @@ ALTER TABLE ONLY "Workflows" ALTER COLUMN id SET DEFAULT nextval('"Workflows_id_
 
 
 --
--- TOC entry 2149 (class 2606 OID 43029)
+-- TOC entry 2160 (class 2606 OID 45648)
 -- Name: AccessMatrix_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1756,7 +1797,7 @@ ALTER TABLE ONLY "AccessMatrices"
 
 
 --
--- TOC entry 2151 (class 2606 OID 43031)
+-- TOC entry 2162 (class 2606 OID 45650)
 -- Name: AccessPermissions_accessMatrixId_roleId_rightId_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1765,7 +1806,7 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
--- TOC entry 2153 (class 2606 OID 43033)
+-- TOC entry 2164 (class 2606 OID 45652)
 -- Name: AccessPermissoins_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1774,16 +1815,16 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
--- TOC entry 2155 (class 2606 OID 43035)
--- Name: Countries_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+-- TOC entry 2166 (class 2606 OID 45654)
+-- Name: Discussions_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
-ALTER TABLE ONLY "Countries"
-    ADD CONSTRAINT "Countries_pkey" PRIMARY KEY (id);
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_pkey" PRIMARY KEY (id);
 
 
 --
--- TOC entry 2163 (class 2606 OID 43037)
+-- TOC entry 2174 (class 2606 OID 45656)
 -- Name: EntityRoles_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1792,7 +1833,7 @@ ALTER TABLE ONLY "EssenceRoles"
 
 
 --
--- TOC entry 2157 (class 2606 OID 43039)
+-- TOC entry 2168 (class 2606 OID 45658)
 -- Name: Entity_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1801,7 +1842,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- TOC entry 2165 (class 2606 OID 43041)
+-- TOC entry 2176 (class 2606 OID 45660)
 -- Name: EssenceRoles_essenceId_entityId_userId_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1810,7 +1851,7 @@ ALTER TABLE ONLY "EssenceRoles"
 
 
 --
--- TOC entry 2159 (class 2606 OID 43043)
+-- TOC entry 2170 (class 2606 OID 45662)
 -- Name: Essences_fileName_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1819,7 +1860,7 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- TOC entry 2161 (class 2606 OID 43045)
+-- TOC entry 2172 (class 2606 OID 45664)
 -- Name: Essences_tableName_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1828,7 +1869,16 @@ ALTER TABLE ONLY "Essences"
 
 
 --
--- TOC entry 2167 (class 2606 OID 43047)
+-- TOC entry 2178 (class 2606 OID 45666)
+-- Name: Groups_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "Groups"
+    ADD CONSTRAINT "Groups_pkey" PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2180 (class 2606 OID 45668)
 -- Name: JSON_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1837,7 +1887,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- TOC entry 2169 (class 2606 OID 43049)
+-- TOC entry 2182 (class 2606 OID 45670)
 -- Name: Languages_code_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1846,7 +1896,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- TOC entry 2171 (class 2606 OID 43051)
+-- TOC entry 2184 (class 2606 OID 45672)
 -- Name: Languages_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1855,7 +1905,7 @@ ALTER TABLE ONLY "Languages"
 
 
 --
--- TOC entry 2173 (class 2606 OID 43053)
+-- TOC entry 2186 (class 2606 OID 45674)
 -- Name: Organizations_adminUserId_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1864,7 +1914,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- TOC entry 2175 (class 2606 OID 43055)
+-- TOC entry 2188 (class 2606 OID 45676)
 -- Name: Organizations_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1873,7 +1923,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- TOC entry 2177 (class 2606 OID 43057)
+-- TOC entry 2190 (class 2606 OID 45678)
 -- Name: ProductUOA_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1882,7 +1932,16 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- TOC entry 2179 (class 2606 OID 43059)
+-- TOC entry 2192 (class 2606 OID 45680)
+-- Name: ProductUOA_productId_UOAid_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "ProductUOA"
+    ADD CONSTRAINT "ProductUOA_productId_UOAid_key" UNIQUE ("productId", "UOAid");
+
+
+--
+-- TOC entry 2194 (class 2606 OID 45682)
 -- Name: Product_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1891,7 +1950,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 2181 (class 2606 OID 43061)
+-- TOC entry 2196 (class 2606 OID 45684)
 -- Name: Projects_codeName_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1900,7 +1959,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- TOC entry 2183 (class 2606 OID 43063)
+-- TOC entry 2198 (class 2606 OID 45686)
 -- Name: Projects_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1909,7 +1968,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- TOC entry 2186 (class 2606 OID 43065)
+-- TOC entry 2201 (class 2606 OID 45688)
 -- Name: Rights_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1918,7 +1977,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- TOC entry 2193 (class 2606 OID 43067)
+-- TOC entry 2208 (class 2606 OID 45690)
 -- Name: SurveyAnswers_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1927,7 +1986,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- TOC entry 2197 (class 2606 OID 43069)
+-- TOC entry 2212 (class 2606 OID 45692)
 -- Name: SurveyQuestions_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1936,7 +1995,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- TOC entry 2199 (class 2606 OID 43071)
+-- TOC entry 2214 (class 2606 OID 45694)
 -- Name: Tasks_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1945,7 +2004,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- TOC entry 2202 (class 2606 OID 43073)
+-- TOC entry 2217 (class 2606 OID 45696)
 -- Name: Translations_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1954,7 +2013,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- TOC entry 2206 (class 2606 OID 43075)
+-- TOC entry 2221 (class 2606 OID 45698)
 -- Name: UnitOfAnalysisClassType_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1963,7 +2022,16 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
--- TOC entry 2211 (class 2606 OID 43077)
+-- TOC entry 2225 (class 2606 OID 45700)
+-- Name: UnitOfAnalysisTagLink_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY "UnitOfAnalysisTagLink"
+    ADD CONSTRAINT "UnitOfAnalysisTagLink_pkey" PRIMARY KEY (id);
+
+
+--
+-- TOC entry 2228 (class 2606 OID 45702)
 -- Name: UnitOfAnalysisTagLink_uoaId_uoaTagId_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1972,7 +2040,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- TOC entry 2208 (class 2606 OID 43079)
+-- TOC entry 2223 (class 2606 OID 45704)
 -- Name: UnitOfAnalysisTag_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1981,7 +2049,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- TOC entry 2214 (class 2606 OID 43081)
+-- TOC entry 2231 (class 2606 OID 45706)
 -- Name: UnitOfAnalysisType_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1990,7 +2058,7 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
--- TOC entry 2204 (class 2606 OID 43083)
+-- TOC entry 2219 (class 2606 OID 45708)
 -- Name: UnitOfAnalysis_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -1999,7 +2067,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- TOC entry 2218 (class 2606 OID 43085)
+-- TOC entry 2235 (class 2606 OID 45710)
 -- Name: UserUOA_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2008,7 +2076,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- TOC entry 2220 (class 2606 OID 43087)
+-- TOC entry 2237 (class 2606 OID 45712)
 -- Name: Users_email_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2017,16 +2085,16 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- TOC entry 2225 (class 2606 OID 43089)
--- Name: WorkflowStepList_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
+-- TOC entry 2242 (class 2606 OID 45714)
+-- Name: WorkflowStepGroups_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
-ALTER TABLE ONLY "WorkflowStepList"
-    ADD CONSTRAINT "WorkflowStepList_pkey" PRIMARY KEY (id);
+ALTER TABLE ONLY "WorkflowStepGroups"
+    ADD CONSTRAINT "WorkflowStepGroups_pkey" PRIMARY KEY ("stepId", "groupId");
 
 
 --
--- TOC entry 2227 (class 2606 OID 43091)
+-- TOC entry 2244 (class 2606 OID 45716)
 -- Name: WorkflowSteps_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2035,7 +2103,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- TOC entry 2229 (class 2606 OID 43093)
+-- TOC entry 2246 (class 2606 OID 45718)
 -- Name: Workflows_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2044,7 +2112,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- TOC entry 2231 (class 2606 OID 43095)
+-- TOC entry 2248 (class 2606 OID 45720)
 -- Name: Workflows_productId_key; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2053,7 +2121,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- TOC entry 2188 (class 2606 OID 43097)
+-- TOC entry 2203 (class 2606 OID 45722)
 -- Name: id; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2062,7 +2130,7 @@ ALTER TABLE ONLY "Roles"
 
 
 --
--- TOC entry 2191 (class 2606 OID 43099)
+-- TOC entry 2206 (class 2606 OID 45724)
 -- Name: roleRight_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2071,7 +2139,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- TOC entry 2195 (class 2606 OID 43101)
+-- TOC entry 2210 (class 2606 OID 45726)
 -- Name: surveyQuestionOptions_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2080,7 +2148,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
--- TOC entry 2223 (class 2606 OID 43103)
+-- TOC entry 2240 (class 2606 OID 45728)
 -- Name: userID; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2089,7 +2157,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- TOC entry 2216 (class 2606 OID 43105)
+-- TOC entry 2233 (class 2606 OID 45730)
 -- Name: userRights_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2098,7 +2166,7 @@ ALTER TABLE ONLY "UserRights"
 
 
 --
--- TOC entry 2184 (class 1259 OID 43106)
+-- TOC entry 2199 (class 1259 OID 45731)
 -- Name: Rights_action_idx; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2106,7 +2174,7 @@ CREATE UNIQUE INDEX "Rights_action_idx" ON "Rights" USING btree (action);
 
 
 --
--- TOC entry 2200 (class 1259 OID 43107)
+-- TOC entry 2215 (class 1259 OID 45732)
 -- Name: Token_body_idx; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2114,7 +2182,7 @@ CREATE UNIQUE INDEX "Token_body_idx" ON "Token" USING btree (body);
 
 
 --
--- TOC entry 2209 (class 1259 OID 43108)
+-- TOC entry 2226 (class 1259 OID 45733)
 -- Name: UnitOfAnalysisTagLink_uoaId_idx; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2122,7 +2190,7 @@ CREATE INDEX "UnitOfAnalysisTagLink_uoaId_idx" ON "UnitOfAnalysisTagLink" USING 
 
 
 --
--- TOC entry 2212 (class 1259 OID 43109)
+-- TOC entry 2229 (class 1259 OID 45734)
 -- Name: UnitOfAnalysisTagLink_uoaTagId_idx; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2130,7 +2198,7 @@ CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx" ON "UnitOfAnalysisTagLink" USI
 
 
 --
--- TOC entry 2221 (class 1259 OID 43110)
+-- TOC entry 2238 (class 1259 OID 45735)
 -- Name: fki_roleID; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2138,7 +2206,7 @@ CREATE INDEX "fki_roleID" ON "Users" USING btree ("roleID");
 
 
 --
--- TOC entry 2189 (class 1259 OID 43111)
+-- TOC entry 2204 (class 1259 OID 45736)
 -- Name: fki_rolesrights_rightID; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: postgres; Tablespace: 
 --
 
@@ -2146,7 +2214,7 @@ CREATE INDEX "fki_rolesrights_rightID" ON "RolesRights" USING btree ("rightID");
 
 
 --
--- TOC entry 2281 (class 2620 OID 43112)
+-- TOC entry 2304 (class 2620 OID 45737)
 -- Name: tr_delete_token; Type: TRIGGER; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2154,7 +2222,7 @@ CREATE TRIGGER tr_delete_token BEFORE INSERT ON "Token" FOR EACH ROW EXECUTE PRO
 
 
 --
--- TOC entry 2282 (class 2620 OID 43113)
+-- TOC entry 2305 (class 2620 OID 45738)
 -- Name: users_before_update; Type: TRIGGER; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2162,7 +2230,61 @@ CREATE TRIGGER users_before_update BEFORE UPDATE ON "Users" FOR EACH ROW EXECUTE
 
 
 --
--- TOC entry 2236 (class 2606 OID 43114)
+-- TOC entry 2249 (class 2606 OID 45739)
+-- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+
+
+--
+-- TOC entry 2250 (class 2606 OID 45744)
+-- Name: Discussions_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_returnTaskId_fkey" FOREIGN KEY ("returnTaskId") REFERENCES "Tasks"(id);
+
+
+--
+-- TOC entry 2251 (class 2606 OID 45749)
+-- Name: Discussions_taskId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Tasks"(id);
+
+
+--
+-- TOC entry 2252 (class 2606 OID 45754)
+-- Name: Discussions_userFromId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_userFromId_fkey" FOREIGN KEY ("userFromId") REFERENCES "Tasks"(id);
+
+
+--
+-- TOC entry 2253 (class 2606 OID 45759)
+-- Name: Discussions_userId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
+
+
+--
+-- TOC entry 2257 (class 2606 OID 45764)
+-- Name: Groups_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "Groups"
+    ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
+
+
+--
+-- TOC entry 2259 (class 2606 OID 45769)
 -- Name: Organizations_adminUserId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2171,7 +2293,7 @@ ALTER TABLE ONLY "Organizations"
 
 
 --
--- TOC entry 2237 (class 2606 OID 43119)
+-- TOC entry 2260 (class 2606 OID 45774)
 -- Name: ProductUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2180,7 +2302,16 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- TOC entry 2238 (class 2606 OID 43124)
+-- TOC entry 2261 (class 2606 OID 45779)
+-- Name: ProductUOA_currentStepId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "ProductUOA"
+    ADD CONSTRAINT "ProductUOA_currentStepId_fkey" FOREIGN KEY ("currentStepId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- TOC entry 2262 (class 2606 OID 45784)
 -- Name: ProductUOA_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2189,7 +2320,7 @@ ALTER TABLE ONLY "ProductUOA"
 
 
 --
--- TOC entry 2239 (class 2606 OID 43129)
+-- TOC entry 2263 (class 2606 OID 45789)
 -- Name: Products_originalLangId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2198,7 +2329,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 2240 (class 2606 OID 43134)
+-- TOC entry 2264 (class 2606 OID 45794)
 -- Name: Products_projectId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2207,7 +2338,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 2241 (class 2606 OID 43139)
+-- TOC entry 2265 (class 2606 OID 45799)
 -- Name: Products_surveyId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2216,7 +2347,7 @@ ALTER TABLE ONLY "Products"
 
 
 --
--- TOC entry 2242 (class 2606 OID 43144)
+-- TOC entry 2266 (class 2606 OID 45804)
 -- Name: Projects_accessMatrixId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2225,7 +2356,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- TOC entry 2243 (class 2606 OID 43149)
+-- TOC entry 2267 (class 2606 OID 45809)
 -- Name: Projects_adminUserId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2234,7 +2365,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- TOC entry 2244 (class 2606 OID 43154)
+-- TOC entry 2268 (class 2606 OID 45814)
 -- Name: Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2243,7 +2374,7 @@ ALTER TABLE ONLY "Projects"
 
 
 --
--- TOC entry 2245 (class 2606 OID 43159)
+-- TOC entry 2269 (class 2606 OID 45819)
 -- Name: Rights_essence_id_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2252,7 +2383,7 @@ ALTER TABLE ONLY "Rights"
 
 
 --
--- TOC entry 2246 (class 2606 OID 43164)
+-- TOC entry 2270 (class 2606 OID 45824)
 -- Name: RolesRights_roleID_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2261,34 +2392,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- TOC entry 2248 (class 2606 OID 43169)
--- Name: SurveyAnswersVersions_optionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "SurveyAnswerVersions"
-    ADD CONSTRAINT "SurveyAnswersVersions_optionId_fkey" FOREIGN KEY ("optionId") REFERENCES "SurveyQuestionOptions"(id);
-
-
---
--- TOC entry 2249 (class 2606 OID 43174)
--- Name: SurveyAnswersVersions_userId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "SurveyAnswerVersions"
-    ADD CONSTRAINT "SurveyAnswersVersions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
-
-
---
--- TOC entry 2250 (class 2606 OID 43179)
--- Name: SurveyAnswers_optionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "SurveyAnswers"
-    ADD CONSTRAINT "SurveyAnswers_optionId_fkey" FOREIGN KEY ("optionId") REFERENCES "SurveyQuestionOptions"(id);
-
-
---
--- TOC entry 2251 (class 2606 OID 43184)
+-- TOC entry 2272 (class 2606 OID 45829)
 -- Name: SurveyAnswers_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2297,7 +2401,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- TOC entry 2252 (class 2606 OID 43189)
+-- TOC entry 2273 (class 2606 OID 45834)
 -- Name: SurveyAnswers_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2306,7 +2410,16 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- TOC entry 2253 (class 2606 OID 43194)
+-- TOC entry 2274 (class 2606 OID 45839)
+-- Name: SurveyAnswers_surveyId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "SurveyAnswers"
+    ADD CONSTRAINT "SurveyAnswers_surveyId_fkey" FOREIGN KEY ("surveyId") REFERENCES "Surveys"(id);
+
+
+--
+-- TOC entry 2275 (class 2606 OID 45844)
 -- Name: SurveyAnswers_userId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2315,7 +2428,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- TOC entry 2254 (class 2606 OID 43199)
+-- TOC entry 2276 (class 2606 OID 45849)
 -- Name: SurveyAnswers_wfStepId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2324,7 +2437,7 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
--- TOC entry 2256 (class 2606 OID 43204)
+-- TOC entry 2278 (class 2606 OID 45854)
 -- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2333,7 +2446,7 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
--- TOC entry 2235 (class 2606 OID 43209)
+-- TOC entry 2258 (class 2606 OID 45859)
 -- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2342,7 +2455,7 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
--- TOC entry 2257 (class 2606 OID 43214)
+-- TOC entry 2279 (class 2606 OID 45864)
 -- Name: Tasks_entityTypeRoleId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2351,7 +2464,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- TOC entry 2258 (class 2606 OID 43219)
+-- TOC entry 2280 (class 2606 OID 45869)
 -- Name: Tasks_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2360,7 +2473,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- TOC entry 2259 (class 2606 OID 43224)
+-- TOC entry 2281 (class 2606 OID 45874)
 -- Name: Tasks_stepId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2369,7 +2482,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- TOC entry 2260 (class 2606 OID 43229)
+-- TOC entry 2282 (class 2606 OID 45879)
 -- Name: Tasks_uoaId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2378,7 +2491,7 @@ ALTER TABLE ONLY "Tasks"
 
 
 --
--- TOC entry 2261 (class 2606 OID 43234)
+-- TOC entry 2283 (class 2606 OID 45884)
 -- Name: Translations_essence_id_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2387,7 +2500,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- TOC entry 2262 (class 2606 OID 43239)
+-- TOC entry 2284 (class 2606 OID 45889)
 -- Name: Translations_lang_id_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2396,7 +2509,7 @@ ALTER TABLE ONLY "Translations"
 
 
 --
--- TOC entry 2267 (class 2606 OID 43244)
+-- TOC entry 2289 (class 2606 OID 45894)
 -- Name: UnitOfAnalysisClassType_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2405,7 +2518,7 @@ ALTER TABLE ONLY "UnitOfAnalysisClassType"
 
 
 --
--- TOC entry 2270 (class 2606 OID 43249)
+-- TOC entry 2292 (class 2606 OID 45899)
 -- Name: UnitOfAnalysisTagLink_uoaId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2414,7 +2527,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- TOC entry 2271 (class 2606 OID 43254)
+-- TOC entry 2293 (class 2606 OID 45904)
 -- Name: UnitOfAnalysisTagLink_uoaTagId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2423,7 +2536,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTagLink"
 
 
 --
--- TOC entry 2268 (class 2606 OID 43259)
+-- TOC entry 2290 (class 2606 OID 45909)
 -- Name: UnitOfAnalysisTag_classTypeId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2432,7 +2545,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- TOC entry 2269 (class 2606 OID 43264)
+-- TOC entry 2291 (class 2606 OID 45914)
 -- Name: UnitOfAnalysisTag_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2441,7 +2554,7 @@ ALTER TABLE ONLY "UnitOfAnalysisTag"
 
 
 --
--- TOC entry 2272 (class 2606 OID 43269)
+-- TOC entry 2294 (class 2606 OID 45919)
 -- Name: UnitOfAnalysisType_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2450,7 +2563,7 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 
 
 --
--- TOC entry 2263 (class 2606 OID 43274)
+-- TOC entry 2285 (class 2606 OID 45924)
 -- Name: UnitOfAnalysis_creatorId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2459,7 +2572,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- TOC entry 2264 (class 2606 OID 43279)
+-- TOC entry 2286 (class 2606 OID 45929)
 -- Name: UnitOfAnalysis_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2468,7 +2581,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- TOC entry 2265 (class 2606 OID 43284)
+-- TOC entry 2287 (class 2606 OID 45934)
 -- Name: UnitOfAnalysis_ownerId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2477,7 +2590,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- TOC entry 2266 (class 2606 OID 43289)
+-- TOC entry 2288 (class 2606 OID 45939)
 -- Name: UnitOfAnalysis_unitOfAnalysisType_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2486,7 +2599,7 @@ ALTER TABLE ONLY "UnitOfAnalysis"
 
 
 --
--- TOC entry 2273 (class 2606 OID 43294)
+-- TOC entry 2295 (class 2606 OID 45944)
 -- Name: UserUOA_UOAid_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2495,7 +2608,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- TOC entry 2274 (class 2606 OID 43299)
+-- TOC entry 2296 (class 2606 OID 45949)
 -- Name: UserUOA_UserId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2504,7 +2617,7 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
--- TOC entry 2275 (class 2606 OID 43304)
+-- TOC entry 2297 (class 2606 OID 45954)
 -- Name: Users_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2513,7 +2626,7 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- TOC entry 2276 (class 2606 OID 43309)
+-- TOC entry 2298 (class 2606 OID 45959)
 -- Name: Users_roleID_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2522,7 +2635,25 @@ ALTER TABLE ONLY "Users"
 
 
 --
--- TOC entry 2277 (class 2606 OID 43314)
+-- TOC entry 2299 (class 2606 OID 45964)
+-- Name: WorkflowStepGroups_groupId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "WorkflowStepGroups"
+    ADD CONSTRAINT "WorkflowStepGroups_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "Groups"(id);
+
+
+--
+-- TOC entry 2300 (class 2606 OID 45969)
+-- Name: WorkflowStepGroups_stepId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
+--
+
+ALTER TABLE ONLY "WorkflowStepGroups"
+    ADD CONSTRAINT "WorkflowStepGroups_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- TOC entry 2301 (class 2606 OID 45974)
 -- Name: WorkflowSteps_roleId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2531,16 +2662,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- TOC entry 2278 (class 2606 OID 43319)
--- Name: WorkflowSteps_stepId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
---
-
-ALTER TABLE ONLY "WorkflowSteps"
-    ADD CONSTRAINT "WorkflowSteps_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowStepList"(id);
-
-
---
--- TOC entry 2279 (class 2606 OID 43324)
+-- TOC entry 2302 (class 2606 OID 45979)
 -- Name: WorkflowSteps_worflowId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2549,7 +2671,7 @@ ALTER TABLE ONLY "WorkflowSteps"
 
 
 --
--- TOC entry 2280 (class 2606 OID 43329)
+-- TOC entry 2303 (class 2606 OID 45984)
 -- Name: Workflows_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2558,7 +2680,7 @@ ALTER TABLE ONLY "Workflows"
 
 
 --
--- TOC entry 2232 (class 2606 OID 43334)
+-- TOC entry 2254 (class 2606 OID 45989)
 -- Name: essence_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2567,7 +2689,7 @@ ALTER TABLE ONLY "EssenceRoles"
 
 
 --
--- TOC entry 2233 (class 2606 OID 43339)
+-- TOC entry 2255 (class 2606 OID 45994)
 -- Name: role_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2576,7 +2698,7 @@ ALTER TABLE ONLY "EssenceRoles"
 
 
 --
--- TOC entry 2247 (class 2606 OID 43344)
+-- TOC entry 2271 (class 2606 OID 45999)
 -- Name: rolesrights_rightID; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2585,7 +2707,7 @@ ALTER TABLE ONLY "RolesRights"
 
 
 --
--- TOC entry 2255 (class 2606 OID 43349)
+-- TOC entry 2277 (class 2606 OID 46004)
 -- Name: surveyQuestionOptions_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2594,7 +2716,7 @@ ALTER TABLE ONLY "SurveyQuestionOptions"
 
 
 --
--- TOC entry 2234 (class 2606 OID 43354)
+-- TOC entry 2256 (class 2606 OID 46009)
 -- Name: user_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: postgres
 --
 
@@ -2603,7 +2725,7 @@ ALTER TABLE ONLY "EssenceRoles"
 
 
 --
--- TOC entry 2398 (class 0 OID 0)
+-- TOC entry 2421 (class 0 OID 0)
 -- Dependencies: 6
 -- Name: CLIENT_SCHEMA; Type: ACL; Schema: -; Owner: postgres
 --
@@ -2614,7 +2736,7 @@ GRANT ALL ON SCHEMA CLIENT_SCHEMA TO postgres;
 GRANT ALL ON SCHEMA CLIENT_SCHEMA TO PUBLIC;
 
 
--- Completed on 2016-02-11 20:10:53 UTC
+-- Completed on 2016-02-26 21:39:16 UTC
 
 --
 -- PostgreSQL database dump complete
