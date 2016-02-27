@@ -74,8 +74,8 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                    organizationId: _profile.organizationId // while API users/self/associate not implemented
-                })
+                        organizationId: _profile.organizationId // while API users/self/associate not implemented
+                    })
                     .then(function (associate) {
                         var i, user,
                             qty = associate.length;

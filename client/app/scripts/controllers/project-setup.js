@@ -4,8 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupCtrl', function ($q, $scope, $state, $stateParams, inform,
-        greyscaleProjectApi) {
+    .controller('ProjectSetupCtrl', function ($q, $scope, $state) {
 
         var _parentState = 'projects.setup';
 
@@ -22,17 +21,6 @@ angular.module('greyscaleApp')
         $scope.go = function (state, params, options) {
             $state.go(_parentState + '.' + state, params || {}, options || {});
         };
-
-        greyscaleProjectApi.get($stateParams.projectId)
-            .then(function (project) {
-                $state.ext.projectName = project.codeName;
-                $scope.project = project;
-            }, function () {
-                inform.add('Project Not Found', {
-                    type: 'danger'
-                });
-                $state.go('home');
-            });
 
         _onStateChange(function (state) {
             if (state.name === _parentState) {

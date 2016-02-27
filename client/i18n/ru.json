@@ -154,7 +154,7 @@
         "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
         "PROFILE": "Профиль",
         "PROJECTS": {
-            "PRODUCTS": "Продукты",
+            "PRODUCTS": "Проекты",
             "SURVEYS": "Опросы",
             "TASKS": "Задачи",
             "USERS_IN_GROUPS": ""

@@ -189,11 +189,14 @@ angular.module('greyscale.tables')
 
             var organizationId = _getOrganizationId();
 
+            if (!organizationId) {
+                return $q.reject('400');
+            }
+
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
                 accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
-                var roleFilter = {};
                 var listFilter = {
                     organizationId: organizationId
                 };

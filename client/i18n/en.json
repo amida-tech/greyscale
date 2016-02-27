@@ -154,7 +154,7 @@
         "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
         "PROFILE": "Profile",
         "PROJECTS": {
-            "PRODUCTS": "Products",
+            "PRODUCTS": "Projects",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
             "USERS_IN_GROUPS": "Users In Groups"

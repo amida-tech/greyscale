@@ -8,7 +8,7 @@ angular.module('greyscale.core')
             title: 'greyscale',
             groups: [{
                 title: 'NAV.ADMIN_SECTION',
-                states: ['access', 'uoas', 'users', 'orgs', 'projects']
+                states: ['access', 'uoas', 'orgs', 'users', 'projects.setup.products']
             }, {
                 title: 'NAV.CONTENT_SECTION',
                 states: ['profile', 'tasks', 'visualization', 'graph', 'table']

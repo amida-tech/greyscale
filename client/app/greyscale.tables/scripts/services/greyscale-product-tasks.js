@@ -107,7 +107,7 @@ angular.module('greyscale.tables')
                 task.user = _.find(_dicts.users, {
                     id: task.userId
                 });
-                task.groups = _.filter(_dicts.groups, function(o){
+                task.groups = _.filter(_dicts.groups, function (o) {
                     return ~task.step.usergroupId.indexOf(o.id);
                 });
             });
