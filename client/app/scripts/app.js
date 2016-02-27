@@ -270,7 +270,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         .state('projects', {
             parent: 'home',
             data: {
-                name: ''
+                name: null
             }
         })
         .state('projects.setup', {

@@ -10,9 +10,7 @@ angular.module('greyscale.tables')
 
         var tns = 'USERS.';
 
-        var dicts = {
-            roles: []
-        };
+        var dicts = {};
 
         var _fields = [{
             field: 'id',
@@ -38,19 +36,6 @@ angular.module('greyscale.tables')
             title: tns + 'LAST_NAME',
             show: true,
             sortable: 'lastName'
-        }, {
-            field: 'roleID',
-            title: tns + 'ROLE',
-            show: true,
-            sortable: 'roleID',
-            dataFormat: 'option',
-            dataSet: {
-                getData: _getRoles,
-                keyField: 'id',
-                valField: 'name'
-            },
-            dataReadOnly: 'add'
-
         }, {
             field: 'lastActive',
             title: tns + 'LAST_ACTIVE',
@@ -81,7 +66,7 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
-            },
+            }
         }, {
             field: '',
             title: '',
@@ -113,10 +98,6 @@ angular.module('greyscale.tables')
                 handler: _editRecord
             }
         };
-
-        function _getRoles() {
-            return dicts.roles;
-        }
 
         function _getGroups(user) {
             return _.map(_.filter(dicts.groups, function (o) {
@@ -214,20 +195,6 @@ angular.module('greyscale.tables')
 
             }).catch(errorHandler);
         }
-
-        //function _filterRolesByAccessLevel(roles) {
-        //    var filteredRoles = [];
-        //    if (_isAdmin()) {
-        //        angular.forEach(roles, function (role, i) {
-        //            if (role.id !== greyscaleGlobals.userRoles.superAdmin.id) {
-        //                filteredRoles.push(role);
-        //            }
-        //        });
-        //    } else {
-        //        filteredRoles = roles;
-        //    }
-        //    return filteredRoles;
-        //}
 
         function errorHandler(err, action) {
             var msg = _table.formTitle;

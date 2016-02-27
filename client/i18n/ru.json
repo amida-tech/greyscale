@@ -99,8 +99,8 @@
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",
-            "TITLE": "Импорт единиц анализа",
-            "UOA_TYPE": "Тип единицы анализа",
+            "TITLE": "Импорт целей",
+            "UOA_TYPE": "Тип цели",
             "VISIBILITY": "Видимость"
         },
         "USERS": {
@@ -130,12 +130,12 @@
     },
     "MY_TASKS": {
         "NO_TASKS": "На данный момент у Вас нет задач.",
-        "PRODUCT": "Продукт",
+        "PRODUCT": "Проект",
         "SURVEY": "Опрос",
         "TASK": "Задача",
         "TERMS": "Сроки",
         "TITLE": "Мои задачи",
-        "UOA": "Единица анализа"
+        "UOA": "Цель"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Управление доступом",
@@ -150,8 +150,8 @@
         "LOGOUT": "Выход",
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
-        "PM_PRODUCT_DASHBOARD": "Панель продукта {{ext.productName}}",
-        "PRODUCT_TASKS": "Задачи продукта {{ext.productName}}",
+        "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
+        "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
         "PROJECTS": {
             "PRODUCTS": "Проекты",
@@ -167,14 +167,14 @@
         "TASKS": "Задачи",
         "UOAS": {
             "LIST": "Список",
-            "TITLE": "Единицы анализа"
+            "TITLE": "Цели"
         },
         "USERS": {
             "GROUPS": "Группы",
             "IN_GROUPS": "",
             "LIST": "Список",
             "TITLE": "Пользователи",
-            "UOA": "Единицы анализа"
+            "UOA": "Цели"
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
@@ -195,35 +195,38 @@
         "SELECT_QUESTION": ""
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Загрузить данные"
+        "DOWNLOAD_DATA": "Загрузить данные",
+        "TASKS_FLAGGED": "",
+        "TASKS_STARTED": "",
+        "TASKS_UOAS": ""
     },
     "PM_PROJECTS": {
-        "NO_PRODUCTS": "В проекте нет продуктов",
+        "NO_PRODUCTS": "Нет проектов",
         "NO_PROJECTS": "Нет проектов для управления",
         "PROJECT": "Проект"
     },
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Создать процесс",
-            "DELETE_CONFIRM": "Подтвердите удаление продукта <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Подтвердите удаление проекта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
-            "PAUSE_PRODUCT": "Приостановить продукт",
+            "PAUSE_PRODUCT": "Приостановить проект",
             "PLANNING_NOT_FINISH": "Планирование не окончено",
-            "PRODUCT": "Продукт",
+            "PRODUCT": "Проект",
             "SETTINGS": "Настройки",
-            "START_PRODUCT": "Запустить продукт",
+            "START_PRODUCT": "Запустить проект",
             "STATUS": "Состояние",
             "SURVEY": "Опрос",
             "SURVEY_STATUS": "Статус опроса",
             "TASKS": "Задачи",
             "TITLE": "Название",
-            "UOAS": "Единицы анализа",
+            "UOAS": "Цели",
             "WORKFLOW": "Процесс"
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
-            "NO_UOAS": "У этого продукта не заданы единицы анализа.",
-            "NO_WORKFLOW_STEPS": "У этого продукта нет шагов рабочего процесса.",
+            "NO_UOAS": "У этого проекта не заданы цели.",
+            "NO_WORKFLOW_STEPS": "У этого проекта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_USERGROUP": "Выберите роль...",
             "SELECT_USERGROUP_LABEL": "Найдите пользователя по группе",
@@ -234,19 +237,19 @@
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
                 "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
                 "TITLE": "Задачи",
-                "UOAS_HEADER": "Единица анализа"
+                "UOAS_HEADER": "Цель"
             },
-            "TASKS_FOR": "Задачи <small>для продукта \"{{product}}\"</small>",
+            "TASKS_FOR": "Задачи <small>для проекта \"{{product}}\"</small>",
             "USERS_NOT_FOUND_BY_GROUP": "Не найдеы пользователи с группой \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
-            "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b> из продукта <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Подтвердите удаление цели <b>{{uoa.name}}</b> из проекта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
-            "MODAL_TITLE": "Единицы анализа <small>для продукта \"{{product.title}}\"</small>",
+            "MODAL_TITLE": "Цели <small>для проекта \"{{product.title}}\"</small>",
             "NAME": "Название",
             "SHORT_NAME": "Короткое название",
-            "TABLE_TITLE": "Единицы анализа продукта",
+            "TABLE_TITLE": "Цели проекта",
             "TYPE": "Тип"
         },
         "WORKFLOW": {
@@ -263,7 +266,7 @@
                 "GROUPS": "",
                 "NO_GROUPS": "",
                 "PERMISSIONS": "Разрешения",
-                "PRODUCT_WORKFLOW_STEPS": "Шаги процесса продукта",
+                "PRODUCT_WORKFLOW_STEPS": "Шаги процесса",
                 "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
@@ -272,7 +275,7 @@
                 "WRITE_ACCESS_READ": "Чтение",
                 "WRITE_ACCESS_WRITE": "Чтение и запись"
             },
-            "STEPS_FOR": "Шаги процесса <small>для продукта \"{{product}}\"</small>",
+            "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
             "TITLE_REQUIRED": "Название обязательно"
         }
@@ -283,13 +286,13 @@
         "FLAGS": "Флаги",
         "LAST_INTERACTION": "Последнее действие",
         "MODAL": {
-            "TITLE": ""
+            "TITLE": "Задачи проекта"
         },
         "PROGRESS": "Прогресс",
         "ROLE": "Роль",
         "STEP": "Шаг",
         "TITLE": "Название",
-        "UOA": "Единица анализа",
+        "UOA": "Цель",
         "USER": "Пользователь"
     },
     "PROJECTS": {
@@ -372,9 +375,9 @@
     },
     "UOAS": {
         "CREATED": "Создан",
-        "DELETE_CONFIRM": "Подтвердите удаление единицы анализа <b>{{uoa.name}}</b>",
-        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа единиц анализа <b>{{uoaType.name}}</b>",
-        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи единицы анализа <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM": "Подтвердите удаление цели <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа цели <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи цели <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
         "DESCRIPTION": "Описание",
         "NAME": "Название",
         "SHORT_NAME": "Короткое название",
@@ -383,12 +386,12 @@
         "TYPE": "Тип",
         "TYPE_DESCRIPTION": "Описание",
         "TYPE_NAME": "Название",
-        "UNIT_TYPE": "Тип единиц анализа",
-        "UNIT_TYPES": "Типы единиц анализа",
-        "UOA": "Единица анализа",
-        "UOAS": "Единицы анализа",
-        "UOA_TAG_LINK": "Связь единицы анализа и тега",
-        "UOA_TAG_LINKS": "Связь единиц анализа и тегов",
+        "UNIT_TYPE": "Тип цели",
+        "UNIT_TYPES": "Типы целей",
+        "UOA": "Цель",
+        "UOAS": "Цели",
+        "UOA_TAG_LINK": "Связь цели и тега",
+        "UOA_TAG_LINKS": "Связь целей и тегов",
         "VISIBILITY": "Видимость"
     },
     "UOAS_FILTER": {
@@ -398,7 +401,7 @@
         "NAME": "Название",
         "SHORT_NAME": "Короткое название",
         "STATUS": "Статус",
-        "TABLE_TITLE": "Выберите единицы анализа",
+        "TABLE_TITLE": "Выберите цели",
         "TYPE": "Тип"
     },
     "UOA_TAGS": {
@@ -434,6 +437,12 @@
         "SELECT_ORGANIZATION": "",
         "USER": "Пользователь",
         "USERS": "Пользователи"
+    },
+    "USERS_UOA": {
+        "PRIVATE": "",
+        "PUBLIC": "",
+        "UOAS": "",
+        "USERS": ""
     },
     "USER_GROUPS": {
         "DELETE_CONFIRM": "",
