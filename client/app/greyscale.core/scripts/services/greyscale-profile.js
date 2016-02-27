@@ -37,7 +37,7 @@ angular.module('greyscale.core')
                                     return _profile;
                                 })
                                 .then(self._setAccessLevel)
-                                .then(self._setAssociate)
+                                /*.then(self._setAssociate)*/
                                 .finally(function () {
                                     _profilePromise = null;
                                 });
@@ -61,7 +61,9 @@ angular.module('greyscale.core')
                     userId: _profile.id
                 }).then(function (usrRoles) {
                     for (var r = 0; r < usrRoles.length; r++) {
-                        _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                        if (usrRoles.userId === _profile.id) {
+                            _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                        }
                     }
                     _userRoles = usrRoles;
                     return _profile;
@@ -74,8 +76,8 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                    organizationId: _profile.organizationId // while API users/self/associate not implemented
-                })
+                        organizationId: _profile.organizationId // while API users/self/associate not implemented
+                    })
                     .then(function (associate) {
                         var i, user,
                             qty = associate.length;
@@ -106,38 +108,38 @@ angular.module('greyscale.core')
                 return $q.reject('no user data loaded');
             }
         };
-
-        this.getAssociate = function () {
-            return this.getProfile()
-                .then(function () {
-                    return _associate;
-                })
-                .catch(function () {
-                    return [];
-                });
-        };
-
-        this.getMember = function (userId) {
-            var member = _associate[userId];
-            if (!member) {
-                member = {
-                    id: userId,
-                    firstName: i18n.translate('USERS.ANONYMOUS'),
-                    lastName: '',
-                    email: ''
+        /* disabled while not used
+                this.getAssociate = function () {
+                    return this.getProfile()
+                        .then(function () {
+                            return _associate;
+                        })
+                        .catch(function () {
+                            return [];
+                        });
                 };
-            }
-            return member;
-        };
 
-        this.recentMessages = function () {
-            return $q.reject('recentMessages is not implemented yet');
-        };
+                this.getMember = function (userId) {
+                    var member = _associate[userId];
+                    if (!member) {
+                        member = {
+                            id: userId,
+                            firstName: i18n.translate('USERS.ANONYMOUS'),
+                            lastName: '',
+                            email: ''
+                        };
+                    }
+                    return member;
+                };
 
-        this.getMessages = function () {
-            return _messages;
-        };
+                this.recentMessages = function () {
+                    return $q.reject('recentMessages is not implemented yet');
+                };
 
+                this.getMessages = function () {
+                    return _messages;
+                };
+        */
         this.getAccessLevelMask = function () {
             return _accessLevel;
         };

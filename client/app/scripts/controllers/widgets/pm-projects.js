@@ -4,7 +4,7 @@ angular.module('greyscaleApp')
 .service('PmProjectsWidgetSrv', function(greyscaleProfileSrv, greyscaleEntityTypeRoleApi){
     return {
         getProjects: _loadProjects
-    }
+    };
 
     function _loadProjects() {
         return greyscaleProfileSrv.getProfile()

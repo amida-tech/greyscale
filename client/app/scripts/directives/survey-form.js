@@ -22,7 +22,7 @@ angular.module('greyscaleApp')
                     saveAnswers(scope, true);
                 }, 15000);
 
-                scope.$on('$destroy', function(){
+                scope.$on('$destroy', function () {
                     $interval.cancel(scope.autosave);
                 });
 

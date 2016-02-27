@@ -26,9 +26,8 @@
         </div>
         <div class="form-group">
             <select class="form-control"
-                    ng-options="item.id as item.firstName+ ' '+item.lastName for item in model.associate"
+                    ng-options="item.userId as item.firstName+ ' '+item.lastName for item in model.assignTo"
                     ng-model="model.msg.userId"
-                    ng-disabled="item.id === surveyParams.userFromId"
                     ng-required="true">
                 <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>
             </select>

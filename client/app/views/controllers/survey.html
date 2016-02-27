@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-sm-7">
+    <div ng-class="{'col-sm-7':!model.surveyData.task.accessToDiscussions, 'col-sm-12': model.surveyData.task.accessToDiscussions}">
         <rd-widget ng-show="model.title">
             <rd-widget-header title="{{model.title}}"></rd-widget-header>
             <rd-widget-body>
@@ -7,7 +7,7 @@
             </rd-widget-body>
         </rd-widget>
     </div>
-    <div class="col-sm-5">
+    <div class="col-sm-5" ng-show="!model.surveyData.task.accessToDiscussions">
         <rd-widget ng-show="model.title">
             <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
             <rd-widget-body classes="group-discussion">
