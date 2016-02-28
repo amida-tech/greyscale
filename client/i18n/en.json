@@ -60,6 +60,11 @@
             "STARTED": "Started",
             "SUSPENDED": "Suspended"
         },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "Completed",
+            "CURRENT": "Current",
+            "WAITING": "Waiting"
+        },
         "PROJECTSTATES": {
             "ACTIVE": "Active",
             "INACTIVE": "Inactive"
@@ -284,12 +289,13 @@
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
         "FLAGS": "Flag",
-        "LAST_INTERACTION": "Last Interaction",
+        "LAST_UPDATE": "Updated",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
         },
         "PROGRESS": "Progress",
         "ROLE": "Role",
+        "STATUS": "Status",
         "STEP": "Workflow Step",
         "TITLE": "Project Tasks",
         "UOA": "Target",

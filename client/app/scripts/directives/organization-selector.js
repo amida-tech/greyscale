@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
         };
         return org;
     })
-    .directive('organizationSelector', function (_, $rootScope, greyscaleProfileSrv,
+    .directive('organizationSelector', function (_, $timeout, $rootScope, greyscaleProfileSrv,
         greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
@@ -89,6 +89,9 @@ angular.module('greyscaleApp')
                         }
                     });
                     $cookies.put('orgId', Organization.id);
+                    $timeout(function () {
+                        $scope.$apply();
+                    });
                 };
 
                 function _isSuperAdmin() {

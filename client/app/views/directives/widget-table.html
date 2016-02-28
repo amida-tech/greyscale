@@ -15,8 +15,12 @@
                 <tr ng-if="!model.$loading" ng-repeat="row in $data" ng-click="select(row, $event)"
                     ng-class="{selected: isSelected(row), 'expandable-row':model.expandedRowTemplate || model.expandedRowTemplateUrl}"
                     widget-table-expanded-row-open="model.expandedRowShow"
-                    ng-disabled="isDisabled(row)" propagate-disabled>
+                    ng-disabled="isDisabled(row)"
+                    propagate-disabled
+                    class="{{model.rowClass}} row-id-{{row.id}}"
+                >
                     <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
+                        filter="{{col.filter}}"
                         model-multiselect="model.multiselect"></td>
                 </tr>
                 <tr ng-if="!model.$loading && model.dataMap && !model.dataMap.length" class="empty-data text-center">

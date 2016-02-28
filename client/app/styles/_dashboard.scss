@@ -463,3 +463,13 @@ ul.sidebar .sidebar-list .menu-icon {
 .section {
     margin: 20px 0;
 }
+
+.task-status-completed {
+    color: $green;
+}
+.task-status-current {
+    color: $gray;
+}
+.task-status-waiting {
+    color: #bbb;
+}

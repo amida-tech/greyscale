@@ -108,21 +108,25 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
                 formFields: formFields,
-                getGroups: _getGroups,
-                stepAddGroup: function (row, group) {
-                    row.groups = row.groups || [];
-                    row.groups.push(group);
-                },
-                stepRemoveGroup: function (row, i) {
-                    row.groups.splice(i, 1);
-                },
-                disableGroup: function (row, group) {
-                    return !!_.find(row.groups, {
-                        id: group.id
+                getFreeGroups: function (groups) {
+                    return _.filter(_dicts.groups, function (o) {
+                        return !_.find(groups, {
+                            id: o.id
+                        });
                     });
                 },
-                noFreeGroups: function (row) {
-                    return row.groups && row.groups.length === _dicts.groups.length;
+                stepAddGroup: function (groups, group) {
+                    if (group) {
+                        groups = groups || [];
+                        groups.push(group);
+                    }
+                },
+                stepRemoveGroup: function (groups, i) {
+                    groups.splice(i, 1);
+                },
+                noFreeGroups: function (groups) {
+                    groups = groups || [];
+                    return groups.length === _dicts.groups.length;
                 }
             }
         }, {

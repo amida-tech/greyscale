@@ -60,6 +60,11 @@
             "STARTED": "Начат",
             "SUSPENDED": "Приостановлен"
         },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "",
+            "CURRENT": "",
+            "WAITING": ""
+        },
         "PROJECTSTATES": {
             "ACTIVE": "Активный",
             "INACTIVE": "Не активный"
@@ -284,12 +289,13 @@
         "CURRENT_STEP": "Текущий шаг",
         "DEADLINE": "Крайний срок",
         "FLAGS": "Флаги",
-        "LAST_INTERACTION": "Последнее действие",
+        "LAST_UPDATE": "Время изменения",
         "MODAL": {
             "TITLE": "Задачи проекта"
         },
         "PROGRESS": "Прогресс",
         "ROLE": "Роль",
+        "STATUS": "",
         "STEP": "Шаг",
         "TITLE": "Название",
         "UOA": "Цель",

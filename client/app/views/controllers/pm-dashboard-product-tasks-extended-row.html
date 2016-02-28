@@ -1,17 +1,14 @@
-<div translate-namespace="PRODUCT_TASKS" class="row">
+<div translate-namespace="PRODUCT_TASKS" class="row" ng-cloak>
     <div class="col-md-2">
-        <b translate=".USER"></b> <br>
-        {{row.user.firstName}} {{row.user.lastName}} {{row.user.email}}
+        <b translate=".ROLE"></b>:<br>
+        {{row.step.role}}
     </div>
-    <div class="col-md-2">
-        <b translate=".ROLE"></b> <br>
-        {{row.role.name}}
+    <div class="col-md-6">
+        <b translate=".USER"></b>:<br>
+        {{row.user.firstName}} {{row.user.lastName}} <small>({{row.user.email}})</small>
     </div>
-    <div class="col-md-8">
-        <b translate=".PROGRESS"></b>
-        <br>
-        <a href class="progress-block" ng-class="item.status" ng-repeat="item in row.progress track by $index">
-            <i ng-if="item.icon" class="fa {{item.icon}}"></i>
-        </a>
+    <div class="col-md-4">
+        <a>Notify user?</a> <br>
+        <a>Force complete?</a>
     </div>
 </div>

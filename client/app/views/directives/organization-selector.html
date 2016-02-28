@@ -1,12 +1,12 @@
 <span class="organization-selector">
-    <span class="display">{{model.organization.shortName || model.organization.name}}</span>
-    <span ng-show="model.list">
+    <span ng-if="!model.list" class="display">{{model.organization.shortName || model.organization.name}}</span>
+    <span ng-if="model.list">
+        <span class="display">{{model.organization.shortName || model.organization.name}}</span>
         <a><i class="fa fa-caret-down"></i></a>
-        <select ng-model="model.organization"
+        <select hidden-select
+                ng-model="model.organization"
                 ng-options="org as org.name for org in model.organizations track by org.id"
-                ng-change="organizationChanged()"
-                >
-            <option value="" disabled="disabled" style="display:none" translate="USERS.SELECT_ORGANIZATION"></option>
+                ng-change="organizationChanged(model.organization)">
         </select>
     </span>
 </span>

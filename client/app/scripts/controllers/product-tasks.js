@@ -8,8 +8,7 @@ angular.module('greyscaleApp')
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
-        var //projectId = parseInt($stateParams.projectId),
-            productId = parseInt($stateParams.productId);
+        var productId = parseInt($stateParams.productId);
 
         $scope.model = {
             //projectId: projectId,
@@ -633,18 +632,6 @@ angular.module('greyscaleApp')
 
         }
 
-        //function _addUserGroupsRelations(userGroups) {
-        //    angular.forEach(userGroups, function (item) {
-        //        var user = _.find(_dicts.users, {
-        //            id: item.userId
-        //        });
-        //        if (user) {
-        //            item.user = _.pick(user, ['id', 'email', 'firstName', 'lastName']);
-        //        }
-        //    });
-        //    return userGroups;
-        //}
-
         function _addUoasRelations(uoas) {
             angular.forEach(uoas, function (uoa) {
                 uoa.type = _.find(_dicts.uoaTypes, {
@@ -673,18 +660,6 @@ angular.module('greyscaleApp')
                 tasks: greyscaleProductApi.product(productId).tasksList()
             };
             return $q.all(reqs);
-        }
-
-        function _loadProject(id) {
-            return greyscaleProjectApi.get(id)
-                .then(function (project) {
-                    $state.ext.projectName = project.codeName;
-                    return project;
-                })
-                .catch(function (error) {
-                    greyscaleUtilsSrv.errorMsg(error, tns + 'PROJECT_NOT_FOUND');
-                    $state.go('home');
-                });
         }
 
         function _loadProduct(productId) {

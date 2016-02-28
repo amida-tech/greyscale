@@ -14,9 +14,7 @@ angular.module('greyscaleApp')
 
         function _renderProductsTable() {
             products.dataFilter.projectId = Organization.projectId;
-            if (products.tableParams) {
-                products.tableParams.reload();
-            }
+            products.tableParams.reload();
         }
 
     });
