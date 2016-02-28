@@ -137,6 +137,7 @@ module.exports = {
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
             req.body = _.extend(req.body, {userFromId: req.user.id}); // add from user id
+            req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var entryId = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             var newStep;
             if (isReturn) {
@@ -157,8 +158,8 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function* () {
             yield * checkUpdate(req);
-            req.body = _.pick(req.body, 'entry'); // update only entry (NOT else)
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
+            req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             return yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             res.status(202).end();
@@ -235,6 +236,7 @@ module.exports = {
 function* checkInsert(req) {
     var questionId = yield * checkOneId(req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
     var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task');
+    var userId = yield * checkOneId(req.body.userId, User, 'id', 'userId', 'User');
     var entry = yield * checkString(req.body.entry, 'Entry');
     // get next order for entry
     var nextOrder = yield * getNextOrder(taskId, questionId);
