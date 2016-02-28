@@ -668,28 +668,28 @@ module.exports = function (grunt) {
         awsebtdeploy: {
             options: {
                 region: 'us-west-2',
-                applicationName: 'greyscale',
+                applicationName: 'indaba',
                 sourceBundle: 'latest-client.zip',
                 accessKeyId: process.env.AWS_ACCESS_KEY_ID,
                 secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
                 versionLabel: 'client-' + Date.now(),
                 s3: {
-                    bucket: 'amida-greyscale'
+                    bucket: 'amida-indaba'
                 }
             },
             dev: {
                 options: {
-                    environmentName: 'greyscale-client-dev',
+                    environmentName: 'indaba-dev',
                 }
             },
             stage: {
                 options: {
-                    environmentName: 'greyscale-client-stage',
+                    environmentName: 'indaba-stage',
                 }
             },
             prod: {
                 options: {
-                    environmentName: 'greyscale-client-prod',
+                    environmentName: 'indaba-prod',
                 }
             }
         }
