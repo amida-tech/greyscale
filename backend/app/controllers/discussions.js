@@ -11,6 +11,8 @@ var
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
+    Notification = require('app/models/notifications'),
+    notifications = require('app/controllers/notifications'),
     User = require('app/models/users'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -138,7 +140,8 @@ module.exports = {
             var returnObject = yield * checkInsert(req);
             req.body = _.extend(req.body, {userFromId: req.user.id}); // add from user id
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
-            var entryId = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
+            var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
+            var entry=_.first(result);
             var newStep;
             if (isReturn) {
                 newStep = yield * updateProductUOAStep(returnObject);
@@ -147,9 +150,19 @@ module.exports = {
                 var returnTask = yield * updateReturnTask(returnObject.discussionId);
                 newStep = yield * checkUpdateProductUOAStep(returnObject);
             }
-            return entryId;
+            var essenceId = yield * getEssenceId('Discussions');
+            var note = yield * notifications.createNotification(
+                {
+                    userFrom: req.user.id,
+                    userTo: req.body.userId,
+                    body: 'Added: '+req.body.entry, // ToDo: change body
+                    essenceId: essenceId,
+                    entityId: entry.id
+                }
+            );
+            return entry;
         }).then(function (data) {
-            res.status(201).json(_.first(data));
+            res.status(201).json(data);
         }, function (err) {
             next(err);
         });
@@ -160,6 +173,7 @@ module.exports = {
             yield * checkUpdate(req);
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
+            // ToDo: create notification
             return yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             res.status(202).end();
@@ -643,4 +657,17 @@ function* updateReturnTask(discussionId) {
         'SET "isResolve" = true, "updated" = now() '+
         'WHERE "id"= '+discussionId.toString();
     return yield thunkQuery(updateReturnTaskQuery);
+}
+
+function* getEssenceId(essenceName) {
+    query =
+        'SELECT '+
+        '"Essences"."id" '+
+        'FROM "Essences" '+
+        'WHERE "Essences"."name" = \''+essenceName+'\'';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+    }
+    return result[0].id;
 }

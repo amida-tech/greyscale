@@ -374,6 +374,23 @@ router.route('/:realm/v0.2/discussions/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    NOTIFICATIONS
+//----------------------------------------------------------------------------------------------------------------------
+var notifications = require('app/controllers/notifications');
+
+router.route('/:realm/v0.2/notifications')
+    .get(authenticate('token').always, notifications.select)
+    .post(authenticate('token').always, notifications.insertOne);
+router.route('/:realm/v0.2/notifications/markread/:notificationId')
+    .put(authenticate('token').always, notifications.changeRead(true), notifications.markReadUnread);
+router.route('/:realm/v0.2/notifications/markunread/:notificationId')
+    .put(authenticate('token').always, notifications.changeRead(false), notifications.markReadUnread);
+router.route('/:realm/v0.2/notifications/markallread')
+    .put(authenticate('token').always, notifications.markAllRead);
+router.route('/:realm/v0.2/notifications/delete')
+    .delete(authenticate('token').always, notifications.deleteList);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
 //----------------------------------------------------------------------------------------------------------------------
 var UnitOfAnalysis = require('app/controllers/uoas');
