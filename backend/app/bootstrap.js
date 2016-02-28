@@ -121,6 +121,10 @@ app.on('start', function () {
                     return;
                 }
             }
+            if (err.message) {
+                res.status(400).json(err.message);
+                return;
+            }
         }
         logger.error(err.stack);
         res.sendStatus(500);
@@ -143,11 +147,11 @@ app.on('start', function () {
 
         if (err) {
             //If the DB already exists then do not attempt to connect to postgres.
-            //This avoids problems where the user performing the connection may not have access 
+            //This avoids problems where the user performing the connection may not have access
             //to the postgres admin database.  Odds are high however if they do not have access
             //to the admin database they also will not have access to create new databases.
 
-            //we failed to connect to the database, so attempt to connect to 
+            //we failed to connect to the database, so attempt to connect to
             //the admin database
             pg.connect(pgConString + '/postgres', function (err, client, done) {
                 if (err) {
@@ -162,7 +166,7 @@ app.on('start', function () {
                     }
                     client.end();
 
-                    // Load the schema if it is not there   
+                    // Load the schema if it is not there
                     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
                         if (err) {
                             console.log(err);

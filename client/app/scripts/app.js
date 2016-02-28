@@ -481,6 +481,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 if (toParams.returnTo) {
                     var redirect = $state.get(toParams.returnTo);
                     if ((_level & redirect.data.accessLevel) !== 0) {
+                        e.preventDefault();
                         $state.go(redirect.name, {}, params);
                     }
                 }
@@ -498,10 +499,9 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                         }
                         $state.go('login');
                     }
-                } else {
-                    if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, {}, params);
-                    }
+                } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
+                    e.preventDefault();
+                    $state.go(fromParams.returnTo, {}, params);
                 }
             });
         }
