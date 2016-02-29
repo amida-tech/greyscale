@@ -14,4 +14,9 @@ var Survey = sql.define({
 
 Survey.editCols = ['title','description','isDraft'];
 
+Survey.translate = [
+    'title',
+    'description'
+];
+
 module.exports = Survey;

@@ -59,6 +59,14 @@ User.editCols = [
     'lang','bio','notifyLevel','affiliation'
 ];
 
+User.translate = [
+    'firstName',
+    'lastName',
+    'address',
+    'affiliation',
+    'location'
+];
+
 User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
 User.whereCol = columns;
 

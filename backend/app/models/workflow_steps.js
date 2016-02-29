@@ -37,4 +37,9 @@ WorkflowStep.editCols = [
     'role'
 ];
 
+WorkflowStep.translate = [
+    'title',
+    'role'
+];
+
 module.exports = WorkflowStep;

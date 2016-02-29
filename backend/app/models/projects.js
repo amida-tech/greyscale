@@ -24,4 +24,9 @@ Project.statuses = [
 
 Project.whereCol = columns;
 
+Project.translate = [
+    'codeName',
+    'description'
+];
+
 module.exports = Project;

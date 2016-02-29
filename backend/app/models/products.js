@@ -9,16 +9,6 @@ var columns = [
     'workflowId',
     'surveyId',
     'status'
-    //'productConfigId',
-    //'contentType',
-    //'mode',
-    //'reportUrl',
-    //'analyticsUrl'
-];
-
-var translate = [
-    'title',
-    'description'
 ];
 
 var Product = sql.define({
@@ -36,6 +26,9 @@ Product.statuses = [
 
 Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId', 'surveyId', 'status'];
 
-Product.translate = translate;
+Product.translate = [
+    'title',
+    'description'
+];
 
 module.exports = Product;
