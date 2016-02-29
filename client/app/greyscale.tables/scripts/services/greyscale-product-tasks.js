@@ -16,18 +16,19 @@ angular.module('greyscale.tables')
             sortable: 'uoa.name'
         }, {
             title: tns + 'PROGRESS',
+            cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
-                '<a href class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
+                '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 '       popover-title="{{item.step.title}}"' +
-                '       uib-popover="{{item.user.firstName}} {{item.user.lastName}} ({{item.user.email}})"' +
+                '       uib-popover="{{item.user ? (item.user.firstName + \' \' + item.user.lastName + \' (\' + item.user.email + \')\') : null }}"' +
                 '       ng-class="{active:item.active}" ng-repeat="item in row.progress track by $index">' +
                 '    <i ng-if="item.flagged" class="fa fa-flag"></i>' +
-                '</a>' +
+                '</span>' +
                 '</span>'
-        }, {
-            title: tns + 'STEP',
-            field: 'step.title',
-            sortable: 'step.title'
+                //}, {
+                //    title: tns + 'STEP',
+                //    field: 'step.title',
+                //    sortable: 'step.title'
         }, {
             title: tns + 'STATUS',
             field: 'status',
@@ -71,15 +72,16 @@ angular.module('greyscale.tables')
             dataFilter: {},
             dataShare: {},
             sorting: {
-                'uoa.name': 'asc'
+                'uoa.name': 'asc',
+                'step.position': 'asc'
             },
             pageLength: 10,
             rowClass: 'action-expand-row',
             //expandedRowShow: true,
-            dataPromise: _getData,
-            delegateClick: {
-                '.progress-block': _handleProgressBlockClick
-            }
+            dataPromise: _getData
+                //delegateClick: {
+                //    '.progress-block': _handleProgressBlockClick
+                //}
         };
 
         function _getTaskStatuses() {
@@ -165,17 +167,27 @@ angular.module('greyscale.tables')
             var progress = [];
             var id = parseInt(currentTask.id);
             var uoaId = parseInt(currentTask.uoaId);
-            angular.forEach(_dicts.tasks, function (task) {
-                if (task.uoaId !== uoaId) {
-                    return;
-                }
-                var progressTask = _.pick(task, ['id', 'status', 'flagged', 'step', 'user']);
-                var i = progress.length;
-                progress[i] = progressTask;
-                if (task.id === id) {
-                    progressTask.active = true;
+            var uoaTasks = _.filter(_dicts.tasks, {
+                uoaId: uoaId
+            });
+            angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
+                var task = _.find(uoaTasks, {
+                    stepId: step.id
+                });
+                if (!task) {
+                    progress.push({
+                        step: step
+                    });
+                } else {
+                    var progressTask = _.pick(task, ['id', 'status', 'flagged', 'step', 'user']);
+                    progress.push(progressTask);
+                    if (progressTask.id === id) {
+                        progressTask.active = true;
+                    }
                 }
             });
+
+            progress = _.sortBy(progress, 'step.position');
 
             return progress;
         }

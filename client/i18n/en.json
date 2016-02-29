@@ -302,6 +302,7 @@
         "ROLE": "Role",
         "STATUS": "Status",
         "STEP": "Workflow Step",
+        "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
         "UOA": "Target",
         "USER": "User"
