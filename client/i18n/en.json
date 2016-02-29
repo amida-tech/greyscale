@@ -69,6 +69,11 @@
             "ACTIVE": "Active",
             "INACTIVE": "Inactive"
         },
+        "ROLES": {
+            "ADMIN": "Super Admin",
+            "CLIENT": "Admin",
+            "USER": "User"
+        },
         "UOASTATUS": {
             "ACTIVE": "Active",
             "DELETED": "Deleted",
