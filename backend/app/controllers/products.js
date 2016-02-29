@@ -195,6 +195,72 @@ module.exports = {
     });
   },
 
+  dump: function (req, res, next) {
+    co(function* (){
+      var q =
+              'SELECT ' + 
+              '  "SurveyAnswers"."UOAid", ' + 
+              "  format('{%s}', " + 
+              "    string_agg(format('%s:%s', " +
+              '      to_json("SurveyQuestions".id::text), ' + 
+              '      COALESCE(to_json("SurveyAnswers"."value"), to_json("SurveyAnswers"."optionId")) ' + 
+              "    ), ',') " + 
+              '  ) AS "answers" ' + 
+              'FROM ' +
+              '  "SurveyQuestions" ' +
+              'LEFT JOIN ' +
+              '  "Products" ON ("Products"."surveyId" = "SurveyQuestions"."surveyId") ' +
+              'LEFT JOIN ( ' +
+              '  SELECT ' +
+              '    "SurveyAnswers"."questionId", ' +
+              '    "SurveyAnswers"."UOAid", ' +
+              '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
+              '  FROM ' +
+              '    "SurveyAnswers" ' +
+              '  GROUP BY ' +
+              '    "SurveyAnswers"."questionId", ' +
+              '    "SurveyAnswers"."UOAid" ' +
+              ') as "sqWf" ON ("sqWf"."questionId" = "SurveyQuestions"."id") ' +
+              'LEFT JOIN ( ' +
+              '  SELECT ' +
+              '    "SurveyAnswers"."questionId", ' +
+              '    "SurveyAnswers"."UOAid", ' +
+              '    "SurveyAnswers"."wfStepId", ' +
+              '    max("SurveyAnswers"."version") as "maxVersion" ' +
+              '  FROM ' +
+              '    "SurveyAnswers" ' +
+              '  GROUP BY ' +
+              '    "SurveyAnswers"."questionId", ' +
+              '    "SurveyAnswers"."UOAid", ' +
+              '    "SurveyAnswers"."wfStepId" ' +
+              ') as "sqMax" ON ( ' +
+              '  ("sqMax"."questionId" = "SurveyQuestions"."id") ' +
+              '  AND ("sqMax"."UOAid" = "sqWf"."UOAid") ' +
+              '  AND ("sqMax"."wfStepId" = "sqWf"."maxWfStepId") ' +
+              ') ' +
+              'INNER JOIN "SurveyAnswers" ON ( ' +
+              '  ("SurveyAnswers"."questionId" = "SurveyQuestions".id) ' +
+              '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
+              '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
+              '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
+              ') ' +
+              'WHERE ' +
+              '  ("Products"."id" = ' + parseInt(req.params.id) + ')' +
+              'GROUP BY ' +
+              '  "SurveyAnswers"."UOAid" ' +
+              '; '
+      console.log(q);
+
+      return yield thunkQuery(q);
+    }).then(function (data) {
+      res.json(_.map(data, function (uoa) {
+          uoa['answers'] = JSON.parse(uoa['answers']);
+          return uoa;
+      }));
+    }, function (err) {
+      next(err);
+    });
+  },
 
   selectOne: function (req, res, next) {
     co(function* (){
