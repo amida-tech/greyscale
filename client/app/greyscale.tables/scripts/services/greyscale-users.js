@@ -114,7 +114,7 @@ angular.module('greyscale.tables')
                 return dicts.roles;
             } else {
                 return _.filter(dicts.roles, function (o) {
-                    return o.id > 1;
+                    return o.id >= dicts.profile.roleID;
                 });
             }
         }
@@ -195,6 +195,8 @@ angular.module('greyscale.tables')
             }
 
             return greyscaleProfileSrv.getProfile().then(function (profile) {
+
+                dicts.profile = profile;
 
                 accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
