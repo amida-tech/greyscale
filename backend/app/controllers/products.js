@@ -51,10 +51,49 @@ module.exports = {
             return yield thunkQuery(
                 Task
                 .select(
-                    Task.star()
+                    Task.star(),
+                    'CASE ' +
+                        'WHEN (' +
+                            'SELECT ' +
+                                '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isReturn" = true ' +
+                            'AND "Discussions"."isResolve" = false ' +
+                            'LIMIT 1' +
+                            ') IS NULL ' +
+                        'THEN FALSE ' +
+                        'ELSE TRUE ' +
+                    'END as flagged',
+                    '(WITH "curStep" as ' +
+                    '(' +
+                        'SELECT ' +
+                        'CASE ' +
+                            'WHEN "WorkflowSteps"."position" IS NULL THEN 0 ' +
+                            'ELSE "WorkflowSteps"."position" ' +
+                        'END ' +
+                        'FROM "ProductUOA" ' +
+                        'LEFT JOIN "WorkflowSteps" ' +
+                        'ON "ProductUOA"."currentStepId" = "WorkflowSteps"."id"' +
+                        'WHERE "ProductUOA"."productId" = "Products"."id" ' +
+                        'AND "ProductUOA"."UOAid" = "UnitOfAnalysis"."id"' +
+                    ') '+
+                    'SELECT ' +
+                        'CASE ' +
+                            'WHEN "curStep"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                            'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
+                            'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'END as status ' +
+                    'FROM "curStep")'
                 )
                 .from(
                     Task
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(UOA)
+                    .on(Task.uoaId.equals(UOA.id))
                 )
                 .where(Task.productId.equals(req.params.id))
             );
