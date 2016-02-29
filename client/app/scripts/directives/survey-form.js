@@ -101,6 +101,9 @@ angular.module('greyscaleApp')
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt,
                         value: field.value,
+                        links: field.links,
+                        canAttach: field.attachment,
+                        attachments:[],
                         ngModel: {},
                         answer: null
                     };
@@ -151,7 +154,9 @@ angular.module('greyscaleApp')
                         r--;
                     } else { //push data into current section
                         qid++;
-                        fld.qid = qid;
+                        if (!fld.qid) {
+                            fld.qid = qid;
+                        }
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
 

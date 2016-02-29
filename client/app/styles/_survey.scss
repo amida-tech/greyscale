@@ -2,6 +2,7 @@
     list-style: none;
     padding-left: 15px;
 }
+
 .section-break {
     border-top: solid 1px $grey-medium-light;
     border-bottom: solid 1px $grey-medium-light;
@@ -12,5 +13,43 @@
         font-weight: normal;
         font-size: $font-size-sub;
         padding: 0 5px;
+    }
+}
+.attachments {
+    .panel-title {
+        font-size: $font-size-base;
+    }
+    .panel-body {
+        padding-top:5px;
+        padding-bottom: 5px;
+    }
+    .row > div.file-attach {
+        margin-bottom: 3px;
+        padding-right: $grid-gutter-width;
+    }
+
+    .file-attach {
+        font-size: $font-size-sub;
+        .file-link {
+            i {
+                margin-right: 3px;
+            }
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: block;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+        .file-remove {
+            position: absolute;
+            right: floor($grid-gutter-width/2);
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
     }
 }

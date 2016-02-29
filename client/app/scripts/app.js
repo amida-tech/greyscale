@@ -26,7 +26,8 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable'
+    'ui.sortable',
+    'ngFileSaver'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -459,7 +460,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks',
+                name: 'UI bricks',
                 accessLevel: systemRoles.any.mask
             }
         });

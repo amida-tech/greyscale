@@ -363,6 +363,7 @@
     },
     "SURVEYS": {
         "ABOVE": "",
+        "ATTACHMENTS": "",
         "BELOW": "",
         "CONTENT": "Содержание",
         "CURRENT_COUNT": "",
@@ -373,6 +374,7 @@
         "IS_COMPLETE": "",
         "IS_DRAFT": "",
         "ITEM": "Опрос",
+        "LINKS": "",
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
