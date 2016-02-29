@@ -157,7 +157,7 @@ module.exports = {
                 };
 
                 for (var i in parsed) {
-                    if (i !== 0) { // skip first string
+                    if (i != 0) { // skip first string
                         var pass = crypto.randomBytes(5).toString('hex');
                         var roleID = (req.user.roleID === 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
 
