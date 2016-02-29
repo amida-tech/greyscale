@@ -55,7 +55,8 @@ angular.module('greyscale.tables')
         }, {
             title: tns + 'LAST_UPDATE',
             field: 'lastVersionDate',
-            sortable: 'lastVersionDate'
+            sortable: 'lastVersionDate',
+            cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             show: true,
             dataFormat: 'action',

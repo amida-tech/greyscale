@@ -31,6 +31,9 @@
         "WORDS": "word(s)",
         "YES": "Yes"
     },
+    "DASHBOARD": {
+        "UNREAD_MESSAGES_ALERT": "You have {{count}} unread messages"
+    },
     "DATEPICKER": {
         "DATE_FORMAT": "yyyy/MM/dd",
         "DONE": "Done",
