@@ -151,12 +151,6 @@ angular.module('greyscale.tables')
 
         function _extendTasksWithProgressData(tasks) {
             angular.forEach(tasks, function (task) {
-                if (task.status === undefined) {
-                    task.status = ['waiting', 'current', 'completed'][Math.round(Math.random() * 2)];
-                }
-                if (task.flagged === undefined) {
-                    task.flagged = !!Math.round(Math.random());
-                }
                 task.progress = _getTaskProgressData(task);
             });
             _table.dataShare.tasks = tasks;

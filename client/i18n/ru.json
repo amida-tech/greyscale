@@ -205,10 +205,13 @@
         "SELECT_QUESTION": ""
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Загрузить данные",
-        "TASKS_FLAGGED": "",
-        "TASKS_STARTED": "",
-        "TASKS_UOAS": ""
+        "COUNT_DELAYED": "",
+        "COUNT_FLAGGED": "",
+        "COUNT_ONTIME": "",
+        "COUNT_OVERDUE": "",
+        "COUNT_STARTED": "",
+        "COUNT_UOAS": "",
+        "DOWNLOAD_DATA": "Загрузить данные"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "Нет проектов",

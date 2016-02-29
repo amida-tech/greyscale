@@ -205,10 +205,13 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Download Data",
-        "TASKS_FLAGGED": "Tasks Flagged",
-        "TASKS_STARTED": "Tasks Started",
-        "TASKS_UOAS": "Tasks/Targets"
+        "COUNT_DELAYED": "Delayed",
+        "COUNT_FLAGGED": "Flagged",
+        "COUNT_ONTIME": "On Time",
+        "COUNT_OVERDUE": "Overdue",
+        "COUNT_STARTED": "Started",
+        "COUNT_UOAS": "Targets",
+        "DOWNLOAD_DATA": "Download Data"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",
