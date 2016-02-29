@@ -1,10 +1,9 @@
-<div class="row">
-    <div class="col-sm-6">
-        <h2><i class="fa fa-tasks"></i> Tasks</h2>
-        <div ng-include="'views/widgets/my-tasks.html'"></div>
-    </div>
-    <div class="col-sm-6">
-        <h2><i class="fa fa-paper-plane"></i> Projects</h2>
-        <div ng-include="'views/widgets/pm-projects.html'"></div>
-    </div>
+<div ng-if="$root.checkAccessRole('user')">
+    <h2><i class="fa fa-tasks"></i> Tasks</h2>
+    <div ng-include="'views/widgets/my-tasks.html'"></div>
+</div>
+
+<div ng-if="$root.checkAccessRole('superAdmin','admin')">
+    <h2><i class="fa fa-paper-plane"></i> Projects</h2>
+    <div ng-include="'views/widgets/pm-projects.html'"></div>
 </div>

@@ -54,8 +54,8 @@ angular.module('greyscale.tables')
             }
         }, {
             title: tns + 'LAST_UPDATE',
-            field: 'updated',
-            sortable: 'updated'
+            field: 'lastVersionDate',
+            sortable: 'lastVersionDate'
         }, {
             show: true,
             dataFormat: 'action',

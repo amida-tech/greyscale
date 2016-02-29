@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
-        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log) {
+        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope) {
 
         var _profile = null;
         var _profilePromise = null;
@@ -61,11 +61,12 @@ angular.module('greyscale.core')
                     userId: _profile.id
                 }).then(function (usrRoles) {
                     for (var r = 0; r < usrRoles.length; r++) {
-                        if (usrRoles.userId === _profile.id) {
+                        if (_profile && usrRoles.userId === _profile.id) {
                             _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
                         }
                     }
                     _userRoles = usrRoles;
+                    $rootScope.checkAccessRole = _checkAccessRole;
                     return _profile;
                 });
             } else {
@@ -171,5 +172,33 @@ angular.module('greyscale.core')
 
         function _isAdmin() {
             return (_accessLevel & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
+        }
+
+        function _checkAccessRole() {
+            if (!_profile) {
+                return;
+            }
+            var checkRoles = Array.from(arguments);
+            var hasAccess = false;
+            angular.forEach(checkRoles, function (role) {
+                if (hasAccess) {
+                    return;
+                }
+                if (role === 'nobody') {
+                    return;
+                }
+                if (role === 'all') {
+                    hasAccess = true;
+                    return;
+                }
+                var roleData = greyscaleGlobals.userRoles[role];
+                if (!roleData) {
+                    throw 'Unknown role "' + role + '"!';
+                }
+                if (roleData.id === _profile.roleID) {
+                    hasAccess = true;
+                }
+            });
+            return hasAccess;
         }
     });
