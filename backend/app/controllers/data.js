@@ -113,7 +113,8 @@ var populateTables = function (schema, req, res, next) {
             } else
                 console.log('user creation skipped');
         } else {
-            console.log('error on schema data population');
+            console.log('error on schema data population for schema '+schema);
+            console.log(JSON.stringify(err));
         }
     });
 }
