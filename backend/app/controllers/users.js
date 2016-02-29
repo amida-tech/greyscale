@@ -348,8 +348,6 @@ module.exports = {
                 }
             }
 
-
-
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');

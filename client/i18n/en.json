@@ -69,6 +69,11 @@
             "ACTIVE": "Active",
             "INACTIVE": "Inactive"
         },
+        "ROLES": {
+            "ADMIN": "Super Admin",
+            "CLIENT": "Admin",
+            "USER": "User"
+        },
         "UOASTATUS": {
             "ACTIVE": "Active",
             "DELETED": "Deleted",
@@ -202,10 +207,13 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Download Data",
-        "TASKS_FLAGGED": "Tasks Flagged",
-        "TASKS_STARTED": "Tasks Started",
-        "TASKS_UOAS": "Tasks/Targets"
+        "COUNT_DELAYED": "Delayed",
+        "COUNT_FLAGGED": "Flagged",
+        "COUNT_ONTIME": "On Time",
+        "COUNT_OVERDUE": "Overdue",
+        "COUNT_STARTED": "Started",
+        "COUNT_UOAS": "Targets",
+        "DOWNLOAD_DATA": "Download Data"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",
@@ -299,6 +307,7 @@
         "ROLE": "Role",
         "STATUS": "Status",
         "STEP": "Workflow Step",
+        "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
         "UOA": "Target",
         "USER": "User"
