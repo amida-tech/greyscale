@@ -48,6 +48,7 @@ module.exports = {
 
     tasks: function (req, res, next) {
         co(function* () {
+            var curStepAlias = 'curStep';
             return yield thunkQuery(
                 Task
                 .select(
@@ -65,27 +66,23 @@ module.exports = {
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
-                    '(WITH "curStep" as ' +
+                    'CASE ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                    'END as status ',
+                    //WorkflowStep.as(curStepAlias).position.as('curPos'),
+                    WorkflowStep.position,
                     '(' +
-                        'SELECT ' +
-                        'CASE ' +
-                            'WHEN "WorkflowSteps"."position" IS NULL THEN 0 ' +
-                            'ELSE "WorkflowSteps"."position" ' +
-                        'END ' +
-                        'FROM "ProductUOA" ' +
-                        'LEFT JOIN "WorkflowSteps" ' +
-                        'ON "ProductUOA"."currentStepId" = "WorkflowSteps"."id"' +
-                        'WHERE "ProductUOA"."productId" = "Products"."id" ' +
-                        'AND "ProductUOA"."UOAid" = "UnitOfAnalysis"."id"' +
-                    ') '+
-                    'SELECT ' +
-                        'CASE ' +
-                            'WHEN "curStep"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                            'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
-                            'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
-                        'END as status ' +
-                    'FROM "curStep")',
-                    '"WorkflowSteps"."position" as "stepPos"'
+                        'SELECT max("SurveyAnswers"."created") ' +
+                        'FROM "SurveyAnswers" ' +
+                        'WHERE ' +
+                            '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
+                            'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
+                            'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
+                    ') as last_version_date'
                 )
                 .from(
                     Task
@@ -95,6 +92,15 @@ module.exports = {
                     .on(Task.productId.equals(Product.id))
                     .leftJoin(UOA)
                     .on(Task.uoaId.equals(UOA.id))
+                    .leftJoin(ProductUOA)
+                    .on(
+                        ProductUOA.productId.equals(Task.productId)
+                        .and(ProductUOA.UOAid.equals(Task.uoaId))
+                    )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
+                    )
                 )
                 .where(Task.productId.equals(req.params.id))
             );
