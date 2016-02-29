@@ -1,5 +1,5 @@
 #! /bin/sh
 
-sed -i 's@http\:\/\/localhost\:5000@'$INDABA_URL'@g' /etc/nginx/conf.d/default.conf 
+sed -i 's@http\:\/\/localhost\:5000@http\:\/\/indaba-backend-dev.us-west-2.elasticbeanstalk.com@g' /etc/nginx/conf.d/default.conf 
 nginx -g "daemon off;"
 
