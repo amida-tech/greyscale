@@ -69,6 +69,11 @@
             "ACTIVE": "Активный",
             "INACTIVE": "Не активный"
         },
+        "ROLES": {
+            "ADMIN": "",
+            "CLIENT": "",
+            "USER": ""
+        },
         "UOASTATUS": {
             "ACTIVE": "Активный",
             "DELETED": "Удаленный",

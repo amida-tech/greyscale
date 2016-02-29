@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals) {
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n) {
         var accessLevel;
 
         var tns = 'USERS.';
@@ -36,6 +36,16 @@ angular.module('greyscale.tables')
             title: tns + 'LAST_NAME',
             show: true,
             sortable: 'lastName'
+        }, {
+            field: 'roleID',
+            title: tns + 'ROLE',
+            dataFormat: 'option',
+            dataNoEmptyOption: true,
+            dataSet: {
+                getData: _getRoles,
+                keyField: 'id',
+                valField: 'title'
+            }
         }, {
             field: 'lastActive',
             title: tns + 'LAST_ACTIVE',
@@ -98,6 +108,16 @@ angular.module('greyscale.tables')
                 handler: _editRecord
             }
         };
+
+        function _getRoles() {
+            if (_isSuperAdmin()) {
+                return dicts.roles;
+            } else {
+                return _.filter(dicts.roles, function (o) {
+                    return o.id > 1;
+                });
+            }
+        }
 
         function _getGroups(user) {
             return _.map(_.filter(dicts.groups, function (o) {
@@ -183,17 +203,28 @@ angular.module('greyscale.tables')
                 };
 
                 var reqs = {
+                    roles: greyscaleRoleApi.list({
+                        isSystem: true
+                    }),
                     users: greyscaleUserApi.list(listFilter),
-                    groups: greyscaleGroupApi.list(organizationId),
+                    groups: greyscaleGroupApi.list(organizationId)
                 };
 
                 return $q.all(reqs).then(function (promises) {
+                    dicts.roles = _addTitles(promises.roles);
                     dicts.groups = promises.groups;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });
 
             }).catch(errorHandler);
+        }
+
+        function _addTitles(roles) {
+            angular.forEach(roles, function (role) {
+                role.title = i18n.translate('GLOBALS.ROLES.' + role.name.toUpperCase());
+            });
+            return roles;
         }
 
         function errorHandler(err, action) {
