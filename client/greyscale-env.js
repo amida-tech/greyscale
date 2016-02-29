@@ -6,7 +6,7 @@ angular
         apiHostname: window.location.host,
         apiRealm: 'api/public',
         apiVersion: 'v0.2',
-        defaultUser:'no@mail.net',
-        defaultPassword:'testuser',
+        defaultUser:'',
+        defaultPassword:'',
         enableDebugLog:true
     });
