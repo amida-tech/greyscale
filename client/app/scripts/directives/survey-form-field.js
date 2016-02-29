@@ -57,6 +57,8 @@ angular.module('greyscaleApp')
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
+                        var links = '';
+                        var attach = '';
 
                         switch (scope.field.type) {
                         case 'paragraph':
@@ -131,8 +133,17 @@ angular.module('greyscaleApp')
                             }
                             break;
                         }
+
+                        if (scope.field.links) {
+                            links = '<div><p translate="SURVEYS.LINKS"></p></div>';
+                        }
+
+                        if (scope.field.canAttach) {
+                            attach = '<attachments model="field.attachments"></attachments>';
+                        }
+
                         body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
-                            message + '</span><span class="pull-left">' + borders + '</span></p>';
+                            message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
                     }
 
                     elem.append(body);

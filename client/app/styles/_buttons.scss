@@ -21,3 +21,10 @@ a, .action, .action-secondary, .action-primary {
         color: $green-dark;
     }
 }
+
+.action-danger {
+    color: $red;
+    &:hover {
+        color: $red-dark;
+    }
+}

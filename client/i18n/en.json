@@ -349,6 +349,7 @@
     },
     "SURVEYS": {
         "ABOVE": "above",
+        "ATTACHMENTS": "Attachments",
         "BELOW": "below",
         "CONTENT": "Content",
         "CURRENT_COUNT": "Current count",
@@ -359,6 +360,7 @@
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "LINKS": "Links",
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
