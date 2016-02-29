@@ -159,8 +159,10 @@ module.exports = {
                 var intOrNull = function (val){
                     return isNaN(parseInt(val)) ? null : parseInt(val);
                 };
-
-                for (var i in parsed) {
+                if (parsed.length < 1) {
+                    return result;
+                }
+                for (var i=0;i<parsed.length;i++) {
                     if (i !== 0) { // skip first string
                         var newUoa = {
                             parse_status   : 'skipped',
@@ -203,14 +205,14 @@ module.exports = {
                                     if (ret[0]) {
                                         newUoa.uoaType = ret[0].id;
                                     } else {
-                                        newUoa.messages.push('UoA Type `Country` (default) does not exist in database');
+                                        newUoa.messages.push('Target Type `Country` (default) does not exist in database');
                                         valid = false;
                                     }
                                 } else {
                                     // check that specified type Unit of Analysis is exist
                                     ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.uoaType)));
                                     if (!ret[0]) {
-                                        newUoa.messages.push('UoA Type with Id `'+newUoa.uoaType.toString()+'` does not exist in database');
+                                        newUoa.messages.push('Target Type with Id `'+newUoa.uoaType.toString()+'` does not exist in database');
                                         valid = false;
                                     }
                                 }
@@ -221,7 +223,7 @@ module.exports = {
                                 } else {
                                     // check that specified visibility value is correct
                                     if ([1,2].indexOf(newUoa.visibility) === -1) {
-                                        newUoa.messages.push('UoA Visibility `'+newUoa.visibility.toString()+'` does not correct (1 = public (default); 2 = private)');
+                                        newUoa.messages.push('Target Visibility `'+newUoa.visibility.toString()+'` does not correct (1 = public (default); 2 = private)');
                                         valid = false;
                                     }
                                 }
@@ -232,7 +234,7 @@ module.exports = {
                                 } else {
                                     // check that specified status value is correct
                                     if ([1,2,3].indexOf(newUoa.status) === -1) {
-                                        newUoa.messages.push('UoA Status `'+newUoa.status.toString()+'` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
+                                        newUoa.messages.push('Target Status `'+newUoa.status.toString()+'` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
                                         valid = false;
                                     }
                                 }
