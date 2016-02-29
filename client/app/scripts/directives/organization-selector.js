@@ -64,30 +64,18 @@ angular.module('greyscaleApp')
                             } else if (organizations.length) {
                                 angular.extend(Organization, organizations[0]);
                             }
-
-                            greyscaleProjectApi.list({
-                                organizationId: Organization.id
-                            }).then(function (projects) {
-                                Organization.projectId = projects[0] ? projects[0].id : undefined;
-                            });
                         });
                     } else {
                         angular.extend(Organization, profile.organization);
-                        Organization.projectId = profile.project.id;
+                        Organization.projectId = profile.projectId;
                     }
                 });
 
                 $scope.organizationChanged = function () {
                     angular.extend(Organization, $scope.model.organization);
-                    greyscaleProjectApi.list({
-                        organizationId: Organization.id
-                    }).then(function (projects) {
-                        try {
-                            Organization.projectId = projects[0].id;
-                        } catch (e) {
-                            throw 'Organization id=' + Organization.id + ' has no valid project';
-                        }
-                    });
+                    if (!Organization.projectId) {
+                        throw 'Organization id=' + Organization.id + ' has no valid project';
+                    }
                     $cookies.put('orgId', Organization.id);
                     $timeout(function () {
                         $scope.$apply();

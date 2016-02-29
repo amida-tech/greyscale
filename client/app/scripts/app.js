@@ -270,7 +270,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         .state('projects', {
             parent: 'home',
             data: {
-                name: null
+                name: null,
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup', {

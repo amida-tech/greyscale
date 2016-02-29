@@ -40,7 +40,7 @@
                 <a ng-click="ext.stepRemoveGroup(row.groups, $index)" class="text-danger">&times;</a>
             </div>
             <div ng-hide="ext.noFreeGroups(row.groups)">
-                <a><i class="fa fa-plus"></i> <span translate=".ADD_GROUP"></span> <span translate="COMMON.ADD"></span></a>
+                <a><i class="fa fa-plus"></i> <span translate=".ADD_GROUP"></span></a>
                 <select hidden-select
                         ng-model="ext.selectedGroup"
                         ng-options="group as group.title for group in ext.getFreeGroups(row.groups) track by group.id"
