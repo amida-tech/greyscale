@@ -1,3 +1,8 @@
+
+<div class="alert alert-info" ng-if="model.unreadMessages">
+    <span translate="DASHBOARD.UNREAD_MESSAGES_ALERT" translate-values="{count: model.unreadMessages}"></span>
+</div>
+
 <div ng-if="$root.checkAccessRole('user')">
     <h2><i class="fa fa-tasks"></i> Tasks</h2>
     <div ng-include="'views/widgets/my-tasks.html'"></div>

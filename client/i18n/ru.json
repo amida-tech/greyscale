@@ -31,6 +31,9 @@
         "WORDS": "",
         "YES": "Да"
     },
+    "DASHBOARD": {
+        "UNREAD_MESSAGES_ALERT": ""
+    },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
         "DONE": "ОК",
