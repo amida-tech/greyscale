@@ -21,7 +21,7 @@ angular.module('greyscaleApp')
                                 'id': index
                             });
                         });
-                        scope.topics = [...countrySet];
+                        scope.topics = Array.from(countrySet); //it produces error with [...set] in ide and phantomJs
                         return vizData.agg;
                     })
                     .error(function (err) {

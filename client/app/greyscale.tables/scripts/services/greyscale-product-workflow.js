@@ -29,12 +29,6 @@ angular.module('greyscale.tables')
                 showDataInput: true,
                 show: true,
                 dataFormat: 'text',
-                //dataNoEmptyOption: true,
-                //dataSet: {
-                //    keyField: 'id',
-                //    valField: 'name',
-                //    getData: getRoles
-                //}
             },
             startDate: {
                 field: 'startDate',
@@ -108,21 +102,23 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
                 formFields: formFields,
-                getGroups: _getGroups,
-                stepAddGroup: function (row, group) {
-                    row.groups = row.groups || [];
-                    row.groups.push(group);
-                },
-                stepRemoveGroup: function (row, i) {
-                    row.groups.splice(i, 1);
-                },
-                disableGroup: function (row, group) {
-                    return !!_.find(row.groups, {
-                        id: group.id
+                getFreeGroups: function (groups) {
+                    return _.filter(_dicts.groups, function (o) {
+                        return !_.find(groups, {
+                            id: o.id
+                        });
                     });
                 },
-                noFreeGroups: function (row) {
-                    return row.groups && row.groups.length === _dicts.groups.length;
+                stepAddGroup: function (groups, group) {
+                    if (group) {
+                        groups.push(group);
+                    }
+                },
+                stepRemoveGroup: function (groups, i) {
+                    groups.splice(i, 1);
+                },
+                noFreeGroups: function (groups) {
+                    return groups.length === _dicts.groups.length;
                 }
             }
         }, {
@@ -198,7 +194,9 @@ angular.module('greyscale.tables')
         }
 
         function _addWorkflowStep() {
-            _table.tableParams.data.push({});
+            _table.tableParams.data.push({
+                groups: []
+            });
             $timeout(function () {
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
                 if (!lastRow.length) {

@@ -11,7 +11,8 @@ angular.module('greyscale.rest')
             get: _get,
             add: _add,
             update: _update,
-            remove: _remove
+            remove: _remove,
+            getUsers: _users
         };
 
         function _api() {
@@ -44,5 +45,9 @@ angular.module('greyscale.rest')
 
         function _remove(id) {
             return _api().one(id + '').remove();
+        }
+
+        function _users(taskId) {
+            return _api().one('users', taskId + '').get().then(_response);
         }
     });

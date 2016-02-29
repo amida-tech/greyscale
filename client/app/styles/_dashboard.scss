@@ -108,7 +108,10 @@
                     display: none;
                 }
             }
-
+            .dropdown-menu {
+                right: 100%;
+                margin-right: -41px;
+            }
             i {
                 font-size: $font-size-h3;
                 line-height: 68px;
@@ -117,7 +120,10 @@
                 }
             }
         }
-
+        .organization-selector {
+            float: right;
+            margin: 23px 20px 0 0;
+        }
     }
 }
 
@@ -457,8 +463,13 @@ ul.sidebar .sidebar-list .menu-icon {
 .section {
     margin: 20px 0;
 }
-.organization-selector {
-    display: inline-block;
-    margin-top: 16px;
-    margin-right: 40px;
+
+.task-status-completed {
+    color: $green;
+}
+.task-status-current {
+    color: $gray;
+}
+.task-status-waiting {
+    color: #bbb;
 }

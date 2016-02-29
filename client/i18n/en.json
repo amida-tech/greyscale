@@ -60,6 +60,11 @@
             "STARTED": "Started",
             "SUSPENDED": "Suspended"
         },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "Completed",
+            "CURRENT": "Current",
+            "WAITING": "Waiting"
+        },
         "PROJECTSTATES": {
             "ACTIVE": "Active",
             "INACTIVE": "Inactive"
@@ -99,8 +104,8 @@
             "RESULTS_TITLE": "Import Results",
             "SHORT_NAME": "Short Name",
             "STATUS": "Status",
-            "TITLE": "Import Units Of Analysis",
-            "UOA_TYPE": "Uoa Type",
+            "TITLE": "Import Targets",
+            "UOA_TYPE": "Target Type",
             "VISIBILITY": "Visibility"
         },
         "USERS": {
@@ -130,12 +135,12 @@
     },
     "MY_TASKS": {
         "NO_TASKS": "You have no tasks at this moment.",
-        "PRODUCT": "Product",
+        "PRODUCT": "Project",
         "SURVEY": "Survey",
         "TASK": "Task",
         "TERMS": "Terms",
         "TITLE": "My Tasks",
-        "UOA": "Unit Of Analysis"
+        "UOA": "Target"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Access management",
@@ -150,11 +155,11 @@
         "LOGOUT": "Logout",
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
-        "PM_PRODUCT_DASHBOARD": "{{ext.productName}} Product Dashboard",
-        "PRODUCT_TASKS": "Tasks for {{ext.productName}} Product",
+        "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
+        "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
         "PROFILE": "Profile",
         "PROJECTS": {
-            "PRODUCTS": "Products",
+            "PRODUCTS": "Projects",
             "SURVEYS": "Surveys",
             "TASKS": "Tasks",
             "USERS_IN_GROUPS": "Users In Groups"
@@ -167,14 +172,14 @@
         "TASKS": "Tasks",
         "UOAS": {
             "LIST": "List",
-            "TITLE": "Units of Analysis"
+            "TITLE": "Targets"
         },
         "USERS": {
             "GROUPS": "Groups",
             "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
-            "UOA": "Units of analysis"
+            "UOA": "Targets"
         },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
@@ -195,35 +200,38 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Download Data"
+        "DOWNLOAD_DATA": "Download Data",
+        "TASKS_FLAGGED": "Tasks Flagged",
+        "TASKS_STARTED": "Tasks Started",
+        "TASKS_UOAS": "Tasks/Targets"
     },
     "PM_PROJECTS": {
-        "NO_PRODUCTS": "No products in project",
+        "NO_PRODUCTS": "No projects",
         "NO_PROJECTS": "You have no projects to manage",
         "PROJECT": "Project"
     },
     "PRODUCTS": {
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
-            "DELETE_CONFIRM": "Please confirm deleting of product <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Please confirm deleting of project <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
-            "PAUSE_PRODUCT": "Suspend Product",
-            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Units Of Analysis, Workflow Steps and Tasks for this product.",
-            "PRODUCT": "Product",
+            "PAUSE_PRODUCT": "Suspend Project",
+            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Targets, Workflow Steps and Tasks for this Project.",
+            "PRODUCT": "Project",
             "SETTINGS": "Settings",
-            "START_PRODUCT": "Start Product",
+            "START_PRODUCT": "Start Project",
             "STATUS": "Status",
             "SURVEY": "Survey",
             "SURVEY_STATUS": "Survey Status",
             "TASKS": "Tasks",
             "TITLE": "Title",
-            "UOAS": "UoAs",
+            "UOAS": "Targets",
             "WORKFLOW": "Workflow"
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
-            "NO_UOAS": "This Product has no Units Of Analysis.",
-            "NO_WORKFLOW_STEPS": "This Product has no Workflow Steps.",
+            "NO_UOAS": "This Project has no Targets.",
+            "NO_WORKFLOW_STEPS": "This Project has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
             "SELECT_USERGROUP": "Select User Group ...",
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
@@ -234,19 +242,19 @@
                 "TASK_REMOVE_ERROR": "Server error while removing task",
                 "TASK_UPDATE_ERROR": "Server error while updating task",
                 "TITLE": "Tasks",
-                "UOAS_HEADER": "UoA"
+                "UOAS_HEADER": "Target"
             },
-            "TASKS_FOR": "Tasks <small>for \"{{product}}\" Product</small>",
+            "TASKS_FOR": "Tasks <small>for \"{{product}}\" Project</small>",
             "USERS_NOT_FOUND_BY_GROUP": "Can't Found Users With User group \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
-            "DELETE_CONFIRM": "Please confirm deleting unit <b>{{uoa.name}}</b> from product <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Please confirm deleting Target <b>{{uoa.name}}</b> from project <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
-            "MODAL_TITLE": "Units Of Analysis <small>For \"{{product.title}}\" Product</small>",
+            "MODAL_TITLE": "Targets <small>For \"{{product.title}}\" Project</small>",
             "NAME": "Name",
             "SHORT_NAME": "Short Name",
-            "TABLE_TITLE": "Product Units of Analysis",
+            "TABLE_TITLE": "Product Targets",
             "TYPE": "Type"
         },
         "WORKFLOW": {
@@ -263,7 +271,7 @@
                 "GROUPS": "User Groups",
                 "NO_GROUPS": "No groups added",
                 "PERMISSIONS": "Permissions",
-                "PRODUCT_WORKFLOW_STEPS": "Product Workflow Steps",
+                "PRODUCT_WORKFLOW_STEPS": "Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
@@ -272,7 +280,7 @@
                 "WRITE_ACCESS_READ": "Read",
                 "WRITE_ACCESS_WRITE": "Read And Write"
             },
-            "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Product</small>",
+            "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
             "TITLE_REQUIRED": "Title is required."
         }
@@ -281,15 +289,16 @@
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
         "FLAGS": "Flag",
-        "LAST_INTERACTION": "Last Interaction",
+        "LAST_UPDATE": "Updated",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
         },
         "PROGRESS": "Progress",
         "ROLE": "Role",
+        "STATUS": "Status",
         "STEP": "Workflow Step",
-        "TITLE": "Product Tasks",
-        "UOA": "Unit Of Analysis",
+        "TITLE": "Project Tasks",
+        "UOA": "Target",
         "USER": "User"
     },
     "PROJECTS": {
@@ -372,9 +381,9 @@
     },
     "UOAS": {
         "CREATED": "Created",
-        "DELETE_CONFIRM": "Please confirm deleting of unit of analysis <b>{{uoa.name}}</b>",
-        "DELETE_CONFIRM_TYPE": "Please confirm deleting of unit of analysis type <b>{{uoaType.name}}</b>",
-        "DELETE_CONFIRM_UOA_TAG_LINK": "Please confirm deleting of link unit of analysis <b>{{uoa.name}}</b> to tag <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of Target <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Please confirm deleting of Target Type <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Please confirm deleting of link Target <b>{{uoa.name}}</b> to Tag <b>{{tag.name}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "SHORT_NAME": "Short Name",
@@ -383,12 +392,12 @@
         "TYPE": "Type",
         "TYPE_DESCRIPTION": "Type Description",
         "TYPE_NAME": "Type Name",
-        "UNIT_TYPE": "Unit Type",
-        "UNIT_TYPES": "Unit Types",
-        "UOA": "Unit Of Analysis",
-        "UOAS": "Units Of Analysis",
-        "UOA_TAG_LINK": "Unit to Tag link",
-        "UOA_TAG_LINKS": "Unit to Tag links",
+        "UNIT_TYPE": "Target Type",
+        "UNIT_TYPES": "Target Types",
+        "UOA": "Target",
+        "UOAS": "Targets",
+        "UOA_TAG_LINK": "Target to Tag link",
+        "UOA_TAG_LINKS": "Target to Tag links",
         "VISIBILITY": "Visibility"
     },
     "UOAS_FILTER": {
@@ -398,7 +407,7 @@
         "NAME": "Name",
         "SHORT_NAME": "Short Name",
         "STATUS": "Status",
-        "TABLE_TITLE": "Select Units Of Analysis",
+        "TABLE_TITLE": "Select Target",
         "TYPE": "Type"
     },
     "UOA_TAGS": {
@@ -433,6 +442,12 @@
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
         "USER": "User",
+        "USERS": "Users"
+    },
+    "USERS_UOA": {
+        "PRIVATE": "Private",
+        "PUBLIC": "Public",
+        "UOAS": "Targets",
         "USERS": "Users"
     },
     "USER_GROUPS": {

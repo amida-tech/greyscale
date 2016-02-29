@@ -2,20 +2,24 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, OrganizationSelector) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, Organization) {
 
         var productId = $stateParams.productId;
 
         var tasksTable = greyscaleProductTasksTbl;
         tasksTable.dataFilter.productId = productId;
-        //tasksTable.dataFilter.organizationId = OrganizationSelector.organization.id;
+        //tasksTable.dataFilter.organizationId = Organization.id;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
 
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
 
         $scope.model = {
             tasksTable: tasksTable,
-            exportHref: greyscaleUtilsSrv.getApiBase() + _exportUri
+            exportHref: greyscaleUtilsSrv.getApiBase() + _exportUri,
+            count: {
+                flagged: '...',
+                started: '...'
+            }
         };
 
         greyscaleProductApi.get(productId)
@@ -23,6 +27,14 @@ angular.module('greyscaleApp')
                 $state.ext.productName = product.title;
                 return product;
             });
+
+        tasksTable.onReload = function () {
+            var tasksData = tasksTable.dataShare.tasks || [];
+            $scope.model.count.flagged = _.filter(tasksData, 'flagged').length;
+            $scope.model.count.started = _.filter(tasksData, function (o) {
+                return o.status !== 'waiting';
+            }).length;
+        };
 
         _getData(productId)
             .then(function (data) {
@@ -35,8 +47,8 @@ angular.module('greyscaleApp')
                 //roles: greyscaleRoleApi.list(),
                 //product: $q.when(product),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
-                tasks: greyscaleProductApi.product(productId).tasksList(),
-                //steps: greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList()
+                tasks: greyscaleProductApi.product(productId).tasksList()
+                    //steps: greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList()
             };
 
             return $q.all(reqs);

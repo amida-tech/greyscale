@@ -1,6 +1,6 @@
 angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams,
-        $timeout,
+        $timeout, Organization,
         greyscaleProductWorkflowApi, greyscaleProjectApi,
         greyscaleProductApi, greyscaleUserApi,
         greyscaleUtilsSrv, greyscaleUserGroupsTbl, greyscaleUoaTypeApi,
@@ -8,11 +8,10 @@ angular.module('greyscaleApp')
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
-        var projectId = parseInt($stateParams.projectId),
-            productId = parseInt($stateParams.productId);
+        var productId = parseInt($stateParams.productId);
 
         $scope.model = {
-            projectId: projectId,
+            //projectId: projectId,
             $loading: true,
             selectedUser: {},
             selectedRole: {}
@@ -37,12 +36,15 @@ angular.module('greyscaleApp')
             }]
         };
 
-        _loadProject(projectId)
-            .then(_loadUsersData)
-            .then(function () {
-                $scope.model.users = _dicts.users;
-                $scope.model.groups = _dicts.groups;
-            });
+        Organization.$watch('projectId', $scope, function () {
+            $scope.model.projectId = Organization.projectId;
+
+            _loadUsersData()
+                .then(function () {
+                    $scope.model.users = _dicts.users;
+                    $scope.model.groups = _dicts.groups;
+                });
+        });
 
         _getTaskTableData();
 
@@ -68,13 +70,13 @@ angular.module('greyscaleApp')
 
                 var acceptText = false;
                 if (searchText) {
-                    if ((' '+ user.firstName).match(searchText)) {
+                    if ((' ' + user.firstName).match(searchText)) {
                         acceptText = true;
                     }
-                    if ((' '+ user.lastName).match(searchText)) {
+                    if ((' ' + user.lastName).match(searchText)) {
                         acceptText = true;
                     }
-                    if ((' '+ user.email).match(searchText)) {
+                    if ((' ' + user.email).match(searchText)) {
                         acceptText = true;
                     }
                 }
@@ -536,7 +538,9 @@ angular.module('greyscaleApp')
                 angular.forEach(tableData.workflowSteps, function (step) {
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
-                    var user = task ? _.find(_dicts.users, {id: task.userId}) : undefined;
+                    var user = task ? _.find(_dicts.users, {
+                        id: task.userId
+                    }) : undefined;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
@@ -612,12 +616,12 @@ angular.module('greyscaleApp')
 
         //////////////////// initial loading /////////////////////
 
-        function _loadUsersData(project) {
+        function _loadUsersData() {
             var reqs = {
                 users: greyscaleUserApi.list({
-                    organizationId: project.organizationId
+                    organizationId: Organization.id
                 }),
-                groups: greyscaleGroupApi.list(project.organizationId)
+                groups: greyscaleGroupApi.list(Organization.id)
             };
 
             return $q.all(reqs).then(function (promises) {
@@ -627,18 +631,6 @@ angular.module('greyscaleApp')
             });
 
         }
-
-        //function _addUserGroupsRelations(userGroups) {
-        //    angular.forEach(userGroups, function (item) {
-        //        var user = _.find(_dicts.users, {
-        //            id: item.userId
-        //        });
-        //        if (user) {
-        //            item.user = _.pick(user, ['id', 'email', 'firstName', 'lastName']);
-        //        }
-        //    });
-        //    return userGroups;
-        //}
 
         function _addUoasRelations(uoas) {
             angular.forEach(uoas, function (uoa) {
@@ -668,18 +660,6 @@ angular.module('greyscaleApp')
                 tasks: greyscaleProductApi.product(productId).tasksList()
             };
             return $q.all(reqs);
-        }
-
-        function _loadProject(id) {
-            return greyscaleProjectApi.get(id)
-                .then(function (project) {
-                    $state.ext.projectName = project.codeName;
-                    return project;
-                })
-                .catch(function (error) {
-                    greyscaleUtilsSrv.errorMsg(error, tns + 'PROJECT_NOT_FOUND');
-                    $state.go('home');
-                });
         }
 
         function _loadProduct(productId) {

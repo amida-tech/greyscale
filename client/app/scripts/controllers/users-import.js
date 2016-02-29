@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersImportCtrl', function ($rootScope, $q, $scope, greyscaleUsersImportTbl, OrganizationSelector) {
+    .controller('UsersImportCtrl', function ($rootScope, $q, $scope, greyscaleUsersImportTbl, Organization) {
 
         var _usersImportTable = greyscaleUsersImportTbl;
 
@@ -11,14 +11,7 @@ angular.module('greyscaleApp')
             importResults: false
         };
 
-        OrganizationSelector.show = true;
-
-        var off = $scope.$watch('globalModel.organization', _renderUsersImportTable);
-
-        $scope.$on('$destroy', function () {
-            off();
-            OrganizationSelector.show = false;
-        });
+        Organization.$watch($scope, _renderUsersImportTable);
 
         $scope.afterUpload = function (file, data) {
             _usersImportTable.dataPromise = function () {
@@ -32,12 +25,10 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _renderUsersImportTable(organization) {
-            if (!organization) {
-                return;
-            }
-            _usersImportTable.dataFilter.organizationId = organization.id;
-            if ($scope.model.importUsers && $scope.model.importUsers.tableParamst) {
+        function _renderUsersImportTable() {
+            $scope.model.organization = Organization;
+            _usersImportTable.dataFilter.organizationId = Organization.id;
+            if ($scope.model.importUsers && $scope.model.importUsers.tableParams) {
                 $scope.model.importUsers.tableParams.reload();
             } else {
                 $scope.model.importUsers = _usersImportTable;

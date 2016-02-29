@@ -48,22 +48,45 @@
         }
     }
 }
-.progress-block {
-    display: inline-block;
-    width: 20px;
-    height:20px;
-    margin-right: 2px;
-    background: #ddd;
-    border: 1px solid #ddd;
-    &.active {
-        border-color: #bbb;
-    }
-    .step-current {
+.progress-blocks {
+    .progress-block {
+        display: inline-block;
+        vertical-align: middle;
+        width: 18px;
+        height:18px;
+        margin-right: 2px;
+        background: #ccc;
+        opacity: 0.5;
+        .fa-flag {
+            font-size: 12px;
+            position: relative;
+            top: -2px;
+            left: 3px;
+            color: #fff;
+        }
+        &.active {
+            width: 21px;
+            height: 21px;
+            .fa-flag {
+                font-size: 16px;
+                top: 1px;
+                left: 2px;
+            }
+            opacity: 1;
+        }
+        &.status-current {
+            background: #ee0000;
+        }
+        &.status-completed {
+            background: #00bc00;
+        }
+        &.status-waiting {
 
+        }
     }
-    .step-complete {
-
-    }
+}
+.flagged-task {
+    color: #ff0000;
 }
 
 .widget-table {

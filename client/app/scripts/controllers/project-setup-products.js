@@ -1,14 +1,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupProductsCtrl', function ($scope, $stateParams, greyscaleModalsSrv, greyscaleProjectApi, greyscaleProjectProductsTbl) {
-
-        //$scope.addUoas = function () {
-        //    return greyscaleModalsSrv.uoasFilter()
-        //        .then(function () {
-        //            console.log('add filtered uoas to product');
-        //        });
-        //};
+    .controller('ProjectSetupProductsCtrl', function ($scope, $state, $stateParams, greyscaleModalsSrv,
+        greyscaleProjectApi, greyscaleProjectProductsTbl, Organization, $timeout) {
 
         var products = greyscaleProjectProductsTbl;
 
@@ -16,9 +10,11 @@ angular.module('greyscaleApp')
             products: products
         };
 
-        greyscaleProjectApi.get($stateParams.projectId)
-            .then(function (project) {
-                products.dataFilter.projectId = project.id;
-                products.tableParams.reload();
-            });
+        Organization.$watch('projectId', $scope, _renderProductsTable);
+
+        function _renderProductsTable() {
+            products.dataFilter.projectId = Organization.projectId;
+            products.tableParams.reload();
+        }
+
     });
