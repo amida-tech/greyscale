@@ -2,14 +2,14 @@
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance,
-    product, OrganizationSelector,
+    product, Organization,
     greyscaleProductWorkflowTbl) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
-    productWorkflow.dataFilter.organizationId = OrganizationSelector.organization.id;
+    productWorkflow.dataFilter.organizationId = Organization.id;
 
 
     $scope.model = {

@@ -5,6 +5,9 @@
 angular.module('greyscaleApp')
     .controller('UsersUoaCtrl', function ($scope, $q, greyscaleUoaApi, greyscaleUserApi, greyscaleProfileSrv,
         greyscaleUserUoaApi, greyscaleUtilsSrv) {
+
+        var tns = $scope.tns = 'USERS_UOA.';
+
         $scope.model = {
             users: [],
             pubUoa: [],

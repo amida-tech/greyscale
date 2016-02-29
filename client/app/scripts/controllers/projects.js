@@ -4,20 +4,15 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectsCtrl', function ($rootScope, $scope, $state, greyscaleProjectsTbl, OrganizationSelector) {
+    .controller('ProjectsCtrl', function ($rootScope, $scope, $state, greyscaleProjectsTbl, Organization) {
 
         var _projectsTable = greyscaleProjectsTbl;
 
         $scope.model = {};
 
-        OrganizationSelector.show = true;
+        console.log(Organization);
 
-        var off = $scope.$watch('OrganizationSelector.organization', _renderProjectsTable);
-
-        $scope.$on('$destroy', function () {
-            off();
-            OrganizationSelector.show = false;
-        });
+        Organization.$watch($scope, _renderProjectsTable);
 
         $scope.projectSelect = function (row) {
             if (typeof row !== 'undefined') {
@@ -28,11 +23,8 @@ angular.module('greyscaleApp')
             return row;
         };
 
-        function _renderProjectsTable(organization) {
-            if (!organization) {
-                return;
-            }
-            _projectsTable.dataFilter.organizationId = organization.id;
+        function _renderProjectsTable() {
+            _projectsTable.dataFilter.organizationId = Organization.id;
             if ($scope.model.projects) {
                 $scope.model.projects.tableParams.reload();
             } else {

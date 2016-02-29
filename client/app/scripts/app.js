@@ -252,23 +252,29 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        //.state('projects', {
+        //    parent: 'home',
+        //    url: 'projects',
+        //    views: {
+        //        'body@dashboard': {
+        //            templateUrl: 'views/controllers/projects.html',
+        //            controller: 'ProjectsCtrl'
+        //        }
+        //    },
+        //    data: {
+        //        name: 'NAV.PROJECT_MANAGEMENT',
+        //        icon: 'fa-paper-plane',
+        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+        //    }
+        //})
         .state('projects', {
             parent: 'home',
-            url: 'projects',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/projects.html',
-                    controller: 'ProjectsCtrl'
-                }
-            },
             data: {
-                name: 'NAV.PROJECT_MANAGEMENT',
-                icon: 'fa-paper-plane',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: null
             }
         })
         .state('projects.setup', {
-            url: '/:projectId',
+            //url: '/:projectId',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/project-setup.html',
@@ -276,11 +282,11 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '{{ext.projectName}}'
+                //name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.surveys', {
-            url: '/surveys',
+            url: 'surveys',
             templateUrl: 'views/controllers/project-setup-surveys.html',
             controller: 'ProjectSetupSurveysCtrl',
             data: {
@@ -300,15 +306,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('projects.setup.products', {
-            url: '/products',
+            url: 'projects',
             templateUrl: 'views/controllers/project-setup-products.html',
             controller: 'ProjectSetupProductsCtrl',
             data: {
-                name: 'NAV.PROJECTS.PRODUCTS'
+                //name: 'NAV.PROJECTS.PRODUCTS'
+                name: 'NAV.PROJECT_MANAGEMENT',
+                icon: 'fa-paper-plane'
             }
         })
         .state('projects.setup.tasks', {
-            url: '/products/:productId',
+            parent: 'projects.setup.products',
+            url: '/:productId/tasks',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/product-tasks.html',
@@ -376,7 +385,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TASKS',
                 icon: 'fa-tasks',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('visualization', {
@@ -472,6 +481,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 if (toParams.returnTo) {
                     var redirect = $state.get(toParams.returnTo);
                     if ((_level & redirect.data.accessLevel) !== 0) {
+                        e.preventDefault();
                         $state.go(redirect.name, {}, params);
                     }
                 }
@@ -489,10 +499,9 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                         }
                         $state.go('login');
                     }
-                } else {
-                    if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, {}, params);
-                    }
+                } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
+                    e.preventDefault();
+                    $state.go(fromParams.returnTo, {}, params);
                 }
             });
         }

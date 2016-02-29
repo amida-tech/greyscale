@@ -72,6 +72,10 @@ angular.module('greyscaleApp')
                     }
                 });
 
+                if (typeof model.onInit === 'function') {
+                    model.onInit();
+                }
+
                 model.tableParams.custom = {
                     showAllButton: !!model.showAllButton
                 };

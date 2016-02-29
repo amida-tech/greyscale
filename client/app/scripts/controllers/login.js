@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv, $log) {
+    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv) {
         $scope.model = {
             state: $state.current.name,
             token: $stateParams.token
