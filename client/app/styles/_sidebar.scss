@@ -3,12 +3,9 @@
 }
 
 .sidebar-inner {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 90px;
+    display: table;
     overflow: auto;
+    height: 100%;
 }
 
 ul.sidebar {
@@ -80,9 +77,8 @@ ul.sidebar {
 }
 
 .help-link {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    display: table-row;
+    height: 90px;
 
     a, a:hover {
         font-size: 15px;
