@@ -2,6 +2,12 @@
     left: -70px;
 }
 
+.sidebar-inner {
+    display: table;
+    overflow: auto;
+    height: 100%;
+}
+
 ul.sidebar {
     .sidebar-title {
         @extend .h2;
@@ -15,12 +21,12 @@ ul.sidebar {
         .truncate {
             width: 230px;
         }
-
     }
 
     .sidebar-list {
         height: auto;
         position: relative;
+
         a, a:hover {
             color: $grey-medium-light;
             float: none;
@@ -28,9 +34,11 @@ ul.sidebar {
             padding: 11px 45px 11px 22px;
             line-height: 1.4;
             text-indent: 0;
+
             &:hover {
                 border-left: transparent 0px none;
             }
+
             .menu-icon {
                 float: none;
                 position: absolute;
@@ -43,17 +51,20 @@ ul.sidebar {
                 text-indent: 0;
             }
         }
+
         a:hover {
             color: $green;
             border: none;
         }
     }
+
     .sidebar-main {
 
         a,
         a:hover {
             color: $green;
         }
+
         .menu-icon {
         }
     }
@@ -62,5 +73,29 @@ ul.sidebar {
 #page-wrapper:not(.open) ul.sidebar {
     .sidebar-list {
         display: none;
+    }
+}
+
+.help-link {
+    display: table-row;
+    height: 90px;
+
+    a, a:hover {
+        font-size: 15px;
+        color: $grey-medium-light;
+        float: none;
+        display: block;
+        padding: 11px 45px 11px 22px;
+        line-height: 1.4;
+        text-indent: 0;
+
+        &:hover {
+            border-left: transparent 0px none;
+        }
+    }
+
+    a:hover {
+        color: $green;
+        border: none;
     }
 }
