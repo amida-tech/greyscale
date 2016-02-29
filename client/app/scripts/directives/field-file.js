@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('fieldFile', function ($log) {
+    .directive('fieldFile', function () {
         return {
             restrict: 'A',
             scope: {
@@ -21,15 +21,13 @@ angular.module('greyscaleApp')
                         var reader = new FileReader();
                         reader.onload = function onFileLoad(reader_evt) {
                             scope.$apply(function (_scope) {
-                                var _data = reader.result.substr(reader.result.indexOf('base64,')+7);
-                                $log.debug(_data);
-                                $log.debug(reader);
+                                var _data = reader.result.substr(reader.result.indexOf(',') + 1);
                                 _scope.files.push({
-                                        name: file.name,
-                                        size: file.size,
-                                        modified: file.lastModifiedDate,
-                                        type: file.type,
-                                        data: _data
+                                    name: file.name,
+                                    size: file.size,
+                                    modified: file.lastModifiedDate,
+                                    type: file.type,
+                                    data: _data
                                 });
                             });
                         };
