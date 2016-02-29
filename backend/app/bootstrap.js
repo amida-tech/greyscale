@@ -164,15 +164,7 @@ app.on('start', function () {
                     client.end();
                     var userReq = {
                         body: {
-                            'firstName': 'Test',
-                            'lastName': 'User',
-                            'email': 'no@mail.net',
-                            'password': 'something',
-                            'roleID': 1,
                             'realm': 'public'
-                        },
-                        user: {
-                            'role': 'admin'
                         }
                     };
                     var userResp = {};
@@ -185,16 +177,16 @@ app.on('start', function () {
             //executing this as an admin user
             var userReq = {
                 body: {
-                    'firstName': 'Test',
-                    'lastName': 'User',
-                    'email': 'no@mail.net',
-                    'password': 'something',
-                    'roleID': 1,
+//                    'firstName': 'Test',
+//                    'lastName': 'User',
+//                    'email': 'mi.ke.hiner@gmail.com',
+//                    'password': 'something',
+//                    'roleID': 1,
                     'realm': 'public'
-                },
-                user: {
-                    'role': 'admin'
                 }
+//                ,user: {
+//                    'role': 'admin'
+//                }
             };
             var userResp = {};
             data.instantiate(userReq, userResp);
