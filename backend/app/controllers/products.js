@@ -73,7 +73,6 @@ module.exports = {
                         'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
                         'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
                     'END as status ',
-                    //WorkflowStep.as(curStepAlias).position.as('curPos'),
                     WorkflowStep.position,
                     '(' +
                         'SELECT max("SurveyAnswers"."created") ' +
@@ -82,7 +81,7 @@ module.exports = {
                             '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
                             'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
                             'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    ') as last_version_date'
+                    ') as "lastVersionDate"'
                 )
                 .from(
                     Task

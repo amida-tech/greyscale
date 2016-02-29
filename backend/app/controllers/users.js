@@ -608,11 +608,11 @@ module.exports = {
 
             var projectReq =
                 '(' +
-                    'SELECT row_to_json("Projects".*) ' +
+                    'SELECT "Projects"."id" ' +
                     'FROM "Projects" ' +
                     'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
                     'LIMIT 1' +
-                ') as "project"';
+                ') as "projectId"';
 
             return yield thunkQuery(
                 User

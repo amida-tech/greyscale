@@ -34,7 +34,18 @@ module.exports = {
 
         co(function* () {
             return yield thunkQuery(
-                Organization.select().from(Organization), _.omit(req.query, 'offset', 'limit', 'order')
+                Organization
+                .select(
+                    Organization.star(),
+                    '(SELECT ' +
+                        '"Projects"."id" ' +
+                    'FROM "Projects"' +
+                    'WHERE ' +
+                        '"Projects"."organizationId" = "Organizations"."id"' +
+                    'LIMIT 1) as "projectId"'
+                )
+                .from(Organization),
+                _.omit(req.query, 'offset', 'limit', 'order')
             );
         }).then(function (data) {
             res.json(data);
