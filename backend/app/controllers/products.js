@@ -196,67 +196,114 @@ module.exports = {
   },
 
   dump: function (req, res, next) {
-    co(function* (){
-      var q =
-              'SELECT ' + 
-              '  "SurveyAnswers"."UOAid", ' + 
-              "  format('{%s}', " + 
-              "    string_agg(format('%s:%s', " +
-              '      to_json("SurveyQuestions".id::text), ' + 
-              '      COALESCE(to_json("SurveyAnswers"."value"), to_json("SurveyAnswers"."optionId")) ' + 
-              "    ), ',') " + 
-              '  ) AS "answers" ' + 
-              'FROM ' +
-              '  "SurveyQuestions" ' +
-              'LEFT JOIN ' +
-              '  "Products" ON ("Products"."surveyId" = "SurveyQuestions"."surveyId") ' +
-              'LEFT JOIN ( ' +
-              '  SELECT ' +
-              '    "SurveyAnswers"."questionId", ' +
-              '    "SurveyAnswers"."UOAid", ' +
-              '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
-              '  FROM ' +
-              '    "SurveyAnswers" ' +
-              '  GROUP BY ' +
-              '    "SurveyAnswers"."questionId", ' +
-              '    "SurveyAnswers"."UOAid" ' +
-              ') as "sqWf" ON ("sqWf"."questionId" = "SurveyQuestions"."id") ' +
-              'LEFT JOIN ( ' +
-              '  SELECT ' +
-              '    "SurveyAnswers"."questionId", ' +
-              '    "SurveyAnswers"."UOAid", ' +
-              '    "SurveyAnswers"."wfStepId", ' +
-              '    max("SurveyAnswers"."version") as "maxVersion" ' +
-              '  FROM ' +
-              '    "SurveyAnswers" ' +
-              '  GROUP BY ' +
-              '    "SurveyAnswers"."questionId", ' +
-              '    "SurveyAnswers"."UOAid", ' +
-              '    "SurveyAnswers"."wfStepId" ' +
-              ') as "sqMax" ON ( ' +
-              '  ("sqMax"."questionId" = "SurveyQuestions"."id") ' +
-              '  AND ("sqMax"."UOAid" = "sqWf"."UOAid") ' +
-              '  AND ("sqMax"."wfStepId" = "sqWf"."maxWfStepId") ' +
-              ') ' +
-              'INNER JOIN "SurveyAnswers" ON ( ' +
-              '  ("SurveyAnswers"."questionId" = "SurveyQuestions".id) ' +
-              '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
-              '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
-              '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
-              ') ' +
-              'WHERE ' +
-              '  ("Products"."id" = ' + parseInt(req.params.id) + ')' +
-              'GROUP BY ' +
-              '  "SurveyAnswers"."UOAid" ' +
-              '; '
-      console.log(q);
+    co(dumpProduct(parseInt(req.params.id))).then(function (data) {
+      res.json(data);
+    }, function (err) {
+      next(err);
+    });
+  },
 
-      return yield thunkQuery(q);
+  calculate: function (req, res, next) {
+    var productId = parseInt(req.params.id);
+    co(function* () {
+      var data = yield dumpProduct(productId);
+      console.log(data);
+
+      var q =
+              'SELECT ' +
+              '  "Subindexes"."id", ' +
+              '  "Subindexes"."divisor", ' +
+              "  format('{%s}', " +
+              "    string_agg(format('%s:%s', " +
+              '      to_json("SubindexWeights"."questionId"::text), ' +
+              '      to_json("SubindexWeights"."weight") ' +
+              "    ), ',') " +
+              '  ) AS "weights" ' +
+              'FROM ' +
+              '  "Subindexes" ' +
+              'LEFT JOIN ' +
+              '  "SubindexWeights" ON "SubindexWeights"."subindexId" = "Subindexes"."id" ' +
+              'WHERE ' +
+              '  ("Subindexes"."productId" = ' + productId + ') ' +
+              'GROUP BY ' +
+              '  "Subindexes"."id", ' +
+              '  "Subindexes"."divisor" ' +
+              '; ';
+      var subindexes = yield thunkQuery(q);
+      subindexes = subindexes.map(function (subindex) {
+          subindex['weights'] = JSON.parse(subindex['weights']);
+          return subindex;
+      });
+      console.log(subindexes);
+
+      q =
+          'SELECT ' +
+          '  "Indexes"."id", ' +
+          '  "Indexes"."divisor", ' +
+          "  format('{%s}', " +
+          "    string_agg(format('%s:%s', " +
+          '      to_json("IndexQuestionWeights"."questionId"::text), ' +
+          '      to_json("IndexQuestionWeights"."weight") ' +
+          "    ), ',') " +
+          '  ) AS "questionWeights", ' +
+          "  format('{%s}', " +
+          "    string_agg(format('%s:%s', " +
+          '      to_json("IndexSubindexWeights"."subindexId"::text), ' +
+          '      to_json("IndexSubindexWeights"."weight") ' +
+          "    ), ',') " +
+          '  ) AS "subindexWeights" ' +
+          'FROM ' +
+          '  "Indexes" ' +
+          'LEFT JOIN ' +
+          '  "IndexQuestionWeights" ON "IndexQuestionWeights"."indexId" = "Indexes"."id" ' +
+          'LEFT JOIN ' +
+          '  "IndexSubindexWeights" ON "IndexSubindexWeights"."indexId" = "Indexes"."id" ' +
+          'WHERE ' +
+          '  ("Indexes"."productId" = ' + productId + ') ' +
+          'GROUP BY ' +
+          '  "Indexes"."id", ' +
+          '  "Indexes"."divisor" ' +
+          '; ';
+      var indexes = yield thunkQuery(q);
+      indexes = indexes.map(function (index) {
+          index['questionWeights'] = JSON.parse(index['questionWeights']);
+          index['subindexWeights'] = JSON.parse(index['subindexWeights']);
+          return index;
+      });
+      console.log(indexes);
+
+      return data.map(function (datum) {
+          // calculate subindexes
+          datum['subindexes'] = {};
+          subindexes.forEach(function (subindex) {
+              var value = 0;
+              for (var questionId in subindex['weights']) {
+                  // TODO: for non-numerical question types
+                  var answer = parseFloat(datum['answers'][questionId]);
+                  value += subindex['weights'][questionId] * answer;
+              }
+              datum['subindexes'][subindex['id']] = value / subindex['divisor'];
+          });
+
+          // calculate index(es)
+          datum['indexes'] = {};
+          indexes.forEach(function (index) {
+              var value = 0;
+              for (var questionId in index['questionWeights']) {
+                  // TODO: for non-numerical question types
+                  var answer = parseFloat(datum['answers'][questionId]);
+                  value += index['questionWeights'][questionId] * answer;
+              }
+              for (var subindexId in index['subindexWeights']) {
+                  value += index['subindexWeights'][subindexId] * datum['subindexes'][subindexId];
+              }
+              datum['indexes'][index['id']] = value / index['divisor'];
+          });
+
+          return datum;
+      });
     }).then(function (data) {
-      res.json(_.map(data, function (uoa) {
-          uoa['answers'] = JSON.parse(uoa['answers']);
-          return uoa;
-      }));
+      res.json(data);
     }, function (err) {
       next(err);
     });
@@ -497,4 +544,66 @@ function* updateCurrentStepId(req) {
         'WHERE "productId"= '+req.params.id+ ' AND "currentStepId" is NULL';
     result = yield thunkQuery(updateProductUOAQuery);
 
+}
+
+function* dumpProduct(productId) {
+  var q =
+          'SELECT ' + 
+          '  "SurveyAnswers"."UOAid", ' + 
+          "  format('{%s}', " + 
+          "    string_agg(format('%s:%s', " +
+          '      to_json("SurveyQuestions".id::text), ' + 
+          '      COALESCE(to_json("SurveyAnswers"."value"), to_json("SurveyAnswers"."optionId")) ' + 
+          "    ), ',') " + 
+          '  ) AS "answers" ' + 
+          'FROM ' +
+          '  "SurveyQuestions" ' +
+          'LEFT JOIN ' +
+          '  "Products" ON ("Products"."surveyId" = "SurveyQuestions"."surveyId") ' +
+          'LEFT JOIN ( ' +
+          '  SELECT ' +
+          '    "SurveyAnswers"."questionId", ' +
+          '    "SurveyAnswers"."UOAid", ' +
+          '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
+          '  FROM ' +
+          '    "SurveyAnswers" ' +
+          '  GROUP BY ' +
+          '    "SurveyAnswers"."questionId", ' +
+          '    "SurveyAnswers"."UOAid" ' +
+          ') as "sqWf" ON ("sqWf"."questionId" = "SurveyQuestions"."id") ' +
+          'LEFT JOIN ( ' +
+          '  SELECT ' +
+          '    "SurveyAnswers"."questionId", ' +
+          '    "SurveyAnswers"."UOAid", ' +
+          '    "SurveyAnswers"."wfStepId", ' +
+          '    max("SurveyAnswers"."version") as "maxVersion" ' +
+          '  FROM ' +
+          '    "SurveyAnswers" ' +
+          '  GROUP BY ' +
+          '    "SurveyAnswers"."questionId", ' +
+          '    "SurveyAnswers"."UOAid", ' +
+          '    "SurveyAnswers"."wfStepId" ' +
+          ') as "sqMax" ON ( ' +
+          '  ("sqMax"."questionId" = "SurveyQuestions"."id") ' +
+          '  AND ("sqMax"."UOAid" = "sqWf"."UOAid") ' +
+          '  AND ("sqMax"."wfStepId" = "sqWf"."maxWfStepId") ' +
+          ') ' +
+          'INNER JOIN "SurveyAnswers" ON ( ' +
+          '  ("SurveyAnswers"."questionId" = "SurveyQuestions".id) ' +
+          '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
+          '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
+          '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
+          ') ' +
+          'WHERE ' +
+          '  ("Products"."id" = ' + productId + ')' +
+          'GROUP BY ' +
+          '  "SurveyAnswers"."UOAid" ' +
+          '; ';
+
+  var data = yield thunkQuery(q);
+  data = data.map(function (uoa) {
+      uoa['answers'] = JSON.parse(uoa['answers']);
+      return uoa;
+  });
+  return data;
 }

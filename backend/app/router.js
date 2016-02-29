@@ -210,6 +210,9 @@ router.route('/:realm/v0.2/products/:id/tasks')
 router.route('/:realm/v0.2/products/:id/dump')
     .get(/*authenticate('token').always,*/ products.dump);
 
+router.route('/:realm/v0.2/products/:id/calculate')
+    .get(/*authenticate('token').always,*/ products.calculate);
+
 router.route('/:realm/v0.2/products/:id/export.csv')
     .get(/*authenticate('token').always,*/ products.export);
 
