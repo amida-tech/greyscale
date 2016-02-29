@@ -29,12 +29,6 @@ angular.module('greyscale.tables')
                 showDataInput: true,
                 show: true,
                 dataFormat: 'text',
-                //dataNoEmptyOption: true,
-                //dataSet: {
-                //    keyField: 'id',
-                //    valField: 'name',
-                //    getData: getRoles
-                //}
             },
             startDate: {
                 field: 'startDate',
@@ -117,7 +111,6 @@ angular.module('greyscale.tables')
                 },
                 stepAddGroup: function (groups, group) {
                     if (group) {
-                        groups = groups || [];
                         groups.push(group);
                     }
                 },
@@ -125,7 +118,6 @@ angular.module('greyscale.tables')
                     groups.splice(i, 1);
                 },
                 noFreeGroups: function (groups) {
-                    groups = groups || [];
                     return groups.length === _dicts.groups.length;
                 }
             }
@@ -202,7 +194,9 @@ angular.module('greyscale.tables')
         }
 
         function _addWorkflowStep() {
-            _table.tableParams.data.push({});
+            _table.tableParams.data.push({
+                groups: []
+            });
             $timeout(function () {
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
                 if (!lastRow.length) {
