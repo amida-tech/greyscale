@@ -1,19 +1,25 @@
 <!-- Sidebar -->
 <div id="sidebar-wrapper" ng-show="menu.title">
-    <div class="sidebar-header row">
-        <a ui-sref="home" class="logo"></a>
-        <a class="sidebar-toggle" ng-click="toggleSidebar()">
-            <i class="menu-icon fa " ng-class="{'fa-caret-left':toggle, 'fa-caret-right':!toggle}"></i>
-        </a>
-        <span class="divider"></span>
+    <div class="sidebar-inner">
+        <div class="sidebar-header row">
+            <a ui-sref="home" class="logo"></a>
+            <a class="sidebar-toggle" ng-click="toggleSidebar()">
+                <i class="menu-icon fa " ng-class="{'fa-caret-left':toggle, 'fa-caret-right':!toggle}"></i>
+            </a>
+            <span class="divider"></span>
+        </div>
+        <ul class="sidebar">
+            <li class="sidebar-title" ng-repeat-start="group in menu.groups">
+                <span class="truncate text-capitalize" title="{{::group.title|translate}}">{{::group.title|translate}}</span>
+            </li>
+            <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
+                <a ui-sref="{{item.sref}}" class="truncate" title="{{::item.title|translate}}">{{::item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
+            </li>
+        </ul>
     </div>
-    <ul class="sidebar">
-        <li class="sidebar-title" ng-repeat-start="group in menu.groups">
-            <span class="truncate text-capitalize" title="{{::group.title|translate}}">{{::group.title|translate}}</span>
-        </li>
-        <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
-            <a ui-sref="{{item.sref}}" class="truncate" title="{{::item.title|translate}}">{{::item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
-        </li>
-    </ul>
+    <div class="help-link">
+        <a href="http://help.indaba.io" translate="NAV.HELP" class="truncate"></a>
+        <a href="http://support.indaba.io" translate="NAV.SUPPORT" class="truncate"></a>
+    </div>
 </div>
 <!-- End Sidebar -->
