@@ -84,7 +84,8 @@ module.exports = {
                             'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
                             'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
                         'END as status ' +
-                    'FROM "curStep")'
+                    'FROM "curStep")',
+                    '"WorkflowSteps"."position" as "stepPos"'
                 )
                 .from(
                     Task
