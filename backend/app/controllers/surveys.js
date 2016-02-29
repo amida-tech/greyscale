@@ -217,6 +217,9 @@ function* addQuestion (req, dataObj) {
 
 function* checkSurveyData(req) {
     if (!req.params.id) { // create
+        if (!req.body.projectId) {
+            req.body.projectId = yield * getProjectId(req.user.id);
+        }
         if (!req.body.title || !req.body.projectId) {
             throw new HttpError(403, 'projectId and title fields are required');
         }
@@ -323,4 +326,19 @@ function* checkQuestionData(req, dataObj, isCreate) {
         }
     }
 
+}
+
+function* getProjectId(userId) {
+    query =
+        'SELECT "Projects"."id" '+
+        'FROM "Users" '+
+        'INNER JOIN "Organizations" ON "Users"."organizationId" = "Organizations"."id" '+
+        'INNER JOIN "Projects" ON "Projects"."organizationId" = "Organizations"."id" '+
+        'WHERE "Users"."id" = ' + parseInt(userId).toString();
+
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find ProjectId for user with id `'+parseInt(userId).toString()+'`');
+    }
+    return result[0].id;
 }
