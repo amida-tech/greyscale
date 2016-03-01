@@ -124,7 +124,7 @@ angular.module('greyscaleApp')
                     switch (type) {
                     case 'checkboxes':
                         for (o = 0; o < field.options.length; o++) {
-                            angular.extend(fld.options[o], {
+                            angular.extend(fld.options[o] | {}, {
                                 checked: field.options[o].isSelected,
                                 name: field.options[o].label
                             });
