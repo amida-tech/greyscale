@@ -31,7 +31,7 @@ angular.module('greyscaleApp')
                     task: resp.task,
                     userId: resp.profile.id
                 };
-                $scope.model.showDiscuss = (resp.task && resptask.id && resp.task.accessToDiscussions);
+                $scope.model.showDiscuss = (resp.task && resp.task.id && resp.task.accessToDiscussions);
                 $scope.model.title = resp.survey.title;
             })
             .finally(function () {
