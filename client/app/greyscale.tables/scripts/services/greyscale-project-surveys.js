@@ -82,7 +82,7 @@ angular.module('greyscale.tables')
 
         function _editSurvey(_survey) {
             $state.go('projects.setup.surveys.edit', {
-                surveyId: _survey ? _survey.id : -1,
+                surveyId: _survey ? _survey.id : 'new',
                 projectId: _getProjectId()
             });
         }

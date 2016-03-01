@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function ($q, greyscaleTaskApi) {
-    
+    .factory('greyscaleMyTasksTbl', function (_, $q, greyscaleTaskApi) {
+
     var tns = 'MY_TASKS.';
-    
+
     var resDescr = [{
             title: tns + 'TASK',
             show: true,
@@ -27,7 +27,7 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
-    
+
     var _table = {
         title: tns + 'TITLE',
         icon: 'fa-tasks',
@@ -38,7 +38,7 @@ angular.module('greyscale.tables')
         dataPromise: _getData,
         query: {}
     };
-    
+
     function _getData() {
         return greyscaleTaskApi.myList().then(function (data) {
             return _.filter(data, function (item) {
@@ -46,6 +46,6 @@ angular.module('greyscale.tables')
             });
         });
     }
-    
+
     return _table;
 });

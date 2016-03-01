@@ -38,7 +38,7 @@ angular.module('greyscaleApp')
         };
         return org;
     })
-    .directive('organizationSelector', function (_, $timeout, $rootScope, greyscaleProfileSrv,
+    .directive('organizationSelector', function (_, $q, $timeout, $rootScope, greyscaleProfileSrv,
         greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
@@ -74,13 +74,16 @@ angular.module('greyscaleApp')
 
                             if (organization) {
                                 angular.extend(Organization, organization);
+                                Organization.$promise = $q.when(true);
                             } else if (organizations.length) {
                                 angular.extend(Organization, organizations[0]);
+                                Organization.$promise = $q.when(true);
                             }
                         });
                     } else {
                         angular.extend(Organization, profile.organization);
                         Organization.projectId = profile.projectId;
+                        Organization.$promise = $q.when(true);
                     }
                 });
 

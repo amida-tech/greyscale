@@ -45,7 +45,7 @@ angular.module('greyscaleApp')
                     flags:{}
                 };
                 $scope.model.title = resp.survey.title;
-                return greyscaleProductApi.get(resp.task.productId);
+                return resp.task ? greyscaleProductApi.get(resp.task.productId) : $q.reject();
             })
             .then(function (product) {
                 return greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList();

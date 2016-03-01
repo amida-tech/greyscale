@@ -12,30 +12,37 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv,
-        inform, $log, $stateParams, $state, $q, Organization) {
+        inform, $log, $stateParams, $state, $q, Organization, $timeout) {
 
-        var surveyId = $stateParams.surveyId;
-        var projectId = $stateParams.projectId;
+        var surveyId = $stateParams.surveyId === 'new' ? null : $stateParams.surveyId;
+        var projectId;
 
         Organization.$lock = true;
 
         var _survey;
-        if (surveyId >= 0) {
-            greyscaleSurveyApi.get(surveyId).then(function (survey) {
-                $scope.model = {
-                    survey: survey
-                };
-                $state.ext.surveyName = survey ? survey.title : 'New survey';
-                //return greyscaleModalsSrv.editSurvey(survey);
-                if (Organization.projectId !== survey.projectId) {
-                    Organization.$setBy('projectId', survey.projectId);
-                }
+        if (surveyId) {
+            Organization.$watch($scope, function(){
+                projectId = Organization.projectId;
+                _loadSurvey();
             });
         } else {
             $scope.model = {
                 survey: {}
             };
             $state.ext.surveyName = 'New survey';
+        }
+
+        function _loadSurvey() {
+            greyscaleSurveyApi.get(surveyId).then(function (survey) {
+                $scope.model = {
+                    survey: survey
+                };
+                $state.ext.surveyName = survey ? survey.title : 'New survey';
+                //return greyscaleModalsSrv.editSurvey(survey);
+                if (projectId !== survey.projectId) {
+                    Organization.$setBy('projectId', survey.projectId);
+                }
+            });
         }
 
         function _save() {
@@ -47,7 +54,7 @@ angular.module('greyscaleApp')
                 if (!survey) {
                     survey = _survey;
                 }
-                survey.questions = questions;
+                survey.questions = questions||[];
                 for (var j = survey.questions.length - 1; j >= 0; j--) {
                     if (!survey.questions[j]) {
                         survey.questions.splice(j, 1);
@@ -103,7 +110,9 @@ angular.module('greyscaleApp')
 
         var firstSave = $scope.$on('form-changes-saved', function () {
             $scope.dataForm.$dirty = true;
-            $scope.$apply();
+            $timeout(function(){
+                $scope.$digest();
+            });
             firstSave();
         });
 
