@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $log) {
+        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
@@ -18,9 +18,19 @@ angular.module('greyscaleApp')
 
                 scope.$watch('surveyData', updateForm);
 
-                scope.autosave = $interval(function () {
+                scope.saveDraft = function () {
                     saveAnswers(scope, true);
-                }, 15000);
+                };
+
+                scope.save = function () {
+                    saveAnswers(scope).then(goTasks);
+                };
+
+                scope.back = function () {
+                    saveAnswers(scope, true).then(goTasks);
+                };
+
+                scope.autosave = $interval(scope.saveDraft, 15000);
 
                 scope.$on('$destroy', function () {
                     $interval.cancel(scope.autosave);
@@ -36,6 +46,11 @@ angular.module('greyscaleApp')
                     }
                 }
 
+                function goTasks(canGo){
+                    if (canGo) {
+                        $state.go('tasks');
+                    }
+                }
             },
             controller: function ($scope) {
 
@@ -49,11 +64,6 @@ angular.module('greyscaleApp')
                         $anchorScroll(elemId);
                     }, 10);
                 };
-
-                $scope.save = function () {
-                    saveAnswers($scope);
-                };
-
             }
         };
 
@@ -88,6 +98,7 @@ angular.module('greyscaleApp')
 
                     fld = {
                         id: field.id,
+                        qid: field.qid,
                         cid: fldId,
                         type: type,
                         label: field.label,
@@ -103,7 +114,7 @@ angular.module('greyscaleApp')
                         value: field.value,
                         links: field.links,
                         canAttach: field.attachment,
-                        attachments:[],
+                        attachments: [],
                         ngModel: {},
                         answer: null
                     };
@@ -155,7 +166,7 @@ angular.module('greyscaleApp')
                     } else { //push data into current section
                         qid++;
                         if (!fld.qid) {
-                            fld.qid = qid;
+                            fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
                         }
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
@@ -249,6 +260,8 @@ angular.module('greyscaleApp')
 
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
+            var res = $q.resolve(isAuto);
+
             if (scope.surveyForm && scope.surveyForm.$dirty) {
                 scope.lock = true;
                 var params = {
@@ -304,7 +317,7 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                $q.all(answers)
+                res = $q.all(answers)
                     .then(function (resp) {
                         for (var r in resp) {
                             if (resp.hasOwnProperty(r) && scope.surveyForm[r]) {
@@ -313,13 +326,16 @@ angular.module('greyscaleApp')
                         }
                         scope.surveyForm.$dirty = isAuto;
                         scope.recentSaved = new Date();
+                        return true;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
+                        return $q.resolve(isAuto);
                     })
                     .finally(function () {
                         scope.lock = false;
                     });
             }
+            return res;
         }
     });

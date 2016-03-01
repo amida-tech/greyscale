@@ -129,9 +129,14 @@ angular.module('greyscaleApp')
                         for (q = 0; q < qQty; q++) {
                             quest = survey.questions[q];
                             if (sectionTypes.indexOf(quest.type) === -1) {
+                                qid++;
+                                if (!quest.qid) {
+                                    quest.qid = i18n.translate('SURVEYS.QUESTION') + qid;
+                                }
+
                                 discuss = {
                                     id: quest.id,
-                                    title: i18n.translate('SURVEYS.QUESTION') + ' ' + (++qid),
+                                    title: quest.qid,
                                     label: quest.label,
                                     isOpen: false,
                                     messages: []

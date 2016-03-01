@@ -6,6 +6,7 @@
         "ADD": "Add",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
+        "BACK": "Back",
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
         "CLOSE": "Close",
@@ -379,9 +380,11 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
-        "QUESTION": "Question",
+        "QUESTION": "Q",
+        "SAVE_DRAFT": "Save as Draft",
         "SELECT_ONE": "select one",
         "STATUS": "Status",
+        "SUBMIT": "Save and Submit",
         "VIEW": "View"
     },
     "TABLES": {

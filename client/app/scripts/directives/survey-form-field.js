@@ -51,7 +51,7 @@ angular.module('greyscaleApp')
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
                         var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
-                            '">{{field.label}}</label><p class="subtext">{{field.description}}</p>';
+                            '">{{field.qid}}. {{field.label}}</label><p class="subtext">{{field.description}}</p>';
 
                         var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}"';
 
@@ -133,8 +133,13 @@ angular.module('greyscaleApp')
                             }
                             break;
 
+                        case 'date':
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" form-field-value="'
+                                + scope.field.cid + '" options="field"></select-date>';
+                            break;
+
                         default:
-                            body = '<p class="subtext">field type rendering is under construction</p>';
+                            body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
                         if (scope.field.links) {
