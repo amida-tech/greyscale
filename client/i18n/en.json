@@ -131,7 +131,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
-        "EMAIL": "E-m@il",
+        "EMAIL": "E-mail",
         "FORGOT_PASSWORD": "Forgot password...",
         "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
         "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
@@ -449,7 +449,7 @@
     "USERS": {
         "ANONYMOUS": "Anonymous",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
-        "EMAIL": "E-Mail",
+        "EMAIL": "E-mail",
         "FIRST_NAME": "First Name",
         "GROUPS": "Groups",
         "GROUPS_MODAL": {

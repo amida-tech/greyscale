@@ -131,7 +131,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
-        "EMAIL": "Эл.почт@",
+        "EMAIL": "Эл. почта",
         "FORGOT_PASSWORD": "Забыл пароль...",
         "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
         "LOGIN_INCORRECT": "Пользователь с указанным e-mail не существует.",

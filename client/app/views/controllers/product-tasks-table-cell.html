@@ -3,7 +3,7 @@
         <div class="unassign-user action"><i class="fa fa-trash"></i></div>
         <div class="edit-task action"><i class="fa fa-pencil"></i></div>
     </div>
-    <a ng-if="ext.product.surveyId" ng-href="/interviewRenderer/?surveyId={{ext.product.surveyId}}&taskId={{cell.id}}">
+    <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
         <div><b>{{cell.user.firstName}} {{cell.user.lastName}}</b></div>
         <small>{{cell.user.email}}</small>
     </a>

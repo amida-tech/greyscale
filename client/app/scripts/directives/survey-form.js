@@ -80,6 +80,7 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
+
             var o, item, fld, fldId, q, field, type,
                 r = 0,
                 qid = 0,
@@ -116,6 +117,7 @@ angular.module('greyscaleApp')
                         canAttach: field.attachment,
                         attachments: [],
                         ngModel: {},
+                        flags: scope.surveyData.flags,
                         answer: null
                     };
 

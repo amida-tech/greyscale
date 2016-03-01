@@ -194,17 +194,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'NAV.USERS.GROUPS'
             }
         })
-        .state('usersUoa', {
-            parent: 'users',
-            url: '/uoa',
-            templateUrl: 'views/controllers/users-uoa.html',
-            controller: 'UsersUoaCtrl',
-            data: {
-                name: 'NAV.USERS.UOA',
-                icon: 'fa-map',
-                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
-            }
-        })
+        //.state('usersUoa', {
+        //    parent: 'users',
+        //    url: '/uoa',
+        //    templateUrl: 'views/controllers/users-uoa.html',
+        //    controller: 'UsersUoaCtrl',
+        //    data: {
+        //        name: 'NAV.USERS.UOA',
+        //        icon: 'fa-map',
+        //        accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+        //    }
+        //})
         .state('usersImport', {
             parent: 'users',
             url: '/import',
@@ -387,7 +387,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('graph', {
@@ -402,7 +402,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('table', {
@@ -417,7 +417,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('survey', {
