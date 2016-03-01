@@ -11,7 +11,7 @@ angular.module('greyscaleApp')
             users: _usersTable
         };
 
-        Organization.$watch('id', $scope, _renderUsersTable);
+        Organization.$watch($scope, _renderUsersTable);
 
         $scope.showUserInfo = function (user) {
             greyscaleModalsSrv.showRec(user, _usersTable);

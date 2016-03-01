@@ -2,12 +2,12 @@
     <rd-widget-header icon="{{model.icon}}" title="{{model.title}}">
         <div class="text-right" ng-show="model.add">
             <a class="action action-primary" ng-click="model.add.handler()" title="{{model.add.tooltip||'COMMON.ADD'|translate}}">
-                <i class="fa {{model.add.icon||'fa-plus'}}" ng-show="model.add"></i>
+                <i class="fa {{model.add.icon||'fa-plus'}}" ng-show="model.add"></i> <span translate="COMMON.ADD"></span>
             </a>
         </div>
     </rd-widget-header>
-    <div class="widget-table ng-table">
-        <table class="table table-responsive panel {{::classes}}"
+    <div class="widget-table ng-table {{::classes}}">
+        <table class="table table-responsive panel "
                ng-class="{'table-hover':model.selectable}"
                template-pagination="custom/pager"
                ng-table-dynamic="model.tableParams with model.cols">
@@ -15,8 +15,12 @@
                 <tr ng-if="!model.$loading" ng-repeat="row in $data" ng-click="select(row, $event)"
                     ng-class="{selected: isSelected(row), 'expandable-row':model.expandedRowTemplate || model.expandedRowTemplateUrl}"
                     widget-table-expanded-row-open="model.expandedRowShow"
-                    ng-disabled="isDisabled(row)" propagate-disabled>
+                    ng-disabled="isDisabled(row)"
+                    propagate-disabled
+                    class="{{model.rowClass}} row-id-{{row.id}}"
+                >
                     <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
+                        filter="{{col.filter}}"
                         model-multiselect="model.multiselect"></td>
                 </tr>
                 <tr ng-if="!model.$loading && model.dataMap && !model.dataMap.length" class="empty-data text-center">

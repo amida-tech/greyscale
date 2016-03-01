@@ -11,4 +11,6 @@ Group.whereCol = columns;
 
 Group.editCols = ['title'];
 
+Group.translate = ['title'];
+
 module.exports = Group;

@@ -57,6 +57,9 @@ module.exports = function(config) {
       'bower_components/angular-file-upload/dist/angular-file-upload.min.js',
       'bower_components/angular-ui-sortable/sortable.js',
       'bower_components/minigrid/src/index.js',
+      'bower_components/blob-polyfill/Blob.js',
+      'bower_components/file-saver.js/FileSaver.js',
+      'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",

@@ -1,9 +1,5 @@
-[hidden-select] {
-    position: relative;
-}
 .hidden-select {
     cursor: pointer;
-    overflow: hidden;
     display: block;
     position: absolute;
     top: 0;
@@ -13,11 +9,6 @@
     opacity: 0;
     option {
         opacity: 1;
-    }
-    &.hide-disabled {
-        option[disabled] {
-            display: none;
-        }
     }
 }
 

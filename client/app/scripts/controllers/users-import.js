@@ -11,7 +11,7 @@ angular.module('greyscaleApp')
             importResults: false
         };
 
-        Organization.$watch('id', $scope, _renderUsersImportTable);
+        Organization.$watch($scope, _renderUsersImportTable);
 
         $scope.afterUpload = function (file, data) {
             _usersImportTable.dataPromise = function () {

@@ -54,6 +54,12 @@ SurveyQuestion.editCols = [
     'links', 'attachment', 'optionNumbering'
 ];
 
+SurveyQuestion.translate = [
+    'value',
+    'label',
+    'description'
+];
+
 SurveyQuestion.whereCol = columns;
 
 module.exports = SurveyQuestion;

@@ -37,7 +37,18 @@ module.exports = {
         co(function* () {
             req.query.realm = req.param('realm');
             return yield thunkQuery(
-                Organization.select().from(Organization), _.omit(req.query, 'offset', 'limit', 'order')
+                Organization
+                .select(
+                    Organization.star(),
+                    '(SELECT ' +
+                        '"Projects"."id" ' +
+                    'FROM "Projects"' +
+                    'WHERE ' +
+                        '"Projects"."organizationId" = "Organizations"."id"' +
+                    'LIMIT 1) as "projectId"'
+                )
+                .from(Organization),
+                _.omit(req.query, 'offset', 'limit', 'order')
             );
         }).then(function (data) {
             res.json(data);
@@ -150,7 +161,7 @@ module.exports = {
                 };
 
                 for (var i in parsed) {
-                    if (i !== 0) { // skip first string
+                    if (i != 0) { // skip first string
                         var pass = crypto.randomBytes(5).toString('hex');
                         var roleID = (req.user.roleID === 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
 

@@ -26,7 +26,8 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable'
+    'ui.sortable',
+    'ngFileSaver'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -193,17 +194,17 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'NAV.USERS.GROUPS'
             }
         })
-        .state('usersUoa', {
-            parent: 'users',
-            url: '/uoa',
-            templateUrl: 'views/controllers/users-uoa.html',
-            controller: 'UsersUoaCtrl',
-            data: {
-                name: 'NAV.USERS.UOA',
-                icon: 'fa-map',
-                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
-            }
-        })
+        //.state('usersUoa', {
+        //    parent: 'users',
+        //    url: '/uoa',
+        //    templateUrl: 'views/controllers/users-uoa.html',
+        //    controller: 'UsersUoaCtrl',
+        //    data: {
+        //        name: 'NAV.USERS.UOA',
+        //        icon: 'fa-map',
+        //        accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+        //    }
+        //})
         .state('usersImport', {
             parent: 'users',
             url: '/import',
@@ -252,25 +253,11 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        //.state('projects', {
-        //    parent: 'home',
-        //    url: 'projects',
-        //    views: {
-        //        'body@dashboard': {
-        //            templateUrl: 'views/controllers/projects.html',
-        //            controller: 'ProjectsCtrl'
-        //        }
-        //    },
-        //    data: {
-        //        name: 'NAV.PROJECT_MANAGEMENT',
-        //        icon: 'fa-paper-plane',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
         .state('projects', {
             parent: 'home',
             data: {
-                name: null
+                name: null,
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup', {
@@ -400,7 +387,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('graph', {
@@ -415,7 +402,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('table', {
@@ -430,7 +417,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask 
             }
         })
         .state('survey', {
@@ -458,7 +445,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks',
+                name: 'UI bricks',
                 accessLevel: systemRoles.any.mask
             }
         });
@@ -467,7 +454,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
@@ -515,7 +502,13 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     });
 
     $rootScope.$on('login', function () {
-        $state.go('home');
+        greyscaleProfileSrv.getProfile()
+            .then(function (profile) {
+            var roleId = profile.roleID;
+            var roles = greyscaleGlobals.userRoles;
+            var role = _.find(roles, { id: roleId });
+            $state.go(role.homeState || 'home');
+        });
     });
 
     $state.ext = {};

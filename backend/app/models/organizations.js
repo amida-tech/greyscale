@@ -20,4 +20,6 @@ Organization.editCols = ['name', 'address', 'url', 'adminUserId', 'enforceApiSec
 
 Organization.whereCol = columns;
 
+Organization.translate = ['name', 'address'];
+
 module.exports = Organization;

@@ -11,6 +11,7 @@ var client = require('app/db_bootstrap'),
     Token = require('app/models/token'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    ProductUOA = require('app/models/product_uoa'),
     Project = require('app/models/projects'),
     Survey = require('app/models/surveys'),
     VError = require('verror'),
@@ -661,11 +662,11 @@ module.exports = {
 
             var projectReq =
                 '(' +
-                'SELECT row_to_json("Projects".*) ' +
-                'FROM "Projects" ' +
-                'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
-                'LIMIT 1' +
-                ') as "project"';
+                    'SELECT "Projects"."id" ' +
+                    'FROM "Projects" ' +
+                    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+                    'LIMIT 1' +
+                ') as "projectId"';
 
             return yield thunkQuery(
                 User
@@ -804,6 +805,8 @@ module.exports = {
 
     tasks: function (req, res, next) {
         co(function* () {
+        	req.query.realm = req.param('realm');
+            var curStepAlias = 'curStep';
             var res = yield thunkQuery(
                 Task
                 .select(
@@ -834,26 +837,13 @@ module.exports = {
                     'THEN FALSE ' +
                     'ELSE TRUE ' +
                     'END as flagged',
-                    '(WITH "curStep" as ' +
-                    '(' +
-                    'SELECT ' +
                     'CASE ' +
-                    'WHEN "WorkflowSteps"."position" IS NULL THEN 0 ' +
-                    'ELSE "WorkflowSteps"."position" ' +
-                    'END ' +
-                    'FROM "ProductUOA" ' +
-                    'LEFT JOIN "WorkflowSteps" ' +
-                    'ON "ProductUOA"."currentStepId" = "WorkflowSteps"."id"' +
-                    'WHERE "ProductUOA"."productId" = "Products"."id" ' +
-                    'AND "ProductUOA"."UOAid" = "UnitOfAnalysis"."id"' +
-                    ') ' +
-                    'SELECT ' +
-                    'CASE ' +
-                    'WHEN "curStep"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                    'WHEN "curStep"."position" > "WorkflowSteps"."position" THEN \'waiting\' ' +
-                    'WHEN "curStep"."position" < "WorkflowSteps"."position" THEN \'completed\' ' +
-                    'END as status ' +
-                    'FROM "curStep")'
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                    'END as status '
                 )
                 .from(
                     Task
@@ -869,16 +859,21 @@ module.exports = {
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(Discussion)
                     .on(Task.id.equals(Discussion.taskId))
-
+                    .leftJoin(ProductUOA)
+                    .on(
+                        ProductUOA.productId.equals(Task.productId)
+                            .and(ProductUOA.UOAid.equals(Task.uoaId))
+                    )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
+                    )
                 )
                 .where(
                     Task.userId.equals(req.user.id)
-                    .and(Project.status.equals(1))
+                    //.and(Project.status.equals(1))
                     .and(Product.status.equals(1))
-                ), {
-                    'realm': req.param('realm')
-                }
-
+                ), req.query
             );
             return res;
         }).then(function (data) {

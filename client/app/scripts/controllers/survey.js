@@ -5,14 +5,27 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, $log) {
+        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, $log) {
 
         $scope.loading = true;
 
         $scope.model = {
             title: '',
-            surveyData: null
+            surveyData: null,
+            showDiscuss: $stateParams.taskId
         };
+
+        var data = {};
+
+        var flags = [
+            'allowEdit',
+            'allowTranslate',
+            'blindReview',
+            'discussionParticipation',
+            'provideResponses',
+            'seeOthersResponses',
+            'writeToAnswers'
+        ];
 
         var reqs = {
             survey: greyscaleSurveyApi.get($stateParams.surveyId),
@@ -25,12 +38,32 @@ angular.module('greyscaleApp')
 
         $q.all(reqs)
             .then(function (resp) {
-                $scope.model.surveyData = {
+                data = {
                     survey: resp.survey,
                     task: resp.task,
-                    userId: resp.profile.id
+                    userId: resp.profile.id,
+                    flags:{}
                 };
                 $scope.model.title = resp.survey.title;
+                return greyscaleProductApi.get(resp.task.productId);
+            })
+            .then(function (product) {
+                return greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList();
+            })
+            .then(function (steps) {
+                steps = steps.plain();
+                var s, qty = steps.length;
+                for (s = 0; s < qty; s++) {
+                    if (data.task.stepId == steps[s].id) {
+                        var f, fLen = flags.length;
+                        for (f=0;f<fLen;f++) {
+                            data.flags[flags[f]] = steps[s][flags[f]];
+                        }
+                    }
+                }
+                $log.debug(data.flags);
+                $scope.model.surveyData = data;
+                $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
             })
             .finally(function () {
                 $scope.loading = false;

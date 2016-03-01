@@ -15,6 +15,11 @@ var SurveyQuestionOption = sql.define({
     columns: columns
 });
 
+SurveyQuestionOption.translate = [
+    'value',
+    'label'
+];
+
 //SurveyQuestionOption.whereCol = columns;
 
 module.exports = SurveyQuestionOption;

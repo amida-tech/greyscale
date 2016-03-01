@@ -1,5 +1,5 @@
 angular.module('greyscaleApp')
-    .service('Organization', function ($rootScope) {
+    .service('Organization', function (_, $rootScope, greyscaleOrganizationApi) {
         var org = {};
         org.$watch = function () {
             var field, targetScope, handler;
@@ -23,9 +23,22 @@ angular.module('greyscaleApp')
                 off();
             });
         };
+        org.$setBy = function(field, value){
+            var params = {};
+            params[field] = value;
+            greyscaleOrganizationApi.list()
+                .then(function(orgList){
+                    var setOrg = _.find(orgList, params);
+                    if (setOrg) {
+                        angular.extend(org, setOrg);
+                    } else {
+                        throw 'Can\'t find organization by ' + field + '=' + value;
+                    }
+                });
+        };
         return org;
     })
-    .directive('organizationSelector', function (_, $rootScope, greyscaleProfileSrv,
+    .directive('organizationSelector', function (_, $timeout, $rootScope, greyscaleProfileSrv,
         greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
@@ -64,31 +77,22 @@ angular.module('greyscaleApp')
                             } else if (organizations.length) {
                                 angular.extend(Organization, organizations[0]);
                             }
-
-                            greyscaleProjectApi.list({
-                                organizationId: Organization.id
-                            }).then(function (projects) {
-                                Organization.projectId = projects[0] ? projects[0].id : undefined;
-                            });
                         });
                     } else {
                         angular.extend(Organization, profile.organization);
-                        Organization.projectId = profile.project.id;
+                        Organization.projectId = profile.projectId;
                     }
                 });
 
                 $scope.organizationChanged = function () {
                     angular.extend(Organization, $scope.model.organization);
-                    greyscaleProjectApi.list({
-                        organizationId: Organization.id
-                    }).then(function (projects) {
-                        try {
-                            Organization.projectId = projects[0].id;
-                        } catch (e) {
-                            throw 'Organization id=' + Organization.id + ' has no valid project';
-                        }
-                    });
+                    if (!Organization.projectId) {
+                        throw 'Organization id=' + Organization.id + ' has no valid project';
+                    }
                     $cookies.put('orgId', Organization.id);
+                    $timeout(function () {
+                        $scope.$apply();
+                    });
                 };
 
                 function _isSuperAdmin() {

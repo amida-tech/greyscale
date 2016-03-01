@@ -162,7 +162,7 @@ angular.module('greyscale.core')
                 _cookies = $cookies;
                 pub.translate = $translate.instant;
                 $rootScope.currentLocale = _locale;
-
+                $rootScope.translate = $translate.instant;
                 return pub;
             }]
         };

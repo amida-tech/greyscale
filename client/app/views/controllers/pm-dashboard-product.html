@@ -1,28 +1,44 @@
 <div translate-namespace="PM_PRODUCT_DASHBOARD">
 
-<div class="pull-right">
-    <a ng-href="{{model.exportHref}}" class="btn btn-primary"><i class="fa fa-download"></i> <span translate=".DOWNLOAD_DATA"></span></a>
-</div>
 <div class="row">
-    <div class="col-md-3">
-        <p class="indicator-box">
-            <span translate=".TASKS_UOAS"></span><br>
-            <strong>{{model.tasks.length}}/{{model.uoas.length}}</strong>
-        </p>
+    <div class="col-md-10">
+
+        <table class="indicators-table">
+            <tr class="indicator-header">
+                <td>
+                    <span translate=".COUNT_UOAS"></span><br>
+                </td>
+                <td>
+                    <span translate=".COUNT_ONTIME"></span> / <span translate=".COUNT_STARTED"></span>
+                </td>
+                <td>
+                    <span translate=".COUNT_DELAYED"></span> / <span translate=".COUNT_OVERDUE"></span>
+                </td>
+                <td>
+                    <span translate=".COUNT_FLAGGED"></span>
+                </td>
+            </tr>
+
+            <tr class="indicator-values">
+                <td>
+                    &nbsp;<strong>{{model.uoas.length}}</strong>&nbsp;
+                </td>
+                <td>
+                    &nbsp;<strong>{{model.count.onTime}} / {{model.count.started}}</strong>&nbsp;
+                </td>
+                <td>
+                    &nbsp;<strong>{{model.count.delayed}} / {{model.count.overdue}}</strong>&nbsp;
+                </td>
+                <td>
+                    &nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;
+                </td>
+            </tr>
+
+        </table>
+
     </div>
-    <div class="col-md-3">
-        <p class="indicator-box">
-            <span translate=".TASKS_STARTED"></span>
-            <br>
-            <strong>?</strong>
-        </p>
-    </div>
-    <div class="col-md-3">
-        <p class="indicator-box">
-            <span translate=".TASKS_FLAGGED"></span>
-            <br>
-            <strong>?</strong>
-        </p>
+    <div class="col-md-2 text-right">
+        <a ng-href="{{model.exportHref}}" class="btn btn-primary"><i class="fa fa-download"></i> <span translate=".DOWNLOAD_DATA"></span></a>
     </div>
 </div>
 

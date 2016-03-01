@@ -6,6 +6,7 @@
         "ADD": "Добавить",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
         "CLOSE": "Закрыть",
@@ -30,6 +31,9 @@
         "VIEW": "Просмотр",
         "WORDS": "",
         "YES": "Да"
+    },
+    "DASHBOARD": {
+        "UNREAD_MESSAGES_ALERT": ""
     },
     "DATEPICKER": {
         "DATE_FORMAT": "dd.MM.yyyy",
@@ -60,9 +64,19 @@
             "STARTED": "Начат",
             "SUSPENDED": "Приостановлен"
         },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "",
+            "CURRENT": "",
+            "WAITING": ""
+        },
         "PROJECTSTATES": {
             "ACTIVE": "Активный",
             "INACTIVE": "Не активный"
+        },
+        "ROLES": {
+            "ADMIN": "",
+            "CLIENT": "",
+            "USER": ""
         },
         "UOASTATUS": {
             "ACTIVE": "Активный",
@@ -117,7 +131,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
-        "EMAIL": "Эл.почт@",
+        "EMAIL": "Эл. почта",
         "FORGOT_PASSWORD": "Забыл пароль...",
         "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
         "LOGIN_INCORRECT": "Пользователь с указанным e-mail не существует.",
@@ -129,6 +143,8 @@
         "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
     },
     "MY_TASKS": {
+        "FINISHED_TITLE": "Законченные задачи",
+        "FUTURE_TITLE": "Будущие задачи",
         "NO_TASKS": "На данный момент у Вас нет задач.",
         "PRODUCT": "Проект",
         "SURVEY": "Опрос",
@@ -144,6 +160,7 @@
         "CONTENT_SECTION": "Ваш контент",
         "FORM_BUILDER": "Построитель форм",
         "GRAPH": "График",
+        "HELP": "Помощь",
         "HOME": "Главная",
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
@@ -162,6 +179,7 @@
         "PROJECT_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
         "RESET": "Сброс",
+        "SUPPORT": "Поддержка",
         "SURVEY": "Опрос",
         "TABLE": "Таблица",
         "TASKS": "Задачи",
@@ -195,10 +213,14 @@
         "SELECT_QUESTION": ""
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Загрузить данные",
-        "TASKS_FLAGGED": "",
-        "TASKS_STARTED": "",
-        "TASKS_UOAS": ""
+        "COUNT_DELAYED": "",
+        "COUNT_FLAGGED": "",
+        "COUNT_ONTIME": "",
+        "COUNT_OVERDUE": "",
+        "COUNT_STARTED": "",
+        "COUNT_UOAS": "",
+        "DEADLINE": "",
+        "DOWNLOAD_DATA": "Загрузить данные"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "Нет проектов",
@@ -232,6 +254,7 @@
             "SELECT_USERGROUP_LABEL": "Найдите пользователя по группе",
             "TABLE": {
                 "DELETE_CONFIRM": "",
+                "STEP": "",
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
                 "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
@@ -284,13 +307,15 @@
         "CURRENT_STEP": "Текущий шаг",
         "DEADLINE": "Крайний срок",
         "FLAGS": "Флаги",
-        "LAST_INTERACTION": "Последнее действие",
+        "LAST_UPDATE": "Время изменения",
         "MODAL": {
             "TITLE": "Задачи проекта"
         },
         "PROGRESS": "Прогресс",
         "ROLE": "Роль",
+        "STATUS": "",
         "STEP": "Шаг",
+        "STEP_SKIPPED": "",
         "TITLE": "Название",
         "UOA": "Цель",
         "USER": "Пользователь"
@@ -343,6 +368,7 @@
     },
     "SURVEYS": {
         "ABOVE": "",
+        "ATTACHMENTS": "",
         "BELOW": "",
         "CONTENT": "Содержание",
         "CURRENT_COUNT": "",
@@ -353,12 +379,15 @@
         "IS_COMPLETE": "",
         "IS_DRAFT": "",
         "ITEM": "Опрос",
+        "LINKS": "",
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
         "QUESTION": "",
+        "SAVE_DRAFT": "",
         "SELECT_ONE": "",
         "STATUS": "",
+        "SUBMIT": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {

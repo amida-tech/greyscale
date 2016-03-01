@@ -1,6 +1,19 @@
 <div class="row">
     <div class="col-md-12">
-        <widget-table model="model.tasks" row-selector=""></widget-table>
+        <widget-table model="model.activeTasks" row-selector=""></widget-table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <widget-table model="model.futureTasks" row-selector=""></widget-table>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <widget-table model="model.finishedTasks" row-selector=""></widget-table>
     </div>
 </div>
 
@@ -10,7 +23,7 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-survey.html">
-    <a ng-href="/interviewRenderer/?surveyId={{row.survey.id}}&taskId={{row.id}}">
+    <a ng-href="/#survey/{{row.survey.id}}/task/{{row.id}}">
         {{row.survey.title}}
     </a>
     <br>

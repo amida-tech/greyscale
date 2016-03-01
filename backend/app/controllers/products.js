@@ -50,13 +50,58 @@ module.exports = {
 
     tasks: function (req, res, next) {
         co(function* () {
+            var curStepAlias = 'curStep';
             return yield thunkQuery(
                 Task
                 .select(
-                    Task.star()
+                    Task.star(),
+                    'CASE ' +
+                        'WHEN (' +
+                            'SELECT ' +
+                                '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isReturn" = true ' +
+                            'AND "Discussions"."isResolve" = false ' +
+                            'LIMIT 1' +
+                            ') IS NULL ' +
+                        'THEN FALSE ' +
+                        'ELSE TRUE ' +
+                    'END as flagged',
+                    'CASE ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                    'END as status ',
+                    WorkflowStep.position,
+                    '(' +
+                        'SELECT max("SurveyAnswers"."created") ' +
+                        'FROM "SurveyAnswers" ' +
+                        'WHERE ' +
+                            '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
+                            'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
+                            'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
+                    ') as "lastVersionDate"'
                 )
                 .from(
                     Task
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(UOA)
+                    .on(Task.uoaId.equals(UOA.id))
+                    .leftJoin(ProductUOA)
+                    .on(
+                        ProductUOA.productId.equals(Task.productId)
+                        .and(ProductUOA.UOAid.equals(Task.uoaId))
+                    )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
+                    )
                 )
                 .where(Task.productId.equals(req.params.id))
             );

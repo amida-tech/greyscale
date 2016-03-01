@@ -48,22 +48,95 @@
         }
     }
 }
-.progress-block {
-    display: inline-block;
-    width: 20px;
-    height:20px;
-    margin-right: 2px;
-    background: #ddd;
-    border: 1px solid #ddd;
-    &.active {
-        border-color: #bbb;
+.column-hover {
+    .on-hover-show {
+        display: none;
     }
-    .step-current {
+    .on-hover-hide {
+        display: block;
+    }
+    &.column-hovered {
+        .on-hover-show {
+            display: block;
+        }
+        .on-hover-hide {
+            display: none;
+        }
+    }
+}
+.table-col-sm {
+    th, td {
+        min-width: 100px;
+    }
+}
+.table-col-md {
+    th, td {
+        min-width: 200px;
+    }
+}
+.table-col-lg {
+    th, td {
+        min-width: 400px;
+    }
+}
+table.table-col-fixed {
+    table-layout: fixed;
+    &.table-col-sm {
+        th, td {
+            width: 100px;
+        }
+    }
+    &.table-col-md {
+        th, td {
+            width: 200px;
+        }
+    }
+    &.table-col-lg {
+        th, td {
+            width: 400px;
+        }
+    }
+}
 
+.progress-blocks {
+    .progress-block {
+        display: inline-block;
+        vertical-align: middle;
+        width: 18px;
+        height:18px;
+        margin-right: 2px;
+        background: #ddd;
+        opacity: 0.5;
+        .fa-flag {
+            font-size: 12px;
+            position: relative;
+            top: -2px;
+            left: 0;
+            color: #fff;
+        }
+        &.active {
+            width: 21px;
+            height: 21px;
+            .fa-flag {
+                font-size: 16px;
+                top: 1px;
+                left: 0;
+            }
+            opacity: 1;
+        }
+        &.status-current {
+            background: #ee0000;
+        }
+        &.status-completed {
+            background: #00bc00;
+        }
+        &.status-waiting {
+            background: #aaa;
+        }
     }
-    .step-complete {
-
-    }
+}
+.flagged-task {
+    color: #ff0000;
 }
 
 .widget-table {

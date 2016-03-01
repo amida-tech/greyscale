@@ -37,11 +37,17 @@
             </div>
             <div ng-repeat="group in row.groups track by $index">
                 {{group.title}}
-                <a ng-click="ext.stepRemoveGroup(row, $index)" class="text-danger">&times;</a>
+                <a ng-click="ext.stepRemoveGroup(row.groups, $index)" class="text-danger">&times;</a>
             </div>
-            <div><span ng-hide="ext.noFreeGroups(row)" hidden-select="{data:ext.getGroups, labelField:'title', model:row, onChange:ext.stepAddGroup, disableItem:ext.disableGroup, hideDisabled: true}">
+            <div ng-hide="ext.noFreeGroups(row.groups)">
                 <a><i class="fa fa-plus"></i> <span translate=".ADD_GROUP"></span></a>
-            </span></div>
+                <select hidden-select
+                        ng-model="ext.selectedGroup"
+                        ng-options="group as group.title for group in ext.getFreeGroups(row.groups) track by group.id"
+                        ng-change="ext.stepAddGroup(row.groups, ext.selectedGroup)">
+                    <option value="" hidden></option>
+                </select>
+            </div>
 
         </div>
         <div class="col-md-3">

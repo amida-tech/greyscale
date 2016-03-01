@@ -31,4 +31,9 @@ Task.editCols = [
     'userId'
 ];
 
+Task.translate = [
+    'title',
+    'description'
+];
+
 module.exports = Task;

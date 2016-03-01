@@ -5,6 +5,8 @@ var passport = require('passport'),
     User = require('app/models/users'),
     Role = require('app/models/roles'),
     Token = require('app/models/token'),
+    Project = require('app/models/projects'),
+    Organization = require('app/models/organizations'),
     EssenceRoles = require('app/models/essence_roles'),
     AccessPermission = require('app/models/access_permissions'),
     Essences = require('app/models/essences'),
@@ -67,11 +69,20 @@ passport.use(new TokenStrategy({
     function (req, tokenBody, done) {
 
         query(
-            Token.select(Token.star(), User.star(), Role.name.as('role'), requestRights)
+            Token
+                .select(
+                    Token.star(),
+                    User.star(),
+                    Role.name.as('role'),
+                    requestRights,
+                    Project.id.as('projectId')
+                )
             .from(
                 Token
                 .leftJoin(User).on(User.id.equals(Token.userID))
                 .leftJoin(Role).on(User.roleID.equals(Role.id))
+                .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
             )
             .where(Token.body.equals(tokenBody)), {
                 'realm': req.param('realm')
@@ -84,10 +95,7 @@ passport.use(new TokenStrategy({
                     req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
                     return done(null, false);
                 }
-                // if (new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
-                //   req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
-                //   return done(null, false);
-                // }
+
                 req.debug(util.format('Authentication OK for token: %s', tokenBody));
                 query(
                     User.update({

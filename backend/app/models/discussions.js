@@ -18,7 +18,8 @@ var Discussion = sql.define({
     ]
 });
 
-Discussion.editCols = [
+Discussion.insertCols = [
+    'taskId',
     'questionId',
     'userFromId',
     'userId',
@@ -27,6 +28,11 @@ Discussion.editCols = [
     'isReturn',
     'isResolve',
     'returnTaskId'
+];
+
+Discussion.updateCols = [
+    'entry',
+    'updated'
 ];
 
 module.exports = Discussion;

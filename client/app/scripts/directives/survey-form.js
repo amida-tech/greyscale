@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $log) {
+        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
@@ -18,9 +18,19 @@ angular.module('greyscaleApp')
 
                 scope.$watch('surveyData', updateForm);
 
-                scope.autosave = $interval(function () {
+                scope.saveDraft = function () {
                     saveAnswers(scope, true);
-                }, 15000);
+                };
+
+                scope.save = function () {
+                    saveAnswers(scope).then(goTasks);
+                };
+
+                scope.back = function () {
+                    saveAnswers(scope, true).then(goTasks);
+                };
+
+                scope.autosave = $interval(scope.saveDraft, 15000);
 
                 scope.$on('$destroy', function () {
                     $interval.cancel(scope.autosave);
@@ -36,6 +46,11 @@ angular.module('greyscaleApp')
                     }
                 }
 
+                function goTasks(canGo) {
+                    if (canGo) {
+                        $state.go('tasks');
+                    }
+                }
             },
             controller: function ($scope) {
 
@@ -49,11 +64,6 @@ angular.module('greyscaleApp')
                         $anchorScroll(elemId);
                     }, 10);
                 };
-
-                $scope.save = function () {
-                    saveAnswers($scope);
-                };
-
             }
         };
 
@@ -70,6 +80,7 @@ angular.module('greyscaleApp')
                 content: content
             }];
             var survey = scope.surveyData.survey;
+
             var o, item, fld, fldId, q, field, type,
                 r = 0,
                 qid = 0,
@@ -88,6 +99,7 @@ angular.module('greyscaleApp')
 
                     fld = {
                         id: field.id,
+                        qid: field.qid,
                         cid: fldId,
                         type: type,
                         label: field.label,
@@ -101,7 +113,11 @@ angular.module('greyscaleApp')
                         intOnly: field.intOnly,
                         withOther: field.incOtherOpt,
                         value: field.value,
+                        links: field.links,
+                        canAttach: field.attachment,
+                        attachments: [],
                         ngModel: {},
+                        flags: scope.surveyData.flags,
                         answer: null
                     };
 
@@ -151,7 +167,9 @@ angular.module('greyscaleApp')
                         r--;
                     } else { //push data into current section
                         qid++;
-                        fld.qid = qid;
+                        if (!fld.qid) {
+                            fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
+                        }
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
 
@@ -181,11 +199,62 @@ angular.module('greyscaleApp')
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
             };
+            var answers = {};
+
+            function loadReqursive(fields) {
+                var f, fld, answer, o, oQty,
+                    fQty = fields.length;
+
+                for (f = 0; f < fQty; f++) {
+                    fld = fields[f];
+                    answer = answers[fld.cid];
+                    if (answer) {
+                        switch (fld.type) {
+                        case 'checkboxes':
+                            oQty = fld.options.length;
+                            for (o = 0; o < oQty; o++) {
+                                fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
+                                fld.options[o].checked = fld.options[o].isSelected;
+                                if (fld.options[o].isSelected) {
+                                    fld.answer = fld.options[o];
+                                }
+                            }
+                            break;
+
+                        case 'dropdown':
+                        case 'radio':
+                            oQty = fld.options.length;
+                            for (o = 0; o < oQty; o++) {
+                                fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
+                                if (fld.options[o].isSelected) {
+                                    fld.answer = fld.options[o];
+                                }
+                            }
+                            break;
+
+                        case 'number':
+                            if (fld.intOnly) {
+                                fld.answer = parseInt(answer.value);
+                            } else {
+                                fld.answer = parseFloat(answer.value);
+                            }
+                            break;
+
+                        default:
+                            fld.answer = answer.value;
+                        }
+                    }
+                    if (fld.sub) {
+                        loadReqursive(fld.sub);
+                    }
+                }
+
+            }
+
             scope.lock = true;
             greyscaleSurveyAnswerApi.list(params)
                 .then(function (_answers) {
                     var v, answer, o, fld, _date;
-                    var answers = {};
 
                     for (v = 0; v < _answers.length; v++) {
                         answer = answers['q' + _answers[v].questionId];
@@ -198,6 +267,7 @@ angular.module('greyscaleApp')
                         }
                     }
 
+                    loadReqursive(scope.fields);
                     for (v = 0; v < scope.fields.length; v++) {
                         fld = scope.fields[v];
                         answer = answers[fld.cid];
@@ -244,21 +314,13 @@ angular.module('greyscaleApp')
 
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
-            if (scope.surveyForm && scope.surveyForm.$dirty) {
-                scope.lock = true;
-                var params = {
-                    surveryId: scope.surveyData.survey.id,
-                    productId: scope.surveyData.task.productId,
-                    UOAid: scope.surveyData.task.uoaId,
-                    wfStepId: scope.surveyData.task.stepId,
-                    userId: scope.surveyData.userId
-                };
-                if (isAuto) {
-                    params.autosave = true;
-                }
-                var answers = {};
-                for (var f = 0; f < scope.fields.length; f++) {
-                    var fld = scope.fields[f];
+            var res = $q.resolve(isAuto);
+            var answers = {};
+
+            function saveFields(fields) {
+                var f, fld, qty = fields.length;
+                for (f = 0; f < qty; f++) {
+                    fld = fields[f];
                     if (fld.answer || fld.type === 'checkboxes') {
                         var answer = {
                             questionId: fld.id
@@ -297,9 +359,29 @@ angular.module('greyscaleApp')
 
                         answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer);
                     }
+
+                    if (fld.sub) {
+                        saveFields(fld.sub);
+                    }
+                }
+            }
+
+            if (scope.surveyForm && scope.surveyForm.$dirty) {
+                scope.lock = true;
+                var params = {
+                    surveryId: scope.surveyData.survey.id,
+                    productId: scope.surveyData.task.productId,
+                    UOAid: scope.surveyData.task.uoaId,
+                    wfStepId: scope.surveyData.task.stepId,
+                    userId: scope.surveyData.userId
+                };
+                if (isAuto) {
+                    params.autosave = true;
                 }
 
-                $q.all(answers)
+                saveFields(scope.fields);
+
+                res = $q.all(answers)
                     .then(function (resp) {
                         for (var r in resp) {
                             if (resp.hasOwnProperty(r) && scope.surveyForm[r]) {
@@ -308,13 +390,16 @@ angular.module('greyscaleApp')
                         }
                         scope.surveyForm.$dirty = isAuto;
                         scope.recentSaved = new Date();
+                        return true;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
+                        return $q.resolve(isAuto);
                     })
                     .finally(function () {
                         scope.lock = false;
                     });
             }
+            return res;
         }
     });

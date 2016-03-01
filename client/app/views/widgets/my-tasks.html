@@ -7,10 +7,6 @@
                 <a ng-href="#/survey/{{task.survey.id}}/task/{{task.id}}">
                     {{task.survey.title}}
                 </a>
-                <br>
-                <small><a ng-href="/interviewRenderer/?surveyId={{task.survey.id}}&taskId={{task.id}}">
-                    {{task.survey.title}} (low bandwidth link)
-                </a></small>
             </p>
             <p>
                 {{(task.startDate||task.step.startDate)|parseDate|date:'shortDate'}}

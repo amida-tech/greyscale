@@ -23,7 +23,6 @@ module.exports = {
     select: function (req, res, next) {
         co(function* () {
             req.query.realm = req.param('realm');
-            //            return yield thunkQuery(Project.select().from(Project), _.omit(req.query, 'offset', 'limit', 'order'));
             return yield thunkQuery(Project.select().from(Project), req.query);
         }).then(function (data) {
             res.json(data);
@@ -134,7 +133,8 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-
+            // patch for status
+            req.body = _extend(req.body, {status: 1});
             var result = yield thunkQuery(
                 Project
                 .insert(_.defaults(_.pick(req.body, Project.table._initialConfig.columns), {
@@ -231,24 +231,5 @@ function* checkProjectData(req) {
             }
         }
     }
-
-    var isExistOrg = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)), {
-        'realm': req.param('realm')
-    });
-    if (!_.first(isExistOrg)) {
-        throw new HttpError(403, 'By some reason cannot find your organization');
-    }
-
-    //var isExistAdmin = yield thunkQuery(User.select().where(User.id.equals(req.body.adminUserId)),
-    //		{'realm': req.param('realm')});
-    //if (!_.first(isExistAdmin)) {
-    //    throw new HttpError(403, 'User with this id does not exist (admin user id)');
-    //}
-    //
-    //if (_.first(isExistAdmin).organizationId != req.user.organizationId) {
-    //    throw new HttpError(403, 'This user cannot be an admin of this project, because he is not a member of project organization')
-    //}
-
-    req.body.organizationId = req.user.organizationId;
 
 }

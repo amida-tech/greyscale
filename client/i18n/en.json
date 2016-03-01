@@ -6,6 +6,7 @@
         "ADD": "Add",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
+        "BACK": "Back",
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
         "CLOSE": "Close",
@@ -30,6 +31,9 @@
         "VIEW": "View",
         "WORDS": "word(s)",
         "YES": "Yes"
+    },
+    "DASHBOARD": {
+        "UNREAD_MESSAGES_ALERT": "You have {{count}} unread messages"
     },
     "DATEPICKER": {
         "DATE_FORMAT": "yyyy/MM/dd",
@@ -60,9 +64,19 @@
             "STARTED": "Started",
             "SUSPENDED": "Suspended"
         },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "Completed",
+            "CURRENT": "Current",
+            "WAITING": "Waiting"
+        },
         "PROJECTSTATES": {
             "ACTIVE": "Active",
             "INACTIVE": "Inactive"
+        },
+        "ROLES": {
+            "ADMIN": "Super Admin",
+            "CLIENT": "Admin",
+            "USER": "User"
         },
         "UOASTATUS": {
             "ACTIVE": "Active",
@@ -117,7 +131,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
-        "EMAIL": "E-m@il",
+        "EMAIL": "E-mail",
         "FORGOT_PASSWORD": "Forgot password...",
         "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
         "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
@@ -129,6 +143,8 @@
         "TOKEN_SENT": "Instructions was sent to your e-mail..."
     },
     "MY_TASKS": {
+        "FINISHED_TITLE": "Finished tasks",
+        "FUTURE_TITLE": "Future tasks",
         "NO_TASKS": "You have no tasks at this moment.",
         "PRODUCT": "Project",
         "SURVEY": "Survey",
@@ -144,6 +160,7 @@
         "CONTENT_SECTION": "Your Content",
         "FORM_BUILDER": "Form Builder",
         "GRAPH": "Graph",
+        "HELP": "Help",
         "HOME": "Dashboard",
         "IMPORT": "Import",
         "LOGIN": "Login",
@@ -162,6 +179,7 @@
         "PROJECT_MANAGEMENT": "Project Management",
         "REGISTER": "Register",
         "RESET": "Reset",
+        "SUPPORT": "Support",
         "SURVEY": "Survey",
         "TABLE": "Table",
         "TASKS": "Tasks",
@@ -195,10 +213,14 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
-        "DOWNLOAD_DATA": "Download Data",
-        "TASKS_FLAGGED": "Tasks Flagged",
-        "TASKS_STARTED": "Tasks Started",
-        "TASKS_UOAS": "Tasks/Targets"
+        "COUNT_DELAYED": "Delayed",
+        "COUNT_FLAGGED": "Flagged",
+        "COUNT_ONTIME": "On Time",
+        "COUNT_OVERDUE": "Overdue",
+        "COUNT_STARTED": "Started",
+        "COUNT_UOAS": "Targets",
+        "DEADLINE": "Deadline",
+        "DOWNLOAD_DATA": "Download Data"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",
@@ -232,6 +254,7 @@
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
                 "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
+                "STEP": "Step",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -284,13 +307,15 @@
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
         "FLAGS": "Flag",
-        "LAST_INTERACTION": "Last Interaction",
+        "LAST_UPDATE": "Updated",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
         },
         "PROGRESS": "Progress",
         "ROLE": "Role",
+        "STATUS": "Status",
         "STEP": "Workflow Step",
+        "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
         "UOA": "Target",
         "USER": "User"
@@ -343,6 +368,7 @@
     },
     "SURVEYS": {
         "ABOVE": "above",
+        "ATTACHMENTS": "Attachments",
         "BELOW": "below",
         "CONTENT": "Content",
         "CURRENT_COUNT": "Current count",
@@ -353,12 +379,15 @@
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "LINKS": "Links",
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
-        "QUESTION": "Question",
+        "QUESTION": "Q",
+        "SAVE_DRAFT": "Save as Draft",
         "SELECT_ONE": "select one",
         "STATUS": "Status",
+        "SUBMIT": "Save and Submit",
         "VIEW": "View"
     },
     "TABLES": {
@@ -420,7 +449,7 @@
     "USERS": {
         "ANONYMOUS": "Anonymous",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
-        "EMAIL": "E-Mail",
+        "EMAIL": "E-mail",
         "FIRST_NAME": "First Name",
         "GROUPS": "Groups",
         "GROUPS_MODAL": {

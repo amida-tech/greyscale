@@ -25,6 +25,11 @@ SurveyAnswer.editCols = [
     'optionId'
 ];
 
+SurveyAnswer.translate = [
+    'value'
+];
+
+
 SurveyAnswer.whereCol = columns;
 
 module.exports = SurveyAnswer;
