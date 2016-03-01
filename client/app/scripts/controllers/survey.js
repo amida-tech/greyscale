@@ -62,10 +62,10 @@ angular.module('greyscaleApp')
                     }
                 }
                 $log.debug(data.flags);
-                $scope.model.surveyData = data;
-                $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
             })
             .finally(function () {
+                $scope.model.surveyData = data;
+                $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
                 $scope.loading = false;
             });
     });
