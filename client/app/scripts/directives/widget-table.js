@@ -324,12 +324,12 @@ angular.module('greyscaleApp')
         }
 
         function _columnShowOnHoverFunctionality(scope, el) {
-            $(el).on('mouseenter', '.column-hover', function(){
+            $(el).on('mouseenter', '.column-hover', function () {
                 var el = $(this);
                 var hoveredCellIndex = el.context.cellIndex;
                 var table = el.closest('table');
                 var cells = table.find('.column-hover');
-                cells.each(function(i, cell){
+                cells.each(function (i, cell) {
                     cell = $(cell);
                     if (cell.context.cellIndex === hoveredCellIndex) {
                         cell.addClass('column-hovered');

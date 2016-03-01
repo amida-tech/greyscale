@@ -41,14 +41,14 @@ angular.module('greyscaleApp')
         Organization.$lock = true;
 
         greyscaleProductApi.get(productId)
-        .then(function(product){
-            if (Organization.projectId !== product.projectId) {
-                Organization.$setBy('projectId', product.projectId);
-            }
-        })
-        .then(function(){
-            _getTaskTableData();
-        });
+            .then(function (product) {
+                if (Organization.projectId !== product.projectId) {
+                    Organization.$setBy('projectId', product.projectId);
+                }
+            })
+            .then(function () {
+                _getTaskTableData();
+            });
 
         Organization.$watch('projectId', $scope, function () {
             $scope.model.projectId = Organization.projectId;
@@ -538,7 +538,7 @@ angular.module('greyscaleApp')
                     $scope.model.$loading = false;
                 })
                 .then(function (data) {
-                    $timeout(function(){
+                    $timeout(function () {
                         _initDropUser();
                     });
                     return data;

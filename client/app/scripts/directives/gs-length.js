@@ -24,9 +24,12 @@ angular.module('greyscaleApp')
                             } else {
                                 scope.field.length = 0;
                             }
-
-                            ngModel.$setValidity('minlength', min <= scope.field.length);
-                            ngModel.$setValidity('maxlength', max >= scope.field.length);
+                            if (min) {
+                                ngModel.$setValidity('minlength', min <= scope.field.length);
+                            }
+                            if (max) {
+                                ngModel.$setValidity('maxlength', max >= scope.field.length);
+                            }
 
                             scope.field.ngModel = ngModel;
                         }

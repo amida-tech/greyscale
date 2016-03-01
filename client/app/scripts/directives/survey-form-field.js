@@ -140,8 +140,8 @@ angular.module('greyscaleApp')
                                 required: scope.field.required
                             };
 
-                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" form-field-value="'
-                                + scope.field.cid + '" options="field.options"></select-date>';
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" ' +
+                                'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
                             break;
 
                         default:

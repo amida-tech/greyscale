@@ -270,6 +270,7 @@ function* addAnswer(req, dataObject) {
     }
 
     if (!req.query.autosave) {
+        console.log('!NEW VERSION dataObject:', dataObject);
         var nextStep = yield thunkQuery(
             WorkflowStep.select()
             .where(

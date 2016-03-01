@@ -42,10 +42,10 @@ angular.module('greyscaleApp')
                     survey: resp.survey,
                     task: resp.task,
                     userId: resp.profile.id,
-                    flags:{}
+                    flags: {}
                 };
                 $scope.model.title = resp.survey.title;
-                return greyscaleProductApi.get(resp.task.productId);
+                return resp.task ? greyscaleProductApi.get(resp.task.productId) : $q.reject();
             })
             .then(function (product) {
                 return greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList();
@@ -54,18 +54,18 @@ angular.module('greyscaleApp')
                 steps = steps.plain();
                 var s, qty = steps.length;
                 for (s = 0; s < qty; s++) {
-                    if (data.task.stepId == steps[s].id) {
+                    if (data.task.stepId === steps[s].id) {
                         var f, fLen = flags.length;
-                        for (f=0;f<fLen;f++) {
+                        for (f = 0; f < fLen; f++) {
                             data.flags[flags[f]] = steps[s][flags[f]];
                         }
                     }
                 }
                 $log.debug(data.flags);
-                $scope.model.surveyData = data;
-                $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
             })
             .finally(function () {
+                $scope.model.surveyData = data;
+                $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
                 $scope.loading = false;
             });
     });

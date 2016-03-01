@@ -387,7 +387,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask 
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('graph', {
@@ -402,7 +402,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.superAdmin.mask 
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('table', {
@@ -417,7 +417,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask 
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('survey', {
@@ -504,11 +504,13 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     $rootScope.$on('login', function () {
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
-            var roleId = profile.roleID;
-            var roles = greyscaleGlobals.userRoles;
-            var role = _.find(roles, { id: roleId });
-            $state.go(role.homeState || 'home');
-        });
+                var roleId = profile.roleID;
+                var roles = greyscaleGlobals.userRoles;
+                var role = _.find(roles, {
+                    id: roleId
+                });
+                $state.go(role.homeState || 'home');
+            });
     });
 
     $state.ext = {};
