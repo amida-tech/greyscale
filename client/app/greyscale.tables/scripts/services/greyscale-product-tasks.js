@@ -29,22 +29,22 @@ angular.module('greyscale.tables')
                 //    field: 'step.title',
                 //    sortable: 'step.title'
         }, {
-        //    title: tns + 'STATUS',
-        //    field: 'status',
-        //    sortable: 'status',
-        //    cellTemplate: '<span class="task-status-{{option.value}}">{{option.name}}</span>',
-        //    dataFormat: 'option',
-        //    dataSet: {
-        //        getData: _getTaskStatuses,
-        //        keyField: 'value',
-        //        valField: 'name'
-        //    }
-        //}, {
-        //    title: tns + 'FLAGS',
-        //    field: 'flagged',
-        //    sortable: 'flagged',
-        //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa fa-flag"></i></div>'
-        //}, {
+            //    title: tns + 'STATUS',
+            //    field: 'status',
+            //    sortable: 'status',
+            //    cellTemplate: '<span class="task-status-{{option.value}}">{{option.name}}</span>',
+            //    dataFormat: 'option',
+            //    dataSet: {
+            //        getData: _getTaskStatuses,
+            //        keyField: 'value',
+            //        valField: 'name'
+            //    }
+            //}, {
+            //    title: tns + 'FLAGS',
+            //    field: 'flagged',
+            //    sortable: 'flagged',
+            //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa fa-flag"></i></div>'
+            //}, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
             cellTemplate: '<span ng-class="{\'text-danger\': ext.isOverdue(row) }">{{row.endDate|date}}</span>',
@@ -153,12 +153,12 @@ angular.module('greyscale.tables')
         function _getCurrentTasks(tasks) {
             var currentTasks = [];
             var grouppedTasks = _.groupBy(tasks, 'uoaId');
-            angular.forEach(grouppedTasks, function(uoaTasks){
+            angular.forEach(grouppedTasks, function (uoaTasks) {
                 var currentTask;
-                angular.forEach(uoaTasks, function(task){
-                   if (!currentTask && task.status === 'current') {
+                angular.forEach(uoaTasks, function (task) {
+                    if (!currentTask && task.status === 'current') {
                         currentTask = _getTaskProgressData(task, uoaTasks);
-                   }
+                    }
                 });
                 if (currentTask) {
                     currentTasks.push(currentTask);
@@ -172,7 +172,9 @@ angular.module('greyscale.tables')
             task.progress = [];
             var id = parseInt(task.id);
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
-                var stepTask = _.find(uoaTasks, {stepId: step.id});
+                var stepTask = _.find(uoaTasks, {
+                    stepId: step.id
+                });
                 if (!stepTask) {
                     task.progress.push({
                         step: step

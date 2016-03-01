@@ -27,6 +27,8 @@ angular.module('greyscale.rest')
         }
 
         function _saveItem(answer, isAuto) {
-            return _api().customPOST(answer, '', {autosave: isAuto}).then(_postProcess);
+            return _api().customPOST(answer, '', {
+                autosave: isAuto
+            }).then(_postProcess);
         }
     });

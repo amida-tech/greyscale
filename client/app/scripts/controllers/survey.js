@@ -42,7 +42,7 @@ angular.module('greyscaleApp')
                     survey: resp.survey,
                     task: resp.task,
                     userId: resp.profile.id,
-                    flags:{}
+                    flags: {}
                 };
                 $scope.model.title = resp.survey.title;
                 return resp.task ? greyscaleProductApi.get(resp.task.productId) : $q.reject();
@@ -54,9 +54,9 @@ angular.module('greyscaleApp')
                 steps = steps.plain();
                 var s, qty = steps.length;
                 for (s = 0; s < qty; s++) {
-                    if (data.task.stepId == steps[s].id) {
+                    if (data.task.stepId === steps[s].id) {
                         var f, fLen = flags.length;
-                        for (f=0;f<fLen;f++) {
+                        for (f = 0; f < fLen; f++) {
                             data.flags[flags[f]] = steps[s][flags[f]];
                         }
                     }

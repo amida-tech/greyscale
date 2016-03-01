@@ -3,9 +3,9 @@
 angular.module('greyscale.tables')
     .factory('greyscaleMyTasksFineshedTbl', function (_, $q, greyscaleTaskApi) {
 
-    var tns = 'MY_TASKS.';
+        var tns = 'MY_TASKS.';
 
-    var resDescr = [{
+        var resDescr = [{
             title: tns + 'TASK',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-task.html'
@@ -28,24 +28,24 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
 
-    var _table = {
-        title: tns + 'FINISHED_TITLE',
-        icon: 'fa-tasks',
-        sorting: {
-            id: 'asc'
-        },
-        cols: resDescr,
-        dataPromise: _getData,
-        query: { }
-    };
+        var _table = {
+            title: tns + 'FINISHED_TITLE',
+            icon: 'fa-tasks',
+            sorting: {
+                id: 'asc'
+            },
+            cols: resDescr,
+            dataPromise: _getData,
+            query: {}
+        };
 
-    function _getData() {
-        return greyscaleTaskApi.myList().then(function (data) {
-            return _.filter(data, function(item) {
-                return item.status === 'completed';
+        function _getData() {
+            return greyscaleTaskApi.myList().then(function (data) {
+                return _.filter(data, function (item) {
+                    return item.status === 'completed';
+                });
             });
-        });
-    }
+        }
 
-    return _table;
-});
+        return _table;
+    });

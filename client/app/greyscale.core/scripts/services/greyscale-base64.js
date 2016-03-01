@@ -133,7 +133,7 @@ angular.module('greyscale.core')
             contentType = contentType || '';
             sliceSize = sliceSize || 512;
 
-            var byteCharacters = atob(b64Data);
+            var byteCharacters = window.atob(b64Data);
             var byteArrays = [];
 
             for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
@@ -149,7 +149,9 @@ angular.module('greyscale.core')
                 byteArrays.push(byteArray);
             }
 
-            return new Blob(byteArrays, {type: contentType});
+            return new Blob(byteArrays, {
+                type: contentType
+            });
         };
 
         return this;

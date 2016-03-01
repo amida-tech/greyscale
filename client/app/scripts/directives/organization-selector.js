@@ -23,11 +23,11 @@ angular.module('greyscaleApp')
                 off();
             });
         };
-        org.$setBy = function(field, value){
+        org.$setBy = function (field, value) {
             var params = {};
             params[field] = value;
             greyscaleOrganizationApi.list()
-                .then(function(orgList){
+                .then(function (orgList) {
                     var setOrg = _.find(orgList, params);
                     if (setOrg) {
                         angular.extend(org, setOrg);

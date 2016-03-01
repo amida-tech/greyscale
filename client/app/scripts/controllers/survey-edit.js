@@ -21,7 +21,7 @@ angular.module('greyscaleApp')
 
         var _survey;
         if (surveyId) {
-            Organization.$watch($scope, function(){
+            Organization.$watch($scope, function () {
                 projectId = Organization.projectId;
                 _loadSurvey();
             });
@@ -54,7 +54,7 @@ angular.module('greyscaleApp')
                 if (!survey) {
                     survey = _survey;
                 }
-                survey.questions = questions||[];
+                survey.questions = questions || [];
                 for (var j = survey.questions.length - 1; j >= 0; j--) {
                     if (!survey.questions[j]) {
                         survey.questions.splice(j, 1);
@@ -110,13 +110,13 @@ angular.module('greyscaleApp')
 
         var firstSave = $scope.$on('form-changes-saved', function () {
             $scope.dataForm.$dirty = true;
-            $timeout(function(){
+            $timeout(function () {
                 $scope.$digest();
             });
             firstSave();
         });
 
-        $scope.$on('$destroy', function(){
+        $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
     });
