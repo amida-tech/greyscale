@@ -95,7 +95,7 @@ angular.module('greyscale.tables')
                 greyscaleGroupApi.delete(group.id)
                     .then(_reload)
                     .catch(function (err) {
-                        inform.add('Usergroup delete error: ' + err);
+                        _errHandler(err, 'deleting');
                     });
             });
         }
