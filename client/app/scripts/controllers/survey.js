@@ -11,7 +11,8 @@ angular.module('greyscaleApp')
 
         $scope.model = {
             title: '',
-            surveyData: null
+            surveyData: null,
+            showDiscuss: false
         };
 
         var reqs = {
@@ -30,6 +31,7 @@ angular.module('greyscaleApp')
                     task: resp.task,
                     userId: resp.profile.id
                 };
+                $scope.model.showDiscuss = (resp.task && resptask.id && resp.task.accessToDiscussions);
                 $scope.model.title = resp.survey.title;
             })
             .finally(function () {
