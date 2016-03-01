@@ -377,7 +377,7 @@ angular.module('greyscaleApp')
                         }
                         angular.extend(answer, params);
 
-                        answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer);
+                        answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
                     }
 
                     if (fld.sub) {
@@ -395,9 +395,6 @@ angular.module('greyscaleApp')
                     wfStepId: scope.surveyData.task.stepId,
                     userId: scope.surveyData.userId
                 };
-                if (isAuto) {
-                    params.autosave = true;
-                }
 
                 saveFields(scope.fields);
 

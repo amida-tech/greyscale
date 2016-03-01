@@ -26,7 +26,7 @@ angular.module('greyscale.rest')
             return _api().get(params).then(_postProcess);
         }
 
-        function _saveItem(answer) {
-            return _api().customPOST(answer).then(_postProcess);
+        function _saveItem(answer, isAuto) {
+            return _api().customPOST(answer, '', {autosave: isAuto}).then(_postProcess);
         }
     });
