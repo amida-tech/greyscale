@@ -202,7 +202,8 @@ angular.module('greyscaleApp')
                 productId: scope.surveyData.task.productId,
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
-                userId: scope.surveyData.userId
+                userId: scope.surveyData.userId,
+                ts: new Date().getTime()
             };
             var answers = {};
 
