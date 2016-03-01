@@ -286,6 +286,43 @@ ALTER SEQUENCE "AccessPermissions_id_seq" OWNED BY "AccessPermissions".id;
 
 
 --
+-- Name: AnswerAttachments; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "AnswerAttachments" (
+    id integer NOT NULL,
+    "answerId" integer,
+    filename character varying,
+    size integer,
+    mimetype character varying,
+    body bytea
+);
+
+
+ALTER TABLE "AnswerAttachments" OWNER TO indaba;
+
+--
+-- Name: AnswerAttachments_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+CREATE SEQUENCE "AnswerAttachments_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "AnswerAttachments_id_seq" OWNER TO indaba;
+
+--
+-- Name: AnswerAttachments_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER SEQUENCE "AnswerAttachments_id_seq" OWNED BY "AnswerAttachments".id;
+
+
+--
 -- Name: Discussions; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -421,7 +458,8 @@ ALTER SEQUENCE "EntityRoles_id_seq" OWNED BY "EssenceRoles".id;
 CREATE TABLE "Groups" (
     id integer NOT NULL,
     title character varying,
-    "organizationId" integer
+    "organizationId" integer,
+    "langId" integer
 );
 
 
@@ -458,7 +496,8 @@ CREATE TABLE "Surveys" (
     description text,
     created timestamp with time zone DEFAULT now() NOT NULL,
     "projectId" integer,
-    "isDraft" boolean DEFAULT false NOT NULL
+    "isDraft" boolean DEFAULT false NOT NULL,
+    "langId" integer
 );
 
 
@@ -521,6 +560,50 @@ ALTER SEQUENCE "Languages_id_seq" OWNED BY "Languages".id;
 
 
 --
+-- Name: Notifications; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "Notifications" (
+    id integer NOT NULL,
+    "userFrom" integer NOT NULL,
+    "userTo" integer NOT NULL,
+    body text,
+    email character varying,
+    message text,
+    "sentResult" character varying,
+    "essenceId" integer,
+    "entityId" integer,
+    created timestamp(6) with time zone DEFAULT now() NOT NULL,
+    "readingTime" timestamp(6) with time zone,
+    sent timestamp(6) with time zone,
+    read boolean DEFAULT false
+);
+
+
+ALTER TABLE "Notifications" OWNER TO indaba;
+
+--
+-- Name: Notifications_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+CREATE SEQUENCE "Notifications_id_seq"
+    START WITH 167
+    INCREMENT BY 1
+    MINVALUE 0
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Notifications_id_seq" OWNER TO indaba;
+
+--
+-- Name: Notifications_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER SEQUENCE "Notifications_id_seq" OWNED BY "Notifications".id;
+
+
+--
 -- Name: Organizations; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -531,7 +614,8 @@ CREATE TABLE "Organizations" (
     "adminUserId" integer,
     url character varying(200),
     "enforceApiSecurity" smallint,
-    "isActive" boolean
+    "isActive" boolean,
+    "langId" integer
 );
 
 
@@ -565,7 +649,8 @@ ALTER SEQUENCE "Organizations_id_seq" OWNED BY "Organizations".id;
 CREATE TABLE "ProductUOA" (
     "productId" integer NOT NULL,
     "UOAid" integer NOT NULL,
-    "currentStepId" integer
+    "currentStepId" integer,
+    "isComplete" boolean DEFAULT false NOT NULL
 );
 
 
@@ -582,7 +667,8 @@ CREATE TABLE "Products" (
     "originalLangId" integer,
     "projectId" integer,
     "surveyId" integer,
-    status smallint DEFAULT 0 NOT NULL
+    status smallint DEFAULT 0 NOT NULL,
+    "langId" integer
 );
 
 
@@ -623,7 +709,8 @@ CREATE TABLE "Projects" (
     "startTime" timestamp with time zone,
     status smallint DEFAULT 0 NOT NULL,
     "adminUserId" integer,
-    "closeTime" timestamp with time zone
+    "closeTime" timestamp with time zone,
+    "langId" integer
 );
 
 
@@ -739,7 +826,11 @@ CREATE TABLE "SurveyAnswers" (
     "wfStepId" integer,
     version integer,
     "surveyId" integer,
-    "optionId" integer[]
+    "optionId" integer[],
+    "langId" integer,
+    "isResponse" boolean DEFAULT false NOT NULL,
+    "isAgree" boolean,
+    comments character varying
 );
 
 
@@ -776,7 +867,8 @@ CREATE TABLE "SurveyQuestionOptions" (
     value character varying,
     label character varying,
     skip smallint,
-    "isSelected" boolean DEFAULT false NOT NULL
+    "isSelected" boolean DEFAULT false NOT NULL,
+    "langId" integer
 );
 
 
@@ -806,7 +898,8 @@ CREATE TABLE "SurveyQuestions" (
     qid character varying,
     links text,
     attachment boolean,
-    "optionNumbering" character varying
+    "optionNumbering" character varying,
+    "langId" integer
 );
 
 
@@ -850,7 +943,8 @@ CREATE TABLE "Tasks" (
     "accessToResponses" boolean DEFAULT false NOT NULL,
     "accessToDiscussions" boolean DEFAULT false NOT NULL,
     "writeToAnswers" boolean DEFAULT false NOT NULL,
-    "userId" integer
+    "userId" integer,
+    "langId" integer
 );
 
 
@@ -1291,7 +1385,8 @@ CREATE TABLE "Users" (
     timezone character varying,
     "lastActive" timestamp with time zone,
     affiliation character varying,
-    "isAnonymous" boolean DEFAULT false NOT NULL
+    "isAnonymous" boolean DEFAULT false NOT NULL,
+    "langId" integer
 );
 
 
@@ -1327,7 +1422,8 @@ CREATE TABLE "WorkflowSteps" (
     "position" integer,
     "writeToAnswers" boolean,
     "allowEdit" boolean DEFAULT false NOT NULL,
-    role character varying
+    role character varying,
+    "langId" integer
 );
 
 
@@ -1499,6 +1595,13 @@ ALTER TABLE ONLY "AccessPermissions" ALTER COLUMN id SET DEFAULT nextval('"Acces
 -- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
+ALTER TABLE ONLY "AnswerAttachments" ALTER COLUMN id SET DEFAULT nextval('"AnswerAttachments_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
 ALTER TABLE ONLY "Discussions" ALTER COLUMN id SET DEFAULT nextval('"Discussions_id_seq"'::regclass);
 
 
@@ -1528,6 +1631,13 @@ ALTER TABLE ONLY "Groups" ALTER COLUMN id SET DEFAULT nextval('"Groups_id_seq"':
 --
 
 ALTER TABLE ONLY "Languages" ALTER COLUMN id SET DEFAULT nextval('"Languages_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Notifications" ALTER COLUMN id SET DEFAULT nextval('"Notifications_id_seq"'::regclass);
 
 
 --
@@ -1639,6 +1749,14 @@ ALTER TABLE ONLY "AccessPermissions"
 
 
 --
+-- Name: AnswerAttachments_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "AnswerAttachments"
+    ADD CONSTRAINT "AnswerAttachments_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: Discussions_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -1716,6 +1834,14 @@ ALTER TABLE ONLY "Languages"
 
 ALTER TABLE ONLY "Languages"
     ADD CONSTRAINT "Languages_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Notifications_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "Notifications"
+    ADD CONSTRAINT "Notifications_pkey" PRIMARY KEY (id);
 
 
 --
@@ -2015,6 +2141,14 @@ CREATE TRIGGER users_before_update BEFORE UPDATE ON "Users" FOR EACH ROW EXECUTE
 
 
 --
+-- Name: AnswerAttachments_answerId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "AnswerAttachments"
+    ADD CONSTRAINT "AnswerAttachments_answerId_fkey" FOREIGN KEY ("answerId") REFERENCES "SurveyAnswers"(id);
+
+
+--
 -- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
@@ -2055,6 +2189,14 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- Name: Groups_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Groups"
+    ADD CONSTRAINT "Groups_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
 -- Name: Groups_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
@@ -2063,11 +2205,43 @@ ALTER TABLE ONLY "Groups"
 
 
 --
+-- Name: Notifications_essenceId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Notifications"
+    ADD CONSTRAINT "Notifications_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
+
+
+--
+-- Name: Notifications_userFrom_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Notifications"
+    ADD CONSTRAINT "Notifications_userFrom_fkey" FOREIGN KEY ("userFrom") REFERENCES "Users"(id);
+
+
+--
+-- Name: Notifications_userTo_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Notifications"
+    ADD CONSTRAINT "Notifications_userTo_fkey" FOREIGN KEY ("userTo") REFERENCES "Users"(id);
+
+
+--
 -- Name: Organizations_adminUserId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
 ALTER TABLE ONLY "Organizations"
     ADD CONSTRAINT "Organizations_adminUserId_fkey" FOREIGN KEY ("adminUserId") REFERENCES "Users"(id);
+
+
+--
+-- Name: Organizations_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Organizations"
+    ADD CONSTRAINT "Organizations_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
 
 --
@@ -2092,6 +2266,14 @@ ALTER TABLE ONLY "ProductUOA"
 
 ALTER TABLE ONLY "ProductUOA"
     ADD CONSTRAINT "ProductUOA_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
+
+
+--
+-- Name: Products_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Products"
+    ADD CONSTRAINT "Products_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
 
 --
@@ -2135,6 +2317,14 @@ ALTER TABLE ONLY "Projects"
 
 
 --
+-- Name: Projects_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Projects"
+    ADD CONSTRAINT "Projects_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
 -- Name: Projects_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
@@ -2156,6 +2346,14 @@ ALTER TABLE ONLY "Rights"
 
 ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "RolesRights_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
+
+
+--
+-- Name: SurveyAnswers_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "SurveyAnswers"
+    ADD CONSTRAINT "SurveyAnswers_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
 
 --
@@ -2199,6 +2397,22 @@ ALTER TABLE ONLY "SurveyAnswers"
 
 
 --
+-- Name: SurveyQuestionOptions_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "SurveyQuestionOptions"
+    ADD CONSTRAINT "SurveyQuestionOptions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
+-- Name: SurveyQuestions_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "SurveyQuestions"
+    ADD CONSTRAINT "SurveyQuestions_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
 -- Name: SurveyQuestions_surveyId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
@@ -2207,11 +2421,27 @@ ALTER TABLE ONLY "SurveyQuestions"
 
 
 --
+-- Name: Surveys_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Surveys"
+    ADD CONSTRAINT "Surveys_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
 -- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
 ALTER TABLE ONLY "Surveys"
     ADD CONSTRAINT "Surveys_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Projects"(id);
+
+
+--
+-- Name: Tasks_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Tasks"
+    ADD CONSTRAINT "Tasks_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
 
 --
@@ -2375,6 +2605,14 @@ ALTER TABLE ONLY "UserUOA"
 
 
 --
+-- Name: Users_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Users"
+    ADD CONSTRAINT "Users_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
 -- Name: Users_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
 --
 
@@ -2404,6 +2642,14 @@ ALTER TABLE ONLY "WorkflowStepGroups"
 
 ALTER TABLE ONLY "WorkflowStepGroups"
     ADD CONSTRAINT "WorkflowStepGroups_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- Name: WorkflowSteps_langId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "WorkflowSteps"
+    ADD CONSTRAINT "WorkflowSteps_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
 
 
 --
