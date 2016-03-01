@@ -59,7 +59,8 @@ angular.module('greyscale.core')
                 user: {
                     key: 'user',
                     //name: 'user',
-                    mask: 0x2000
+                    mask: 0x2000,
+                    homeState: 'tasks'
                 },
                 projectManager: {
                     key: 'project manager',

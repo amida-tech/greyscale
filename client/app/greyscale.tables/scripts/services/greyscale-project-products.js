@@ -80,25 +80,25 @@ angular.module('greyscale.tables')
                 valField: 'name',
                 getDisabled: _getDisabledStatus
             }
-        }, {
-            title: tns + 'SETTINGS',
-            show: true,
-            dataFormat: 'action',
-            actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }, {
-                title: tns + 'UOAS',
-                class: 'info',
-                handler: _editProductUoas
-            }, {
-                title: tns + 'TASKS',
-                class: 'info',
-                handler: _editProductTasks
-            }]
+        //}, {
+        //    title: tns + 'SETTINGS',
+        //    show: true,
+        //    dataFormat: 'action',
+        //    actions: [{
+        //        title: '',
+        //        getIcon: _getStatusIcon,
+        //        getTooltip: _getStartOrPauseProductTooltip,
+        //        class: 'info',
+        //        handler: _startOrPauseProduct
+        //    }, {
+        //        title: tns + 'UOAS',
+        //        class: 'info',
+        //        handler: _editProductUoas
+        //    }, {
+        //        title: tns + 'TASKS',
+        //        class: 'info',
+        //        handler: _editProductTasks
+        //    }]
         }, {
             show: true,
             dataFormat: 'action',

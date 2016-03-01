@@ -1,15 +1,15 @@
-<span ng-show="cell.user">
-    <span class="pull-right">
+<div ng-if="cell.user">
+    <div class="pull-right">
         <div class="unassign-user action"><i class="fa fa-trash"></i></div>
         <div class="edit-task action"><i class="fa fa-pencil"></i></div>
-    </span>
-    <a ng-if="ext.product.surveyId" ng-href="/interviewRenderer/?surveyId={{ext.product.surveyId}}&taskId={{cell.id}}">
+    </div>
+    <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
         <div><b>{{cell.user.firstName}} {{cell.user.lastName}}</b></div>
         <small>{{cell.user.email}}</small>
     </a>
-    <span ng-if="!ext.product.surveyId">
+    <div ng-if="!ext.product.surveyId">
         <div><b>{{cell.user.firstName}} {{cell.user.lastName}}</b></div>
         <small>{{cell.user.email}}</small>
-    </span>
+    </div>
     <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
-</span>
+</div>

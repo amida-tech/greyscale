@@ -6,6 +6,7 @@
         "ADD": "Добавить",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
         "CLOSE": "Закрыть",
@@ -130,7 +131,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
-        "EMAIL": "Эл.почт@",
+        "EMAIL": "Эл. почта",
         "FORGOT_PASSWORD": "Забыл пароль...",
         "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
         "LOGIN_INCORRECT": "Пользователь с указанным e-mail не существует.",
@@ -142,6 +143,8 @@
         "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
     },
     "MY_TASKS": {
+        "FINISHED_TITLE": "Законченные задачи",
+        "FUTURE_TITLE": "Будущие задачи",
         "NO_TASKS": "На данный момент у Вас нет задач.",
         "PRODUCT": "Проект",
         "SURVEY": "Опрос",
@@ -250,6 +253,7 @@
             "SELECT_USERGROUP_LABEL": "Найдите пользователя по группе",
             "TABLE": {
                 "DELETE_CONFIRM": "",
+                "STEP": "",
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
                 "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
@@ -379,8 +383,10 @@
         "MIN": "",
         "NAME": "Название",
         "QUESTION": "",
+        "SAVE_DRAFT": "",
         "SELECT_ONE": "",
         "STATUS": "",
+        "SUBMIT": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
