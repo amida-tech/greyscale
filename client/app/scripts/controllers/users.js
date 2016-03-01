@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
 
         var _parentState = 'users';
 
-        var _states = ['List', 'Groups', 'Uoa', 'Import'];
+        var _states = ['List', 'Groups', 'Import'];
         $scope.tabs = [];
 
         $scope.tabsModel = {};
