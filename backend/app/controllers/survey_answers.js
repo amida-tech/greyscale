@@ -234,7 +234,7 @@ function *addAnswer (req, dataObject) {
 
     var editFields = SurveyAnswer.editCols;
 
-    if (req.query.autosave) {
+    if (dataObject.autosave) {
         dataObject.version = null;
     }
 
@@ -255,7 +255,7 @@ function *addAnswer (req, dataObject) {
         answer = answer[0];
     }
 
-    if (!req.query.autosave) {
+    if (!dataObject.autosave) {
         var nextStep = yield thunkQuery(
             WorkflowStep.select()
             .where(
