@@ -219,6 +219,7 @@
         "COUNT_OVERDUE": "",
         "COUNT_STARTED": "",
         "COUNT_UOAS": "",
+        "DEADLINE": "",
         "DOWNLOAD_DATA": "Загрузить данные"
     },
     "PM_PROJECTS": {
