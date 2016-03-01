@@ -1,5 +1,5 @@
 angular.module('greyscaleApp')
-    .service('Organization', function ($rootScope) {
+    .service('Organization', function (_, $rootScope, greyscaleOrganizationApi) {
         var org = {};
         org.$watch = function () {
             var field, targetScope, handler;
@@ -22,6 +22,19 @@ angular.module('greyscaleApp')
             targetScope.$on('$destroy', function () {
                 off();
             });
+        };
+        org.$setBy = function(field, value){
+            var params = {};
+            params[field] = value;
+            greyscaleOrganizationApi.list()
+                .then(function(orgList){
+                    var setOrg = _.find(orgList, params);
+                    if (setOrg) {
+                        angular.extend(org, setOrg);
+                    } else {
+                        throw 'Can\'t find organization by ' + field + '=' + value;
+                    }
+                });
         };
         return org;
     })

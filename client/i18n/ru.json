@@ -250,6 +250,7 @@
             "SELECT_USERGROUP_LABEL": "Найдите пользователя по группе",
             "TABLE": {
                 "DELETE_CONFIRM": "",
+                "STEP": "",
                 "TASKS_UPDATE_ERROR": "Ошибка обновления задач",
                 "TASK_PARAMS": "Параметры задачи",
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",

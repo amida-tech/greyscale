@@ -12,10 +12,12 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv,
-        inform, $log, $stateParams, $state, $q) {
+        inform, $log, $stateParams, $state, $q, Organization) {
 
         var surveyId = $stateParams.surveyId;
         var projectId = $stateParams.projectId;
+
+        Organization.$lock = true;
 
         var _survey;
         if (surveyId >= 0) {
@@ -25,6 +27,9 @@ angular.module('greyscaleApp')
                 };
                 $state.ext.surveyName = survey ? survey.title : 'New survey';
                 //return greyscaleModalsSrv.editSurvey(survey);
+                if (Organization.projectId !== survey.projectId) {
+                    Organization.$setBy('projectId', survey.projectId);
+                }
             });
         } else {
             $scope.model = {
@@ -100,5 +105,9 @@ angular.module('greyscaleApp')
             $scope.dataForm.$dirty = true;
             $scope.$apply();
             firstSave();
+        });
+
+        $scope.$on('$destroy', function(){
+            Organization.$lock = false;
         });
     });

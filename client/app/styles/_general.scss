@@ -188,3 +188,7 @@ body {
 [data-toggle="dropdown"] {
     cursor: pointer;
 }
+
+.horizontal-scroll {
+    overflow-x: auto !important;
+}

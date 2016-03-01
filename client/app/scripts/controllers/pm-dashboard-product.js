@@ -24,6 +24,8 @@ angular.module('greyscaleApp')
                 return product;
             });
 
+        Organization.$lock = true;
+
         tasksTable.onReload = function () {
             var tasksData = tasksTable.dataShare.tasks || [];
 
@@ -54,6 +56,10 @@ angular.module('greyscaleApp')
                 $scope.model.uoas = data.uoas;
                 $scope.model.tasks = data.tasks;
             });
+
+        $scope.$on('$destroy', function(){
+            Organization.$lock = false;
+        });
 
         function _getData(productId) {
             var reqs = {
