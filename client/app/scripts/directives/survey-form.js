@@ -125,8 +125,8 @@ angular.module('greyscaleApp')
                     case 'checkboxes':
                         for (o = 0; o < field.options.length; o++) {
                             angular.extend(fld.options[o] || {}, {
-                                checked: (field.options[o] ? field.options[o].isSelected : false),
-                                name: (field.options[o] ? field.options[o].label : false)
+                                checked: field.options[o] ? field.options[o].isSelected : false,
+                                name: field.options[o] ? field.options[o].label : ''
                             });
                         }
                         break;
@@ -213,6 +213,7 @@ angular.module('greyscaleApp')
                         case 'checkboxes':
                             oQty = fld.options.length;
                             for (o = 0; o < oQty; o++) {
+								if (!fld.options[o]) fld.options[o] = {};
                                 fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
                                 fld.options[o].checked = fld.options[o].isSelected;
                                 if (fld.options[o].isSelected) {
@@ -225,6 +226,7 @@ angular.module('greyscaleApp')
                         case 'radio':
                             oQty = fld.options.length;
                             for (o = 0; o < oQty; o++) {
+								if (!fld.options[o]) fld.options[o] = {};
                                 fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
                                 if (fld.options[o].isSelected) {
                                     fld.answer = fld.options[o];
@@ -275,6 +277,7 @@ angular.module('greyscaleApp')
                             switch (fld.type) {
                             case 'checkboxes':
                                 for (o = 0; o < fld.options.length; o++) {
+									if (!fld.options[o]) fld.options[o] = {};
                                     fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
                                     fld.options[o].checked = fld.options[o].isSelected;
                                     if (fld.options[o].isSelected) {
@@ -286,6 +289,7 @@ angular.module('greyscaleApp')
                             case 'dropdown':
                             case 'radio':
                                 for (o = 0; o < fld.options.length; o++) {
+									if (!fld.options[o]) fld.options[o] = {};
                                     fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
                                     if (fld.options[o].isSelected) {
                                         fld.answer = fld.options[o];
@@ -329,6 +333,7 @@ angular.module('greyscaleApp')
                         case 'checkboxes':
                             answer.optionId = [];
                             for (var o = 0; o < fld.options.length; o++) {
+								if (!fld.options[o]) fld.options[o] = {};
                                 if (fld.options[o].checked) {
                                     answer.optionId.push(fld.options[o].id);
                                     if (fld.options[o].value) {
