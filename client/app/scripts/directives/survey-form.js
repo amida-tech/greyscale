@@ -272,7 +272,7 @@ angular.module('greyscaleApp')
                     for (v = 0; v < _answers.length; v++) {
                         fldName = fldNamePrefix + _answers[v].questionId;
                         answer = answers[fldName];
-                        if (!answer || answer.version === null || answer.version < _answers[v].version) {
+                        if (!answer || _answers[v].version === null || answer.version < _answers[v].version) {
                             answers[fldName] = _answers[v];
                             answers[fldName].created = new Date(_answers[v].created);
                             if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
