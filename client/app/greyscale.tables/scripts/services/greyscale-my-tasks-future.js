@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function ($q, greyscaleTaskApi) {
+    .factory('greyscaleMyTasksFutureTbl', function ($q, greyscaleTaskApi) {
     
     var tns = 'MY_TASKS.';
     
@@ -29,7 +29,7 @@ angular.module('greyscale.tables')
         }];
     
     var _table = {
-        title: tns + 'TITLE',
+        title: tns + 'FUTURE_TITLE',
         icon: 'fa-tasks',
         sorting: {
             id: 'asc'
@@ -42,7 +42,11 @@ angular.module('greyscale.tables')
     function _getData() {
         return greyscaleTaskApi.myList().then(function (data) {
             return _.filter(data, function (item) {
-                return item.status === 'current';
+                var today = new Date();
+                var twoWeeks = new Date();
+                twoWeeks.setDate(twoWeeks.getDate() + 14);
+                var startDate = new Date(item.startDate);
+                return startDate > today && startDate < twoWeeks;
             });
         });
     }
