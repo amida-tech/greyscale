@@ -17,6 +17,8 @@ angular.module('greyscaleApp')
             selectedRole: {}
         };
 
+        $scope.global = {};
+
         var _dicts = {};
         var _tasks = [];
 
@@ -36,6 +38,18 @@ angular.module('greyscaleApp')
             }]
         };
 
+        Organization.$lock = true;
+
+        greyscaleProductApi.get(productId)
+        .then(function(product){
+            if (Organization.projectId !== product.projectId) {
+                Organization.$setBy('projectId', product.projectId);
+            }
+        })
+        .then(function(){
+            _getTaskTableData();
+        });
+
         Organization.$watch('projectId', $scope, function () {
             $scope.model.projectId = Organization.projectId;
 
@@ -46,13 +60,12 @@ angular.module('greyscaleApp')
                 });
         });
 
-        _getTaskTableData();
-
         $scope.searchUsers = _searchUsers;
 
         $scope.$on('$destroy', function () {
             _destroyDragUser();
             _destroyDropUser();
+            Organization.$lock = false;
         });
 
         //////////////////////////////////////////////////////////////
@@ -475,6 +488,7 @@ angular.module('greyscaleApp')
                 icon: 'fa-tasks',
                 pageLength: 10,
                 cols: _cols,
+                classes: 'table-bordered table-col-sm',
                 dataPromise: function () {
                     return _getTaskTableData(_table);
                 }
@@ -524,7 +538,9 @@ angular.module('greyscaleApp')
                     $scope.model.$loading = false;
                 })
                 .then(function (data) {
-                    $timeout(_initDropUser);
+                    $timeout(function(){
+                        _initDropUser();
+                    });
                     return data;
                 });
         }

@@ -253,21 +253,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
-        //.state('projects', {
-        //    parent: 'home',
-        //    url: 'projects',
-        //    views: {
-        //        'body@dashboard': {
-        //            templateUrl: 'views/controllers/projects.html',
-        //            controller: 'ProjectsCtrl'
-        //        }
-        //    },
-        //    data: {
-        //        name: 'NAV.PROJECT_MANAGEMENT',
-        //        icon: 'fa-paper-plane',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
         .state('projects', {
             parent: 'home',
             data: {

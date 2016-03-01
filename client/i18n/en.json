@@ -6,6 +6,7 @@
         "ADD": "Add",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
+        "BACK": "Back",
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
         "CLOSE": "Close",
@@ -252,6 +253,7 @@
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
                 "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
+                "STEP": "Step",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",
                 "TASK_REMOVE_ERROR": "Server error while removing task",
@@ -380,9 +382,11 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
-        "QUESTION": "Question",
+        "QUESTION": "Q",
+        "SAVE_DRAFT": "Save as Draft",
         "SELECT_ONE": "select one",
         "STATUS": "Status",
+        "SUBMIT": "Save and Submit",
         "VIEW": "View"
     },
     "TABLES": {

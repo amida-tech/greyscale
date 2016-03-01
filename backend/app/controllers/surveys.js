@@ -65,15 +65,24 @@ module.exports = {
 
     delete: function (req, res, next) {
         co(function* () {
-            var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.params.id)));
+            var products = yield thunkQuery(
+                Product.select().where(Product.surveyId.equals(req.params.id))
+            );
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
             }
-            var questions = yield thunkQuery(SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id)));
+            var questions = yield thunkQuery(
+                SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id))
+            );
             if (questions.length) {
                 for (var i in questions) {
-                    yield thunkQuery(SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))); // delete options
-                    yield thunkQuery(SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))); // delete question
+                    yield thunkQuery(
+                        SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
+                    ); // delete options
+
+                    yield thunkQuery(
+                        SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
+                    ); // delete question
                 }
             }
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
@@ -87,11 +96,15 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function* () {
             yield * checkSurveyData(req);
-            return yield thunkQuery(
-                Survey
-                .update(_.pick(req.body, Survey.editCols))
-                .where(Survey.id.equals(req.params.id))
-            );
+            var updateObj = _.pick(req.body, Survey.editCols);
+
+            if(Object.keys(updateObj).length){
+                yield thunkQuery(
+                    Survey
+                        .update(updateObj)
+                        .where(Survey.id.equals(req.params.id))
+                );
+            }
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -216,19 +229,21 @@ function* addQuestion (req, dataObj) {
 }
 
 function* checkSurveyData(req) {
-    if (!req.params.id) { // create
-        if (!req.body.projectId) {
-            req.body.projectId = yield * getProjectId(req.user.id);
-        }
-        if (!req.body.title || !req.body.projectId) {
-            throw new HttpError(403, 'projectId and title fields are required');
-        }
-    }
+    // if user is superadmin (roleId=1) get projectId from body and check it
+    // else get projectId from req.user.projectId
 
-    if (req.body.projectId) {
-        var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-        if (!_.first(project)) {
-            throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
+    if (!req.params.id) { // create
+        if (req.user.roleID == 1) { // superadmin
+            var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
+            if (!_.first(project)) {
+                throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
+            }
+        } else {
+            req.body.projectId = req.user.projectId;
+        }
+
+        if (!req.body.title) {
+            throw new HttpError(403, 'title field are required');
         }
     }
 }
@@ -328,17 +343,17 @@ function* checkQuestionData(req, dataObj, isCreate) {
 
 }
 
-function* getProjectId(userId) {
-    query =
-        'SELECT "Projects"."id" '+
-        'FROM "Users" '+
-        'INNER JOIN "Organizations" ON "Users"."organizationId" = "Organizations"."id" '+
-        'INNER JOIN "Projects" ON "Projects"."organizationId" = "Organizations"."id" '+
-        'WHERE "Users"."id" = ' + parseInt(userId).toString();
-
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find ProjectId for user with id `'+parseInt(userId).toString()+'`');
-    }
-    return result[0].id;
-}
+//function* getProjectId(userId) {
+//    query =
+//        'SELECT "Projects"."id" '+
+//        'FROM "Users" '+
+//        'INNER JOIN "Organizations" ON "Users"."organizationId" = "Organizations"."id" '+
+//        'INNER JOIN "Projects" ON "Projects"."organizationId" = "Organizations"."id" '+
+//        'WHERE "Users"."id" = ' + parseInt(userId).toString();
+//
+//    result = yield thunkQuery(query);
+//    if (!_.first(result)) {
+//        throw new HttpError(403, 'Error find ProjectId for user with id `'+parseInt(userId).toString()+'`');
+//    }
+//    return result[0].id;
+//}

@@ -291,9 +291,13 @@ angular.module('greyscaleApp')
                 classes: '@class'
             },
             link: function (scope, el) {
+                el.find('table').addClass(scope.model.classes);
                 el.removeAttr('class');
                 _expandableRowFunctionality(scope, el);
                 _delegateClickFunctionality(scope, el);
+                if (scope.model.columnShowOnHover) {
+                    _columnShowOnHoverFunctionality(scope, el);
+                }
             },
             controller: function ($scope, $element, widgetTableSrv) {
                 widgetTableSrv.init({
@@ -317,6 +321,23 @@ angular.module('greyscaleApp')
             } else {
                 return _findExpanded(next);
             }
+        }
+
+        function _columnShowOnHoverFunctionality(scope, el) {
+            $(el).on('mouseenter', '.column-hover', function(){
+                var el = $(this);
+                var hoveredCellIndex = el.context.cellIndex;
+                var table = el.closest('table');
+                var cells = table.find('.column-hover');
+                cells.each(function(i, cell){
+                    cell = $(cell);
+                    if (cell.context.cellIndex === hoveredCellIndex) {
+                        cell.addClass('column-hovered');
+                    } else {
+                        cell.removeClass('column-hovered');
+                    }
+                });
+            });
         }
 
         function _expandableRowFunctionality(scope, el) {

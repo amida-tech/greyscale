@@ -1,6 +1,6 @@
 <span class="organization-selector">
-    <span ng-if="!model.list" class="display">{{model.organization.shortName || model.organization.name}}</span>
-    <span ng-if="model.list">
+    <span ng-if="!model.list||model.organization.$lock" class="display">{{model.organization.shortName || model.organization.name}}</span>
+    <span ng-if="model.list && !model.organization.$lock">
         <span class="display">{{model.organization.shortName || model.organization.name}}</span>
         <a><i class="fa fa-caret-down"></i></a>
         <select hidden-select
