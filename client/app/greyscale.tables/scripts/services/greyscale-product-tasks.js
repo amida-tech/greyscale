@@ -19,8 +19,7 @@ angular.module('greyscale.tables')
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-                '       popover-title="{{item.step.title}}"' +
-                '       uib-popover="{{item.user ? (item.user.firstName + \' \' + item.user.lastName + \' (\' + item.user.email + \')\') : null }}"' +
+                '       uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'"' +
                 '       ng-class="{active:item.active}" ng-repeat="item in row.progress track by $index">' +
                 '    <i ng-if="item.flagged" class="fa fa-flag"></i>' +
                 '</span>' +
@@ -30,22 +29,22 @@ angular.module('greyscale.tables')
                 //    field: 'step.title',
                 //    sortable: 'step.title'
         }, {
-            title: tns + 'STATUS',
-            field: 'status',
-            sortable: 'status',
-            cellTemplate: '<span class="task-status-{{option.value}}">{{option.name}}</span>',
-            dataFormat: 'option',
-            dataSet: {
-                getData: _getTaskStatuses,
-                keyField: 'value',
-                valField: 'name'
-            }
-        }, {
-            title: tns + 'FLAGS',
-            field: 'flagged',
-            sortable: 'flagged',
-            cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa fa-flag"></i></div>'
-        }, {
+        //    title: tns + 'STATUS',
+        //    field: 'status',
+        //    sortable: 'status',
+        //    cellTemplate: '<span class="task-status-{{option.value}}">{{option.name}}</span>',
+        //    dataFormat: 'option',
+        //    dataSet: {
+        //        getData: _getTaskStatuses,
+        //        keyField: 'value',
+        //        valField: 'name'
+        //    }
+        //}, {
+        //    title: tns + 'FLAGS',
+        //    field: 'flagged',
+        //    sortable: 'flagged',
+        //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa fa-flag"></i></div>'
+        //}, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
             cellTemplate: '<span ng-class="{\'text-danger\': ext.isOverdue(row) }">{{row.endDate|date}}</span>',
@@ -128,7 +127,7 @@ angular.module('greyscale.tables')
                     _dicts.steps = data.steps;
                     _dicts.tasks = data.tasks;
                     return _extendTasksWithRelations(data.tasks)
-                        .then(_extendTasksWithProgressData);
+                        .then(_getCurrentTasks);
                 });
         }
 
@@ -147,44 +146,49 @@ angular.module('greyscale.tables')
                     return ~task.step.usergroupId.indexOf(o.id);
                 });
             });
+            _table.dataShare.tasks = tasks;
             return $q.when(tasks);
         }
 
-        function _extendTasksWithProgressData(tasks) {
-            angular.forEach(tasks, function (task) {
-                task.progress = _getTaskProgressData(task);
+        function _getCurrentTasks(tasks) {
+            var currentTasks = [];
+            var grouppedTasks = _.groupBy(tasks, 'uoaId');
+            angular.forEach(grouppedTasks, function(uoaTasks){
+                var currentTask;
+                angular.forEach(uoaTasks, function(task){
+                   if (!currentTask && task.status === 'current') {
+                        currentTask = _getTaskProgressData(task, uoaTasks);
+                   }
+                });
+                if (currentTask) {
+                    currentTasks.push(currentTask);
+                }
             });
-            _table.dataShare.tasks = tasks;
-            return tasks;
+
+            return $q.when(currentTasks);
         }
 
-        function _getTaskProgressData(currentTask) {
-            var progress = [];
-            var id = parseInt(currentTask.id);
-            var uoaId = parseInt(currentTask.uoaId);
-            var uoaTasks = _.filter(_dicts.tasks, {
-                uoaId: uoaId
-            });
+        function _getTaskProgressData(task, uoaTasks) {
+            task.progress = [];
+            var id = parseInt(task.id);
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
-                var task = _.find(uoaTasks, {
-                    stepId: step.id
-                });
-                if (!task) {
-                    progress.push({
+                var stepTask = _.find(uoaTasks, {stepId: step.id});
+                if (!stepTask) {
+                    task.progress.push({
                         step: step
                     });
                 } else {
-                    var progressTask = _.pick(task, ['id', 'status', 'flagged', 'step', 'user']);
-                    progress.push(progressTask);
+                    var progressTask = _.pick(stepTask, ['id', 'status', 'flagged', 'step', 'user', 'endDate']);
+                    task.progress.push(progressTask);
                     if (progressTask.id === id) {
                         progressTask.active = true;
                     }
                 }
             });
 
-            progress = _.sortBy(progress, 'step.position');
+            task.progress = _.sortBy(task.progress, 'step.position');
 
-            return progress;
+            return task;
         }
 
         function _dateIsOverdue(task) {

@@ -159,41 +159,41 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             }
         })
-        //.state('users', {
-        //    parent: 'home',
-        //    url: 'users',
-        //    data: {
-        //        name: 'NAV.USERS.TITLE',
-        //        icon: 'fa-users',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    },
-        //    views: {
-        //        'body@dashboard': {
-        //            templateUrl: 'views/controllers/users.html',
-        //            controller: 'UsersCtrl'
-        //        }
-        //    }
-        //})
-        //.state('usersList', {
-        //    parent: 'users',
-        //    url: '/list',
-        //    templateUrl: 'views/controllers/users-list.html',
-        //    controller: 'UsersListCtrl',
-        //    data: {
-        //        name: 'NAV.USERS.LIST',
-        //        icon: 'fa-users',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
-        //.state('usersGroups', {
-        //    parent: 'users',
-        //    url: '/groups',
-        //    templateUrl: 'views/controllers/users-groups.html',
-        //    controller: 'UsersGroupsCtrl',
-        //    data: {
-        //        name: 'NAV.USERS.GROUPS'
-        //    }
-        //})
+        .state('users', {
+            parent: 'home',
+            url: 'users',
+            data: {
+                name: 'NAV.USERS.TITLE',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/users.html',
+                    controller: 'UsersCtrl'
+                }
+            }
+        })
+        .state('usersList', {
+            parent: 'users',
+            url: '/list',
+            templateUrl: 'views/controllers/users-list.html',
+            controller: 'UsersListCtrl',
+            data: {
+                name: 'NAV.USERS.LIST',
+                icon: 'fa-users',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('usersGroups', {
+            parent: 'users',
+            url: '/groups',
+            templateUrl: 'views/controllers/users-groups.html',
+            controller: 'UsersGroupsCtrl',
+            data: {
+                name: 'NAV.USERS.GROUPS'
+            }
+        })
         //.state('usersUoa', {
         //    parent: 'users',
         //    url: '/uoa',
@@ -205,54 +205,54 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         //        accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
         //    }
         //})
-        //.state('usersImport', {
-        //    parent: 'users',
-        //    url: '/import',
-        //    templateUrl: 'views/controllers/users-import.html',
-        //    controller: 'UsersImportCtrl',
-        //    data: {
-        //        name: 'NAV.IMPORT',
-        //        icon: 'fa-upload',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
-        //.state('uoas', {
-        //    parent: 'home',
-        //    url: 'uoas',
-        //    views: {
-        //        'body@dashboard': {
-        //            templateUrl: 'views/controllers/uoas.html',
-        //            controller: 'UoasCtrl'
-        //        }
-        //    },
-        //    data: {
-        //        name: 'NAV.UOAS.TITLE',
-        //        icon: 'fa-table',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
-        //.state('uoasList', {
-        //    parent: 'uoas',
-        //    url: '/list',
-        //    templateUrl: 'views/controllers/uoas-list.html',
-        //    controller: 'UoasListCtrl',
-        //    data: {
-        //        name: 'NAV.UOAS.LIST',
-        //        icon: 'fa-table',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
-        //.state('uoasImport', {
-        //    parent: 'uoas',
-        //    url: '/import',
-        //    templateUrl: 'views/controllers/uoas-import.html',
-        //    controller: 'UoasImportCtrl',
-        //    data: {
-        //        name: 'NAV.IMPORT',
-        //        icon: 'fa-upload',
-        //        accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
-        //    }
-        //})
+        .state('usersImport', {
+            parent: 'users',
+            url: '/import',
+            templateUrl: 'views/controllers/users-import.html',
+            controller: 'UsersImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('uoas', {
+            parent: 'home',
+            url: 'uoas',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/uoas.html',
+                    controller: 'UoasCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.UOAS.TITLE',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('uoasList', {
+            parent: 'uoas',
+            url: '/list',
+            templateUrl: 'views/controllers/uoas-list.html',
+            controller: 'UoasListCtrl',
+            data: {
+                name: 'NAV.UOAS.LIST',
+                icon: 'fa-table',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('uoasImport', {
+            parent: 'uoas',
+            url: '/import',
+            templateUrl: 'views/controllers/uoas-import.html',
+            controller: 'UoasImportCtrl',
+            data: {
+                name: 'NAV.IMPORT',
+                icon: 'fa-upload',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('projects', {
             parent: 'home',
             data: {

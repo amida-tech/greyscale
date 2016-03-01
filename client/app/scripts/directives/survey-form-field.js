@@ -53,7 +53,7 @@ angular.module('greyscaleApp')
                         var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext">{{field.description}}</p>';
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}"';
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="{{!field.flags.allowEdit}}" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
@@ -109,7 +109,7 @@ angular.module('greyscaleApp')
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div class="checkbox-list"> <div ng-repeat="opt in field.options"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="opt.checked" ' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
                                     'ng-required="field.required && !selectedOpts(field.options)" gs-valid="field">' +
                                     '<div class="chk-box"></div>{{opt.label}}</label></div></div>';
                             }
@@ -118,14 +118,14 @@ angular.module('greyscaleApp')
                         case 'radio':
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="{{!field.flags.allowEdit}}"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>{{opt.label}}</label></div>';
                             }
                             break;
 
                         case 'dropdown':
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options" gs-valid="field">';
+                                body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options" gs-valid="field" ng-readonly="{{!field.flags.allowEdit}}">';
                                 if (scope.field.required) {
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
@@ -134,8 +134,14 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'date':
+                            scope.field.options = {
+                                readonly: !scope.field.flags.allowEdit,
+                                disabled: !scope.field.flags.allowEdit,
+                                required: scope.field.required
+                            };
+
                             body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" form-field-value="'
-                                + scope.field.cid + '" options="field"></select-date>';
+                                + scope.field.cid + '" options="field.options"></select-date>';
                             break;
 
                         default:
