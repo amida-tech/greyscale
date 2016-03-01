@@ -125,8 +125,8 @@ angular.module('greyscaleApp')
                     case 'checkboxes':
                         for (o = 0; o < field.options.length; o++) {
                             angular.extend(fld.options[o] || {}, {
-                                checked: field.options[o].isSelected,
-                                name: field.options[o].label
+                                checked: (field.options[o] ? field.options[o].isSelected : false),
+                                name: (field.options[o] ? field.options[o].label : false)
                             });
                         }
                         break;
@@ -145,7 +145,7 @@ angular.module('greyscaleApp')
                         }
 
                         for (o = 0; o < field.options.length; o++) {
-                            if (field.options[o].isSelected) {
+                            if (field.options[o] && field.options[o].isSelected) {
                                 fld.answer = field.options[o];
                             }
                         }
