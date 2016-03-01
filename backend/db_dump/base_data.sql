@@ -31,7 +31,6 @@ INSERT INTO "Organizations" VALUES (1, 'Your new organization', NULL, NULL, NULL
 
 SELECT pg_catalog.setval('"Organizations_id_seq"', 2, true);
 
-
 --
 -- TOC entry 2289 (class 0 OID 16933)
 -- Dependencies: 178
@@ -78,6 +77,8 @@ INSERT INTO "Users" VALUES (1, 112, 'su@mail.net', 'Test', 'Super Admin', '2d97f
 
 SELECT pg_catalog.setval('"user_id_seq"', 200, true);
 
+INSERT INTO "Projects" VALUES (1,1,'First Project','My First Project','2016-03-01 12:00:00+00',null,'2016-03-01 12:00:00+00',1,112,'2016-03-01 12:00:00+00', null);
+SELECT pg_catalog.setval('"Projects_id_seq"', 2, true);
 --
 -- TOC entry 2295 (class 0 OID 16954)
 -- Dependencies: 184
