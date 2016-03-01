@@ -73,7 +73,7 @@ angular.module('greyscaleApp')
                 templateUrl: 'views/modals/uoas-filter.html',
                 controller: 'ModalUoasFilterCtrl',
                 size: 'xxl',
-                windowClass: 'modal fade in layout-compact'
+                windowClass: 'modal fade in'
             }).result;
         }
 
@@ -83,7 +83,7 @@ angular.module('greyscaleApp')
                 controller: 'ModalProductWorkflowCtrl',
                 controllerAs: 'ctrl',
                 size: 'xxl',
-                windowClass: 'modal fade in layout-compact',
+                windowClass: 'modal fade in',
                 resolve: {
                     product: product
                 }
