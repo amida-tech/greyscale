@@ -804,7 +804,7 @@ module.exports = {
                     Task.userId.equals(req.user.id)
                     //.and(Project.status.equals(1))
                     .and(Product.status.equals(1))
-                )
+                ), req.query
             );
             return res;
         }).then(function(data) {

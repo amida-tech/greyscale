@@ -124,6 +124,8 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
+            // patch for status
+            req.body = _extend(req.body, {status: 1});
             var result = yield thunkQuery(
                 Project
                 .insert(_.pick(req.body, Project.table._initialConfig.columns))

@@ -67,7 +67,7 @@ User.translate = [
     'location'
 ];
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId'];
 User.whereCol = columns;
 
 module.exports = User;

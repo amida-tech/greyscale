@@ -92,7 +92,7 @@ angular.module('greyscaleApp')
 
         function updateDicscussion(data, scope) {
 
-            if (data) {
+            if (data && data.survey && data.task) {
                 var survey = data.survey,
                     task = data.task,
                     params = {

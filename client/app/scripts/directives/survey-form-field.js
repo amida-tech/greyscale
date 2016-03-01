@@ -132,6 +132,9 @@ angular.module('greyscaleApp')
                                 body += '</select>';
                             }
                             break;
+
+                        default:
+                            body = '<p class="subtext">field type rendering is under construction</p>';
                         }
 
                         if (scope.field.links) {
