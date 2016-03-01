@@ -11,7 +11,11 @@ var columns = [
     'UOAid',
     'wfStepId',
     'version',
-    'surveyId'
+    'surveyId',
+    'isResponse',
+    'isAgree',
+    'comments'
+
 ];
 
 var SurveyAnswer = sql.define({

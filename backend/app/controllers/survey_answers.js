@@ -97,6 +97,18 @@ function* addAnswer(req, dataObject) {
         dataObject.optionId = [dataObject.optionId];
     }
 
+    var product = yield thunkQuery(
+        Product.select().from(Product).where(Product.id.equals(dataObject.productId))
+    );
+
+    if(!product[0]){
+        throw new HttpError(403, 'Product with id = ' + dataObject.productId + ' does not exist');
+    }
+
+    if (product[0].status !== 1) {
+        throw new HttpError(403, 'Product status is not "STARTED", you cannot post answers');
+    }
+
     var question = yield thunkQuery(
         SurveyQuestion.select().from(SurveyQuestion).where(SurveyQuestion.id.equals(dataObject.questionId))
     );
@@ -123,6 +135,13 @@ function* addAnswer(req, dataObject) {
         throw new HttpError(
             403,
             'UOA with id = ' + dataObject.UOAid + ' does not relate to Product with id = ' + dataObject.productId
+        );
+    }
+
+    if (productUoa[0].isComplete) {
+        throw new HttpError(
+            403,
+            'Product in this UOA has been completed'
         );
     }
 
@@ -162,11 +181,6 @@ function* addAnswer(req, dataObject) {
     );
 
     curStep = curStep[0];
-
-
-    console.log('-------->>>>>>> task owner');
-    console.log(curStep.task.userId);
-    console.log(req.user.id);
 
     if (!curStep) {
         throw new HttpError(403, 'Current step is not define');
@@ -211,7 +225,7 @@ function* addAnswer(req, dataObject) {
     var version = yield thunkQuery(
         SurveyAnswer
             .select('max("SurveyAnswers"."version")')
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId', 'productId'])),
+            .where(_.pick(dataObject, ['questionId', 'UOAid', 'productId'])),
             { 'realm': req.param('realm') }
     );
 
@@ -271,11 +285,29 @@ function* addAnswer(req, dataObject) {
                 .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId}),
                 { 'realm': req.param('realm') }
             );
-        }else{ // set product status to complete
+        }else{
+            // set productUOA status to complete
             yield thunkQuery(
-                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId)),
-                { 'realm': req.param('realm') }
+                ProductUOA
+                    .update({isComplete: true})
+                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId}),
+                    { 'realm': req.param('realm') }
             );
+            var uncompleted = yield thunkQuery( // check for uncompleted
+                ProductUOA
+                    .select()
+                    .where(
+                        {
+                            productId: curStep.task.productId,
+                            isComplete: false
+                        }
+                    )
+            );
+            if (!uncompleted.length) { // set product status to complete
+                yield thunkQuery(
+                    Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                );
+            }
         }
         console.log(nextStep);
     }
