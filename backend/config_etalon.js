@@ -19,22 +19,22 @@ var environments = {
     },
     allowedDomains: '*', // for CORS
     email: {
-      transport: {
-        opts: {
-          host: process.env.MAIL_HOST || 'smtp.gmail.com',
-          port: process.env.MAIL_PORT || 465,
-          auth: {
-            user: process.env.MAIL_USER || 'indaba.msk2015@gmail.com',
-            pass: process.env.MAIL_PASS || 'indabamsk2015'
-          },
-          secure: true
+        transport: {
+          opts: {
+            host: process.env.MAIL_HOST || 'email-smtp.us-west-2.amazonaws.com',
+            port: process.env.MAIL_PORT || 465,
+            auth: {
+              user: process.env.MAIL_USER || 'AKIAJA6ZC6YMVFESMEFQ',
+              pass: process.env.MAIL_PASS || 'AjBhp3/XJAevSJvLi/0Qz0DMShw2VLZUwOoKK1G5cOO0'
+            },
+            secure: true
+          }
+        },
+        sender: {
+          name: "Indaba", // TODO
+          email: "indaba-noreply@amida-tech.com"
         }
-      },
-      sender: {
-        name: "Indaba", // TODO
-        email: "hello@indaba.com"
       }
-    }
   },
   test: {
     port: 3005, // Port for incoming HTTP. Can be overriden by env. variable PORT
@@ -64,22 +64,22 @@ var environments = {
     },
     allowedDomains: '*', // for CORS
     email: {
-      transport: {
-        opts: {
-          host: process.env.MAIL_HOST || 'smtp.gmail.com',
-          port: process.env.MAIL_PORT || 465,
-          auth: {
-            user: process.env.MAIL_USER || 'indaba.msk2015@gmail.com',
-            pass: process.env.MAIL_PASS || 'indabamsk2015'
-          },
-          secure: true
+        transport: {
+          opts: {
+            host: process.env.MAIL_HOST || 'email-smtp.us-west-2.amazonaws.com',
+            port: process.env.MAIL_PORT || 465,
+            auth: {
+              user: process.env.MAIL_USER || 'AKIAJA6ZC6YMVFESMEFQ',
+              pass: process.env.MAIL_PASS || 'AjBhp3/XJAevSJvLi/0Qz0DMShw2VLZUwOoKK1G5cOO0'
+            },
+            secure: true
+          }
+        },
+        sender: {
+          name: "Indaba", // TODO
+          email: "indaba-noreply@amida-tech.com"
         }
-      },
-      sender: {
-        name: "Indaba", // TODO
-        email: "hello@indaba.com"
       }
-    }
   }
 };
 
