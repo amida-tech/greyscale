@@ -198,7 +198,7 @@ angular.module('greyscaleApp')
 
         function loadAnswers(scope) {
             var params = {
-                surveryId: scope.surveyData.survey.id,
+                surveyId: scope.surveyData.survey.id,
                 productId: scope.surveyData.task.productId,
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
