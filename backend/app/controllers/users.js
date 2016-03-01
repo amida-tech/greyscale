@@ -802,7 +802,7 @@ module.exports = {
                 )
                 .where(
                     Task.userId.equals(req.user.id)
-                    .and(Project.status.equals(1))
+                    //.and(Project.status.equals(1))
                     .and(Product.status.equals(1))
                 )
             );
