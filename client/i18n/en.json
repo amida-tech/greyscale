@@ -143,6 +143,8 @@
         "TOKEN_SENT": "Instructions was sent to your e-mail..."
     },
     "MY_TASKS": {
+        "FINISHED_TITLE": "Finished tasks",
+        "FUTURE_TITLE": "Future tasks",
         "NO_TASKS": "You have no tasks at this moment.",
         "PRODUCT": "Project",
         "SURVEY": "Survey",

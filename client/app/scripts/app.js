@@ -454,7 +454,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
@@ -502,7 +502,13 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     });
 
     $rootScope.$on('login', function () {
-        $state.go('home');
+        greyscaleProfileSrv.getProfile()
+            .then(function (profile) {
+            var roleId = profile.roleID;
+            var roles = greyscaleGlobals.userRoles;
+            var role = _.find(roles, { id: roleId });
+            $state.go(role.homeState || 'home');
+        });
     });
 
     $state.ext = {};
