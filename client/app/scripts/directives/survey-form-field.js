@@ -133,8 +133,12 @@ angular.module('greyscaleApp')
                             }
                             break;
 
+                        case 'date':
+
+                            break;
+
                         default:
-                            body = '<p class="subtext">field type rendering is under construction</p>';
+                            body = '<p class="subtext">field type {{field.type}} rendering is under construction</p>';
                         }
 
                         if (scope.field.links) {

@@ -6,6 +6,7 @@
         "ADD": "Добавить",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
         "CLOSE": "Закрыть",
@@ -380,8 +381,10 @@
         "MIN": "",
         "NAME": "Название",
         "QUESTION": "",
+        "SAVE_DRAFT": "",
         "SELECT_ONE": "",
         "STATUS": "",
+        "SUBMIT": "",
         "VIEW": "Просмотр"
     },
     "TABLES": {
