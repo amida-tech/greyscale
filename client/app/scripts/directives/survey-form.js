@@ -7,6 +7,7 @@ angular.module('greyscaleApp')
         $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
+        var fldNamePrefix = 'fld';
 
         return {
             restrict: 'E',
@@ -90,7 +91,7 @@ angular.module('greyscaleApp')
                 field = survey.questions[q];
                 type = fieldTypes[field.type];
                 if (type) {
-                    fldId = 'fld' + field.id;
+                    fldId = fldNamePrefix + field.id;
                     item = {
                         type: type,
                         title: field.label,
@@ -202,21 +203,21 @@ angular.module('greyscaleApp')
                 productId: scope.surveyData.task.productId,
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
-                userId: scope.surveyData.userId,
-                ts: new Date().getTime()
+                userId: scope.surveyData.userId
+                    //                ts: new Date().getTime()
             };
             var answers = {};
 
             function loadReqursive(fields) {
                 var f, fld, answer, o, oQty,
                     fQty = fields.length;
-
                 for (f = 0; f < fQty; f++) {
                     fld = fields[f];
                     answer = answers[fld.cid];
                     if (answer) {
                         switch (fld.type) {
                         case 'checkboxes':
+
                             oQty = fld.options.length;
                             for (o = 0; o < oQty; o++) {
                                 if (!fld.options[o]) {
@@ -266,64 +267,22 @@ angular.module('greyscaleApp')
             scope.lock = true;
             greyscaleSurveyAnswerApi.list(params)
                 .then(function (_answers) {
-                    var v, answer, o, fld, _date;
-
+                    var v, answer, fldName;
+                    answers = {};
                     for (v = 0; v < _answers.length; v++) {
-                        answer = answers['q' + _answers[v].questionId];
+                        fldName = fldNamePrefix + _answers[v].questionId;
+                        answer = answers[fldName];
                         if (!answer || answer.version < _answers[v].version) {
-                            answers['q' + _answers[v].questionId] = _answers[v];
-                            answers['q' + _answers[v].questionId].created = new Date(_answers[v].created);
-                            if (!scope.savedAt || scope.savedAt < answers['q' + _answers[v].questionId].created) {
-                                scope.savedAt = answers['q' + _answers[v].questionId].created;
+                            answers[fldName] = _answers[v];
+                            answers[fldName].created = new Date(_answers[v].created);
+                            if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
+                                scope.savedAt = answers[fldName].created;
                             }
                         }
                     }
 
                     loadReqursive(scope.fields);
-                    for (v = 0; v < scope.fields.length; v++) {
-                        fld = scope.fields[v];
-                        answer = answers[fld.cid];
-                        if (answer) {
-                            switch (fld.type) {
-                            case 'checkboxes':
-                                for (o = 0; o < fld.options.length; o++) {
-                                    if (!fld.options[o]) {
-                                        fld.options[o] = {};
-                                    }
-                                    fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
-                                    fld.options[o].checked = fld.options[o].isSelected;
-                                    if (fld.options[o].isSelected) {
-                                        fld.answer = fld.options[o];
-                                    }
-                                }
-                                break;
 
-                            case 'dropdown':
-                            case 'radio':
-                                for (o = 0; o < fld.options.length; o++) {
-                                    if (!fld.options[o]) {
-                                        fld.options[o] = {};
-                                    }
-                                    fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
-                                    if (fld.options[o].isSelected) {
-                                        fld.answer = fld.options[o];
-                                    }
-                                }
-                                break;
-
-                            case 'number':
-                                if (fld.intOnly) {
-                                    fld.answer = parseInt(answer.value);
-                                } else {
-                                    fld.answer = parseFloat(answer.value);
-                                }
-                                break;
-
-                            default:
-                                fld.answer = answer.value;
-                            }
-                        }
-                    }
                 })
                 .finally(function () {
                     scope.lock = false;
