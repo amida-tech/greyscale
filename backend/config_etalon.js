@@ -21,14 +21,15 @@ var environments = {
     email: {
       transport: {
         opts: {
-          host: process.env.MAIL_HOST || 'smtp.gmail.com',
+          host: process.env.MAIL_HOST || 'email-smtp.us-west-2.amazonaws.com',
           port: process.env.MAIL_PORT || 465,
           auth: {
-            user: process.env.MAIL_USER || 'indaba.msk2015@gmail.com',
+            user: process.env.MAIL_USER || 'AKIAJA6ZC6YMVFESMEFQ',
             pass: process.env.MAIL_PASS || 'indabamsk2015'
           },
           secure: true
         }
+    
       },
       sender: {
         name: "Indaba", // TODO
