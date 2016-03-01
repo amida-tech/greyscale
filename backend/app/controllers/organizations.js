@@ -167,10 +167,10 @@ module.exports = {
 
                         var existError = false;
 
-                        if (roleID === 2 && org[0].adminUserId) { // admin already exists
-                            existError = true;
-                            roleID = 3;
-                        }
+                        //if (roleID === 2 && org[0].adminUserId) { // admin already exists
+                        //    existError = true;
+                        //    roleID = 3;
+                        //}
 
                         var newUser = {
                             parse_status: 'skipped',
@@ -208,26 +208,26 @@ module.exports = {
                                     }
                                 );
 
-                                if (roleID == 2) {
-                                    yield thunkQuery(
-                                        Organization
-                                        .update({
-                                            adminUserId: created[0].id
-                                        })
-                                        .where(Organization.id.equals(org[0].id)), {
-                                            'realm': req.param('realm')
-                                        }
-                                    );
-                                    org[0].adminUserId = created[0].id;
-                                }
+                                //if (roleID == 2) {
+                                //    yield thunkQuery(
+                                //        Organization
+                                //        .update({adminUserId: created[0].id})
+                                //        .where(Organization.id.equals(org[0].id)), {
+								//		    'realm': req.param('realm')
+								//		    }
+                                //    );
+                                //    org[0].adminUserId = created[0].id;
+                                //}
+
                                 if (created[0]) {
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';
-                                    if (existError) {
-                                        newUser.message = 'Admin for this company already exists, added as user';
-                                    } else {
+
+                                    //if (existError) {
+                                    //    newUser.message = 'Admin for this company already exists, added as user';
+                                    //}else{
                                         newUser.message = 'Added';
-                                    }
+                                    //}
                                 }
 
                                 var options = {
