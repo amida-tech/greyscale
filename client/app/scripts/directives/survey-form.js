@@ -46,7 +46,7 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function goTasks(canGo){
+                function goTasks(canGo) {
                     if (canGo) {
                         $state.go('tasks');
                     }
@@ -197,11 +197,62 @@ angular.module('greyscaleApp')
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
             };
+            var answers = {};
+
+            function loadReqursive(fields) {
+                var f, fld, answer, o, oQty,
+                    fQty = fields.length;
+
+                for (f = 0; f < fQty; f++) {
+                    fld = fields[f];
+                    answer = answers[fld.cid];
+                    if (answer) {
+                        switch (fld.type) {
+                        case 'checkboxes':
+                            oQty = fld.options.length;
+                            for (o = 0; o < oQty; o++) {
+                                fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
+                                fld.options[o].checked = fld.options[o].isSelected;
+                                if (fld.options[o].isSelected) {
+                                    fld.answer = fld.options[o];
+                                }
+                            }
+                            break;
+
+                        case 'dropdown':
+                        case 'radio':
+                            oQty = fld.options.length;
+                            for (o = 0; o < oQty; o++) {
+                                fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
+                                if (fld.options[o].isSelected) {
+                                    fld.answer = fld.options[o];
+                                }
+                            }
+                            break;
+
+                        case 'number':
+                            if (fld.intOnly) {
+                                fld.answer = parseInt(answer.value);
+                            } else {
+                                fld.answer = parseFloat(answer.value);
+                            }
+                            break;
+
+                        default:
+                            fld.answer = answer.value;
+                        }
+                    }
+                    if (fld.sub) {
+                        loadReqursive(fld.sub);
+                    }
+                }
+
+            }
+
             scope.lock = true;
             greyscaleSurveyAnswerApi.list(params)
                 .then(function (_answers) {
                     var v, answer, o, fld, _date;
-                    var answers = {};
 
                     for (v = 0; v < _answers.length; v++) {
                         answer = answers['q' + _answers[v].questionId];
@@ -214,6 +265,7 @@ angular.module('greyscaleApp')
                         }
                     }
 
+                    loadReqursive(scope.fields);
                     for (v = 0; v < scope.fields.length; v++) {
                         fld = scope.fields[v];
                         answer = answers[fld.cid];
@@ -261,22 +313,12 @@ angular.module('greyscaleApp')
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
+            var answers = {};
 
-            if (scope.surveyForm && scope.surveyForm.$dirty) {
-                scope.lock = true;
-                var params = {
-                    surveryId: scope.surveyData.survey.id,
-                    productId: scope.surveyData.task.productId,
-                    UOAid: scope.surveyData.task.uoaId,
-                    wfStepId: scope.surveyData.task.stepId,
-                    userId: scope.surveyData.userId
-                };
-                if (isAuto) {
-                    params.autosave = true;
-                }
-                var answers = {};
-                for (var f = 0; f < scope.fields.length; f++) {
-                    var fld = scope.fields[f];
+            function saveFields(fields) {
+                var f, fld, qty = fields.length;
+                for (f = 0; f < qty; f++) {
+                    fld = fields[f];
                     if (fld.answer || fld.type === 'checkboxes') {
                         var answer = {
                             questionId: fld.id
@@ -315,7 +357,27 @@ angular.module('greyscaleApp')
 
                         answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer);
                     }
+
+                    if (fld.sub) {
+                        saveFields(fld.sub);
+                    }
                 }
+            }
+
+            if (scope.surveyForm && scope.surveyForm.$dirty) {
+                scope.lock = true;
+                var params = {
+                    surveryId: scope.surveyData.survey.id,
+                    productId: scope.surveyData.task.productId,
+                    UOAid: scope.surveyData.task.uoaId,
+                    wfStepId: scope.surveyData.task.stepId,
+                    userId: scope.surveyData.userId
+                };
+                if (isAuto) {
+                    params.autosave = true;
+                }
+
+                saveFields(scope.fields);
 
                 res = $q.all(answers)
                     .then(function (resp) {
