@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $state, $log) {
+        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
 
@@ -98,6 +98,7 @@ angular.module('greyscaleApp')
 
                     fld = {
                         id: field.id,
+                        qid: field.qid,
                         cid: fldId,
                         type: type,
                         label: field.label,
@@ -165,7 +166,7 @@ angular.module('greyscaleApp')
                     } else { //push data into current section
                         qid++;
                         if (!fld.qid) {
-                            fld.qid = qid;
+                            fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
                         }
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);

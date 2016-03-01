@@ -51,7 +51,7 @@ angular.module('greyscaleApp')
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
                         var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
-                            '">{{field.label}}</label><p class="subtext">{{field.description}}</p>';
+                            '">{{field.qid}}. {{field.label}}</label><p class="subtext">{{field.description}}</p>';
 
                         var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}"';
 
