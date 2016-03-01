@@ -134,11 +134,12 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'date':
-
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" form-field-value="'
+                                + scope.field.cid + '" options="field"></select-date>';
                             break;
 
                         default:
-                            body = '<p class="subtext">field type {{field.type}} rendering is under construction</p>';
+                            body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
                         if (scope.field.links) {
