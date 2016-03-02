@@ -26,7 +26,7 @@ angular.module('greyscaleApp')
     $scope.getOptionLabel = function (optionId) {
         if (!optionId) return;
         for (var i = 0; i < $scope.params.field.options.length; i++) {
-            if (optionId !== $scope.params.field.options[i].id) continue;
+            if (!$scope.params.field.options[i] || optionId !== $scope.params.field.options[i].id) continue;
             return (i + 1) + '. ' + $scope.params.field.options[i].label;
         }
     }
