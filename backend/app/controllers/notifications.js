@@ -70,6 +70,7 @@ function* checkString(val, keyName) {
 function* createNotification (note, template) {
     note = yield * checkInsert(note);
     var note4insert = _.extend({}, note);
+    template = (template || {});
     note4insert.note = getHtml(template.notificationName, note4insert, template.notificationPath);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
@@ -109,7 +110,7 @@ function* createNotification (note, template) {
             }
         });
     }
-    return noteInserted[0].id;
+    return noteInserted;
 }
 
 function* resendNotification (notificationId) {
@@ -263,6 +264,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
+            req.body.userFrom = req.user.id; // ignore userFrom from body - use from req.user
             return yield * createNotification(req.body);
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -281,8 +283,18 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    resendUserInvite: function (req, res, next) {
+        co(function* () {
+            var notificationId = yield * getInviteNotification(req.params.userId);
+            return yield * resendNotification(notificationId);
+        }).then(function (data) {
+            res.status(202).end();
+        }, function (err) {
+            next(err);
+        });
     }
-// ToDo: email
 
 };
 
@@ -326,6 +338,7 @@ function* getEssence(essenceId) {
 }
 
 function getHtml(templateName, data, templatePath) {
+    var templateName =  (templateName || 'default');
     var templateFile =  (templatePath || './views/notifications/') + templateName + '.html';
     var templateContent = fs.readFileSync(templateFile, 'utf8');
     _.templateSettings = {
@@ -357,4 +370,37 @@ function* getNotification(notificationId) {
         throw new HttpError(403, 'Error find Notification with id `'+parseInt(notificationId).toString()+'`');
     }
     return result[0];
+}
+
+function* getInviteNotification(userId) {
+    // get EssenceId
+    var essenceId = yield * getEssenceId('Users');
+    query =
+        'SELECT '+
+            'max("Notifications"."id") as id '+
+        'FROM "Notifications" '+
+        'WHERE '+
+            '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
+            '"Notifications"."entityId" = '+userId.toString() + ' '+
+        'GROUP BY '+
+            '"Notifications"."essenceId", '+
+            '"Notifications"."entityId"';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
+    }
+    return result[0].id;
+}
+
+function* getEssenceId(essenceName) {
+    query =
+        'SELECT '+
+        '"Essences"."id" '+
+        'FROM "Essences" '+
+        'WHERE "Essences"."name" = \''+essenceName+'\'';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+    }
+    return result[0].id;
 }

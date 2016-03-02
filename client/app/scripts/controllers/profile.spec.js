@@ -22,7 +22,7 @@ describe('ProfileCtrl:', function () {
     describe('scope.org initializes correctly:', function () {
 
         it('loaded === true', function () {
-            expect($scope.org.loaded).toBe(true);
+            expect($scope.model.org.loaded).toBe(true);
         });
 
     });

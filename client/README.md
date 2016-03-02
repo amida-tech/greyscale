@@ -52,12 +52,12 @@ npm install -g grunt-cli bower yo generator-karma generator-angular
 
 ## Install required packages
 
-Install required npm packages. Go to 'src' directory and run 
+Install required npm packages. Go to 'greyscale\client' directory and run 
 ```
 npm install
 ```
 
-Install required bower packages. Go to 'src' directory and run 
+Install required bower packages. Go to 'greyscale\client' and run
 ```
 bower install
 ```
@@ -84,7 +84,7 @@ grunt ngconstant:dev
 
 
 #### *Note about config switch*
-Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\app\greyscale.core\scripts\config\greyscale-env.js)
+Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\client\app\greyscale.core\scripts\config\greyscale-env.js)
 Please do not update it manual.
 
 ## Build & development
