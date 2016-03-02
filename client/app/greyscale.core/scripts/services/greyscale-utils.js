@@ -62,6 +62,8 @@ angular.module('greyscale.core')
                     }
                 } else if (typeof err === 'string') {
                     errText = err;
+                } else if (err.message) {
+                    errText = err.message;
                 } else if (err.statusText) {
                     errText = err.statusText;
                 }

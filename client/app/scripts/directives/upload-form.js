@@ -49,15 +49,24 @@ angular.module('greyscaleApp')
                         $scope.$digest();
                     });
 
+                    if (file.isError) {
+                        return;
+                    }
+
                     if ($scope.uploadSuccess) {
                         $scope.uploadSuccess(file, data);
                     }
                 };
 
-                uploader.onErrorItem = $scope.uploadError || function (fileItem, response) {
-                    $scope.model = {
-                        issues: colorIssues(response.issue)
-                    };
+                uploader.onErrorItem = function(file, response) {
+                    if (typeof $scope.uploadError === 'function') {
+                        $scope.uploadError(file, response);
+                    } else {
+                        $scope.model = {
+                            issues: colorIssues(response.issue)
+                        };
+                    }
+                    greyscaleUtilsSrv.errorMsg(response, 'Upload file');
                 };
 
                 $scope.disableUploadButton = function () {

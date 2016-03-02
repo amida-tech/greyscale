@@ -63,7 +63,8 @@ angular.module('greyscaleApp')
                                         params.total(data.length);
                                         var orderedData = params.sorting() ?
                                             $filter('orderBy')(data, params.orderBy()) : data;
-                                        $defer.resolve(orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+                                        $defer.resolve(angular.isArray(orderedData) ?
+                                            orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()) : false);
                                     }
                                     endLoading();
                                 })
