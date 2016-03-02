@@ -160,6 +160,8 @@ module.exports = {
                     body: req.body.entry,
                     essenceId: essenceId,
                     entityId: entry.id,
+                    discussionEntry:  req.body,
+                    action: 'add',
                     notifyLevel: 2,
                     from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
@@ -170,7 +172,7 @@ module.exports = {
                     notificationPath: './views/notifications/',
                     emailName: 'discussion',
                     emailPath: './views/emails/'
-                }
+                } // ToDo: change templates to EJS engine
             );
             return entry;
         }).then(function (data) {
