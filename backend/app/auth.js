@@ -39,7 +39,7 @@ passport.use(new BasicStrategy({
     },
     function (req, email, password, done) {
         query(
-            User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([User.email.equals(email)]),
+            User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([sql.functions.UPPER(User.email).equals(email.toUpperCase())]),
             function (err, user) {
                 if (err) {
                     return done(err);

@@ -199,6 +199,8 @@ app.on('start', function () {
         logger.info(util.format('Listening on port %d', server.address().port));
     });
 
+    require('app/socket/socket-controller.server').init(server);
+
 });
 
 app.emit('start');
