@@ -270,7 +270,6 @@ function* addAnswer(req, dataObject) {
     }
 
     if (!req.query.autosave) {
-        console.log('!NEW VERSION dataObject:', dataObject);
         var nextStep = yield thunkQuery(
             WorkflowStep.select()
             .where(
@@ -279,38 +278,42 @@ function* addAnswer(req, dataObject) {
             ),
             { 'realm': req.param('realm') }
         );
-        if(nextStep[0]){ // next step exists, set it to current
-            yield thunkQuery(
-                ProductUOA
-                .update({currentStepId: nextStep[0].id})
-                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId}),
-                { 'realm': req.param('realm') }
-            );
-        }else{
-            // set productUOA status to complete
-            yield thunkQuery(
-                ProductUOA
-                    .update({isComplete: true})
-                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId}),
-                    { 'realm': req.param('realm') }
-            );
-            var uncompleted = yield thunkQuery( // check for uncompleted
-                ProductUOA
-                    .select()
-                    .where(
-                        {
-                            productId: curStep.task.productId,
-                            isComplete: false
-                        }
-                    )
-            );
-            if (!uncompleted.length) { // set product status to complete
+        //XXX: fix for schema aware
+        var _numberOfQuestions = yield thunkQuery('SELECT COUNT(*) FROM "SurveyQuestions" WHERE "surveyId" = ' + dataObject.surveyId);
+        var _numberOfVersioned = yield thunkQuery('SELECT COUNT(v."questionId") FROM (SELECT "questionId", MAX("version") AS maxVersion FROM "SurveyAnswers" WHERE "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId + ' AND "surveyId" = ' + dataObject.surveyId + ' AND NOT "version" IS NULL GROUP BY "questionId") AS v GROUP BY v.maxVersion');
+        //console.log('_numberOfQuestions', _numberOfQuestions[0].count, '_numberOfVersioned', _numberOfVersioned,  ' "surveyId" = ' + dataObject.surveyId + ' AND "questionId" = ' + dataObject.questionId + ' AND "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId);
+        if ((_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+            if(nextStep[0]){ // next step exists, set it to current
                 yield thunkQuery(
-                    Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                    ProductUOA
+                    .update({currentStepId: nextStep[0].id})
+                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
                 );
+            }else{
+                // set productUOA status to complete
+                yield thunkQuery(
+                    ProductUOA
+                        .update({isComplete: true})
+                        .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                );
+                var uncompleted = yield thunkQuery( // check for uncompleted
+                    ProductUOA
+                        .select()
+                        .where(
+                            {
+                                productId: curStep.task.productId,
+                                isComplete: false
+                            }
+                        )
+                );
+                if (!uncompleted.length) { // set product status to complete
+                    yield thunkQuery(
+                        Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                    );
+                }
             }
+            console.log(nextStep);
         }
-        console.log(nextStep);
     }
 
     return answer;
