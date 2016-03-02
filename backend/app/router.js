@@ -218,6 +218,9 @@ router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
     .delete(authenticate('token').always, checkRight('product_uoa'), products.UOAdelete)
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
+router.route('/:realm/v0.2/products/:id/move/:uoaid')
+    .get(authenticate('token').always, surveyAnswers.productUOAmove);
+
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
 //----------------------------------------------------------------------------------------------------------------------
