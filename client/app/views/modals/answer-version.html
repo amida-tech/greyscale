@@ -3,7 +3,7 @@
 </modal-form-header>
 <div class="modal-body">
     <uib-accordion close-others="true">
-        <uib-accordion-group ng-repeat="answer in answers" heading="#{{answer.version + ' - ' + answer.created}}">
+        <uib-accordion-group ng-repeat="answer in answers" heading="#{{answer.version + ' - ' + answer.created + ' - ' + getUserName(answer.userId)}}">
             <div>
                 {{answer.value}}
             </div>
