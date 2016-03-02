@@ -64,7 +64,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID != 1 && (req.user.organizationId != req.body.organizationId)) {
                 throw new HttpError(400, 'You cannot update groups from other organizations');
             }
             if (!req.body.title) {

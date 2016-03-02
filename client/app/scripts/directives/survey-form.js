@@ -111,6 +111,7 @@ angular.module('greyscaleApp')
                         label: field.label,
                         description: field.description,
                         required: field.isRequired,
+                        listType: field.optionNumbering,
                         options: field.options,
                         minLength: field.minLength,
                         maxLength: field.maxLength,

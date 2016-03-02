@@ -76,6 +76,7 @@ angular.module('greyscale.tables')
                 'step.position': 'asc'
             },
             pageLength: 10,
+            classes: 'table-hover',
             rowClass: 'action-expand-row',
             //expandedRowShow: true,
             dataPromise: _getData

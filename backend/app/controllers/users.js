@@ -322,6 +322,14 @@ module.exports = {
 
     selfOrganizationInvite: function (req, res, next) {
         co(function* () {
+            if (req.body.roleID == 1) {
+                throw new HttpError(400, 'Superadmin user cannot be created');
+            }
+
+            if (req.body.roleID > 3) {
+                throw new HttpError(400, 'Role does not exist');
+            }
+
             if (!req.body.email || !req.body.firstName) {
                 throw new HttpError(400, 'Email and First name fields are required');
             }
@@ -354,13 +362,14 @@ module.exports = {
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
 
+
             var newClient;
             if (!isExistUser) {
                 newClient = {
                     'firstName': req.body.firstName,
                     'lastName': req.body.lastName,
                     'email': req.body.email,
-                    'roleID': 3, //user
+                    'roleID': req.body.roleID, //user
                     'password': User.hashPassword(pass),
                     'isActive': false,
                     'activationToken': activationToken,
@@ -838,7 +847,7 @@ function* insertOne(req, res, next) {
 
     //check user role
     if (req.body.roleID === 1 /* || req.body.roleID == 2 */ ) { // new user is admin or client
-        if (!req.user || req.user.role !== 'admin') {
+        if (!req.user || req.user.roleID !== 1) {
             throw new HttpError(403, 'You don\'t have necessary rights to create this kind of user'); // Admin and client can be created only by admin
         }
     }

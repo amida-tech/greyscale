@@ -70,19 +70,51 @@ module.exports = {
                     req.body[i].message = 'Added';
                 }catch(err){
                     req.body[i].status = 'Fail';
+                    if (err instanceof HttpError) {
+                        req.body[i].message = err.message.message;
+                    } else {
+                        req.body[i].message = 'internal error';
+                    }
                     console.log(err);
-                    req.body[i].message = (err.message.message ? err.message.message : 'internal error');
                 }
 
                 result.push(req.body[i]);
             }
+
+            //if (!req.query.autosave) {
+            //    try {
+            //        yield * moveWorkflow(req, dataObject.productId, dataObject.UOAid);
+            //    } catch (e) {
+            //        if (e instanceof HttpError) {
+            //            throw e;
+            //        } else {
+            //            throw new HttpError(403, 'Move workflow internal error');
+            //        }
+            //    }
+            //}
+
             return result;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
             next(err);
         });
+    },
+
+    productUOAmove: function (req, res, next) {
+        co(function* (){
+            try{
+                yield * moveWorkflow(req, req.params.id, req.params.uoaid);
+            }catch(e){
+                throw e;
+            }
+        }).then(function () {
+            res.status(200).end();
+        }, function (err) {
+            next(err);
+        });
     }
+
 };
 
 function *addAnswer (req, dataObject) {
@@ -255,20 +287,96 @@ function *addAnswer (req, dataObject) {
         answer = answer[0];
     }
 
-    if (!req.query.autosave) {
-        console.log('!NEW VERSION dataObject:', dataObject);
-        var nextStep = yield thunkQuery(
-            WorkflowStep.select()
+    return answer;
+}
+
+function *moveWorkflow (req, productId, UOAid) {
+    if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
+        throw new HttpError(403, 'Access denied');
+    }
+
+    var curStep = yield thunkQuery(
+        ProductUOA
+            .select(
+                WorkflowStep.star(),
+                'row_to_json("Tasks".*) as task',
+                'row_to_json("Surveys".*) as survey'
+            )
+            .from(
+                ProductUOA
+                    .leftJoin(WorkflowStep)
+                    .on(ProductUOA.currentStepId.equals(WorkflowStep.id))
+                    .leftJoin(Task)
+                    .on(
+                        Task.stepId.equals(WorkflowStep.id)
+                        .and(Task.uoaId.equals(ProductUOA.UOAid))
+                    )
+                    .leftJoin(Product)
+                    .on(ProductUOA.productId.equals(Product.id))
+                    .leftJoin(Survey)
+                    .on(Product.surveyId.equals(Survey.id))
+            )
+            .where(
+                ProductUOA.productId.equals(productId)
+                .and(ProductUOA.UOAid.equals(UOAid))
+            )
+    );
+
+    curStep = curStep[0];
+
+    if (!curStep) {
+        throw new HttpError(403, 'Current step is not define');
+    }
+
+    if (!curStep.task) {
+        throw new HttpError(403, 'Task is not define for this Product and UOA');
+    }
+
+    if (!curStep.task) {
+        throw new HttpError(403, 'Survey is not define for this Product');
+    }
+
+    if (curStep.task.userId != req.user.id) {
+        throw new HttpError(
+            403,
+            'Task(id=' + curStep.task.id + ') on this step assigned to another user ' +
+            '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
+        );
+    }
+
+    var nextStep = yield thunkQuery(
+        WorkflowStep.select()
             .where(
                 WorkflowStep.workflowId.equals(curStep.workflowId)
-                .and(WorkflowStep.position.equals(curStep.position+1))
+                    .and(WorkflowStep.position.equals(curStep.position+1))
             )
-        );
+    );
+
+    var _numberOfQuestions = yield thunkQuery(
+        'SELECT COUNT(*) ' +
+        'FROM "SurveyQuestions" ' +
+        'WHERE "surveyId" = ' + curStep.survey.id
+    );
+
+    var _numberOfVersioned = yield thunkQuery(
+        'SELECT COUNT(v."questionId") ' +
+        'FROM (' +
+            'SELECT "questionId", MAX("version") AS maxVersion ' +
+            'FROM "SurveyAnswers" ' +
+            'WHERE "UOAid" = ' + UOAid + ' ' +
+            'AND "wfStepId" = ' + curStep.id + ' ' +
+            'AND "productId" = ' + productId + ' ' +
+            'AND "version" IS NOT NULL ' +
+            'GROUP BY "questionId"' +
+        ') AS v ' +
+        'GROUP BY v.maxVersion');
+
+    if ((_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
         if(nextStep[0]){ // next step exists, set it to current
             yield thunkQuery(
                 ProductUOA
-                .update({currentStepId: nextStep[0].id})
-                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                    .update({currentStepId: nextStep[0].id})
+                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
             );
         }else{
             // set productUOA status to complete
@@ -294,7 +402,12 @@ function *addAnswer (req, dataObject) {
             }
         }
         console.log(nextStep);
+    } else {
+        throw new HttpError(
+            403,
+            'Some questions don\'t have answers ' +
+            '(questions = '+_numberOfQuestions[0].count+'' +
+            ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
+            ', cannot move to another step');
     }
-
-    return answer;
 }

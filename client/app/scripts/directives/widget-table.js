@@ -355,6 +355,7 @@ angular.module('greyscaleApp')
             } else if (expandedRowTemplate) {
                 _controlRowExpanding(el, expandedRowTemplate, scope);
             }
+            _expandedRowsHovering(el);
         }
 
         function _getTemplateByUrl(templateUrl) {
@@ -364,6 +365,16 @@ angular.module('greyscaleApp')
                 .then(function (response) {
                     return response.data;
                 });
+        }
+
+        function _expandedRowsHovering(el) {
+            el.on('mouseenter mouseleave', '.expandable-row, .expand-row', function (e) {
+                var rowEl = $(this);
+                var expand = rowEl.hasClass('expand-row');
+                var expandableEl = expand ? rowEl.prev() : rowEl;
+                var method = e.type === 'mouseenter' ? 'addClass' : 'removeClass';
+                expandableEl[method]('is-hovered');
+            });
         }
 
         function _controlRowExpanding(el, template, scope) {
