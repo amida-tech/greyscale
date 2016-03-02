@@ -111,6 +111,12 @@
             .dropdown-menu {
                 right: 100%;
                 margin-right: -41px;
+                .link {
+                    .fa {
+                        width: 30px;
+                        text-align: center;
+                    }
+                }
             }
             i {
                 font-size: $font-size-h3;
@@ -119,6 +125,7 @@
                     font-size: $font-size-h1;
                 }
             }
+
         }
         .organization-selector {
             float: right;

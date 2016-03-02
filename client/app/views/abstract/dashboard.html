@@ -10,12 +10,17 @@
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li class="dropdown-header">{{model.user.firstName}} {{model.user.lastName}}</li>
                             <li class="divider"></li>
+
                             <li class="link">
-                                <a ui-sref="profile" translate="NAV.PROFILE"></a>
+                                <a ui-sref="messages"><span class="fa fa-envelope"></span> <span translate="NAV.MESSAGES"></span></a>
                             </li>
+                            <li class="link">
+                                <a ui-sref="profile"><span class="fa fa-user"></span> <span translate="NAV.PROFILE"></span></a>
+                            </li>
+
                             <li class="divider"></li>
                             <li class="link">
-                                <a href="#" ng-click="logout()" translate="NAV.LOGOUT"></a>
+                                <a href="#" ng-click="logout()"><span class="fa fa-power-off"></span> <span translate="NAV.LOGOUT"></span></a>
                             </li>
                         </ul>
                     </div>

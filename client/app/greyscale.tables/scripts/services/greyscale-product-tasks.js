@@ -191,6 +191,13 @@ angular.module('greyscale.tables')
 
             task.progress = _.sortBy(task.progress, 'step.position');
 
+            for (var i = task.progress.length - 1; i >= 0; i--) {
+                if (task.progress[i].id) {
+                    task.last = task.progress[i].id === task.id;
+                    break;
+                }
+            }
+
             return task;
         }
 

@@ -25,6 +25,8 @@
         "RESET": "Reset",
         "SAVE": "Save",
         "SAVE_AND_CONTINUE": "Save And Continue",
+        "SEND": "Send",
+        "SEND_MESSAGE": "Send Message",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
@@ -141,6 +143,20 @@
         "RESET_SUCCESS": "Password was updated successfully.",
         "SIGN_IN": "Sign in",
         "TOKEN_SENT": "Instructions was sent to your e-mail..."
+    },
+    "MESSAGES": {
+        "DATE_TIME": "Date / Time",
+        "FROM": "From",
+        "MESSAGE": "Message",
+        "MY_MESSAGES": "Messages",
+        "READ": "Read",
+        "REPLY": "Reply",
+        "SELECT_USER": "Select User ...",
+        "SEND_NEW_MESSAGE": "Send New Message",
+        "SET_READ": "Set Read",
+        "SET_UNREAD": "Set Unread",
+        "USER": "User",
+        "YOUR_MESSAGE": "Your Message ..."
     },
     "MY_TASKS": {
         "FINISHED_TITLE": "Finished tasks",
@@ -307,10 +323,13 @@
         "CURRENT_STEP": "Current Step",
         "DEADLINE": "Deadline",
         "FLAGS": "Flag",
+        "FORCE_COMPLETE": "Force complete",
+        "FORCE_NEXT_STEP": "Force next step",
         "LAST_UPDATE": "Updated",
         "MODAL": {
             "TITLE": "{{task.uoa.shortName}}: {{activeBlock.step.title}}"
         },
+        "NOTIFY_USER": "Notify user",
         "PROGRESS": "Progress",
         "ROLE": "Role",
         "STATUS": "Status",

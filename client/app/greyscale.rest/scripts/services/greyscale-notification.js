@@ -4,7 +4,10 @@ angular.module('greyscale.rest')
     .factory('greyscaleNotificationApi', function (greyscaleRestSrv) {
 
         return {
-            list: _list
+            list: _list,
+            send: _send,
+            setRead: _setRead,
+            setUnread: _setUnread
         };
 
         function api() {
@@ -13,6 +16,18 @@ angular.module('greyscale.rest')
 
         function _list(param) {
             return api().get(param);
+        }
+
+        function _send(data) {
+            return api().customPOST(data);
+        }
+
+        function _setRead(id) {
+            return api().one('markread').one('' + id).customPUT();
+        }
+
+        function _setUnread(id) {
+            return api().one('markunread').one('' + id).customPUT();
         }
 
     });

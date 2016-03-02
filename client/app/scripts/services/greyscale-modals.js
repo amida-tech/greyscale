@@ -139,7 +139,7 @@ angular.module('greyscaleApp')
                 }
             }).result;
     }
-    
+
     function _showVersion(params) {
         return $uibModal.open({
             templateUrl: 'views/modals/answer-version.html',
@@ -151,6 +151,19 @@ angular.module('greyscaleApp')
             }
         }).result;
     }
+
+        function _sendMessage(user, data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/send-message.html',
+                controller: 'ModalSendMessageCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user,
+                    data: data
+                }
+            }).result;
+        }
 
         return {
             editRec: modalForm,
@@ -175,5 +188,6 @@ angular.module('greyscaleApp')
             userGroups: _userGroups,
             confirm: _confirm,
             showVersion: _showVersion
+            sendMessage: _sendMessage
         };
     });

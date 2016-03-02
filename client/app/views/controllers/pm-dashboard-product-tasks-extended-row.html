@@ -8,7 +8,8 @@
         {{row.user.firstName}} {{row.user.lastName}} <small>({{row.user.email}})</small>
     </div>
     <div class="col-md-4">
-        <a><i class="fa fa-envelope-o"></i> Notify user</a> <br>
-        <a><i class="fa fa-fast-forward"></i> Force complete</a>
+        <a ng-click="ext.notifyUser(row)"><i class="fa fa-envelope-o"></i> <span translate=".NOTIFY_USER"></span></a> <br>
+        <a ng-show="!row.last"><i class="fa fa-fast-forward"></i> <span translate=".FORCE_NEXT_STEP"></span></a>
+        <a ng-show="row.last"><i ng-show="row.last" class="fa fa-check"></i> <span translate=".FORCE_COMPLETE"></span></a>
     </div>
 </div>
