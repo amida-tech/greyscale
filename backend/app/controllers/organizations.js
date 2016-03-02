@@ -12,7 +12,8 @@ var _ = require('underscore'),
     co = require('co'),
     thunkify = require('thunkify'),
     Emailer = require('lib/mailer'),
-    thunkQuery = thunkify(query);
+    thunkQuery = thunkify(query),
+    notifications = require('app/controllers/notifications');
 
 module.exports = {
 
@@ -163,10 +164,10 @@ module.exports = {
 
                         var existError = false;
 
-                        if (roleID === 2 && org[0].adminUserId) { // admin already exists
-                            existError = true;
-                            roleID = 3;
-                        }
+                        //if (roleID === 2 && org[0].adminUserId) { // admin already exists
+                        //    existError = true;
+                        //    roleID = 3;
+                        //}
 
                         var newUser = {
                             parse_status   : 'skipped',
@@ -200,25 +201,51 @@ module.exports = {
                                     User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
                                 );
 
-                                if (roleID == 2) {
-                                    yield thunkQuery(
-                                        Organization
-                                        .update({adminUserId: created[0].id})
-                                        .where(Organization.id.equals(org[0].id))
-                                    );
-                                    org[0].adminUserId = created[0].id;
-                                }
+                                //if (roleID == 2) {
+                                //    yield thunkQuery(
+                                //        Organization
+                                //        .update({adminUserId: created[0].id})
+                                //        .where(Organization.id.equals(org[0].id))
+                                //    );
+                                //    org[0].adminUserId = created[0].id;
+                                //}
 
                                 if (created[0]) {
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';
-                                    if (existError) {
-                                        newUser.message = 'Admin for this company already exists, added as user';
-                                    }else{
+                                    //if (existError) {
+                                    //    newUser.message = 'Admin for this company already exists, added as user';
+                                    //}else{
                                         newUser.message = 'Added';
-                                    }
+                                    //}
+                                    var essenceId = yield * getEssenceId('Users');
+                                    var note = yield * notifications.createNotification(
+                                        {
+                                            userFrom: req.user.id,
+                                            userTo: newUser.id,
+                                            body: 'New user added',
+                                            essenceId: essenceId,
+                                            entityId: newUser.id,
+                                            notifyLevel: newUser.notifyLevel,
+                                            name: newUser.firstName,
+                                            surname: newUser.lastName,
+                                            company: org[0],
+                                            inviter: req.user,
+                                            token: newUser.activationToken,
+                                            subject: 'Indaba. Organization membership'
+                                        },
+                                        {
+                                            notificationName: 'org_invite',
+                                            notificationPath: './views/notifications/',
+                                            emailName: 'org_invite',
+                                            emailPath: './views/emails/'
+                                        }
+                                    );
+
+
                                 }
 
+/*
                                 var options = {
                                     to: {
                                         name: newUser.firstName,
@@ -241,6 +268,7 @@ module.exports = {
                                     console.log(data);
 
                                 });
+*/
                             }
                         }
 
@@ -275,4 +303,17 @@ function* checkOrgData(req){
             throw new HttpError(403, 'User with this id does not exist');
         }
     }
+}
+
+function* getEssenceId(essenceName) {
+    query =
+        'SELECT '+
+        '"Essences"."id" '+
+        'FROM "Essences" '+
+        'WHERE "Essences"."name" = \''+essenceName+'\'';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+    }
+    return result[0].id;
 }

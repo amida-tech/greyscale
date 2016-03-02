@@ -57,7 +57,7 @@ angular.module('greyscaleApp')
                 $scope.model.tasks = data.tasks;
             });
 
-        $scope.$on('$destroy', function(){
+        $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
 

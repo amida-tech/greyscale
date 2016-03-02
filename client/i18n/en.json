@@ -219,6 +219,7 @@
         "COUNT_OVERDUE": "Overdue",
         "COUNT_STARTED": "Started",
         "COUNT_UOAS": "Targets",
+        "DEADLINE": "Deadline",
         "DOWNLOAD_DATA": "Download Data"
     },
     "PM_PROJECTS": {

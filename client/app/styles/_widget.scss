@@ -126,6 +126,16 @@ $widget-header-font-weight: bold;
                 td {
                     cursor: pointer;
                 }
+                &.expandable-row.is-expanded.is-hovered {
+                    background-color: $grey-light;
+                }
+                &.expandable-row.is-expanded.is-hovered + tr.expand-row {
+                    background-color: $grey-light;
+                    td {
+                        cursor: default !important;
+                        border-top-color: lighten($grey-light, 5%);
+                    }
+                }
             }
         }
 

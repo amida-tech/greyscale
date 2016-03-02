@@ -91,6 +91,18 @@ function *addAnswer (req, dataObject) {
         dataObject.optionId = [dataObject.optionId];
     }
 
+    var product = yield thunkQuery(
+        Product.select().from(Product).where(Product.id.equals(dataObject.productId))
+    );
+
+    if(!product[0]){
+        throw new HttpError(403, 'Product with id = ' + dataObject.productId + ' does not exist');
+    }
+
+    if (product[0].status !== 1) {
+        throw new HttpError(403, 'Product status is not "STARTED", you cannot post answers');
+    }
+
     var question = yield thunkQuery(
         SurveyQuestion.select().from(SurveyQuestion).where(SurveyQuestion.id.equals(dataObject.questionId))
     );
@@ -117,6 +129,13 @@ function *addAnswer (req, dataObject) {
         throw new HttpError(
             403,
             'UOA with id = ' + dataObject.UOAid + ' does not relate to Product with id = ' + dataObject.productId
+        );
+    }
+
+    if (productUoa[0].isComplete) {
+        throw new HttpError(
+            403,
+            'Product in this UOA has been completed'
         );
     }
 
@@ -154,11 +173,6 @@ function *addAnswer (req, dataObject) {
     );
 
     curStep = curStep[0];
-
-
-    console.log('-------->>>>>>> task owner');
-    console.log(curStep.task.userId);
-    console.log(req.user.id);
 
     if (!curStep) {
         throw new HttpError(403, 'Current step is not define');
@@ -203,7 +217,7 @@ function *addAnswer (req, dataObject) {
     var version = yield thunkQuery(
         SurveyAnswer
             .select('max("SurveyAnswers"."version")')
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId', 'productId']))
+            .where(_.pick(dataObject, ['questionId', 'UOAid', 'productId']))
     );
 
     if (_.first(version).max === null) {
@@ -249,18 +263,41 @@ function *addAnswer (req, dataObject) {
                 .and(WorkflowStep.position.equals(curStep.position+1))
             )
         );
-        if(nextStep[0]){ // next step exists, set it to current
-            yield thunkQuery(
-                ProductUOA
-                .update({currentStepId: nextStep[0].id})
-                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
-            );
-        }else{ // set product status to complete
-            yield thunkQuery(
-                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
-            );
+        var _numberOfQuestions = yield thunkQuery('SELECT COUNT(*) FROM "SurveyQuestions" WHERE "surveyId" = ' + dataObject.surveyId);
+        var _numberOfVersioned = yield thunkQuery('SELECT COUNT(v."questionId") FROM (SELECT "questionId", MAX("version") AS maxVersion FROM "SurveyAnswers" WHERE "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId + ' AND "surveyId" = ' + dataObject.surveyId + ' AND NOT "version" IS NULL GROUP BY "questionId") AS v GROUP BY v.maxVersion');
+        //console.log('_numberOfQuestions', _numberOfQuestions[0].count, '_numberOfVersioned', _numberOfVersioned,  ' "surveyId" = ' + dataObject.surveyId + ' AND "questionId" = ' + dataObject.questionId + ' AND "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId);
+        if ((_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+            if(nextStep[0]){ // next step exists, set it to current
+                yield thunkQuery(
+                    ProductUOA
+                    .update({currentStepId: nextStep[0].id})
+                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                );
+            }else{
+                // set productUOA status to complete
+                yield thunkQuery(
+                    ProductUOA
+                        .update({isComplete: true})
+                        .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                );
+                var uncompleted = yield thunkQuery( // check for uncompleted
+                    ProductUOA
+                        .select()
+                        .where(
+                            {
+                                productId: curStep.task.productId,
+                                isComplete: false
+                            }
+                        )
+                );
+                if (!uncompleted.length) { // set product status to complete
+                    yield thunkQuery(
+                        Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                    );
+                }
+            }
+            console.log(nextStep);
         }
-        console.log(nextStep);
     }
 
     return answer;

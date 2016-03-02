@@ -8,8 +8,8 @@ angular.module('greyscaleApp')
             restrict: 'E',
             replace: true,
             template: '<div class="col-sm-12 col-xs-12 col-md-6 file-attach"><a class="action action-primary file-link" ng-click="download()">' +
-            '<i class="fa {{iconClass}}"></i>{{file.name}}</a>' +
-            '<a class="action action-danger file-remove" ng-click="remove()"><i class="fa fa-trash"></i></a></div>',
+                '<i class="fa {{iconClass}}"></i>{{file.name}}</a>' +
+                '<a class="action action-danger file-remove" ng-click="remove()"><i class="fa fa-trash"></i></a></div>',
             scope: {
                 file: '=attachedItem',
                 remove: '&removeFile'
@@ -23,7 +23,7 @@ angular.module('greyscaleApp')
 
                 $scope.download = function () {
                     if ($scope.file.data) {
-                        FileSaver.saveAs(greyscaleBase64Srv.b64toBlob($scope.file.data,$scope.file.type), $scope.file.name);
+                        FileSaver.saveAs(greyscaleBase64Srv.b64toBlob($scope.file.data, $scope.file.type), $scope.file.name);
                     } else {
 
                     }

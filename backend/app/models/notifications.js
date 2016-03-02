@@ -7,15 +7,19 @@ var Notification = sql.define({
         'userFrom',
         'userTo',
         'body',
+        'note',
         'email',
         'message',
-        'sentResult',
+        'subject',
+        'result',
         'essenceId',
         'entityId',
         'created',
         'read',
-        'readingTime',
-        'sent'
+        'reading',
+        'sent',
+        'resent',
+        'notifyLevel'
     ]
 });
 
@@ -23,26 +27,30 @@ Notification.insertCols = [
     'userFrom',
     'userTo',
     'body',
+    'note',
     'email',
     'message',
-    'sentResult',
+    'subject',
+    'result',
     'essenceId',
     'entityId',
     'read',
-    'readingTime',
-    'sent'
+    'reading',
+    'sent',
+    'resent',
+    'notifyLevel'
 ];
 
 Notification.updateCols = [
-    'sentResult',
+    'email',
+    'message',
+    'subject',
+    'result',
     'read',
-    'readingTime',
-    'sent'
+    'reading',
+    'sent',
+    'resent',
+    'notifyLevel'
 ];
-
-Notification.create = function () {
-    return false;
-};
-
 
 module.exports = Notification;
