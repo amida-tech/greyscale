@@ -187,8 +187,34 @@ module.exports = {
             yield * checkUpdate(req);
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
-            // ToDo: create notification
-            return yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
+            var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
+            var entry = yield * getDiscussionEntry(req.params.id);
+            var essenceId = yield * getEssenceId('Discussions');
+            var userFrom = yield * getUser(req.user.id);
+            var userTo = yield * getUser(entry.userId);
+            var note = yield * notifications.createNotification(
+                {
+                    userFrom: req.user.id,
+                    userTo: entry.userId,
+                    body: entry.entry,
+                    essenceId: essenceId,
+                    entityId: entry.id,
+                    discussionEntry:  entry,
+                    action: 'update',
+                    notifyLevel: 2,
+                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    subject: 'Indaba. Update message in discussion'
+                },
+                {
+                    notificationName: 'entry',
+                    notificationPath: './views/notifications/',
+                    emailName: 'discussion',
+                    emailPath: './views/emails/'
+                } // ToDo: change templates to EJS engine
+            );
+            return result;
+
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -499,27 +525,10 @@ function* getAvailableUsers(req) {
 }
 
 
-function* getTask(id) {
-    var result;
-    var query =
-        'SELECT '+
-        '"Discussions"."taskId", '+
-        '"Discussions"."order" '+
-        'FROM '+
-        '"Discussions" '+
-        'WHERE '+
-        '"Discussions"."id" = '+id;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
-    }
-    return result[0];
-}
-
 function* checkNextEntry(id, checkOnly) {
     var result;
-    var task = yield * getTask(id);
-    var ids = yield * getProductAndUoaIds(task.taskId);
+    var entry = yield * getDiscussionEntry(id);
+    var ids = yield * getProductAndUoaIds(entry.taskId);
     var productId = ids.productId;
     var uoaId = ids.uoaId;
 
@@ -531,7 +540,7 @@ function* checkNextEntry(id, checkOnly) {
         'WHERE '+
             '"Tasks"."uoaId" = '+ids.uoaId.toString()+' AND '+
             '"Tasks"."productId" = '+ids.productId.toString()+' AND '+
-            '"Discussions".order > '+task.order.toString();
+            '"Discussions".order > '+entry.order.toString();
     result = yield thunkQuery(query);
     if (_.first(result)) {
         if (checkOnly) return false;
@@ -694,6 +703,19 @@ function* getUser(userId) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
+    }
+    return result[0];
+}
+
+function* getDiscussionEntry(id) {
+    var result;
+    var query =
+        'SELECT "Discussions".* '+
+        'FROM "Discussions" '+
+        'WHERE "Discussions"."id" = '+id;
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
     }
     return result[0];
 }
