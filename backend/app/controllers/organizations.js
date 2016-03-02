@@ -12,7 +12,8 @@ var _ = require('underscore'),
     co = require('co'),
     thunkify = require('thunkify'),
     Emailer = require('lib/mailer'),
-    thunkQuery = thunkify(query);
+    thunkQuery = thunkify(query),
+    notifications = require('app/controllers/notifications');
 
 module.exports = {
 
@@ -217,8 +218,34 @@ module.exports = {
                                     //}else{
                                         newUser.message = 'Added';
                                     //}
+                                    var essenceId = yield * getEssenceId('Users');
+                                    var note = yield * notifications.createNotification(
+                                        {
+                                            userFrom: req.user.id,
+                                            userTo: newUser.id,
+                                            body: 'New user added',
+                                            essenceId: essenceId,
+                                            entityId: newUser.id,
+                                            notifyLevel: newUser.notifyLevel,
+                                            name: newUser.firstName,
+                                            surname: newUser.lastName,
+                                            company: org[0],
+                                            inviter: req.user,
+                                            token: newUser.activationToken,
+                                            subject: 'Indaba. Organization membership'
+                                        },
+                                        {
+                                            notificationName: 'org_invite',
+                                            notificationPath: './views/notifications/',
+                                            emailName: 'org_invite',
+                                            emailPath: './views/emails/'
+                                        }
+                                    );
+
+
                                 }
 
+/*
                                 var options = {
                                     to: {
                                         name: newUser.firstName,
@@ -241,6 +268,7 @@ module.exports = {
                                     console.log(data);
 
                                 });
+*/
                             }
                         }
 
@@ -275,4 +303,17 @@ function* checkOrgData(req){
             throw new HttpError(403, 'User with this id does not exist');
         }
     }
+}
+
+function* getEssenceId(essenceName) {
+    query =
+        'SELECT '+
+        '"Essences"."id" '+
+        'FROM "Essences" '+
+        'WHERE "Essences"."name" = \''+essenceName+'\'';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+    }
+    return result[0].id;
 }

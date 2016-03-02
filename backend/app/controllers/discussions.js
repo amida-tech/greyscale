@@ -151,13 +151,25 @@ module.exports = {
                 newStep = yield * checkUpdateProductUOAStep(returnObject);
             }
             var essenceId = yield * getEssenceId('Discussions');
+            var userFrom = yield * getUser(req.user.id);
+            var userTo = yield * getUser(req.body.userId);
             var note = yield * notifications.createNotification(
                 {
                     userFrom: req.user.id,
                     userTo: req.body.userId,
-                    body: 'Added: '+req.body.entry, // ToDo: change body
+                    body: req.body.entry,
                     essenceId: essenceId,
-                    entityId: entry.id
+                    entityId: entry.id,
+                    notifyLevel: 2,
+                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    subject: 'Indaba. New message in discussion'
+                },
+                {
+                    notificationName: 'entry',
+                    notificationPath: './views/notifications/',
+                    emailName: 'discussion',
+                    emailPath: './views/emails/'
                 }
             );
             return entry;
@@ -670,4 +682,16 @@ function* getEssenceId(essenceName) {
         throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
     }
     return result[0].id;
+}
+
+function* getUser(userId) {
+    query =
+        'SELECT "Users".* '+
+        'FROM "Users" '+
+        'WHERE "Users"."id" = ' + parseInt(userId).toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
+    }
+    return result[0];
 }
