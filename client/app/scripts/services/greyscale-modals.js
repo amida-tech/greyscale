@@ -138,7 +138,19 @@ angular.module('greyscaleApp')
                     user: user
                 }
             }).result;
-        }
+    }
+    
+    function _showVersion(params) {
+        return $uibModal.open({
+            templateUrl: 'views/modals/answer-version.html',
+            controller: 'ModalAnswerVersionCtrl',
+            size: 'md',
+            windowClass: 'modal fade in',
+            resolve: {
+                params: params
+            }
+        }).result;
+    }
 
         return {
             editRec: modalForm,
@@ -161,6 +173,7 @@ angular.module('greyscaleApp')
             productWorkflow: _productWorkflow,
             productTask: _productTask,
             userGroups: _userGroups,
-            confirm: _confirm
+            confirm: _confirm,
+            showVersion: _showVersion
         };
     });
