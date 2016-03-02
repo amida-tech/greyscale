@@ -14,6 +14,8 @@ var
     thunkQuery = thunkify(query),
     Emailer = require('lib/mailer');
 
+var socketController = require('app/socket/socket-controller.server');
+
 var isInt = function(val){
     return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
 };
@@ -74,6 +76,9 @@ function* createNotification (note, template) {
     note4insert.note = getHtml(template.notificationName, note4insert, template.notificationPath);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
+    if (parseInt(note.notifyLevel) >  1) {  // onsite notification
+        socketController.sendNotification(note.userTo);
+    }
     var userTo = yield * getUser(note.userTo);
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
