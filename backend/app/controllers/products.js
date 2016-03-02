@@ -197,7 +197,9 @@ module.exports = {
 
   dump: function (req, res, next) {
     co(dumpProduct(parseInt(req.params.id))).then(function (data) {
-      res.json(data);
+      res.json({
+          agg: data
+      });
     }, function (err) {
       next(err);
     });
@@ -303,7 +305,9 @@ module.exports = {
           return datum;
       });
     }).then(function (data) {
-      res.json(data);
+      res.json({
+          agg: data
+      });
     }, function (err) {
       next(err);
     });
@@ -549,7 +553,9 @@ function* updateCurrentStepId(req) {
 function* dumpProduct(productId) {
   var q =
           'SELECT ' + 
-          '  "SurveyAnswers"."UOAid", ' + 
+          '  "SurveyAnswers"."UOAid" AS "id", ' + 
+          '  "UnitOfAnalysis"."name", ' + 
+          '  "UnitOfAnalysis"."ISO2", ' + 
           "  format('{%s}', " + 
           "    string_agg(format('%s:%s', " +
           '      to_json("SurveyQuestions".id::text), ' + 
@@ -594,10 +600,14 @@ function* dumpProduct(productId) {
           '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
           '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
           ') ' +
+          'LEFT JOIN ' +
+          '  "UnitOfAnalysis" ON ("UnitOfAnalysis"."id" = "SurveyAnswers"."UOAid") ' +
           'WHERE ' +
           '  ("Products"."id" = ' + productId + ')' +
           'GROUP BY ' +
-          '  "SurveyAnswers"."UOAid" ' +
+          '  "SurveyAnswers"."UOAid", ' +
+          '  "UnitOfAnalysis"."ISO2", ' +
+          '  "UnitOfAnalysis"."name" ' +
           '; ';
 
   var data = yield thunkQuery(q);

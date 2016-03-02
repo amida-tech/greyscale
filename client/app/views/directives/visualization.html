@@ -1,10 +1,21 @@
 <ng-form name="filterForm" class="form-inline" style="postion: fixed;padding: 10px; padding-bottom: 42px;">
   <div class="form-group">
+    <label for="productDropdown"> Product </label>
+    <select class="form-control" id="productDropdown" ng-model="filterForm.productSelected" ng-options="product as product.title for product in products track by product.id">
+      <option value="">Product</option>
+    </select>
+  </div>
+
+  <!--
+  <div class="form-group">
     <label for="userDropdown"> User </label>
     <select class="form-control" id="userDropdown" ng-model="filterForm.userSelected" ng-options="user for user in users">
       <option value="">--All--</option>
     </select>
   </div>
+  -->
+
+  <!--
   <div class="form-group" style="margin: 5px;">
     <label for="variableDropdown"> Variable </label>
     <select class="form-control" id="variableDropdown" ng-model="filterForm.variableSelected">
@@ -12,6 +23,8 @@
       <option value="dtf"> Distance to Frontier </option>
     </select>
   </div>
+  -->
+
   <div class="form-group" style="margin: 5px;">
     <label for="topicDropdown"> Topic </label>
     <div isteven-multi-select
@@ -27,6 +40,8 @@
     <!--select multiple size='1' class="form-control" id="topicDropdown" ng-model="filterForm.topicSelected" ng-options="topic as topic.name for topic in topics track by isoa2"-->
     </select>
   </div>
+
+  <!--
   <div class="form-group" style="margin: 5px;">
     <label for="subtopicDropdown"> Subtopic </label>
     <select class="form-control" id="subtopicDropdown" ng-model="filterForm.subtopicSelected.subtopic" ng-options="st as st.name for st in filterOptions.subtopics track by st.id">
@@ -47,12 +62,16 @@
       <option value="" selected>--Choose Income Level--</option>
     </select>
   </div>
+  -->
+
   <div class="form-group">
-    <label for="questionDropdown"> Question </label>
-    <select class="form-control" ng-model="filterForm.questionSelected" ng-options="question as question.qid for question in surveys" id="questionDropdown" placeholder="Question...">
-      <option value="">Question ID</option>
+    <label for="indexDropdown"> Index </label>
+    <select class="form-control" ng-model="filterForm.indexSelected" ng-options="index as index.title for index in indexes track by index.id" id="indexDropdown" placeholder="Index...">
+      <option value="">Index</option>
     </select>
   </div>
+
+  <!-- 
   <label for="startDatePopup"> Start Date </label>
   <div class="input-group" id="startDatePopup">
     <input type="text" class="form-control" uib-datepicker-popup="dd-MMMM-yyyy" is-open="popup1.opened" min-date="minDate" max-date="maxDate" ng-model="startDate" close-text="Close"/>
@@ -67,10 +86,15 @@
       <button type="button" class="btn btn-default" ng-click="open2()"><i class="glyphicon glyphicon-calendar"></i></button>
     </span>
   </div>
+  -->
+
+  <!--
   <div class="form-group">
     <label for="mapQueryInput"> Custom Query: </label>
     <input class="form-control" placeholder="question1:yes" ng-model="filterForm.mapQuery" id="mapQueryInput"></input>
   </div>
+  -->
+
   <button type="submit" class="btn btn-success" ng-click="drawMap()">Submit</button>
   <button type="submit" class="btn btn-default" ng-click="resetFilters()">Clear all filters</button>
 </ng-form>

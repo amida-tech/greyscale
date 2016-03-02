@@ -13,6 +13,10 @@ angular.module('greyscale.rest')
             return api().one(id + '').get(params);
         }
 
+        function _getList(params) {
+            return api().getList('', {query: params});
+        }
+
         function _add(product) {
             return api().customPOST(product);
         }
@@ -31,6 +35,12 @@ angular.module('greyscale.rest')
 
         function _productTasksApi(productId) {
             return api().one(productId + '').one('tasks');
+        }
+
+        function _indexes(productId) {
+          return function() {
+            return api().one(productId + '').one('calculate').get();
+          };
         }
 
         function _uoasList(productId) {
@@ -109,12 +119,14 @@ angular.module('greyscale.rest')
                 uoasDel: _uoasDel(productId),
                 tasksList: _tasksList(productId),
                 tasksListUpdate: _tasksListUpdate(productId),
-                tasksDel: _tasksDel(productId)
+                tasksDel: _tasksDel(productId),
+                indexes: _indexes(productId)
             };
         };
 
         return {
             get: _get,
+            getList: _getList,
             add: _add,
             update: _upd,
             delete: _del,

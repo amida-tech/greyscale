@@ -1,149 +1,92 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('mapViz', function ($window, $http, greyscaleSurveyApi) {
+    .directive('mapViz', function ($window, $http, greyscaleSurveyApi, greyscaleProductApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/visualization.html',
             //no isolate scope for data binding, all data moved from controller to directive
             link: function (scope, element, attrs) {
-                //Load geo coordinates and data
-                var request = $http.get('fixtures/doingbiz_agg.json')
-                    .success(function (vizData) {
+                scope.filterForm.topicSelected = [];
+
+                //Load products
+                greyscaleProductApi.getList().then(function (products) {
+                    scope.products = products;
+                });
+
+                //Load data dump on product selection
+                scope.$watch('filterForm.productSelected', function (product) {
+                    if (!product) {
+                      scope.vizData = [];
+                      return null;
+                    }
+
+                    greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
                         scope.vizData = vizData.agg;
 
+                        //Store topics (UOAs)
                         var countrySet = new Set(); //account for same country/multi-year duplicates
-                        vizData.agg.forEach(function (row, index) {
+                        vizData.agg.forEach(function (row) {
                             countrySet.add({
-                                'name': row.country,
-                                'isoa2': row.isoa2,
-                                'continent': row.continent,
-                                'id': index
+                                'name': row.name,
+                                'ISO2': row.ISO2,
+                                'id': row.id
                             });
                         });
                         scope.topics = [...countrySet];
-                        return vizData.agg;
-                    })
-                    .error(function (err) {
-                        console.log(err);
-                    });
 
-                //Defaults for UI
-                scope.minDate = new Date(2015, 1, 1);
-                scope.maxDate = new Date(2016, 1, 1);
-                scope.open1 = function () {
-                    scope.popup1.opened = true;
-                };
-                scope.popup1 = {
-                    opened: false
-                };
-                scope.open2 = function () {
-                    scope.popup2.opened = true;
-                };
-                scope.popup2 = {
-                    opened: false
-                };
-                //Mocked survey data --> look @ Mike's format
-                scope.users = ['user1', 'user2', 'user3'];
-
-                scope.filterForm.topicSelected = [];
-
-                scope.surveys = [{
-                    'qid': '1234',
-                    'text': 'question1'
-                }, {
-                    'qid': '5678',
-                    'text': 'question2'
-                }];
-
-                scope.filterOptions = {
-                    subtopics: [{
-                        'id': '3333',
-                        'name': 'Income'
-                    }, {
-                        'id': '424',
-                        'name': 'Region' //allow for user-specified region mapping
-                    }, {
-                        'id': '111',
-                        'name': 'Continent'
-                    }],
-                    continents: [{
-                        'name': 'Africa',
-                        'isoa2': 'AF'
-                    }, {
-                        'name': 'Europe',
-                        'isoa2': 'EU'
-                    }, {
-                        'name': 'North America',
-                        'isoa2': 'NA'
-                    }, {
-                        'name': 'Asia',
-                        'isoa2': 'AS',
-                    }, {
-                        'name': 'South America',
-                        'isoa2': 'SA'
-                    }, {
-                        'name': 'Australia',
-                        'isoa2': 'AU'
-                    }, {
-                        'name': 'Antartica',
-                        'isoa2': 'AQ'
-                    }],
-                    //TODO: pull official groupings (incomes+regions) from somewhere
-                    incomeLevels: [{
-                        'name': 'Low-income',
-                        'countries': ['AF', 'DZ']
-                    }, {
-                        'name': 'Middle-income',
-                        'countries': ['AZ', 'MX']
-                    }, {
-                        'name': 'High-income',
-                        'countries': ['US', 'FR', 'DE']
-                    }],
-                    regions: []
-                };
-
-                request.then(function (data) {
-                    applyFilters(data, function (filteredData) {
-                        renderMap(filteredData);
+                        //Store questions/indexes/subindexes
+                        scope.indexes = [];
+                        // TODO: use all UOAs to get keys
+                        var uoa = vizData.agg[0];
+                        if (uoa) {
+                            for (var questionId in uoa.answers) {
+                                scope.indexes.push({
+                                    'collection': 'answers',
+                                    'title': 'Question ' + questionId,
+                                    'id': questionId
+                                });
+                            }
+                            for (var subindexId in uoa.subindexes) {
+                                scope.indexes.push({
+                                    'collection': 'subindexes',
+                                    'title': 'Subindex ' + subindexId,
+                                    'id': subindexId
+                                });
+                            }
+                            for (var indexId in uoa.indexes) {
+                                scope.indexes.push({
+                                    'collection': 'indexes',
+                                    'title': 'Index ' + indexId,
+                                    'id': indexId
+                                });
+                            }
+                        }
                     });
                 });
-
+                
                 function applyFilters(data, callback) {
                     //Handles case when data has not been narrowed, only variable changed
                     //length==0 because topicSelected ng-multi-select not registering as dirty (TODO)
-                    if (scope.filterForm.$pristine && scope.filterForm.topicSelected.length === 0) {
-                        callback(scope.vizData);
-
-                    } else if (scope.filterForm.subtopicSelected === null && scope.filterForm.topicSelected.length === 0) {
+                    if (scope.filterForm.topicSelected.length === 0) {
                         callback(scope.vizData);
                     } else {
                         var filteredVizData = [];
+                        console.log(scope.vizData);
                         scope.vizData.forEach(function (row) {
                             if (scope.filterForm.topicSelected) {
                                 scope.filterForm.topicSelected.forEach(function (topic) {
-                                    if (topic.isoa2 === row.isoa2) {
+                                    if (topic.ISO2 === row.ISO2) {
                                         filteredVizData.push(row);
                                     }
                                 });
-                            }
-                            if (scope.filterForm.subtopicSelected) {
-                                var subtopicObj = scope.filterForm.subtopicSelected;
-                                if (subtopicObj.subtopic.name === 'Continent') {
-                                    if (row.continent === subtopicObj.category.isoa2) {
-                                        filteredVizData.push(row);
-                                    }
-                                } else { //Region or Income - fields that have name/countries grouping
-                                    if (subtopicObj.category.countries.indexOf(row.isoa2) > -1) {
-                                        filteredVizData.push(row);
-                                    }
-                                }
                             }
                         });
                         console.log(filteredVizData);
                         callback(filteredVizData);
                     }
                 }
+                
 
                 function getMapParams() {
                     //start with default
@@ -151,15 +94,16 @@ angular.module('greyscaleApp')
                         graphTitle: 'Doing Business 2016',
                         scaleTitle: 'Rank',
                         geoScope: 'world',
-                        showcoastlines: false
+                        showcoastlines: true
                     };
                     if (scope.filterForm.$pristine && scope.filterForm.topicSelected.length === 0) {
                         return params;
                     }
-                    if (scope.filterForm.variableSelected) {
+                    /*if (scope.filterForm.variableSelected) {
                         params.scaleTitle = (scope.variableSelected === 'rank') ? 'Rank' : 'DTF (frontier=100)';
                         params.graphTitle += ('- ' + params.scaleTitle);
-                    }
+                    }*/
+                    /*
                     var topicArray = scope.filterForm.topicSelected;
                     if (topicArray.length !== 0) {
                         params.showcoastlines = true;
@@ -184,35 +128,28 @@ angular.module('greyscaleApp')
                                 params.geoScope = fullContinentName[0].name.toLowerCase();
                             }
                         }
-                    }
-                    //Entire continent selected - zoom into continent
-                    if (scope.filterForm.subtopicSelected) {
-                        params.showcoastlines = true;
-                        params.graphTitle += ('\n' + scope.filterForm.subtopicSelected.subtopic.name + ' - ' + scope.filterForm.subtopicSelected.category.name);
-                        if (scope.filterForm.subtopicSelected.subtopic.name === 'Continent') {
-                            params.geoScope = scope.filterForm.subtopicSelected.category.name.toLowerCase();
-                        }
-                    }
+                    }*/
                     return params;
                 }
 
                 function renderMap(plotData) {
-
                     function unpackData(rows, key) {
                         return rows.map(function (row) {
                             return row[key];
                         });
                     }
-                    var plotVar = (scope.filterForm.variableSelected) ? scope.filterForm.variableSelected : 'rank';
+
+                    var index = scope.filterForm.indexSelected;
+                    if (!index) return null;
 
                     var mapParams = getMapParams();
 
                     var mapData = [{
                         type: 'choropleth',
                         locationmode: 'country names',
-                        locations: unpackData(plotData, 'country'),
-                        z: unpackData(plotData, plotVar),
-                        text: unpackData(plotData, 'country'),
+                        locations: unpackData(plotData, 'name'),
+                        z: unpackData(unpackData(plotData, index.collection), index.id),
+                        text: unpackData(plotData, 'name'),
                         autocolorscale: true,
                         colorbar: {
                             title: mapParams.scaleTitle,
@@ -250,23 +187,17 @@ angular.module('greyscaleApp')
                 };
 
                 scope.resetFilters = function () {
-                    scope.filterForm.userSelected = '';
-                    scope.filterForm.variableSelected = 'rank';
+                    scope.filterForm.productSelected = {};
+                    // scope.filterForm.userSelected = '';
+                    // scope.filterForm.variableSelected = 'rank';
                     scope.filterForm.topicSelected = [];
-                    scope.filterForm.subtopicSelected.subtopic = '';
-                    scope.filterForm.subtopicSelected.category = '';
-                    scope.filterForm.questionSelected = '';
+                    // scope.filterForm.subtopicSelected.subtopic = '';
+                    // scope.filterForm.subtopicSelected.category = '';
+                    // scope.filterForm.questionSelected = '';
+                    scope.filterForm.indexSelected = {};
                     scope.filterForm.$setPristine();
                     scope.drawMap();
                 };
-
-                scope.$watch('vizData', function (newVal, oldVal) {
-                    if (newVal !== oldVal) {
-                        applyFilters(scope.vizData, function (result) {
-                            renderMap(result);
-                        });
-                    }
-                });
 
                 //Validation of topics ng-multi-select dropdown
                 scope.$watch('filterForm.topicSelected', function (newVal, oldVal) {
