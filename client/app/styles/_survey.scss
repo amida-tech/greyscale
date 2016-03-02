@@ -15,12 +15,13 @@
         padding: 0 5px;
     }
 }
+
 .attachments {
     .panel-title {
         font-size: $font-size-base;
     }
     .panel-body {
-        padding-top:5px;
+        padding-top: 5px;
         padding-bottom: 5px;
     }
     .row > div.file-attach {
@@ -52,4 +53,24 @@
             margin: auto;
         }
     }
+}
+
+ul.option-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    list-style-position: inside;
+    &.upper-latin {
+        list-style-type: upper-latin;
+    }
+    &.decimal {
+        list-style-type: decimal;
+    }
+    &.lower-latin {
+        list-style-type: lower-latin;
+    }
+}
+
+.survey-option {
+    display: list-item;
 }

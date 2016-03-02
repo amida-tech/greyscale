@@ -15,7 +15,7 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         }
 
         if (domain.length >= baseLength) {
-            realm = domian[0];
+            realm = domain[0];
         }
 
         RestangularProvider.setBaseUrl(

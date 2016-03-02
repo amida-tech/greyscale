@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n) {
+    .directive('surveyFormField', function ($compile, i18n, $log) {
         function getBorders(field) {
             var borders = [];
             var suffix = '';
@@ -108,24 +108,28 @@ angular.module('greyscaleApp')
                             };
 
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body += '<div class="checkbox-list"> <div ng-repeat="opt in field.options"><div class="checkbox">' +
+                                body += '<ul class="checkbox-list option-list" ng-class="field.listType">' +
+                                    '<div ng-repeat="opt in field.options"><div class="checkbox">' +
                                     '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
                                     'ng-required="field.required && !selectedOpts(field.options)" gs-valid="field">' +
-                                    '<div class="chk-box"></div>{{opt.label}}</label></div></div>';
+                                    '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></ul>';
                             }
                             break;
 
                         case 'radio':
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
+                                body = '<ul class="checkbox-list option-list" ng-class="field.listType">' +
+                                    '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="{{!field.flags.allowEdit}}"' +
-                                    ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>{{opt.label}}</label></div>';
+                                    ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
+                                    '<span class="survey-option">{{opt.label}}</span></label></div></ul>';
                             }
                             break;
 
                         case 'dropdown':
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options" gs-valid="field" ng-readonly="{{!field.flags.allowEdit}}">';
+                                body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options"' +
+                                    ' gs-valid="field" ng-readonly="{{!field.flags.allowEdit}}">';
                                 if (scope.field.required) {
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
