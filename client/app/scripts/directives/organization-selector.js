@@ -77,13 +77,11 @@ angular.module('greyscaleApp')
                                 Organization.$promise = $q.when(true);
                             } else if (organizations.length) {
                                 angular.extend(Organization, organizations[0]);
-                                Organization.$promise = $q.when(true);
                             }
                         });
                     } else {
                         angular.extend(Organization, profile.organization);
                         Organization.projectId = profile.projectId;
-                        Organization.$promise = $q.when(true);
                     }
                 });
 

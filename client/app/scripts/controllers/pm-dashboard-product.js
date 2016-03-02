@@ -2,13 +2,17 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, Organization) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, Organization, greyscaleModalsSrv) {
 
         var productId = $stateParams.productId;
 
         var tasksTable = greyscaleProductTasksTbl;
         tasksTable.dataFilter.productId = productId;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
+        tasksTable.expandedRowExtData = {
+            notifyUser: _notifyUser
+        };
+
 
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
 
@@ -60,6 +64,14 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
+        function _notifyUser(user){
+            var sendData = {
+                //essenceId:
+                //entityId:
+            };
+            greyscaleModalsSrv.sendMessage(user, sendData);
+        }
 
         function _getData(productId) {
             var reqs = {

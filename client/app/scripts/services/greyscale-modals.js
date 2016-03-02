@@ -140,6 +140,19 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _sendMessage(user, data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/send-message.html',
+                controller: 'ModalSendMessageCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user,
+                    data: data
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -161,6 +174,7 @@ angular.module('greyscaleApp')
             productWorkflow: _productWorkflow,
             productTask: _productTask,
             userGroups: _userGroups,
-            confirm: _confirm
+            confirm: _confirm,
+            sendMessage: _sendMessage
         };
     });
