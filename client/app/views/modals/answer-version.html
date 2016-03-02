@@ -1,0 +1,18 @@
+<modal-form-header>
+    {{'SURVEYS.VERSION' | translate}}
+</modal-form-header>
+<div class="modal-body">
+    <uib-accordion close-others="true">
+        <uib-accordion-group ng-repeat="answer in answers" heading="#{{answer.version + ' - ' + answer.created}}">
+            <div>
+                {{answer.value}}
+            </div>
+            <div ng-repeat="optionId in answer.optionId">
+                {{getOptionLabel(optionId)}}
+            </div>
+        </uib-accordion-group>
+    </uib-accordion>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-lg btn-{{params.okType||'default'}}" ng-click="close()" translate="COMMON.CLOSE"></button>
+</div>

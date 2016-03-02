@@ -387,6 +387,7 @@
         "SELECT_ONE": "select one",
         "STATUS": "Status",
         "SUBMIT": "Save and Submit",
+        "VERSION": "Versions",
         "VIEW": "View"
     },
     "TABLES": {
