@@ -182,7 +182,8 @@ module.exports = {
                 'WHERE "UnitOfAnalysisTagLink"."uoaId" = "UnitOfAnalysis"."id"' +
               ') as "uoaTags", ' +
               '"WorkflowSteps"."title" as "stepTitle", "WorkflowSteps"."position" as "stepPosition", ' +
-              '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", "Roles"."name" as "ownerRole", ' +
+              '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", ' +
+              //'"Roles"."name" as "ownerRole", ' +
               '"Surveys"."title" as "surveyTitle", ' +
               '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."value" as "questionWeight", ' +
               '"SurveyAnswers"."value" as "answerText", "SurveyAnswers"."optionId" as "answerValue" ' +
@@ -192,9 +193,8 @@ module.exports = {
               'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
               'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
               'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
-              'LEFT JOIN "EssenceRoles" ON ("Tasks"."entityTypeRoleId" = "EssenceRoles"."id") ' +
-              'LEFT JOIN "Users" ON ("EssenceRoles"."userId" = "Users"."id") ' +
-              'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
+              'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
+              //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
               'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
               'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
 
