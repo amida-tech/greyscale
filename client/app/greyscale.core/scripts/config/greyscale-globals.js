@@ -107,21 +107,34 @@ angular.module('greyscale.core')
                     mask: 0xffff
                 }
             },
-            formBuilderFieldTypes: [
-                'text',
-                'paragraph',
-                'checkboxes',
-                'radio',
-                'dropdown',
-                'number',
-                'email',
-                'price',
+            formBuilder: {
+                fieldTypes: [
+                    'text',
+                    'paragraph',
+                    'checkboxes',
+                    'radio',
+                    'dropdown',
+                    'number',
+                    'email',
+                    'price',
+                    'section_start',
+                    'section_end',
+                    'section_break',
+                    'bullet_points',
+                    'date',
+                    'scale'
+                ],
+                excluded: [
+                    'section_start',
+                    'section_end',
+                    'section_break'
+                ],
+                excludedIndexes: []
+            },
+            formBuilderSections: [
                 'section_start',
                 'section_end',
-                'section_break',
-                'bullet_points',
-                'date',
-                'scale'
+                'section_break'
             ],
             writeToAnswersList: [{
                 value: false,
@@ -146,6 +159,7 @@ angular.module('greyscale.core')
         return {
             initRoles: _setRolesId,
             $get: function () {
+                initformBuilderFieldTypeExcludedIndexes();
                 return self;
             }
         };
@@ -159,6 +173,17 @@ angular.module('greyscale.core')
                             self.userRoles[_role].id = role.id;
                         }
                     }
+                }
+            }
+        }
+
+        function initformBuilderFieldTypeExcludedIndexes() {
+            var i, idx,
+                len = self.formBuilder.excluded.length;
+            for (i = 0; i < len; i++) {
+                idx = self.formBuilder.fieldTypes.indexOf(self.formBuilder.excluded[i]);
+                if (idx !== -1) {
+                    self.formBuilder.excludedIndexes.push(idx);
                 }
             }
         }

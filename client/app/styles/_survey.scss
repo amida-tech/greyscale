@@ -55,22 +55,25 @@
     }
 }
 
-ul.option-list {
-    margin: 0;
-    padding: 0;
+.option-list {
     list-style-type: none;
     list-style-position: inside;
-    &.upper-latin {
-        list-style-type: upper-latin;
-    }
-    &.decimal {
-        list-style-type: decimal;
-    }
-    &.lower-latin {
-        list-style-type: lower-latin;
-    }
+    counter-reset: survey-option;
 }
 
-.survey-option {
-    display: list-item;
+.survey-option:before {
+    counter-increment: survey-option;
+    content: counter(survey-option, none);
+}
+
+.upper-latin .survey-option:before {
+    content: counter(survey-option, upper-latin) ". ";
+}
+
+.decimal .survey-option:before {
+    content: counter(survey-option, decimal) ". ";
+}
+
+.lower-latin .survey-option:before {
+    content: counter(survey-option, lower-latin) ". ";
 }
