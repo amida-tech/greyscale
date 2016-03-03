@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                     saveAnswers(scope)
                         .then(function () {
                             if (scope.surveyData.task) {
-                                return greyscaleProductApi()
+                                return greyscaleProductApi
                                     .product(scope.surveyData.task.productId)
                                     .taskMove(scope.surveyData.task.uoaId);
                             } else {
