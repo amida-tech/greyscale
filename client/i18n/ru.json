@@ -144,21 +144,6 @@
         "SIGN_IN": "Вход",
         "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
     },
-    "MESSAGES": {
-        "DATE_TIME": "",
-        "FROM": "",
-        "MESSAGE": "",
-        "MY_MESSAGES": "",
-        "READ": "",
-        "REPLY": "",
-        "SELECT_USER": "",
-        "SEND_NEW_MESSAGE": "",
-        "SET_READ": "",
-        "SET_UNREAD": "",
-        "USER": "",
-        "YOU": "",
-        "YOUR_MESSAGE": ""
-    },
     "MY_TASKS": {
         "FINISHED_TITLE": "Законченные задачи",
         "FUTURE_TITLE": "Будущие задачи",
@@ -182,7 +167,6 @@
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
-        "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
@@ -213,6 +197,11 @@
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
+    },
+    "NOTIFICATIONS": {
+        "MARK_AS_READ": "",
+        "SEND_NOTIFICATION": "",
+        "SEND_SUCCESS": ""
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Адрес",

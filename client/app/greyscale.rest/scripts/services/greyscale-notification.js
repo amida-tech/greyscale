@@ -5,7 +5,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
-            resendUserInvite: _resendUserInvite
+            resendUserInvite: _resendUserInvite,
             send: _send,
             setRead: _setRead,
             setUnread: _setUnread

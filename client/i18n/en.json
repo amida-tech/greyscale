@@ -144,21 +144,6 @@
         "SIGN_IN": "Sign in",
         "TOKEN_SENT": "Instructions was sent to your e-mail..."
     },
-    "MESSAGES": {
-        "DATE_TIME": "Date / Time",
-        "FROM": "From",
-        "MESSAGE": "Message",
-        "MY_MESSAGES": "Messages",
-        "READ": "Read",
-        "REPLY": "Reply",
-        "SELECT_USER": "Select User ...",
-        "SEND_NEW_MESSAGE": "Send New Message",
-        "SET_READ": "Set Read",
-        "SET_UNREAD": "Set Unread",
-        "USER": "User",
-        "YOU": "You",
-        "YOUR_MESSAGE": "Your Message ..."
-    },
     "MY_TASKS": {
         "FINISHED_TITLE": "Finished tasks",
         "FUTURE_TITLE": "Future tasks",
@@ -182,7 +167,6 @@
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
-        "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
@@ -213,6 +197,11 @@
         },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
+    },
+    "NOTIFICATIONS": {
+        "MARK_AS_READ": "Mark as Read",
+        "SEND_NOTIFICATION": "Send Message",
+        "SEND_SUCCESS": "Message sent"
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Address",

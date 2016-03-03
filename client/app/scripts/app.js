@@ -360,21 +360,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
-        .state('messages', {
-            parent: 'home',
-            url: 'messages',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/messages.html',
-                    controller: 'MessagesCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.MESSAGES',
-                icon: 'fa-envelope',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
-            }
-        })
         .state('tasks', {
             parent: 'home',
             url: 'tasks',

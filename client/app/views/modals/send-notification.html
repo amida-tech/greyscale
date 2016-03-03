@@ -1,0 +1,15 @@
+<modal-form-header>
+    <span translate="NOTIFICATIONS.SEND_NOTIFICATION"></span>
+</modal-form-header>
+<div class="modal-body" translate-namespace="NOTIFICATIONS">
+    <div class="form-group">
+        <b>{{model.user.firstName}} {{model.user.lastName}} <small>({{model.user.email}})</small></b>
+    </div>
+    <div class="form-group">
+        <textarea class="form-control" ng-model="model.notification.body"></textarea>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
+    <button class="btn btn-success" ng-click="send()" ng-disabled="!validForm()" translate="COMMON.SEND"></button>
+</div>

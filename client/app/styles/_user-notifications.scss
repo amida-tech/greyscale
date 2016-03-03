@@ -1,0 +1,42 @@
+.user-notifications {
+    .dropdown-toggle {
+        position: relative;
+        .counter {
+            display: inline-block;
+            position: absolute;
+            font-size: 10px;
+            background: $red;
+            text-align: center;
+            line-height: 17px;
+            min-width: 17px;
+            color: $white;
+            font-weight: bold;
+            right: -9px;
+            top: 6px;
+            border-radius: 10px;
+        }
+    }
+    .notification {
+        min-width: 400px;
+        padding: 10px 15px 5px 15px;
+        border-top: 1px solid #eee;
+        &:first-child {
+            border: none;
+        }
+        .sender {
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        .send-time {
+            font-size: 10pt;
+            color: $gray;
+        }
+        p {
+            margin: 0;
+            padding: 3px 0 0 0;
+        }
+        .control {
+            font-size: 10pt;
+        }
+    }
+}

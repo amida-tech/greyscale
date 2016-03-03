@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log, greyscaleProductApi) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';

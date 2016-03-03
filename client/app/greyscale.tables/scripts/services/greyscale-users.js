@@ -88,9 +88,9 @@ angular.module('greyscale.tables')
         }, {
             title: 'COMMON.SEND_MESSAGE',
             cellTemplate: '<div class="text-center">' +
-            '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
-            '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
-            '   </a></div>',
+                '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
+                '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
+                '   </a></div>',
             dataHide: true,
             cellTemplateExtData: {
                 anotherUser: _isAnotherUser,
@@ -164,7 +164,7 @@ angular.module('greyscale.tables')
         }
 
         function _sendMessageTo(user) {
-            greyscaleModalsSrv.sendMessage(user);
+            greyscaleModalsSrv.sendNotification(user);
         }
 
         function _editRecord(user) {

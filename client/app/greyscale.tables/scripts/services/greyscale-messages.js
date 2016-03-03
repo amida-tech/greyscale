@@ -19,7 +19,7 @@ angular.module('greyscale.tables')
             sortable: 'created'
         }, {
             title: tns + 'USER',
-            titleTemplate:'<select class="form-control" ng-change="ext.update()" ng-model="ext.model.filterUser" ng-options="user as user.fullName for user in ext.model.users"></select>',
+            titleTemplate: '<select class="form-control" ng-change="ext.update()" ng-model="ext.model.filterUser" ng-options="user as user.fullName for user in ext.model.users"></select>',
             titleTemplateExtData: {
                 //getUsers: _getConversationUsers,
                 getUserName: _getUserName,
@@ -27,10 +27,10 @@ angular.module('greyscale.tables')
                 update: _reload
             },
             cellTemplate: '<span ng-if="row.toMe">{{row.userFromName}}</span>' +
-            '<span ng-if="row.fromMe">{{row.userToName}}</span>'
+                '<span ng-if="row.fromMe">{{row.userToName}}</span>'
         }, {
             cellTemplate: '<span ng-if="row.toMe"><i class="fa fa-chevron-right"></i></span>' +
-            '<span ng-if="row.fromMe"><i class="fa fa-chevron-left"></i></span>'
+                '<span ng-if="row.fromMe"><i class="fa fa-chevron-left"></i></span>'
         }, {
             field: 'body',
             title: tns + 'MESSAGE',
@@ -40,9 +40,9 @@ angular.module('greyscale.tables')
             title: tns + 'READ',
             sortable: 'read',
             cellTemplate: '<div class="text-center">' +
-            '{{\'COMMON.\' + (row.read ? \'YES\' : \'NO\')|translate}}' +
-            '<a ng-if="row.toMe"  ng-click="ext.toggleRead(row)" class="action" title="{{\''+ tns +'\' + (!row.read ? \'SET_READ\' : \'SET_UNREAD\')|translate}}">&nbsp;<i ng-show="row.read" class="fa fa-eye-slash"></i><i ng-hide="row.read" class="fa fa-eye"></i></a>' +
-            '</div>',
+                '{{\'COMMON.\' + (row.read ? \'YES\' : \'NO\')|translate}}' +
+                '<a ng-if="row.toMe"  ng-click="ext.toggleRead(row)" class="action" title="{{\'' + tns + '\' + (!row.read ? \'SET_READ\' : \'SET_UNREAD\')|translate}}">&nbsp;<i ng-show="row.read" class="fa fa-eye-slash"></i><i ng-hide="row.read" class="fa fa-eye"></i></a>' +
+                '</div>',
             cellTemplateExtData: {
                 toggleRead: _toggleRead
             }
@@ -63,7 +63,7 @@ angular.module('greyscale.tables')
             dataFilter: {},
             //formTitle: tns + 'USER_GROUP',
             pageLength: 10,
-            rowClass: function(row){
+            rowClass: function (row) {
                 return !row.read ? 'bg-warning' : '';
             },
             add: {
@@ -75,7 +75,7 @@ angular.module('greyscale.tables')
 
         function _getData() {
             return greyscaleProfileSrv.getProfile()
-                .then(function(profile){
+                .then(function (profile) {
                     var req = {
                         income: greyscaleNotificationApi.list({
                             userTo: profile.id
@@ -86,11 +86,11 @@ angular.module('greyscale.tables')
                     };
                     return $q.all(req).then(function (promises) {
                         var allMessages = [];
-                        angular.forEach(promises.income, function(msg){
-                           msg.toMe = true;
-                           allMessages.push(msg);
+                        angular.forEach(promises.income, function (msg) {
+                            msg.toMe = true;
+                            allMessages.push(msg);
                         });
-                        angular.forEach(promises.outcome, function(msg){
+                        angular.forEach(promises.outcome, function (msg) {
                             msg.fromMe = true;
                             allMessages.push(msg);
                         });
@@ -107,7 +107,7 @@ angular.module('greyscale.tables')
 
         function _getConversationUsers() {
             var users = [];
-            angular.forEach(_dicts.allMessages, function(msg){
+            angular.forEach(_dicts.allMessages, function (msg) {
                 var user;
                 if (msg.toMe) {
                     user = {
@@ -120,7 +120,9 @@ angular.module('greyscale.tables')
                         fullName: msg.userToName
                     };
                 }
-                if (!_.find(users, {id: user.id})) {
+                if (!_.find(users, {
+                        id: user.id
+                    })) {
                     users.push(user);
                 }
             });
@@ -132,7 +134,7 @@ angular.module('greyscale.tables')
 
         function _filterByUser(messages) {
             if (_extModel.filterUser) {
-                return _.filter(messages, function(msg){
+                return _.filter(messages, function (msg) {
                     return (msg.toMe && msg.userFrom === _extModel.filterUser.id) || (msg.fromMe && msg.userTo === _extModel.filterUser.id);
                 });
             }
@@ -142,7 +144,7 @@ angular.module('greyscale.tables')
         function _toggleRead(msg) {
             var method = msg.read ? 'setUnread' : 'setRead';
             greyscaleNotificationApi[method](msg.id)
-                .then(function(){
+                .then(function () {
                     msg.read = !msg.read;
                 });
         }

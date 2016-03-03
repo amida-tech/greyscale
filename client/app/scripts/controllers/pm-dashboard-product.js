@@ -14,7 +14,6 @@ angular.module('greyscaleApp')
             moveNextStep: _moveNextStep
         };
 
-
         var _exportUri = '/products/' + productId + '/export.csv?token=' + greyscaleTokenSrv();
 
         $scope.model = {
@@ -77,12 +76,12 @@ angular.module('greyscaleApp')
                 });
         }
 
-        function _notifyUser(user){
+        function _notifyUser(task) {
             var sendData = {
                 //essenceId:
                 //entityId:
             };
-            greyscaleModalsSrv.sendMessage(user, sendData);
+            greyscaleModalsSrv.sendNotification(task.user, sendData);
         }
 
         function _getData(productId) {
