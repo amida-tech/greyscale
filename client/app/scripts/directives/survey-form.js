@@ -25,7 +25,18 @@ angular.module('greyscaleApp')
                 };
 
                 scope.save = function () {
-                    saveAnswers(scope).then(goTasks);
+                    saveAnswers(scope)
+                        .then(function () {
+                            if (scope.surveyData.task) {
+                                return greyscaleProductApi()
+                                    .product(scope.surveyData.task.productId)
+                                    .taskMove(scope.surveyData.task.uoaId);
+                            } else {
+                                return $q.reject('Task is undefined');
+                            }
+                        })
+                        .then(goTasks)
+                        .catch(greyscaleUtilsSrv.errorMsg);
                 };
 
                 scope.back = function () {
