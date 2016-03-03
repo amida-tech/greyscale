@@ -50,7 +50,7 @@ angular.module('greyscaleApp')
                             scope.model.notifications = _.sortBy(notifications, 'created').reverse();
                             off = $timeout(function () {
                                 _getUnreadNotifications();
-                            }, 5000);
+                            }, 10000);
                         });
                 }
 
