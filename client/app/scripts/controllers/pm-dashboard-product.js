@@ -75,12 +75,9 @@ angular.module('greyscaleApp')
 
         function _moveNextStep(task) {
             console.log('task before', task);
-            greyscaleProductApi.product(task.productId).taskMove(task.id)
+            greyscaleProductApi.product(task.productId).taskMove(task.uoaId)
                 .then(function () {
-                    return greyscaleTaskApi.get(task.id)
-                        .then(function (updatedTask) {
-                            console.log('task after', updatedTask);
-                        });
+                    tasksTable.tableParams.reload();
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'Step moving');
