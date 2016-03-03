@@ -16,7 +16,7 @@ angular.module('greyscaleApp')
 
                 var clmn = scope.modalFormField;
 
-                if (clmn.dataHide) {
+                if (clmn.dataHide && !clmn.viewMode) {
                     elem.remove();
                     return;
                 }
@@ -25,10 +25,12 @@ angular.module('greyscaleApp')
 
                 var _embedded = !!attr.embedded;
 
-                if (clmn.title) {
+                if (clmn.title || (clmn.viewMode && (clmn.cellTemplate || clmn.cellTemplateUrl))) {
                     var field = '';
+                    var colon = !clmn.title || clmn.title === '' ? '' : ':';
+
                     if (!_embedded) {
-                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}:</label>');
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}' + colon + '</label>');
                         field += '<div class="col-sm-9';
                     }
 
@@ -63,9 +65,11 @@ angular.module('greyscaleApp')
                                 field += '{{modalFormFieldModel}}';
                             }
                         }
+
                         if (!_embedded) {
                             field += '</p>';
                         }
+
                     } else {
                         if (!_embedded) {
                             field += '">';

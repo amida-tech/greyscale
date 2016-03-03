@@ -483,6 +483,7 @@
         "NOT_LOGGED": "Not Logged",
         "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
+        "RESEND_ACTIVATION": "Resend Activation",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
         "USER": "User",

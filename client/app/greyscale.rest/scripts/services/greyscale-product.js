@@ -75,6 +75,12 @@ angular.module('greyscale.rest')
             };
         }
 
+        function _taskMove(productId) {
+            return function (uoaId) {
+                return api().one(productId + '').one('move').one(uoaId + '').get();
+            };
+        }
+
         var _productApi = function (productId) {
             return {
                 uoasList: _uoasList(productId),
@@ -82,7 +88,8 @@ angular.module('greyscale.rest')
                 uoasDel: _uoasDel(productId),
                 tasksList: _tasksList(productId),
                 tasksListUpdate: _tasksListUpdate(productId),
-                tasksDel: _tasksDel(productId)
+                tasksDel: _tasksDel(productId),
+                taskMove: _taskMove(productId)
             };
         };
 

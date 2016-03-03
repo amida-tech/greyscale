@@ -6,8 +6,9 @@ angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
         $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
 
-        var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
+        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
+        var excludedFields = greyscaleGlobals.formBuilder.excludedIndexes;
 
         return {
             restrict: 'E',
@@ -24,7 +25,18 @@ angular.module('greyscaleApp')
                 };
 
                 scope.save = function () {
-                    saveAnswers(scope).then(goTasks);
+                    saveAnswers(scope)
+                        .then(function () {
+                            if (scope.surveyData.task) {
+                                return greyscaleProductApi()
+                                    .product(scope.surveyData.task.productId)
+                                    .taskMove(scope.surveyData.task.uoaId);
+                            } else {
+                                return $q.reject('Task is undefined');
+                            }
+                        })
+                        .then(goTasks)
+                        .catch(greyscaleUtilsSrv.errorMsg);
                 };
 
                 scope.back = function () {
@@ -173,7 +185,9 @@ angular.module('greyscaleApp')
                     if (type === 'section_end') { // close section
                         r--;
                     } else { //push data into current section
-                        qid++;
+                        if (excludedFields.indexOf(field.type) === -1) {
+                            qid++;
+                        }
                         if (!fld.qid) {
                             fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
                         }

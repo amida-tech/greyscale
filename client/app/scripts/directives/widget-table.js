@@ -127,6 +127,15 @@ angular.module('greyscaleApp')
             if (typeof config.onReload === 'function') {
                 ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
             }
+
+            scope.$getRowClass = function (row) {
+                if (typeof model.rowClass === 'function') {
+                    return model.rowClass(row);
+                } else {
+                    return model.rowClass;
+                }
+            };
+
         }
 
         function _newPagination(scope) {
@@ -420,7 +429,7 @@ angular.module('greyscaleApp')
                 var colspan = scope.model.cols.length;
                 var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
                 var rowScope = rowEl.scope();
-                rowScope.ext = extData||{};
+                rowScope.ext = extData || {};
                 $compile(expand)(rowScope);
                 $timeout(function () {
                     rowEl.after(expand);

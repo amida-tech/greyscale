@@ -11,6 +11,7 @@ angular.module('greyscaleApp')
         $scope.view = angular.copy(recordForm);
         angular.forEach($scope.view.cols, function (col) {
             col.dataReadOnly = 'both';
+            col.viewMode = true;
         });
 
         $scope.showItem = function(item, model){

@@ -483,6 +483,7 @@
         "NOT_LOGGED": "Не входил",
         "NO_GROUPS": "",
         "ORGANIZATION": "Организация",
+        "RESEND_ACTIVATION": "",
         "ROLE": "Роль",
         "SELECT_ORGANIZATION": "",
         "USER": "Пользователь",

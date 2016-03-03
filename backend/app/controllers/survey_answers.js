@@ -291,9 +291,9 @@ function *addAnswer (req, dataObject) {
 }
 
 function *moveWorkflow (req, productId, UOAid) {
-    if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
-        throw new HttpError(403, 'Access denied');
-    }
+    //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
+    //    throw new HttpError(403, 'Access denied');
+    //}
 
     var curStep = yield thunkQuery(
         ProductUOA
@@ -336,13 +336,16 @@ function *moveWorkflow (req, productId, UOAid) {
         throw new HttpError(403, 'Survey is not define for this Product');
     }
 
-    if (curStep.task.userId != req.user.id) {
-        throw new HttpError(
-            403,
-            'Task(id=' + curStep.task.id + ') on this step assigned to another user ' +
-            '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
-        );
+    if (req.user.roleID == 3) { // simple user
+        if (curStep.task.userId != req.user.id) {
+            throw new HttpError(
+                403,
+                'Task(id=' + curStep.task.id + ') on this step assigned to another user ' +
+                '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
+            );
+        }
     }
+
 
     var nextStep = yield thunkQuery(
         WorkflowStep.select()
@@ -371,7 +374,7 @@ function *moveWorkflow (req, productId, UOAid) {
         ') AS v ' +
         'GROUP BY v.maxVersion');
 
-    if ((_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+    if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
         if(nextStep[0]){ // next step exists, set it to current
             yield thunkQuery(
                 ProductUOA

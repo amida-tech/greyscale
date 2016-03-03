@@ -17,7 +17,7 @@
                     widget-table-expanded-row-open="model.expandedRowShow"
                     ng-disabled="isDisabled(row)"
                     propagate-disabled
-                    class="{{model.rowClass}}{{model.rowClass(row)}} row-id-{{row.id}} {{}}"
+                    class="{{$getRowClass(row)}} row-id-{{row.id}}"
                 >
                     <td data-header="col.header" ng-repeat="col in $columns" widget-table-cell="col" row-value="row"
                         filter="{{col.filter}}"

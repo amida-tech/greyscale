@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n) {
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n, greyscaleNotificationApi, inform) {
         var accessLevel;
 
         var tns = 'USERS.';
@@ -76,6 +76,14 @@ angular.module('greyscale.tables')
             cellTemplateExtData: {
                 getGroups: _getGroups,
                 editGroups: _editGroups
+            }
+        }, {
+            title: '',
+            show: false,
+            dataHide: true,
+            cellTemplate: '<a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a>',
+            cellTemplateExtData: {
+                resendActivation: _resendActivation
             }
         }, {
             title: 'COMMON.SEND_MESSAGE',
@@ -178,6 +186,18 @@ angular.module('greyscale.tables')
                 .then(reloadTable)
                 .catch(function (err) {
                     errorHandler(err, action);
+                });
+        }
+
+        function _resendActivation(user) {
+            greyscaleNotificationApi.resendUserInvite(user.id)
+                .then(function () {
+                    inform.add(i18n.translate(tns + 'RESEND_ACTIVATION_DONE'), {
+                        type: 'success'
+                    });
+                })
+                .catch(function (err) {
+                    greyscaleUtilsSrv.errorMsg(err, 'Resend Activation');
                 });
         }
 

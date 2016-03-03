@@ -111,7 +111,6 @@ angular.module('greyscale.tables')
         function _getProductTasksData(product) {
             var organizationId = _getOrganizationId();
             var reqs = {
-                //groups: greyscaleGroupApi.list(_getOrganizationId),
                 users: greyscaleUserApi.list({
                     organizationId: organizationId
                 }),
@@ -122,7 +121,6 @@ angular.module('greyscale.tables')
 
             return $q.all(reqs)
                 .then(function (data) {
-                    _dicts.groups = data.groups;
                     _dicts.uoas = data.uoas;
                     _dicts.users = data.users;
                     _dicts.steps = data.steps;
@@ -142,9 +140,6 @@ angular.module('greyscale.tables')
                 });
                 task.user = _.find(_dicts.users, {
                     id: task.userId
-                });
-                task.groups = _.filter(_dicts.groups, function (o) {
-                    return ~task.step.usergroupId.indexOf(o.id);
                 });
             });
             _table.dataShare.tasks = tasks;

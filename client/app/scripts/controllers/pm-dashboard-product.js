@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, Organization, greyscaleModalsSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, greyscaleTaskApi, Organization, greyscaleModalsSrv) {
 
         var productId = $stateParams.productId;
 
@@ -10,7 +10,8 @@ angular.module('greyscaleApp')
         tasksTable.dataFilter.productId = productId;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
         tasksTable.expandedRowExtData = {
-            notifyUser: _notifyUser
+            notifyUser: _notifyUser,
+            moveNextStep: _moveNextStep
         };
 
 
@@ -64,6 +65,17 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
+        function _moveNextStep(task) {
+            console.log('task before', task);
+            greyscaleProductApi.product(task.productId).taskMove(task.uoaId)
+                .then(function () {
+                    tasksTable.tableParams.reload();
+                })
+                .catch(function (err) {
+                    greyscaleUtilsSrv.errorMsg(err, 'Step moving');
+                });
+        }
 
         function _notifyUser(user){
             var sendData = {

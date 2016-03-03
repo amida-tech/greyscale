@@ -5,6 +5,7 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
+            resendUserInvite: _resendUserInvite
             send: _send,
             setRead: _setRead,
             setUnread: _setUnread
@@ -16,6 +17,10 @@ angular.module('greyscale.rest')
 
         function _list(param) {
             return api().get(param);
+        }
+
+        function _resendUserInvite(userId) {
+            return api().one('resenduserinvite').one('' + userId).customPUT();
         }
 
         function _send(data) {
