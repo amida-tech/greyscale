@@ -78,6 +78,7 @@ module.exports = {
                 '"Products".title as "productName", '+
                 '"Surveys".title as "surveyName" '+
  */
+/*
             var selectUserField =
                 '(SELECT  '+
                     'CAST( '+
@@ -102,7 +103,8 @@ module.exports = {
                     'FROM "Users" '+
                     'WHERE "Users"."id" =  "Discussions"."userFromId" '+
                 ') AS "userFromName"';
-            selectFields = selectFields + ', ' + selectUserField + ', ' + selectUserFromField;
+*/
+            //selectFields = selectFields + ', ' + selectUserField + ', ' + selectUserFromField;
 
             var selectFrom =
                 'FROM '+
@@ -271,7 +273,9 @@ module.exports = {
                             userId: result[i].userid,
                             firstName: result[i].firstName,
                             lastName: result[i].lastName,
-                            stepName: result[i].stepname
+                            stepId: result[i].stepid,
+                            stepName: result[i].stepname,
+                            role: result[i].role
                         }
                     );
                 }
@@ -356,6 +360,7 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
                     taskName: result[i].taskname,
                     stepId: result[i].stepid,
                     stepName: result[i].stepname,
+                    role: result[i].role,
                     productId: result[i].productid,
                     uoaId: result[i].uoaid,
                     discussionId: null
@@ -393,6 +398,8 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
             '"Tasks"."title" as taskname, '+
             '"Tasks"."stepId" as stepid, '+
             '"WorkflowSteps"."title" as stepname, '+
+            '"WorkflowSteps"."role" as role, '+
+/*
             'CAST( '+
                 'CASE  '+
                     'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
@@ -400,6 +407,7 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
                     'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
                 'END as varchar '+
             ') AS "username", '+
+*/
             'CAST( '+
                 'CASE  '+
                     'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
@@ -410,7 +418,7 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
             'CAST( '+
                 'CASE  '+
                     'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
-                        'THEN \'Anonymous\'  '+
+                        'THEN \'\'  '+
                         'ELSE "Users"."lastName" '+
                 'END as varchar '+
             ') AS "lastName", '+
@@ -433,6 +441,7 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
                 '"Tasks"."title" as taskname, '+
                 '"Tasks"."stepId" as stepid, '+
                 '"WorkflowSteps"."title" as stepname, '+
+                '"WorkflowSteps"."role" as role, '+
                 'CAST( '+
                     'CASE  '+
                         'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
@@ -471,11 +480,13 @@ function* getAvailableUsers(req) {
             availList.push(
                 {
                     userId: result[i].userid,
-                    userName: result[i].username,
+                    firstName: result[i].firstName,
+                    lastName: result[i].lastName,
                     taskId: result[i].taskid,
                     taskName: result[i].taskname,
                     stepId: result[i].stepid,
                     stepName: result[i].stepname,
+                    role: result[i].role,
                     productId: result[i].productid,
                     uoaId: result[i].uoaid
                 }
@@ -488,11 +499,13 @@ function* getAvailableUsers(req) {
             returnList.push(
                 {
                     userId: result[ii].userid,
-                    userName: result[ii].username,
+                    firstName: result[ii].firstName,
+                    lastName: result[ii].lastName,
                     taskId: result[ii].taskid,
                     taskName: result[ii].taskname,
                     stepId: result[ii].stepid,
                     stepName: result[ii].stepname,
+                    role: result[ii].role,
                     productId: result[ii].productid,
                     uoaId: result[ii].uoaid
                 }
@@ -505,11 +518,13 @@ function* getAvailableUsers(req) {
             resolveList.push(
                 {
                     userId: result[j].userid,
-                    userName: result[j].username,
+                    firstName: result[j].firstName,
+                    lastName: result[j].lastName,
                     taskId: result[j].taskid,
                     taskName: result[j].taskname,
                     stepId: result[j].stepid,
                     stepName: result[j].stepname,
+                    role: result[j].role,
                     productId: result[j].productid,
                     uoaId: result[j].uoaid
                 }
