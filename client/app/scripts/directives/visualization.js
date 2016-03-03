@@ -38,31 +38,15 @@ angular.module('greyscaleApp')
 
                         //Store questions/indexes/subindexes
                         scope.indexes = [];
-                        // TODO: use all UOAs to get keys
-                        var uoa = vizData.agg[0];
-                        if (uoa) {
-                            for (var questionId in uoa.answers) {
+                        ['questions', 'subindexes', 'indexes'].forEach(function (collection) {
+                            for (var id in vizData[collection]) {
                                 scope.indexes.push({
-                                    'collection': 'answers',
-                                    'title': 'Question ' + questionId,
-                                    'id': questionId
+                                    collection: collection,
+                                    title: vizData[collection][id].title,
+                                    id: vizData[collection][id].id
                                 });
                             }
-                            for (var subindexId in uoa.subindexes) {
-                                scope.indexes.push({
-                                    'collection': 'subindexes',
-                                    'title': 'Subindex ' + subindexId,
-                                    'id': subindexId
-                                });
-                            }
-                            for (var indexId in uoa.indexes) {
-                                scope.indexes.push({
-                                    'collection': 'indexes',
-                                    'title': 'Index ' + indexId,
-                                    'id': indexId
-                                });
-                            }
-                        }
+                        });
                     });
                 });
                 
@@ -154,6 +138,7 @@ angular.module('greyscaleApp')
 
                 function renderVisualization(plotData) {
                     var index = scope.filterForm.indexSelected;
+
                     //Remove plot
                     if (!index || _.isEmpty(index) || !plotData) {
                         $('#viz').html('');

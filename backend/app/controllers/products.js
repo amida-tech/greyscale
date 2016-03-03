@@ -214,6 +214,7 @@ module.exports = {
       var q =
               'SELECT ' +
               '  "Subindexes"."id", ' +
+              '  "Subindexes"."title", ' +
               '  "Subindexes"."divisor", ' +
               "  format('{%s}', " +
               "    string_agg(format('%s:%s', " +
@@ -229,6 +230,7 @@ module.exports = {
               '  ("Subindexes"."productId" = ' + productId + ') ' +
               'GROUP BY ' +
               '  "Subindexes"."id", ' +
+              '  "Subindexes"."title", ' +
               '  "Subindexes"."divisor" ' +
               '; ';
       var subindexes = yield thunkQuery(q);
@@ -241,6 +243,7 @@ module.exports = {
       q =
           'SELECT ' +
           '  "Indexes"."id", ' +
+          '  "Indexes"."title", ' +
           '  "Indexes"."divisor", ' +
           "  format('{%s}', " +
           "    string_agg(format('%s:%s', " +
@@ -264,6 +267,7 @@ module.exports = {
           '  ("Indexes"."productId" = ' + productId + ') ' +
           'GROUP BY ' +
           '  "Indexes"."id", ' +
+          '  "Indexes"."title", ' +
           '  "Indexes"."divisor" ' +
           '; ';
       var indexes = yield thunkQuery(q);
@@ -273,16 +277,39 @@ module.exports = {
           return index;
       });
       console.log(indexes);
+      
+      q =
+          'SELECT ' +
+          '  "SurveyQuestions"."id", ' +
+          '  "SurveyQuestions"."label" AS "title"' +
+          'FROM ' +
+          '  "SurveyQuestions" ' +
+          'LEFT JOIN ' +
+          '  "Products" ON "Products"."surveyId" = "SurveyQuestions"."surveyId" ' +
+          'WHERE ' +
+          '  ("Products"."id" = ' + productId + ') ' +
+          '; ';
+      var questions = yield thunkQuery(q);
+      console.log(questions);
 
-      return data.map(function (datum) {
+      // only return questions for which at least one UOA has an answer
+      var questionsPresent = new Set();
+
+      var result = {};
+      result.agg = data.map(function (datum) {
+          // parse question answers to number
+          for (var questionId in datum['questions']) {
+              questionsPresent.add(questionId);
+              // TODO: for non-numerical question types
+              datum['questions'][questionId] = parseFloat(datum['questions'][questionId]);
+          }
+
           // calculate subindexes
           datum['subindexes'] = {};
           subindexes.forEach(function (subindex) {
               var value = 0;
               for (var questionId in subindex['weights']) {
-                  // TODO: for non-numerical question types
-                  var answer = parseFloat(datum['answers'][questionId]);
-                  value += subindex['weights'][questionId] * answer;
+                  value += datum['questions'][questionId] * subindex['weights'][questionId];
               }
               datum['subindexes'][subindex['id']] = value / subindex['divisor'];
           });
@@ -292,9 +319,7 @@ module.exports = {
           indexes.forEach(function (index) {
               var value = 0;
               for (var questionId in index['questionWeights']) {
-                  // TODO: for non-numerical question types
-                  var answer = parseFloat(datum['answers'][questionId]);
-                  value += index['questionWeights'][questionId] * answer;
+                  value += datum['questions'][questionId] * index['questionWeights'][questionId];
               }
               for (var subindexId in index['subindexWeights']) {
                   value += index['subindexWeights'][subindexId] * datum['subindexes'][subindexId];
@@ -302,12 +327,33 @@ module.exports = {
               datum['indexes'][index['id']] = value / index['divisor'];
           });
 
+          for (var questionId in datum['questions']) {
+              questionsPresent.add(questionId);
+          }
+
           return datum;
       });
-    }).then(function (data) {
-      res.json({
-          agg: data
+
+      // add all (non)calculated fields
+      result.subindexes = subindexes.map(function (subindex) {
+          return {
+              id: subindex.id,
+              title: subindex.title
+          };
       });
+      result.indexes = indexes.map(function (index) {
+          return {
+              id: index.id,
+              title: index.title
+          };
+      });
+      result.questions = questions.filter(function (question) {
+          return questionsPresent.has(question.id.toString());
+      });
+
+      return result;
+    }).then(function (result) {
+      res.json(result);
     }, function (err) {
       next(err);
     });
@@ -561,7 +607,7 @@ function* dumpProduct(productId) {
           '      to_json("SurveyQuestions".id::text), ' + 
           '      COALESCE(to_json("SurveyAnswers"."value"), to_json("SurveyAnswers"."optionId")) ' + 
           "    ), ',') " + 
-          '  ) AS "answers" ' + 
+          '  ) AS "questions" ' + 
           'FROM ' +
           '  "SurveyQuestions" ' +
           'LEFT JOIN ' +
@@ -612,7 +658,7 @@ function* dumpProduct(productId) {
 
   var data = yield thunkQuery(q);
   data = data.map(function (uoa) {
-      uoa['answers'] = JSON.parse(uoa['answers']);
+      uoa['questions'] = JSON.parse(uoa['questions']);
       return uoa;
   });
   return data;
