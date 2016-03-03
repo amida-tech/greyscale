@@ -138,19 +138,19 @@ angular.module('greyscaleApp')
                     user: user
                 }
             }).result;
-    }
+        }
 
-    function _showVersion(params) {
-        return $uibModal.open({
-            templateUrl: 'views/modals/answer-version.html',
-            controller: 'ModalAnswerVersionCtrl',
-            size: 'md',
-            windowClass: 'modal fade in',
-            resolve: {
-                params: params
-            }
-        }).result;
-    }
+        function _showVersion(params) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/answer-version.html',
+                controller: 'ModalAnswerVersionCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    params: params
+                }
+            }).result;
+        }
 
         function _sendMessage(user, data) {
             return $uibModal.open({
