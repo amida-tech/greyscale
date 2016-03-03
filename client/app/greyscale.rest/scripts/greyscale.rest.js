@@ -8,7 +8,7 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
 
         var domain = window.location.hostname.split('.');
         var realm = 'public';
-        var baseLength = 'dev-mt'.indexOf(greyscaleEnv.name) !== -1? 4: 3;
+        var baseLength = 'dev-mt'.indexOf(greyscaleEnv.name) !== -1 ? 4 : 3;
 
         if (domain[0] === 'www') {
             domain.splice(0, 1);

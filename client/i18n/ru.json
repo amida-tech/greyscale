@@ -25,6 +25,8 @@
         "RESET": "Сброс",
         "SAVE": "Сохранить",
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
+        "SEND": "",
+        "SEND_MESSAGE": "",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
         "UNASSIGN": "Отмена назначения",
@@ -141,6 +143,21 @@
         "RESET_SUCCESS": "Пароль был успешно обновлен.",
         "SIGN_IN": "Вход",
         "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
+    },
+    "MESSAGES": {
+        "DATE_TIME": "",
+        "FROM": "",
+        "MESSAGE": "",
+        "MY_MESSAGES": "",
+        "READ": "",
+        "REPLY": "",
+        "SELECT_USER": "",
+        "SEND_NEW_MESSAGE": "",
+        "SET_READ": "",
+        "SET_UNREAD": "",
+        "USER": "",
+        "YOU": "",
+        "YOUR_MESSAGE": ""
     },
     "MY_TASKS": {
         "FINISHED_TITLE": "Законченные задачи",
@@ -307,10 +324,13 @@
         "CURRENT_STEP": "Текущий шаг",
         "DEADLINE": "Крайний срок",
         "FLAGS": "Флаги",
+        "FORCE_COMPLETE": "",
+        "FORCE_NEXT_STEP": "",
         "LAST_UPDATE": "Время изменения",
         "MODAL": {
             "TITLE": "Задачи проекта"
         },
+        "NOTIFY_USER": "",
         "PROGRESS": "Прогресс",
         "ROLE": "Роль",
         "STATUS": "",

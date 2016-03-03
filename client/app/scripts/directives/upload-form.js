@@ -58,7 +58,7 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                uploader.onErrorItem = function(file, response) {
+                uploader.onErrorItem = function (file, response) {
                     if (typeof $scope.uploadError === 'function') {
                         $scope.uploadError(file, response);
                     } else {

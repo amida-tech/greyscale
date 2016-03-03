@@ -77,6 +77,11 @@ angular.module('greyscale.tables')
                 getGroups: _getGroups,
                 editGroups: _editGroups
             }
+            //}, {
+            //    //title: '11',
+            //    show: false,
+            //    dataHide: true,
+            //    viewTemplate: '123'
         }, {
             field: '',
             title: '',

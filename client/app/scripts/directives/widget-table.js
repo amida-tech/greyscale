@@ -127,6 +127,15 @@ angular.module('greyscaleApp')
             if (typeof config.onReload === 'function') {
                 ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
             }
+
+            scope.$getRowClass = function (row) {
+                if (typeof model.rowClass === 'function') {
+                    return model.rowClass(row);
+                } else {
+                    return model.rowClass;
+                }
+            };
+
         }
 
         function _newPagination(scope) {
@@ -191,16 +200,16 @@ angular.module('greyscaleApp')
                     col.title = i18n.translate(col.title);
                 }
                 if (col.titleTemplate) {
-                    _setTitleTemplate(col);
+                    _setTitleTemplate(col, col.titleTemplateExtData);
                 }
             });
         }
 
-        function _setTitleTemplate(col) {
+        function _setTitleTemplate(col, titleTemplateExtData) {
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
             var scope = $rootScope.$new();
-            scope.ext = col.titleTemplateExtData || {};
+            scope.ext = titleTemplateExtData || {};
             template = $compile('<div>' + template + '</div>')(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {
@@ -351,10 +360,10 @@ angular.module('greyscaleApp')
             if (expandedRowTemplateUrl) {
                 _getTemplateByUrl(expandedRowTemplateUrl)
                     .then(function (template) {
-                        _controlRowExpanding(el, template, scope);
+                        _controlRowExpanding(el, template, scope, scope.model.expandedRowExtData);
                     });
             } else if (expandedRowTemplate) {
-                _controlRowExpanding(el, expandedRowTemplate, scope);
+                _controlRowExpanding(el, expandedRowTemplate, scope, scope.model.expandedRowExtData);
             }
             _expandedRowsHovering(el);
         }
@@ -378,11 +387,11 @@ angular.module('greyscaleApp')
             });
         }
 
-        function _controlRowExpanding(el, template, scope) {
+        function _controlRowExpanding(el, template, scope, extData) {
             el.on('click', '.action-expand-row', function (e) {
                 var row = $(e.target).closest('.expandable-row');
                 if (!row.hasClass('is-expanded')) {
-                    _showExpandedRow(row, template, scope);
+                    _showExpandedRow(row, template, scope, extData);
                 } else {
                     _hideExpandedRow(row, scope);
                 }
@@ -398,7 +407,7 @@ angular.module('greyscaleApp')
                 }
             });
             scope.$openExpandedRow = function (rowEl) {
-                _showExpandedRow(rowEl, template, scope);
+                _showExpandedRow(rowEl, template, scope, extData);
             };
             ngTableEventsChannel.onAfterReloadData(function () {
                 var expandAll = el.find('.action.expand-all');
@@ -412,7 +421,7 @@ angular.module('greyscaleApp')
             }, scope);
         }
 
-        function _showExpandedRow(rowEl, template, scope) {
+        function _showExpandedRow(rowEl, template, scope, extData) {
             var nextRowEl = rowEl.next();
             if (nextRowEl.length && nextRowEl.hasClass('expand-row')) {
                 nextRowEl.show();
@@ -420,6 +429,7 @@ angular.module('greyscaleApp')
                 var colspan = scope.model.cols.length;
                 var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
                 var rowScope = rowEl.scope();
+                rowScope.ext = extData || {};
                 $compile(expand)(rowScope);
                 $timeout(function () {
                     rowEl.after(expand);
