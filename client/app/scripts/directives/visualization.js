@@ -8,6 +8,7 @@ angular.module('greyscaleApp')
             //no isolate scope for data binding, all data moved from controller to directive
             link: function (scope, element, attrs) {
                 scope.filterForm.topicSelected = [];
+                scope.filterForm.visualizationType = 'map';
 
                 //Load products
                 greyscaleProductApi.getList().then(function (products) {
@@ -16,8 +17,8 @@ angular.module('greyscaleApp')
 
                 //Load data dump on product selection
                 scope.$watch('filterForm.productSelected', function (product) {
-                    if (!product) {
-                      scope.vizData = [];
+                    if (!product || _.isEmpty(product)) {
+                      scope.vizData = null;
                       return null;
                     }
 
@@ -66,13 +67,14 @@ angular.module('greyscaleApp')
                 });
                 
                 function applyFilters(data, callback) {
+                    if (!scope.vizData) { callback(scope.vizData); }
+
                     //Handles case when data has not been narrowed, only variable changed
                     //length==0 because topicSelected ng-multi-select not registering as dirty (TODO)
                     if (scope.filterForm.topicSelected.length === 0) {
                         callback(scope.vizData);
                     } else {
                         var filteredVizData = [];
-                        console.log(scope.vizData);
                         scope.vizData.forEach(function (row) {
                             if (scope.filterForm.topicSelected) {
                                 scope.filterForm.topicSelected.forEach(function (topic) {
@@ -82,68 +84,18 @@ angular.module('greyscaleApp')
                                 });
                             }
                         });
-                        console.log(filteredVizData);
                         callback(filteredVizData);
                     }
                 }
                 
 
-                function getMapParams() {
-                    //start with default
-                    var params = {
-                        graphTitle: 'Doing Business 2016',
-                        scaleTitle: 'Rank',
-                        geoScope: 'world',
-                        showcoastlines: true
-                    };
-                    if (scope.filterForm.$pristine && scope.filterForm.topicSelected.length === 0) {
-                        return params;
-                    }
-                    /*if (scope.filterForm.variableSelected) {
-                        params.scaleTitle = (scope.variableSelected === 'rank') ? 'Rank' : 'DTF (frontier=100)';
-                        params.graphTitle += ('- ' + params.scaleTitle);
-                    }*/
-                    /*
-                    var topicArray = scope.filterForm.topicSelected;
-                    if (topicArray.length !== 0) {
-                        params.showcoastlines = true;
-                        var topicNames = topicArray.map(function (topic) {
-                            return topic.name;
-                        });
-                        params.graphTitle += ('\n' + topicNames.join());
-                        //Single country - zoom into continent, usa scope built into Plotly
-                        if (topicArray.length === 1) {
-                            params.geoScope = (topicArray[0].isoa2 === 'US') ?
-                                'usa' : scope.topicSelected.continent;
-                            //Multiple countries - check from same continent
-                        } else {
-                            var continentCode = String(topicArray[0].continent);
-                            var allSameContinent = topicArray.every(function (currentTopic) {
-                                return String(currentTopic.continent) === continentCode;
-                            });
-                            if (allSameContinent) {
-                                var fullContinentName = scope.filterOptions.continents.filter(function (cont) {
-                                    return (cont.isoa2 === continentCode);
-                                });
-                                params.geoScope = fullContinentName[0].name.toLowerCase();
-                            }
-                        }
-                    }*/
-                    return params;
+                function unpackData(rows, key) {
+                    return rows.map(function (row) {
+                        return row[key];
+                    });
                 }
 
-                function renderMap(plotData) {
-                    function unpackData(rows, key) {
-                        return rows.map(function (row) {
-                            return row[key];
-                        });
-                    }
-
-                    var index = scope.filterForm.indexSelected;
-                    if (!index) return null;
-
-                    var mapParams = getMapParams();
-
+                function renderMap(plotData, index) {
                     var mapData = [{
                         type: 'choropleth',
                         locationmode: 'country names',
@@ -152,7 +104,7 @@ angular.module('greyscaleApp')
                         text: unpackData(plotData, 'name'),
                         autocolorscale: true,
                         colorbar: {
-                            title: mapParams.scaleTitle,
+                            title: 'Value',
                             thickness: 0.75,
                             len: 0.75,
                             xpad: 30
@@ -160,28 +112,65 @@ angular.module('greyscaleApp')
                     }];
 
                     var layout = {
-                        title: mapParams.graphTitle, //Make subtitle from filter selection
+                        title: index.title,
                         geo: {
                             projection: {
                                 type: 'mercator'
                             },
                             resolution: '50',
                             showframe: false,
-                            showcoastlines: mapParams.showcoastlines,
-                            scope: mapParams.geoScope
+                            showcoastlines: true,
+                            scope: 'world'
                         },
                         width: 700,
                         height: 700
                     };
-                    Plotly.newPlot('mapViz', mapData, layout, {
+                    Plotly.newPlot('viz', mapData, layout, {
                         showLink: false
                     });
                 }
 
-                scope.drawMap = function () {
+                function renderBarGraph(plotData, index) {
+                    //Sorted bar graph
+                    plotData = _.sortBy(plotData, function (row) {
+                        return row[index.collection][index.id];
+                    });
+
+                    var graphData = [{
+                        type: 'bar',
+                        x: unpackData(plotData, 'name'),
+                        y: unpackData(unpackData(plotData, index.collection), index.id)
+                    }];
+
+                    var layout = {
+                        title: index.title,
+                        width: 700,
+                        height: 700
+                    };
+                    Plotly.newPlot('viz', graphData, layout, {
+                        showLink: false
+                    });
+                }
+
+                function renderVisualization(plotData) {
+                    var index = scope.filterForm.indexSelected;
+                    //Remove plot
+                    if (!index || _.isEmpty(index) || !plotData) {
+                        $('#viz').html('');
+                        return null;
+                    }
+
+                    if (scope.filterForm.visualizationType === 'graph') {
+                        renderBarGraph(plotData, index);
+                    } else {
+                        renderMap(plotData, index);
+                    }
+                }
+
+                scope.drawVisualization = function () {
                     if (scope.filterForm.$valid) {
                         applyFilters(scope.vizData, function (result) {
-                            renderMap(result);
+                            renderVisualization(result);
                         });
                     }
                 };
@@ -195,8 +184,9 @@ angular.module('greyscaleApp')
                     // scope.filterForm.subtopicSelected.category = '';
                     // scope.filterForm.questionSelected = '';
                     scope.filterForm.indexSelected = {};
+                    scope.filterForm.visualizationType = 'map';
                     scope.filterForm.$setPristine();
-                    scope.drawMap();
+                    scope.drawVisualization();
                 };
 
                 //Validation of topics ng-multi-select dropdown
