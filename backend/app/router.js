@@ -384,6 +384,8 @@ var notifications = require('app/controllers/notifications');
 router.route('/:realm/v0.2/notifications')
     .get(authenticate('token').always, notifications.select)
     .post(authenticate('token').always, notifications.insertOne);
+router.route('/:realm/v0.2/notifications/users')
+    .get(authenticate('token').always, notifications.users);
 router.route('/:realm/v0.2/notifications/resend/:notificationId')
     .put(authenticate('token').always, notifications.resend);
 router.route('/:realm/v0.2/notifications/resenduserinvite/:userId')

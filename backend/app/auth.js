@@ -157,6 +157,10 @@ module.exports = {
 
     },
 
+    checkAdmin: function (user) {
+        return (user.role === config.adminRole || user.role === config.clientRole);
+    },
+
     checkPermission: function (action) {
         return function (req, res, next) {
             co(function* () {

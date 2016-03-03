@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     fs = require('fs'),
     config = require('config'),
+    auth = require('app/auth'),
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
     Essence = require('app/models/essences'),
@@ -192,11 +193,56 @@ module.exports = {
                 '"Notifications" ';
 
             var selectWhere = 'WHERE 1=1 ';
-            selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
-            selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            if (!req.query.userFrom && !req.query.userTo) {
+                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            } else {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
             var selectQuery = selectFields + selectFrom + selectWhere;
+            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    users: function (req, res, next) {
+        co(function* () {
+            req.query = _.extend(req.query, req.body);
+            if (!req.query.userFrom && !req.query.userTo) {
+                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+            }
+            var selectQuery =
+            'SELECT v1."user" as userId, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo '+
+                'FROM '+
+                '(SELECT '+
+                    'count("public"."Notifications"."id") as count, '+
+                    '"Notifications"."userFrom" as user, '+
+                    'CAST (\'from\' as varchar), '+
+                    'sum(CAST(CASE WHEN "public"."Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'FROM "Notifications" '+
+                    'WHERE "Notifications"."userTo" = '+parseInt(userId).toString()+' '+
+                    'GROUP BY "Notifications"."userFrom" '+
+                'UNION '+
+                'SELECT '+
+                    'count("public"."Notifications"."id") as count, '+
+                    '"Notifications"."userTo" as user, '+
+                    'CAST (\'to\' as varchar), '+
+                    'sum(CAST(CASE WHEN "public"."Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'FROM "Notifications" '+
+                    'WHERE "Notifications"."userFrom" = '+parseInt(userId).toString()+' '+
+                    'GROUP BY "Notifications"."userTo" '+
+                ') as v1 '+
+                'GROUP BY v1."user"';
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
