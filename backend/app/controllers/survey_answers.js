@@ -374,7 +374,7 @@ function *moveWorkflow (req, productId, UOAid) {
         ') AS v ' +
         'GROUP BY v.maxVersion');
 
-    if ((req.user.roleID == 3) && (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+    if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
         if(nextStep[0]){ // next step exists, set it to current
             yield thunkQuery(
                 ProductUOA
