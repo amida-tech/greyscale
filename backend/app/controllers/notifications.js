@@ -292,8 +292,40 @@ module.exports = {
 
     resendUserInvite: function (req, res, next) {
         co(function* () {
-            var notificationId = yield * getInviteNotification(req.params.userId);
-            return yield * resendNotification(notificationId);
+            var result = yield * getInviteNotification(req.params.userId);
+            if (!_.first(result)) {
+                var user = yield * getUser(req.params.userId);
+                var org = yield * getOrganization(user.organizationId);
+                var essenceId = yield * getEssenceId('Users');
+                var note = yield * createNotification(
+                    {
+                        userFrom: req.user.id,
+                        userTo: user.id,
+                        body: 'New user added',
+                        essenceId: essenceId,
+                        entityId: user.id,
+                        notifyLevel: user.notifyLevel,
+                        name: user.firstName,
+                        surname: user.lastName,
+                        company: org,
+                        inviter: req.user,
+                        token: user.activationToken,
+                        subject: 'Indaba. Organization membership'
+                    },
+                    {
+                        notificationName: 'org_invite',
+                        notificationPath: './views/notifications/',
+                        emailName: 'org_invite',
+                        emailPath: './views/emails/'
+                    }
+                );
+                if (user.notifyLevel < 2) {
+                    return yield * resendNotification(note[0].id);
+                }
+                return note;
+            } else {
+                return yield * resendNotification(result[0].id);
+            }
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -343,7 +375,7 @@ function* getEssence(essenceId) {
 }
 
 function getHtml(templateName, data, templatePath) {
-    var templateName =  (templateName || 'default');
+    templateName =  (templateName || 'default');
     var templateFile =  (templatePath || './views/notifications/') + templateName + '.html';
     var templateContent = fs.readFileSync(templateFile, 'utf8');
     _.templateSettings = {
@@ -361,6 +393,17 @@ function* getUser(userId) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
+    }
+    return result[0];
+}
+
+function* getOrganization(orgId) {
+    query =
+        'SELECT "Organizations".* FROM "Organizations" '+
+        'WHERE "Organizations"."id" = ' + parseInt(orgId).toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Organization with id `'+parseInt(orgId).toString()+'`');
     }
     return result[0];
 }
@@ -392,9 +435,10 @@ function* getInviteNotification(userId) {
             '"Notifications"."entityId"';
     result = yield thunkQuery(query);
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
+        //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
+        console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
-    return result[0].id;
+    return result;
 }
 
 function* getEssenceId(essenceName) {
