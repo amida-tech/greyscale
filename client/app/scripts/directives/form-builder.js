@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
             restrict: 'E',
             link: function (scope, elem, attr) {
                 var formbuilder;
-                var types = greyscaleGlobals.formBuilderFieldTypes;
+                var types = greyscaleGlobals.formBuilder.fieldTypes;
                 var sizes = ['small', 'medium', 'large'];
 
                 function formBuilderSave(json) {

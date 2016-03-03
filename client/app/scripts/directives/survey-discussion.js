@@ -5,12 +5,8 @@
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
         greyscaleUtilsSrv) {
-        var fieldTypes = greyscaleGlobals.formBuilderFieldTypes;
-        var sectionTypes = [
-            fieldTypes.indexOf('section_start'),
-            fieldTypes.indexOf('section_end'),
-            fieldTypes.lastIndexOf('section_break')
-        ];
+        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
+        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes;
 
         return {
             restrict: 'E',
