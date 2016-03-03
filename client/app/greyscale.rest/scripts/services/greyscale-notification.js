@@ -4,7 +4,8 @@ angular.module('greyscale.rest')
     .factory('greyscaleNotificationApi', function (greyscaleRestSrv) {
 
         return {
-            list: _list
+            list: _list,
+            resendUserInvite: _resendUserInvite
         };
 
         function api() {
@@ -13,6 +14,10 @@ angular.module('greyscale.rest')
 
         function _list(param) {
             return api().get(param);
+        }
+
+        function _resendUserInvite(userId) {
+            return api().one('resenduserinvite').one('' + userId).customPUT();
         }
 
     });

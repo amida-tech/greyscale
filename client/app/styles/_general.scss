@@ -192,3 +192,7 @@ body {
 .horizontal-scroll {
     overflow-x: auto !important;
 }
+
+.inform-fixed {
+    z-index: 10000;
+}
