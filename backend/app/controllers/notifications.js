@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     fs = require('fs'),
     config = require('config'),
+    auth = require('app/auth'),
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
     Essence = require('app/models/essences'),
@@ -192,11 +193,68 @@ module.exports = {
                 '"Notifications" ';
 
             var selectWhere = 'WHERE 1=1 ';
-            selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
-            selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            if (!req.query.userFrom && !req.query.userTo) {
+                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            } else {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
             var selectQuery = selectFields + selectFrom + selectWhere;
+            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    users: function (req, res, next) {
+        co(function* () {
+            req.query = _.extend(req.query, req.body);
+            var isAdmin = auth.checkAdmin(req.user);
+            var userId = req.user.id;
+            if (!req.query.userFrom && !req.query.userTo) {
+                userId = (req.query.userId && isAdmin) ? req.query.userId : userId;
+            }
+            var selectQuery =
+            'SELECT v1."user" as userId, '+
+                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
+                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo '+
+                'FROM '+
+                '(SELECT '+
+                    'count("public"."Notifications"."id") as count, '+
+                    '"Notifications"."userFrom" as user, '+
+                    '"Users"."firstName" AS firstName, '+
+                    '"Users"."lastName" AS lastName, '+
+                    '"Users"."isAnonymous" AS isAnonymous, '+
+                    'CAST (\'from\' as varchar), '+
+                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'FROM "Notifications" '+
+                    'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
+                    'WHERE "Notifications"."userTo" = '+parseInt(userId).toString()+' '+
+                    'GROUP BY "Notifications"."userFrom", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                'UNION '+
+                'SELECT '+
+                    'count("public"."Notifications"."id") as count, '+
+                    '"Notifications"."userTo" as user, '+
+                    '"Users"."firstName" AS firstName, '+
+                    '"Users"."lastName" AS lastName, '+
+                    '"Users"."isAnonymous" AS isAnonymous, '+
+                    'CAST (\'to\' as varchar), '+
+                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'FROM "Notifications" '+
+                    'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
+                    'WHERE "Notifications"."userFrom" = '+parseInt(userId).toString()+' '+
+                    'GROUP BY "Notifications"."userTo", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous"  '+
+                ') as v1 '+
+                'GROUP BY v1."user", v1."firstname", v1."lastname", v1."isanonymous"';
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -278,6 +336,21 @@ module.exports = {
         });
     },
 
+    reply: function (req, res, next) {
+        co(function* () {
+            var note = yield * getNotification(req.params.notificationId);
+            if (req.user.id !== note.userTo && !auth.checkAdmin(req.user)) {
+                throw new HttpError(403, 'You cannot send reply for this notification (not yours)!');
+            }
+            req.body.userTo = note.userFrom; // get userTo for reply from userFrom
+            return note;
+        }).then(function (data) {
+            next();
+        }, function (err) {
+            next(err);
+        });
+    },
+
     createNotification: createNotification,
 
     resend: function (req, res, next) {
@@ -292,8 +365,40 @@ module.exports = {
 
     resendUserInvite: function (req, res, next) {
         co(function* () {
-            var notificationId = yield * getInviteNotification(req.params.userId);
-            return yield * resendNotification(notificationId);
+            var result = yield * getInviteNotification(req.params.userId);
+            if (!_.first(result)) {
+                var user = yield * getUser(req.params.userId);
+                var org = yield * getOrganization(user.organizationId);
+                var essenceId = yield * getEssenceId('Users');
+                var note = yield * createNotification(
+                    {
+                        userFrom: req.user.id,
+                        userTo: user.id,
+                        body: 'New user added',
+                        essenceId: essenceId,
+                        entityId: user.id,
+                        notifyLevel: user.notifyLevel,
+                        name: user.firstName,
+                        surname: user.lastName,
+                        company: org,
+                        inviter: req.user,
+                        token: user.activationToken,
+                        subject: 'Indaba. Organization membership'
+                    },
+                    {
+                        notificationName: 'org_invite',
+                        notificationPath: './views/notifications/',
+                        emailName: 'org_invite',
+                        emailPath: './views/emails/'
+                    }
+                );
+                if (user.notifyLevel < 2) {
+                    return yield * resendNotification(note[0].id);
+                }
+                return note;
+            } else {
+                return yield * resendNotification(result[0].id);
+            }
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -343,7 +448,7 @@ function* getEssence(essenceId) {
 }
 
 function getHtml(templateName, data, templatePath) {
-    var templateName =  (templateName || 'default');
+    templateName =  (templateName || 'default');
     var templateFile =  (templatePath || './views/notifications/') + templateName + '.html';
     var templateContent = fs.readFileSync(templateFile, 'utf8');
     _.templateSettings = {
@@ -361,6 +466,17 @@ function* getUser(userId) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
+    }
+    return result[0];
+}
+
+function* getOrganization(orgId) {
+    query =
+        'SELECT "Organizations".* FROM "Organizations" '+
+        'WHERE "Organizations"."id" = ' + parseInt(orgId).toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Organization with id `'+parseInt(orgId).toString()+'`');
     }
     return result[0];
 }
@@ -392,9 +508,10 @@ function* getInviteNotification(userId) {
             '"Notifications"."entityId"';
     result = yield thunkQuery(query);
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
+        //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
+        console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
-    return result[0].id;
+    return result;
 }
 
 function* getEssenceId(essenceName) {

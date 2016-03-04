@@ -152,6 +152,19 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _sendNotification(user, data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/send-notification.html',
+                controller: 'ModalSendNotificationCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user,
+                    data: data
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -174,6 +187,7 @@ angular.module('greyscaleApp')
             productTask: _productTask,
             userGroups: _userGroups,
             confirm: _confirm,
-            showVersion: _showVersion
+            showVersion: _showVersion,
+            sendNotification: _sendNotification
         };
     });

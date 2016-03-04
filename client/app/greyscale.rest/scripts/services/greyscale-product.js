@@ -76,8 +76,8 @@ angular.module('greyscale.rest')
         }
 
         function _taskMove(productId) {
-            return function (taskId) {
-                return api().one(productId + '').one('move').one(taskId + '').get();
+            return function (uoaId) {
+                return api().one(productId + '').one('move').one(uoaId + '').get();
             };
         }
 

@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -28,7 +28,7 @@ angular.module('greyscaleApp')
                     saveAnswers(scope)
                         .then(function () {
                             if (scope.surveyData.task) {
-                                return greyscaleProductApi()
+                                return greyscaleProductApi
                                     .product(scope.surveyData.task.productId)
                                     .taskMove(scope.surveyData.task.uoaId);
                             } else {
@@ -219,7 +219,7 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                    //                ts: new Date().getTime()
+                //                ts: new Date().getTime()
             };
             var answers = {};
 
@@ -232,17 +232,21 @@ angular.module('greyscaleApp')
                     if (answer) {
                         switch (fld.type) {
                         case 'checkboxes':
-
                             oQty = fld.options.length;
                             for (o = 0; o < oQty; o++) {
-                                if (!fld.options[o]) {
-                                    fld.options[o] = {};
+                                if (fld.options[o]) {
+                                    fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
+                                    fld.options[o].checked = fld.options[o].isSelected;
                                 }
-                                fld.options[o].isSelected = (answer.optionId.indexOf(fld.options[o].id) !== -1);
-                                fld.options[o].checked = fld.options[o].isSelected;
-                                if (fld.options[o].isSelected) {
-                                    fld.answer = fld.options[o];
-                                }
+                            }
+
+                            fld.answer = {};
+                            if (fld.withOther) {
+                                fld.otherOption = {
+                                    id: -1,
+                                    checked: (!!answer.value),
+                                    value: answer.value
+                                };
                             }
                             break;
 
@@ -250,14 +254,24 @@ angular.module('greyscaleApp')
                         case 'radio':
                             oQty = fld.options.length;
                             for (o = 0; o < oQty; o++) {
-                                if (!fld.options[o]) {
-                                    fld.options[o] = {};
-                                }
-                                fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
-                                if (fld.options[o].isSelected) {
-                                    fld.answer = fld.options[o];
+                                if (fld.options[o]) {
+                                    fld.options[o].isSelected = (answer.optionId[0] === fld.options[o].id);
+                                    if (fld.options[o].isSelected) {
+                                        fld.answer = fld.options[o];
+                                    }
                                 }
                             }
+
+                            if (fld.withOther) {
+                                fld.otherOption = {
+                                    id: -1,
+                                    value: answer.value || fld.value
+                                };
+                                if (!fld.answer && answer.value) {
+                                    fld.answer = fld.otherOption;
+                                }
+                            }
+
                             break;
 
                         case 'number':
@@ -266,6 +280,16 @@ angular.module('greyscaleApp')
                             } else {
                                 fld.answer = parseFloat(answer.value);
                             }
+                            break;
+
+                        case 'bullet_points':
+                            var tmp = angular.fromJson(answer.value);
+                            fld.answer = [];
+                            for (o = 0; o < tmp.length; o++) {
+                                fld.answer.push({data: tmp[o]});
+                            }
+                            fld.answer.push({data: ''});
+                            $log.debug('loading "bullet_points"', tmp, fld.answer, answer);
                             break;
 
                         default:
@@ -317,40 +341,49 @@ angular.module('greyscaleApp')
                         var answer = {
                             questionId: fld.id
                         };
+                        angular.extend(answer, params);
                         switch (fld.type) {
                         case 'checkboxes':
                             answer.optionId = [];
                             for (var o = 0; o < fld.options.length; o++) {
-                                if (!fld.options[o]) {
-                                    fld.options[o] = {};
-                                }
-                                if (fld.options[o].checked) {
+                                if (fld.options[o] && fld.options[o].checked) {
                                     answer.optionId.push(fld.options[o].id);
-                                    if (fld.options[o].value) {
-                                        answer.value = fld.options[o].value;
-                                    }
                                 }
+                            }
+                            if (fld.withOther && fld.otherOption.checked) {
+                                answer.value = fld.otherOption.value;
                             }
                             break;
 
                         case 'dropdown':
                         case 'radio':
-                            if (fld.type === 'dropdown') {
-                                answer.optionId = [];
-                                answer.value = null;
-                            }
+                            answer.optionId = [];
+                            answer.value = null;
 
                             if (fld.answer.id) {
-                                answer.optionId = [fld.answer.id];
+                                if (fld.answer.id !== -1) {
+                                    answer.optionId = [fld.answer.id];
+                                }
                                 answer.value = fld.answer.value;
                             }
                             break;
 
+                        case 'bullet_points':
+                            $log.debug('saving bullets', fld.answer, answer);
+                            var tmp = [];
+                            for (o = 0; o < fld.answer.length; o++) {
+                                if (fld.answer[o].data) {
+                                    tmp.push(fld.answer[o].data);
+                                }
+                            }
+                            answer.value = angular.toJson(tmp);
+                            $log.debug('saving bullets', fld.answer, tmp, answer);
+                            break;
+
                         default:
-                            answer.optionId = null;
+                            answer.optionId = [null];
                             answer.value = fld.answer;
                         }
-                        angular.extend(answer, params);
 
                         answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
                     }

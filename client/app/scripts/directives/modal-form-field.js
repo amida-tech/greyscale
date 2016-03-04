@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
 
                 var _embedded = !!attr.embedded;
 
-                if (clmn.title || (clmn.viewMode && (clmn.cellTemplate || clmn.cellTemplateUrl))) {
+                if (!(clmn.viewMode && clmn.viewHide) && (clmn.title || (clmn.viewMode && (clmn.cellTemplate || clmn.cellTemplateUrl)))) {
                     var field = '';
                     var colon = !clmn.title || clmn.title === '' ? '' : ':';
 

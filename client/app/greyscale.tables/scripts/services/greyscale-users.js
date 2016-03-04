@@ -81,9 +81,21 @@ angular.module('greyscale.tables')
             title: '',
             show: false,
             dataHide: true,
-            cellTemplate: '<a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a>',
+            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
             cellTemplateExtData: {
                 resendActivation: _resendActivation
+            }
+        }, {
+            title: 'COMMON.SEND_MESSAGE',
+            viewHide: true,
+            cellTemplate: '<div class="text-center">' +
+                '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
+                '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
+                '   </a></div>',
+            dataHide: true,
+            cellTemplateExtData: {
+                anotherUser: _isAnotherUser,
+                sendMessageTo: _sendMessageTo
             }
         }, {
             field: '',
@@ -146,6 +158,14 @@ angular.module('greyscale.tables')
                         errorHandler(err, 'deleting');
                     });
             });
+        }
+
+        function _isAnotherUser(user) {
+            return user.id !== dicts.profile.id;
+        }
+
+        function _sendMessageTo(user) {
+            greyscaleModalsSrv.sendNotification(user);
         }
 
         function _editRecord(user) {

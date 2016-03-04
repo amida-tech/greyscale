@@ -1,4 +1,15 @@
 {
+    "ACTIVATION": {
+        "ACTIVATE": "",
+        "CONFIRMATION": "",
+        "CONFIRMATION_ERROR": "",
+        "FIRST_NAME": "",
+        "FIRST_NAME_ERROR": "",
+        "LAST_NAME": "",
+        "LAST_NAME_ERROR": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": ""
+    },
     "BRAND": {
         "SLOGAN": "Превращение знаний в данные."
     },
@@ -14,6 +25,7 @@
         "CONFIRMATION": "Подтверждение",
         "CONTINUE": "Продолжить",
         "CREATE": "Создать",
+        "CURRENT_VALUE": "",
         "DELETE": "Удалить",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
@@ -144,21 +156,6 @@
         "SIGN_IN": "Вход",
         "TOKEN_SENT": "Инструкции были отправлены на указанный e-mail."
     },
-    "MESSAGES": {
-        "DATE_TIME": "",
-        "FROM": "",
-        "MESSAGE": "",
-        "MY_MESSAGES": "",
-        "READ": "",
-        "REPLY": "",
-        "SELECT_USER": "",
-        "SEND_NEW_MESSAGE": "",
-        "SET_READ": "",
-        "SET_UNREAD": "",
-        "USER": "",
-        "YOU": "",
-        "YOUR_MESSAGE": ""
-    },
     "MY_TASKS": {
         "FINISHED_TITLE": "Законченные задачи",
         "FUTURE_TITLE": "Будущие задачи",
@@ -182,7 +179,7 @@
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
-        "MESSAGES": "Сообщения",
+        "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
@@ -213,6 +210,22 @@
         },
         "VISUALIZATION": "Визуализация",
         "WORKFLOW_STEPS": "Процессы"
+    },
+    "NOTIFICATIONS": {
+        "DATE_TIME": "",
+        "GO_HISTORY": "",
+        "MARK_AS_READ": "",
+        "MESSAGE": "",
+        "NOTIFICATIONS": "",
+        "NO_UNREAD": "",
+        "READ": "",
+        "SEND_NOTIFICATION": "",
+        "SEND_SUCCESS": "",
+        "SET_READ": "",
+        "SET_UNREAD": "",
+        "USER": "",
+        "WAS_NOT_READ": "",
+        "WAS_READ": ""
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Адрес",

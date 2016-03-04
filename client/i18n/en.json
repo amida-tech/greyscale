@@ -1,4 +1,15 @@
 {
+    "ACTIVATION": {
+        "ACTIVATE": "Activate",
+        "CONFIRMATION": "Confirmation",
+        "CONFIRMATION_ERROR": "Passwords are not match.",
+        "FIRST_NAME": "First name",
+        "FIRST_NAME_ERROR": "Please input your first name.",
+        "LAST_NAME": "Last name",
+        "LAST_NAME_ERROR": "Please input your last name.",
+        "PASSWORD": "Password",
+        "PASSWORD_ERROR": "Password must be 8 characters or more."
+    },
     "BRAND": {
         "SLOGAN": "Turn knowledge into data."
     },
@@ -14,6 +25,7 @@
         "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
         "CREATE": "Create",
+        "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
         "EDIT": "Edit",
         "FURTHER": "Further",
@@ -144,21 +156,6 @@
         "SIGN_IN": "Sign in",
         "TOKEN_SENT": "Instructions was sent to your e-mail..."
     },
-    "MESSAGES": {
-        "DATE_TIME": "Date / Time",
-        "FROM": "From",
-        "MESSAGE": "Message",
-        "MY_MESSAGES": "Messages",
-        "READ": "Read",
-        "REPLY": "Reply",
-        "SELECT_USER": "Select User ...",
-        "SEND_NEW_MESSAGE": "Send New Message",
-        "SET_READ": "Set Read",
-        "SET_UNREAD": "Set Unread",
-        "USER": "User",
-        "YOU": "You",
-        "YOUR_MESSAGE": "Your Message ..."
-    },
     "MY_TASKS": {
         "FINISHED_TITLE": "Finished tasks",
         "FUTURE_TITLE": "Future tasks",
@@ -182,7 +179,7 @@
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
-        "MESSAGES": "Messages",
+        "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
@@ -213,6 +210,22 @@
         },
         "VISUALIZATION": "Visualization",
         "WORKFLOW_STEPS": "Workflow Steps"
+    },
+    "NOTIFICATIONS": {
+        "DATE_TIME": "Date / Time",
+        "GO_HISTORY": "All Notifications",
+        "MARK_AS_READ": "Mark as Read",
+        "MESSAGE": "Message",
+        "NOTIFICATIONS": "Notifications",
+        "NO_UNREAD": "You have no unread messages",
+        "READ": "Read",
+        "SEND_NOTIFICATION": "Send Message",
+        "SEND_SUCCESS": "Message sent",
+        "SET_READ": "Set as read",
+        "SET_UNREAD": "Set unread",
+        "USER": "User",
+        "WAS_NOT_READ": "Was not read",
+        "WAS_READ": "Was read"
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Address",

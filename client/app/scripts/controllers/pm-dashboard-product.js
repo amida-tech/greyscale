@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
         tasksTable.dataFilter.productId = productId;
         tasksTable.expandedRowTemplateUrl = 'views/controllers/pm-dashboard-product-tasks-extended-row.html';
         tasksTable.expandedRowExtData = {
-            //notifyUser: _notifyUser,
+            notifyUser: _notifyUser,
             moveNextStep: _moveNextStep
         };
 
@@ -65,26 +65,23 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
         });
 
-        function _notifyUser(user) {
-            var sendData = {
-                //essenceId:
-                //entityId:
-            };
-            greyscaleModalsSrv.sendMessage(user, sendData);
-        }
-
         function _moveNextStep(task) {
             console.log('task before', task);
-            greyscaleProductApi.product(task.productId).taskMove(task.id)
+            greyscaleProductApi.product(task.productId).taskMove(task.uoaId)
                 .then(function () {
-                    return greyscaleTaskApi.get(task.id)
-                        .then(function (updatedTask) {
-                            console.log('task after', updatedTask);
-                        });
+                    tasksTable.tableParams.reload();
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'Step moving');
                 });
+        }
+
+        function _notifyUser(task) {
+            var sendData = {
+                //essenceId:
+                //entityId:
+            };
+            greyscaleModalsSrv.sendNotification(task.user, sendData);
         }
 
         function _getData(productId) {

@@ -5,7 +5,10 @@ angular.module('greyscale.rest')
 
         return {
             list: _list,
-            resendUserInvite: _resendUserInvite
+            resendUserInvite: _resendUserInvite,
+            send: _send,
+            setRead: _setRead,
+            setUnread: _setUnread
         };
 
         function api() {
@@ -18,6 +21,18 @@ angular.module('greyscale.rest')
 
         function _resendUserInvite(userId) {
             return api().one('resenduserinvite').one('' + userId).customPUT();
+        }
+
+        function _send(data) {
+            return api().customPOST(data);
+        }
+
+        function _setRead(id) {
+            return api().one('markread').one('' + id).customPUT();
+        }
+
+        function _setUnread(id) {
+            return api().one('markunread').one('' + id).customPUT();
         }
 
     });

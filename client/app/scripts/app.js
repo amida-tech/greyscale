@@ -435,17 +435,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.any.mask
             }
         })
-        .state('the-wall', {
+        .state('notifications', {
             parent: 'home',
-            url: 'the-wall',
+            url: 'notifications',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/the-wall.html',
-                    controller: 'TheWallCtrl'
+                    templateUrl: 'views/controllers/notifications.html',
+                    controller: 'NotificationsCtrl'
                 }
             },
             data: {
-                name: 'UI bricks',
+                name: 'NAV.NOTIFICATIONS',
+                icon: 'fa-envelope',
                 accessLevel: systemRoles.any.mask
             }
         });
