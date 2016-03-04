@@ -55,10 +55,18 @@ upload-form,
     }
 }
 
-$shadow: 10px;
-
 .form-group .subtext {
     max-height: 3.5em;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.input-group-addon {
+    .radio label,
+    .checkbox label {
+        min-height: 12pt;
+    }
+    .radio {
+        margin: 0;
+    }
 }
