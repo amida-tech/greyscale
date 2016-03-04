@@ -1,5 +1,5 @@
 angular.module('greyscaleApp')
-    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, $timeout) {
+    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi) {
         return {
             restrict: 'A',
             replace: true,
@@ -22,17 +22,14 @@ angular.module('greyscaleApp')
                     notifications: []
                 };
 
-                var user, off = function () {};
+                var user = function () {};
 
                 greyscaleProfileSrv.getProfile()
                     .then(function (profile) {
                         user = profile;
                         _getUnreadNotifications();
+                        scope.$on('something-new', _getUnreadNotifications);
                     });
-
-                scope.$on('$destroy', function () {
-                    $timeout.cancel(off);
-                });
 
                 scope.markAsRead = function (notification, index) {
                     greyscaleNotificationApi.setRead(notification.id)
@@ -48,9 +45,6 @@ angular.module('greyscaleApp')
                         })
                         .then(function (notifications) {
                             scope.model.notifications = _.sortBy(notifications, 'created').reverse();
-                            off = $timeout(function () {
-                                _getUnreadNotifications();
-                            }, 10000);
                         });
                 }
 
