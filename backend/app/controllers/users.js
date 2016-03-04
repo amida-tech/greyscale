@@ -556,6 +556,9 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function*(){
             var updateObj = _.pick(req.body, User.whereCol);
+            if(updateObj.password){
+                updateObj.password = User.hashPassword(updateObj.password);
+            }
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
                     User.update(updateObj).where(User.id.equals(req.params.id))
