@@ -28,7 +28,9 @@ angular.module('greyscaleApp')
                 if ($state.current.name === 'reset') {
                     greyscaleUserApi.resetToken($scope.token)
                         .then(function (user) {
-                            $scope.model = user;
+                            $scope.model = {
+                                email: user.email
+                            };
                         })
                         .catch(errHandler);
                 }

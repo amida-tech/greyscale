@@ -1,4 +1,15 @@
 {
+    "ACTIVATION": {
+        "ACTIVATE": "Activate",
+        "CONFIRMATION": "Confirmation",
+        "CONFIRMATION_ERROR": "Passwords are not match.",
+        "FIRST_NAME": "First name",
+        "FIRST_NAME_ERROR": "Please input your first name.",
+        "LAST_NAME": "Last name",
+        "LAST_NAME_ERROR": "Please input your last name.",
+        "PASSWORD": "Password",
+        "PASSWORD_ERROR": "Password must be 8 characters or more."
+    },
     "BRAND": {
         "SLOGAN": "Turn knowledge into data."
     },
@@ -199,7 +210,7 @@
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "NOTIFICATIONS": {
-        "GO_HISTORY": "Show notifications history",
+        "GO_HISTORY": "Notification history",
         "MARK_AS_READ": "Mark as Read",
         "NO_UNREAD": "You have no unread messages",
         "SEND_NOTIFICATION": "Send Message",

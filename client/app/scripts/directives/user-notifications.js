@@ -11,8 +11,6 @@ angular.module('greyscaleApp')
                 '   <ul class="dropdown-menu dropdown-menu-right">' +
                 '       <li ng-if="!model.notifications.length" class="notification">' +
                 '           <p translate=".NO_UNREAD"></p>' +
-                '           <div class="control pull-right"><a ui-sref="notifications" translate=".GO_HISTORY"></a></div>' +
-                '           <div class="clearfix"></div>' +
                 '       </li>' +
                 '       <li class="notification" ng-repeat="notification in model.notifications track by $index">' +
                 '           <div class="sender">{{notification.userFromName}}</div>' +
@@ -20,6 +18,9 @@ angular.module('greyscaleApp')
                 '           <p>{{notification.body}}</p>' +
                 '           <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
                 '           <div class="clearfix"></div>' +
+                '       </li>' +
+                '       <li class="go-history">' +
+                '           <a ui-sref="notifications" translate=".GO_HISTORY"></a>' +
                 '       </li>' +
                 '   </ul>' +
                 '</div>',

@@ -1,4 +1,15 @@
 {
+    "ACTIVATION": {
+        "ACTIVATE": "",
+        "CONFIRMATION": "",
+        "CONFIRMATION_ERROR": "",
+        "FIRST_NAME": "",
+        "FIRST_NAME_ERROR": "",
+        "LAST_NAME": "",
+        "LAST_NAME_ERROR": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": ""
+    },
     "BRAND": {
         "SLOGAN": "Превращение знаний в данные."
     },
