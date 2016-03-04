@@ -282,6 +282,16 @@ angular.module('greyscaleApp')
                             }
                             break;
 
+                        case 'bullet_points':
+                            var tmp = angular.fromJson(answer.value);
+                            fld.answer = [];
+                            for (o = 0; o < tmp.length; o++) {
+                                fld.answer.push({data: tmp[o]});
+                            }
+                            fld.answer.push({data: ''});
+                            $log.debug('loading "bullet_points"', tmp, fld.answer, answer);
+                            break;
+
                         default:
                             fld.answer = answer.value;
                         }
@@ -331,6 +341,7 @@ angular.module('greyscaleApp')
                         var answer = {
                             questionId: fld.id
                         };
+                        angular.extend(answer, params);
                         switch (fld.type) {
                         case 'checkboxes':
                             answer.optionId = [];
@@ -357,11 +368,22 @@ angular.module('greyscaleApp')
                             }
                             break;
 
+                        case 'bullet_points':
+                            $log.debug('saving bullets', fld.answer, answer);
+                            var tmp = [];
+                            for (o = 0; o < fld.answer.length; o++) {
+                                if (fld.answer[o].data) {
+                                    tmp.push(fld.answer[o].data);
+                                }
+                            }
+                            answer.value = angular.toJson(tmp);
+                            $log.debug('saving bullets', fld.answer, tmp, answer);
+                            break;
+
                         default:
                             answer.optionId = [null];
                             answer.value = fld.answer;
                         }
-                        angular.extend(answer, params);
 
                         answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
                     }

@@ -3,34 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n, $log, greyscaleModalsSrv) {
-        function getBorders(field) {
-            var borders = [];
-            var suffix = '';
-            var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
-            var numericTypes = ['number', 'scale'];
-
-            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
-                field.maxLength = null;
-            }
-            field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
-
-            if (supportedTypes.indexOf(field.type) !== -1) {
-                if (numericTypes.indexOf(field.type) === -1) {
-                    suffix = ' ' + field.lengthMeasure;
-                }
-                if (field.minLength !== null && field.minLength >= 0) {
-                    borders.push('<span ng-class="{error: field.ngModel.$error.min}">' + i18n.translate('SURVEYS.MIN') +
-                        ': ' + field.minLength + suffix + '</span>');
-                }
-                if (field.maxLength !== null && field.maxLength >= 0) {
-                    borders.push('<span ng-class="{error: field.ngModel.$error.max}">' + i18n.translate('SURVEYS.MAX') +
-                        ': ' + field.maxLength + suffix + '</span>');
-                }
-            }
-
-            return borders.join(', ');
-        }
+    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log) {
 
         return {
             restrict: 'AE',
@@ -187,6 +160,10 @@ angular.module('greyscaleApp')
                                 'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
                             break;
 
+                        case 'bullet_points':
+                            body = '<bullets  bullet-field="field"></bullets-field>';
+                            break;
+
                         default:
                             $log.debug('not rendering', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
@@ -208,4 +185,32 @@ angular.module('greyscaleApp')
                 }
             }
         };
+
+        function getBorders(field) {
+            var borders = [];
+            var suffix = '';
+            var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
+            var numericTypes = ['number', 'scale'];
+
+            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
+                field.maxLength = null;
+            }
+            field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
+
+            if (supportedTypes.indexOf(field.type) !== -1) {
+                if (numericTypes.indexOf(field.type) === -1) {
+                    suffix = ' ' + field.lengthMeasure;
+                }
+                if (field.minLength !== null && field.minLength >= 0) {
+                    borders.push('<span ng-class="{error: field.ngModel.$error.min}">' + i18n.translate('SURVEYS.MIN') +
+                        ': ' + field.minLength + suffix + '</span>');
+                }
+                if (field.maxLength !== null && field.maxLength >= 0) {
+                    borders.push('<span ng-class="{error: field.ngModel.$error.max}">' + i18n.translate('SURVEYS.MAX') +
+                        ': ' + field.maxLength + suffix + '</span>');
+                }
+            }
+
+            return borders.join(', ');
+        }
     });
