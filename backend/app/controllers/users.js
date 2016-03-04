@@ -263,15 +263,15 @@ module.exports = {
         co(function* () {
             var org = false;
 
-            if (req.user.roleID == 2) {
-                var org = yield thunkQuery(
-                    Organization
-                        .select(Organization.star())
-                        .from(Organization)
-                        .where(Organization.adminUserId.equals(req.user.id))
-                );
-                org = _.first(org);
-            } else if (req.user.roleID == 3) {
+            //if (req.user.roleID == 2) {
+            //    var org = yield thunkQuery(
+            //        Organization
+            //            .select(Organization.star())
+            //            .from(Organization)
+            //            .where(Organization.adminUserId.equals(req.user.id))
+            //    );
+            //    org = _.first(org);
+            //} else if (req.user.roleID == 3) {
                 var org = yield thunkQuery(
                     Organization
                         .select(Organization.star())
@@ -279,7 +279,7 @@ module.exports = {
                         .where(Organization.id.equals(req.user.organizationId))
                 );
                 org = _.first(org);
-            }
+            //}
 
             if (!org) {
                 throw new HttpError(404, 'Not found');
