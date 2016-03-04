@@ -249,7 +249,6 @@ module.exports = {
     var productId = parseInt(req.params.id);
     co(function* () {
       var data = yield dumpProduct(productId);
-      console.log(data);
 
       var q =
               'SELECT ' +
@@ -275,10 +274,9 @@ module.exports = {
               '; ';
       var subindexes = yield thunkQuery(q);
       subindexes = subindexes.map(function (subindex) {
-          subindex['weights'] = JSON.parse(subindex['weights']);
+          subindex['weights'] = parseWeights(subindex['weights']);
           return subindex;
       });
-      console.log(subindexes);
 
       q =
           'SELECT ' +
@@ -312,11 +310,10 @@ module.exports = {
           '; ';
       var indexes = yield thunkQuery(q);
       indexes = indexes.map(function (index) {
-          index['questionWeights'] = JSON.parse(index['questionWeights']);
-          index['subindexWeights'] = JSON.parse(index['subindexWeights']);
+          index['questionWeights'] = parseWeights(index['questionWeights']);
+          index['subindexWeights'] = parseWeights(index['subindexWeights']);
           return index;
       });
-      console.log(indexes);
       
       q =
           'SELECT ' +
@@ -331,7 +328,6 @@ module.exports = {
           '  ("Products"."id" = ' + productId + ') ' +
           '; ';
       var questions = yield thunkQuery(q);
-      console.log(questions);
 
       // type of each question
       var questionTypes = {};
@@ -342,46 +338,62 @@ module.exports = {
       // only return questions for which at least one UOA has an answer
       var questionsPresent = new Set();
 
-      var result = { agg: {} };
+      // only parse questions required by at least one (sub)index
+      var questionsRequired = new Set();
+      subindexes.forEach(function (subindex) {
+          for (var questionId in subindex['weights']) {
+              questionsRequired.add(questionId);
+          }
+      });
+      indexes.forEach(function (index) {
+          for (var questionId in index['questionWeights']) {
+              questionsRequired.add(questionId);
+          }
+      });
+
+      var result = { agg: [] };
       // TODO: mapping over generators?
       for (var i = 0; i < data.length; i++) {
           var datum = data[i];
 
           // parse question answers to number
           for (var questionId in datum['questions']) {
-              questionsPresent.add(questionId);
+              if (questionsRequired.has(questionId)) {
+                  questionsPresent.add(questionId);
 
-              var questionType = questionTypes[questionId];
-              var raw = datum['questions'][questionId];
-              var parsed;
-              if (questionType === 5) { // numerical
-                  parsed = parseFloat(raw);
-              } else if (questionType === 7) { // currency
-                  parsed = parseFloat(raw);
-              } else if (questionType === 3 || questionType === 4) { // single selection
-                  var selected = (yield thunkQuery(
-                      SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
-                  ))[0];
+                  var questionType = questionTypes[questionId];
+                  var raw = datum['questions'][questionId];
+                  var parsed;
+                  if (questionType === 5) { // numerical
+                      parsed = parseFloat(raw);
+                  } else if (questionType === 7) { // currency
+                      parsed = parseFloat(raw);
+                  } else if (questionType === 3 || questionType === 4) { // single selection
+                      var selected = (yield thunkQuery(
+                          SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
+                      ))[0];
 
-                  // TODO: is this the correct logic?
-                  parsed = parseFloat(selected.value);
-              } else if (questionType === 2) { // multiple selection
-                  // selected options
-                  var selected = [];
-                  for (var j = 0; j < raw.length; j++) {
-                      selected.push((yield thunkQuery(
-                          SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw[j]))
-                      ))[0]);
+                      // TODO: is this the correct logic?
+                      parsed = parseFloat(selected.value);
+                  } else if (questionType === 2) { // multiple selection
+                      // selected options
+                      var selected = [];
+                      for (var j = 0; j < raw.length; j++) {
+                          selected.push((yield thunkQuery(
+                              SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw[j]))
+                          ))[0]);
+                      }
+
+                      // TODO: what logic should we use here?
+                      parsed = parseFloat(selected[0].value);
+                  } else {
+                      console.log("Non-numerical question %d of type %d", questionId, questionType);
+                      parsed = parseFloat(raw);
                   }
-
-                  // TODO: what logic should we use here?
-                  parsed = parseFloat(selected[0].value);
-                  console.log(selected[0].value);
+                  datum['questions'][questionId] = parsed;
               } else {
-                  console.log("Non-numerical question %d of type %d", questionId, questionType);
-                  parsed = parseFloat(raw);
+                  delete datum['questions'][questionId];
               }
-              datum['questions'][questionId] = parsed;
           }
 
           // calculate subindexes
@@ -411,7 +423,7 @@ module.exports = {
               questionsPresent.add(questionId);
           }
 
-          result.agg[i] = datum;
+          result.agg.push(datum);
       }
 
       // add all (non)calculated fields
@@ -721,6 +733,8 @@ function* dumpProduct(productId) {
           '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
           '  FROM ' +
           '    "SurveyAnswers" ' +
+          '  WHERE ' +
+          '    ("SurveyAnswers"."productId" = ' + productId + ')' +
           '  GROUP BY ' +
           '    "SurveyAnswers"."questionId", ' +
           '    "SurveyAnswers"."UOAid" ' +
@@ -733,6 +747,8 @@ function* dumpProduct(productId) {
           '    max("SurveyAnswers"."version") as "maxVersion" ' +
           '  FROM ' +
           '    "SurveyAnswers" ' +
+          '  WHERE ' +
+          '    ("SurveyAnswers"."productId" = ' + productId + ')' +
           '  GROUP BY ' +
           '    "SurveyAnswers"."questionId", ' +
           '    "SurveyAnswers"."UOAid", ' +
@@ -747,6 +763,7 @@ function* dumpProduct(productId) {
           '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
           '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
           '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
+          '  AND ("SurveyAnswers"."productId" = ' + productId + ')' +
           ') ' +
           'LEFT JOIN ' +
           '  "UnitOfAnalysis" ON ("UnitOfAnalysis"."id" = "SurveyAnswers"."UOAid") ' +
@@ -764,4 +781,14 @@ function* dumpProduct(productId) {
       return uoa;
   });
   return data;
+}
+
+function parseWeights(weightsString) {
+    // parse JSON weights string into js object
+    // due to postgres quirks, {} represented as '{:}'
+    if (weightsString === '{:}') {
+        return {};
+    } else {
+        return JSON.parse(weightsString);
+    }
 }
