@@ -24,17 +24,13 @@ angular.module('greyscaleApp')
 
                     greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
                         scope.vizData = vizData.agg;
-
-                        //Store topics (UOAs)
-                        var countrySet = new Set(); //account for same country/multi-year duplicates
-                        vizData.agg.forEach(function (row) {
-                            countrySet.add({
-                                'name': row.name,
-                                'ISO2': row.ISO2,
-                                'id': row.id
-                            });
+                        scope.topics = vizData.agg.map(function (row) {
+                            return {
+                                name: row.name,
+                                ISO2: row.ISO2,
+                                id: row.id
+                            };
                         });
-                        scope.topics = [...countrySet];
 
                         //Store questions/indexes/subindexes
                         scope.indexes = [];
@@ -72,20 +68,13 @@ angular.module('greyscaleApp')
                     }
                 }
                 
-
-                function unpackData(rows, key) {
-                    return rows.map(function (row) {
-                        return row[key];
-                    });
-                }
-
                 function renderMap(plotData, index) {
                     var mapData = [{
                         type: 'choropleth',
                         locationmode: 'country names',
-                        locations: unpackData(plotData, 'name'),
-                        z: unpackData(unpackData(plotData, index.collection), index.id),
-                        text: unpackData(plotData, 'name'),
+                        locations: _.pluck(plotData, 'name'),
+                        z: _.pluck(_.pluck(plotData, index.collection), index.id),
+                        text: _.pluck(plotData, 'name'),
                         autocolorscale: true,
                         colorbar: {
                             title: 'Value',
@@ -122,8 +111,8 @@ angular.module('greyscaleApp')
 
                     var graphData = [{
                         type: 'bar',
-                        x: unpackData(plotData, 'name'),
-                        y: unpackData(unpackData(plotData, index.collection), index.id)
+                        x: _.pluck(plotData, 'name'),
+                        y: _.pluck(_.pluck(plotData, index.collection), index.id)
                     }];
 
                     var layout = {
@@ -162,12 +151,7 @@ angular.module('greyscaleApp')
 
                 scope.resetFilters = function () {
                     scope.filterForm.productSelected = {};
-                    // scope.filterForm.userSelected = '';
-                    // scope.filterForm.variableSelected = 'rank';
                     scope.filterForm.topicSelected = [];
-                    // scope.filterForm.subtopicSelected.subtopic = '';
-                    // scope.filterForm.subtopicSelected.category = '';
-                    // scope.filterForm.questionSelected = '';
                     scope.filterForm.indexSelected = {};
                     scope.filterForm.visualizationType = 'map';
                     scope.filterForm.$setPristine();
