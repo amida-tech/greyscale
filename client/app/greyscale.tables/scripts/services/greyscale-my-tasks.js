@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function ($q, greyscaleTaskApi) {
+    .factory('greyscaleMyTasksTbl', function (_, $q, greyscaleTaskApi) {
 
         var tns = 'MY_TASKS.';
 
@@ -40,7 +40,11 @@ angular.module('greyscale.tables')
         };
 
         function _getData() {
-            return greyscaleTaskApi.myList();
+            return greyscaleTaskApi.myList().then(function (data) {
+                return _.filter(data, function (item) {
+                    return item.status === 'current';
+                });
+            });
         }
 
         return _table;

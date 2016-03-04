@@ -26,7 +26,8 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable'
+    'ui.sortable',
+    'ngFileSaver'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -190,22 +191,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             templateUrl: 'views/controllers/users-groups.html',
             controller: 'UsersGroupsCtrl',
             data: {
-                name: 'NAV.USERS.GROUPS',
-                icon: 'fa-users',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                name: 'NAV.USERS.GROUPS'
             }
         })
-        .state('usersUoa', {
-            parent: 'users',
-            url: '/uoa',
-            templateUrl: 'views/controllers/users-uoa.html',
-            controller: 'UsersUoaCtrl',
-            data: {
-                name: 'NAV.USERS.UOA',
-                icon: 'fa-map',
-                accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
-            }
-        })
+        //.state('usersUoa', {
+        //    parent: 'users',
+        //    url: '/uoa',
+        //    templateUrl: 'views/controllers/users-uoa.html',
+        //    controller: 'UsersUoaCtrl',
+        //    data: {
+        //        name: 'NAV.USERS.UOA',
+        //        icon: 'fa-map',
+        //        accessLevel: systemRoles.admin.mask | systemRoles.projectManager.mask
+        //    }
+        //})
         .state('usersImport', {
             parent: 'users',
             url: '/import',
@@ -256,21 +255,13 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('projects', {
             parent: 'home',
-            url: 'projects',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/projects.html',
-                    controller: 'ProjectsCtrl'
-                }
-            },
             data: {
-                name: 'NAV.PROJECTS_MANAGEMENT',
-                icon: 'fa-paper-plane',
+                name: null,
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
         .state('projects.setup', {
-            url: '/:projectId',
+            //url: '/:projectId',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/project-setup.html',
@@ -278,19 +269,11 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: '{{ext.projectName}}'
-            }
-        })
-        .state('projects.setup.roles', {
-            url: '/roles',
-            templateUrl: 'views/controllers/project-setup-roles.html',
-            controller: 'ProjectSetupRolesCtrl',
-            data: {
-                name: 'NAV.PROJECTS.USER_ROLES'
+                //name: '{{ext.projectName}}'
             }
         })
         .state('projects.setup.surveys', {
-            url: '/surveys',
+            url: 'surveys',
             templateUrl: 'views/controllers/project-setup-surveys.html',
             controller: 'ProjectSetupSurveysCtrl',
             data: {
@@ -310,15 +293,18 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('projects.setup.products', {
-            url: '/products',
+            url: 'projects',
             templateUrl: 'views/controllers/project-setup-products.html',
             controller: 'ProjectSetupProductsCtrl',
             data: {
-                name: 'NAV.PROJECTS.PRODUCTS'
+                //name: 'NAV.PROJECTS.PRODUCTS'
+                name: 'NAV.PROJECT_MANAGEMENT',
+                icon: 'fa-paper-plane'
             }
         })
         .state('projects.setup.tasks', {
-            url: '/products/:productId',
+            parent: 'projects.setup.products',
+            url: '/:productId/tasks',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/product-tasks.html',
@@ -386,7 +372,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TASKS',
                 icon: 'fa-tasks',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
+                accessLevel: systemRoles.admin.mask | systemRoles.user.mask
             }
         })
         .state('visualization', {
@@ -401,7 +387,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.VISUALIZATION',
                 icon: 'fa-globe',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('graph', {
@@ -416,7 +402,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.GRAPH',
                 icon: 'fa-bar-chart',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('table', {
@@ -431,7 +417,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.TABLE',
                 icon: 'fa-table',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask
             }
         })
         .state('index-visualization', {
@@ -474,7 +460,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             },
             data: {
-                name: 'Page with bricks',
+                name: 'UI bricks',
                 accessLevel: systemRoles.any.mask
             }
         });
@@ -483,7 +469,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
 
 });
 
-_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals) {
+_app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform, greyscaleUtilsSrv, greyscaleGlobals, _) {
     $rootScope.$on('$stateChangeStart', function (e, toState, toParams, fromState, fromParams) {
         if (toState.data && toState.data.accessLevel !== greyscaleGlobals.userRoles.all.mask) {
 
@@ -497,6 +483,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 if (toParams.returnTo) {
                     var redirect = $state.get(toParams.returnTo);
                     if ((_level & redirect.data.accessLevel) !== 0) {
+                        e.preventDefault();
                         $state.go(redirect.name, {}, params);
                     }
                 }
@@ -514,10 +501,9 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                         }
                         $state.go('login');
                     }
-                } else {
-                    if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
-                        $state.go(fromParams.returnTo, {}, params);
-                    }
+                } else if (fromParams.returnTo && fromParams.returnTo !== toState.name) {
+                    e.preventDefault();
+                    $state.go(fromParams.returnTo, {}, params);
                 }
             });
         }
@@ -531,7 +517,15 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
     });
 
     $rootScope.$on('login', function () {
-        $state.go('home');
+        greyscaleProfileSrv.getProfile()
+            .then(function (profile) {
+                var roleId = profile.roleID;
+                var roles = greyscaleGlobals.userRoles;
+                var role = _.find(roles, {
+                    id: roleId
+                });
+                $state.go(role.homeState || 'home');
+            });
     });
 
     $state.ext = {};

@@ -1,33 +1,22 @@
-/**
- * Created by igi on 21.12.15.
- */
 'use strict';
+
 angular.module('greyscaleApp')
-    .controller('UsersGroupsCtrl', function ($rootScope, $scope, greyscaleUsersGroupsTbl) {
+    .controller('UsersGroupsCtrl', function ($scope, Organization, greyscaleGroupsTbl, greyscaleProjectApi, $stateParams) {
 
-        var _userGroupsTable = greyscaleUsersGroupsTbl;
+        var _groupsTable = greyscaleGroupsTbl;
 
-        $scope.model = {};
+        $scope.model = {
+            groups: _groupsTable
+        };
 
-        $rootScope.showOrganizationSelector = true;
+        Organization.$watch($scope, _renderUserGroupsTable);
 
-        var off = $scope.$watch('globalModel.organization', _renderUserGroupsTable);
-
-        $scope.$on('$destroy', function () {
-            off();
-            $rootScope.showOrganizationSelector = false;
-        });
-
-        function _renderUserGroupsTable(organization) {
-            if (!organization) {
-                return;
-            }
-            _userGroupsTable.dataFilter.organizationId = organization.id;
-            if ($scope.model.userGroups) {
-                $scope.model.userGroups.tableParams.reload();
+        function _renderUserGroupsTable() {
+            _groupsTable.dataFilter.organizationId = Organization.id;
+            if ($scope.model.groups) {
+                $scope.model.groups.tableParams.reload();
             } else {
-                $scope.model.userGroups = _userGroupsTable;
+                $scope.model.groups = _groupsTable;
             }
         }
-
     });

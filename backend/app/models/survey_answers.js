@@ -11,17 +11,26 @@ var columns = [
     'UOAid',
     'wfStepId',
     'version',
-    'surveyId'
+    'surveyId',
+    'isResponse',
+    'isAgree',
+    'comments'
+
 ];
 
 var SurveyAnswer = sql.define({
     name: 'SurveyAnswers',
+    schema: 'proto_amida',
     columns: columns
 });
 
 SurveyAnswer.editCols = [
     'value',
     'optionId'
+];
+
+SurveyAnswer.translate = [
+    'value'
 ];
 
 

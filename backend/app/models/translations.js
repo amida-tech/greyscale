@@ -4,6 +4,7 @@ var columns = ['essenceId', 'entityId', 'field', 'langId', 'value'];
 
 var Translation = sql.define({
     name: 'Translations',
+    schema: 'proto_amida',
     columns: columns
 });
 

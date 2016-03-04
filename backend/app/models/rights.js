@@ -9,6 +9,7 @@ var columns = [
 
 var Right = sql.define({
     name: 'Rights',
+    schema: 'proto_amida',
     columns: columns
 });
 

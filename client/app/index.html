@@ -1,10 +1,16 @@
-<!doctype html>
+﻿<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+    <script type="text/javascript">
+	    if (window.location.protocol==='http:' && window.location.host==='app.indaba.amida-tech.com') {
+	        var restOfUrl = window.location.href.substr(5);
+	        window.location = 'https:' + restOfUrl;
+	    }
+	</script>
     <!-- Place apple-touch-icon.png in the root directory -->
     <!-- build:css(.) styles/vendor.css -->
     <!-- bower:css -->
@@ -42,7 +48,7 @@
     your browser</a> to improve your experience.</p>
 <![endif]-->
 <div inform="" class="inform-fixed inform-shadow"></div>
-<div ui-view="">
+<div class="body-wrapper" ui-view="">
     <rd-loading></rd-loading>
 </div>
 <!-- build:js(.) scripts/vendor.js -->
@@ -80,6 +86,9 @@
 <script src="bower_components/angular-file-upload/dist/angular-file-upload.min.js"></script>
 <script src="bower_components/angular-ui-sortable/sortable.js"></script>
 <script src="bower_components/minigrid/src/index.js"></script>
+<script src="bower_components/blob-polyfill/Blob.js"></script>
+<script src="bower_components/file-saver.js/FileSaver.js"></script>
+<script src="bower_components/angular-file-saver/dist/angular-file-saver.bundle.js"></script>
 <!-- endbower -->
 <!-- extra rendering code for pivot tables -->
 <script src="bower_components/pivottable/dist/c3_renderers.min.js"></script>
@@ -139,22 +148,21 @@
 <script src="greyscale.rest/scripts/services/greyscale-product.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-organization.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-user-uoa.js"></script>
-<script src="greyscale.rest/scripts/services/greyscale-user-group.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-group.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-product-workflow.js"></script>
-<script src="greyscale.rest/scripts/services/greyscale-message.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-translation.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-task.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-discussion.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-notification.js"></script>
 <!-- end greyscale.user -->
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) scripts/greyscale.tables.js -->
 <!-- greyscale.tables -->
 <script src="greyscale.tables/scripts/greyscale.tables.js"></script>
-<script src="greyscale.tables/scripts/services/greyscale-projects.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-project-products.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-project-surveys.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-users.js"></script>
-<script src="greyscale.tables/scripts/services/greyscale-users-groups.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoas.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoas-import.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-uoas-filter.js"></script>
@@ -171,9 +179,12 @@
 <script src="greyscale.tables/scripts/services/greyscale-organizations.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-product-uoas.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-product-workflow.js"></script>
-<script src="greyscale.tables/scripts/services/greyscale-entity-roles.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-users-groups.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-my-tasks.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-my-tasks-future.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-my-tasks-finished.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-users-import.js"></script>
+<script src="greyscale.tables/scripts/services/greyscale-groups.js"></script>
 <script src="greyscale.tables/scripts/services/greyscale-product-tasks.js"></script>
 <!-- end greyscale.tables -->
 <!-- endbuild -->
@@ -185,7 +196,6 @@
 <script src="greyscale.mock/scripts/services/greyscale-user-uoa.js"></script>
 <script src="greyscale.mock/scripts/services/greyscale-user.js"></script>
 <script src="greyscale.mock/scripts/services/greyscale-translation.js"></script>
-<script src="greyscale.mock/scripts/services/greyscale-messages.js"></script>
 <!-- end greyscale.tables -->
 <!-- endbuild -->
 
@@ -208,9 +218,7 @@
 <script src="scripts/controllers/users-groups.js"></script>
 <script src="scripts/controllers/users-uoa.js"></script>
 <script src="scripts/controllers/dashboard.js"></script>
-<script src="scripts/controllers/projects.js"></script>
 <script src="scripts/controllers/project-setup.js"></script>
-<script src="scripts/controllers/project-setup-roles.js"></script>
 <script src="scripts/controllers/project-setup-surveys.js"></script>
 <script src="scripts/controllers/project-setup-products.js"></script>
 <script src="scripts/controllers/product-tasks.js"></script>
@@ -233,6 +241,7 @@
 <script src="scripts/controllers/modals/modal-uoas-filter.js"></script>
 <script src="scripts/controllers/modals/modal-translation.js"></script>
 <script src="scripts/controllers/modals/modal-product-task.js"></script>
+<script src="scripts/controllers/modals/modal-user-groups.js"></script>
 <script src="scripts/controllers/modals/modal-confirm.js"></script>
 <script src="scripts/controllers/widgets/my-tasks.js"></script>
 <script src="scripts/controllers/widgets/pm-projects.js"></script>
@@ -273,6 +282,11 @@
 <script src="scripts/directives/gs-valid.js"></script>
 <script src="scripts/directives/minigrid.js"></script>
 <script src="scripts/directives/organization-selector.js"></script>
+<script src="scripts/directives/hidden-select.js"></script>
+<script src="scripts/directives/field-file.js"></script>
+<script src="scripts/directives/attached-file.js"></script>
+<script src="scripts/directives/attachments.js"></script>
+<script src="scripts/directives/fixed-on-scroll.js"></script>
 <!-- end directives -->
 <!-- endbuild -->
 

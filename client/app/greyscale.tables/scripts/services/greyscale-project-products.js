@@ -84,6 +84,7 @@ angular.module('greyscale.tables')
             title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
+            dataHide: true,
             actions: [{
                 title: '',
                 getIcon: _getStatusIcon,

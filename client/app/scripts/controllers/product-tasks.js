@@ -1,22 +1,23 @@
 angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams,
-        $timeout,
+        $timeout, Organization,
         greyscaleProductWorkflowApi, greyscaleProjectApi,
-        greyscaleProductApi, greyscaleUserApi, greyscaleRoleApi,
-        greyscaleUtilsSrv, greyscaleEntityTypeRoleApi, greyscaleUoaTypeApi,
-        greyscaleEntityTypeApi, greyscaleTaskApi, greyscaleModalsSrv) {
+        greyscaleProductApi, greyscaleUserApi,
+        greyscaleUtilsSrv, greyscaleUserGroupsTbl, greyscaleUoaTypeApi,
+        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
-        var projectId = parseInt($stateParams.projectId),
-            productId = parseInt($stateParams.productId);
+        var productId = parseInt($stateParams.productId);
 
         $scope.model = {
-            projectId: projectId,
+            //projectId: projectId,
             $loading: true,
             selectedUser: {},
             selectedRole: {}
         };
+
+        $scope.global = {};
 
         var _dicts = {};
         var _tasks = [];
@@ -37,20 +38,34 @@ angular.module('greyscaleApp')
             }]
         };
 
-        _loadProject(projectId)
-            .then(_loadUserRolesData)
-            .then(function (usersList) {
-                $scope.model.usersList = usersList;
-                $scope.model.roles = _dicts.roles;
+        Organization.$lock = true;
+
+        greyscaleProductApi.get(productId)
+            .then(function (product) {
+                if (Organization.projectId !== product.projectId) {
+                    Organization.$setBy('projectId', product.projectId);
+                }
+            })
+            .then(function () {
+                _getTaskTableData();
             });
 
-        _getTaskTableData();
+        Organization.$watch('projectId', $scope, function () {
+            $scope.model.projectId = Organization.projectId;
+
+            _loadUsersData()
+                .then(function () {
+                    $scope.model.users = _dicts.users;
+                    $scope.model.groups = _dicts.groups;
+                });
+        });
 
         $scope.searchUsers = _searchUsers;
 
         $scope.$on('$destroy', function () {
             _destroyDragUser();
             _destroyDropUser();
+            Organization.$lock = false;
         });
 
         //////////////////////////////////////////////////////////////
@@ -58,28 +73,27 @@ angular.module('greyscaleApp')
         //////////////////// interface logic ///////////////////////
 
         function _searchUsers() {
-            var searchRole = $scope.model.selectedRole ?
-                $scope.model.selectedRole.id : null;
+            var searchGroupId = $scope.model.selectedGroup ?
+                $scope.model.selectedGroup.id : null;
             var searchText = $scope.model.searchText && $scope.model.searchText !== '' ?
                 $scope.model.searchText : null;
 
-            $scope.model.usersSearchResult = _.filter($scope.model.usersList, function (assignee) {
-                var acceptRole = searchRole && assignee.role.id === searchRole;
+            $scope.model.usersSearchResult = _.filter($scope.model.users, function (user) {
+                var acceptGroup = searchGroupId && ~user.usergroupId.indexOf(searchGroupId);
 
                 var acceptText = false;
                 if (searchText) {
-                    var user = assignee.user;
-                    if (user.firstName.match(searchText)) {
+                    if ((' ' + user.firstName).match(searchText)) {
                         acceptText = true;
                     }
-                    if (user.lastName.match(searchText)) {
+                    if ((' ' + user.lastName).match(searchText)) {
                         acceptText = true;
                     }
-                    if (user.email.match(searchText)) {
+                    if ((' ' + user.email).match(searchText)) {
                         acceptText = true;
                     }
                 }
-                return acceptRole || acceptText;
+                return acceptGroup || acceptText;
             });
             $timeout(_initDragUser);
         }
@@ -90,10 +104,10 @@ angular.module('greyscaleApp')
             $('.drop-user').droppable({
                 over: function (e, ui) {
                     var cellEl = $(e.target);
-                    var assigneeViewModel = _getAssigneeViewModel(ui);
+                    var userViewModel = _getUserViewModel(ui);
                     var taskViewModel = _getTaskViewModel(e);
-                    if (_isAcceptableRole(taskViewModel, assigneeViewModel)) {
-                        if (_isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
+                    if (_isAcceptableGroup(taskViewModel.step, userViewModel)) {
+                        if (_isAcceptableUser(taskViewModel, userViewModel)) {
                             _indicateDropZone(cellEl);
                         }
                     } else {
@@ -106,15 +120,16 @@ angular.module('greyscaleApp')
                 },
                 drop: function (e, ui) {
                     var cellEl = $(e.target);
-                    var assigneeViewModel = _getAssigneeViewModel(ui);
+                    var userViewModel = _getUserViewModel(ui);
                     var taskViewModel = _getTaskViewModel(e);
-                    if (_isAcceptableRole(taskViewModel, assigneeViewModel) &&
-                        _isAcceptableAssignee(taskViewModel, assigneeViewModel)) {
+                    if (_isAcceptableGroup(taskViewModel.step, userViewModel) &&
+                        _isAcceptableUser(taskViewModel, userViewModel)) {
                         ui.helper.remove();
                         _cellLoadingState(cellEl, true);
-                        _saveTaskAssignee(taskViewModel, assigneeViewModel.id)
+                        _saveTaskUser(taskViewModel, userViewModel.id)
                             .then(function (task) {
-                                taskViewModel.assignee = assigneeViewModel;
+                                taskViewModel.user = userViewModel;
+                                taskViewModel.userId = userViewModel.id;
                                 taskViewModel.id = task.id;
                                 taskViewModel.startDate = task.startDate;
                                 taskViewModel.endDate = task.endDate;
@@ -130,11 +145,11 @@ angular.module('greyscaleApp')
             $('.drop-user-bulk').droppable({
                 over: function (e, ui) {
                     var cellEl = $(e.target);
-                    var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var checkTask = {};
-                    checkTask.roleId = _getClassId(e, 'role-id');
-                    if (_isAcceptableRole(checkTask, assigneeViewModel)) {
-                        if (_isAcceptableAssignee(checkTask, assigneeViewModel)) {
+                    var userViewModel = _getUserViewModel(ui);
+                    var check = {};
+                    check.usergroupId = _getClassId(e, 'usergroup-id', true);
+                    if (_isAcceptableGroup(check, userViewModel)) {
+                        if (_isAcceptableUser(check, userViewModel)) {
                             _indicateDropZone(cellEl);
                         }
                     } else {
@@ -147,19 +162,19 @@ angular.module('greyscaleApp')
                 },
                 drop: function (e, ui) {
                     var cellEl = $(e.target);
-                    var assigneeViewModel = _getAssigneeViewModel(ui);
-                    var checkTask = {};
-                    checkTask.roleId = _getClassId(e, 'role-id');
-                    if (_isAcceptableRole(checkTask, assigneeViewModel) &&
-                        _isAcceptableAssignee(checkTask, assigneeViewModel)) {
+                    var userViewModel = _getUserViewModel(ui);
+                    var check = {};
+                    check.usergroupId = _getClassId(e, 'usergroup-id', true);
+                    if (_isAcceptableGroup(check, userViewModel) &&
+                        _isAcceptableUser(check, userViewModel)) {
                         ui.helper.remove();
                         var stepId = _getClassId(e, 'step-id');
                         _cellLoadingState(cellEl, true);
-                        _saveTasksAssignment(stepId, assigneeViewModel)
+                        _saveTasksAssignment(stepId, userViewModel)
                             .then(function (newTasks) {
                                 angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
                                     var taskViewModel = uoa.steps[stepId];
-                                    taskViewModel.assignee = assigneeViewModel;
+                                    taskViewModel.user = userViewModel;
                                     angular.forEach(newTasks, function (newTask) {
                                         if (uoa.id === newTask.uoaId && taskViewModel.stepId === newTask.stepId) {
                                             taskViewModel.id = newTask.id;
@@ -180,13 +195,22 @@ angular.module('greyscaleApp')
                 var cellEl = $(e.target).closest('.drop-user');
                 var taskViewModel = _getTaskViewModel(cellEl);
                 _cellLoadingState(cellEl, true);
-                _removeTask(taskViewModel)
+                greyscaleModalsSrv.confirm({
+                        message: tns + 'DELETE_CONFIRM',
+                        task: taskViewModel,
+                        okType: 'danger',
+                        okText: 'COMMON.DELETE'
+                    })
                     .then(function () {
-                        taskViewModel.assignee = undefined;
-                        delete(taskViewModel.id);
-                        delete(taskViewModel.startDate);
-                        delete(taskViewModel.endDate);
-                        delete(taskViewModel.endDate);
+                        return _removeTask(taskViewModel)
+                            .then(function () {
+                                taskViewModel.user = undefined;
+                                taskViewModel.userId = undefined;
+                                delete(taskViewModel.id);
+                                delete(taskViewModel.startDate);
+                                delete(taskViewModel.endDate);
+                                delete(taskViewModel.endDate);
+                            });
                     })
                     .finally(function () {
                         _cellLoadingState(cellEl, false);
@@ -211,11 +235,22 @@ angular.module('greyscaleApp')
                     });
             });
 
-            function _getClassId(e, prefix) {
+            function _getClassId(e, prefix, isArray) {
                 var el = angular.element(e.target);
-                var reg = prefix + '\-(\\d\+)';
+                var reg = prefix + '-([0-9\\-]\+)';
                 var match = el.attr('class').match(new RegExp(reg));
-                return match ? parseInt(match[1]) : undefined;
+                if (!match) {
+                    return undefined;
+                } else {
+                    var id = match[1];
+                    if (isArray) {
+                        id = id.split('-');
+                        id = _.map(id, _.ary(parseInt, 1));
+                    } else {
+                        id = parseInt(id);
+                    }
+                    return id;
+                }
             }
 
             function _cellLoadingState(el, state) {
@@ -237,16 +272,16 @@ angular.module('greyscaleApp')
                 el.removeClass('bg-danger');
             }
 
-            function _isAcceptableRole(task, assignee) {
-                return task.roleId === assignee.role.id;
+            function _isAcceptableGroup(step, user) {
+                return _.intersection(step.usergroupId, user.usergroupId).length;
             }
 
-            function _isAcceptableAssignee(task, assignee) {
-                return !task.assignee || task.assignee.id !== assignee.id;
+            function _isAcceptableUser(task, user) {
+                return !task.user || task.userId !== user.id;
             }
 
-            function _getAssigneeViewModel(ui) {
-                return ui.draggable.scope().item;
+            function _getUserViewModel(ui) {
+                return ui.draggable.scope().user;
             }
 
             function _getTaskViewModel(e) {
@@ -292,7 +327,7 @@ angular.module('greyscaleApp')
 
         ///////////////////// action handlers ////////////////////
 
-        function _saveTaskAssignee(taskViewModel, assigneeId) {
+        function _saveTaskUser(taskViewModel, userId) {
             var defer = $q.defer();
 
             var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
@@ -304,7 +339,7 @@ angular.module('greyscaleApp')
                 startDate: taskViewModel.step.startDate,
                 endDate: taskViewModel.step.endDate
             };
-            saveTask.entityTypeRoleId = assigneeId;
+            saveTask.userId = userId;
 
             var updateStorage = function () {
                 if (!task) {
@@ -373,18 +408,18 @@ angular.module('greyscaleApp')
             return defer.promise;
         }
 
-        function _saveTasksAssignment(stepId, assigneeViewModel) {
+        function _saveTasksAssignment(stepId, userViewModel) {
             var defer = $q.defer();
             var step = _.find($scope.model.workflowSteps, {
                 id: stepId
             });
-            var entityTypeRoleId = assigneeViewModel.id;
+            var userId = userViewModel.id;
             // assign user
             var saveTasks = [];
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function (uoaId) {
                 var task = _findTask(uoaId, stepId);
-                if (task && task.entityTypeRoleId && task.entityTypeRoleId === entityTypeRoleId) {
+                if (task && task.userId && task.userId === userId) {
                     return;
                 }
                 var saveTask = task ? angular.copy(task) : {
@@ -394,7 +429,7 @@ angular.module('greyscaleApp')
                     startDate: step.startDate,
                     endDate: step.endDate
                 };
-                saveTask.entityTypeRoleId = entityTypeRoleId;
+                saveTask.userId = userId;
                 saveTasks.push(saveTask);
                 if (!task) {
                     newTasks.push(saveTask);
@@ -437,7 +472,7 @@ angular.module('greyscaleApp')
 
         ////////////////////  table-widget init /////////////////////
 
-        function _initTasksTable(axisData) {
+        function _initTasksTable(tableData) {
 
             var _cols = [{
                 title: tns + 'UOAS_HEADER',
@@ -453,33 +488,36 @@ angular.module('greyscaleApp')
                 icon: 'fa-tasks',
                 pageLength: 10,
                 cols: _cols,
+                classes: 'table-bordered table-col-sm',
                 dataPromise: function () {
                     return _getTaskTableData(_table);
                 }
             };
 
-            _setStepColumns(_table, axisData);
+            _setStepColumns(_table, tableData);
 
             return _table;
         }
 
-        function _setStepColumns(table, axisData) {
-            angular.forEach(axisData.workflowSteps || {}, function (step) {
+        function _setStepColumns(table, tableData) {
+            angular.forEach(tableData.workflowSteps || [], function (step) {
+                var groupsIdClass = step.usergroupId && step.usergroupId.length ?
+                    'usergroup-id-' + step.usergroupId.join('-') : '';
                 table.cols.push({
-                    titleTemplate: '<b>{{step.title}}</b>' +
-                        '<small class="text-muted">{{step.role.name}}<br />' +
-                        '{{step.startDate|date:"shortDate"}} - {{step.endDate|date:"shortDate"}}' +
-                        '</small>',
-                    titleTemplateData: {
-                        step: step
+                    titleTemplate: '<b>{{ext.step.title}}</b>' +
+                        '<small class="weight-normal text-muted super-small">{{ext.groups}}</small>' +
+                        '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
+                    titleTemplateExtData: {
+                        step: step,
+                        groups: _.map(step.groups, 'title').join(', ')
                     },
                     show: true,
-                    class: 'drop-zone drop-user-bulk role-id-' + step.roleId + ' step-id-' + step.id,
+                    class: 'drop-zone drop-user-bulk ' + groupsIdClass + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
                     cellClass: 'drop-zone drop-user',
                     cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html',
                     cellTemplateExtData: {
-                        product: axisData.product
+                        product: tableData.product
                     }
                 });
             });
@@ -500,7 +538,9 @@ angular.module('greyscaleApp')
                     $scope.model.$loading = false;
                 })
                 .then(function (data) {
-                    $timeout(_initDropUser);
+                    $timeout(function () {
+                        _initDropUser();
+                    });
                     return data;
                 });
         }
@@ -514,20 +554,18 @@ angular.module('greyscaleApp')
                 angular.forEach(tableData.workflowSteps, function (step) {
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
-                    var _role = _.find(_dicts.roles, {
-                        id: step.roleId
-                    });
+                    var user = task ? _.find(_dicts.users, {
+                        id: task.userId
+                    }) : undefined;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
                         stepId: step.id,
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
-
-                        roleId: step.roleId,
-                        step: step,
-                        role: _role,
-                        assignee: _getTaskAssignee(uoa.id, step.id)
+                        userId: task ? task.userId : undefined,
+                        user: user,
+                        step: step
                     });
                 });
             });
@@ -542,21 +580,21 @@ angular.module('greyscaleApp')
                     'productId',
                     'stepId',
                     'uoaId',
-                    'entityTypeRoleId',
+                    'userId',
                     'startDate',
                     'endDate'
                 ]));
             });
         }
 
-        function _getTaskAssignee(uoaId, stepId) {
-            var task = _findTask(uoaId, stepId);
-            if (task) {
-                return _.find(_dicts.userRoles, {
-                    id: task.entityTypeRoleId
-                });
-            }
-        }
+        //function _getTaskAssignee(uoaId, stepId) {
+        //    var task = _findTask(uoaId, stepId);
+        //    if (task) {
+        //        return _.find(_dicts.userGroups, {
+        //            id: task.usergroupId
+        //        });
+        //    }
+        //}
 
         function _findTask(uoaId, stepId) {
             return _.find(_tasks, {
@@ -584,16 +622,9 @@ angular.module('greyscaleApp')
                 uoaTypes: greyscaleUoaTypeApi.list()
             };
 
-            if (!_dicts.roles) {
-                reqs.roles = greyscaleRoleApi.list({
-                    isSystem: false
-                });
-            }
-
             return $q.all(reqs).then(function (promises) {
                 _dicts.uoaTypes = promises.uoaTypes;
                 $scope.model.uoas = _addUoasRelations(promises.uoas);
-                _dicts.roles = _dicts.roles || promises.roles;
                 $scope.model.workflowSteps = _addWorkflowStepsRelations(promises.workflowSteps);
                 return promises;
             });
@@ -601,58 +632,20 @@ angular.module('greyscaleApp')
 
         //////////////////// initial loading /////////////////////
 
-        function _loadUserRolesData(project) {
-            return greyscaleEntityTypeApi.list({
-                    name: 'projects',
-                    fields: 'id'
-                })
-                .then(function (types) {
-                    var params = {
-                        essenceId: types[0].id,
-                        entityId: project.id
-                    };
-                    var reqs = {
-                        entityTypeRoles: greyscaleEntityTypeRoleApi.list(params),
-                        users: greyscaleUserApi.list({
-                            organizationId: project.organizationId
-                        }),
-                        entTypes: greyscaleEntityTypeApi.list()
-                    };
+        function _loadUsersData() {
+            var reqs = {
+                users: greyscaleUserApi.list({
+                    organizationId: Organization.id
+                }),
+                groups: greyscaleGroupApi.list(Organization.id)
+            };
 
-                    if (!_dicts.roles) {
-                        reqs.roles = greyscaleRoleApi.list({
-                            isSystem: false
-                        });
-                    }
-
-                    return $q.all(reqs).then(function (promises) {
-                        _dicts.users = promises.users;
-                        _dicts.entTypes = promises.entTypes;
-                        _dicts.roles = _dicts.roles || promises.roles;
-
-                        return _getUserRolesList(promises.entityTypeRoles);
-                    });
-                });
-        }
-
-        function _getUserRolesList(entityTypeRoles) {
-            var userRoles = [];
-            angular.forEach(entityTypeRoles, function (item) {
-                var user = _.find(_dicts.users, {
-                    id: item.userId
-                });
-                if (user) {
-                    userRoles.push({
-                        id: item.id,
-                        role: _.pick(_.find(_dicts.roles, {
-                            id: item.roleId
-                        }), ['id', 'name']),
-                        user: _.pick(user, ['id', 'email', 'firstName', 'lastName'])
-                    });
-                }
+            return $q.all(reqs).then(function (promises) {
+                _dicts.users = promises.users;
+                _dicts.groups = promises.groups;
+                return true;
             });
-            _dicts.userRoles = userRoles;
-            return userRoles;
+
         }
 
         function _addUoasRelations(uoas) {
@@ -666,8 +659,11 @@ angular.module('greyscaleApp')
 
         function _addWorkflowStepsRelations(workflowSteps) {
             angular.forEach(workflowSteps, function (step) {
-                step.role = _.find(_dicts.roles, {
-                    id: step.roleId
+                step.groups = [];
+                angular.forEach(step.usergroupId, function (usergroupId) {
+                    step.groups.push(_.find(_dicts.groups, {
+                        id: usergroupId
+                    }));
                 });
             });
             return workflowSteps;
@@ -680,18 +676,6 @@ angular.module('greyscaleApp')
                 tasks: greyscaleProductApi.product(productId).tasksList()
             };
             return $q.all(reqs);
-        }
-
-        function _loadProject(id) {
-            return greyscaleProjectApi.get(id)
-                .then(function (project) {
-                    $state.ext.projectName = project.codeName;
-                    return project;
-                })
-                .catch(function (error) {
-                    greyscaleUtilsSrv.errorMsg(error, tns + 'PROJECT_NOT_FOUND');
-                    $state.go('home');
-                });
         }
 
         function _loadProduct(productId) {

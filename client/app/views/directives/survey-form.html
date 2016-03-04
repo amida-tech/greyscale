@@ -4,7 +4,8 @@
         <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>
                 {{'SURVEYS.CONTENT' | translate}}
-                <i class="fa pull-right" ng-class="{'fa-caret-up': model.contentOpen, 'fa-caret-down': !model.contentOpen}"></i>
+                <i class="fa pull-right"
+                   ng-class="{'fa-caret-up': model.contentOpen, 'fa-caret-down': !model.contentOpen}"></i>
             </uib-accordion-heading>
             <ul class="survey-content">
                 <survey-form-content-item content-item="item" ng-repeat="item in content"
@@ -19,12 +20,15 @@
                      ng-repeat="fld in fields"
                      survey-form-field="fld"></div>
             </div>
-            <div class="text-right">
-                <button class="btn btn-primary"
+            <div>
+                <button class="btn btn-default pull-left" ng-click="back()" translate="COMMON.BACK"></button>
+                <button class="btn pull-right" ng-click="saveDraft()" ng-disabled="!surveyForm.$dirty"
+                        translate="SURVEYS.SAVE_DRAFT"></button>
+
+                <button class="btn btn-primary pull-right"
                         ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty || lock">
-                    {{"COMMON.SAVE" | translate}}
-                </button>
+                        ng-disabled="surveyForm.$invalid || !surveyForm.$dirty || lock"
+                        translate="SURVEYS.SUBMIT"></button>
             </div>
         </div>
     </div>

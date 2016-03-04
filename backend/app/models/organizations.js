@@ -12,11 +12,14 @@ var columns = [
 
 var Organization = sql.define({
     name: 'Organizations',
+    schema: 'proto_amida',
     columns: columns
 });
 
-Organization.editCols = ['name','address','url','adminUserId','enforceApiSecurity'];
+Organization.editCols = ['name', 'address', 'url', 'adminUserId', 'enforceApiSecurity'];
 
 Organization.whereCol = columns;
+
+Organization.translate = ['name', 'address'];
 
 module.exports = Organization;

@@ -17,22 +17,25 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+            req.query.realm = req.param('realm');
             var q = EssenceRole.select(EssenceRole.star());
             var from = EssenceRole;
-            if(req.query.essenceId){
+            if (req.query.essenceId) {
                 var essence = yield thunkQuery(
-                    Essence.select().where(Essence.id.equals(req.query.essenceId))
+                    Essence.select().where(Essence.id.equals(req.query.essenceId)), {
+                        'realm': req.param('realm')
+                    }
                 );
                 if (essence[0]) {
                     console.log(essence[0]);
                     try {
                         var Model = require('app/models/' + essence[0].fileName);
-                    }catch(e){
+                    } catch (e) {
                         throw new HttpError(403, 'Cannot load model\'s file: ' + essence[0].fileName);
                     }
                     from = from.leftJoin(Model).on(EssenceRole.entityId.equals(Model.id));
                     q = q.select('row_to_json("' + Model.table._name + '".*) as entity');
-                }else{
+                } else {
                     throw new HttpError(403, 'Entity type with id = ' + req.query.essenceId + ' does not exist');
                 }
             }
@@ -50,7 +53,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = EssenceRole.select().from(EssenceRole).where(EssenceRole.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -64,7 +69,9 @@ module.exports = {
     updateOne: function (req, res, next) {
         co(function* () {
             yield * checkData(req);
-            return yield thunkQuery(EssenceRole.update(req.body).where(EssenceRole.id.equals(req.params.id)));
+            return yield thunkQuery(EssenceRole.update(req.body).where(EssenceRole.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             res.status(202).end();
         }, function (err) {
@@ -74,7 +81,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = EssenceRole.delete().where(EssenceRole.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -85,7 +94,9 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkData(req);
-            return yield thunkQuery(EssenceRole.insert(req.body).returning(EssenceRole.id));
+            return yield thunkQuery(EssenceRole.insert(req.body).returning(EssenceRole.id), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             console.log(_.first(data));
             res.status(201).json(_.first(data));
@@ -97,7 +108,9 @@ module.exports = {
 };
 
 function* checkData(req) {
-    var existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)));
+    var existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)), {
+        'realm': req.param('realm')
+    });
     if (!_.first(existEssence)) {
         throw new HttpError(403, 'Essence with this id does not exist (' + req.body.essenceId + ')');
     }
@@ -109,17 +122,23 @@ function* checkData(req) {
         throw new HttpError(403, 'Cannot find model file: ' + _.first(existEssence).fileName);
     }
 
-    var existEntity = yield thunkQuery(model.select().from(model).where(model.id.equals(req.body.entityId)));
+    var existEntity = yield thunkQuery(model.select().from(model).where(model.id.equals(req.body.entityId)), {
+        'realm': req.param('realm')
+    });
     if (!_.first(existEntity)) {
         throw new HttpError(403, 'Entity with this id does not exist (' + req.body.entityId + ')');
     }
 
-    var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)));
+    var existRole = yield thunkQuery(Role.select().from(Role).where(Role.id.equals(req.body.roleId)), {
+        'realm': req.param('realm')
+    });
     if (!_.first(existRole)) {
         throw new HttpError(403, 'Role with this id does not exist');
     }
 
-    var existUser = yield thunkQuery(User.select().from(User).where(User.id.equals(req.body.userId)));
+    var existUser = yield thunkQuery(User.select().from(User).where(User.id.equals(req.body.userId)), {
+        'realm': req.param('realm')
+    });
     if (!_.first(existUser)) {
         throw new HttpError(403, 'User with this id does not exist');
     }

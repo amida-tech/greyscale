@@ -73,8 +73,6 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -214,7 +212,7 @@ router.route('/:realm/v0.2/products/:id/calculate')
     .get(/*authenticate('token').always,*/ products.calculate);
 
 router.route('/:realm/v0.2/products/:id/export.csv')
-    .get(/*authenticate('token').always,*/ products.export);
+    .get( /*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
@@ -306,6 +304,21 @@ router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
     .post(authenticate('token').always, checkRight('users_uoa'), users.UOAadd);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    GROUPS
+//----------------------------------------------------------------------------------------------------------------------
+
+var groups = require('app/controllers/groups');
+
+router.route('/:realm/v0.2/organizations/:organizationId/groups')
+    .get(authenticate('token').always, groups.selectByOrg)
+    .post(authenticate('token').always, groups.insertOne);
+
+router.route('/:realm/v0.2/groups/:id')
+    .get(authenticate('token').always, groups.selectOne)
+    .put(authenticate('token').always, groups.updateOne)
+    .delete(authenticate('token').always, checkRight('groups_delete'), groups.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    COUNTRIES
 //----------------------------------------------------------------------------------------------------------------------
 var countries = require('app/controllers/countries');
@@ -354,9 +367,32 @@ var discussions = require('app/controllers/discussions');
 router.route('/:realm/v0.2/discussions')
     .get(authenticate('token').always, discussions.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.insertOne);
+router.route('/:realm/v0.2/discussions/users/:taskId')
+    .get(authenticate('token').always, discussions.getUsers);
+router.route('/:realm/v0.2/discussions/entryscope')
+    .get(authenticate('token').always, discussions.getEntryScope);
+router.route('/:realm/v0.2/discussions/entryscope/:id')
+    .get(authenticate('token').always, discussions.getEntryUpdate);
 router.route('/:realm/v0.2/discussions/:id')
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.updateOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    NOTIFICATIONS
+//----------------------------------------------------------------------------------------------------------------------
+var notifications = require('app/controllers/notifications');
+
+router.route('/:realm/v0.2/notifications')
+    .get(authenticate('token').always, notifications.select)
+    .post(authenticate('token').always, notifications.insertOne);
+router.route('/:realm/v0.2/notifications/markread/:notificationId')
+    .put(authenticate('token').always, notifications.changeRead(true), notifications.markReadUnread);
+router.route('/:realm/v0.2/notifications/markunread/:notificationId')
+    .put(authenticate('token').always, notifications.changeRead(false), notifications.markReadUnread);
+router.route('/:realm/v0.2/notifications/markallread')
+    .put(authenticate('token').always, notifications.markAllRead);
+router.route('/:realm/v0.2/notifications/delete')
+    .delete(authenticate('token').always, notifications.deleteList);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
@@ -428,6 +464,14 @@ router.route('/:realm/v0.2/uoataglinks')
 
 router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//Admin Functions
+//----------------------------------------------------------------------------------------------------------------------
+var Data = require('app/controllers/data');
+
+router.route('/admin/v0.2/realms')
+    .post(authenticate('token').always, checkRight('schema_create'), Data.instantiate);
 
 //----------------------------------------------------------------------------------------------------------------------
 module.exports = router;

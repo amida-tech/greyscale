@@ -29,7 +29,9 @@ module.exports = {
                     Task
                     //.leftJoin(Workflow)
                     //.on(Product.id.equals(Workflow.productId))
-                )
+                ), {
+                    'realm': req.param('realm')
+                }
             );
         }).then(function (data) {
             res.json(data);
@@ -51,7 +53,9 @@ module.exports = {
                     //.leftJoin(Workflow)
                     //.on(Product.id.equals(Workflow.productId))
                 )
-                .where(Task.id.equals(req.params.id))
+                .where(Task.id.equals(req.params.id)), {
+                    'realm': req.param('realm')
+                }
             );
             if (!_.first(task)) {
                 throw new HttpError(403, 'Not found');
@@ -66,7 +70,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Task.delete().where(Task.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -79,7 +85,9 @@ module.exports = {
             return yield thunkQuery(
                 Task
                 .update(_.pick(req.body, Task.editCols))
-                .where(Task.id.equals(req.params.id))
+                .where(Task.id.equals(req.params.id)), {
+                    'realm': req.param('realm')
+                }
             );
         }).then(function (data) {
             res.status(202).end();
@@ -96,7 +104,9 @@ module.exports = {
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
-                .returning(Task.id)
+                .returning(Task.id), {
+                    'realm': req.param('realm')
+                }
             );
             return result;
         }).then(function (data) {
@@ -113,16 +123,12 @@ function* checkTaskData(req) {
         if (
             typeof req.body.uoaId === 'undefined' ||
             typeof req.body.stepId === 'undefined' ||
-            typeof req.body.entityTypeRoleId === 'undefined' ||
+            typeof req.body.userId === 'undefined' ||
             typeof req.body.productId === 'undefined'
-            //typeof req.body.title            === 'undefined'
         ) {
 
-            throw new HttpError(403, 'uoaId, stepId, entityTypeRoleId, productId and title fields are required');
+            throw new HttpError(403, 'uoaId, stepId, userId, productId and title fields are required');
         }
     }
 
-    //var uoa = yield thunkQuery(
-    //    UOA.select().where(UOA.id.equals)
-    //);
 }

@@ -111,47 +111,47 @@ angular.module('greyscale.tables')
             return _dicts.roles;
         }
 
-        function getEntityTypes() {
-            return _dicts.entTypes;
-        }
-
-        function getEntity(rec) {
-            var dicId = rec.essenceId;
-            var res = [];
-            if (!_dicts.ents[dicId]) {
-                _dicts.ents[dicId] = {
-                    promise: greyscaleEntityTypeApi.get(rec.essenceId)
-                        .then(function (eType) {
-                            var apiName = eType[0].fileName;
-                            var fieldName = eType[0].nameField;
-                            var params = {
-                                fields: 'id,' + fieldName
-                            };
-
-                            return greyscaleRestSrv().one(apiName)
-                                .get(params)
-                                .then(function (items) {
-                                    var res = [];
-                                    for (var i = 0; i < items.length; i++) {
-                                        res.push({
-                                            id: items[i].id,
-                                            title: items[i][fieldName]
-                                        });
-                                    }
-                                    _dicts.ents[dicId].data = res;
-                                    return _dicts.ents[dicId].data;
-                                });
-                        }),
-                    data: null
-                };
-                res = _dicts.ents[dicId].promise;
-            } else if (!_dicts.ents[dicId].data) {
-                res = _dicts.ents[dicId].promise;
-            } else {
-                res = $q.resolve(_dicts.ents[dicId].data);
-            }
-            return res;
-        }
+        //function getEntityTypes() {
+        //    return _dicts.entTypes;
+        //}
+        //
+        //function getEntity(rec) {
+        //    var dicId = rec.essenceId;
+        //    var res = [];
+        //    if (!_dicts.ents[dicId]) {
+        //        _dicts.ents[dicId] = {
+        //            promise: greyscaleEntityTypeApi.get(rec.essenceId)
+        //                .then(function (eType) {
+        //                    var apiName = eType[0].fileName;
+        //                    var fieldName = eType[0].nameField;
+        //                    var params = {
+        //                        fields: 'id,' + fieldName
+        //                    };
+        //
+        //                    return greyscaleRestSrv().one(apiName)
+        //                        .get(params)
+        //                        .then(function (items) {
+        //                            var res = [];
+        //                            for (var i = 0; i < items.length; i++) {
+        //                                res.push({
+        //                                    id: items[i].id,
+        //                                    title: items[i][fieldName]
+        //                                });
+        //                            }
+        //                            _dicts.ents[dicId].data = res;
+        //                            return _dicts.ents[dicId].data;
+        //                        });
+        //                }),
+        //            data: null
+        //        };
+        //        res = _dicts.ents[dicId].promise;
+        //    } else if (!_dicts.ents[dicId].data) {
+        //        res = _dicts.ents[dicId].promise;
+        //    } else {
+        //        res = $q.resolve(_dicts.ents[dicId].data);
+        //    }
+        //    return res;
+        //}
 
         function _delRecord(entityRole) {
             var user = _.find(_dicts.users, {

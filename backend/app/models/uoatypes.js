@@ -2,6 +2,7 @@ var sql = require('sql');
 
 var UnitOfAnalysisType = sql.define({
     name: 'UnitOfAnalysisType',
+    schema: 'proto_amida',
     columns: [
         'id',
         'name',

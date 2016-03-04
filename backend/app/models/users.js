@@ -37,6 +37,7 @@ var columns = [
 
 var User = sql.define({
     name: 'Users',
+    schema: 'proto_amida',
     columns: columns
 });
 
@@ -55,11 +56,19 @@ User.validPassword = function (pas, checkpas) {
 
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday',
-    'updated', 'timezone','location','cell','address',
-    'lang','bio','notifyLevel','affiliation'
+    'updated', 'timezone', 'location', 'cell', 'address',
+    'lang', 'bio', 'notifyLevel', 'affiliation'
 ];
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId'];
+User.translate = [
+    'firstName',
+    'lastName',
+    'address',
+    'affiliation',
+    'location'
+];
+
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId'];
 User.whereCol = columns;
 
 module.exports = User;

@@ -14,7 +14,10 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+            req.query.realm = req.param('realm');
             var _counter = thunkQuery(Right.select(Right.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
+            //removed realm in the previous query
+            req.query.realm = req.param('realm');
             var right = thunkQuery(Right.select(), req.query);
 
             return yield [_counter, right];
@@ -31,7 +34,9 @@ module.exports = {
             if (!req.body.action) {
                 throw new HttpError(403, 'Action field is required');
             }
-            return yield thunkQuery(Right.insert(req.body).returning(Right.id));
+            return yield thunkQuery(Right.insert(req.body).returning(Right.id), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -42,7 +47,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params)));
+            var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params)), {
+                'realm': req.param('realm')
+            });
             if (!_.first(right)) {
                 throw new HttpError(404, 'Not found');
             }
@@ -57,7 +64,9 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         query(
-            Right.update(req.body).where(Right.id.equals(req.params.id)),
+            Right.update(req.body).where(Right.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            },
             function (err, data) {
                 if (!err) {
                     res.status(202).end();
@@ -70,7 +79,9 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         query(
-            Right.delete().where(Right.id.equals(req.params.id)),
+            Right.delete().where(Right.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            },
             function (err) {
                 if (!err) {
                     res.status(204).end();

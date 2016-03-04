@@ -19,11 +19,13 @@ var columns = [
     'value',
     'qid',
     'links',
-    'attachment'
+    'attachment',
+    'optionNumbering'
 ];
 
 var SurveyQuestion = sql.define({
     name: 'SurveyQuestions',
+    schema: 'proto_amida',
     columns: columns
 });
 
@@ -40,14 +42,22 @@ SurveyQuestion.types = [
     9, // Section end
     10, // Section separator
     11, // Bullet points
-    12 // Date
+    12, // Date
+    13 // Scale
 ];
 SurveyQuestion.multiSelectTypes = [2, 3, 4];
 
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
-    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid'
+    'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid',
+    'links', 'attachment', 'optionNumbering'
+];
+
+SurveyQuestion.translate = [
+    'value',
+    'label',
+    'description'
 ];
 
 SurveyQuestion.whereCol = columns;

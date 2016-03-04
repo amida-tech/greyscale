@@ -22,6 +22,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+            req.query.realm = req.param('realm');
             return yield thunkQuery(Project.select().from(Project), req.query);
         }).then(function (data) {
             res.json(data);
@@ -32,7 +33,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
+            var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
             if (!_.first(project)) {
                 throw new HttpError(404, 'Not found');
             } else {
@@ -47,7 +50,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = Project.delete().where(Project.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -58,7 +63,9 @@ module.exports = {
     editOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
-            var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
+            var updateObj = _.defaults(_.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']), {
+                'realm': req.param('realm')
+            });
             var result = false;
             if (Object.keys(updateObj).length) {
                 result = yield thunkQuery(
@@ -88,7 +95,9 @@ module.exports = {
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
                 )
-                .where(Product.projectId.equals(req.params.id))
+                .where(Product.projectId.equals(req.params.id)), {
+                    'realm': req.param('realm')
+                }
             );
         }).then(function (data) {
             res.json(data);
@@ -124,9 +133,13 @@ module.exports = {
     insertOne: function (req, res, next) {
         co(function* () {
             yield * checkProjectData(req);
+            // patch for status
+            req.body = _extend(req.body, {status: 1});
             var result = yield thunkQuery(
                 Project
-                .insert(_.pick(req.body, Project.table._initialConfig.columns))
+                .insert(_.defaults(_.pick(req.body, Project.table._initialConfig.columns), {
+                    'realm': req.param('realm')
+                }))
                 .returning(Project.id)
             );
             return result;
@@ -136,30 +149,29 @@ module.exports = {
             next(err);
         });
     }
-
-
-
 };
 
 function* checkProjectData(req) {
     var orgId = req.user.organizationId;
 
-    if(req.user.roleID == 1){
+    if (req.user.roleID == 1) {
         orgId = req.body.organizationId;
     }
 
     if (!req.params.id) { // create
-        if (!req.body.matrixId || !orgId || !req.body.codeName) {
+        if (!orgId || !req.body.codeName) {
             throw new HttpError(
                 403,
-                'matrixId, organizationId and codeName fields are required'
+                'organizationId and codeName fields are required'
             );
         }
     }
 
-    if(orgId){
+    if (orgId) {
         var isExistOrg = yield thunkQuery(
-            Organization.select().where(Organization.id.equals(orgId))
+            Organization.select().where(Organization.id.equals(orgId)), {
+                'realm': req.param('realm')
+            }
         );
         if (!_.first(isExistOrg)) {
             throw new HttpError(
@@ -167,17 +179,27 @@ function* checkProjectData(req) {
                 'Organization with id = ' + orgId + ' does not exist'
             );
         }
+        var projects = yield thunkQuery(
+            Project.select().where(Project.organizationId.equals(orgId)), {
+                'realm': req.param('realm')
+            }
+        );
+        if (projects.length) {
+            throw new HttpError(400, 'You can create only one project for each organization');
+        }
         req.body.organizationId = orgId;
     }
 
-    if(typeof req.body.status != 'undefined'){
+    if (typeof req.body.status != 'undefined') {
         if (Project.statuses.indexOf(req.body.status) == -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
         }
     }
 
     if (req.body.matrixId) {
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
+        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)), {
+            'realm': req.param('realm')
+        });
         if (!_.first(isExistMatrix)) {
             throw new HttpError(403, 'Matrix with this id does not exist');
         }
@@ -189,7 +211,9 @@ function* checkProjectData(req) {
             isExistCode = yield thunkQuery(
                 Project.select().from(Project)
                 .where(Project.codeName.equals(req.body.codeName)
-                    .and(Project.id.notEquals(req.params.id)))
+                    .and(Project.id.notEquals(req.params.id))), {
+                    'realm': req.param('realm')
+                }
             );
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');
@@ -198,7 +222,9 @@ function* checkProjectData(req) {
     } else { // create
         if (req.body.codeName) {
             isExistCode = yield thunkQuery(
-                Project.select().from(Project).where(Project.codeName.equals(req.body.codeName))
+                Project.select().from(Project).where(Project.codeName.equals(req.body.codeName)), {
+                    'realm': req.param('realm')
+                }
             );
             if (_.first(isExistCode)) {
                 throw new HttpError(403, 'Project with this code has already exist');

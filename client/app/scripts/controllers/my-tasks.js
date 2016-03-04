@@ -1,6 +1,8 @@
 angular.module('greyscaleApp')
-    .controller('MyTasksCtrl', function ($scope, greyscaleMyTasksTbl) {
+    .controller('MyTasksCtrl', function ($scope, greyscaleMyTasksTbl, greyscaleMyTasksFutureTbl, greyscaleMyTasksFineshedTbl) {
         $scope.model = {
-            tasks: greyscaleMyTasksTbl
+            activeTasks: greyscaleMyTasksTbl,
+            futureTasks: greyscaleMyTasksFutureTbl,
+            finishedTasks: greyscaleMyTasksFineshedTbl
         };
     });

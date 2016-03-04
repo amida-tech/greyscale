@@ -4,14 +4,20 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, $log,
-        greyscaleEntityTypeRoleApi, greyscaleUtilsSrv, greyscaleMessageApi, greyscaleGlobals) {
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
+        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope) {
+
         var _profile = null;
         var _profilePromise = null;
         var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
         var _messages = [];
-        var _associate = [];
+        var _associate = {};
+        var _associateArray = [];
+
+        this.isSuperAdmin = _isSuperAdmin;
+
+        this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
             var self = this;
@@ -31,7 +37,7 @@ angular.module('greyscale.core')
                                     return _profile;
                                 })
                                 .then(self._setAccessLevel)
-                                //                            .then(self._setAssociate) disabled while not need
+                                /*.then(self._setAssociate)*/
                                 .finally(function () {
                                     _profilePromise = null;
                                 });
@@ -55,9 +61,12 @@ angular.module('greyscale.core')
                     userId: _profile.id
                 }).then(function (usrRoles) {
                     for (var r = 0; r < usrRoles.length; r++) {
-                        _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                        if (_profile && usrRoles.userId === _profile.id) {
+                            _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
+                        }
                     }
                     _userRoles = usrRoles;
+                    $rootScope.checkAccessRole = _checkAccessRole;
                     return _profile;
                 });
             } else {
@@ -68,29 +77,70 @@ angular.module('greyscale.core')
         this._setAssociate = function () {
             if (_profile) {
                 return greyscaleUserApi.list({
-                        organizationId: _profile.organizationId
+                        organizationId: _profile.organizationId // while API users/self/associate not implemented
                     })
                     .then(function (associate) {
-                        _associate = associate;
+                        var i, user,
+                            qty = associate.length;
+                        _associate = {};
+                        _associateArray = [];
+                        for (i = 0; i < qty; i++) {
+                            user = associate[i];
+                            if (!user.isAnonymous || _isAdmin()) {
+                                _associate[user.id] = {
+                                    id: user.id,
+                                    firstName: user.firstName || '',
+                                    lastName: user.lastName || '',
+                                    email: user.email || ''
+                                };
+                                _associateArray.push(_associate[user.id]);
+                            }
+
+                        }
                         return _profile;
                     })
                     .catch(function (err) {
                         $log.debug(err.message || err);
+                        _associate = {};
+                        _associateArray = [];
                         return _profile;
                     });
             } else {
                 return $q.reject('no user data loaded');
             }
         };
+        /* disabled while not used
+                this.getAssociate = function () {
+                    return this.getProfile()
+                        .then(function () {
+                            return _associate;
+                        })
+                        .catch(function () {
+                            return [];
+                        });
+                };
 
-        this.recentMessages = function () {
-            return $q.reject('recentMessages is not implemented yet');
-        };
+                this.getMember = function (userId) {
+                    var member = _associate[userId];
+                    if (!member) {
+                        member = {
+                            id: userId,
+                            firstName: i18n.translate('USERS.ANONYMOUS'),
+                            lastName: '',
+                            email: ''
+                        };
+                    }
+                    return member;
+                };
 
-        this.getMessages = function () {
-            return _messages;
-        };
+                this.recentMessages = function () {
+                    return $q.reject('recentMessages is not implemented yet');
+                };
 
+                this.getMessages = function () {
+                    return _messages;
+                };
+        */
         this.getAccessLevelMask = function () {
             return _accessLevel;
         };
@@ -116,11 +166,39 @@ angular.module('greyscale.core')
             });
         };
 
-        this.isSuperAdmin = function () {
+        function _isSuperAdmin() {
             return (_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
-        };
+        }
 
-        this.isAdmin = function () {
+        function _isAdmin() {
             return (_accessLevel & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
-        };
+        }
+
+        function _checkAccessRole() {
+            if (!_profile) {
+                return;
+            }
+            var checkRoles = Array.from(arguments);
+            var hasAccess = false;
+            angular.forEach(checkRoles, function (role) {
+                if (hasAccess) {
+                    return;
+                }
+                if (role === 'nobody') {
+                    return;
+                }
+                if (role === 'all') {
+                    hasAccess = true;
+                    return;
+                }
+                var roleData = greyscaleGlobals.userRoles[role];
+                if (!roleData) {
+                    throw 'Unknown role "' + role + '"!';
+                }
+                if (roleData.id === _profile.roleID) {
+                    hasAccess = true;
+                }
+            });
+            return hasAccess;
+        }
     });

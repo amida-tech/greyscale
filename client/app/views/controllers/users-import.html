@@ -1,13 +1,13 @@
-<div ng-if="globalModel.organization">
+<div ng-if="model.organization">
     <div class="section">
         <div class="pull-right">
-            <a href="fixtures/users_import_err.csv" translate="IMPORT.USERS.DOWNLOAD_EXAMPLE"></a>
+            <a href="fixtures/users_import.csv" translate="IMPORT.USERS.DOWNLOAD_EXAMPLE"></a>
         </div>
     </div>
     <div class="clearfix"></div>
 
     <upload-form
-        upload-endpoint="organizations/{{tabsModel.organizationId}}/users_csv"
+        upload-endpoint="organizations/{{model.organization.id}}/users_csv"
         upload-disable="disableUpload"
         upload-success="afterUpload">
     </upload-form>
@@ -17,4 +17,4 @@
     </div>
 </div>
 
-<rd-loading ng-if="!globalModel.organization" class="compact"></rd-loading>
+<rd-loading ng-if="!model.organization" class="compact"></rd-loading>

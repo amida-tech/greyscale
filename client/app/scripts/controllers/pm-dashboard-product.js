@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, Organization) {
 
         var productId = $stateParams.productId;
 
@@ -14,7 +14,8 @@ angular.module('greyscaleApp')
 
         $scope.model = {
             tasksTable: tasksTable,
-            exportHref: greyscaleUtilsSrv.getApiBase() + _exportUri
+            exportHref: greyscaleUtilsSrv.getApiBase() + _exportUri,
+            count: {}
         };
 
         greyscaleProductApi.get(productId)
@@ -23,45 +24,50 @@ angular.module('greyscaleApp')
                 return product;
             });
 
+        Organization.$lock = true;
+
+        tasksTable.onReload = function () {
+            var tasksData = tasksTable.dataShare.tasks || [];
+
+            $scope.model.count.flagged = _.filter(tasksData, 'flagged').length;
+
+            $scope.model.count.started = _.filter(tasksData, function (task) {
+                return task.status === 'current' &&
+                    new Date(task.lastVersionDate) > new Date(task.startDate);
+            }).length;
+
+            $scope.model.count.onTime = _.filter(tasksData, function (task) {
+                return task.status === 'current' && new Date(task.endDate) > new Date() &&
+                    new Date(task.lastVersionDate) < new Date(task.startDate);
+            }).length;
+
+            $scope.model.count.overdue = _.filter(tasksData, function (task) {
+                return task.status !== 'completed' && new Date(task.endDate) < new Date();
+            }).length;
+
+            $scope.model.count.delayed = _.filter(tasksData, function (task) {
+                return task.status === 'current' &&
+                    new Date(task.lastVersionDate) < new Date(task.startDate);
+            }).length;
+        };
+
         _getData(productId)
             .then(function (data) {
                 $scope.model.uoas = data.uoas;
                 $scope.model.tasks = data.tasks;
             });
 
+        $scope.$on('$destroy', function () {
+            Organization.$lock = false;
+        });
+
         function _getData(productId) {
             var reqs = {
-                //roles: greyscaleRoleApi.list(),
-                //product: $q.when(product),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
-                tasks: greyscaleProductApi.product(productId).tasksList(),
-                //steps: greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList()
+                tasks: greyscaleProductApi.product(productId).tasksList()
             };
 
             return $q.all(reqs);
         }
-
-        //function _extendData(data) {
-        //    angular.forEach(data.tasks, function (task) {
-        //        task.uoa = _.find(data.uoas, {
-        //            id: task.uoaId
-        //        });
-        //        task.step = _.find(data.steps, {
-        //            id: task.stepId
-        //        });
-        //        greyscaleEntityTypeRoleApi.get(task.entityTypeRoleId)
-        //            .then(function (entityTypeRole) {
-        //                task.role = _.find(data.roles, {
-        //                    id: entityTypeRole[0].roleId
-        //                });
-        //                greyscaleUserApi.list({
-        //                        id: entityTypeRole[0].userId
-        //                    })
-        //                    .then(function (users) {
-        //                        task.user = users[0];
-        //                    });
-        //            });
-        //    });
-        //}
 
     });

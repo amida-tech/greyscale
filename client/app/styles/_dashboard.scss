@@ -108,7 +108,10 @@
                     display: none;
                 }
             }
-
+            .dropdown-menu {
+                right: 100%;
+                margin-right: -41px;
+            }
             i {
                 font-size: $font-size-h3;
                 line-height: 68px;
@@ -117,7 +120,10 @@
                 }
             }
         }
-
+        .organization-selector {
+            float: right;
+            margin: 23px 20px 0 0;
+        }
     }
 }
 
@@ -338,7 +344,8 @@ ul.sidebar li a {
     display: block;
     float: left;
     text-decoration: none;
-    width: 250px;
+    /*width: 250px;*/
+    width: 233px;
 }
 
 ul.sidebar .sidebar-main {
@@ -444,21 +451,46 @@ ul.sidebar .sidebar-list .menu-icon {
 }
 
 .indicator-box {
-    padding: 20px;
+    padding: 15px;
     text-align: center;
-    background: #5cb85c;
     strong {
         font-size: 40px;
         font-weight: normal;
     }
-    color: #fff;
+    color: $white;
+    background: $green;
+}
+
+.indicators-table {
+    tr {
+        td {
+            @extend .indicator-box;
+            width: 200px;
+            color: $white;
+            border-left: 15px solid $white;
+            &:first-child {
+                border: none;
+            }
+        }
+        &.indicator-header td {
+            padding-bottom: 5px;
+        }
+        &.indicator-values td {
+            padding-top: 5px;
+        }
+    }
 }
 
 .section {
     margin: 20px 0;
 }
-.organization-selector {
-    display: inline-block;
-    margin-top: 16px;
-    margin-right: 40px;
+
+.task-status-completed {
+    color: $green;
+}
+.task-status-current {
+    color: $gray;
+}
+.task-status-waiting {
+    color: #bbb;
 }

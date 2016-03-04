@@ -22,8 +22,19 @@ h6, .h6 {
     padding: 0.2em 0;
 }
 
+html {
+    height: 100%;
+}
+
 body {
     padding: 0;
+    height: 100%;
+}
+
+.body-wrapper {
+    display: table;
+    width: 100%;
+    height: 100%;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -38,7 +49,6 @@ body {
 .header {
     border-bottom: 1px solid #e5e5e5;
     margin-bottom: 10px;
-
     /* Make the masthead heading the same height as the navigation */
     h3 {
         margin-top: 0;
@@ -53,6 +63,13 @@ body {
     padding-top: 19px;
     color: #777;
     border-top: 1px solid #e5e5e5;
+    display: table-row;
+    height: 35px;
+}
+
+.footer div {
+    margin-top: 10px;
+    text-align: center;
 }
 
 .container-narrow > hr {
@@ -109,6 +126,7 @@ body {
 .drop-zone {
     position: relative;
 }
+
 .drop-zone-indicator {
     position: absolute;
     top: 0;
@@ -116,6 +134,7 @@ body {
     width: 100%;
     height: 100%;
     padding: 3px;
+
     div {
         border: 1px dashed $green;
         border-radius: 5px;
@@ -154,6 +173,22 @@ body {
     display: inline;
 }
 
-.text-danger {
-    font-style: italic;
+.weight-normal {
+    font-weight: normal;
+}
+
+.break-words {
+    word-wrap: break-word;
+}
+
+.super-small {
+    font-size: 0.8em;
+}
+
+[data-toggle="dropdown"] {
+    cursor: pointer;
+}
+
+.horizontal-scroll {
+    overflow-x: auto !important;
 }

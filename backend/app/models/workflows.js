@@ -10,6 +10,7 @@ var columns = [
 
 var Workflow = sql.define({
     name: 'Workflows',
+    schema: 'proto_amida',
     columns: columns
 });
 

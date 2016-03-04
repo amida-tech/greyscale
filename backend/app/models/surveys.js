@@ -2,6 +2,7 @@ var sql = require('sql');
 
 var Survey = sql.define({
     name: 'Surveys',
+    schema: 'proto_amida',
     columns: [
         'id',
         'title',
@@ -12,6 +13,11 @@ var Survey = sql.define({
     ]
 });
 
-Survey.editCols = ['title','description','isDraft'];
+Survey.editCols = ['title', 'description', 'isDraft'];
+
+Survey.translate = [
+    'title',
+    'description'
+];
 
 module.exports = Survey;

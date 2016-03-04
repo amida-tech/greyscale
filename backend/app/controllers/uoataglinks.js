@@ -39,8 +39,12 @@ module.exports = {
                     selectQuery = selectQuery.where(UnitOfAnalysisTagLink.tagId.equals(req.query.tagId));
                 }
             }
-            var _counter = thunkQuery(selectQueryCounter);
-            var uoaTagLink = thunkQuery(selectQuery);
+            var _counter = thunkQuery(selectQueryCounter, {
+                'realm': req.param('realm')
+            });
+            var uoaTagLink = thunkQuery(selectQuery, {
+                'realm': req.param('realm')
+            });
             return yield [_counter, uoaTagLink];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -54,20 +58,26 @@ module.exports = {
         co(function* () {
 
             var dataClassTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
-                .where(UnitOfAnalysisTag.id.equals(req.body.uoaTagId)));
+                .where(UnitOfAnalysisTag.id.equals(req.body.uoaTagId)), {
+                    'realm': req.param('realm')
+                });
             var classTypeId = dataClassTypeId[0] ? dataClassTypeId[0].classTypeId : null;
             var queryClassTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
             if (dataClassTypeId[0]) {
                 queryClassTypeName = queryClassTypeName.where(UnitOfAnalysisClassType.id.equals(dataClassTypeId[0].classTypeId));
             }
-            var classTypeName = thunkQuery(queryClassTypeName);
+            var classTypeName = thunkQuery(queryClassTypeName, {
+                'realm': req.param('realm')
+            });
 
             var query = UnitOfAnalysisTagLink.select(UnitOfAnalysisTag.classTypeId)
                 .from(UnitOfAnalysisTagLink.leftJoin(UnitOfAnalysisTag).on(UnitOfAnalysisTagLink.uoaTagId.equals(UnitOfAnalysisTag.id)));
             query.where(UnitOfAnalysisTagLink.uoaId.equals(req.body.uoaId));
             query.where(UnitOfAnalysisTag.classTypeId.equals(dataClassTypeId[0].classTypeId));
 
-            var uoaTagLink = thunkQuery(query);
+            var uoaTagLink = thunkQuery(query, {
+                'realm': req.param('realm')
+            });
             return yield [classTypeId, classTypeName, uoaTagLink];
         }).then(function (data) {
             if ((data[2]).length > 0) {
@@ -97,7 +107,9 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
+            return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id), {
+                'realm': req.param('realm')
+            });
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
@@ -107,7 +119,9 @@ module.exports = {
 
     deleteOne: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
+            return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)), {
+                'realm': req.param('realm')
+            });
         }).then(function () {
             res.status(204).end();
         }, function (err) {

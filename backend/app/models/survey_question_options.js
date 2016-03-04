@@ -11,8 +11,14 @@ var columns = [
 
 var SurveyQuestionOption = sql.define({
     name: 'SurveyQuestionOptions',
+    schema: 'proto_amida',
     columns: columns
 });
+
+SurveyQuestionOption.translate = [
+    'value',
+    'label'
+];
 
 //SurveyQuestionOption.whereCol = columns;
 

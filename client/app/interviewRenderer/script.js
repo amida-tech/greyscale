@@ -1,4 +1,4 @@
-﻿//http://localhost:8081/interviewRenderer/?surveyId=68&taskId=99
+﻿//http://localhost:8081/interviewRenderer/?surveyId=86&taskId=95
 (function () {
     'use strict';
     
@@ -13,7 +13,10 @@
         'price',
         'section_start',
         'section_end',
-        'section_break'
+        'section_break',
+        'bullet_points',
+        'date',
+        'scale'
     ];
     var sizes = ['small', 'medium', 'large'];
     
@@ -29,9 +32,7 @@
     var userId;
     var hasChanges = false;
     
-    function setChangeFlag() {
-        hasChanges = true;
-    }
+    function setChangeFlag() { hasChanges = true; }
     function getCookie(name) {
         var value = '; ' + document.cookie;
         var parts = value.split('; ' + name + '=');
@@ -97,13 +98,13 @@
                 required: question.isRequired,
                 field_options: {
                     description: question.description,
-                    skip: question.skip,
+                    //skip: question.skip,
                     size: question.size && question.size > -1 ? sizes[question.size] : 'small',
                     minlength: question.minLength ? question.minLength : undefined,
                     maxlength: question.maxLength ? question.maxLength : undefined,
                     min: question.minLength ? question.minLength : undefined,
                     max: question.maxLength ? question.maxLength : undefined,
-                    min_max_length_units: question.isWordmml ? 'words' : 'charecters',
+                    min_max_length_units: question.isWordmml ? 'words' : 'characters',
                     include_other_option: question.incOtherOpt,
                     include_blank_option: question.incOtherOpt,
                     units: question.units,
@@ -117,7 +118,7 @@
                 if (!question.options[j]) continue;
                 field.field_options.options.push({
                     label: question.options[j].label,
-                    skip: question.options[j].skip,
+                    //skip: question.options[j].skip,
                     value: question.options[j].value,
                     checked: question.options[j].isSelected,
                     id: question.options[j].id
@@ -135,6 +136,13 @@
         $.inside(content, contentDiv);
         
         for (i = 0; i < dataFields.length; i++) fieldCreate(dataFields[i]);
+        
+        $('#submit')._.events({
+            'click': submitSurvey
+        });
+        $('#submit2')._.events({
+            'click': submitSurvey
+        });
     }
     
     function getField(cid) { return $('#' + cid); }
@@ -154,9 +162,9 @@
             $.inside(contentElement, content);
         }
         
-        var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'section_start' || type === 'section_end' ? 'div' : 'label';
+        var tag = type === 'checkboxes' || type === 'radio' || type === 'section_break' || type === 'section_start' || type === 'section_end' || 'bullet_points' ? 'div' : 'label';
         
-        var field = $.create(tag, { id: data.cid, className: 'field ' + type, 'data-type': type, 'data-skip': data.field_options.skip });
+        var field = $.create(tag, { id: data.cid, className: 'field ' + type, 'data-type': type, /*'data-skip': data.field_options.skip*/ });
         $.inside($.create('span', { contents: [data.label], className: 'field-label' }), field);
         
         if (data.required && type !== 'section_break' && type !== 'section_start' && type !== 'section_end')
@@ -173,16 +181,14 @@
                 fieldSectionEnd(data);
                 break;
             case 'text':
-            case 'email':
                 fieldText(data);
-                break;
-            case 'price':
-                fieldText(data);
-                $.before($.create('span', { contents: ['$: '] }), $('input', field));
                 break;
             case 'number':
                 fieldText(data);
                 $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
+                break;
+            case 'scale':
+                fieldScale(data);
                 break;
             case 'checkboxes':
             case 'radio':
@@ -194,9 +200,16 @@
             case 'dropdown':
                 fieldDropdown(data);
                 break;
+            case 'bullet_points':
+                fieldBullet(data);
+                break;
+            case 'date':
+                fieldDate(data);
+                break;
             default:
                 return;
         }
+        //fieldAddAttachments(data);
         validationRule(data);
     }
     function fieldSectionStart(data) {
@@ -254,7 +267,7 @@
                 value: data.field_options.options[i].value,
                 'data-label': data.field_options.options[i].label,
                 'data-id': data.field_options.options[i].id,
-                'data-skip': data.field_options.options[i].skip
+                //'data-skip': data.field_options.options[i].skip
             });
             $.inside(input, checkboxLabel);
             input._.events({ 'change': setChangeFlag });
@@ -265,7 +278,7 @@
         if (data.field_options.include_other_option) {
             var block = $.create('div', { className: 'variant' });
             $.inside(block, fieldSet);
-            input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other', 'data-id': '', 'data-skip': data.field_options.skip });
+            input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other', 'data-id': '', /*'data-skip': data.field_options.skip*/ });
             $.inside(input, block);
             input._.events({
                 'change': setChangeFlag
@@ -292,7 +305,7 @@
                 text: ' ', 
                 value: ' ', 
                 'data-id': '', 
-                'data-skip': data.field_options.skip
+                //'data-skip': data.field_options.skip
             });
             $.inside(option, select);
         }
@@ -303,34 +316,148 @@
                 value: data.field_options.options[i].value,
                 selected: data.field_options.options[i].checked,
                 'data-id': data.field_options.options[i].id,
-                'data-skip': data.field_options.options[i].skip
+                //'data-skip': data.field_options.options[i].skip
             });
             $.inside(option, select);
         }
     }
-    
-    function showErrors(data) {
-        var field = getField(data.cid);
-        var error = $('.error', field);
-        error.innerHTML = '';
-        for (var i = 0; i < data.errors.length; i++)
-            $.inside($.create('div', { contents: [data.errors[i].text] }), error);
-        field.classList.add(data.errors.length ? 'invalid' : 'valid');
-        field.classList.remove(data.errors.length ? 'valid' : 'invalid');
+    function fieldScale(data) {
+        fieldText(data);
+        var input = $('input', getField(data.cid));
+        $.after($.create('span', { contents: [' ', data.field_options.units] }), input);
+        var minus = $.create('a', { contents: ['<'], className: 'less' });
+        $.before(minus, input);
+        minus._.events({
+            'click': function () {
+                var number = parseFloat(input.value);
+                number = isNaN(number) ? 0 : number;
+                input.value = data.field_options.min !== undefined ? Math.max(number - 1, data.field_options.min) : number - 1;
+            }
+        });
+        var plus = $.create('a', { contents: ['>'], className: 'more' });
+        $.after(plus, input);
+        plus._.events({
+            'click': function () {
+                var number = parseFloat(input.value);
+                number = isNaN(number) ? 0 : number;
+                input.value = data.field_options.max !== undefined ? Math.min(number + 1, data.field_options.max) : number + 1;
+            }
+        });
     }
-    function addRemoveError(data, error, mustHaveError) {
-        if (!data.errors) data.errors = [];
+    function fieldBullet(data) {
+        var last;
         
-        var index = -1;
-        for (var i = 0; i < data.errors.length; i++) {
-            if (data.errors[i].type !== error.type) continue;
-            index = i;
-            break
+        var groupDiv = $.create('div');
+        $.inside(groupDiv, getField(data.cid));
+        
+        function createInput() {
+            var div = $.create('div');
+            $.inside(div, groupDiv);
+            var input = $.create('input', {
+                type: 'text',
+                className: data.field_options.size ? data.field_options.size : '',
+                name: data.cid
+            });
+            $.inside(input, div);
+            
+            last = input;
+            input._.events({
+                'change': function () { bulletChange(input); },
+                'keypress': function () { bulletChange(input); }
+            });
         }
-        if (index === -1 && mustHaveError) data.errors.push(error)
-        else if (index > -1 && !mustHaveError) data.errors.splice(index, 1);
-        else if (index > -1 && mustHaveError) data.errors[index].text = error.text;
-        showErrors(data);
+        
+        function bulletChange(input) {
+            setChangeFlag();
+            if (input !== last) return;
+            var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+            del._.events({
+                'click': function () {
+                    input._.unbind();
+                    input.parentNode._.remove();
+                    setChangeFlag();
+                }
+            });
+            del._.after(input)
+            
+            createInput();
+            
+            var field = getField(data.cid);
+            var inputs = $$('input', field);
+            for (var i = 0; i < inputs.length; i++) inputs[i]._.unbind('blur');
+            validationRule(data);
+        }
+        
+        createInput();
+    }
+    function fieldDate(data) {
+        var div = $.create('div');
+        $.inside(div, getField(data.cid));
+        var input = $.create('input', {
+            type: 'text',
+            className: data.field_options.size ? data.field_options.size : '',
+            name: data.cid
+        });
+        $.inside(input, div);
+        
+        input._.events({
+            'change': setChangeFlag,
+            'keypress': setChangeFlag
+        });
+        
+        var picker = new Pikaday({
+            field: input,
+            format: 'YYYY/MM/DD'
+        });
+    }
+    function fieldAddAttachments(data) {
+        if (data.attachment) return;
+        if (data.field_type !== 'text') return;
+        
+        var last;
+        var field = getField(data.cid);
+        var groupDiv = $.create('div');
+        $.inside(groupDiv, field);
+        
+        function createInput() {
+            var div = $.create('div');
+            $.inside(div, groupDiv);
+            var input = $.create('input', {
+                type: 'file',
+                name: data.cid
+            });
+            $.inside(input, div);
+            
+            last = input;
+            input._.events({
+                'change': function () { fileChange(input); },
+            });
+        }
+        
+        function fileChange(input) {
+            setChangeFlag();
+            if (input !== last) return;
+            var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+            del._.events({
+                'click': function () {
+                    input._.unbind();
+                    input.parentNode._.remove();
+                    setChangeFlag();
+                }
+            });
+            del._.after(input)
+            createInput();            
+        }
+        
+        createInput();
+
+        var send = $.create('button', { contents: ['send'], type: 'button' });
+        $.inside(send, field);
+        send._.events({
+            'click': function () {
+                alert(1);
+            }
+        });
     }
     //End Generate Survey
     
@@ -339,8 +466,7 @@
         validateRequired(data);
         validateLength(data);
         validateNumber(data);
-        validateEmail(data);
-        validateSkip(data);
+        //validateSkip(data);
     }
     function validateRequired(data) {
         if (!data.required) return;
@@ -350,10 +476,19 @@
         var mustHaveError = false;
         switch (data.field_type) {
             case 'text':
-            case 'price':
             case 'number':
-            case 'email':
+            case 'scale':
+            case 'date':
                 mustHaveError = $('input', field).value.length === 0;
+                break;
+            case 'bullet_points':
+                var inputs = $$('input', field);
+                mustHaveError = true;
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].value.length === 0) continue;
+                    mustHaveError = false;
+                    break;
+                }
                 break;
             case 'checkboxes':
             case 'radio':
@@ -369,7 +504,8 @@
                 mustHaveError = $('textarea', field).value.length === 0;
                 break;
             case 'dropdown':
-                mustHaveError = !$('select', field).value.trim();
+                var select = $('select', field);
+                mustHaveError = select.selectedIndex < 0 || !select[select.selectedIndex].attributes['data-id'].value;
                 break;
             default:
                 return;
@@ -412,8 +548,7 @@
         }
     }
     function validateNumber(data) {
-        if (data.field_type !== 'number' && data.field_type !== 'price') return;
-        
+        if (data.field_type !== 'number' && data.field_type !== 'scale') return;
         var val = $('input', getField(data.cid)).value.trim();
         var mustHaveError = false;
         var errorText;
@@ -438,42 +573,36 @@
         
         addRemoveError(data, { type: 'number', text: errorText }, mustHaveError);
     }
-    function validateEmail(data) {
-        if (data.field_type !== 'email') return;
-        var re = /^(([^<>()[\]\.,;:\s@\']+(\.[^<>()[\]\.,;:\s@\']+)*)|(\'.+\'))@(([^<>()[\]\.,;:\s@\']+\.)+[^<>()[\]\.,;:\s@\']{2,})$/i;
-        var mustHaveError = !re.test($('input', getField(data.cid)).value.trim());
-        addRemoveError(data, { type: 'email', text: 'Email address is not correct.' }, mustHaveError);
-    }
-    function validateSkip(data) { skipItems(); }
-    function skipItems() {
-        var answers = getAnswersState();
-        var skip = 0;
-        for (var i = 0; i < answers.length; i++) {
-            var data = getData(answers[i].id);
-            var field = getField(answers[i].id);
-            if (skip > 0) {
-                skip--;
-                field.classList.add('hidden');
-                continue;
-            }
-            switch (answers.type) {
-                case 'checkboxes':
-                case 'radio':
-                case 'dropdown':
-                    if (answers[i].value.length > 0) {
-                        skip = answers[i].value[0].skip
-                        for (j = 1 ; j < answers[i].value.length; j++)
-                            if (answers[i].value[j].skip < skip)
-                                skip = answers[i].value[j].skip;
-                    }
-                    break;
-                default:
-                    if (answers[i].skip) skip = answers[i].skip;
-                    break;
-            }
-            field.classList.remove('hidden');
-        }
-    }
+    //function validateSkip(data) { skipItems(); }
+    //function skipItems() {
+    //    var answers = getAnswersState();
+    //    var skip = 0;
+    //    for (var i = 0; i < answers.length; i++) {
+    //        var data = getData(answers[i].id);
+    //        var field = getField(answers[i].id);
+    //        if (skip > 0) {
+    //            skip--;
+    //            field.classList.add('hidden');
+    //            continue;
+    //        }
+    //        switch (answers.type) {
+    //            case 'checkboxes':
+    //            case 'radio':
+    //            case 'dropdown':
+    //                if (answers[i].value.length > 0) {
+    //                    skip = answers[i].value[0].skip
+    //                    for (j = 1 ; j < answers[i].value.length; j++)
+    //                        if (answers[i].value[j].skip < skip)
+    //                            skip = answers[i].value[j].skip;
+    //                }
+    //                break;
+    //            default:
+    //                if (answers[i].skip) skip = answers[i].skip;
+    //                break;
+    //        }
+    //        field.classList.remove('hidden');
+    //    }
+    //}
     
     function validationRule(data) {
         var error = $.create('div', { className: 'error' });
@@ -481,18 +610,27 @@
         validationRuleRequired(data);
         validationRuleLength(data);
         validationRuleNumber(data);
-        validationRuleEmail(data);
-        validationRuleSkip(data);
+        //validationRuleSkip(data);
     }
     function validationRuleRequired(data) {
         if (!data.required) return;
         var field = getField(data.cid);
         switch (data.field_type) {
             case 'text':
-            case 'price':
             case 'number':
-            case 'email':
+            case 'scale':
                 $('input', field)._.events({
+                    'blur': function () { validateRequired(data); }
+                });
+                break;
+            case 'date':
+                $('input', field)._.events({
+                    'blur': function () { validateRequired(data); },
+                    'change': function () { validateRequired(data); }
+                });
+                break;
+            case 'bullet_points':
+                $$('input', field)._.events({
                     'blur': function () { validateRequired(data); }
                 });
                 break;
@@ -532,49 +670,67 @@
         });
     }
     function validationRuleNumber(data) {
-        if (data.field_type !== 'number' && data.field_type !== 'price') return;
+        if (data.field_type !== 'number' && data.field_type !== 'scale') return;
         $('input', getField(data.cid))._.events({
             'blur': function () { validateNumber(data); }
         });
     }
-    function validationRuleEmail(data) {
-        if (data.field_type !== 'email') return;
-        $('input', getField(data.cid))._.events({
-            'blur': function () { validateEmail(data); }
-        });
-    }
-    function validationRuleSkip(data) {
+    //function validationRuleSkip(data) {
+    //    var field = getField(data.cid);
+    //    switch (data.field_type) {
+    //        case 'text':
+    //        case 'number':
+    //            $('input', field)._.events({
+    //                'blur': function () { validateSkip(data); }
+    //            });
+    //            break;
+    //        case 'checkboxes':
+    //        case 'radio':
+    //            $$('input', field)._.events({
+    //                'change': function () { validateSkip(data); },
+    //                'blur': function () { validateSkip(data); }
+    //            });
+    //            break;
+    //        case 'paragraph':
+    //            $('textarea', field)._.events({
+    //                'blur': function () { validateSkip(data); }
+    //            });
+    //            break;
+    //        case 'dropdown':
+    //            $('select', field)._.events({
+    //                'change': function () { validateSkip(data); },
+    //                'blur': function () { validateSkip(data); }
+    //            });
+    //            break;
+    //        default:
+    //            return;
+    //    }
+    //}
+    
+    function showErrors(data) {
         var field = getField(data.cid);
-        switch (data.field_type) {
-            case 'text':
-            case 'price':
-            case 'number':
-            case 'email':
-                $('input', field)._.events({
-                    'blur': function () { validateSkip(data); }
-                });
-                break;
-            case 'checkboxes':
-            case 'radio':
-                $$('input', field)._.events({
-                    'change': function () { validateSkip(data); },
-                    'blur': function () { validateSkip(data); }
-                });
-                break;
-            case 'paragraph':
-                $('textarea', field)._.events({
-                    'blur': function () { validateSkip(data); }
-                });
-                break;
-            case 'dropdown':
-                $('select', field)._.events({
-                    'change': function () { validateSkip(data); },
-                    'blur': function () { validateSkip(data); }
-                });
-                break;
-            default:
-                return;
+        var error = $('.error', field);
+        error.innerHTML = '';
+        for (var i = 0; i < data.errors.length; i++)
+            $.inside($.create('div', { contents: [data.errors[i].text] }), error);
+        field.classList.add(data.errors.length ? 'invalid' : 'valid');
+        field.classList.remove(data.errors.length ? 'valid' : 'invalid');
+        
+        submitCheck();
+    }
+    function addRemoveError(data, error, mustHaveError) {
+        if (!data.errors) data.errors = [];
+        
+        var index = -1;
+        for (var i = 0; i < data.errors.length; i++) {
+            if (data.errors[i].type !== error.type) continue;
+            index = i;
+            break
         }
+        if (index === -1 && mustHaveError) data.errors.push(error)
+        else if (index > -1 && !mustHaveError) data.errors.splice(index, 1);
+        else if (index > -1 && mustHaveError) data.errors[index].text = error.text;
+        showErrors(data);
     }
     //End Validation
     
@@ -604,6 +760,7 @@
             for (var i = 0; i < request.response.length; i++) {
                 var answer = request.response[i];
                 if (!savedAnswers) savedAnswers = [];
+                if (answer.version !== null) continue;
                 savedAnswers.push({ id: answer.questionId, optionId: answer.optionId, value: answer.value });
             }
             checkSavedAnswers(savedAnswers);
@@ -619,7 +776,7 @@
             //    savedAnswers[dataFields[i].cid] = localStorage.getItem(dataFields[i].cid);
         }
         setAnswersState(savedAnswers);
-        skipItems();
+        //skipItems();
         autosave();
     }
     //End Load
@@ -633,17 +790,25 @@
         for (var i = 0; i < fields.length; i++) {
             var id = fields[i].id;
             var type = fields[i]._.getAttribute('data-type');
-            var skip = fields[i]._.getAttribute('data-skip');
+            //var skip = fields[i]._.getAttribute('data-skip');
             var val;
             switch (type) {
                 case 'text':
-                case 'price':
                 case 'number':
-                case 'email':
+                case 'scale':
+                case 'date':
                     val = $('input', fields[i]).value;
                     break;
                 case 'paragraph':
                     val = $('textarea', fields[i]).value;
+                    break;
+                case 'bullet_points':
+                    var inputs = $$('input', fields[i]);
+                    var values = [];
+                    for (j = 0; j < inputs.length; j++)
+                        if (inputs[j].value)
+                            values.push(inputs[j].value);
+                    val = JSON.stringify(values);
                     break;
                 case 'checkboxes':
                 case 'radio':
@@ -652,9 +817,9 @@
                     for (j = 0; j < inputs.length; j++) {
                         if (!inputs[j].checked) continue;
                         if (inputs[j].className.indexOf('other') === -1)
-                            val.push({ id: inputs[j].attributes['data-id'].value, label: inputs[j].attributes['data-label'].value, skip: inputs[j].attributes['data-skip'].value, value: inputs[j].value });
+                            val.push({ id: inputs[j].attributes['data-id'].value, label: inputs[j].attributes['data-label'].value, /*skip: inputs[j].attributes['data-skip'].value,*/ value: inputs[j].value });
                         else
-                            val.push({ id: null, label: null, skip: skip, value: $('.other-text', fields[i]).value });
+                            val.push({ id: null, label: null, /*skip: skip,*/ value: $('.other-text', fields[i]).value });
                     }
                     break;
                 case 'dropdown':
@@ -662,7 +827,7 @@
                     val = [];
                     for (j = 0; j < options.length; j++) {
                         if (!options[j].selected) continue;
-                        val.push({ id: options[j].attributes['data-id'].value, label: options[j].text, skip: options[j].attributes['data-skip'].value, value: options[j].value });
+                        val.push({ id: options[j].attributes['data-id'].value, label: options[j].text, /*skip: options[j].attributes['data-skip'].value,*/ value: options[j].value });
                         break
                     }
                     break;
@@ -671,7 +836,7 @@
                 case 'section_break':
                     continue;
             }
-            answers.push({ id: id, type: type, value: val, skip: skip });
+            answers.push({ id: id, type: type, value: val, /*skip: skip*/ });
         }
         return answers;
     }
@@ -681,7 +846,7 @@
         for (i = 0; i < fields.length; i++) {
             var id = fields[i].id;
             
-            var answer;
+            var answer = null;
             for (j = answers.length - 1; j >= 0; j--) {
                 if ('c' + answers[j].id !== id) continue;
                 answer = answers[j];
@@ -691,10 +856,14 @@
             if (!answer) continue;
             switch (fields[i]._.getAttribute('data-type')) {
                 case 'text':
-                case 'price':
                 case 'number':
-                case 'email':
+                case 'scale':
+                case 'date':
                     $('input', fields[i]).value = answer.value;
+                    validateAll(getData(id));
+                    break;
+                case 'bullet_points':
+                    setAnswerBullet(fields[i], answer.value);
                     break;
                 case 'checkboxes':
                 case 'radio':
@@ -706,44 +875,62 @@
                         input = $('.other-text', fields[i]);
                         if (input) input.value = answer.value;
                     }
-                    for (j = 0; j < answer.optionId.length; j++) {
-                        if (!answer.optionId[j]) continue;
-                        var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
-                        input.checked = true;
+                    if (answer.optionId) {
+                        for (j = 0; j < answer.optionId.length; j++) {
+                            if (!answer.optionId[j]) continue;
+                            var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
+                            input.checked = true;
+                        }
                     }
+                    validateAll(getData(id));
                     break;
                 case 'paragraph':
                     $('textarea', fields[i]).value = answer.value;
+                    validateAll(getData(id));
                     break;
                 case 'dropdown':
                     var options = $$('option', fields[i]);
-                    if (answer.optionId.length === 0) options[j].selected = true;
+                    if (!answer.optionId || answer.optionId.length === 0) continue;
                     for (j = 0; j < options.length; j++) {
-                        if (options[j].attributes['data-id'] && parseInt(options[j].attributes['data-id']) !== answer.optionId[0]) continue;
+                        if (!options[j].attributes['data-id'].value && parseInt(options[j].attributes['data-id'].value) !== answer.optionId[0]) continue;
                         options[j].selected = true;
                         break;
                     }
+                    validateAll(getData(id));
                     break;
                 default:
                     return;
             }
-            validateAll(getData(id));
         }
+    }
+    function setAnswerBullet(field, value) {
+        var values = JSON.parse(value);
+        if (!values || !values.length) return;
+        var addBullet = function () {
+            if (values.length === 0) {
+                validateAll(getData(field.id));
+                return;
+            }
+            var inputs = $$('input', field);
+            inputs[inputs.length - 1].value = values[0];
+            inputs[inputs.length - 1]._.fire('change');
+            values.splice(0, 1);
+            setTimeout(addBullet, 0);
+        };
+        setTimeout(addBullet, 0);
     }
     //End Values
     
     //Save
-    function save(callback) {
+    function save(draft, callback) {
         if (!hasChanges) {
             if (callback) callback();
             return;
         }
         var answers = getAnswersState();
         localStorage.clear();
-        var i;
-        var j;
         var dataToSave = [];
-        for (i = 0; i < answers.length; i++) {
+        for (var i = 0; i < answers.length; i++) {
             var data = {
                 surveyId: surveyId,
                 questionId: parseInt(answers[i].id.replace('c', '')),
@@ -757,7 +944,7 @@
                 case 'radio':
                 case 'dropdown':
                     var optionIds = [];
-                    for (j = 0; j < answers[i].value.length; j++) {
+                    for (var j = 0; j < answers[i].value.length; j++) {
                         if (answers[i].value[j].id) optionIds.push(parseInt(answers[i].value[j].id));
                         else if (!answers[i].value[j].value || !answers[i].value[j].value.trim()) continue;
                         else data.value = answers[i].value[j].value;
@@ -769,28 +956,39 @@
             }
             dataToSave.push(data);
         }
-        var sendCount = dataToSave.length;
-        for (i = 0; i < dataToSave.length; i++) {
-            $.fetch(constUrl + 'survey_answers?autosave=true', {
-                method: 'POST',
-                data: JSON.stringify(dataToSave[i]),
-                responseType: 'json',
-                headers: { token: token, 'Content-type': 'application/json' }
-            }).then(function () {
-                console.log('saved to server');
-                sendCount--;
-                if (sendCount > 0) return;
-                hasChanges = false;
-                if (callback) callback();
-            }).catch(function (error) {
-                console.error(error);
-                sendCount--;
-                if (sendCount > 0) return;
-                if (callback) callback();
-            });
-        }
+        $.fetch(constUrl + 'survey_answers' + (draft ? '?autosave=true' : ''), {
+            method: 'POST',
+            data: JSON.stringify(dataToSave),
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        }).then(function () {
+            console.log('saved to server');
+            hasChanges = false;
+            if (callback) callback();
+        }).catch(function (error) {
+            console.error(error);
+            if (callback) callback();
+        });
     }
-    function autosave() { setTimeout(function () { save(function () { autosave(); }); }, 5000); }
+    function autosave() { setTimeout(function () { save(true, function () { autosave(); }); }, 5000); }
+    function submitSurvey() {
+        for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
+        if (!submitCheck()) return;
+        save(false, function () {
+            document.location.href = "/";
+        });
+    }
+    function submitCheck() {
+        $('#submit').disabled = false;
+        $('#submit2').disabled = false;
+        for (var i = 0; i < dataFields.length; i++) {
+            if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
+            $('#submit').disabled = true;
+            $('#submit2').disabled = true;
+            return false;
+        }
+        return true;
+    }
     //End Save
     
     $.ready().then(function () { readySurvey(); });

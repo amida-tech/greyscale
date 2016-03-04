@@ -1,0 +1,5 @@
+<div ng-if="item.user">
+    <b>{{item.step.title}}</b><br>
+    <span>{{item.user.firstName}} {{item.user.lastName}} <small>({{item.user.email}})</small></span> <br>
+    <span translate=".DEADLINE"></span>: {{item.endDate|date}}
+</div>

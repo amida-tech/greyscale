@@ -50,7 +50,7 @@ angular.module('greyscaleApp')
                             } else {
                                 t = setTimeout(function () {
                                     model.$loading = true;
-                                }, 200);
+                                }, 150);
                             }
                             var endLoading = function () {
                                 clearTimeout(t);
@@ -71,6 +71,10 @@ angular.module('greyscaleApp')
                         }
                     }
                 });
+
+                if (typeof model.onInit === 'function') {
+                    model.onInit();
+                }
 
                 model.tableParams.custom = {
                     showAllButton: !!model.showAllButton
@@ -195,8 +199,8 @@ angular.module('greyscaleApp')
             var template = col.titleTemplate;
             var templateId = 'widget-table-' + Math.random();
             var scope = $rootScope.$new();
-            angular.extend(scope, col.titleTemplateData || {});
-            template = $compile(template)(scope);
+            scope.ext = col.titleTemplateExtData || {};
+            template = $compile('<div>' + template + '</div>')(scope);
             $templateCache.put(templateId, template);
             col.headerTemplateURL = function () {
                 return templateId;
@@ -263,15 +267,21 @@ angular.module('greyscaleApp')
 
             function _setSelected(list, field) {
                 _reset();
-                field = field || 'id';
-                angular.forEach(_.filter(list, field), function (item) {
-                    model.multiselect.selectedMap.push(item[field]);
-                    model.multiselect.selected[item[field]] = true;
-                });
+                if (field) {
+                    angular.forEach(_.filter(list, field), function (item) {
+                        model.multiselect.selectedMap.push(item[field]);
+                        model.multiselect.selected[item[field]] = true;
+                    });
+                } else {
+                    angular.forEach(list, function (id) {
+                        model.multiselect.selectedMap.push(id);
+                        model.multiselect.selected[id] = true;
+                    });
+                }
             }
         }
     })
-    .directive('widgetTable', function ($templateCache, $compile, $http, $timeout) {
+    .directive('widgetTable', function (_, $templateCache, $compile, $http, $timeout, ngTableEventsChannel) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/widget-table.html',
@@ -281,9 +291,13 @@ angular.module('greyscaleApp')
                 classes: '@class'
             },
             link: function (scope, el) {
+                el.find('table').addClass(scope.model.classes);
                 el.removeAttr('class');
                 _expandableRowFunctionality(scope, el);
                 _delegateClickFunctionality(scope, el);
+                if (scope.model.columnShowOnHover) {
+                    _columnShowOnHoverFunctionality(scope, el);
+                }
             },
             controller: function ($scope, $element, widgetTableSrv) {
                 widgetTableSrv.init({
@@ -292,17 +306,13 @@ angular.module('greyscaleApp')
                     model: $scope.model,
                     rowSelector: $scope.rowSelector,
                     onReload: function () {
-                        $timeout(function () {
-                            _onReload($scope, $element, arguments);
-                        });
+                        if (typeof $scope.model.onReload === 'function') {
+                            $scope.model.onReload();
+                        }
                     }
                 });
             }
         };
-
-        function _onReload(scope, el, args) {
-
-        }
 
         function _findExpanded(rowEl) {
             var next = rowEl.next();
@@ -311,6 +321,23 @@ angular.module('greyscaleApp')
             } else {
                 return _findExpanded(next);
             }
+        }
+
+        function _columnShowOnHoverFunctionality(scope, el) {
+            $(el).on('mouseenter', '.column-hover', function () {
+                var el = $(this);
+                var hoveredCellIndex = el.context.cellIndex;
+                var table = el.closest('table');
+                var cells = table.find('.column-hover');
+                cells.each(function (i, cell) {
+                    cell = $(cell);
+                    if (cell.context.cellIndex === hoveredCellIndex) {
+                        cell.addClass('column-hovered');
+                    } else {
+                        cell.removeClass('column-hovered');
+                    }
+                });
+            });
         }
 
         function _expandableRowFunctionality(scope, el) {
@@ -345,32 +372,57 @@ angular.module('greyscaleApp')
                 if (!row.hasClass('is-expanded')) {
                     _showExpandedRow(row, template, scope);
                 } else {
-                    _hideExpandedRow(row);
+                    _hideExpandedRow(row, scope);
+                }
+            });
+            el.on('click', '.action.expand-all', function () {
+                var btn = $(this);
+                if (btn.hasClass('all-expanded')) {
+                    el.find('.action-expand-row.is-expanded').click();
+                    btn.removeClass('all-expanded');
+                } else {
+                    el.find('.action-expand-row:not(.is-expanded)').click();
+                    btn.addClass('all-expanded');
                 }
             });
             scope.$openExpandedRow = function (rowEl) {
                 _showExpandedRow(rowEl, template, scope);
             };
+            ngTableEventsChannel.onAfterReloadData(function () {
+                var expandAll = el.find('.action.expand-all');
+                if (expandAll.length) {
+                    if (scope.model.expandedRowShow) {
+                        expandAll.addClass('all-expanded');
+                    } else {
+                        expandAll.removeClass('all-expanded');
+                    }
+                }
+            }, scope);
         }
 
         function _showExpandedRow(rowEl, template, scope) {
+            var nextRowEl = rowEl.next();
+            if (nextRowEl.length && nextRowEl.hasClass('expand-row')) {
+                nextRowEl.show();
+            } else {
+                var colspan = scope.model.cols.length;
+                var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
+                var rowScope = rowEl.scope();
+                $compile(expand)(rowScope);
+                $timeout(function () {
+                    rowEl.after(expand);
+                    rowScope.$digest();
+                });
+            }
             rowEl.addClass('is-expanded');
-            var colspan = scope.model.cols.length;
-            var expand = $('<tr class="expand-row"><td colspan="' + colspan + '">' + template + '</td></tr>');
-            rowEl.after(expand);
-            var rowScope = rowEl.scope().$parent;
-            $compile(expand)(rowScope);
-            $timeout(function () {
-                rowScope.$digest();
-            });
         }
 
-        function _hideExpandedRow(rowEl) {
-            rowEl.removeClass('is-expanded');
-            var expand = rowEl.next();
-            if (expand.hasClass('expand-row')) {
-                expand.remove();
+        function _hideExpandedRow(rowEl, scope) {
+            var nextRowEl = rowEl.next();
+            if (nextRowEl.length && nextRowEl.hasClass('expand-row')) {
+                nextRowEl.hide();
             }
+            rowEl.removeClass('is-expanded');
         }
 
         function _delegateClickFunctionality(scope, el) {

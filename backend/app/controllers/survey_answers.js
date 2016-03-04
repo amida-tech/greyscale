@@ -7,9 +7,7 @@ var
     WorkflowStep = require('app/models/workflow_steps'),
     Workflow = require('app/models/workflows'),
     UOA = require('app/models/uoas'),
-    EssenceRole = require('app/models/essence_roles'),
-    Role = require('app/models/roles'),
-    Essence = require('app/models/essences'),
+    Task = require('app/models/tasks'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
@@ -24,6 +22,7 @@ module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
+            req.query.realm = req.param('realm');
             return yield thunkQuery(SurveyAnswer.select().from(SurveyAnswer), _.omit(req.query));
         }).then(function (data) {
             res.json(data);
@@ -35,7 +34,9 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -50,7 +51,9 @@ module.exports = {
 
     delete: function (req, res, next) {
         var q = SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
+        query(q, {
+            'realm': req.param('realm')
+        }, function (err, data) {
             if (err) {
                 return next(err);
             }
@@ -60,19 +63,21 @@ module.exports = {
 
     add: function (req, res, next) {
         co(function* () {
-            if(!Array.isArray(req.body)){
+
+            if (!Array.isArray(req.body)) {
                 req.body = [req.body];
             }
             var result = [];
-            for (var i in req.body){
-                try{
-                    var answer = yield *addAnswer(req, req.body[i]);
+            for (var i in req.body) {
+                try {
+                    var answer = yield * addAnswer(req, req.body[i]);
                     req.body[i].status = 'Ok';
                     req.body[i].id = answer.id;
                     req.body[i].message = 'Added';
-                }catch(err){
+                } catch (err) {
                     req.body[i].status = 'Fail';
-                    req.body[i].message = err.message.message;
+                    console.log(err);
+                    req.body[i].message = (err.message.message ? err.message.message : 'internal error');
                 }
 
                 result.push(req.body[i]);
@@ -86,10 +91,22 @@ module.exports = {
     }
 };
 
-function *addAnswer (req, dataObject) {
+function* addAnswer(req, dataObject) {
 
     if (!Array.isArray(dataObject.optionId)) {
         dataObject.optionId = [dataObject.optionId];
+    }
+
+    var product = yield thunkQuery(
+        Product.select().from(Product).where(Product.id.equals(dataObject.productId))
+    );
+
+    if(!product[0]){
+        throw new HttpError(403, 'Product with id = ' + dataObject.productId + ' does not exist');
+    }
+
+    if (product[0].status !== 1) {
+        throw new HttpError(403, 'Product status is not "STARTED", you cannot post answers');
     }
 
     var question = yield thunkQuery(
@@ -121,58 +138,61 @@ function *addAnswer (req, dataObject) {
         );
     }
 
-    var member = yield thunkQuery(
-        EssenceRole
-            .select(EssenceRole.star())
-            .from(
-                EssenceRole
-                    .join(Role)
-                    .on(EssenceRole.roleId.equals(Role.id))
-                    .join(Product)
-                    .on(
-                        EssenceRole.entityId.equals(Product.projectId)
-                            .and(Product.id.equals(dataObject.productId))
-                    )
-            )
-            .where(
-                EssenceRole.essenceId.in(
-                    Essence.subQuery().select(Essence.id).where(Essence.tableName.equals('Projects'))
-                )
-            )
-            .and(EssenceRole.userId.equals(req.user.id))
-    );
-
-    if (!_.first(member)) {
-        throw new HttpError(403, 'You are not a member of product\'s project');
+    if (productUoa[0].isComplete) {
+        throw new HttpError(
+            403,
+            'Product in this UOA has been completed'
+        );
     }
 
     var workflow = yield thunkQuery(
         Workflow
-            .select(
-                Workflow.star(),
-                'row_to_json("WorkflowSteps".*) as step'
-            )
-            .from(
-                Workflow
-                    .leftJoin(WorkflowStep)
-                    .on(
-                        WorkflowStep.workflowId.equals(Workflow.id)
-                            .and(WorkflowStep.id.equals(dataObject.wfStepId))
-                    )
-            )
-            .where(Workflow.productId.equals(dataObject.productId))
+        .select( Workflow.star())
+        .from(Workflow)
+        .where(Workflow.productId.equals(dataObject.productId)),
+        { 'realm': req.param('realm') }
     );
 
     if (!_.first(workflow)) {
         throw new HttpError(403, 'Workflow is not define for Product id = ' + dataObject.productId);
     }
 
-    if (!_.first(workflow).step) {
-        throw new HttpError(403, 'Workflow step does not relate to Product\'s workflow');
+    var curStep = yield thunkQuery(
+        ProductUOA
+        .select(
+            WorkflowStep.star(),
+            'row_to_json("Tasks".*) as task'
+        )
+        .from(
+            ProductUOA
+            .leftJoin(WorkflowStep)
+            .on(ProductUOA.currentStepId.equals(WorkflowStep.id))
+            .leftJoin(Task)
+            .on(
+                Task.stepId.equals(WorkflowStep.id)
+                .and(Task.uoaId.equals(ProductUOA.UOAid))
+            )
+        )
+        .where(
+            ProductUOA.productId.equals(dataObject.productId)
+            .and(ProductUOA.UOAid.equals(dataObject.UOAid))
+        ),
+        { 'realm': req.param('realm') }
+    );
+
+    curStep = curStep[0];
+
+    if (!curStep) {
+        throw new HttpError(403, 'Current step is not define');
     }
 
-    if (_.first(workflow).step.roleId !== _.first(member).roleId) {
-        throw new HttpError(403, 'Your membership role does not match with workflow step\'s role');
+    dataObject.wfStepId = curStep.id;
+
+    if (!curStep.task) {
+        throw new HttpError(403, 'Task is not define');
+    }
+    if (curStep.task.userId != req.user.id) {
+        throw new HttpError(403, 'Task on this step assigned to another user');
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
@@ -182,8 +202,8 @@ function *addAnswer (req, dataObject) {
             for (optIndex in dataObject.optionId) {
                 var option = yield thunkQuery(
                     SurveyQuestionOption
-                        .select()
-                        .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
+                    .select()
+                    .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
                 );
                 if (!_.first(option)) {
                     throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
@@ -205,7 +225,8 @@ function *addAnswer (req, dataObject) {
     var version = yield thunkQuery(
         SurveyAnswer
             .select('max("SurveyAnswers"."version")')
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
+            .where(_.pick(dataObject, ['questionId', 'UOAid', 'productId'])),
+            { 'realm': req.param('realm') }
     );
 
     if (_.first(version).max === null) {
@@ -216,8 +237,9 @@ function *addAnswer (req, dataObject) {
 
     var existsNullVer = yield thunkQuery(
         SurveyAnswer.select()
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId'/*, 'userId'*/, 'productId']))
-            .and(SurveyAnswer.version.isNull())
+            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId', 'productId']))
+            .and(SurveyAnswer.version.isNull()),
+            { 'realm': req.param('realm') }
     );
 
     var editFields = SurveyAnswer.editCols;
@@ -227,20 +249,71 @@ function *addAnswer (req, dataObject) {
     }
 
     if (existsNullVer[0]) {
-        var answer = {id : existsNullVer[0].id};
+        var answer = {
+            id: existsNullVer[0].id
+        };
         editFields.push('version');
         yield thunkQuery(
             SurveyAnswer
-                .update(_.pick(dataObject, editFields))
-                .where(SurveyAnswer.id.equals(existsNullVer[0].id))
+            .update(_.pick(dataObject, editFields))
+            .where(SurveyAnswer.id.equals(existsNullVer[0].id)),
+            { 'realm': req.param('realm') }
         );
-    }else {
+    } else {
         var answer = yield thunkQuery(
             SurveyAnswer
-                .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
-                .returning(SurveyAnswer.id)
+            .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
+            .returning(SurveyAnswer.id),
+            { 'realm': req.param('realm') }
         );
         answer = answer[0];
+    }
+
+    if (!req.query.autosave) {
+        var nextStep = yield thunkQuery(
+            WorkflowStep.select()
+            .where(
+                WorkflowStep.workflowId.equals(curStep.workflowId)
+                .and(WorkflowStep.position.equals(curStep.position+1))
+            ),
+            { 'realm': req.param('realm') }
+        );
+        //XXX: fix for schema aware
+        var _numberOfQuestions = yield thunkQuery('SELECT COUNT(*) FROM "SurveyQuestions" WHERE "surveyId" = ' + dataObject.surveyId);
+        var _numberOfVersioned = yield thunkQuery('SELECT COUNT(v."questionId") FROM (SELECT "questionId", MAX("version") AS maxVersion FROM "SurveyAnswers" WHERE "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId + ' AND "surveyId" = ' + dataObject.surveyId + ' AND NOT "version" IS NULL GROUP BY "questionId") AS v GROUP BY v.maxVersion');
+        //console.log('_numberOfQuestions', _numberOfQuestions[0].count, '_numberOfVersioned', _numberOfVersioned,  ' "surveyId" = ' + dataObject.surveyId + ' AND "questionId" = ' + dataObject.questionId + ' AND "UOAid" = ' + dataObject.UOAid + ' AND "wfStepId" = ' + dataObject.wfStepId + ' AND "productId" = ' + dataObject.productId);
+        if ((_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+            if(nextStep[0]){ // next step exists, set it to current
+                yield thunkQuery(
+                    ProductUOA
+                    .update({currentStepId: nextStep[0].id})
+                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                );
+            }else{
+                // set productUOA status to complete
+                yield thunkQuery(
+                    ProductUOA
+                        .update({isComplete: true})
+                        .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                );
+                var uncompleted = yield thunkQuery( // check for uncompleted
+                    ProductUOA
+                        .select()
+                        .where(
+                            {
+                                productId: curStep.task.productId,
+                                isComplete: false
+                            }
+                        )
+                );
+                if (!uncompleted.length) { // set product status to complete
+                    yield thunkQuery(
+                        Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                    );
+                }
+            }
+            console.log(nextStep);
+        }
     }
 
     return answer;

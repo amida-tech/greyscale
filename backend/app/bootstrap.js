@@ -4,6 +4,7 @@ if (process.env.NODE_ENV === 'production') {
 
 var config = require('config'),
     logger = require('app/logger'),
+    data = require('app/controllers/data'),
     bodyParser = require('body-parser'),
     multer = require('multer'),
     passport = require('passport'),
@@ -121,6 +122,10 @@ app.on('start', function () {
                     return;
                 }
             }
+            if (err.message) {
+                res.status(400).json(err.message);
+                return;
+            }
         }
         logger.error(err.stack);
         res.sendStatus(500);
@@ -143,11 +148,11 @@ app.on('start', function () {
 
         if (err) {
             //If the DB already exists then do not attempt to connect to postgres.
-            //This avoids problems where the user performing the connection may not have access 
+            //This avoids problems where the user performing the connection may not have access
             //to the postgres admin database.  Odds are high however if they do not have access
             //to the admin database they also will not have access to create new databases.
 
-            //we failed to connect to the database, so attempt to connect to 
+            //we failed to connect to the database, so attempt to connect to
             //the admin database
             pg.connect(pgConString + '/postgres', function (err, client, done) {
                 if (err) {
@@ -161,32 +166,34 @@ app.on('start', function () {
                         console.log(err);
                     }
                     client.end();
-
-                    // Load the schema if it is not there   
-                    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-                        if (err) {
-                            console.log(err);
-                            return;
+                    var userReq = {
+                        body: {
+                            'realm': 'public'
                         }
-                        client.query(sql, function (err) {
-                            if (err) {
-                                console.log('Schema already initialized');
-                            }
-                            client.end();
-                        });
-                    });
-
+                    };
+                    var userResp = {};
+                    console.log('populating database');
+                    data.instantiate(userReq, userResp);
                 });
             });
         } else {
             //database already exists so try to initialize the schema.
-            client.query(sql, function (err) {
-                if (err) {
-                    console.log(err);
-                    console.log('Schema already initialized');
+            //executing this as an admin user
+            var userReq = {
+                body: {
+//                    'firstName': 'Test',
+//                    'lastName': 'User',
+//                    'email': 'no@mail.com',
+//                    'password': 'something',
+//                    'roleID': 1,
+                    'realm': 'public'
                 }
-                client.end();
-            });
+//                ,user: {
+//                    'role': 'admin'
+//                }
+            };
+            var userResp = {};
+            data.instantiate(userReq, userResp);
         }
     });
 

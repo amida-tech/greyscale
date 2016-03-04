@@ -11,7 +11,6 @@ angular.module('greyscaleApp')
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
             link: function (scope, elem, attr) {
-
                 var formbuilder;
                 var types = greyscaleGlobals.formBuilderFieldTypes;
                 var sizes = ['small', 'medium', 'large'];
@@ -21,7 +20,7 @@ angular.module('greyscaleApp')
                     var questions = [];
                     var i, j;
                     for (i = 0; i < fields.length; i++) {
-                        var typeIdx = types.indexOf(fields[i].field_type);
+                        var typeIdx = types.indexOf(fields[i].field_type === 'yes_no' ? 'radio' : fields[i].field_type);
                         if (typeIdx === -1) {
                             continue;
                         }
@@ -59,6 +58,7 @@ angular.module('greyscaleApp')
                         newQuestion.intOnly = fo.integer_only;
                         newQuestion.value = fo.value;
                         newQuestion.links = fo.links && fo.links.length > 0 ? JSON.stringify(fo.links) : undefined;
+                        newQuestion.optionNumbering = fo.option_numbering ? fo.option_numbering : undefined;
 
                         if (!fo.options) {
                             continue;
@@ -152,7 +152,8 @@ angular.module('greyscaleApp')
                                     integer_only: question.intOnly,
                                     qid: question.qid,
                                     value: question.value,
-                                    links: question.links ? JSON.parse(question.links) : []
+                                    links: question.links ? JSON.parse(question.links) : [],
+                                    option_numbering: question.optionNumbering
                                 }
                             };
                             data.push(field);

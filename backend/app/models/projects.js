@@ -5,27 +5,16 @@ var columns = [
     'organizationId',
     'codeName',
     'description',
-    // 'ownerUserId',
     'created',
     'matrixId',
-    //'viewMatrixId',
     'startTime',
-    //'studyPeriodId',
     'status',
-    //'logoPath',
-    //'msgboardId',
-    //'adminUserId',
-    //'sponsorLogos',
-    //'isActive',
-    'closeTime',
-    // 'visibility',
-    // 'importId',
-    // 'reportUrl',
-    // 'analyticsUrl'
+    'closeTime'
 ];
 
 var Project = sql.define({
     name: 'Projects',
+    schema: 'proto_amida',
     columns: columns
 });
 
@@ -35,5 +24,10 @@ Project.statuses = [
 ];
 
 Project.whereCol = columns;
+
+Project.translate = [
+    'codeName',
+    'description'
+];
 
 module.exports = Project;
