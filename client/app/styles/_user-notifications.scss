@@ -16,6 +16,11 @@
             border-radius: 10px;
         }
     }
+    .scroll {
+        overflow: hidden;
+        overflow-y: auto;
+        max-height: 350px;
+    }
     .notification {
         min-width: 400px;
         padding: 10px 15px 5px 15px;
@@ -37,6 +42,7 @@
         }
         .control {
             font-size: 10pt;
+            padding-right: 10px;
         }
     }
     .go-history {

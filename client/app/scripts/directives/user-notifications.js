@@ -1,5 +1,5 @@
 angular.module('greyscaleApp')
-    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi) {
+    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, greyscaleWebSocketSrv) {
         return {
             restrict: 'A',
             replace: true,
@@ -9,18 +9,22 @@ angular.module('greyscaleApp')
                 '       <span ng-if="model.notifications.length" class="counter">{{model.notifications.length}}</span>' +
                 '   </a>' +
                 '   <ul class="dropdown-menu dropdown-menu-right">' +
-                '       <li ng-if="!model.notifications.length" class="notification">' +
-                '           <p translate=".NO_UNREAD"></p>' +
-                '       </li>' +
-                '       <li class="notification" ng-repeat="notification in model.notifications track by $index">' +
-                '           <div class="sender">{{notification.userFromName}}</div>' +
-                '           <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
-                '           <p>{{notification.body}}</p>' +
-                '           <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
-                '           <div class="clearfix"></div>' +
-                '       </li>' +
-                '       <li class="go-history">' +
-                '           <a ui-sref="notifications" translate=".GO_HISTORY"></a>' +
+                '       <li class="scroll">' +
+                '           <div>' +
+                '               <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
+                '                   <div class="sender">{{notification.userFromName}}</div>' +
+                '                   <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
+                '                   <p>{{notification.body}}</p>' +
+                '                   <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
+                '                   <div class="clearfix"></div>' +
+                '               </div>' +
+                '           </div>' +
+                '           <div ng-if="!model.notifications.length" class="notification">' +
+                '               <p translate=".NO_UNREAD"></p>' +
+                '           </div>' +
+                '           <div class="go-history">' +
+                '               <a ui-sref="notifications" translate=".GO_HISTORY"></a>' +
+                '           </div>' +
                 '       </li>' +
                 '   </ul>' +
                 '</div>',
@@ -36,7 +40,7 @@ angular.module('greyscaleApp')
                     .then(function (profile) {
                         user = profile;
                         _getUnreadNotifications();
-                        scope.$on('something-new', _getUnreadNotifications);
+                        greyscaleWebSocketSrv.on('something-new', _getUnreadNotifications);
                     });
 
                 scope.markAsRead = function (notification, index) {
