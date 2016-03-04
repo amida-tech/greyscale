@@ -353,6 +353,16 @@
         "UOA": "Цель",
         "USER": "Пользователь"
     },
+    "PROFILE": {
+        "ACTIVATED": "",
+        "ADDRESS": "",
+        "NOT_ACTIVATED": "",
+        "NOT_VERIFIED": "",
+        "ORGANIZATION": "",
+        "PROFILE": "",
+        "URL": "",
+        "VERIFIED": ""
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",

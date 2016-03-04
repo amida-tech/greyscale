@@ -353,6 +353,16 @@
         "UOA": "Target",
         "USER": "User"
     },
+    "PROFILE": {
+        "ACTIVATED": "Activated",
+        "ADDRESS": "Address",
+        "NOT_ACTIVATED": "Not Activated",
+        "NOT_VERIFIED": "not verified",
+        "ORGANIZATION": "Organization",
+        "PROFILE": "Profile",
+        "URL": "URL",
+        "VERIFIED": "verified"
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",
         "CLOSE_TIME": "Close Time",

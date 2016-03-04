@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" translate-namespace="PROFILE">
     <div class="col-md-6">
         <rd-widget>
             <rd-widget-header icon="fa fa-user"
@@ -12,15 +12,15 @@
                         </tr>
                         <tr>
                             <td colspan="2" class="text-right">
-                                Profile<span ng-show="model.user.isActive" class="text-success"> activated <i class="fa fa-check"></i></span>
-                                <span ng-hide="model.user.isActive" class="text-danger"> not activated <i class="fa fa-warning"></i></span>
+                                <span  translate=".PROFILE"></span> <span ng-show="model.user.isActive" class="text-success"> <span translate=".ACTIVATED"></span> <i class="fa fa-check"></i></span>
+                                <span ng-hide="model.user.isActive" class="text-danger"> <span translate=".NOT_ACTIVATED"></span> <i class="fa fa-warning"></i></span>
                             </td>
                         </tr>
                     </table>
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
-                <button class="btn btn-success" ng-click="editProfile()">Edit</button>
+                <button class="btn btn-success" ng-click="editProfile()" translate="COMMON.EDIT"></button>
             </rd-widget-footer>
         </rd-widget>
     </div>
@@ -31,24 +31,24 @@
                 <div class="table-responsive col-sm-12">
                     <table class="table">
                         <tr>
-                            <td>Url</td>
+                            <td><span translate=".URL"></span></td>
                             <td>{{model.org.url}}</td>
                         </tr>
                         <tr>
-                            <td>Address</td>
+                            <td><span translate=".ADDRESS"></span></td>
                             <td>{{model.org.address}}</td>
                         </tr>
                         <tr>
                             <td colspan="2" class="text-right">
-                                Organization<span ng-show="model.org.isActive" class="text-success"> verified <i class="fa fa-check"></i></span>
-                                <span ng-hide="model.org.isActive" class="text-danger"> not verified <i class="fa fa-warning"></i></span>
+                                <span translate=".ORGANIZATION"></span><span ng-show="model.org.isActive" class="text-success"> <span translate=".VERIFIED"></span> <i class="fa fa-check"></i></span>
+                                <span ng-hide="model.org.isActive" class="text-danger"> <span translate=".NOT_VERIFIED"></span> <i class="fa fa-warning"></i></span>
                             </td>
                         </tr>
                     </table>
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
-                <button class="btn btn-success" ng-click="editOrg()" ng-disabled="model.orgReadonly">Edit</button>
+                <button class="btn btn-success" ng-click="editOrg()" ng-disabled="model.orgReadonly" translate="COMMON.EDIT"></button>
             </rd-widget-footer>
         </rd-widget>
     </div>
