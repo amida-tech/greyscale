@@ -353,6 +353,16 @@
         "UOA": "Цель",
         "USER": "Пользователь"
     },
+    "PROFILE": {
+        "ACTIVATED": "",
+        "ADDRESS": "",
+        "NOT_ACTIVATED": "",
+        "NOT_VERIFIED": "",
+        "ORGANIZATION": "",
+        "PROFILE": "",
+        "URL": "",
+        "VERIFIED": ""
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Матрица доступа",
         "CLOSE_TIME": "Время закрытия",
@@ -482,6 +492,8 @@
     },
     "USERS": {
         "ANONYMOUS": "Анонимный",
+        "CHANGE_PASSWORD": "",
+        "CHANGE_PASSWORD_SUCCESS": "",
         "DELETE_CONFIRM": "Подтвердите удаление пользователя <b>{{user.email}}</b>",
         "EMAIL": "Эл. почта",
         "FIRST_NAME": "Имя",
@@ -493,12 +505,14 @@
         "IS_ACTIVE": "Активный",
         "LAST_ACTIVE": "Последняя активность",
         "LAST_NAME": "Фамилия",
+        "NEW_PASSWORD": "",
         "NOT_LOGGED": "Не входил",
         "NO_GROUPS": "",
         "ORGANIZATION": "Организация",
         "RESEND_ACTIVATION": "",
         "ROLE": "Роль",
         "SELECT_ORGANIZATION": "",
+        "SET_NEW_PASSWORD_TO": "",
         "USER": "Пользователь",
         "USERS": "Пользователи"
     },

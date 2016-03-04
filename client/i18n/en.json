@@ -353,6 +353,16 @@
         "UOA": "Target",
         "USER": "User"
     },
+    "PROFILE": {
+        "ACTIVATED": "Activated",
+        "ADDRESS": "Address",
+        "NOT_ACTIVATED": "Not Activated",
+        "NOT_VERIFIED": "not verified",
+        "ORGANIZATION": "Organization",
+        "PROFILE": "Profile",
+        "URL": "URL",
+        "VERIFIED": "verified"
+    },
     "PROJECTS": {
         "ACCESS_MATRIX": "Access matrix",
         "CLOSE_TIME": "Close Time",
@@ -482,6 +492,8 @@
     },
     "USERS": {
         "ANONYMOUS": "Anonymous",
+        "CHANGE_PASSWORD": "Change Password",
+        "CHANGE_PASSWORD_SUCCESS": "Password changed",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "EMAIL": "E-mail",
         "FIRST_NAME": "First Name",
@@ -493,12 +505,14 @@
         "IS_ACTIVE": "Is Active",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
+        "NEW_PASSWORD": "New Password",
         "NOT_LOGGED": "Not Logged",
         "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
         "RESEND_ACTIVATION": "Resend Activation",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
+        "SET_NEW_PASSWORD_TO": "Set new password to user <b>{{user.firstName}} {{user.lastName}}</b>",
         "USER": "User",
         "USERS": "Users"
     },

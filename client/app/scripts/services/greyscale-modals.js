@@ -165,6 +165,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _changePassword(user) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/change-password.html',
+                controller: 'ModalChangePasswordCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    user: user
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -188,6 +200,7 @@ angular.module('greyscaleApp')
             userGroups: _userGroups,
             confirm: _confirm,
             showVersion: _showVersion,
-            sendNotification: _sendNotification
+            sendNotification: _sendNotification,
+            changePassword: _changePassword
         };
     });

@@ -214,15 +214,17 @@ module.exports = {
     users: function (req, res, next) {
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var isAdmin = auth.checkAdmin(req.user);
+            var isNotAdmin = !auth.checkAdmin(req.user);
             var userId = req.user.id;
             if (!req.query.userFrom && !req.query.userTo) {
-                userId = (req.query.userId && isAdmin) ? req.query.userId : userId;
+                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : userId;
             }
             var selectQuery =
             'SELECT v1."user" as userId, '+
-                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
-                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
+                'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
+                    ' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
+                'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
+                    ' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
