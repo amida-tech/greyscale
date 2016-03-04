@@ -7,14 +7,16 @@ angular.module('greyscaleApp')
         function getBorders(field) {
             var borders = [];
             var suffix = '';
+            var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
+            var numericTypes = ['number', 'scale'];
 
             if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
                 field.maxLength = null;
             }
             field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
 
-            if (['number', 'paragraph', 'text'].indexOf(field.type) !== -1) {
-                if (field.type !== 'number') {
+            if (supportedTypes.indexOf(field.type) !== -1) {
+                if (numericTypes.indexOf(field.type) === -1) {
                     suffix = ' ' + field.lengthMeasure;
                 }
                 if (field.minLength !== null && field.minLength >= 0) {
@@ -40,7 +42,8 @@ angular.module('greyscaleApp')
                 scope.showVersion = function (field) {
                     greyscaleModalsSrv.showVersion({
                         field: field
-                    }).then(function (model) {});
+                    }).then(function (model) {
+                    });
                 };
 
                 if (scope.field) {
@@ -98,6 +101,16 @@ angular.module('greyscaleApp')
 
                             message += '<span ng-if="field.ngModel.$error.integer" translate="FORMS.MUST_BE_INT"></span>' +
                                 '<span ng-if="field.ngModel.$error.number" translate="FORMS.MUST_BE_NUMBER"></span>';
+
+                            break;
+
+                        case 'scale':
+                            body = '<div class="input-group"><input type="range" ' + commonPart + (!scope.field.intOnly ? ' step="0.0001"' : '') +
+                                ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-valid="field">' +
+                                '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
+
+                            message += '<span ng-show="field.answer">' + i18n.translate('COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
+
                             break;
 
                         case 'email':
@@ -105,31 +118,51 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'checkboxes':
-                            scope.selectedOpts = function (options) {
-                                var res = false;
-                                for (var o = 0; o < options.length && !res; o++) {
-                                    res = res || options[o].checked;
+                            scope.selectedOpts = function (_field) {
+                                var res = (_field.withOther && _field.otherOption && _field.otherOption.checked);
+                                var o, qty = _field.options.length;
+
+                                for (o = 0; o < qty && !res; o++) {
+                                    res = res || _field.options[o].checked;
                                 }
                                 return res;
                             };
 
+                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
+
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body += '<div class="checkbox-list option-list" ng-class="field.listType">' +
-                                    '<div ng-repeat="opt in field.options"><div class="checkbox">' +
+                                body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
                                     '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
-                                    'ng-required="field.required && !selectedOpts(field.options)" gs-valid="field">' +
+                                    'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
+
+                            if (scope.field.withOther) {
+                                body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
+                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
+                                    '<div class="chk-box"></div></label></div></span>' +
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{!field.flags.allowEdit}}">{{}}</div>';
+                            }
+                            body += '</div>';
                             break;
 
                         case 'radio':
+                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<div class="checkbox-list option-list" ng-class="field.listType">' +
-                                    '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
+                                body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="{{!field.flags.allowEdit}}"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
+                            if (scope.field.withOther) {
+                                body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
+                                    '<div class="chk-box"></div></label></div></span>' +
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{!field.flags.allowEdit}}"></div>';
+                            }
+                            body += '</div>';
                             break;
 
                         case 'dropdown':
@@ -155,6 +188,7 @@ angular.module('greyscaleApp')
                             break;
 
                         default:
+                            $log.debug('not rendering', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 

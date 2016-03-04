@@ -434,20 +434,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 icon: 'fa-question',
                 accessLevel: systemRoles.any.mask
             }
-        })
-        .state('the-wall', {
-            parent: 'home',
-            url: 'the-wall',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/the-wall.html',
-                    controller: 'TheWallCtrl'
-                }
-            },
-            data: {
-                name: 'UI bricks',
-                accessLevel: systemRoles.any.mask
-            }
         });
 
     $urlRouterProvider.otherwise('/');
