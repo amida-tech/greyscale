@@ -174,6 +174,60 @@ module.exports = {
         });
     },
 
+    getTicket: function (req, res, next){
+        var memcache = require('memcache');
+        var client = new memcache.Client(11211, 'localhost');
+
+        var mc = new Promise(function(resolve,reject){
+            client.on('connect', function(){
+                resolve('connected');
+            });
+
+            client.on('error', function(e){
+                reject(e);
+                console.log(e);
+            });
+
+            client.connect();
+        });
+
+
+        co(function * (){
+            try{
+                yield mc;
+
+                var result = false;
+
+                yield new Promise(function(resolve,reject){
+                    client.set('key', 'yyyahooo', function(error, result){
+                        if(error){
+                            reject(error);
+                        }
+                        console.log(result);
+                        resolve(result);
+                    });
+                });
+
+                return yield new Promise(function(resolve,reject){
+                    client.get('key' , function(error, result){
+                        if(error){
+                            reject(error);
+                        }
+                        resolve(result);
+                    });
+                });
+
+            }catch(e){
+                throw new HttpError(400, e);
+            }
+
+        }).then(function(data){
+            res.end(data);
+        },function(err){
+            next(err);
+        });
+    },
+
     attach: function (req, res, next) {
         co(function* (){
             var answer = yield thunkQuery(
