@@ -245,16 +245,6 @@ module.exports = {
         });
     },
 
-  dump: function (req, res, next) {
-    co(dumpProduct(parseInt(req.params.id))).then(function (data) {
-      res.json({
-          agg: data
-      });
-    }, function (err) {
-      next(err);
-    });
-  },
-
   calculate: function (req, res, next) {
     var productId = parseInt(req.params.id);
     co(function* () {
