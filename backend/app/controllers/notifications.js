@@ -214,11 +214,15 @@ module.exports = {
     users: function (req, res, next) {
         co(function* () {
             req.query = _.extend(req.query, req.body);
+            var isAdmin = auth.checkAdmin(req.user);
+            var userId = req.user.id;
             if (!req.query.userFrom && !req.query.userTo) {
-                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+                userId = (req.query.userId && isAdmin) ? req.query.userId : userId;
             }
             var selectQuery =
             'SELECT v1."user" as userId, '+
+                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
+                'CAST( CASE WHEN "v1"."isanonymous" or '+!isAdmin.toString()+' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
@@ -227,22 +231,30 @@ module.exports = {
                 '(SELECT '+
                     'count("public"."Notifications"."id") as count, '+
                     '"Notifications"."userFrom" as user, '+
+                    '"Users"."firstName" AS firstName, '+
+                    '"Users"."lastName" AS lastName, '+
+                    '"Users"."isAnonymous" AS isAnonymous, '+
                     'CAST (\'from\' as varchar), '+
-                    'sum(CAST(CASE WHEN "public"."Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
                     'FROM "Notifications" '+
+                    'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
                     'WHERE "Notifications"."userTo" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userFrom" '+
+                    'GROUP BY "Notifications"."userFrom", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
                 'UNION '+
                 'SELECT '+
                     'count("public"."Notifications"."id") as count, '+
                     '"Notifications"."userTo" as user, '+
+                    '"Users"."firstName" AS firstName, '+
+                    '"Users"."lastName" AS lastName, '+
+                    '"Users"."isAnonymous" AS isAnonymous, '+
                     'CAST (\'to\' as varchar), '+
-                    'sum(CAST(CASE WHEN "public"."Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
                     'FROM "Notifications" '+
+                    'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
                     'WHERE "Notifications"."userFrom" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userTo" '+
+                    'GROUP BY "Notifications"."userTo", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous"  '+
                 ') as v1 '+
-                'GROUP BY v1."user"';
+                'GROUP BY v1."user", v1."firstname", v1."lastname", v1."isanonymous"';
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
