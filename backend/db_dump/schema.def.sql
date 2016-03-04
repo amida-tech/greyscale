@@ -487,6 +487,61 @@ ALTER SEQUENCE "Groups_id_seq" OWNED BY "Groups".id;
 
 
 --
+-- Name: IndexQuestionWeights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "IndexQuestionWeights" (
+    "indexId" integer NOT NULL,
+    "questionId" integer NOT NULL,
+    weight numeric NOT NULL
+);
+
+
+ALTER TABLE "IndexQuestionWeights" OWNER TO indaba;
+
+--
+-- Name: IndexSubindexWeights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: rickards; Tablespace: 
+--
+
+CREATE TABLE "IndexSubindexWeights" (
+    "indexId" integer NOT NULL,
+    "subindexId" integer NOT NULL,
+    weight numeric NOT NULL
+);
+
+
+ALTER TABLE "IndexSubindexWeights" OWNER TO rickards;
+
+--
+-- Name: Index_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+CREATE SEQUENCE "Index_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Index_id_seq" OWNER TO indaba;
+
+--
+-- Name: Indexes; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "Indexes" (
+    id integer NOT NULL,
+    "productId" integer NOT NULL,
+    title character varying,
+    description text,
+    divisor numeric DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE "Indexes" OWNER TO indaba;
+
+--
 -- Name: Surveys; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -810,6 +865,48 @@ CREATE TABLE "RolesRights" (
 
 
 ALTER TABLE "RolesRights" OWNER TO indaba;
+
+--
+-- Name: SubindexWeights; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "SubindexWeights" (
+    "subindexId" integer NOT NULL,
+    "questionId" integer NOT NULL,
+    weight numeric NOT NULL
+);
+
+
+ALTER TABLE "SubindexWeights" OWNER TO indaba;
+
+--
+-- Name: Subindex_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+CREATE SEQUENCE "Subindex_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Subindex_id_seq" OWNER TO indaba;
+
+--
+-- Name: Subindexes; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "Subindexes" (
+    id integer NOT NULL,
+    "productId" integer NOT NULL,
+    title character varying,
+    description text,
+    divisor numeric DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE "Subindexes" OWNER TO indaba;
 
 --
 -- Name: SurveyAnswers; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
@@ -1813,6 +1910,30 @@ ALTER TABLE ONLY "Groups"
 
 
 --
+-- Name: IndexQuestionWeight_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "IndexQuestionWeights"
+    ADD CONSTRAINT "IndexQuestionWeight_pkey" PRIMARY KEY ("indexId", "questionId");
+
+
+--
+-- Name: IndexSubindexWeight_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: rickards; Tablespace: 
+--
+
+ALTER TABLE ONLY "IndexSubindexWeights"
+    ADD CONSTRAINT "IndexSubindexWeight_pkey" PRIMARY KEY ("indexId", "subindexId");
+
+
+--
+-- Name: Indexes_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "Indexes"
+    ADD CONSTRAINT "Indexes_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: JSON_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -1906,6 +2027,22 @@ ALTER TABLE ONLY "Projects"
 
 ALTER TABLE ONLY "Rights"
     ADD CONSTRAINT "Rights_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: SubindexWeight_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "SubindexWeights"
+    ADD CONSTRAINT "SubindexWeight_pkey" PRIMARY KEY ("subindexId", "questionId");
+
+
+--
+-- Name: Subindexes_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "Subindexes"
+    ADD CONSTRAINT "Subindexes_pkey" PRIMARY KEY (id);
 
 
 --
@@ -2113,6 +2250,20 @@ CREATE INDEX "UnitOfAnalysisTagLink_uoaTagId_idx" ON "UnitOfAnalysisTagLink" USI
 
 
 --
+-- Name: fki_Indexes_productId_fkey; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE INDEX "fki_Indexes_productId_fkey" ON "Indexes" USING btree ("productId");
+
+
+--
+-- Name: fki_Subindexes_productId_fkey; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE INDEX "fki_Subindexes_productId_fkey" ON "Subindexes" USING btree ("productId");
+
+
+--
 -- Name: fki_roleID; Type: INDEX; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
@@ -2202,6 +2353,46 @@ ALTER TABLE ONLY "Groups"
 
 ALTER TABLE ONLY "Groups"
     ADD CONSTRAINT "Groups_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
+
+
+--
+-- Name: IndexQuestionWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "IndexQuestionWeights"
+    ADD CONSTRAINT "IndexQuestionWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
+
+
+--
+-- Name: IndexQuestionWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "IndexQuestionWeights"
+    ADD CONSTRAINT "IndexQuestionWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+
+
+--
+-- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: rickards
+--
+
+ALTER TABLE ONLY "IndexSubindexWeights"
+    ADD CONSTRAINT "IndexSubindexWeights_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
+
+
+--
+-- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: rickards
+--
+
+ALTER TABLE ONLY "IndexSubindexWeights"
+    ADD CONSTRAINT "IndexSubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
+
+
+--
+-- Name: Indexes_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Indexes"
+    ADD CONSTRAINT "Indexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
 
 
 --
@@ -2346,6 +2537,30 @@ ALTER TABLE ONLY "Rights"
 
 ALTER TABLE ONLY "RolesRights"
     ADD CONSTRAINT "RolesRights_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
+
+
+--
+-- Name: SubindexWeights_questionId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "SubindexWeights"
+    ADD CONSTRAINT "SubindexWeights_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+
+
+--
+-- Name: SubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "SubindexWeights"
+    ADD CONSTRAINT "SubindexWeights_subindexId_fkey" FOREIGN KEY ("subindexId") REFERENCES "Subindexes"(id);
+
+
+--
+-- Name: Subindexes_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Subindexes"
+    ADD CONSTRAINT "Subindexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
 
 
 --
