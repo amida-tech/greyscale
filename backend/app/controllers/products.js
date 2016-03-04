@@ -8,6 +8,7 @@ var
     WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
+    SurveyQuestionOption = require('app/models/survey_question_options'),
     SurveyAnswer = require('app/models/survey_answers'),
     User = require('app/models/users'),
     EssenceRole = require('app/models/essence_roles'),
@@ -281,7 +282,8 @@ module.exports = {
       q =
           'SELECT ' +
           '  "SurveyQuestions"."id", ' +
-          '  "SurveyQuestions"."label" AS "title"' +
+          '  "SurveyQuestions"."label" AS "title", ' +
+          '  "SurveyQuestions"."type" ' +
           'FROM ' +
           '  "SurveyQuestions" ' +
           'LEFT JOIN ' +
@@ -292,16 +294,55 @@ module.exports = {
       var questions = yield thunkQuery(q);
       console.log(questions);
 
+      // type of each question
+      var questionTypes = {};
+      questions.forEach(function (question) {
+          questionTypes[question.id] = question.type;
+      });
+
       // only return questions for which at least one UOA has an answer
       var questionsPresent = new Set();
 
-      var result = {};
-      result.agg = data.map(function (datum) {
+      var result = { agg: {} };
+      // TODO: mapping over generators?
+      for (var i = 0; i < data.length; i++) {
+          var datum = data[i];
+
           // parse question answers to number
           for (var questionId in datum['questions']) {
               questionsPresent.add(questionId);
-              // TODO: for non-numerical question types
-              datum['questions'][questionId] = parseFloat(datum['questions'][questionId]);
+
+              var questionType = questionTypes[questionId];
+              var raw = datum['questions'][questionId];
+              var parsed;
+              if (questionType === 5) { // numerical
+                  parsed = parseFloat(raw);
+              } else if (questionType === 7) { // currency
+                  parsed = parseFloat(raw);
+              } else if (questionType === 3 || questionType === 4) { // single selection
+                  var selected = (yield thunkQuery(
+                      SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
+                  ))[0];
+
+                  // TODO: is this the correct logic?
+                  parsed = parseFloat(selected.value);
+              } else if (questionType === 2) { // multiple selection
+                  // selected options
+                  var selected = [];
+                  for (var j = 0; j < raw.length; j++) {
+                      selected.push((yield thunkQuery(
+                          SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw[j]))
+                      ))[0]);
+                  }
+
+                  // TODO: what logic should we use here?
+                  parsed = parseFloat(selected[0].value);
+                  console.log(selected[0].value);
+              } else {
+                  console.log("Non-numerical question %d of type %d", questionId, questionType);
+                  parsed = parseFloat(raw);
+              }
+              datum['questions'][questionId] = parsed;
           }
 
           // calculate subindexes
@@ -331,8 +372,8 @@ module.exports = {
               questionsPresent.add(questionId);
           }
 
-          return datum;
-      });
+          result.agg[i] = datum;
+      }
 
       // add all (non)calculated fields
       result.subindexes = subindexes.map(function (subindex) {
