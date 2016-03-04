@@ -199,7 +199,9 @@
         "WORKFLOW_STEPS": "Процессы"
     },
     "NOTIFICATIONS": {
+        "GO_HISTORY": "",
         "MARK_AS_READ": "",
+        "NO_UNREAD": "",
         "SEND_NOTIFICATION": "",
         "SEND_SUCCESS": ""
     },

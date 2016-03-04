@@ -21,22 +21,13 @@ angular.module('greyscale.core')
 
     function _getConnection() {
         var domain = window.location.hostname.split('.');
-        var realm = 'public';
-        var baseLength = 'dev-mt'.indexOf(greyscaleEnv.name) !== -1 ? 4 : 3;
-
         if (domain[0] === 'www') {
             domain.splice(0, 1);
         }
 
-        if (domain.length >= baseLength) {
-            realm = domain[0];
-        }
-
         var url = (greyscaleEnv.apiProtocol || 'http') + '://' +
             greyscaleEnv.apiHostname +
-            (greyscaleEnv.apiPort !== undefined ? ':' + greyscaleEnv.apiPort : '') + '/' +
-            realm + '/' +
-            greyscaleEnv.apiVersion;
+            (greyscaleEnv.apiPort !== undefined ? ':' + greyscaleEnv.apiPort : '') + '/';
 
         var opts = {
             transports: ['websocket']
@@ -46,5 +37,5 @@ angular.module('greyscale.core')
     }
 })
 .run(function(greyscaleWebSocketSrv){
-    //greyscaleWebSocketSrv.init();
+    greyscaleWebSocketSrv.init();
 });
