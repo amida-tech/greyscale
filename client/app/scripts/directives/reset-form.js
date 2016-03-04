@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('resetForm', function ($state, greyscaleUserApi) {
+    .directive('dataForm', function ($state, greyscaleUserApi) {
 
         return {
             templateUrl: 'views/directives/reset-form.html',

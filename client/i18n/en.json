@@ -482,6 +482,8 @@
     },
     "USERS": {
         "ANONYMOUS": "Anonymous",
+        "CHANGE_PASSWORD": "Change Password",
+        "CHANGE_PASSWORD_SUCCESS": "Password changed",
         "DELETE_CONFIRM": "Please confirm deleting of user <b>{{user.email}}</b>",
         "EMAIL": "E-mail",
         "FIRST_NAME": "First Name",
@@ -493,12 +495,14 @@
         "IS_ACTIVE": "Is Active",
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
+        "NEW_PASSWORD": "New Password",
         "NOT_LOGGED": "Not Logged",
         "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",
         "RESEND_ACTIVATION": "Resend Activation",
         "ROLE": "Role",
         "SELECT_ORGANIZATION": "Select Organization",
+        "SET_NEW_PASSWORD_TO": "Set new password to user <b>{{user.firstName}} {{user.lastName}}</b>",
         "USER": "User",
         "USERS": "Users"
     },

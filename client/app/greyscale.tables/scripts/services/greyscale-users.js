@@ -59,7 +59,7 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'isActive',
             dataFormat: 'boolean',
-            dataReadOnly: 'both'
+            dataReadOnly: 'new'
         }, {
             field: 'isAnonymous',
             title: tns + 'ANONYMOUS',
@@ -103,6 +103,10 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
+                icon: 'fa-lock',
+                tooltip: tns + 'CHANGE_PASSWORD',
+                handler: _changePassword
+            },{
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editRecord
@@ -166,6 +170,10 @@ angular.module('greyscale.tables')
 
         function _sendMessageTo(user) {
             greyscaleModalsSrv.sendNotification(user);
+        }
+
+        function _changePassword(user) {
+            greyscaleModalsSrv.changePassword(user);
         }
 
         function _editRecord(user) {
