@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
+    AnswerAttachment = require('app/models/answer_attachments'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -16,13 +17,26 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    fs = require('fs'),
     thunkQuery = thunkify(query);
 
 module.exports = {
 
     select: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(SurveyAnswer.select().from(SurveyAnswer), _.omit(req.query));
+            return yield thunkQuery(
+                SurveyAnswer
+                    .select(
+                        SurveyAnswer.star(),
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                            'FROM "AnswerAttachments" a ' +
+                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                        ') as att) as attachments'
+                    )
+                    .from(SurveyAnswer)
+                , _.omit(req.query)
+            );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -32,18 +46,44 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+        co(function* (){
+            var result = yield thunkQuery(
+                SurveyAnswer
+                    .select(
+                        SurveyAnswer.star(),
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                            'FROM "AnswerAttachments" a ' +
+                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                        ') as att) as attachments'
+                    )
+                    .from(
+                        SurveyAnswer
+                    )
+                    .where(SurveyAnswer.id.equals(req.params.id))
+                    .group(SurveyAnswer.id)
+            );
+            if (!result[0]) {
+                throw new HttpError(404, 'Not found');
             }
-            if (_.first(data)) {
-                res.json(_.first(data));
-            } else {
-                return next(new HttpError(404, 'Not found'));
-            }
-
+            return result[0];
+        }).then(function(data) {
+            res.json(data);
+        }, function(err){
+            next(err);
         });
+        //var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
+        //query(q, function (err, data) {
+        //    if (err) {
+        //        return next(err);
+        //    }
+        //    if (_.first(data)) {
+        //        res.json(_.first(data));
+        //    } else {
+        //        return next(new HttpError(404, 'Not found'));
+        //    }
+        //
+        //});
     },
 
     delete: function (req, res, next) {
@@ -111,6 +151,81 @@ module.exports = {
         }).then(function () {
             res.status(200).end();
         }, function (err) {
+            next(err);
+        });
+    },
+
+    getAttachment: function (req, res, next) {
+        co(function* (){
+            var attachment = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+            if (!attachment[0]) {
+                throw new HttpError(404, 'Not found');
+            }
+            return attachment[0];
+
+        }).then(function(file){
+            res.setHeader('Content-disposition', 'attachment; filename=' + file.filename);
+            res.setHeader('Content-type', file.mimetype);
+            res.send(file.body);
+        }, function(err){
+            next(err);
+        });
+    },
+
+    attach: function (req, res, next) {
+        co(function* (){
+            var answer = yield thunkQuery(
+                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.id))
+            );
+
+            if(!answer[0]){
+                throw new HttpError(400, 'Answer with id = ' + req.params.id + ' does not exist');
+            }
+            if (req.files.file) {
+                var file = req.files.file;
+                var load = new Promise(function (resolve, reject) {
+
+                    fs.readFile(file.path, 'hex', function(err, fileData) {
+                        fileData = '\\x' + fileData;
+                        if (err) {
+                            reject(err);
+                        }
+                        resolve(fileData);
+                    });
+
+                });
+
+                try{
+                    var filecontent = yield load;
+                } catch(e) {
+                    console.log(e);
+                    throw new HttpError(500, 'File upload error');
+                }
+
+                var record = {
+                    answerId: req.params.id,
+                    filename: file.originalname,
+                    size: file.size,
+                    mimetype: file.mimetype,
+                    body: filecontent
+                }
+
+                var inserted = yield thunkQuery(
+                    AnswerAttachment.insert(record).returning(AnswerAttachment.id)
+                );
+
+                return inserted[0];
+
+            } else {
+                throw HttpError(400, 'File was not sent');
+            }
+
+        }).then(function(data) {
+            res.status(201).json(data);
+
+        }, function(err) {
             next(err);
         });
     }
