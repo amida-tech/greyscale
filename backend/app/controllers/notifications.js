@@ -324,6 +324,21 @@ module.exports = {
         });
     },
 
+    reply: function (req, res, next) {
+        co(function* () {
+            var note = yield * getNotification(req.params.notificationId);
+            if (req.user.id !== note.userTo && !auth.checkAdmin(req.user)) {
+                throw new HttpError(403, 'You cannot send reply for this notification (not yours)!');
+            }
+            req.body.userTo = note.userFrom; // get userTo for reply from userFrom
+            return note;
+        }).then(function (data) {
+            next();
+        }, function (err) {
+            next(err);
+        });
+    },
+
     createNotification: createNotification,
 
     resend: function (req, res, next) {
