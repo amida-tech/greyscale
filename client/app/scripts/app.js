@@ -434,6 +434,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 icon: 'fa-question',
                 accessLevel: systemRoles.any.mask
             }
+        })
+        .state('notifications', {
+            parent: 'home',
+            url: 'notifications',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/notifications.html',
+                    controller: 'NotificationsCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.NOTIFICATIONS',
+                icon: 'fa-envelope',
+                accessLevel: systemRoles.any.mask
+            }
         });
 
     $urlRouterProvider.otherwise('/');

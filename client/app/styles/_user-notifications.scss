@@ -24,10 +24,7 @@
     .notification {
         min-width: 400px;
         padding: 10px 15px 5px 15px;
-        border-top: 1px solid #eee;
-        &:first-child {
-            border: none;
-        }
+        border-bottom: 1px solid #eee;
         .sender {
             font-size: 11pt;
             font-weight: bold;
@@ -46,7 +43,6 @@
         }
     }
     .go-history {
-        border-top: 1px solid #eee;
         padding: 10px 15px 5px 15px;
         text-align: center;
         a, a:hover {

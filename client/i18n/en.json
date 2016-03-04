@@ -179,6 +179,7 @@
         "IMPORT": "Import",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
+        "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
@@ -211,11 +212,20 @@
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "NOTIFICATIONS": {
-        "GO_HISTORY": "Notification history",
+        "DATE_TIME": "Date / Time",
+        "GO_HISTORY": "All Notifications",
         "MARK_AS_READ": "Mark as Read",
+        "MESSAGE": "Message",
+        "NOTIFICATIONS": "Notifications",
         "NO_UNREAD": "You have no unread messages",
+        "READ": "Read",
         "SEND_NOTIFICATION": "Send Message",
-        "SEND_SUCCESS": "Message sent"
+        "SEND_SUCCESS": "Message sent",
+        "SET_READ": "Set as read",
+        "SET_UNREAD": "Set unread",
+        "USER": "User",
+        "WAS_NOT_READ": "Was not read",
+        "WAS_READ": "Was read"
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Address",

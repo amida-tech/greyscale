@@ -1,5 +1,19 @@
 angular.module('greyscaleApp')
-    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, greyscaleWebSocketSrv) {
+    .service('userNotificationsSrv', function(){
+        var update;
+        var pub = {
+            setUpdate: function(method){
+                update = method;
+            },
+            update: function(){
+                if (update) {
+                    update();
+                }
+            }
+        };
+        return pub;
+    })
+    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, greyscaleWebSocketSrv, userNotificationsSrv) {
         return {
             restrict: 'A',
             replace: true,
@@ -41,6 +55,7 @@ angular.module('greyscaleApp')
                         user = profile;
                         _getUnreadNotifications();
                         greyscaleWebSocketSrv.on('something-new', _getUnreadNotifications);
+                        userNotificationsSrv.setUpdate(_getUnreadNotifications);
                     });
 
                 scope.markAsRead = function (notification, index) {

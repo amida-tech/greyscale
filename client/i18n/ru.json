@@ -179,6 +179,7 @@
         "IMPORT": "Импорт",
         "LOGIN": "Логин",
         "LOGOUT": "Выход",
+        "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
@@ -211,11 +212,20 @@
         "WORKFLOW_STEPS": "Процессы"
     },
     "NOTIFICATIONS": {
+        "DATE_TIME": "",
         "GO_HISTORY": "",
         "MARK_AS_READ": "",
+        "MESSAGE": "",
+        "NOTIFICATIONS": "",
         "NO_UNREAD": "",
+        "READ": "",
         "SEND_NOTIFICATION": "",
-        "SEND_SUCCESS": ""
+        "SEND_SUCCESS": "",
+        "SET_READ": "",
+        "SET_UNREAD": "",
+        "USER": "",
+        "WAS_NOT_READ": "",
+        "WAS_READ": ""
     },
     "ORGANIZATIONS": {
         "ADDRESS": "Адрес",
