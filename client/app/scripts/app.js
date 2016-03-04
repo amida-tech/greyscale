@@ -434,6 +434,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('index-visualization', {
+            parent: 'home',
+            url: 'index-visualization',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/index-visualization.html',
+                    controller: 'IndexVisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.INDEX-VISUALIZATION',
+                icon: 'fa-globe',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('survey', {
             parent: 'home',
             url: 'survey/:surveyId/task/:taskId?',
