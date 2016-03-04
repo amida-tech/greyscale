@@ -81,7 +81,7 @@ angular.module('greyscale.tables')
             title: '',
             show: false,
             dataHide: true,
-            cellTemplate: '<span ng-if="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
+            cellTemplate: '<span ng-show="!row.isActive"><a ng-click="ext.resendActivation(row)" class="btn btn-primary" translate="' + tns + 'RESEND_ACTIVATION"></a></span>',
             cellTemplateExtData: {
                 resendActivation: _resendActivation
             }
