@@ -43,7 +43,7 @@ angular.module('greyscale.core')
                 transports: ['websocket']
             };
 
-            return io(url, opts);
+            return window.io(url, opts);
         }
     })
     .run(function (greyscaleWebSocketSrv) {
