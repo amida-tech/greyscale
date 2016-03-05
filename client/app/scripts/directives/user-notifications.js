@@ -1,11 +1,11 @@
 angular.module('greyscaleApp')
-    .service('userNotificationsSrv', function(){
+    .service('userNotificationsSrv', function () {
         var update;
         var pub = {
-            setUpdate: function(method){
+            setUpdate: function (method) {
                 update = method;
             },
-            update: function(){
+            update: function () {
                 if (update) {
                     update();
                 }

@@ -219,7 +219,7 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                //                ts: new Date().getTime()
+                    //                ts: new Date().getTime()
             };
             var answers = {};
 
@@ -286,9 +286,13 @@ angular.module('greyscaleApp')
                             var tmp = angular.fromJson(answer.value);
                             fld.answer = [];
                             for (o = 0; o < tmp.length; o++) {
-                                fld.answer.push({data: tmp[o]});
+                                fld.answer.push({
+                                    data: tmp[o]
+                                });
                             }
-                            fld.answer.push({data: ''});
+                            fld.answer.push({
+                                data: ''
+                            });
                             $log.debug('loading "bullet_points"', tmp, fld.answer, answer);
                             break;
 

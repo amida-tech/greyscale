@@ -15,8 +15,7 @@ angular.module('greyscaleApp')
                 scope.showVersion = function (field) {
                     greyscaleModalsSrv.showVersion({
                         field: field
-                    }).then(function (model) {
-                    });
+                    }).then(function (model) {});
                 };
 
                 if (scope.field) {

@@ -103,10 +103,10 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                icon: 'fa-lock',
-                tooltip: tns + 'CHANGE_PASSWORD',
-                handler: _changePassword
-            },{
+                //    icon: 'fa-lock',
+                //    tooltip: tns + 'CHANGE_PASSWORD',
+                //    handler: _changePassword
+                //},{
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editRecord
