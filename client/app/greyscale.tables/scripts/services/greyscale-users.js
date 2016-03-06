@@ -103,10 +103,10 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
-                //    icon: 'fa-lock',
-                //    tooltip: tns + 'CHANGE_PASSWORD',
-                //    handler: _changePassword
-                //},{
+                icon: 'fa-lock',
+                tooltip: tns + 'CHANGE_PASSWORD',
+                handler: _changePassword
+            },{
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editRecord
@@ -180,6 +180,9 @@ angular.module('greyscale.tables')
             var action = 'adding';
             return greyscaleModalsSrv.editRec(user, _table)
                 .then(function (newRec) {
+                    if (newRec.password) {
+                        delete(newRec.password);
+                    }
                     if (newRec.id) {
                         action = 'editing';
                         return greyscaleUserApi.update(newRec);
