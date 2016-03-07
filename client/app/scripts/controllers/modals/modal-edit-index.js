@@ -18,11 +18,11 @@ angular.module('greyscaleApp')
     };
 
     $scope.save = function () {
-        // $uibModalInstance.close(_userGroupsTable.multiselect.selectedMap);
+        _setWeightsDictionary();
+        $uibModalInstance.close($scope.model.index);
     };
 
     _initWeightsTable();
-    console.log(_getWeightsTableData());
 
     function _initWeightsTable() {
         var tableTns = tns + 'WEIGHTS.';
@@ -74,5 +74,26 @@ angular.module('greyscaleApp')
             }
         }
         return weights;
+    }
+
+    function _setWeightsDictionary() {
+        if (type === 'index') {
+            $scope.model.index.questionWeights = {};
+            $scope.model.index.subindexWeights = {};
+
+            $scope.model.weights.tableParams.data.forEach(function (weight) {
+                if (weight.type === 'question') {
+                    $scope.model.index.questionWeights[weight.field] = weight.weight;
+                } else if (weight.type === 'subindex') {
+                    $scope.model.index.subindexWeights[weight.field] = weight.weight;
+                }
+            });
+        } else  if (type === 'subindex') {
+            $scope.model.index.weights = {};
+
+            $scope.model.weights.tableParams.data.forEach(function (weight) {
+                $scope.model.index.weights[weight.field] = weight.weight;
+            });
+        }
     }
 });

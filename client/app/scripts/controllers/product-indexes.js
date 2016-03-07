@@ -28,19 +28,29 @@ angular.module('greyscaleApp')
                     field: 'divisor',
                     title: tableTns + 'DIVISOR'
                 }, {
-                    cellTemplate: '<a class="action" ng-click="ext.editIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+                    cellTemplate: '<div class="pull-right"> ' +
+                        '<a class="action" ng-click="ext.editIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>' + 
+                        '<a class="action" ng-click="ext.removeIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-trash"></i></a>' +
+                        '</div>',
                     cellTemplateExtData: {
                         editIndex: _editIndex
                     }
                 }],
                 dataPromise: function() {
-                    return greyscaleProductApi.product(productId).indexesList();
+                    var deferred = $q.defer();
+                    deferred.resolve($scope.model.indexes);
+                    return deferred.promise;
+                },
+                add: {
+                    handler: function() {
+                        _editIndex({}, 'index');
+                    }
                 }
             };
         }
 
         function _initSubindexesTable() {
-            var tableTns = tns + 'INDEXES_TABLE.';
+            var tableTns = tns + 'SUBINDEXES_TABLE.';
             $scope.model.subindexesTable = {
                 title: tableTns + 'TABLE_TITLE',
                 cols: [{
@@ -50,27 +60,75 @@ angular.module('greyscaleApp')
                     field: 'divisor',
                     title: tableTns + 'DIVISOR'
                 }, {
-                    cellTemplate: '<a class="action" ng-click="ext.editIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+                    cellTemplate: '<div class="pull-right"> ' +
+                        '<a class="action" ng-click="ext.editIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>' + 
+                        '<a class="action" ng-click="ext.removeIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-trash"></i></a>' +
+                        '</div>',
                     cellTemplateExtData: {
-                        editIndex: _editIndex
+                        editIndex: _editIndex,
+                        removeIndex: _removeIndex
                     }
                 }],
                 dataPromise: function() {
-                    return greyscaleProductApi.product(productId).subindexesList();
+                    var deferred = $q.defer();
+                    deferred.resolve($scope.model.subindexes);
+                    return deferred.promise;
+                },
+                add: {
+                    handler: function() {
+                        _editIndex({}, 'subindex');
+                    }
                 }
             };
         }
 
-        /* Weights */
         function _editIndex(index, type) {
-            console.log(type);
-            greyscaleModalsSrv.editIndex(index, type);
-            /*greyscaleModalsSrv.userGroups(user)
-                .then(function (selectedGroupIds) {
-                    user.usergroupId = selectedGroupIds;
-                    greyscaleUserApi.update(user);
+            greyscaleModalsSrv.editIndex(index, type)
+                .then(function (index) {
+                    var collection = [];
+                    var updated = false;
+                    if (type === 'index') {
+                        collection = $scope.model.indexes;
+                    } else if (type === 'subindex') {
+                        collection = $scope.model.subindexes;
+                    }
+                    for (var i = 0; i < collection.length; i++) {
+                        if (collection[i].id === index.id) {
+                            collection[i] = index;
+                            updated = true;
+                            break;
+                        }
+                    }
+                    if (!updated) { collection.push(index); }
+
+                    if (type === 'index') {
+                        $scope.model.indexesTable.tableParams.reload();
+                    } else if (type === 'subindex') {
+                        $scope.model.subindexesTable.tableParams.reload();
+                    }
+                    // greyscaleAPI update index
                 });
-                */
+        }
+
+        function _removeIndex(index, type) {
+            var collection = [];
+            if (type === 'index') {
+                collection = $scope.model.indexes;
+            } else if (type === 'subindex') {
+                collection = $scope.model.subindexes;
+            }
+            for (var i = 0; i < collection.length; i++) {
+                if (collection[i].id === index.id) {
+                    collection.splice(i, 1);
+                    break;
+                }
+            }
+
+            if (type === 'index') {
+                $scope.model.indexesTable.tableParams.reload();
+            } else if (type === 'subindex') {
+                $scope.model.subindexesTable.tableParams.reload();
+            }
         }
 
         /* DATA */
