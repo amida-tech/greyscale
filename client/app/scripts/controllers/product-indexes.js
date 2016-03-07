@@ -1,6 +1,6 @@
 angular.module('greyscaleApp')
     .controller('ProductIndexesCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleUtilsSrv) {
+        greyscaleProductApi, greyscaleUtilsSrv, greyscaleModalsSrv) {
 
         var tns = 'PRODUCTS.INDEXES.';
 
@@ -16,15 +16,22 @@ angular.module('greyscaleApp')
         _loadData();
 
         /* UI */
+        /* Table */
         function _initIndexesTable() {
             var tableTns = tns + 'INDEXES_TABLE.';
             $scope.model.indexesTable = {
+                title: tableTns + 'TABLE_TITLE',
                 cols: [{
                     field: 'title',
                     title: tableTns + 'TITLE'
                 }, {
                     field: 'divisor',
                     title: tableTns + 'DIVISOR'
+                }, {
+                    cellTemplate: '<a class="action" ng-click="ext.editIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+                    cellTemplateExtData: {
+                        editIndex: _editIndex
+                    }
                 }],
                 dataPromise: function() {
                     return greyscaleProductApi.product(productId).indexesList();
@@ -35,17 +42,35 @@ angular.module('greyscaleApp')
         function _initSubindexesTable() {
             var tableTns = tns + 'INDEXES_TABLE.';
             $scope.model.subindexesTable = {
+                title: tableTns + 'TABLE_TITLE',
                 cols: [{
                     field: 'title',
                     title: tableTns + 'TITLE'
                 }, {
                     field: 'divisor',
                     title: tableTns + 'DIVISOR'
+                }, {
+                    cellTemplate: '<a class="action" ng-click="ext.editIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
+                    cellTemplateExtData: {
+                        editIndex: _editIndex
+                    }
                 }],
                 dataPromise: function() {
                     return greyscaleProductApi.product(productId).subindexesList();
                 }
             };
+        }
+
+        /* Weights */
+        function _editIndex(index, type) {
+            console.log(type);
+            greyscaleModalsSrv.editIndex(index, type);
+            /*greyscaleModalsSrv.userGroups(user)
+                .then(function (selectedGroupIds) {
+                    user.usergroupId = selectedGroupIds;
+                    greyscaleUserApi.update(user);
+                });
+                */
         }
 
         /* DATA */

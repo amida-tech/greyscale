@@ -140,6 +140,19 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _editIndex(index, type) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/edit-index.html',
+                controller: 'ModalEditIndexCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    index: index,
+                    type: function () { return type; }
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -161,6 +174,7 @@ angular.module('greyscaleApp')
             productWorkflow: _productWorkflow,
             productTask: _productTask,
             userGroups: _userGroups,
+            editIndex: _editIndex,
             confirm: _confirm
         };
     });

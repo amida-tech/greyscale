@@ -231,12 +231,25 @@
     },
     "PRODUCTS": {
         "INDEXES": {
+            "FORM": {
+                "DIVISOR": "",
+                "MODAL_TITLE": "",
+                "TITLE": "",
+                "WEIGHTS": {
+                    "FIELD": "",
+                    "TYPE": "",
+                    "WEIGHT": ""
+                },
+                "WEIGHTS_LABEL": ""
+            },
             "INDEXES_TABLE": {
                 "DIVISOR": "",
+                "TABLE_TITLE": "",
                 "TITLE": ""
             },
             "SUBINDEXES_TABLE": {
                 "DIVISOR": "",
+                "TABLE_TITLE": "",
                 "TITLE": ""
             }
         },
