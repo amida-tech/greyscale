@@ -169,6 +169,7 @@
         "MESSAGES": "Messages",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
+        "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -229,10 +230,21 @@
         "PROJECT": "Project"
     },
     "PRODUCTS": {
+        "INDEXES": {
+            "INDEXES_TABLE": {
+                "DIVISOR": "Divisor",
+                "TITLE": "Title"
+            },
+            "SUBINDEXES_TABLE": {
+                "DIVISOR": "Divisor",
+                "TITLE": "Title"
+            }
+        },
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
             "DELETE_CONFIRM": "Please confirm deleting of project <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
+            "INDEXES": "Indexes",
             "PAUSE_PRODUCT": "Suspend Project",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Targets, Workflow Steps and Tasks for this Project.",
             "PRODUCT": "Project",

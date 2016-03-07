@@ -169,6 +169,7 @@
         "MESSAGES": "Сообщения",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
+        "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
         "PROJECTS": {
@@ -229,10 +230,21 @@
         "PROJECT": "Проект"
     },
     "PRODUCTS": {
+        "INDEXES": {
+            "INDEXES_TABLE": {
+                "DIVISOR": "",
+                "TITLE": ""
+            },
+            "SUBINDEXES_TABLE": {
+                "DIVISOR": "",
+                "TITLE": ""
+            }
+        },
         "TABLE": {
             "CREATE_WORKFLOW": "Создать процесс",
             "DELETE_CONFIRM": "Подтвердите удаление проекта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
+            "INDEXES": "",
             "PAUSE_PRODUCT": "Приостановить проект",
             "PLANNING_NOT_FINISH": "Планирование не окончено",
             "PRODUCT": "Проект",

@@ -316,6 +316,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('projects.setup.indexes', {
+            parent: 'projects.setup.products',
+            url: '/:productId/indexes',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-indexes.html',
+                    controller: 'ProductIndexesCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.PRODUCT_INDEXES',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('pmProductDashboard', {
             parent: 'home',
             url: 'pm/:productId',

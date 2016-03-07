@@ -245,6 +245,28 @@ module.exports = {
         });
     },
 
+    indexes: function (req, res, next) {
+        var productId = parseInt(req.params.id);
+        co(function* () {
+            return yield getIndexes(productId);
+        }).then(function (indexes) {
+            res.json(indexes);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    subindexes: function (req, res, next) {
+        var productId = parseInt(req.params.id);
+        co(function* () {
+            return yield getSubindexes(productId);
+        }).then(function (subindexes) {
+            res.json(subindexes);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     calculateIndexes: function (req, res, next) {
         var productId = parseInt(req.params.id);
         co(function* () {
@@ -698,7 +720,7 @@ function* getSubindexes(productId) {
           'SELECT ' +
           '  "Subindexes"."id", ' +
           '  "Subindexes"."title", ' +
-          '  "Subindexes"."divisor", ' +
+          '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
           "    string_agg(format('%s:%s', " +
           '      to_json("SubindexWeights"."questionId"::text), ' +
@@ -728,7 +750,7 @@ function* getIndexes(productId) {
         'SELECT ' +
         '  "Indexes"."id", ' +
         '  "Indexes"."title", ' +
-        '  "Indexes"."divisor", ' +
+        '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
         "    string_agg(format('%s:%s', " +
         '      to_json("IndexQuestionWeights"."questionId"::text), ' +

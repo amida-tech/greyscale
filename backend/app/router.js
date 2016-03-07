@@ -205,8 +205,14 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
-router.route('/:realm/v0.2/products/:id/indexes')
+router.route('/:realm/v0.2/products/:id/calculate')
     .get(/*authenticate('token').always,*/ products.calculateIndexes);
+
+router.route('/:realm/v0.2/products/:id/indexes')
+    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
+
+router.route('/:realm/v0.2/products/:id/subindexes')
+    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
 
 router.route('/:realm/v0.2/products/:id/export.csv')
     .get( /*authenticate('token').always,*/ products.export);

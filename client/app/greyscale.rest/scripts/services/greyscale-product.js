@@ -37,10 +37,30 @@ angular.module('greyscale.rest')
             return api().one(productId + '').one('tasks');
         }
 
+        function _productIndexesApi(productId) {
+            return api().one(productId + '').one('indexes');
+        }
+
+        function _productSubindexesApi(productId) {
+            return api().one(productId + '').one('subindexes');
+        }
+
         function _indexes(productId) {
-          return function() {
-            return api().one(productId + '').one('indexes').get();
-          };
+            return function() {
+                return api().one(productId + '').one('calculate').get();
+            };
+        }
+
+        function _indexesList(productId) {
+            return function() {
+                return _productIndexesApi(productId).get();
+            };
+        }
+
+        function _subindexesList(productId) {
+            return function() {
+                return _productSubindexesApi(productId).get();
+            };
         }
 
         function _uoasList(productId) {
@@ -93,7 +113,9 @@ angular.module('greyscale.rest')
                 tasksList: _tasksList(productId),
                 tasksListUpdate: _tasksListUpdate(productId),
                 tasksDel: _tasksDel(productId),
-                indexes: _indexes(productId)
+                indexes: _indexes(productId),
+                indexesList: _indexesList(productId),
+                subindexesList: _subindexesList(productId)
             };
         };
 
