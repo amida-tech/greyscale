@@ -15,7 +15,7 @@
             <div class="form-grop">
                 <label for="weights" class="col-sm-4 control-label" translate="PRODUCTS.INDEXES.FORM.WEIGHTS_LABEL"></label>
                 <div class="col-sm-8">
-                    <widget-table model="model.weights" id="weights"></widget-table>
+                    <widget-table model="model.weightsTable" id="weights"></widget-table>
                 </div>
             </div>
 
@@ -23,7 +23,7 @@
                 <label for="divisor" class="col-sm-4 control-label" translate="PRODUCTS.INDEXES.FORM.DIVISOR"></label>
                 <div class="col-sm-8">
                     <input type="number" class="form-control" name="divisor" id="divisor" ng-model="model.index.divisor">
-                    Suggested divisors: 1 (sum), n (average)
+                    Suggested divisors: <a ng-click="model.index.divisor = 1">1</a> (sum), <a ng-click="model.index.divisor = model.weights.length">{{model.weights.length}}</a> (average)
                 </div>
             </div>
 

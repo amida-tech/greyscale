@@ -237,6 +237,7 @@
                 "TITLE": "Title",
                 "WEIGHTS": {
                     "FIELD": "Field",
+                    "QUESTION": "Question",
                     "TYPE": "Type",
                     "WEIGHT": "Weight"
                 },

@@ -140,7 +140,7 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _editIndex(index, type) {
+        function _editIndex(index, type, product) {
             return $uibModal.open({
                 templateUrl: 'views/modals/edit-index.html',
                 controller: 'ModalEditIndexCtrl',
@@ -148,7 +148,8 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     index: index,
-                    type: function () { return type; }
+                    type: function () { return type; },
+                    product: product
                 }
             }).result;
         }

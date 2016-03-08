@@ -11,9 +11,7 @@ angular.module('greyscaleApp')
             subindexes: []
         };
 
-        _initIndexesTable();
-        _initSubindexesTable();
-        _loadData();
+        _loadData().then(_initIndexesTable).then(_initSubindexesTable);
 
         /* UI */
         /* Table */
@@ -83,7 +81,7 @@ angular.module('greyscaleApp')
         }
 
         function _editIndex(index, type) {
-            greyscaleModalsSrv.editIndex(index, type)
+            greyscaleModalsSrv.editIndex(index, type, $scope.model.product)
                 .then(function (index) {
                     var collection = [];
                     var updated = false;
@@ -137,6 +135,7 @@ angular.module('greyscaleApp')
             return _loadProduct(productId)
                 .then(_loadProductIndexes)
                 .then(function(data) {
+                    $scope.model.product = data.product;
                     $scope.model.indexes = data.indexes;
                     $scope.model.subindexes = data.subindexes;
                 });
