@@ -16,6 +16,11 @@ var
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
     UOA = require('app/models/uoas'),
+    Index = require('app/models/indexes.js'),
+    Subindex = require('app/models/subindexes.js'),
+    IndexQuestionWeight = require('app/models/index_question_weights.js'),
+    IndexSubindexWeight = require('app/models/index_subindex_weights.js'),
+    SubindexWeight = require('app/models/subindex_weights.js'),
     co = require('co'),
     Query = require('app/util').Query,
     getTranslateQuery = require('app/util').getTranslateQuery,
@@ -256,12 +261,165 @@ module.exports = {
         });
     },
 
+    editIndexes: function (req, res, next) {
+        co(function* () {
+            var product = yield thunkQuery(
+                Product.select().where(Product.id.equals(req.params.id))
+            );
+            if (!_.first(product)) {
+                throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+            }
+            if (!Array.isArray(req.body)) {
+                throw new HttpError(403, 'You should pass an array of index objects in request\'s body');
+            }
+
+            var res = {
+                inserted: [],
+                updated: []
+            };
+
+            for (var i in req.body) {
+                if (
+                    typeof req.body[i].title === 'undefined' ||
+                    typeof req.body[i].divisor === 'undefined' ||
+                    typeof req.body[i].questionWeights === 'undefined' ||
+                    typeof req.body[i].subindexWeights === 'undefined'
+                ) {
+                    throw new HttpError(403, 'title, divisor, questionWeights and subindexWeights fields are required');
+                }
+
+                var indexObj = _.pick(req.body[i], ['title', 'divisor']);
+                var indexId;
+
+                if (req.body[i].id) { // update
+                    // update Index
+                    yield thunkQuery(Index.update(indexObj).where(Index.id.equals(req.body[i].id)), {
+                        'realm': req.param('realm')
+                    });
+
+                    // drop all existing weights
+                    yield thunkQuery(IndexQuestionWeight.delete().where(IndexQuestionWeight.indexId.equals(req.body[i].id)), {
+                        'realm': req.param('realm')
+                    });
+                    yield thunkQuery(IndexSubindexWeight.delete().where(IndexSubindexWeight.indexId.equals(req.body[i].id)), {
+                        'realm': req.param('realm')
+                    });
+
+                    indexId = req.body[i].id;
+                    res.updated.push(indexId);
+                } else { // create
+                    var id = yield thunkQuery(Index.insert(indexObj).returning(Index.id), {
+                        'realm': req.param('realm')
+                    });
+
+                    indexId = _.first(id).id;
+                    res.inserted.push(indexId);
+                }
+
+                // insert weights
+                for (var questionId in req.body[i].questionWeights) {
+                    var weightObj = {
+                        indexId: indexId,
+                        questionId: questionId,
+                        weight: req.body[i].questionWeights[questionId]
+                    };
+                    yield thunkQuery(IndexQuestionWeight.insert(weightObj));
+                }
+                for (var subindexId in req.body[i].subindexWeights) {
+                    var weightObj = {
+                        indexId: indexId,
+                        subindexId: subindexId,
+                        weight: req.body[i].subindexWeights[subindexId]
+                    };
+                    yield thunkQuery(IndexSubindexWeight.insert(weightObj));
+                }
+            }
+
+            return res;
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+
     subindexes: function (req, res, next) {
         var productId = parseInt(req.params.id);
         co(function* () {
             return yield getSubindexes(productId);
         }).then(function (subindexes) {
             res.json(subindexes);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    editSubindexes: function (req, res, next) {
+        co(function* () {
+            var product = yield thunkQuery(
+                Product.select().where(Product.id.equals(req.params.id))
+            );
+            if (!_.first(product)) {
+                throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
+            }
+            if (!Array.isArray(req.body)) {
+                throw new HttpError(403, 'You should pass an array of subindex objects in request\'s body');
+            }
+
+            var res = {
+                inserted: [],
+                updated: []
+            };
+
+            for (var i in req.body) {
+                if (
+                    typeof req.body[i].title === 'undefined' ||
+                    typeof req.body[i].divisor === 'undefined' ||
+                    typeof req.body[i].weights === 'undefined'
+                ) {
+                    throw new HttpError(403, 'title, divisor, weights fields are required');
+                }
+
+                var subindexObj = _.pick(req.body[i], ['title', 'divisor']);
+                var subindexId;
+
+                if (req.body[i].id) { // update
+                    // update Subindex
+                    yield thunkQuery(Subindex.update(subindexObj).where(Subindex.id.equals(req.body[i].id)), {
+                        'realm': req.param('realm')
+                    });
+
+                    // drop all existing weights
+                    yield thunkQuery(SubindexWeight.delete().where(SubindexWeight.subindexId.equals(req.body[i].id)), {
+                        'realm': req.param('realm')
+                    });
+
+                    subindexId = req.body[i].id;
+                    res.updated.push(subindexId);
+                } else { // create
+                    var id = yield thunkQuery(Subindex.insert(subindexObj).returning(Subindex.id), {
+                        'realm': req.param('realm')
+                    });
+
+                    subindexId = _.first(id).id;
+                    res.inserted.push(subindexId);
+                }
+
+                // insert weights
+                for (var questionId in req.body[i].weights) {
+                    var weightObj = {
+                        subindexId: subindexId,
+                        questionId: questionId,
+                        weight: req.body[i].weights[questionId]
+                    };
+                    yield thunkQuery(SubindexWeight.insert(weightObj));
+                }
+            }
+
+            return res;
+        }).then(function (data) {
+            res.json(data);
         }, function (err) {
             next(err);
         });

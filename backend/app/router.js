@@ -210,9 +210,11 @@ router.route('/:realm/v0.2/products/:id/calculate')
 
 router.route('/:realm/v0.2/products/:id/indexes')
     .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editIndexes)
 
 router.route('/:realm/v0.2/products/:id/subindexes')
     .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editSubindexes)
 
 router.route('/:realm/v0.2/products/:id/export.csv')
     .get( /*authenticate('token').always,*/ products.export);
