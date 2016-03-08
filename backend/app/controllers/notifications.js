@@ -159,50 +159,68 @@ module.exports = {
     select: function (req, res, next) {
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var selectFields =
-                'SELECT '+
-                '"Notifications".* ';
-            var selectUserFromField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Notifications"."userFrom" '+
-                ') AS "userFromName"';
-            var selectUserToField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Notifications"."userTo" '+
-                ') AS "userToName"';
-            selectFields = selectFields + ', ' + selectUserFromField + ', ' + selectUserToField;
-
-            var selectFrom =
-                'FROM '+
-                '"Notifications" ';
+            var isNotAdmin = !auth.checkAdmin(req.user);
+            var currentUserId = req.user.id;
+            var essenceId = yield * getEssenceId('Discussions');
+            var userId = req.query.userId;
 
             var selectWhere = 'WHERE 1=1 ';
             if (!req.query.userFrom && !req.query.userTo) {
-                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
                 selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
-            } else {
+            } else if (req.query.userFrom && !req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
+            } else if (!req.query.userFrom && req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else if (!isNotAdmin){
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else {
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
             }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
-            var selectQuery = selectFields + selectFrom + selectWhere;
+            var withNotes = 'WITH notes as (SELECT "Notifications".* FROM "Notifications" '+selectWhere+')';
+            var withDiscid = 'discid as ( SELECT "Discussions"."id" FROM "Notifications" INNER JOIN "Discussions" ON "Notifications"."entityId" = "Discussions"."id" '+
+            selectWhere + ' AND "Notifications"."essenceId" = '+essenceId.toString() + ' ) ';
+            var withUFrom = 'uFrom as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userFrom" '+selectWhere+ ' ) ';
+            var withUTo = 'uTo as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userTo" '+selectWhere+ ' ) ';
+            //-- discussions with stepId, stepName, role
+            var withDiscuss = 'discuss as (SELECT '+
+                '"Discussions".id , '+
+                '"Discussions"."taskId" as taskid, '+
+                '"Tasks"."stepId" as stepid, '+
+                '"WorkflowSteps"."title" as stepname, '+
+                '"WorkflowSteps"."role" as role '+
+                'FROM "Discussions" '+
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'WHERE "Discussions"."id" IN (SELECT * FROM discid) )';
+            var mainSelectCase =
+            'SELECT '+
+            'CAST( '+
+                'CASE '+
+            'WHEN (discuss."stepid" IS NOT NULL) THEN CONCAT(discuss."role", \' (\', discuss."stepname", \')\') '+
+            'WHEN ( uFrom."isAnonymous" AND '+isNotAdmin.toString()+' AND uFrom."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            'ELSE CONCAT(uFrom."firstName", \' \', uFrom."lastName") '+
+            'END as varchar) AS "userFromName", '+
+            'CAST( '+
+                'CASE '+
+            'WHEN (discuss."stepid" IS NOT NULL) THEN CONCAT(discuss."role", \' (\', discuss."stepname", \')\') '+
+            'WHEN ( uTo."isAnonymous" AND '+isNotAdmin.toString()+' AND uTo."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            'ELSE CONCAT(uTo."firstName", \' \', uTo."lastName") '+
+            'END as varchar) AS "userToName", ';
+            var mainSelectRest = 'notes.* '+
+                'FROM notes '+
+                'LEFT JOIN uFrom ON notes."userFrom" = uFrom."id" '+
+                'LEFT JOIN uTo ON notes."userTo" = uTo."id" '+
+                'LEFT JOIN discuss ON notes."entityId" = discuss."id" '+
+                'ORDER BY notes."id"';
+
+            var selectQuery = withNotes + ', ' + withDiscid + ', ' + withUFrom + ', ' + withUTo + ', ' + withDiscuss +
+                    mainSelectCase + mainSelectRest;
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -219,44 +237,109 @@ module.exports = {
             if (!req.query.userFrom && !req.query.userTo) {
                 userId = (req.query.userId && !isNotAdmin) ? req.query.userId : userId;
             }
-            var selectQuery =
-            'SELECT v1."user" as userId, '+
+
+            var selectWhere = 'WHERE 1=1 ';
+            if (!req.query.userFrom && !req.query.userTo) {
+                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            } else if (req.query.userFrom && !req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
+            } else if (!req.query.userFrom && req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else if (!isNotAdmin){
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else {
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            }
+            selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
+
+            var withFrom =
+                'WITH c1 as (SELECT '+
+                'count("public"."Notifications"."id") as count, '+
+                '"Notifications"."userFrom" as user, '+
+                '"Notifications"."entityId" as entityid, '+
+                '"Notifications"."essenceId" as essenceid, '+
+                '"Users"."firstName" AS firstName, '+
+                '"Users"."lastName" AS lastName,  '+
+                '"Users"."isAnonymous" AS isAnonymous, '+
+                'CAST (\'from\' as varchar),  '+
+                'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                'FROM "Notifications"  '+
+                'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
+                selectWhere+ ' '+
+                'GROUP BY "Notifications"."userFrom", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                ') ';
+            var withTo =
+                'c2 as (SELECT '+
+                'count("public"."Notifications"."id") as count, '+
+                '"Notifications"."userTo" as user, '+
+                '"Notifications"."entityId" as entityid, '+
+                '"Notifications"."essenceId" as essenceid, '+
+                '"Users"."firstName" AS firstName, '+
+                '"Users"."lastName" AS lastName,  '+
+                '"Users"."isAnonymous" AS isAnonymous, '+
+                'CAST (\'to\' as varchar),  '+
+                'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                'FROM "Notifications"  '+
+                'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
+                selectWhere+ ' '+
+                'GROUP BY "Notifications"."userTo", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                ') ';
+            var withPivot =
+                'c3 as (SELECT ' +
+                'v1."user" as userid, '+
+                'v1."entityid" as entityid, '+
+                'v1."essenceid" as essenceid, '+
                 'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
-                    ' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
+                'THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
-                    ' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
+                'THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
-                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo '+
-                'FROM '+
-                '(SELECT '+
-                    'count("public"."Notifications"."id") as count, '+
-                    '"Notifications"."userFrom" as user, '+
-                    '"Users"."firstName" AS firstName, '+
-                    '"Users"."lastName" AS lastName, '+
-                    '"Users"."isAnonymous" AS isAnonymous, '+
-                    'CAST (\'from\' as varchar), '+
-                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
-                    'FROM "Notifications" '+
-                    'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
-                    'WHERE "Notifications"."userTo" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userFrom", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo FROM '+
+                '( '+
+                'select * from c1 '+
                 'UNION '+
-                'SELECT '+
-                    'count("public"."Notifications"."id") as count, '+
-                    '"Notifications"."userTo" as user, '+
-                    '"Users"."firstName" AS firstName, '+
-                    '"Users"."lastName" AS lastName, '+
-                    '"Users"."isAnonymous" AS isAnonymous, '+
-                    'CAST (\'to\' as varchar), '+
-                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
-                    'FROM "Notifications" '+
-                    'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
-                    'WHERE "Notifications"."userFrom" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userTo", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous"  '+
+                'select * from c2 '+
                 ') as v1 '+
-                'GROUP BY v1."user", v1."firstname", v1."lastname", v1."isanonymous"';
+                'GROUP BY v1."user", v1."entityid", v1."essenceid", v1."firstname", v1."lastname", v1."isanonymous" '+
+                ') ';
+            var withc4 =
+                'c4 as (SELECT ' +
+                'c3.*, '+
+                '"Discussions"."taskId" as taskid, '+
+                '"Tasks"."stepId" as stepid, '+
+                '"WorkflowSteps"."title" as stepname, '+
+                '"WorkflowSteps"."role" as role '+
+                'FROM c3 '+
+                'LEFT JOIN "Discussions" ON c3."entityid" = "Discussions"."id" '+
+                'LEFT JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'LEFT JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                ') ';
+            var mainQuery ='SELECT '+
+                'c4."userid", '+
+                'CASE  WHEN c4."role" IS NOT NULL THEN  c4."role" ELSE c4."firstName" END as firstName, '+
+                'CASE  WHEN c4."stepname" IS NOT NULL THEN  c4."stepname" ELSE c4."lastName" END as lastName, '+
+/*
+                'c4."lastName", '+
+                'c4."stepname", '+
+                'c4."role", '+
+*/
+                'c4."essenceid", '+
+                'c4."entityid", '+
+                'sum(c4."countfrom") as countfrom, '+
+                'sum(c4."countto") as countto,'+
+                'sum(c4."unreadfrom") as unreadfrom, '+
+                'sum(c4."unreadto") as unreadto '+
+                'FROM c4 '+
+                'GROUP BY c4."userid", c4."firstName", c4."lastName", c4."stepname", c4."role", c4."essenceid", c4."entityid" ';
+
+            var selectQuery = withFrom + ', ' + withTo + ', ' + withPivot + ', ' + withc4 + mainQuery;
+
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
