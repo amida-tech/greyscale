@@ -11,71 +11,47 @@ angular.module('greyscaleApp')
             subindexes: []
         };
 
-        _loadData().then(_initIndexesTable).then(_initSubindexesTable);
+        _initIndexesTables();
+        _loadData().then(function() {
+            $scope.model.indexesTable.tableParams.reload();
+            $scope.model.subindexesTable.tableParams.reload();
+        });
 
         /* UI */
         /* Table */
-        function _initIndexesTable() {
-            var tableTns = tns + 'INDEXES_TABLE.';
-            $scope.model.indexesTable = {
-                title: tableTns + 'TABLE_TITLE',
-                cols: [{
-                    field: 'title',
-                    title: tableTns + 'TITLE'
-                }, {
-                    field: 'divisor',
-                    title: tableTns + 'DIVISOR'
-                }, {
-                    cellTemplate: '<div class="pull-right"> ' +
-                        '<a class="action" ng-click="ext.editIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>' + 
-                        '<a class="action" ng-click="ext.removeIndex(row, \'index\'); $event.stopPropagation()"><i class="fa fa-trash"></i></a>' +
-                        '</div>',
-                    cellTemplateExtData: {
-                        editIndex: _editIndex
-                    }
-                }],
-                dataPromise: function() {
-                    var deferred = $q.defer();
-                    deferred.resolve($scope.model.indexes);
-                    return deferred.promise;
-                },
-                add: {
-                    handler: function() {
-                        _editIndex({}, 'index');
-                    }
-                }
-            };
+        function _initIndexesTables() {
+            $scope.model.indexesTable = _genTableConfig('index', tns + 'INDEXES_TABLE.');
+            $scope.model.subindexesTable = _genTableConfig('subindex', tns + 'SUBINDEXES_TABLE.');
         }
 
-        function _initSubindexesTable() {
-            var tableTns = tns + 'SUBINDEXES_TABLE.';
-            $scope.model.subindexesTable = {
+        function _genTableConfig(type, tableTns) {
+            return {
                 title: tableTns + 'TABLE_TITLE',
                 cols: [{
                     field: 'title',
-                    title: tableTns + 'TITLE'
+                    title: tableTns + 'TITLE',
+                    cellClass: 'text-center'
                 }, {
-                    field: 'divisor',
-                    title: tableTns + 'DIVISOR'
-                }, {
-                    cellTemplate: '<div class="pull-right"> ' +
-                        '<a class="action" ng-click="ext.editIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>' + 
-                        '<a class="action" ng-click="ext.removeIndex(row, \'subindex\'); $event.stopPropagation()"><i class="fa fa-trash"></i></a>' +
-                        '</div>',
-                    cellTemplateExtData: {
-                        editIndex: _editIndex,
-                        removeIndex: _removeIndex
-                    }
+                    dataFormat: 'action',
+                    actions: [{
+                        icon: 'fa-pencil',
+                        handler: function (row) { _editIndex(row, type); }
+                    }, {
+                        icon: 'fa-trash',
+                        handler: function (row) { _removeIndex(row, type); }
+                    }]
                 }],
                 dataPromise: function() {
                     var deferred = $q.defer();
-                    deferred.resolve($scope.model.subindexes);
+                    if (type === 'index') {
+                        deferred.resolve($scope.model.indexes);
+                    } else if (type === 'subindex') {
+                        deferred.resolve($scope.model.subindexes);
+                    }
                     return deferred.promise;
                 },
                 add: {
-                    handler: function() {
-                        _editIndex({}, 'subindex');
-                    }
+                    handler: function() { _editIndex({}, type); }
                 }
             };
         }

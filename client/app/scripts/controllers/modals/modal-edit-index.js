@@ -84,12 +84,11 @@ angular.module('greyscaleApp')
             cellTemplate: '<input type="number" name="weight" ng-model="row.weight" class="form-control input-sm" required/>'
         });
         cols.push({
-            cellTemplate: '<div class="pull-right"> ' +
-                '<a class="action" ng-click="ext.removeWeight(row); $event.stopPropagation()"><i class="fa fa-trash"></i></a>' +
-                '</div>',
-            cellTemplateExtData: {
-                removeWeight: _removeWeight
-            }
+            dataFormat: 'action',
+            actions: [{
+                icon: 'fa-trash',
+                handler: _removeWeight
+            }]
         });
 
         $scope.model.weightsTable = {

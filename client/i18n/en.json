@@ -232,8 +232,12 @@
     "PRODUCTS": {
         "INDEXES": {
             "FORM": {
+                "AVG_DIVISORS": "average",
                 "DIVISOR": "Divisor",
                 "MODAL_TITLE": "Edit Index {{index.title}}",
+                "MODAL_TITLE_CREATE": "Create Index",
+                "SUGGESTED_DIVISORS": "Suggested divisors",
+                "SUM_DIVISORS": "sum",
                 "TITLE": "Title",
                 "WEIGHTS": {
                     "FIELD": "Field",
