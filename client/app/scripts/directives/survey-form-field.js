@@ -155,16 +155,24 @@ angular.module('greyscaleApp')
                                 required: scope.field.required
                             };
 
-                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" ' +
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" validator="field"' +
                                 'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
+
+                            message += '<span ng-if ="field.ngModel.$error.date" translate="FORMS.WRONG_DATE_FORMAT"></span>';
                             break;
 
                         case 'bullet_points':
-                            body = '<bullets  bullet-field="field"></bullets-field>';
+                            scope.field.options = {
+                                readonly: !scope.field.flags.allowEdit,
+                                disabled: !scope.field.flags.allowEdit,
+                                required: scope.field.required
+                            };
+
+                            body = '<bullets bullet-field="field"></bullets-field>';
                             break;
 
                         default:
-                            $log.debug('not rendering', scope.field);
+                            $log.debug('not rendered', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
@@ -173,7 +181,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.canAttach) {
-                            attach = '<attachments model="field.attachments"></attachments>';
+                            attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}"></attachments>';
                         }
                         body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;

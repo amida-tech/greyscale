@@ -230,6 +230,7 @@ angular.module('greyscaleApp')
                     fld = fields[f];
                     answer = answers[fld.cid];
                     if (answer) {
+                        fld.answerId = answer.id;
                         switch (fld.type) {
                         case 'checkboxes':
                             oQty = fld.options.length;
@@ -245,7 +246,7 @@ angular.module('greyscaleApp')
                                 fld.otherOption = {
                                     id: -1,
                                     checked: (!!answer.value),
-                                    value: answer.value
+                                    value: answer.value || fld.value
                                 };
                             }
                             break;
@@ -293,7 +294,10 @@ angular.module('greyscaleApp')
                             fld.answer.push({
                                 data: ''
                             });
-                            $log.debug('loading "bullet_points"', tmp, fld.answer, answer);
+                            break;
+
+                        case 'date':
+                            fld.answer = new Date(answer.value);
                             break;
 
                         default:
@@ -338,11 +342,14 @@ angular.module('greyscaleApp')
             var answers = {};
 
             function saveFields(fields) {
-                var f, fld, qty = fields.length;
+                var f, fld, answer,
+                    qty = fields.length;
+
                 for (f = 0; f < qty; f++) {
                     fld = fields[f];
+
                     if (fld.answer || fld.type === 'checkboxes') {
-                        var answer = {
+                        answer = {
                             questionId: fld.id
                         };
                         angular.extend(answer, params);
@@ -354,7 +361,7 @@ angular.module('greyscaleApp')
                                     answer.optionId.push(fld.options[o].id);
                                 }
                             }
-                            if (fld.withOther && fld.otherOption.checked) {
+                            if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
                                 answer.value = fld.otherOption.value;
                             }
                             break;
@@ -373,7 +380,6 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'bullet_points':
-                            $log.debug('saving bullets', fld.answer, answer);
                             var tmp = [];
                             for (o = 0; o < fld.answer.length; o++) {
                                 if (fld.answer[o].data) {
@@ -381,7 +387,6 @@ angular.module('greyscaleApp')
                                 }
                             }
                             answer.value = angular.toJson(tmp);
-                            $log.debug('saving bullets', fld.answer, tmp, answer);
                             break;
 
                         default:
