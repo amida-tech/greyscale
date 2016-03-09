@@ -5,7 +5,9 @@ var Notification = sql.define({
     columns: [
         'id',
         'userFrom',
+        'userFromName',
         'userTo',
+        'userToName',
         'body',
         'note',
         'email',
@@ -25,7 +27,9 @@ var Notification = sql.define({
 
 Notification.insertCols = [
     'userFrom',
+    'userFromName',
     'userTo',
+    'userToName',
     'body',
     'note',
     'email',

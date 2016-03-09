@@ -183,10 +183,13 @@ module.exports = {
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
             var withNotes = 'WITH notes as (SELECT "Notifications".* FROM "Notifications" '+selectWhere+')';
+/*
             var withDiscid = 'discid as ( SELECT "Discussions"."id" FROM "Notifications" INNER JOIN "Discussions" ON "Notifications"."entityId" = "Discussions"."id" '+
             selectWhere + ' AND "Notifications"."essenceId" = '+essenceId.toString() + ' ) ';
+*/
             var withUFrom = 'uFrom as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userFrom" '+selectWhere+ ' ) ';
             var withUTo = 'uTo as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userTo" '+selectWhere+ ' ) ';
+/*
             //-- discussions with stepId, stepName, role
             var withDiscuss = 'discuss as (SELECT '+
                 '"Discussions".id , '+
@@ -198,29 +201,45 @@ module.exports = {
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
                 'WHERE "Discussions"."id" IN (SELECT * FROM discid) )';
+*/
             var mainSelectCase =
             'SELECT '+
             'CAST( '+
                 'CASE '+
-            'WHEN (discuss."stepid" IS NOT NULL) THEN CONCAT(discuss."role", \' (\', discuss."stepname", \')\') '+
+            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userFromName" IS NOT NULL) THEN notes."userFromName" '+
             'WHEN ( uFrom."isAnonymous" AND '+isNotAdmin.toString()+' AND uFrom."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
             'ELSE CONCAT(uFrom."firstName", \' \', uFrom."lastName") '+
             'END as varchar) AS "userFromName", '+
             'CAST( '+
                 'CASE '+
-            'WHEN (discuss."stepid" IS NOT NULL) THEN CONCAT(discuss."role", \' (\', discuss."stepname", \')\') '+
+            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userToName" IS NOT NULL) THEN notes."userToName" '+
             'WHEN ( uTo."isAnonymous" AND '+isNotAdmin.toString()+' AND uTo."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
             'ELSE CONCAT(uTo."firstName", \' \', uTo."lastName") '+
             'END as varchar) AS "userToName", ';
-            var mainSelectRest = 'notes.* '+
+            var mainSelectRest =
+                'notes."id", '+
+                'notes."userFrom", '+
+                'notes."userTo", '+
+                'notes.body, '+
+                'notes.email, '+
+                'notes.message, '+
+                'notes.subject, '+
+                'notes."essenceId", '+
+                'notes."entityId", '+
+                'notes.created, '+
+                'notes.reading, '+
+                'notes.sent, '+
+                'notes."read", '+
+                'notes."notifyLevel", '+
+                'notes.ressult, '+
+                'notes.resent, '+
+                'notes.note '+
                 'FROM notes '+
                 'LEFT JOIN uFrom ON notes."userFrom" = uFrom."id" '+
                 'LEFT JOIN uTo ON notes."userTo" = uTo."id" '+
-                'LEFT JOIN discuss ON notes."entityId" = discuss."id" '+
                 'ORDER BY notes."id"';
 
-            var selectQuery = withNotes + ', ' + withDiscid + ', ' + withUFrom + ', ' + withUTo + ', ' + withDiscuss +
-                    mainSelectCase + mainSelectRest;
+            var selectQuery = withNotes + ', ' + withUFrom + ', ' + withUTo + mainSelectCase + mainSelectRest;
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -322,15 +341,12 @@ module.exports = {
                 ') ';
             var mainQuery ='SELECT '+
                 'c4."userid", '+
-                'CASE  WHEN c4."role" IS NOT NULL THEN  c4."role" ELSE c4."firstName" END as firstName, '+
-                'CASE  WHEN c4."stepname" IS NOT NULL THEN  c4."stepname" ELSE c4."lastName" END as lastName, '+
-/*
-                'c4."lastName", '+
-                'c4."stepname", '+
-                'c4."role", '+
-*/
-                'c4."essenceid", '+
-                'c4."entityid", '+
+                'CASE  WHEN c4."role" IS NOT NULL THEN  c4."role" ELSE c4."firstName" END as role, '+
+                'CASE  WHEN c4."stepname" IS NOT NULL THEN  c4."stepname" ELSE c4."lastName" END as stepname, '+
+                'c4."firstName" as firstname, '+
+                'c4."lastName" as lastname, '+
+                'c4."essenceid" as essenceid, '+
+                'c4."entityid" as entityid, '+
                 'sum(c4."countfrom") as countfrom, '+
                 'sum(c4."countto") as countto,'+
                 'sum(c4."unreadfrom") as unreadfrom, '+
