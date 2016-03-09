@@ -90,7 +90,7 @@ angular.module('greyscaleApp')
         };
 
         var userForm = {
-            formTitle: tns + '.PROFILE',
+            formTitle: tns + 'PROFILE',
             cols: $scope.view.user
         };
 
