@@ -47,6 +47,8 @@
         "YES": "Да"
     },
     "DASHBOARD": {
+        "PROJECTS": "",
+        "TASKS": "",
         "UNREAD_MESSAGES_ALERT": ""
     },
     "DATEPICKER": {
@@ -359,9 +361,11 @@
         "ADDRESS_ERROR": "",
         "AFFILATION": "",
         "BIO": "",
+        "CHANGE_PASSWORD": "",
         "COMPANY_NAME": "",
         "COMPANY_NAME_ERROR": "",
         "CREATED": "",
+        "CURRENT_PASSWORD": "",
         "EMAIL": "",
         "FIRST_NAME": "",
         "LANGUAGE": "",
@@ -369,11 +373,16 @@
         "LAST_NAME": "",
         "LOCATION": "",
         "MOBILE": "",
+        "NEW_PASSWORD": "",
         "NOT_ACTIVATED": "",
         "NOT_VERIFIED": "",
         "ORGANIZATION": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": "",
         "PHONE": "",
         "PROFILE": "",
+        "REPEAT_PASSWORD": "",
+        "REPEAT_PASSWORD_ERROR": "",
         "TIMEZONE": "",
         "URL": "",
         "URL_ERROR": "",
@@ -419,9 +428,11 @@
     },
     "ROLE_RIGHTS": {
         "ACTION": "Действие",
+        "ADD_RIGHT_TO_ROLE": "",
         "DELETE_CONFIRM": "Подтвердите удаление правила <b>{{roleRight.action}}</b> роли <b>{{role.name}}</b>",
         "DESCRIPTION": "Описание",
         "ENTITY_TYPE": "Тип объекта",
+        "RIGHT_ERROR": "",
         "ROLE_RIGHT": "Правило роли",
         "ROLE_RIGHTS": "Правила ролей"
     },
@@ -447,6 +458,7 @@
         "SELECT_ONE": "",
         "STATUS": "",
         "SUBMIT": "",
+        "TITLE": "",
         "VERSION": "Версии",
         "VIEW": "Просмотр"
     },

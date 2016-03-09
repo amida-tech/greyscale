@@ -1,10 +1,10 @@
 <modal-form-header>
-    Add right to role '{{view.role.name}}'
+    <span translate="ROLE_RIGHTS.ADD_RIGHT_TO_ROLE" translate-values="{role: view.role.name}"></span>
 </modal-form-header>
-<div class="modal-body">
+<div class="modal-body" translate-namespace="ROLE_RIGHTS">
     <div name="dataForm" class="form-horizontal" ng-form="dataForm">
         <div class="form-group">
-            <label for="right" class="col-sm-3 control-label">Right:</label>
+            <label for="right" class="col-sm-3 control-label"><span translate="RIGHTS.RIGHT"></span>:</label>
 
             <div class="col-sm-9">
                 <select class="form-control"
@@ -15,17 +15,17 @@
 
                 <div class="text-center" ng-messages="dataForm.rights.$error" role="alert"
                      ng-if="dataForm.rights.$dirty">
-                    <span ng-message="requred" class="help-block">Please select right.</span>
+                    <span ng-message="requred" class="help-block"><span translate=".RIGHT_ERROR"></span></span>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">Entity Type:</label>
+            <label class="col-sm-3 control-label"><span translate="RIGHTS.ENTITY_TYPE"></span>:</label>
 
             <div class="col-sm-9"><p class="form-control-static">{{model.entityType}}</p></div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">Description:</label>
+            <label class="col-sm-3 control-label"><span translate="RIGHTS.DESCRIPTION"></span>:</label>
 
             <div class="col-sm-9"><p class="form-control-static">{{model.description}}</p></div>
         </div>

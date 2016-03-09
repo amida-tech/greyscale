@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row" translate-namespace="SURVEYS">
     <div name="dataForm" class="form-horizontal" ng-form="dataForm">
         <div class="form-group" ng-show="model.survey.id">
             <label class="col-sm-4 control-label">ID:</label>
@@ -8,21 +8,21 @@
         </div>
 
         <div class="form-group">
-            <label for="title" class="col-sm-4 control-label">Title</label>
+            <label for="title" class="col-sm-4 control-label" translate=".TITLE"></label>
             <div class="col-sm-8">
                 <input type="text" class="form-control" name="title" id="title" ng-model="model.survey.title" />
             </div>
         </div>
 
         <div class="form-group">
-            <label for="draft" class="col-sm-4 control-label">Is Draft</label>
+            <label for="draft" class="col-sm-4 control-label" translate=".IS_DRAFT"></label>
             <div class="col-sm-8">
                 <input type="checkbox" name="draft" id="draft" ng-model="model.survey.isDraft" />
             </div>
         </div>
 
         <div class="form-group">
-            <label for="description" class="col-sm-4 control-label">Description</label>
+            <label for="description" class="col-sm-4 control-label" translate=".DESCRIPTION"></label>
             <div class="col-sm-8">
                 <textarea type="text" class="form-control" name="description" id="description"
                           ng-model="model.survey.description"></textarea>

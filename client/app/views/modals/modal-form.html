@@ -16,7 +16,10 @@
                 ></div>
         </div>
         <div ng-if="view.warning = view.formWarning(model)" class="alert alert-warning">
-            {{view.warning}}
+            {{view.warning|translate}}
+        </div>
+        <div ng-if="error" class="alert alert-danger">
+            {{error|translate}}
         </div>
     </div>
 </div>
