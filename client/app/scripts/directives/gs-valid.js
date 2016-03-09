@@ -4,16 +4,16 @@
 
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsValid', function ($log) {
+    .directive('gsValid', function () {
         return {
             restrict: 'A',
             require: 'ngModel',
             link: function (scope, elem, attrs, ngModel) {
-                scope.$watch(attrs.gsValid, function(gsValid){
+                scope.$watch(attrs.gsValid, function (gsValid) {
                     if (gsValid && ngModel) {
                         gsValid.ngModel = ngModel;
                     }
-                })
+                });
             }
         };
     });
