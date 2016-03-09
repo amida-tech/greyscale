@@ -425,109 +425,55 @@ module.exports = {
         });
     },
 
-    calculateIndexes: function (req, res, next) {
+    aggregateIndexes: function (req, res, next) {
         var productId = parseInt(req.params.id);
         co(function* () {
-            var data = yield dumpProduct(productId);
-            var subindexes = yield getSubindexes(productId);
-            var indexes = yield getIndexes(productId);
-  
-            q =
-                'SELECT ' +
-                '  "SurveyQuestions"."id", ' +
-                '  "SurveyQuestions"."label" AS "title", ' +
-                '  "SurveyQuestions"."type" ' +
-                'FROM ' +
-                '  "SurveyQuestions" ' +
-                'LEFT JOIN ' +
-                '  "Products" ON "Products"."surveyId" = "SurveyQuestions"."surveyId" ' +
-                'WHERE ' +
-                '  ("Products"."id" = ' + productId + ') ' +
-                '; ';
-            var questions = yield thunkQuery(q);
-  
-            // type of each question
-            var questionTypes = {};
-            questions.forEach(function (question) {
-                questionTypes[question.id] = question.type;
-            });
-  
-            // only return questions for which at least one UOA has an answer
-            var questionsPresent = new Set();
-  
-            // only parse questions required by at least one (sub)index
-            var questionsRequired = new Set();
-            subindexes.forEach(function (subindex) {
-                for (var questionId in subindex['weights']) {
-                    questionsRequired.add(questionId);
-                }
-            });
-            indexes.forEach(function (index) {
-                for (var questionId in index['questionWeights']) {
-                    questionsRequired.add(questionId);
-                }
-            });
-  
-            var result = { agg: [] };
-            // TODO: mapping over generators?
-            for (var i = 0; i < data.length; i++) {
-                var datum = data[i];
-  
-                // parse question answers to number
-                for (var questionId in datum['questions']) {
-                    if (questionsRequired.has(questionId)) {
-                        questionsPresent.add(questionId);
-                        datum['questions'][questionId] = yield parseNumericalAnswer(
-                                datum['questions'][questionId],
-                                questionTypes[questionId]
-                        );
-                    } else {
-                        delete datum['questions'][questionId];
-                    }
-                }
-  
-                // calculate subindexes
-                datum['subindexes'] = {};
-                subindexes.forEach(function (subindex) {
-                    var value = 0;
-                    for (var questionId in subindex['weights']) {
-                        value += datum['questions'][questionId] * subindex['weights'][questionId];
-                    }
-                    datum['subindexes'][subindex['id']] = value / subindex['divisor'];
-                });
-  
-                // calculate index(es)
-                datum['indexes'] = {};
-                indexes.forEach(function (index) {
-                    var value = 0;
-                    for (var questionId in index['questionWeights']) {
-                        value += datum['questions'][questionId] * index['questionWeights'][questionId];
-                    }
-                    for (var subindexId in index['subindexWeights']) {
-                        value += datum['subindexes'][subindexId] * index['subindexWeights'][subindexId];
-                    }
-                    datum['indexes'][index['id']] = value / index['divisor'];
-                });
-  
-                result.agg.push(datum);
-            }
-  
-            // add all (non)calculated fields
-            result.subindexes = subindexes.map(function (subindex) {
-                return { id: subindex.id, title: subindex.title };
-            });
-            result.indexes = indexes.map(function (index) {
-                return { id: index.id, title: index.title };
-            });
-            result.questions = questions.filter(function (question) {
-                return questionsPresent.has(question.id.toString());
-            });
-  
-            return result;
+            return yield aggregateIndexes(productId);
         }).then(function (result) {
-          res.json(result);
+            res.json(result);
         }, function (err) {
-          next(err);
+            next(err);
+        });
+    },  
+
+    aggregateIndexesCsv: function (req, res, next) {
+        var productId = parseInt(req.params.id);
+        co(function* () {
+            return yield aggregateIndexes(productId);
+        }).then(function (result) {
+            // column titles
+            var titles = {
+                questions: {},
+                indexes: {},
+                subindexes: {}
+            };
+            ['questions', 'indexes', 'subindexes'].forEach(function (collection) {
+                result[collection].forEach(function (datum) {
+                    titles[collection][datum.id] = datum.title;
+                });
+            });
+
+            var output = result.agg.map(function (uoa) {
+                var uoaOutput = _.pick(uoa, ['id', 'name', 'ISO2']);
+                ['questions', 'indexes', 'subindexes'].forEach(function (collection) {
+                    for (var datumId in uoa[collection]) {
+                        uoaOutput[titles[collection][datumId]] = uoa[collection][datumId];
+                    }
+                });
+                return uoaOutput;
+            });
+
+            // add header row
+            // aggregateIndexes ensures uniform keys across uoas
+            var headerRow = {};
+            for (var key in output[0]) {
+                headerRow[key] = key;
+            }
+            output.unshift(headerRow);
+
+            res.csv(output);
+        }, function (err) {
+            next(err);
         });
     },  
 
@@ -971,4 +917,103 @@ function* parseNumericalAnswer(raw, questionType) {
         parsed = parseFloat(raw);
     }
     return parsed;
+}
+
+function* aggregateIndexes(productId) {
+    var data = yield dumpProduct(productId);
+    var subindexes = yield getSubindexes(productId);
+    var indexes = yield getIndexes(productId);
+
+    q =
+        'SELECT ' +
+        '  "SurveyQuestions"."id", ' +
+        '  "SurveyQuestions"."label" AS "title", ' +
+        '  "SurveyQuestions"."type" ' +
+        'FROM ' +
+        '  "SurveyQuestions" ' +
+        'LEFT JOIN ' +
+        '  "Products" ON "Products"."surveyId" = "SurveyQuestions"."surveyId" ' +
+        'WHERE ' +
+        '  ("Products"."id" = ' + productId + ') ' +
+        '; ';
+    var questions = yield thunkQuery(q);
+
+    // type of each question
+    var questionTypes = {};
+    questions.forEach(function (question) {
+        questionTypes[question.id] = question.type;
+    });
+
+    // only return questions for which at least one UOA has an answer
+    var questionsPresent = new Set();
+
+    // only parse questions required by at least one (sub)index
+    var questionsRequired = new Set();
+    subindexes.forEach(function (subindex) {
+        for (var questionId in subindex['weights']) {
+            questionsRequired.add(questionId);
+        }
+    });
+    indexes.forEach(function (index) {
+        for (var questionId in index['questionWeights']) {
+            questionsRequired.add(questionId);
+        }
+    });
+
+    var result = { agg: [] };
+    // TODO: mapping over generators?
+    for (var i = 0; i < data.length; i++) {
+        var datum = data[i];
+
+        // parse question answers to number
+        for (var questionId in datum['questions']) {
+            if (questionsRequired.has(questionId)) {
+                questionsPresent.add(questionId);
+                datum['questions'][questionId] = yield parseNumericalAnswer(
+                        datum['questions'][questionId],
+                        questionTypes[questionId]
+                );
+            } else {
+                delete datum['questions'][questionId];
+            }
+        }
+
+        // calculate subindexes
+        datum['subindexes'] = {};
+        subindexes.forEach(function (subindex) {
+            var value = 0;
+            for (var questionId in subindex['weights']) {
+                value += datum['questions'][questionId] * subindex['weights'][questionId];
+            }
+            datum['subindexes'][subindex['id']] = value / subindex['divisor'];
+        });
+
+        // calculate index(es)
+        datum['indexes'] = {};
+        indexes.forEach(function (index) {
+            var value = 0;
+            for (var questionId in index['questionWeights']) {
+                value += datum['questions'][questionId] * index['questionWeights'][questionId];
+            }
+            for (var subindexId in index['subindexWeights']) {
+                value += datum['subindexes'][subindexId] * index['subindexWeights'][subindexId];
+            }
+            datum['indexes'][index['id']] = value / index['divisor'];
+        });
+
+        result.agg.push(datum);
+    }
+
+    // add all (non)calculated fields
+    result.subindexes = subindexes.map(function (subindex) {
+        return { id: subindex.id, title: subindex.title };
+    });
+    result.indexes = indexes.map(function (index) {
+        return { id: index.id, title: index.title };
+    });
+    result.questions = questions.filter(function (question) {
+        return questionsPresent.has(question.id.toString());
+    });
+
+    return result;
 }

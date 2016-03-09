@@ -47,7 +47,7 @@ angular.module('greyscale.rest')
 
         function _indexes(productId) {
             return function() {
-                return api().one(productId + '').one('calculate').get();
+                return api().one(productId + '').one('aggregate').get();
             };
         }
 
