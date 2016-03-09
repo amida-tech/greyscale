@@ -54,7 +54,7 @@ User.validPassword = function (pas, checkpas) {
 };
 
 User.editCols = [
-    'firstName', 'lastName', 'phone', 'birthday',
+    'firstName', 'lastName', 'phone', 'birthday', 'password',
     'updated', 'timezone','location','cell','address',
     'lang','bio','notifyLevel','affiliation'
 ];
@@ -67,7 +67,7 @@ User.translate = [
     'location'
 ];
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password'];
 User.whereCol = columns;
 
 module.exports = User;

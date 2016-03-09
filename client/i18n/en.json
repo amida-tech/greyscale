@@ -381,7 +381,7 @@
         "PASSWORD_ERROR": "Password must be 8 characters or more.",
         "PHONE": "Phone",
         "PROFILE": "Profile",
-        "REPEAT_PASSWORD": "Repeat Password",
+        "REPEAT_PASSWORD": "Repeat New Password",
         "REPEAT_PASSWORD_ERROR": "Repeated password not match previously entered.",
         "TIMEZONE": "Timezone",
         "URL": "URL",

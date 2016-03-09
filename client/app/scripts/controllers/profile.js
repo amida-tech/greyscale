@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('ProfileCtrl', function ($q, $scope, greyscaleProfileSrv, greyscaleUserApi, greyscaleModalsSrv,
-        greyscaleGlobals, greyscaleUtilsSrv) {
+        greyscaleGlobals, greyscaleUtilsSrv, inform, i18n) {
 
         var tns = 'PROFILE.';
 
@@ -135,6 +135,7 @@ angular.module('greyscaleApp')
             greyscaleModalsSrv.editRec(_userData, userForm)
                 .then(function (_user) {
                     delete _user.organization;
+                    delete _user.password;
                     return greyscaleUserApi.save(_user)
                         .then(function (resp) {
                             $scope.model.user = _user;
@@ -167,8 +168,10 @@ angular.module('greyscaleApp')
                 id: $scope.model.user.id
             };
             greyscaleModalsSrv.editRec(_passwordData, changePasswordForm)
-                .then(function(data, form){
-                    console.log(form);
+                .then(function(){
+                    inform.add(i18n.translate('USERS.CHANGE_PASSWORD_SUCCESS'), {
+                        type: 'success'
+                    });
                 });
         };
 
