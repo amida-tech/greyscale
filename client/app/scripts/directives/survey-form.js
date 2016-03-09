@@ -26,7 +26,7 @@ angular.module('greyscaleApp')
 
                 scope.save = function () {
                     saveAnswers(scope)
-                        .then(function () {
+                        .then(function (data) {
                             if (scope.surveyData.task) {
                                 return greyscaleProductApi
                                     .product(scope.surveyData.task.productId)
@@ -110,87 +110,91 @@ angular.module('greyscaleApp')
                         href: fldId
                     };
 
-                    if (!field.options && (type === 'radio' || type === 'checkboxes')) {
-                        $log.debug('no options', field.options);
-                        field.options = field.options || [];
-                    }
-
                     fld = {
                         id: field.id,
-                        qid: field.qid,
                         cid: fldId,
                         type: type,
                         label: field.label,
-                        description: field.description,
-                        required: field.isRequired,
-                        listType: field.optionNumbering,
-                        options: field.options,
-                        minLength: field.minLength,
-                        maxLength: field.maxLength,
-                        inWords: field.isWordmml,
-                        units: field.units,
-                        intOnly: field.intOnly,
-                        withOther: field.incOtherOpt,
-                        value: field.value,
-                        links: field.links,
-                        canAttach: field.attachment,
-                        attachments: [],
-                        ngModel: {},
-                        flags: scope.surveyData.flags,
-                        answer: null
+                        description: field.description
                     };
 
-                    switch (type) {
-                    case 'checkboxes':
-                        for (o = 0; o < field.options.length; o++) {
-                            angular.extend(fld.options[o] || {}, {
-                                checked: field.options[o] ? field.options[o].isSelected : false,
-                                name: field.options[o] ? field.options[o].label : ''
-                            });
-                        }
-                        break;
-
-                    case 'dropdown':
-                    case 'radio':
-                        if (type === 'dropdown') {
-                            if (!fld.required) {
-                                fld.options.unshift({
-                                    id: null,
-                                    label: '',
-                                    value: null
-                                });
-                                fld.answer = fld.options[0];
-                            }
-                        }
-
-                        for (o = 0; o < field.options.length; o++) {
-                            if (field.options[o] && field.options[o].isSelected) {
-                                fld.answer = field.options[o];
-                            }
-                        }
-                        break;
-
-                    case 'number':
-                        if (fld.intOnly) {
-                            fld.answer = parseInt(fld.value);
-                        } else {
-                            fld.answer = parseFloat(fld.value);
-                        }
-                        break;
-
-                    default:
-                        fld.answer = fld.value;
-                    }
-
                     if (type === 'section_end') { // close section
-                        r--;
+                        if (r > 0) {
+                            r--;
+                        }
                     } else { //push data into current section
                         if (excludedFields.indexOf(field.type) === -1) {
+                            if (!field.options && (type === 'radio' || type === 'checkboxes')) {
+                                field.options = field.options || [];
+                            }
+
+                            angular.extend(fld, {
+                                qid: field.qid,
+                                required: field.isRequired,
+                                listType: field.optionNumbering,
+                                options: field.options,
+                                minLength: field.minLength,
+                                maxLength: field.maxLength,
+                                inWords: field.isWordmml,
+                                units: field.units,
+                                intOnly: field.intOnly,
+                                withOther: field.incOtherOpt,
+                                value: field.value,
+                                links: field.links,
+                                canAttach: field.attachment,
+                                attachments: [],
+                                ngModel: {},
+                                flags: scope.surveyData.flags,
+                                answer: null
+                            });
+
+                            switch (type) {
+                            case 'checkboxes':
+                                for (o = 0; o < field.options.length; o++) {
+                                    angular.extend(fld.options[o] || {}, {
+                                        checked: field.options[o] ? field.options[o].isSelected : false,
+                                        name: field.options[o] ? field.options[o].label : ''
+                                    });
+                                }
+                                break;
+
+                            case 'dropdown':
+                            case 'radio':
+                                if (type === 'dropdown') {
+                                    if (!fld.required) {
+                                        fld.options.unshift({
+                                            id: null,
+                                            label: '',
+                                            value: null
+                                        });
+                                        fld.answer = fld.options[0];
+                                    }
+                                }
+
+                                for (o = 0; o < field.options.length; o++) {
+                                    if (field.options[o] && field.options[o].isSelected) {
+                                        fld.answer = field.options[o];
+                                    }
+                                }
+                                break;
+
+                            case 'number':
+                                if (fld.intOnly) {
+                                    fld.answer = parseInt(fld.value);
+                                } else {
+                                    fld.answer = parseFloat(fld.value);
+                                }
+                                break;
+
+                            default:
+                                fld.answer = fld.value;
+                            }
                             qid++;
+                            if (!fld.qid) {
+                                fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
+                            }
                         }
-                        if (!fld.qid) {
-                            fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
-                        }
+
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
 
