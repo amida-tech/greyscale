@@ -650,16 +650,26 @@ module.exports = {
     },
 
     updateSelf: function (req, res, next) {
-        query(
-            User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.user.id)),
-            function (err, data) {
-                if (!err) {
-                    res.status(202).end();
-                } else {
-                    next(err);
+        co(function* () {
+            var updateObj;
+            if(req.body.password){
+                if (!User.validPassword(req.user.password, req.body.currentPassword)) {
+                    throw new HttpError(400, 'Wrong current password');
                 }
+                updateObj = {
+                    password: User.hashPassword(req.body.password)
+                };
+            } else {
+                updateObj = _.pick(req.body, User.editCols);
             }
-        );
+
+            return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
+
+        }).then(function(){
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
     },
     forgot: function (req, res, next) {
         co(function* () {
