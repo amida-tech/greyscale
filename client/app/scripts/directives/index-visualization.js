@@ -27,7 +27,6 @@ angular.module('greyscaleApp')
                         scope.topics = vizData.agg.map(function (row) {
                             return {
                                 name: row.name,
-                                ISO2: row.ISO2,
                                 id: row.id
                             };
                         });
@@ -47,23 +46,29 @@ angular.module('greyscaleApp')
                 });
                 
                 function applyFilters(data, callback) {
-                    if (!scope.vizData) { callback(scope.vizData); }
+                    console.log("applyFilters called with");
+                    console.log(data);
+
+                    if (!data) { callback(data); }
 
                     //Handles case when data has not been narrowed, only variable changed
                     //length==0 because topicSelected ng-multi-select not registering as dirty (TODO)
                     if (scope.filterForm.topicSelected.length === 0) {
-                        callback(scope.vizData);
+                        callback(data);
                     } else {
                         var filteredVizData = [];
-                        scope.vizData.forEach(function (row) {
+                        data.forEach(function (row) {
+                            console.log("considering row");
                             if (scope.filterForm.topicSelected) {
                                 scope.filterForm.topicSelected.forEach(function (topic) {
-                                    if (topic.ISO2 === row.ISO2) {
+                                    if (topic.id === row.id) {
                                         filteredVizData.push(row);
                                     }
                                 });
                             }
                         });
+                        console.log("returning");
+                        console.log(filteredVizData);
                         callback(filteredVizData);
                     }
                 }
@@ -125,6 +130,60 @@ angular.module('greyscaleApp')
                     });
                 }
 
+                function renderComparative(plotData, index) {
+                    console.log(plotData);
+                    var labels = _.pluck(plotData, 'name');
+
+                    // average across all selected topics
+                    var values = _.pluck(_.pluck(plotData, index.collection), index.id);
+                    var average = _.reduce(values, function (m, n) { return m + n; }, 0) / values.length;
+                    console.log(labels);
+                    console.log(_.times(labels.length, function() { return average; }));
+
+                    var comparedColor = 'rgb(164, 194, 244)';
+                    var selectedColor = 'rgb(255, 217, 102)';
+                    var averageColor = 'rgb(234, 153, 153)';
+                    var graphData = [{
+                        type: 'bar',
+                        x: labels,
+                        y: values,
+                        marker: {
+                            color: _.map(plotData, function (datum) {
+                                if (datum.id === scope.filterForm.comparativeTopic.id) {
+                                    return selectedColor;
+                                } else {
+                                    return comparedColor;
+                                }
+                            })
+                        },
+                        showlegend: false
+                    }, {
+                        type: 'scatter',
+                        x: labels,
+                        y: _.times(labels.length, function() { return average; }),
+                        name: 'Regional Average',
+                        showlegend: true,
+                        marker: {
+                            color: averageColor
+                        },
+                        mode:  'lines',
+                        line: {
+                            dash: 'dot',
+                            width: 4
+                        }
+                    }];
+
+                    var layout = {
+                        title: index.title,
+                        width: 700,
+                        height: 700,
+                        hovermode: false
+                    };
+                    Plotly.newPlot('viz', graphData, layout, {
+                        showLink: false
+                    });
+                }
+
                 function renderVisualization(plotData) {
                     var index = scope.filterForm.indexSelected;
 
@@ -136,8 +195,10 @@ angular.module('greyscaleApp')
 
                     if (scope.filterForm.visualizationType === 'graph') {
                         renderBarGraph(plotData, index);
-                    } else {
+                    } else if (scope.filterForm.visualizationType === 'map') {
                         renderMap(plotData, index);
+                    } else if (scope.filterForm.visualizationType === 'comparative') {
+                        renderComparative(plotData, index);
                     }
                 }
 

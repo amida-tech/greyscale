@@ -96,11 +96,18 @@
   -->
 
   <div class="form-group">
-    <label for="visualizationTypeRadio"> Visualization: </label>
+    <label for="visualizationTypeRadio"> Visualization </label>
     <select class="form-control" id="visualizationTypeRadio" ng-model="filterForm.visualizationType">
       <option value="map">Choropleth Map</option>
       <option value="graph">Ranked Bar Graph</option>
+      <option value="comparative">Comparative Bar Graph</option>
     </select>
+  </div>
+
+  <div class="form-group" ng-show="filterForm.visualizationType == 'comparative'">
+      <label for="comparativeTopic"> Compare to </label>
+      <select class="form-control" id="comparativeTopic" ng-model="filterForm.comparativeTopic" ng-options="topic.name for topic in filterForm.topicSelected track by topic.id">
+      </select>
   </div>
 
   <button type="submit" class="btn btn-success" ng-click="drawVisualization()">Submit</button>
