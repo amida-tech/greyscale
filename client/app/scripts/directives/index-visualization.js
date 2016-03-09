@@ -106,7 +106,7 @@ angular.module('greyscaleApp')
                         text: _.pluck(plotData, 'name'),
                         autocolorscale: true,
                         colorbar: {
-                            title: 'Value',
+                            title: index.title,
                             thickness: 0.75,
                             len: 0.75,
                             xpad: 30
@@ -114,22 +114,18 @@ angular.module('greyscaleApp')
                     }];
 
                     var layout = {
-                        title: index.title,
+                        title: "'" + index.title + "' Choropleth Map",
                         geo: {
-                            projection: {
-                                type: 'mercator'
-                            },
+                            projection: { type: 'mercator' },
                             resolution: '50',
                             showframe: false,
                             showcoastlines: true,
                             scope: 'world'
                         },
-                        width: 700,
-                        height: 700
+                        width: $('#viz').width() - 20,
+                        height: 500
                     };
-                    Plotly.newPlot('viz', mapData, layout, {
-                        showLink: false
-                    });
+                    Plotly.newPlot('viz', mapData, layout, { showLink: false });
                 }
 
                 function renderBarGraph(plotData, index) {
@@ -141,17 +137,28 @@ angular.module('greyscaleApp')
                     var graphData = [{
                         type: 'bar',
                         x: _.pluck(plotData, 'name'),
-                        y: _.pluck(_.pluck(plotData, index.collection), index.id)
+                        y: _.pluck(_.pluck(plotData, index.collection), index.id),
+                        marker: { color: 'rgb(164, 194, 244)' }
                     }];
 
                     var layout = {
-                        title: index.title,
-                        width: 700,
-                        height: 700
+                        title: "'" + index.title + "' Ranked Bar Graph",
+                        annotations: plotData.map(function (datum, i) {
+                            return {
+                                x: datum.name,
+                                y: datum[index.collection][index.id],
+                                text: "#" + (plotData.length - i),
+                                xanchor: 'center',
+                                yanchor: 'bottom',
+                                showarrow: false
+                            };
+                        }),
+                        xaxis: { title: 'Target' },
+                        yaxis: { title: index.title },
+                        width: $('#viz').width() - 20,
+                        height: 500
                     };
-                    Plotly.newPlot('viz', graphData, layout, {
-                        showLink: false
-                    });
+                    Plotly.newPlot('viz', graphData, layout, { showLink: false });
                 }
 
                 function renderComparative(plotData, index) {
@@ -180,7 +187,8 @@ angular.module('greyscaleApp')
                                 }
                             })
                         },
-                        showlegend: false
+                        showlegend: false,
+                        hoverinfo: 'x+y'
                     }, {
                         type: 'scatter',
                         x: labels,
@@ -194,14 +202,16 @@ angular.module('greyscaleApp')
                         line: {
                             dash: 'dot',
                             width: 4
-                        }
+                        },
+                        hoverinfo: 'none'
                     }];
 
                     var layout = {
-                        title: index.title,
-                        width: 700,
-                        height: 700,
-                        hovermode: false
+                        title: "'" + index.title + "' Comparative Bar Graph",
+                        height: 500,
+                        width: $('#viz').width() - 20,
+                        xaxis: { title: 'Target' },
+                        yaxis: { title: index.title }
                     };
                     Plotly.newPlot('viz', graphData, layout, {
                         showLink: false
