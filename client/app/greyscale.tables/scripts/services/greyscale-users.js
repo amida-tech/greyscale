@@ -106,7 +106,7 @@ angular.module('greyscale.tables')
                 icon: 'fa-lock',
                 tooltip: tns + 'CHANGE_PASSWORD',
                 handler: _changePassword
-            },{
+            }, {
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editRecord
