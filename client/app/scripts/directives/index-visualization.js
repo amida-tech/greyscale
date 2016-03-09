@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('indexViz', function ($window, $http, greyscaleSurveyApi, greyscaleProductApi) {
+    .directive('indexViz', function ($window, $http, greyscaleProductApi, greyscaleVisualizationApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/index-visualization.html',
@@ -9,20 +9,44 @@ angular.module('greyscaleApp')
             link: function (scope, element, attrs) {
                 scope.filterForm.topicSelected = [];
                 scope.filterForm.visualizationType = 'map';
+                scope.loadingConfig = false;
+
+                _loadProducts().then(function() {
+                    _loadVisualization(1);
+                });
 
                 //Load products
-                greyscaleProductApi.getList().then(function (products) {
-                    scope.products = products;
-                });
+                function _loadProducts() {
+                    return greyscaleProductApi.getList().then(function (products) {
+                        scope.products = products;
+                    });
+                }
+
+                    /*_loadConfiguration({
+                        comparativeTopicId: 15,
+                        indexCollection: "indexes",
+                        indexId: 1,
+                        productId: 46,
+                        topicIds: [14, 15, 16],
+                        visualizationType: "comparative"
+                    }).then(function () {
+                        var config = _getConfiguration();
+                        config.title = "test visualization";
+                        greyscaleVisualizationApi.add(config);
+                    });*/
 
                 //Load data dump on product selection
                 scope.$watch('filterForm.productSelected', function (product) {
+                    if (!scope.loadingConfig) { _loadData(product); }
+                });
+                        
+                function _loadData(product) {
                     if (!product || _.isEmpty(product)) {
                       scope.vizData = null;
                       return null;
                     }
 
-                    greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
+                    return greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
                         scope.vizData = vizData.agg;
                         scope.topics = vizData.agg.map(function (row) {
                             return {
@@ -43,7 +67,7 @@ angular.module('greyscaleApp')
                             }
                         });
                     });
-                });
+                }
                 
                 function applyFilters(data, callback) {
                     console.log("applyFilters called with");
@@ -208,13 +232,20 @@ angular.module('greyscaleApp')
                             renderVisualization(result);
                         });
                     }
+                    console.log(_getConfiguration());
                 };
 
                 scope.resetFilters = function () {
                     scope.filterForm.productSelected = {};
-                    scope.filterForm.topicSelected = [];
+                    // isteven-multi-select requires us to deselect topics by setting
+                    // selected attribute on input model
+                    scope.topics = scope.topics.map(function (topic) {
+                        topic.selected = false;
+                        return topic;
+                    });
                     scope.filterForm.indexSelected = {};
                     scope.filterForm.visualizationType = 'map';
+                    scope.filterForm.comparativeTopic = {};
                     scope.filterForm.$setPristine();
                     scope.drawVisualization();
                 };
@@ -227,6 +258,54 @@ angular.module('greyscaleApp')
                         $('.topicSelectedState').addClass('ng-dirty');
                     }
                 });
+
+                function _getConfiguration() {
+                    var config = {
+                        productId: scope.filterForm.productSelected.id,
+                        topicIds: scope.filterForm.topicSelected.map(function (topic) {
+                            return topic.id;
+                        }),
+                        indexCollection: scope.filterForm.indexSelected.collection,
+                        indexId: scope.filterForm.indexSelected.id,
+                        visualizationType: scope.filterForm.visualizationType,
+                        comparativeTopicId: scope.filterForm.comparativeTopic.id
+                    };
+
+                    return config;
+                }
+
+                function _loadConfiguration(config) {
+                    scope.loadingConfig = true;
+                    scope.filterForm.productSelected = _.findWhere(scope.products, {
+                        id: config.productId
+                    });
+                    return _loadData(scope.filterForm.productSelected).then(function() {
+                        // isteven-multi-select requires us to set selection by modifying
+                        // input model and setting 'selected'
+                        scope.filterForm.topicSelected = scope.topics.map(function (topic) {
+                            topic.selected = _.contains(config.topicIds, topic.id);
+                            return topic;
+                        });
+
+                        scope.filterForm.indexSelected = _.findWhere(scope.indexes, {
+                            id: config.indexId,
+                            collection: config.indexCollection
+                        });
+                        scope.filterForm.visualizationType = config.visualizationType;
+                        scope.filterForm.comparativeTopic = _.findWhere(scope.topics, {
+                            id: config.comparativeTopicId
+                        });
+
+                        scope.loadingConfig = false;
+                        scope.drawVisualization();
+                    });
+                }
+
+                function _loadVisualization(visualizationId) {
+                    return greyscaleVisualizationApi.get(visualizationId).then(function (config) {
+                        return _loadConfiguration(config);
+                    });
+                }
             }
         };
     });

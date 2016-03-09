@@ -474,6 +474,20 @@ router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    Visualizations
+//----------------------------------------------------------------------------------------------------------------------
+var Visualization = require('app/controllers/visualizations');
+
+router.route('/:realm/v0.2/visualizations')
+    .get(/*authenticate('token').always, */ Visualization.select)
+    .post(/*authenticate('token').always, checkRight(), */ Visualization.insertOne);
+
+router.route('/:realm/v0.2/visualizations/:id')
+    .get(/*authenticate('token').always, */ Visualization.selectOne)
+    .put(/*authenticate('token').always, checkRight(), */ Visualization.updateOne)
+    .delete(/*authenticate('token').always, checkRight(), */ Visualization.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //Admin Functions
 //----------------------------------------------------------------------------------------------------------------------
 var Data = require('app/controllers/data');

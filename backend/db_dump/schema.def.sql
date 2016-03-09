@@ -1490,6 +1490,51 @@ CREATE TABLE "Users" (
 ALTER TABLE "Users" OWNER TO indaba;
 
 --
+-- Name: Visualizations; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "Visualizations" (
+    id integer NOT NULL,
+    title character varying,
+    "productId" integer NOT NULL,
+    "topicIds" integer[] NOT NULL,
+    "indexCollection" character varying NOT NULL,
+    "indexId" integer NOT NULL,
+    "visualizationType" character varying NOT NULL,
+    "comparativeTopicId" integer
+);
+
+
+ALTER TABLE "Visualizations" OWNER TO indaba;
+
+--
+-- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+CREATE SEQUENCE "Visualizations_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
+
+--
+-- Name: Visualizations_id_seq; Type: SEQUENCE OWNED BY; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER SEQUENCE "Visualizations_id_seq" OWNED BY "Visualizations".id;
+
+--
+-- Name: id; Type: DEFAULT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Visualizations" ALTER COLUMN id SET DEFAULT nextval('"Visualizations_id_seq"'::regclass);
+
+
+--
 -- Name: WorkflowStepGroups; Type: TABLE; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
 --
 
