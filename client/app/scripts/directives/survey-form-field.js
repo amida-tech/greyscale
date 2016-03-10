@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
                 } else {
                     var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext">{{field.description}}</p>';
-                    if (!scope.field.blindReview) {
+                    if (!scope.field.blindReview && !scope.field.provideResponses) {
                         label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                     }
                     
