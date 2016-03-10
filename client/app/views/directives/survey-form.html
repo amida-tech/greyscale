@@ -1,5 +1,8 @@
 <div>
-    <p class="subtext text-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
+    <div class="clearfix">
+        <select class="pull-left" ng-model="model.lang" ng-options="lang.id as lang.nativeName for lang in languages"></select>
+        <p class="subtext pull-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
+    </div>
     <uib-accordion>
         <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>

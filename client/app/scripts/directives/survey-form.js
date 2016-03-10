@@ -50,11 +50,18 @@ angular.module('greyscaleApp')
                 });
 
                 function updateForm(data) {
-                    if (data && data.survey) {
-                        prepareFields(scope);
 
-                        if (data.task && data.userId) {
-                            loadAnswers(scope);
+                    if (data) {
+                        if (data.languages) {
+                            initLanguage(scope);
+                        }
+
+                        if (data.survey) {
+                            prepareFields(scope);
+
+                            if (data.task && data.userId) {
+                                loadAnswers(scope);
+                            }
                         }
                     }
                 }
@@ -64,11 +71,14 @@ angular.module('greyscaleApp')
                         $state.go('tasks');
                     }
                 }
-            },
+            }
+
+            ,
             controller: function ($scope) {
 
                 $scope.model = {
-                    contentOpen: false
+                    contentOpen: false,
+                    lang: null
                 };
 
                 $scope.goField = function (elemId) {
@@ -79,6 +89,18 @@ angular.module('greyscaleApp')
                 };
             }
         };
+
+        function initLanguage(scope) {
+            var l,
+                qty = data.languages.length,
+                locale = i18n.getLocale();
+            for (l = 0; l < qty; l++) {
+                if (data.languages[l].code === locale) {
+                    scope.model.lang = data.languages[l].id;
+                }
+            }
+            scope.languages = data.languages;
+        }
 
         function prepareFields(scope) {
             scope.fields = [];
@@ -223,7 +245,7 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                    //                ts: new Date().getTime()
+                //                ts: new Date().getTime()
             };
             var answers = {};
 

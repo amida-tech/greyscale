@@ -170,7 +170,7 @@ angular.module('greyscaleApp')
                                 required: scope.field.required
                             };
 
-                            body = '<bullets  bullet-field="field"></bullets-field>';
+                            body = '<bullets bullet-field="field"></bullets-field>';
                             break;
 
                         default:
