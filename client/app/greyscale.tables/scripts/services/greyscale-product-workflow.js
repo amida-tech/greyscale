@@ -187,8 +187,6 @@ angular.module('greyscale.tables')
         var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
 
         function _prepareSteps(steps) {
-        var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
-        function _prepareSteps(steps) {
             angular.forEach(steps, function (step) {
                 step.groups = _.filter(_dicts.groups, function (o) {
                     return ~step.usergroupId.indexOf(o.id);
