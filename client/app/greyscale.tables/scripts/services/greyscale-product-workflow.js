@@ -96,7 +96,8 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-bars',
-                class: 'drag-sortable'
+                getTooltip: _getOrderHandleTooltip,
+                getClass: _getOrderHandleClass
             }]
         }, {
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
@@ -157,6 +158,10 @@ angular.module('greyscale.tables')
 
         function _getWorkflowId() {
             return _table.dataFilter.workflowId;
+        }
+
+        function _getProduct() {
+            return _table.dataFilter.product;
         }
 
         function _getOrganizationId() {
@@ -242,6 +247,17 @@ angular.module('greyscale.tables')
                 promise = greyscaleProductWorkflowApi.workflow(workflowId).stepsList();
             }
             return promise;
+        }
+
+        function _getOrderHandleTooltip() {
+            var product = _getProduct();
+            return product.status !== 0 ? tns + 'SORT_DISABLED' : '';
+        }
+
+        function _getOrderHandleClass() {
+            var product = _getProduct();
+            var cl = product.status !== 0 ? 'disabled' : 'drag-sortable';
+            return cl;
         }
 
         return _table;

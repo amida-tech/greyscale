@@ -51,7 +51,7 @@ angular.module('greyscaleApp')
                     case 'action':
                         elem.addClass('text-right row-actions');
                         elem.append('<a ng-repeat="act in widgetCell.actions" title="{{act.tooltip||act.getTooltip(rowValue)|translate}}" ' +
-                            'class="action action-{{act.class}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
+                            'class="action action-{{act.class||act.getClass(rowValue)}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
                             'ng-click="act.handler && act.handler(rowValue); act.handler && $event.stopPropagation();"><i class="fa {{icon}}" ng-show="icon"> </i>{{act.title|translate}}</a>');
                         $compile(elem.contents())($scope);
                         break;

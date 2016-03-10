@@ -325,6 +325,7 @@
                 "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
+                "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
                 "START_DATE": "Start Date",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
