@@ -105,6 +105,7 @@ module.exports = {
             if (!_.first(workflow)) {
                 throw new HttpError(403, 'Workflow with id = ' + req.params.id + ' does not exist');
             }
+            var productId = workflow[0].productId;
 
             var rels = yield thunkQuery(WorkflowStep.select().where(WorkflowStep.workflowId.equals(req.params.id)));
             var relIds = rels.map(function (value) {
@@ -161,6 +162,8 @@ module.exports = {
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
             }
 
+            var result = yield * setCurrentStepToNull(productId);
+
             return {
                 deleted: deleteIds,
                 updated: updatedIds,
@@ -205,5 +208,16 @@ function* checkData(req) {
     if (relError) {
         throw new HttpError(403, 'Product with id = ' + req.body.productId + ' has already assigned to another workflow');
     }
+
+}
+
+function* setCurrentStepToNull(productId) {
+
+    // update all currentStepId to NULL for specified productId (for every UOA)
+    var updateProductUOAQuery =
+        'UPDATE "ProductUOA" '+
+        'SET "currentStepId" = NULL '+
+        'WHERE "productId"= '+productId;
+    result = yield thunkQuery(updateProductUOAQuery);
 
 }
