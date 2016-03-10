@@ -179,23 +179,40 @@ angular.module('greyscale.tables')
             return $q.all(req).then(function (promises) {
                 _dicts.roles = promises.roles;
                 _dicts.groups = promises.groups;
-                return _prepareGroups(promises.steps);
+                return _prepareSteps(promises.steps);
             });
 
         }
 
-        function _prepareGroups(steps) {
+        var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
+        function _prepareSteps(steps) {
             angular.forEach(steps, function (step) {
                 step.groups = _.filter(_dicts.groups, function (o) {
                     return ~step.usergroupId.indexOf(o.id);
                 });
+                if (step.writeToAnswers === true) {
+                    step.surveyAccess = 'writeToAnswers';
+                } else if (step.writeToAnswers === false) {
+                    step.surveyAccess = 'noWriteToAnswers';
+                } else {
+                    angular.forEach(_permissionFields, function(perm){
+                        if (!step.surveyAccess && step[perm] === true) {
+                            step.surveyAccess = perm;
+                        }
+                    });
+                    if (!step.surveyAccess) {
+                        step.surveyAccess = 'writeToAnswers';
+                    }
+                }
             });
             return steps;
         }
 
+
         function _addWorkflowStep() {
             _table.tableParams.data.push({
-                groups: []
+                groups: [],
+                surveyAccess: 'writeToAnswers'
             });
             $timeout(function () {
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
