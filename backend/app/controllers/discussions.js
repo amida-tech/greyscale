@@ -122,9 +122,23 @@ module.exports = {
             var essenceId = yield * getEssenceId('Discussions');
             var userFrom = yield * getUser(req.user.id);
             var userTo = yield * getUser(req.body.userId);
+            // static blindRewiev
+            var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
+            var step4userTo = yield * getUserToStep(taskId, userTo.id);
+            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+            if (step4userTo.blindReview) {
+                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            } else if (userFrom.isAnonymous) {
+                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            }
+            //
             var note = yield * notifications.createNotification(
                 {
                     userFrom: req.user.id,
+                    userFromName: userFromName,
                     userTo: req.body.userId,
                     body: req.body.entry,
                     essenceId: essenceId,
@@ -132,7 +146,7 @@ module.exports = {
                     discussionEntry:  req.body,
                     action: 'add',
                     notifyLevel: 2,
-                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     subject: 'Indaba. New message in discussion'
                 },
@@ -161,9 +175,22 @@ module.exports = {
             var essenceId = yield * getEssenceId('Discussions');
             var userFrom = yield * getUser(req.user.id);
             var userTo = yield * getUser(entry.userId);
+            // static blindRewiev
+            var step4userTo = yield * getUserToStep(entry.taskId, userTo.id);
+            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+            if (step4userTo.blindReview) {
+                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            } else if (userFrom.isAnonymous) {
+                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            }
+            //
             var note = yield * notifications.createNotification(
                 {
                     userFrom: req.user.id,
+                    userFromName: userFromName,
                     userTo: entry.userId,
                     body: entry.entry,
                     essenceId: essenceId,
@@ -171,7 +198,7 @@ module.exports = {
                     discussionEntry:  entry,
                     action: 'update',
                     notifyLevel: 2,
-                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     subject: 'Indaba. Update message in discussion'
                 },
@@ -687,6 +714,23 @@ function* getDiscussionEntry(id) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
+    }
+    return result[0];
+}
+
+function* getUserToStep(taskId, userId) {
+    // get step information for userId
+    query =
+        'SELECT '+
+        '"WorkflowSteps".* '+
+        'FROM "Tasks" '+
+        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+        'WHERE '+
+        '"Tasks"."id" = '+taskId.toString() + ' AND '+
+        '"Tasks"."userId" = '+userId.toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find step for (taskId, userId)=('+taskId.toString()+', '+userId.toString()+')'); // just in case - I think, it is not possible case!
     }
     return result[0];
 }

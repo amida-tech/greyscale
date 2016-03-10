@@ -162,13 +162,13 @@ angular.module('greyscaleApp')
                 .catch(greyscaleUtilsSrv.errorMsg);
         };
 
-        $scope.changePassword = function(){
+        $scope.changePassword = function () {
 
             var _passwordData = {
                 id: $scope.model.user.id
             };
             greyscaleModalsSrv.editRec(_passwordData, changePasswordForm)
-                .then(function(){
+                .then(function () {
                     inform.add(i18n.translate('USERS.CHANGE_PASSWORD_SUCCESS'), {
                         type: 'success'
                     });
@@ -192,7 +192,7 @@ angular.module('greyscaleApp')
                 password: model.password
             };
             return greyscaleUserApi.save(_saveData)
-                .catch(function(err){
+                .catch(function (err) {
                     return $q.reject(err.data.message);
                 });
         }
