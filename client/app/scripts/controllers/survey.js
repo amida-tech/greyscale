@@ -61,7 +61,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
-                $log.debug(data.flags);
+                $log.debug('step flags', data.flags);
             })
             .finally(function () {
                 $scope.model.surveyData = data;
