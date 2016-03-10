@@ -91,15 +91,17 @@ angular.module('greyscaleApp')
         };
 
         function initLanguage(scope) {
+            var _data = scope.surveyData.languages;
             var l,
-                qty = data.languages.length,
+                qty = _data.length,
                 locale = i18n.getLocale();
+
             for (l = 0; l < qty; l++) {
-                if (data.languages[l].code === locale) {
-                    scope.model.lang = data.languages[l].id;
+                if (_data[l].code === locale) {
+                    scope.model.lang = _data[l].id;
                 }
             }
-            scope.languages = data.languages;
+            scope.languages = _data;
         }
 
         function prepareFields(scope) {
@@ -167,7 +169,8 @@ angular.module('greyscaleApp')
                                 attachments: [],
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
-                                answer: null
+                                answer: null,
+                                langId: scope.model.lang
                             });
 
                             switch (type) {
@@ -257,6 +260,7 @@ angular.module('greyscaleApp')
                     answer = answers[fld.cid];
                     if (answer) {
                         fld.answerId = answer.id;
+                        fld.langId = (typeof answer.langId === 'undefined') ? scope.model.lang : answer.langId;
                         switch (fld.type) {
                         case 'checkboxes':
                             oQty = fld.options.length;
@@ -366,6 +370,13 @@ angular.module('greyscaleApp')
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
             var answers = {};
+            var params = {
+                surveyId: scope.surveyData.survey.id,
+                productId: scope.surveyData.task.productId,
+                UOAid: scope.surveyData.task.uoaId,
+                wfStepId: scope.surveyData.task.stepId,
+                userId: scope.surveyData.userId
+            };
 
             function saveFields(fields) {
                 var f, fld, answer,
@@ -376,7 +387,8 @@ angular.module('greyscaleApp')
 
                     if (fld.answer || fld.type === 'checkboxes') {
                         answer = {
-                            questionId: fld.id
+                            questionId: fld.id,
+                            langId: (typeof fld.langId === 'undefined') ? scope.model.langId : fld.langId
                         };
                         angular.extend(answer, params);
                         switch (fld.type) {
@@ -431,13 +443,6 @@ angular.module('greyscaleApp')
 
             if (scope.surveyForm && scope.surveyForm.$dirty) {
                 scope.lock = true;
-                var params = {
-                    surveyId: scope.surveyData.survey.id,
-                    productId: scope.surveyData.task.productId,
-                    UOAid: scope.surveyData.task.uoaId,
-                    wfStepId: scope.surveyData.task.stepId,
-                    userId: scope.surveyData.userId
-                };
 
                 saveFields(scope.fields);
 

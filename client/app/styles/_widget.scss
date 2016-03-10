@@ -121,6 +121,13 @@ $widget-header-font-weight: bold;
 
                 &.selected:hover {
                     background-color: $grey-medium-light;
+                    td .action,
+                    td .action-secondary {
+                        color: $grey-light;
+                        &:hover {
+                            color: $grey-medium-dark;
+                        }
+                    }
                 }
 
                 td {
