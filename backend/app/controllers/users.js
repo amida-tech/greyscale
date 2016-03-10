@@ -113,7 +113,7 @@ module.exports = {
             return yield [_counter, user];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
-            res.json(_.last(data));
+            res.json(_.map(_.last(data), User.view));
         }, function (err) {
             next(err);
         });
@@ -123,7 +123,7 @@ module.exports = {
         co(function* () {
             return yield insertOne(req, res, next);
         }).then(function (data) {
-            res.status(201).json(_.first(data));
+            res.status(201).json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -228,7 +228,7 @@ module.exports = {
             }
             return isExist;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -253,7 +253,7 @@ module.exports = {
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             return updated;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -547,7 +547,7 @@ module.exports = {
             }
             return user;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -643,7 +643,7 @@ module.exports = {
                 .where(User.id.equals(req.user.id))
             );
         }).then(function (data) {
-            res.json(data[0]);
+            res.json(User.view(data[0]));
         }, function (err) {
             next(err);
         });
@@ -722,7 +722,7 @@ module.exports = {
                 if (!_.first(user)) {
                     return next(new HttpError(403, 'Token expired or does not exist'));
                 }
-                res.json(_.last(user));
+                res.json(User.view(_.last(user)));
             } else {
                 next(err);
             }
@@ -885,3 +885,4 @@ function* insertOne(req, res, next) {
 
     return user;
 }
+
