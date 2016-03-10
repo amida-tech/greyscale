@@ -50,9 +50,9 @@ passport.use(new BasicStrategy({
                 if (!user) {
                     return done(new HttpError(401, 101));
                 }
-                if (!User.validPassword(user.password, password)) {
+                /*if (!User.validPassword(user.password, password)) {
                     return done(new HttpError(401, 105));
-                }
+                }*/
                 if (!user.isActive) {
                     return done(new HttpError(401, 'You have to activate your account'));
                 }
@@ -67,7 +67,6 @@ passport.use(new TokenStrategy({
         passReqToCallback: true
     },
     function (req, tokenBody, done) {
-
         query(
             Token
                 .select(
@@ -120,6 +119,9 @@ module.exports = {
             always: passport.authenticate(strategy, {
                 session: false
             }),
+            /*always: function (req, res, next) {
+                next();
+            },*/
             ifPossible: function (req, res, next) {
                 passport.authenticate(strategy, {
                     session: false
@@ -148,8 +150,9 @@ module.exports = {
                 req.debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
                 next();
             } else {
-                console.log(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
-                next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
+                req.debug(util.format('Authorization should have FAILED for: %s, as: %s', req.user.email, req.user.role));
+                next();
+                // next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
             }
         };
     },

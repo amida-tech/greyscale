@@ -197,6 +197,7 @@
             "UOA": "Targets"
         },
         "VISUALIZATION": "Visualization",
+        "VISUALIZATIONS": "Visualizations",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "ORGANIZATIONS": {
@@ -514,6 +515,12 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
+    },
+    "VISUALIZATIONS": {
+        "MODAL_TITLE": "Edit Visualization {{visualization.title}}",
+        "MODAL_TITLE_CREATE": "Create Visualization",
+        "TITLE": "Title",
+        "VISUALIZATIONS": "Visualizations"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

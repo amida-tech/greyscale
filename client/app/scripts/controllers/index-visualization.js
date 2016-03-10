@@ -11,8 +11,7 @@
 'use strict';
 
 angular.module('greyscaleApp').controller('IndexVisualizationCtrl', function ($http, $scope, greyscaleSurveyApi) {
-
     $scope.model = {
-
+        title: 'Index Visualization'
     };
 });

@@ -154,6 +154,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _editVisualization(visualization) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/edit-visualization.html',
+                controller: 'ModalEditVisualizationCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    visualization: visualization
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -176,6 +188,7 @@ angular.module('greyscaleApp')
             productTask: _productTask,
             userGroups: _userGroups,
             editIndex: _editIndex,
+            editVisualization: _editVisualization,
             confirm: _confirm
         };
     });

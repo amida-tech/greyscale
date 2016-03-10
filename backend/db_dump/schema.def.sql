@@ -1496,12 +1496,13 @@ ALTER TABLE "Users" OWNER TO indaba;
 CREATE TABLE "Visualizations" (
     id integer NOT NULL,
     title character varying,
-    "productId" integer NOT NULL,
-    "topicIds" integer[] NOT NULL,
-    "indexCollection" character varying NOT NULL,
-    "indexId" integer NOT NULL,
-    "visualizationType" character varying NOT NULL,
-    "comparativeTopicId" integer
+    "productId" integer,
+    "topicIds" integer[],
+    "indexCollection" character varying,
+    "indexId" integer,
+    "visualizationType" character varying,
+    "comparativeTopicId" integer,
+    "organizationId" integer NOT NULL
 );
 
 
@@ -2192,6 +2193,14 @@ ALTER TABLE ONLY "UserUOA"
 
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_email_key" UNIQUE (email);
+
+
+--
+-- Name: Visualizations_pkey; Type: CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "Visualizations"
+    ADD CONSTRAINT "Visualizations_pkey" PRIMARY KEY (id);
 
 
 --
@@ -2886,6 +2895,22 @@ ALTER TABLE ONLY "Users"
 
 ALTER TABLE ONLY "Users"
     ADD CONSTRAINT "Users_roleID_fkey" FOREIGN KEY ("roleID") REFERENCES "Roles"(id);
+
+
+--
+-- Name: Visualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Visualizations"
+    ADD CONSTRAINT "Visualizations_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
+
+
+--
+-- Name: Visualizations_productId_fkey; Type: FK CONSTRAINT; Schema: CLIENT_SCHEMA; Owner: indaba
+--
+
+ALTER TABLE ONLY "Visualizations"
+    ADD CONSTRAINT "Visualizations_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
 
 
 --

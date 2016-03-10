@@ -169,7 +169,7 @@ module.exports = {
                 )
                 .where(SurveyQuestion.surveyId.equals(req.params.id))
                 .group(SurveyQuestion.id), {
-                    'realm': req.param('realm')
+                    'realm': 'public'
                 }
             );
             return result;

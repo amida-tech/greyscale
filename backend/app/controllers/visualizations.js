@@ -10,7 +10,9 @@ var _ = require('underscore'),
 module.exports = {
     select: function (req, res, next) {
         co(function* () {
-            return yield thunkQuery(Visualization.select());
+            return yield thunkQuery(Visualization.select().where(
+                Visualization.organizationId.equals(req.params.organizationId)
+            ));
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -20,22 +22,14 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            /*if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
-            }*/
-            if (
-                typeof req.body.title === 'undefined' ||
-                typeof req.body.productId === 'undefined' ||
-                typeof req.body.topicIds === 'undefined' ||
-                typeof req.body.indexCollection === 'undefined' ||
-                typeof req.body.indexId === 'undefined' ||
-                typeof req.body.visualizationType === 'undefined'
-            ) {
-                throw new HttpError(403, 'title, productId, topicIds, indexCollection, indexId and visualizationType fields are required');
             }
+
             var objToInsert = _.pick(req.body,
                 ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']
             );
+            objToInsert.organizationId = req.params.organizationId;
             return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -46,23 +40,16 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            /*if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
-                throw new HttpError(400, 'You cannot update visualizations from other organizations');
-            }*/
-            if (
-                typeof req.body.title === 'undefined' ||
-                typeof req.body.productId === 'undefined' ||
-                typeof req.body.topicIds === 'undefined' ||
-                typeof req.body.indexCollection === 'undefined' ||
-                typeof req.body.indexId === 'undefined' ||
-                typeof req.body.visualizationType === 'undefined'
-            ) {
-                throw new HttpError(403, 'title, productId, topicIds, indexCollection, indexId and visualizationType fields are required');
+            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+                throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
+
             var objToUpdate = _.pick(req.body,
                 ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']
             );
-            return yield thunkQuery(Visualization.update(objToUpdate).where(Visualization.id.equals(req.params.id)));
+            return yield thunkQuery(Visualization.update(objToUpdate).where(
+                Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
+            ));
         }).then(function () {
             res.status(202).end();
         }, function (err) {
@@ -73,7 +60,9 @@ module.exports = {
     deleteOne: function (req, res, next) {
         co(function* () {
             var result = yield thunkQuery(
-                Visualization.delete().where(Visualization.id.equals(req.params.id))
+                Visualization.delete().where(
+                    Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
+                )
             );
             return result;
         }).then(function (data) {
@@ -86,7 +75,9 @@ module.exports = {
     selectOne: function (req, res, next) {
         co(function* () {
             var result = yield thunkQuery(
-                Visualization.select().where(Visualization.id.equals(req.params.id))
+                Visualization.select().where(
+                    Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
+                )
             );
             if (!result[0]) {
                 throw new HttpError(404, 'Not found');

@@ -8,7 +8,8 @@ var columns = [
     'indexCollection',
     'indexId',
     'visualizationType',
-    'comparativeTopicId'
+    'comparativeTopicId',
+    'organizationId'
 ];
 
 var Visualization = sql.define({

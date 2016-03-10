@@ -57,6 +57,12 @@
   </div>
 
   <div class="row">
+    <div class="col-sm-6 controls">
+      <button type="submit" class="btn btn-success" ng-click="drawVisualization()">Visualize</button>
+      <button type="submit" class="btn btn-default" ng-click="resetFilters()">Clear</button>
+      <button type="submit" class="btn btn-success" ng-show="savedVisualization" ng-click="saveVisualization()">Save</button>
+    </div>
+
     <div class="col-sm-6">
       <div class="form-group" ng-show="filterForm.visualizationType == 'comparative'">
         <label for="comparativeTopic" class="control-label col-sm-4"> Compare to </label>
@@ -64,14 +70,6 @@
           <select class="form-control" id="comparativeTopic" ng-model="filterForm.comparativeTopic" ng-options="topic.name for topic in filterForm.topicSelected track by topic.id">
           </select>
         </div>
-      </div>
-    </div>
-
-    <div class="col-sm-6">
-      <div class="col-sm-4"></div>
-      <div class="col-sm-8">
-        <button type="submit" class="btn btn-success" ng-click="drawVisualization()">Submit</button>
-        <button type="submit" class="btn btn-default" ng-click="resetFilters()">Clear all filters</button>
       </div>
     </div>
   </div>

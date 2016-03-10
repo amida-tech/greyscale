@@ -197,6 +197,7 @@
             "UOA": "Цели"
         },
         "VISUALIZATION": "Визуализация",
+        "VISUALIZATIONS": "",
         "WORKFLOW_STEPS": "Процессы"
     },
     "ORGANIZATIONS": {
@@ -514,6 +515,12 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "VISUALIZATIONS": {
+        "MODAL_TITLE": "",
+        "MODAL_TITLE_CREATE": "",
+        "TITLE": "",
+        "VISUALIZATIONS": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Описание",

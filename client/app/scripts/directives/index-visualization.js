@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('indexViz', function ($window, $http, greyscaleProductApi, greyscaleVisualizationApi) {
+    .directive('indexViz', function ($window, $http, $stateParams, $q, Organization, greyscaleProductApi, greyscaleVisualizationApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/index-visualization.html',
@@ -10,9 +10,17 @@ angular.module('greyscaleApp')
                 scope.filterForm.topicSelected = [];
                 scope.filterForm.visualizationType = 'map';
                 scope.loadingConfig = false;
+                scope.savedVisualization = false;
+                scope.visualizationTitle = null;
+                scope.topics = [];
 
                 _loadProducts().then(function() {
-                    _loadVisualization(1);
+                    if ($stateParams.visualizationId) {
+                        scope.savedVisualization = true;
+                        Organization.$watch(scope, function() {
+                            _loadVisualization($stateParams.visualizationId);
+                        });
+                    }
                 });
 
                 //Load products
@@ -21,20 +29,6 @@ angular.module('greyscaleApp')
                         scope.products = products;
                     });
                 }
-
-                    /*_loadConfiguration({
-                        comparativeTopicId: 15,
-                        indexCollection: "indexes",
-                        indexId: 1,
-                        productId: 46,
-                        topicIds: [14, 15, 16],
-                        visualizationType: "comparative"
-                    }).then(function () {
-                        var config = _getConfiguration();
-                        config.title = "test visualization";
-                        greyscaleVisualizationApi.add(config);
-                    });*/
-
                 //Load data dump on product selection
                 scope.$watch('filterForm.productSelected', function (product) {
                     if (!scope.loadingConfig) { _loadData(product); }
@@ -43,7 +37,7 @@ angular.module('greyscaleApp')
                 function _loadData(product) {
                     if (!product || _.isEmpty(product)) {
                       scope.vizData = null;
-                      return null;
+                      return $q.when(null);
                     }
 
                     return greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
@@ -70,9 +64,6 @@ angular.module('greyscaleApp')
                 }
                 
                 function applyFilters(data, callback) {
-                    console.log("applyFilters called with");
-                    console.log(data);
-
                     if (!data) { callback(data); }
 
                     //Handles case when data has not been narrowed, only variable changed
@@ -82,7 +73,6 @@ angular.module('greyscaleApp')
                     } else {
                         var filteredVizData = [];
                         data.forEach(function (row) {
-                            console.log("considering row");
                             if (scope.filterForm.topicSelected) {
                                 scope.filterForm.topicSelected.forEach(function (topic) {
                                     if (topic.id === row.id) {
@@ -91,8 +81,6 @@ angular.module('greyscaleApp')
                                 });
                             }
                         });
-                        console.log("returning");
-                        console.log(filteredVizData);
                         callback(filteredVizData);
                     }
                 }
@@ -162,14 +150,11 @@ angular.module('greyscaleApp')
                 }
 
                 function renderComparative(plotData, index) {
-                    console.log(plotData);
                     var labels = _.pluck(plotData, 'name');
 
                     // average across all selected topics
                     var values = _.pluck(_.pluck(plotData, index.collection), index.id);
                     var average = _.reduce(values, function (m, n) { return m + n; }, 0) / values.length;
-                    console.log(labels);
-                    console.log(_.times(labels.length, function() { return average; }));
 
                     var comparedColor = 'rgb(164, 194, 244)';
                     var selectedColor = 'rgb(255, 217, 102)';
@@ -242,7 +227,6 @@ angular.module('greyscaleApp')
                             renderVisualization(result);
                         });
                     }
-                    console.log(_getConfiguration());
                 };
 
                 scope.resetFilters = function () {
@@ -270,6 +254,7 @@ angular.module('greyscaleApp')
                 });
 
                 function _getConfiguration() {
+                    console.log(scope.filterForm);
                     var config = {
                         productId: scope.filterForm.productSelected.id,
                         topicIds: scope.filterForm.topicSelected.map(function (topic) {
@@ -278,7 +263,8 @@ angular.module('greyscaleApp')
                         indexCollection: scope.filterForm.indexSelected.collection,
                         indexId: scope.filterForm.indexSelected.id,
                         visualizationType: scope.filterForm.visualizationType,
-                        comparativeTopicId: scope.filterForm.comparativeTopic.id
+                        comparativeTopicId: scope.filterForm.comparativeTopic.id,
+                        title: scope.visualizationTitle
                     };
 
                     return config;
@@ -286,9 +272,10 @@ angular.module('greyscaleApp')
 
                 function _loadConfiguration(config) {
                     scope.loadingConfig = true;
+                    scope.visualizationTitle = config.title;
                     scope.filterForm.productSelected = _.findWhere(scope.products, {
                         id: config.productId
-                    });
+                    }) || {};
                     return _loadData(scope.filterForm.productSelected).then(function() {
                         // isteven-multi-select requires us to set selection by modifying
                         // input model and setting 'selected'
@@ -300,11 +287,11 @@ angular.module('greyscaleApp')
                         scope.filterForm.indexSelected = _.findWhere(scope.indexes, {
                             id: config.indexId,
                             collection: config.indexCollection
-                        });
-                        scope.filterForm.visualizationType = config.visualizationType;
+                        }) || {};
+                        scope.filterForm.visualizationType = config.visualizationType || 'map';
                         scope.filterForm.comparativeTopic = _.findWhere(scope.topics, {
                             id: config.comparativeTopicId
-                        });
+                        }) || {};
 
                         scope.loadingConfig = false;
                         scope.drawVisualization();
@@ -312,10 +299,17 @@ angular.module('greyscaleApp')
                 }
 
                 function _loadVisualization(visualizationId) {
-                    return greyscaleVisualizationApi.get(visualizationId).then(function (config) {
+                    scope.visualizationId = $stateParams.visualizationId;
+
+                    return greyscaleVisualizationApi(Organization.id).get(visualizationId).then(function (config) {
+                        scope.model.title = config.title;
                         return _loadConfiguration(config);
                     });
                 }
+
+                scope.saveVisualization = function() {
+                    return greyscaleVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
+                };
             }
         };
     });
