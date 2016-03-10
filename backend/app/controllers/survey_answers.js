@@ -18,6 +18,9 @@ var
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
     fs = require('fs'),
+    crypto = require('crypto'),
+    config = require('config'),
+    mc = require('app/mc_helper'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -157,8 +160,21 @@ module.exports = {
 
     getAttachment: function (req, res, next) {
         co(function* (){
+            
+            try{
+                yield mc.connect();
+                var id = yield mc.get(req.params.tiket);
+                yield mc.close();
+            }catch(e){
+                throw new HttpError(500, e);
+            };
+
+            if(!id){
+                throw new HttpError(400, 'Token is not valid');
+            }
+
             var attachment = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(id))
             );
             if (!attachment[0]) {
                 throw new HttpError(404, 'Not found');
@@ -169,6 +185,35 @@ module.exports = {
             res.setHeader('Content-disposition', 'attachment; filename=' + file.filename);
             res.setHeader('Content-type', file.mimetype);
             res.send(file.body);
+        }, function(err){
+            next(err);
+        });
+    },
+
+    getTicket: function (req, res, next) {
+        co(function* (){
+            
+            var attachment = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+
+            if (!attachment[0]) {
+                throw new HttpError(404, 'Attachment not found');
+            }
+
+            var tiket = crypto.randomBytes(10).toString('hex');
+
+            try{
+                yield mc.connect();
+                yield mc.set(tiket, attachment[0].id);
+                yield mc.close();
+                return tiket;
+            }catch(e){
+                throw new HttpError(500, e);
+            };
+
+        }).then(function(data){
+            res.status(201).json({tiket:data});
         }, function(err){
             next(err);
         });
@@ -185,6 +230,11 @@ module.exports = {
             }
             if (req.files.file) {
                 var file = req.files.file;
+
+                if (file.size > config.max_upload_filesize) {
+                    throw new HttpError(400, 'File must be less then 10 MB');
+                }
+
                 var load = new Promise(function (resolve, reject) {
 
                     fs.readFile(file.path, 'hex', function(err, fileData) {

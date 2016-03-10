@@ -13,6 +13,12 @@ var environments = {
       host: 'host',
       port: 5432
     },
+    mc: { // memcache
+      host: 'localhost',
+      port: 11211,
+      lifetime: 300 // seconds
+    },
+    max_upload_filesize: 10*1024*1024, // 10 MB
     defaultLang: 'en',
     adminRole: 'admin',
     auth: {

@@ -36,7 +36,8 @@
     "moment": "2.11.2",
     "accept-language": "2.0.16",
     "csv" : "0.4.6",
-    "express-csv" : "0.6.0"
+    "express-csv" : "0.6.0",
+    "memcache" : "0.3.0"
   },
   "devDependencies": {
     "chai": "^3.4.1",

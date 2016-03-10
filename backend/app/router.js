@@ -113,8 +113,12 @@ router.route('/:realm/v0.2/survey_answers/:id')
 router.route('/:realm/v0.2/survey_answers/:id/attach')
     .post(/*authenticate('token').always,*/ /*checkRight('rights_view_all'),*/ surveyAnswers.attach);
 
-router.route('/:realm/v0.2/attachments/:id')
-    .get(/*authenticate('token').always,*/ /*checkRight('rights_view_all'),*/ surveyAnswers.getAttachment);
+router.route('/:realm/v0.2/attachments/:id/ticket')
+    .get(authenticate('token').always, surveyAnswers.getTicket);
+
+
+router.route('/:realm/v0.2/attachments/:tiket')
+    .get(surveyAnswers.getAttachment);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
