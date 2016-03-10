@@ -185,6 +185,9 @@ angular.module('greyscale.tables')
         }
 
         var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
+
+        function _prepareSteps(steps) {
+        var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
         function _prepareSteps(steps) {
             angular.forEach(steps, function (step) {
                 step.groups = _.filter(_dicts.groups, function (o) {
@@ -195,7 +198,7 @@ angular.module('greyscale.tables')
                 } else if (step.writeToAnswers === false) {
                     step.surveyAccess = 'noWriteToAnswers';
                 } else {
-                    angular.forEach(_permissionFields, function(perm){
+                    angular.forEach(_permissionFields, function (perm) {
                         if (!step.surveyAccess && step[perm] === true) {
                             step.surveyAccess = perm;
                         }
