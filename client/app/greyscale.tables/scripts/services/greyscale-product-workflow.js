@@ -209,7 +209,6 @@ angular.module('greyscale.tables')
             return steps;
         }
 
-
         function _addWorkflowStep() {
             _table.tableParams.data.push({
                 groups: [],

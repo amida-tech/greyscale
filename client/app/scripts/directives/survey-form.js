@@ -71,9 +71,7 @@ angular.module('greyscaleApp')
                         $state.go('tasks');
                     }
                 }
-            }
-
-            ,
+            },
             controller: function ($scope) {
 
                 $scope.model = {
@@ -248,7 +246,7 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                //                ts: new Date().getTime()
+                    //                ts: new Date().getTime()
             };
             var answers = {};
 
