@@ -20,6 +20,7 @@ var environments = {
     },
     allowedDomains: '*', // for CORS
     email: {
+      disable: false, // disabling SMTP/email functionality when true (default: false)
       transport: {
         opts: {
           host: 'host',

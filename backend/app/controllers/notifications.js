@@ -103,7 +103,7 @@ function* createNotification (note, template) {
     });
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
-    if (parseInt(note.notifyLevel) >  1) {  // email notification
+    if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
         var mailer = new Emailer(emailOptions, note);
         mailer.send(function (error, info) {
             if (error) {
@@ -120,6 +120,9 @@ function* createNotification (note, template) {
 }
 
 function* resendNotification (notificationId) {
+    if (config.email.disable) {
+        return false;
+    }
     var note = yield * getNotification(notificationId);
     //if (parseInt(note.notifyLevel) >  1) {  // email notification - do not check!
     var userTo = yield * getUser(note.userTo);
