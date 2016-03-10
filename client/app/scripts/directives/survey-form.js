@@ -164,7 +164,6 @@ angular.module('greyscaleApp')
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
-                                attachments: [],
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
@@ -259,6 +258,8 @@ angular.module('greyscaleApp')
                     if (answer) {
                         fld.answerId = answer.id;
                         fld.langId = (typeof answer.langId === 'undefined') ? scope.model.lang : answer.langId;
+                        fld.attachments = answer.attachments;
+
                         switch (fld.type) {
                         case 'checkboxes':
                             oQty = fld.options.length;

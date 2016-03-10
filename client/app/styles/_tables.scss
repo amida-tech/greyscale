@@ -164,6 +164,10 @@ table.table-col-fixed {
     .action-drag-sortable {
         cursor: move;
     }
+    .action-disabled {
+        cursor: default;
+        color: #aaaaaa !important;
+    }
     .pagination, .ng-table-counts {
         .pagination-info {
             padding: 0 12px 0 0;
