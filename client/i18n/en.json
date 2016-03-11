@@ -454,6 +454,8 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "PRINT_QUESTIONS": "Print Questions Only",
+        "PRINT_SURVEY": "Print Survey",
         "QUESTION": "Q",
         "SAVE_DRAFT": "Save as Draft",
         "SELECT_ONE": "select one",

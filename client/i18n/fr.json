@@ -454,6 +454,8 @@
         "MAX": "",
         "MIN": "",
         "NAME": "",
+        "PRINT_QUESTIONS": "",
+        "PRINT_SURVEY": "",
         "QUESTION": "",
         "SAVE_DRAFT": "",
         "SELECT_ONE": "",
