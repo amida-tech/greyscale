@@ -217,6 +217,20 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
     .put(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
+router.route('/:realm/v0.2/products/:id/aggregate')
+    .get(/*authenticate('token').always,*/ products.aggregateIndexes);
+
+router.route('/:realm/v0.2/products/:id/aggregate.csv')
+    .get(/*authenticate('token').always,*/ products.aggregateIndexesCsv);
+
+router.route('/:realm/v0.2/products/:id/indexes')
+    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editIndexes)
+
+router.route('/:realm/v0.2/products/:id/subindexes')
+    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editSubindexes)
+
 router.route('/:realm/v0.2/products/:id/export.csv')
     .get(/*authenticate('token').always,*/ products.export);
 
@@ -483,4 +497,17 @@ router.route('/:realm/v0.2/uoataglinks/:id')
     .delete(authenticate('token').always, checkRight('uoataglink_delete_one'), UnitOfAnalysisTagLink.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    Visualizations
+//----------------------------------------------------------------------------------------------------------------------
+var Visualization = require('app/controllers/visualizations');
+
+router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
+    .get(authenticate('token').always, Visualization.select)
+    .post(authenticate('token').always, /*checkRight(), */ Visualization.insertOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
+    .get(authenticate('token').always, Visualization.selectOne)
+    .put(authenticate('token').always, /*checkRight(), */ Visualization.updateOne)
+    .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
+
 module.exports = router;
