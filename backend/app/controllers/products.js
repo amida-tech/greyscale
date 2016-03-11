@@ -322,7 +322,8 @@ module.exports = {
                     var weightObj = {
                         indexId: indexId,
                         questionId: questionId,
-                        weight: req.body[i].questionWeights[questionId].weight
+                        weight: req.body[i].questionWeights[questionId].weight,
+                        type: req.body[i].questionWeights[questionId].type
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                 }
@@ -330,7 +331,8 @@ module.exports = {
                     var weightObj = {
                         indexId: indexId,
                         subindexId: subindexId,
-                        weight: req.body[i].subindexWeights[subindexId].weight
+                        weight: req.body[i].subindexWeights[subindexId].weight,
+                        type: req.body[i].subindexWeights[subindexId].type
                     };
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
                 }
@@ -413,7 +415,8 @@ module.exports = {
                     var weightObj = {
                         subindexId: subindexId,
                         questionId: questionId,
-                        weight: req.body[i].weights[questionId].weight
+                        weight: req.body[i].weights[questionId].weight,
+                        type: req.body[i].weights[questionId].type
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                 }
@@ -812,10 +815,9 @@ function* dumpProduct(productId) {
 }
 
 function parseWeights(weightsString) {
-    console.log(weightsString);
     // parse JSON weights string into js object
     // due to postgres quirks, {} represented as '{:}'
-    if (weightsString === '{:{"weight": }}') {
+    if (weightsString === '{:{"weight": , "type": }}') {
         return {};
     } else {
         return JSON.parse(weightsString);
@@ -829,9 +831,10 @@ function* getSubindexes(productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('%s:{\"weight\": %s}', " +
+          "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
           '      to_json("SubindexWeights"."questionId"::text), ' +
-          '      to_json("SubindexWeights"."weight") ' +
+          '      to_json("SubindexWeights"."weight"), ' +
+          '      to_json("SubindexWeights"."type") ' +
           "    ), ',') " +
           '  ) AS "weights" ' +
           'FROM ' +
@@ -859,15 +862,17 @@ function* getIndexes(productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:{\"weight\": %s}', " +
+        "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
         '      to_json("IndexQuestionWeights"."questionId"::text), ' +
-        '      to_json("IndexQuestionWeights"."weight") ' +
+        '      to_json("IndexQuestionWeights"."weight"), ' +
+        '      to_json("IndexQuestionWeights"."type") ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:{\"weight\": %s}', " +
+        "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
         '      to_json("IndexSubindexWeights"."subindexId"::text), ' +
-        '      to_json("IndexSubindexWeights"."weight") ' +
+        '      to_json("IndexSubindexWeights"."weight"), ' +
+        '      to_json("IndexSubindexWeights"."type") ' +
         "    ), ',') " +
         '  ) AS "subindexWeights" ' +
         'FROM ' +
@@ -962,11 +967,9 @@ function* aggregateIndexes(productId) {
         }
     });
 
-    var result = { agg: [] };
-    // TODO: mapping over generators?
+    // parse question answers to number
     for (var i = 0; i < data.length; i++) {
         var datum = data[i];
-
         // parse question answers to number
         for (var questionId in datum['questions']) {
             if (questionsRequired.has(questionId)) {
@@ -979,31 +982,76 @@ function* aggregateIndexes(productId) {
                 delete datum['questions'][questionId];
             }
         }
+        data[i] = datum;
+    }
 
-        // calculate subindexes
-        datum['subindexes'] = {};
+    // precalculate min/max of questions for subindex percentile calculations
+    var qMins = {};
+    var qMaxes = {};
+    data.forEach(function (datum) {
+        for (var questionId in datum['questions']) {
+            var val = datum['questions'][questionId];
+            if (!(questionId in qMins) || val < qMins[questionId]) { qMins[questionId] = val; }
+            if (!(questionId in qMaxes) || val > qMaxes[questionId]) { qMaxes[questionId] = val; }
+        }
+    });
+
+    // calculate subindexes
+    for (var i = 0; i < data.length; i++) {
+        data[i]['subindexes'] = {};
         subindexes.forEach(function (subindex) {
             var value = 0;
             for (var questionId in subindex['weights']) {
-                value += datum['questions'][questionId] * subindex['weights'][questionId].weight;
+                var weight = subindex['weights'][questionId];
+                var val = data[i]['questions'][questionId];
+                if (weight.type === 'value') { // raw value
+                    value += weight.weight * val;
+                } else if (weight.type === 'percentile') { // percentile rank
+                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
+                }
             }
-            datum['subindexes'][subindex['id']] = value / subindex['divisor'];
+            data[i]['subindexes'][subindex['id']] = value / subindex['divisor'];
         });
+    }
 
-        // calculate index(es)
-        datum['indexes'] = {};
+    // precalculate min/max of subindexes for index percentile calculations
+    var siMins = {};
+    var siMaxes = {};
+    data.forEach(function (datum) {
+        for (var subindexId in datum['subindexes']) {
+            var val = datum['subindexes'][subindexId];
+            if (!(subindexId in siMins) || val < siMins[subindexId]) { siMins[subindexId] = val; }
+            if (!(subindexId in siMaxes) || val > siMaxes[subindexId]) { siMaxes[subindexId] = val; }
+        }
+    });
+
+    // calculate indexes
+    var result = { agg: [] };
+    for (var i = 0; i < data.length; i++) {
+        data[i]['indexes'] = {};
         indexes.forEach(function (index) {
             var value = 0;
             for (var questionId in index['questionWeights']) {
-                value += datum['questions'][questionId] * index['questionWeights'][questionId].weight;
+                var weight = index['questionWeights'][questionId];
+                var val = data[i]['questions'][questionId];
+                if (weight.type === 'value') { // raw value
+                    value += weight.weight * val;
+                } else if (weight.type === 'percentile') { // percentile rank
+                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
+                }
             }
             for (var subindexId in index['subindexWeights']) {
-                value += datum['subindexes'][subindexId] * index['subindexWeights'][subindexId].weight;
+                var weight = index['subindexWeights'][subindexId];
+                var val = data[i]['subindexes'][subindexId];
+                if (weight.type === 'value') { // raw value
+                    value += weight.weight * val;
+                } else if (weight.type === 'percentile') { // percentile rank
+                    value += weight.weight * (val - siMins[subindexId]) / (siMaxes[subindexId] - siMins[subindexId]);
+                }
             }
-            datum['indexes'][index['id']] = value / index['divisor'];
+            data[i]['indexes'][index['id']] = value / index['divisor'];
         });
-
-        result.agg.push(datum);
+        result.agg.push(data[i]);
     }
 
     // add all (non)calculated fields

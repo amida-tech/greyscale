@@ -144,7 +144,7 @@ angular.module('greyscaleApp')
             return $uibModal.open({
                 templateUrl: 'views/modals/edit-index.html',
                 controller: 'ModalEditIndexCtrl',
-                size: 'md',
+                size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
                     index: index,

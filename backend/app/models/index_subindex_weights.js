@@ -4,7 +4,8 @@ var columns = [
     'id',
     'indexId',
     'subindexId',
-    'weight'
+    'weight',
+    'type'
 ];
 
 var IndexSubindexWeight = sql.define({

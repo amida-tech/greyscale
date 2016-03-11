@@ -79,9 +79,17 @@ angular.module('greyscaleApp')
             });
         }
         cols.push({
-            field: 'weight.weight',
+            field: 'weight',
             title: tableTns + 'WEIGHT',
-            cellTemplate: '<input type="number" name="weight" ng-model="row.weight" class="form-control input-sm" required/>'
+            cellTemplate: '<input type="number" name="weight" ng-model="row.weight.weight" class="form-control input-sm" required/>'
+        });
+        cols.push({
+            field: 'weight',
+            title: tableTns + 'TYPE',
+            cellTemplate: '<select class="form-control" ng-model="row.weight.type">' +
+                '<option value="value">Value</option>' +
+                '<option value="percentile">Percentile Rank</option>' +
+                '</select>'
         });
         cols.push({
             dataFormat: 'action',
