@@ -2,7 +2,7 @@
     <span class="dropdown-toggle" data-toggle="dropdown"><img class="flag" ng-src="{{selected.flagUrl}}" alt=""> <span class="fa fa-caret-down"></span></span>
     <ul class="dropdown-menu dropdown-menu-right">
         <li class="link" ng-repeat="lang in languages">
-            <a href ng-click="changeLanguage(lang.locale)"><img class="flag" ng-src="{{lang.flagUrl}}" alt=""> {{lang.label}}</a>
+            <a href ng-click="changeLanguage(lang.locale)" title="{{lang.tooltip}}"><img class="flag" ng-src="{{lang.flagUrl}}" alt=""> {{lang.label}}</a>
         </li>
     </ul>
 </div>

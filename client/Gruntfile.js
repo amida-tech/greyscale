@@ -559,13 +559,18 @@ module.exports = function (grunt) {
             options: {
                 name: 'greyscale.core',
                 deps: false,
-                dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js'
+                dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js',
+                serializerOptions: {
+                    indent: '\t',
+                    no_trailing_comma: true
+                }
             },
             // Environment targets
             local: {
                 options: {},
                 constants: {
                     greyscaleEnv: {
+                        supportedLocales: ['en', 'ru'],
                         name: 'local',
                         apiProtocol: 'http',
                         apiHostname: 'localhost',
