@@ -308,6 +308,7 @@ module.exports = {
                     indexId = req.body[i].id;
                     res.updated.push(indexId);
                 } else { // create
+                    indexObj.productId = req.params.id;
                     var id = yield thunkQuery(Index.insert(indexObj).returning(Index.id), {
                         'realm': req.param('realm')
                     });
@@ -398,6 +399,7 @@ module.exports = {
                     subindexId = req.body[i].id;
                     res.updated.push(subindexId);
                 } else { // create
+                    subindexObj.productId = req.params.id;
                     var id = yield thunkQuery(Subindex.insert(subindexObj).returning(Subindex.id), {
                         'realm': req.param('realm')
                     });

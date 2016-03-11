@@ -531,7 +531,7 @@ ALTER TABLE "Index_id_seq" OWNER TO indaba;
 --
 
 CREATE TABLE "Indexes" (
-    id integer NOT NULL,
+    id integer DEFAULT nextval('"Index_id_seq"'::regclass) NOT NULL,
     "productId" integer NOT NULL,
     title character varying,
     description text,
@@ -898,7 +898,7 @@ ALTER TABLE "Subindex_id_seq" OWNER TO indaba;
 --
 
 CREATE TABLE "Subindexes" (
-    id integer NOT NULL,
+    id integer DEFAULT nextval('"Subindex_id_seq"'::regclass) NOT NULL,
     "productId" integer NOT NULL,
     title character varying,
     description text,
