@@ -434,7 +434,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask
             }
         })
-        .state('index-visualization', {
+        /*.state('index-visualization', {
             parent: 'home',
             url: 'index-visualization',
             views: {
@@ -448,7 +448,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 icon: 'fa-globe',
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
-        })
+        })*/
         .state('visualizations', {
             parent: 'home',
             url: 'visualizations',

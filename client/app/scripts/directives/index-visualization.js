@@ -102,7 +102,7 @@ angular.module('greyscaleApp')
                     }];
 
                     var layout = {
-                        title: "'" + index.title + "' Choropleth Map",
+                        title: '\'' + index.title + '\' Choropleth Map',
                         geo: {
                             projection: { type: 'mercator' },
                             resolution: '50',
@@ -130,12 +130,12 @@ angular.module('greyscaleApp')
                     }];
 
                     var layout = {
-                        title: "'" + index.title + "' Ranked Bar Graph",
+                        title: '\'' + index.title + '\' Ranked Bar Graph',
                         annotations: plotData.map(function (datum, i) {
                             return {
                                 x: datum.name,
                                 y: datum[index.collection][index.id],
-                                text: "#" + (plotData.length - i),
+                                text: '#' + (plotData.length - i),
                                 xanchor: 'center',
                                 yanchor: 'bottom',
                                 showarrow: false
@@ -192,7 +192,7 @@ angular.module('greyscaleApp')
                     }];
 
                     var layout = {
-                        title: "'" + index.title + "' Comparative Bar Graph",
+                        title: '\'' + index.title + '\' Comparative Bar Graph',
                         height: 500,
                         width: $('#viz').width() - 20,
                         xaxis: { title: 'Target' },

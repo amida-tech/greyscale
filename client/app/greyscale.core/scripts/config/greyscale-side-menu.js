@@ -11,7 +11,7 @@ angular.module('greyscale.core')
                 states: ['access', 'uoas', 'orgs', 'users', 'projects.setup.products']
             }, {
                 title: 'NAV.CONTENT_SECTION',
-                states: ['profile', 'tasks', 'visualization', 'graph', 'table', 'index-visualization']
+                states: ['profile', 'tasks', 'visualizations', 'graph', 'table']
             }]
         };
 

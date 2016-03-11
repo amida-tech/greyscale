@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http, $scope, $q, Organization, greyscaleVisualizationApi, greyscaleModalsSrv) {
-    var tns = "VISUALIZATIONS.";
+    var tns = 'VISUALIZATIONS.';
 
     $scope.model = {
     };
