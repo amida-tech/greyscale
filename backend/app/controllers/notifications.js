@@ -245,7 +245,7 @@ module.exports = {
                 'notes.sent, '+
                 'notes."read", '+
                 'notes."notifyLevel", '+
-                'notes.ressult, '+
+                'notes.result, '+
                 'notes.resent, '+
                 'notes.note '+
                 'FROM notes '+
