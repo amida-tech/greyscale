@@ -35,6 +35,28 @@ Emailer.prototype.send = function (callback) {
     return transport.sendMail(messageData, callback);
 };
 
+Emailer.prototype.sendSync = function* () {
+    var html = this.options.html || this.getHtml(this.options.template, this.data);
+    var attachments = this.getAttachments(html),
+        messageData = {
+            to: '\'' + this.options.to.name + ' ' + this.options.to.surname + '\' <' + this.options.to.email + '>',
+            from: util.format('%s <%s>', config.email.sender.name, config.email.sender.email),
+            subject: this.options.to.subject,
+            html: html,
+            generateTextFromHTML: true,
+            attachments: attachments
+        },
+    transport = this.getTransport();
+    var response;
+    try{
+        response = yield transport.sendMail(messageData);
+    }catch(e){
+        response = e;
+    }
+
+    return response;
+};
+
 Emailer.prototype.getTransport = function () {
     return emailer.createTransport(smtpTransport(config.email.transport.opts));
 };

@@ -94,28 +94,34 @@ function* createNotification (note, template) {
         },
         html: note.message
     };
+
+    var err = false;
+    if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
+        var mailer = new Emailer(emailOptions, note);
+        var sendResult = yield * mailer.sendSync();
+        err = sendResult.name === 'Error';
+        if (err) {
+            console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+            note.result = sendResult.message;
+        } else
+        {
+            console.log('EMAIL RESULT --->>> '+sendResult.response);
+            note.result = sendResult.response;
+        }
+    }
     var updateFields = _.extend({}, {
         email: userTo.email,
         message: note.message,
         subject: note.subject,
-        sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null
-        //result: note.result ToDo: Save Result
+        sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null,
+        result: note.result
     });
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
-    if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-        var mailer = new Emailer(emailOptions, note);
-        mailer.send(function (error, info) {
-            if (error) {
-                console.log('EMAIL RESULT ERROR --->>> '+error);
-                note.result = error;
-            } else
-            {
-                console.log('EMAIL RESULT --->>> '+info.response);
-                note.result = info.response;
-            }
-        });
+    if (err) {
+        throw new HttpError(403, sendResult.message);
     }
+
     return noteInserted;
 }
 
@@ -135,25 +141,30 @@ function* resendNotification (notificationId) {
         },
         html: note.message
     };
+    var err = false;
+    if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
+        var mailer = new Emailer(emailOptions, note);
+        var sendResult = yield * mailer.sendSync();
+        err = sendResult.name === 'Error';
+        if (err) {
+            console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+            note.result = sendResult.message;
+        } else
+        {
+            console.log('EMAIL RESULT --->>> '+sendResult.response);
+            note.result = sendResult.response;
+        }
+    }
     var updateFields = _.extend({}, {
-        email: userTo.email, // update eMail
-        resent: new Date()
-        //result: note.result ToDo: Save Result
+        email: userTo.email,
+        resent: new Date(),
+        result: note.result
     });
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
-    var mailer = new Emailer(emailOptions, note);
-    mailer.send(function (error, info) {
-        if (error) {
-            console.log('EMAIL RESULT ERROR --->>> '+error);
-            note.result = error;
-        } else
-        {
-            console.log('EMAIL RESULT --->>> '+info.response);
-            note.result = info.response;
-        }
-    });
-    //}
+    if (err) {
+        throw new HttpError(403, sendResult.message);
+    }
     return note;
 }
 

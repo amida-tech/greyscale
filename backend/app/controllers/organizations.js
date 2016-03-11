@@ -248,30 +248,6 @@ module.exports = {
 
                                 }
 
-/*
-                                var options = {
-                                    to: {
-                                        name: newUser.firstName,
-                                        surname: newUser.lastName,
-                                        email: newUser.email,
-                                        subject: 'Indaba. Organization membership'
-                                    },
-                                    template: 'org_invite'
-                                };
-                                var data = {
-                                    name: newUser.firstName,
-                                    surname: newUser.lastName,
-                                    company: org[0],
-                                    inviter: req.user,
-                                    token: newUser.activationToken
-                                };
-                                var mailer = new Emailer(options, data);
-                                mailer.send(function (data) {
-                                    console.log('EMAIL RESULT --->>>');
-                                    console.log(data);
-
-                                });
-*/
                             }
                         }
 
