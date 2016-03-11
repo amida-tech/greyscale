@@ -45,7 +45,7 @@ module.exports = function (grunt) {
     var i18nConfig = {
         i18nDir: 'i18n',
         l10nDir: 'l10n',
-        supportedLocales: ['en', 'ru']
+        supportedLocales: ['en', 'ru', 'es', 'fr']
     };
 
     // Define the configuration for all the tasks
@@ -599,7 +599,7 @@ module.exports = function (grunt) {
                 options: {},
                 constants: {
                     greyscaleEnv: {
-                        supportedLocales: ['en', 'ru'],
+                        supportedLocales: ['en', 'ru', 'es', 'fr'],
                         name: 'dev',
                         apiProtocol: 'http',
                         apiHostname: 'indaba.ntrlab.ru',
