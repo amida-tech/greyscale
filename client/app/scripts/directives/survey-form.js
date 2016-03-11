@@ -258,7 +258,9 @@ angular.module('greyscaleApp')
                     if (answer) {
                         fld.answerId = answer.id;
                         fld.langId = (typeof answer.langId === 'undefined') ? scope.model.lang : answer.langId;
-                        fld.attachments = answer.attachments;
+                        if (fld.canAttach) {
+                            fld.attachments = answer.attachments || [];
+                        }
 
                         switch (fld.type) {
                         case 'checkboxes':
@@ -348,9 +350,11 @@ angular.module('greyscaleApp')
                     for (v = 0; v < _answers.length; v++) {
                         fldName = fldNamePrefix + _answers[v].questionId;
                         answer = answers[fldName];
-                        if (!answer || answer.version === null || answer.version < _answers[v].version) {
+                        _answers[v].created = new Date(_answers[v].created);
+
+                        if (!answer || answer.created < _answers[v].created) {
                             answers[fldName] = _answers[v];
-                            answers[fldName].created = new Date(_answers[v].created);
+//                            answers[fldName].created = new Date(_answers[v].created);
                             if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
                                 scope.savedAt = answers[fldName].created;
                             }

@@ -40,7 +40,7 @@ angular.module('greyscaleApp')
                             readonly: !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers
                         };
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="{{model.readonly}}" ';
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="model.readonly" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
@@ -110,17 +110,17 @@ angular.module('greyscaleApp')
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="{{model.readonly}}" ' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="model.readonly" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
 
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="{{model.readonly}}" ' +
+                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="model.readonly" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{model.readonly}}">{{}}</div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="model.readonly">{{}}</div>';
                             }
                             body += '</div>';
                             break;
@@ -129,16 +129,16 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="{{model.readonly}}"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="model.readonly"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="model.readonly" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{model.readonly}}"></div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="model.readonly"></div>';
                             }
                             body += '</div>';
                             break;
