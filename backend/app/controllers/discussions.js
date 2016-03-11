@@ -124,7 +124,10 @@ module.exports = {
             var userTo = yield * getUser(req.body.userId);
             // static blindRewiev
             var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
-            var step4userTo = yield * getUserToStep(taskId, userTo.id);
+            var ids = yield * getProductAndUoaIds(taskId);
+            var productId = ids.productId;
+            var uoaId = ids.uoaId;
+            var step4userTo = yield * getUserToStep(productId, uoaId, userTo.id);
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
             if (step4userTo.blindReview) {
@@ -346,7 +349,7 @@ function* checkUserId(user, userId, taskId, currentStep, tag ) {
     var retObject=null;
 
     for (var i = 0; i < result.length; i++) {
-            if (result[i].id === parseInt(userId)){
+            if (result[i].userid === parseInt(userId)){
                 retObject =
                 {
                     userId: result[i].userid,
@@ -620,7 +623,7 @@ function* checkForReturnAndResolve(user, taskId, userId, tag) {
         throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
     }
 
-    return yield * checkUserId(user, userId, taskId, tag, currentStep); // {returnUserId, returnTaskId, returnStepId}
+    return yield * checkUserId(user, userId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
 }
 
 function* getCurrentStep(taskId) {
@@ -718,7 +721,7 @@ function* getDiscussionEntry(id) {
     return result[0];
 }
 
-function* getUserToStep(taskId, userId) {
+function* getUserToStep(productId, uoaId, userId) {
     // get step information for userId
     query =
         'SELECT '+
@@ -726,7 +729,8 @@ function* getUserToStep(taskId, userId) {
         'FROM "Tasks" '+
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
         'WHERE '+
-        '"Tasks"."id" = '+taskId.toString() + ' AND '+
+        '"Tasks"."productId" = '+productId.toString() + ' AND '+
+        '"Tasks"."uoaId" = '+uoaId.toString() + ' AND '+
         '"Tasks"."userId" = '+userId.toString();
     result = yield thunkQuery(query);
     if (!_.first(result)) {
