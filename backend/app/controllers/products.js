@@ -322,7 +322,7 @@ module.exports = {
                     var weightObj = {
                         indexId: indexId,
                         questionId: questionId,
-                        weight: req.body[i].questionWeights[questionId]
+                        weight: req.body[i].questionWeights[questionId].weight
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                 }
@@ -330,7 +330,7 @@ module.exports = {
                     var weightObj = {
                         indexId: indexId,
                         subindexId: subindexId,
-                        weight: req.body[i].subindexWeights[subindexId]
+                        weight: req.body[i].subindexWeights[subindexId].weight
                     };
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
                 }
@@ -413,7 +413,7 @@ module.exports = {
                     var weightObj = {
                         subindexId: subindexId,
                         questionId: questionId,
-                        weight: req.body[i].weights[questionId]
+                        weight: req.body[i].weights[questionId].weight
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                 }
@@ -812,9 +812,10 @@ function* dumpProduct(productId) {
 }
 
 function parseWeights(weightsString) {
+    console.log(weightsString);
     // parse JSON weights string into js object
     // due to postgres quirks, {} represented as '{:}'
-    if (weightsString === '{:}') {
+    if (weightsString === '{:{"weight": }}') {
         return {};
     } else {
         return JSON.parse(weightsString);
@@ -828,7 +829,7 @@ function* getSubindexes(productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('%s:%s', " +
+          "    string_agg(format('%s:{\"weight\": %s}', " +
           '      to_json("SubindexWeights"."questionId"::text), ' +
           '      to_json("SubindexWeights"."weight") ' +
           "    ), ',') " +
@@ -858,13 +859,13 @@ function* getIndexes(productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:%s', " +
+        "    string_agg(format('%s:{\"weight\": %s}', " +
         '      to_json("IndexQuestionWeights"."questionId"::text), ' +
         '      to_json("IndexQuestionWeights"."weight") ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:%s', " +
+        "    string_agg(format('%s:{\"weight\": %s}', " +
         '      to_json("IndexSubindexWeights"."subindexId"::text), ' +
         '      to_json("IndexSubindexWeights"."weight") ' +
         "    ), ',') " +
@@ -901,7 +902,6 @@ function* parseNumericalAnswer(raw, questionType) {
             SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
         ))[0];
 
-        // TODO: is this the correct logic?
         parsed = parseFloat(selected.value);
     } else if (questionType === 2) { // multiple selection
         // selected options
@@ -912,7 +912,7 @@ function* parseNumericalAnswer(raw, questionType) {
             ))[0]);
         }
 
-        // TODO: what logic should we use here?
+        // TODO: sum or average based on user-specified choice
         parsed = parseFloat(selected[0].value);
     } else {
         console.log("Non-numerical question of type %d", questionType);
@@ -985,7 +985,7 @@ function* aggregateIndexes(productId) {
         subindexes.forEach(function (subindex) {
             var value = 0;
             for (var questionId in subindex['weights']) {
-                value += datum['questions'][questionId] * subindex['weights'][questionId];
+                value += datum['questions'][questionId] * subindex['weights'][questionId].weight;
             }
             datum['subindexes'][subindex['id']] = value / subindex['divisor'];
         });
@@ -995,10 +995,10 @@ function* aggregateIndexes(productId) {
         indexes.forEach(function (index) {
             var value = 0;
             for (var questionId in index['questionWeights']) {
-                value += datum['questions'][questionId] * index['questionWeights'][questionId];
+                value += datum['questions'][questionId] * index['questionWeights'][questionId].weight;
             }
             for (var subindexId in index['subindexWeights']) {
-                value += datum['subindexes'][subindexId] * index['subindexWeights'][subindexId];
+                value += datum['subindexes'][subindexId] * index['subindexWeights'][subindexId].weight;
             }
             datum['indexes'][index['id']] = value / index['divisor'];
         });

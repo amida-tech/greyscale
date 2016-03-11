@@ -79,7 +79,7 @@ angular.module('greyscaleApp')
             });
         }
         cols.push({
-            field: 'weight',
+            field: 'weight.weight',
             title: tableTns + 'WEIGHT',
             cellTemplate: '<input type="number" name="weight" ng-model="row.weight" class="form-control input-sm" required/>'
         });
