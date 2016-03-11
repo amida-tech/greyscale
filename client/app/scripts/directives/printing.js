@@ -7,7 +7,7 @@ angular.module('greyscaleApp')
         link: function(scope, el, attr){
             var printable = $('#printable');
             if (!printable.length) {
-                printable = $('<div id="printable"></div>')
+                printable = $('<div id="printable"></div>');
                 $('body').append(printable);
             }
 

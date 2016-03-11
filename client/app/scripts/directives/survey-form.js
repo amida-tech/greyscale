@@ -30,7 +30,10 @@ angular.module('greyscaleApp')
                             if (scope.surveyData.task) {
                                 return greyscaleProductApi
                                     .product(scope.surveyData.task.productId)
-                                    .taskMove(scope.surveyData.task.uoaId);
+                                    .taskMove(scope.surveyData.task.uoaId)
+                                    .then(function(){
+                                        return data;
+                                    });
                             } else {
                                 return $q.reject('Task is undefined');
                             }
@@ -67,6 +70,7 @@ angular.module('greyscaleApp')
                 }
 
                 function goTasks(canGo) {
+                    $log.debug('canGo', canGo);
                     if (canGo) {
                         $state.go('tasks');
                     }
@@ -351,7 +355,7 @@ angular.module('greyscaleApp')
                         answer = answers[fldName];
                         _answers[v].created = new Date(_answers[v].created);
 
-                        if (!answer || answer.created < _answers[v].created) {
+                        if (!answer || _answers[v].version === null || answer.version < _answers[v].version) {
                             answers[fldName] = _answers[v];
 
                             if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
@@ -457,14 +461,13 @@ angular.module('greyscaleApp')
                         }
                         scope.surveyForm.$dirty = isAuto;
                         scope.savedAt = new Date();
+                        scope.lock = false;
                         return true;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
-                        return $q.resolve(isAuto);
-                    })
-                    .finally(function () {
                         scope.lock = false;
+                        return $q.resolve(isAuto);
                     });
             }
             return res;
