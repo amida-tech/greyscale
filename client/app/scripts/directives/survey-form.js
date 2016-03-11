@@ -245,7 +245,6 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                    //                ts: new Date().getTime()
             };
             var answers = {};
 
@@ -257,7 +256,7 @@ angular.module('greyscaleApp')
                     answer = answers[fld.cid];
                     if (answer) {
                         fld.answerId = answer.id;
-                        fld.langId = (typeof answer.langId === 'undefined') ? scope.model.lang : answer.langId;
+                        fld.langId = answer.langId || scope.model.lang;
                         if (fld.canAttach) {
                             fld.attachments = answer.attachments || [];
                         }
@@ -354,7 +353,7 @@ angular.module('greyscaleApp')
 
                         if (!answer || answer.created < _answers[v].created) {
                             answers[fldName] = _answers[v];
-//                            answers[fldName].created = new Date(_answers[v].created);
+
                             if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
                                 scope.savedAt = answers[fldName].created;
                             }
@@ -391,7 +390,7 @@ angular.module('greyscaleApp')
                     if (fld.answer || fld.type === 'checkboxes') {
                         answer = {
                             questionId: fld.id,
-                            langId: (typeof fld.langId === 'undefined') ? scope.model.langId : fld.langId
+                            langId: fld.langId || scope.model.lang
                         };
                         angular.extend(answer, params);
                         switch (fld.type) {
