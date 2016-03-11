@@ -20,8 +20,7 @@ angular.module('greyscaleApp')
                                 languages.push({
                                     locale: lang.code,
                                     label: lang.nativeName,
-                                    tooltip: lang.name,
-                                    flagUrl: 'images/flags/' + lang.code + '.png'
+                                    tooltip: lang.name
                                 });
                             }
                         });
