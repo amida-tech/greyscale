@@ -1,9 +1,9 @@
-# Indaba by Amida
+![logo](images/Indaba_logo.png)
 
 
-Turn knowledge into data
+[Indaba by Amida](indaba.amida-tech.com)
 
-indaba.amida-tech.com
+
 
 
 
@@ -54,8 +54,9 @@ Contributors are welcome. See issues https://github.com/amida-tech/greyscale/iss
 ###### Amida team
 
 - Dmitry Kachaev
-- Jacob Sachs
 - Mike Hiner
+- Jacob Sachs
+- Harry Rickards (summer '15 intern, MIT)
 - Nadia Wallace (winter '15 intern, MIT)
 
 ====
