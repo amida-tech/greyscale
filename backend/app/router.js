@@ -263,6 +263,9 @@ router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne)
     .put(authenticate('token').always, organizations.editOne);
 
+router.route('/:realm/v0.2/organizations/:id/products')
+    .get(authenticate('token').always, organizations.selectProducts)
+
 router.route('/:realm/v0.2/organizations/:id/users_csv')
     .post(authenticate('token').always, organizations.csvUsers);
 

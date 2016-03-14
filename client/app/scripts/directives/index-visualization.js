@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('indexViz', function ($window, $http, $stateParams, $q, Organization, greyscaleProductApi, greyscaleVisualizationApi) {
+    .directive('indexViz', function ($window, $http, $stateParams, $q, Organization, greyscaleProductApi, greyscaleVisualizationApi, greyscaleOrganizationApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/index-visualization.html',
@@ -14,18 +14,19 @@ angular.module('greyscaleApp')
                 scope.visualizationTitle = null;
                 scope.topics = [];
 
-                _loadProducts().then(function() {
-                    if ($stateParams.visualizationId) {
-                        scope.savedVisualization = true;
-                        Organization.$watch(scope, function() {
+                Organization.$watch(scope, function() {
+                    _loadProducts().then(function() {
+                        if ($stateParams.visualizationId) {
+                            scope.savedVisualization = true;
                             _loadVisualization($stateParams.visualizationId);
-                        });
-                    }
+                        }
+                    });
                 });
 
                 //Load products
                 function _loadProducts() {
-                    return greyscaleProductApi.getList().then(function (products) {
+                    return greyscaleOrganizationApi.products(Organization.id).then(function (products) {
+                        console.log(products);
                         scope.products = products;
                     });
                 }
