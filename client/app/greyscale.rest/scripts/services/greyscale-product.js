@@ -13,6 +13,10 @@ angular.module('greyscale.rest')
             return api().one(id + '').get(params);
         }
 
+        function _getList(params) {
+            return api().getList('', {query: params});
+        }
+
         function _add(product) {
             return api().customPOST(product);
         }
@@ -31,6 +35,44 @@ angular.module('greyscale.rest')
 
         function _productTasksApi(productId) {
             return api().one(productId + '').one('tasks');
+        }
+
+        function _productIndexesApi(productId) {
+            return api().one(productId + '').one('indexes');
+        }
+
+        function _productSubindexesApi(productId) {
+            return api().one(productId + '').one('subindexes');
+        }
+
+        function _indexes(productId) {
+            return function() {
+                return api().one(productId + '').one('aggregate').get();
+            };
+        }
+
+        function _indexesList(productId) {
+            return function() {
+                return _productIndexesApi(productId).get();
+            };
+        }
+
+        function _subindexesList(productId) {
+            return function() {
+                return _productSubindexesApi(productId).get();
+            };
+        }
+
+        function _indexesListUpdate(productId) {
+            return function(indexes) {
+                return _productIndexesApi(productId).customPUT(indexes);
+            };
+        }
+
+        function _subindexesListUpdate(productId) {
+            return function(indexes) {
+                return _productSubindexesApi(productId).customPUT(indexes);
+            };
         }
 
         function _uoasList(productId) {
@@ -89,12 +131,18 @@ angular.module('greyscale.rest')
                 tasksList: _tasksList(productId),
                 tasksListUpdate: _tasksListUpdate(productId),
                 tasksDel: _tasksDel(productId),
-                taskMove: _taskMove(productId)
+                taskMove: _taskMove(productId),
+                indexes: _indexes(productId),
+                indexesList: _indexesList(productId),
+                indexesListUpdate: _indexesListUpdate(productId),
+                subindexesList: _subindexesList(productId),
+                subindexesListUpdate: _subindexesListUpdate(productId)
             };
         };
 
         return {
             get: _get,
+            getList: _getList,
             add: _add,
             update: _upd,
             delete: _del,

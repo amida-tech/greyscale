@@ -1,5 +1,6 @@
-# greyscale
-# Platforms, Frameworks & Development Tools
+![logo](../images/Indaba_logo.png)
+
+# Indaba Platforms, Frameworks & Development Tools
   - [AngularJS](http://angularjs.org/): JavaScript Single Page Application Framework
   - [Bootstrap](http://getbootstrap.com/): Responsive UI Framework 
   - [Sass](http://sass-lang.com/): CSS Extension Language
@@ -10,65 +11,60 @@
   - [Bower](http://bower.io/): Package Manager for Front End Components 
   - [Yeoman](http://yeoman.io/): Scaffolding Tool for the Front End App 
   
-# Installation
+# Indaba Installation
 
-## Get source code
+1. Download [source code](https://github.com/amida-tech/greyscale/)
+2. Install the [Compass](http://compass-style.org/) SCSS compiler (Official installation guide [here](http://compass-style.org/install/))
+3. Install Ruby (Installation instructions [here](https://www.ruby-lang.org/en/documentation/installation/))
+4. Install Node.js, npm, yo, grunt-cli, bower, generator-angular and generator-karma
 
- Get [sources from github](https://github.com/amida-tech/greyscale/)
- 
-## Install [Compass](http://compass-style.org/) SCSS compiller
-
-(This is official install [How to](http://compass-style.org/install/))
-
-Install Ruby. Here is [instruction](https://www.ruby-lang.org/en/documentation/installation/) please choose your platform and go on.
-
-After Ruby will be installed, run 
 ```
 gem update --system
 gem install compass
-```
 
-> If after execute `gem update --system` you saw error about ssl sertificate.
-> The reason is old rubygems. So we need to remove ssl source to be able to update gem --system which includes rubygems and so on. after this we can feel free to get back to ssl source.
->`gem sources -r https://rubygems.org/` - to temporarily remove secure connection
->`gem sources -a http://rubygems.org/` - add insecure connection
->`gem update --system` - now we're able to update rubygems without SSL
->after updating rubygems do vice versa
->`gem sources -r http://rubygems.org/` - to remove insecure connection
->`gem sources -a https://rubygems.org/` - add secure connection
->Now you're able to update gems using secure connection.
-And try to update system and install compass again.
-
-
-## Install [Node.js](https://nodejs.org) and global npm packages
-
-[Download](https://nodejs.org/download/) and install Node.js server and npm package manager.
-
-Then install yo, grunt-cli, bower, generator-angular and generator-karma:
-Run (In Windows OS probably you will need to start cmd as Administarator)
-```
 npm install -g grunt-cli bower yo generator-karma generator-angular
-```
 
-## Install required packages
-
-Install required npm packages. Go to 'greyscale\client' directory and run 
-```
+# Go to the src directory and run 
 npm install
+bower install
+
 ```
 
-Install required bower packages. Go to 'greyscale\client' and run
+>If you see an error regarding the SSL certificate after executing `gem update --system`.
+> This is caused by an old version of rubygems. You will need to remove the SSL source to be able to update gem --system, which includes rubygems. After this you should be able to get back to the SSL source.
+
+
 ```
-bower install
+# to temporarily remove secure connection
+gem sources -r https://rubygems.org/
+
+# to add insecure connection
+gem sources -a http://rubygems.org/
+
+# now we can update rubygems without SSL
+gem update --system
+
+# after updating rubygems, reverse the process.
+
+# to remove the insecure connection
+gem sources -r http://rubygems.org/
+
+# add secure connection
+gem sources -a https://rubygems.org/
+
+# Now you can update gems using a secure connection.
+# Next, update the system and install compass again.
 ```
+
+
 # Configuration managment
 
-You have the option to choose your API services from different servers. This is helpful if you do not have or want the Backend Project set up on your local environment.
+You have the option to choose your API services from different servers. This is helpful if you do not have nor want the Backend Project set-up on your local environment.
 There are different configurations:
 
 ### Development with localhost-based server
 
-This is development server configuration. Server must be installed on the same host where client app run. Log to the browser console debug information enabled.
+This is the development server configuration. The server must be installed on the same host where client app runs. The log to the browser console has debug information enabled.
 
 ```
 grunt ngconstant:local
@@ -76,33 +72,29 @@ grunt ngconstant:local
 
 ### Development without server (dev)
 
-This is development server configuration. Log to the browser console debug information enabled.
+This is the development server configuration. The log to the browser console has debug information enabled.
 
 ```
 grunt ngconstant:dev
 ```
 
 
-#### *Note about config switch*
-Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\client\app\greyscale.core\scripts\config\greyscale-env.js)
-Please do not update it manual.
+###*Note about config switch*
+Switching config will update *greyscale.core.greyscaleEnv* constant (greyscale\app\greyscale.core\scripts\config\greyscale-env.js)
+Please do not update it manually.
 
-## Build & development
 
-Run `grunt` for building and `grunt serve` for preview.
+# Build & development
+
+To build, run `grunt`
+
+To preview, run `grunt serve`
 
 ### Build for docker deployment
 
-Run `grunt buildDocker` for building a deployment suitable for the docker image.
+To build a deployment suitable for a docker image, run `grunt buildDocker`
 
-## Testing
 
-Running `grunt test` will run the unit tests with karma.
+# Testing
 
-## Contributing
-
-Contributors are welcome. See issues https://github.com/amida-tech/greyscale/issues
-
-## License
-
-Licensed under [Apache 2.0](../LICENSE)
+Running `grunt test` will run the unit tests with karma

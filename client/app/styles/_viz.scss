@@ -1,8 +1,29 @@
-.viz-widget {
-    height: 80vh !important;
-}
-
 .viz-padding {
     padding: 10px;
     padding-bottom: 42px;
+}
+
+#viz {
+    min-height: 300px;
+}
+
+#filterForm {
+    .control-label { margin: 7px 0; }
+
+    .row > div {
+        margin-bottom: 5px !important;
+        margin-top: 5px !important;
+    }
+
+    button {
+        margin-left: 0 !important;
+    }
+
+    .controls {
+        padding: 0 25px;
+    }
+
+    .multiSelect > button {
+        width: 100%;
+    }
 }
