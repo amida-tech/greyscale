@@ -57,6 +57,9 @@ angular.module('greyscaleApp')
                 $interval.cancel(scope.autosave);
             });
 
+            scope.printRenderBlank = _printRenderBlank;
+            scope.printRenderAnswers = _printRenderAnswers;
+
             function updateForm(data) {
 
                 if (data) {
@@ -509,5 +512,13 @@ angular.module('greyscaleApp')
             }
         }
         return _answers;
+    }
+
+    function _printRenderBlank(printable) {
+        console.log('ci');
+    }
+
+    function _printRenderAnswers(printable) {
+        console.log('ra');
     }
 });

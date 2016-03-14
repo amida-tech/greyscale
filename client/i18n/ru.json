@@ -456,6 +456,8 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "PRINT_ALL": "",
+        "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",
         "PRINT_SURVEY": "",
         "QUESTION": "",
