@@ -111,12 +111,15 @@ module.exports = {
                     req.body[i].status = 'Ok';
                     req.body[i].id = answer.id;
                     req.body[i].message = 'Added';
+                    req.body[i].statusCode = 200;
                 }catch(err){
                     req.body[i].status = 'Fail';
                     if (err instanceof HttpError) {
                         req.body[i].message = err.message.message;
+                        req.body[i].statusCode = err.status;
                     } else {
                         req.body[i].message = 'internal error';
+                        req.body[i].statusCode = 500;
                     }
                     console.log(err);
                 }
