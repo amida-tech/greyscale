@@ -1,2 +1,8 @@
-<p>Hello {{to.firstName}} {{to.lastName}}! {{from.firstName}} {{from.lastName}} ask you:</p>
-<p>{{body}}</p>
+<p>Hello <%= to.firstName %> <%= to.lastName %>! <%= from.firstName %> <%= from.lastName %> ask you:</p>
+<p><%- body %></p>
+
+<% if (isReturn) { %>
+<p> Please check your task!</p>
+<% } else { %>
+<p> Please, answer</p>
+<% } %>
