@@ -406,7 +406,7 @@ angular.module('greyscaleApp')
         if (!scope.lock) {
             scope.lock = true;
 
-            answers = preSaveFields(scope);
+            answers = preSaveFields(scope, scope.fields);
 
             res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
@@ -433,8 +433,7 @@ angular.module('greyscaleApp')
         return res;
     }
 
-    function preSaveFields(scope) {
-        var fields = scope.fields;
+    function preSaveFields(scope, fields) {
         var f, fld, answer,
             qty = fields.length,
             _answers = [];
@@ -442,7 +441,7 @@ angular.module('greyscaleApp')
         for (f = 0; f < qty; f++) {
             fld = fields[f];
             if (fld.sub) {
-                saveFields(fld.sub);
+                _answers = _answers.concat(preSaveFields(scope, fld.sub));
             } else if (scope.surveyData.flags.provideResponses) {
                 answer = {
                     questionId: fld.id,
