@@ -20,6 +20,7 @@ exports.Query = function () {
             }
             //START
             if (typeof queryObject === 'string') {
+                console.log(queryObject);
                 client.query(queryObject, options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
