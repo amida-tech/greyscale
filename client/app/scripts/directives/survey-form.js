@@ -295,7 +295,7 @@ angular.module('greyscaleApp')
                 response.push(_answers[v]);
             }
 
-            loadRecursive(scope.fields, answers);
+            loadRecursive(scope.fields, answers, responses);
 
         })
                 .finally(function () {
@@ -303,7 +303,7 @@ angular.module('greyscaleApp')
         });
     }
 
-    function loadRecursive(fields, answers) {
+    function loadRecursive(fields, answers, responses) {
         var f, fld, answer, o, oQty, response,
             fQty = fields.length;
         for (f = 0; f < fQty; f++) {
