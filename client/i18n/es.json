@@ -179,11 +179,13 @@
         "HELP": "",
         "HOME": "",
         "IMPORT": "",
+        "INDEX-VISUALIZATION": "",
         "LOGIN": "",
         "LOGOUT": "",
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "",
         "PM_PRODUCT_DASHBOARD": "",
+        "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "",
         "PROFILE": "",
         "PROJECTS": {
@@ -211,6 +213,7 @@
             "UOA": ""
         },
         "VISUALIZATION": "",
+        "VISUALIZATIONS": "",
         "WORKFLOW_STEPS": ""
     },
     "NOTIFICATIONS": {
@@ -260,10 +263,39 @@
         "PROJECT": ""
     },
     "PRODUCTS": {
+        "INDEXES": {
+            "FORM": {
+                "AVG_DIVISORS": "",
+                "DIVISOR": "",
+                "MODAL_TITLE": "",
+                "MODAL_TITLE_CREATE": "",
+                "SUGGESTED_DIVISORS": "",
+                "SUM_DIVISORS": "",
+                "TITLE": "",
+                "WEIGHTS": {
+                    "FIELD": "",
+                    "QUESTION": "",
+                    "TYPE": "",
+                    "WEIGHT": ""
+                },
+                "WEIGHTS_LABEL": ""
+            },
+            "INDEXES_TABLE": {
+                "DIVISOR": "",
+                "TABLE_TITLE": "",
+                "TITLE": ""
+            },
+            "SUBINDEXES_TABLE": {
+                "DIVISOR": "",
+                "TABLE_TITLE": "",
+                "TITLE": ""
+            }
+        },
         "TABLE": {
             "CREATE_WORKFLOW": "",
             "DELETE_CONFIRM": "",
             "DESCRIPTION": "",
+            "INDEXES": "",
             "PAUSE_PRODUCT": "",
             "PLANNING_NOT_FINISH": "",
             "PRODUCT": "",
@@ -456,6 +488,8 @@
         "MAX": "",
         "MIN": "",
         "NAME": "",
+        "PRINT_ALL": "",
+        "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",
         "PRINT_SURVEY": "",
         "QUESTION": "",
@@ -567,6 +601,12 @@
         "USERS_IN_GROUPS": "",
         "USER_GROUP": "",
         "USER_GROUPS": ""
+    },
+    "VISUALIZATIONS": {
+        "MODAL_TITLE": "",
+        "MODAL_TITLE_CREATE": "",
+        "TITLE": "",
+        "VISUALIZATIONS": ""
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "",

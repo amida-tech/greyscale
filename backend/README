@@ -1,10 +1,25 @@
-Installation
+![logo](../images/Indaba_logo.png)
+
+# Indaba Backend Installation
 ------------
-1. Install node.js (on Debian/Ubuntu: "apt-get install nodejs"). We recommend to use node version manager (https://github.com/creationix/nvm)
-We use js generators, so you have to use node version >= 0.11 (nvm install 0.12.7)
-2. Run "npm i" in project root to install dependencies. ("sudo npm i" can be required, depending on node.js installation)
+1. Install Node.js v0.11+ (on Debian/Ubuntu: ```apt-get install nodejs```). 
+2. We recommend using [node version manager](https://github.com/creationix/nvm) ```nvm install 0.12.7```
 3. Install postgres and pgAdmin on your machine
-4. Create database and restore it from last backup (/db_dump/indaba{mmdd}.backup), using pgAdmin restoreв
-5. Configure application (rename config_etalon.js to config.js)
-6. Run application "node --harmony app.js". We use generators, so you need to use "--harmony" flag.
+4. Configure the application (rename [config_etalon.js](config_etalon.js) to config.js)
+	
+```
+# In project root to install dependencies, run:
+npm i 
+
+# Create database and restore it from the [most recent backup](/db_dump/indaba{mmdd}.backup)
+pgAdmin restore
+
+# Run application 
+node --harmony app.js
+```
+
+
+
+
+
 

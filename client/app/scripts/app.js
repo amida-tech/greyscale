@@ -316,6 +316,20 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             }
         })
+        .state('projects.setup.indexes', {
+            parent: 'projects.setup.products',
+            url: '/:productId/indexes',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/product-indexes.html',
+                    controller: 'ProductIndexesCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.PRODUCT_INDEXES',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
         .state('pmProductDashboard', {
             parent: 'home',
             url: 'pm/:productId',
@@ -375,7 +389,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.admin.mask | systemRoles.user.mask
             }
         })
-        .state('visualization', {
+        /*.state('visualization', {
             parent: 'home',
             url: 'visualization',
             views: {
@@ -389,7 +403,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 icon: 'fa-globe',
                 accessLevel: systemRoles.superAdmin.mask
             }
-        })
+        })*/
         .state('graph', {
             parent: 'home',
             url: 'graph',
@@ -418,6 +432,49 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'NAV.TABLE',
                 icon: 'fa-table',
                 accessLevel: systemRoles.superAdmin.mask
+            }
+        })
+        /*.state('index-visualization', {
+            parent: 'home',
+            url: 'index-visualization',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/index-visualization.html',
+                    controller: 'IndexVisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.INDEX-VISUALIZATION',
+                icon: 'fa-globe',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })*/
+        .state('visualizations', {
+            parent: 'home',
+            url: 'visualizations',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/visualizations.html',
+                    controller: 'VisualizationsCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.VISUALIZATIONS',
+                icon: 'fa-globe',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
+        })
+        .state('visualization', {
+            parent: 'visualizations',
+            url: '/:visualizationId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/index-visualization.html',
+                    controller: 'IndexVisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'Visualization'
             }
         })
         .state('survey', {
