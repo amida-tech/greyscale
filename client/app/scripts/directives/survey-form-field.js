@@ -209,10 +209,10 @@ angular.module('greyscaleApp')
                             '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
                             '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
                             '<div class="field-comment-radio">' +
-                            '<div class="radio"><label><input type="radio" name="{{field.cid}}"' +
+                            '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
                             ' value="true" ng-model="field.isAgree" /><i class="chk-box"></i>' +
                             '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
-                            '<div class="radio"><label><input type="radio" name="{{field.cid}}"' +
+                            '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
                             ' value="false" ng-model="field.isAgree" /><i class="chk-box"></i>' +
                             '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
                             '</div>' +
