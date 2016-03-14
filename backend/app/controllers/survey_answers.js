@@ -389,7 +389,7 @@ function *addAnswer (req, dataObject) {
     );
 
     if (!_.first(workflow)) {
-        throw new HttpError(403, 'Workflow is not define for Product id = ' + dataObject.productId);
+        throw new HttpError(403, 'Workflow is not defined for Product id = ' + dataObject.productId);
     }
 
     var curStep = yield thunkQuery(
@@ -417,16 +417,16 @@ function *addAnswer (req, dataObject) {
     curStep = curStep[0];
 
     if (!curStep) {
-        throw new HttpError(403, 'Current step is not define');
+        throw new HttpError(403, 'Current step is not defined');
     }
 
     dataObject.wfStepId = curStep.id;
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Task is not define');
+        throw new HttpError(403, 'Task is not defined');
     }
     if (curStep.task.userId != req.user.id) {
-        throw new HttpError(403, 'Task on this step assigned to another user');
+        throw new HttpError(403, 'Task at this step assigned to another user');
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
@@ -534,23 +534,23 @@ function *moveWorkflow (req, productId, UOAid) {
 
     curStep = curStep[0];
 
-    if (!curStep) {
-        throw new HttpError(403, 'Current step is not define');
+    if (!curStep.workflowId) {
+        throw new HttpError(403, 'Current step is not defined');
     }
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Task is not define for this Product and UOA');
+        throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Survey is not define for this Product');
+        throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
     if (req.user.roleID == 3) { // simple user
         if (curStep.task.userId != req.user.id) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') on this step assigned to another user ' +
+                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
                 '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
             );
         }

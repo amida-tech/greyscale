@@ -165,7 +165,7 @@ router.route('/:realm/v0.2/access_permissions/:id')
 var languages = require('app/controllers/languages');
 
 router.route('/:realm/v0.2/languages')
-    .get(authenticate('token').always, languages.select)
+    .get(/*authenticate('token').always, */languages.select)
     .post(authenticate('token').always, languages.insertOne);
 
 router.route('/:realm/v0.2/languages/:id')

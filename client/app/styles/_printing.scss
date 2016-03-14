@@ -1,0 +1,52 @@
+@media screen {
+    #printable {
+        display: none;
+    }
+    [print-only] {
+        display: none;
+    }
+}
+
+@media print {
+    body * {
+        visibility:hidden;
+    }
+    #printable, #printable * {
+        visibility:visible;
+    }
+    #printable {
+        position:absolute;
+        left:0;
+        top:0;
+        width: 100%;
+        [print-only] {
+            display: block;
+        }
+        [no-print] {
+            display: none;
+        }
+        .form-group {
+            .error {
+                display: none;
+            }
+        }
+        .open-collapsible {
+            .panel-heading {
+                .fa.pull-right {
+                    display: none;
+                }
+            }
+            .panel-collapse {
+                display: block;
+                height: auto !important;
+            }
+        }
+        .hide-inputs {
+            .form-group {
+                input, textarea {
+                    display: none;
+                }
+            }
+        }
+    }
+}

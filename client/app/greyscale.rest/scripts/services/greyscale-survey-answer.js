@@ -9,8 +9,7 @@ angular.module('greyscale.rest')
         return {
             list: _listItems,
             save: _saveItem,
-            addAttach: _postAttach,
-            getAttach: _getAttach
+            addAttach: _postAttach
         };
 
         function _api() {
@@ -35,10 +34,6 @@ angular.module('greyscale.rest')
                 param.autosave = isAuto;
             }
             return _api().customPOST(answer, '', param).then(_postProcess);
-        }
-
-        function _getAttach(attachId) {
-            return greyscaleRestSrv().one('attachments', attachId + '').get().then(_postProcess);
         }
 
         function _postAttach(attachId, body) {

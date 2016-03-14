@@ -30,6 +30,7 @@
     "verror": "1.4.0",
     "winston": "0.8.3",
     "diff-json": "*",
+    "ejs": "^2.4.1",
     "ejs-locals": "1.0.2",
     "nodemailer": "2.x",
     "nodemailer-smtp-transport": "2.x",

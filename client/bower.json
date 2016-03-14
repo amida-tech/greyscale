@@ -53,7 +53,9 @@
       "main": "src/index.js"
     },
     "socket.io-client": {
-      "main": ["socket.io.js"]
+      "main": [
+        "socket.io.js"
+      ]
     }
   },
   "resolutions": {
