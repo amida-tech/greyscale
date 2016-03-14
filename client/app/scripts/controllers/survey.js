@@ -35,7 +35,7 @@ angular.module('greyscaleApp')
 
         if ($stateParams.taskId) {
             reqs.task = greyscaleTaskApi.get($stateParams.taskId);
-    }
+        }
         $q.all(reqs)
             .then(function (resp) {
                 data = {
