@@ -8,13 +8,12 @@ angular.module('greyscaleApp')
         return {
             restrict: 'A',
             require: 'ngModel',
-            scope: {
-                field: '=gsValid'
-            },
             link: function (scope, elem, attrs, ngModel) {
-                if (ngModel && scope.field) {
-                    scope.field.ngModel = ngModel;
-                }
+                scope.$watch(attrs.gsValid, function (gsValid) {
+                    if (gsValid && ngModel) {
+                        gsValid.ngModel = ngModel;
+                    }
+                });
             }
         };
     });

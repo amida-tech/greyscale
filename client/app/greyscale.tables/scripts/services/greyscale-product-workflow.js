@@ -96,7 +96,8 @@ angular.module('greyscale.tables')
             dataFormat: 'action',
             actions: [{
                 icon: 'fa-bars',
-                class: 'drag-sortable'
+                getTooltip: _getOrderHandleTooltip,
+                getClass: _getOrderHandleClass
             }]
         }, {
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
@@ -159,6 +160,10 @@ angular.module('greyscale.tables')
             return _table.dataFilter.workflowId;
         }
 
+        function _getProduct() {
+            return _table.dataFilter.product;
+        }
+
         function _getOrganizationId() {
             return _table.dataFilter.organizationId;
         }
@@ -179,23 +184,40 @@ angular.module('greyscale.tables')
             return $q.all(req).then(function (promises) {
                 _dicts.roles = promises.roles;
                 _dicts.groups = promises.groups;
-                return _prepareGroups(promises.steps);
+                return _prepareSteps(promises.steps);
             });
 
         }
 
-        function _prepareGroups(steps) {
+        var _permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
+
+        function _prepareSteps(steps) {
             angular.forEach(steps, function (step) {
                 step.groups = _.filter(_dicts.groups, function (o) {
                     return ~step.usergroupId.indexOf(o.id);
                 });
+                if (step.writeToAnswers === true) {
+                    step.surveyAccess = 'writeToAnswers';
+                } else if (step.writeToAnswers === false) {
+                    step.surveyAccess = 'noWriteToAnswers';
+                } else {
+                    angular.forEach(_permissionFields, function (perm) {
+                        if (!step.surveyAccess && step[perm] === true) {
+                            step.surveyAccess = perm;
+                        }
+                    });
+                    if (!step.surveyAccess) {
+                        step.surveyAccess = 'writeToAnswers';
+                    }
+                }
             });
             return steps;
         }
 
         function _addWorkflowStep() {
             _table.tableParams.data.push({
-                groups: []
+                groups: [],
+                surveyAccess: 'writeToAnswers'
             });
             $timeout(function () {
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
@@ -225,6 +247,17 @@ angular.module('greyscale.tables')
                 promise = greyscaleProductWorkflowApi.workflow(workflowId).stepsList();
             }
             return promise;
+        }
+
+        function _getOrderHandleTooltip() {
+            var product = _getProduct();
+            return product.status !== 0 ? tns + 'SORT_DISABLED' : '';
+        }
+
+        function _getOrderHandleClass() {
+            var product = _getProduct();
+            var cl = product.status !== 0 ? 'disabled' : 'drag-sortable';
+            return cl;
         }
 
         return _table;

@@ -7,7 +7,7 @@ angular.module('greyscaleApp')
     .directive('selectDate', function (i18n, $locale) {
         return {
             template: '<p class="input-group"><input type="text" class="form-control {{class}}" id="{{dataId}}" name="{{dataId}}" ' +
-                'uib-datepicker-popup ng-model="result" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
+                'uib-datepicker-popup ng-model="result" gs-valid="validator" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
                 'datepicker-options="{{model.dateOptions}}" ng-required="{{model.required}}" required="{{model.required}}" ' +
                 '{{embedded}} ng-readonly="{{model.readonly}}"' +
                 'close-text="{{model.closeText}}" placeholder="{{model.placeholder}}"/><span class="input-group-btn">' +
@@ -19,7 +19,8 @@ angular.module('greyscaleApp')
                 result: '=',
                 minDate: '=',
                 maxDate: '=',
-                options: '='
+                options: '=',
+                validator: '=?'
             },
             controller: function ($scope, $element) {
                 $scope.dataId = $element.attr('data-id');

@@ -1,5 +1,6 @@
 var
     _ = require('underscore'),
+    ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
     auth = require('app/auth'),
@@ -73,8 +74,9 @@ function* checkString(val, keyName) {
 function* createNotification (note, template) {
     note = yield * checkInsert(note);
     var note4insert = _.extend({}, note);
-    template = (template || {});
-    note4insert.note = getHtml(template.notificationName, note4insert, template.notificationPath);
+    template = (template || 'default');
+
+    note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
     if (parseInt(note.notifyLevel) >  1) {  // onsite notification
@@ -84,7 +86,9 @@ function* createNotification (note, template) {
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
-    note.message = getHtml(template.emailName, note, template.emailPath);
+    note.subject = note.subject || '';
+    note.subject = ejs.render(config.notificationTemplates[template].subject, note);
+    note.message = yield * renderFile(config.notificationTemplates[template].emailBody, note);
     var emailOptions = {
         to: {
             name: userTo.firstName,
@@ -94,32 +98,48 @@ function* createNotification (note, template) {
         },
         html: note.message
     };
-    var updateFields = _.extend({}, {
+
+    var updateFields = {
         email: userTo.email,
         message: note.message,
         subject: note.subject,
         sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null
-        //result: note.result ToDo: Save Result
-    });
+        //result: note.result
+    };
+    // update email's fields before sending
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
-    if (parseInt(note.notifyLevel) >  1) {  // email notification
-        var mailer = new Emailer(emailOptions, note);
-        mailer.send(function (error, info) {
-            if (error) {
-                console.log('EMAIL RESULT ERROR --->>> '+error);
-                note.result = error;
+    if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
+        co(function* () {
+            var mailer = new Emailer(emailOptions, note);
+            //Sync mail send
+            var err = false;
+            var sendResult = yield * mailer.sendSync();
+            err = sendResult.name === 'Error';
+            if (err) {
+                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                note.result = sendResult.message;
             } else
             {
-                console.log('EMAIL RESULT --->>> '+info.response);
-                note.result = info.response;
+                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                note.result = sendResult.response;
             }
+            return note.result;
+        }).then(function (result) {
+            co(function* () {
+                updateFields = {result: result};
+                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
+            });
         });
     }
+
     return noteInserted;
 }
 
 function* resendNotification (notificationId) {
+    if (config.email.disable) {
+        return false;
+    }
     var note = yield * getNotification(notificationId);
     //if (parseInt(note.notifyLevel) >  1) {  // email notification - do not check!
     var userTo = yield * getUser(note.userTo);
@@ -132,25 +152,40 @@ function* resendNotification (notificationId) {
         },
         html: note.message
     };
-    var updateFields = _.extend({}, {
-        email: userTo.email, // update eMail
+
+    var updateFields = {
+        email: userTo.email,
         resent: new Date()
-        //result: note.result ToDo: Save Result
-    });
+        //result: note.result
+    };
+    // update email's fields before sending
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
-    var mailer = new Emailer(emailOptions, note);
-    mailer.send(function (error, info) {
-        if (error) {
-            console.log('EMAIL RESULT ERROR --->>> '+error);
-            note.result = error;
-        } else
-        {
-            console.log('EMAIL RESULT --->>> '+info.response);
-            note.result = info.response;
-        }
-    });
-    //}
+    if (!config.email.disable) {  // email notification - does not use notifyLevel
+        // ToDo: exclude duplication
+        co(function* () {
+            var mailer = new Emailer(emailOptions, note);
+            //Sync mail send
+            var err = false;
+            var sendResult = yield * mailer.sendSync();
+            err = sendResult.name === 'Error';
+            if (err) {
+                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                note.result = sendResult.message;
+            } else
+            {
+                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                note.result = sendResult.response;
+            }
+            return note.result;
+        }).then(function (result) {
+            co(function* () {
+                updateFields = {result: result};
+                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
+            });
+        });
+    }
+
     return note;
 }
 
@@ -159,50 +194,87 @@ module.exports = {
     select: function (req, res, next) {
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var selectFields =
-                'SELECT '+
-                '"Notifications".* ';
-            var selectUserFromField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Notifications"."userFrom" '+
-                ') AS "userFromName"';
-            var selectUserToField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Notifications"."userTo" '+
-                ') AS "userToName"';
-            selectFields = selectFields + ', ' + selectUserFromField + ', ' + selectUserToField;
-
-            var selectFrom =
-                'FROM '+
-                '"Notifications" ';
+            var isNotAdmin = !auth.checkAdmin(req.user);
+            var currentUserId = req.user.id;
+            var essenceId = yield * getEssenceId('Discussions');
+            var userId = req.query.userId;
 
             var selectWhere = 'WHERE 1=1 ';
             if (!req.query.userFrom && !req.query.userTo) {
-                var userId = (req.query.userId && auth.checkAdmin(req.user)) ? req.query.userId : req.user.id;
+                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
                 selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
-            } else {
+            } else if (req.query.userFrom && !req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
+            } else if (!req.query.userFrom && req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else if (!isNotAdmin){
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else {
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
             }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
-            var selectQuery = selectFields + selectFrom + selectWhere;
+            var withNotes = 'WITH notes as (SELECT "Notifications".* FROM "Notifications" '+selectWhere+')';
+/*
+            var withDiscid = 'discid as ( SELECT "Discussions"."id" FROM "Notifications" INNER JOIN "Discussions" ON "Notifications"."entityId" = "Discussions"."id" '+
+            selectWhere + ' AND "Notifications"."essenceId" = '+essenceId.toString() + ' ) ';
+*/
+            var withUFrom = 'uFrom as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userFrom" '+selectWhere+ ' ) ';
+            var withUTo = 'uTo as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userTo" '+selectWhere+ ' ) ';
+/*
+            //-- discussions with stepId, stepName, role
+            var withDiscuss = 'discuss as (SELECT '+
+                '"Discussions".id , '+
+                '"Discussions"."taskId" as taskid, '+
+                '"Tasks"."stepId" as stepid, '+
+                '"WorkflowSteps"."title" as stepname, '+
+                '"WorkflowSteps"."role" as role '+
+                'FROM "Discussions" '+
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'WHERE "Discussions"."id" IN (SELECT * FROM discid) )';
+*/
+            var mainSelectCase =
+            'SELECT '+
+            'CAST( '+
+                'CASE '+
+            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userFromName" IS NOT NULL) THEN notes."userFromName" '+
+            'WHEN ( uFrom."isAnonymous" AND '+isNotAdmin.toString()+' AND uFrom."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            'ELSE CONCAT(uFrom."firstName", \' \', uFrom."lastName") '+
+            'END as varchar) AS "userFromName", '+
+            'CAST( '+
+                'CASE '+
+            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userToName" IS NOT NULL) THEN notes."userToName" '+
+            'WHEN ( uTo."isAnonymous" AND '+isNotAdmin.toString()+' AND uTo."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            'ELSE CONCAT(uTo."firstName", \' \', uTo."lastName") '+
+            'END as varchar) AS "userToName", ';
+            var mainSelectRest =
+                'notes."id", '+
+                'notes."userFrom", '+
+                'notes."userTo", '+
+                'notes.body, '+
+                'notes.email, '+
+                'notes.message, '+
+                'notes.subject, '+
+                'notes."essenceId", '+
+                'notes."entityId", '+
+                'notes.created, '+
+                'notes.reading, '+
+                'notes.sent, '+
+                'notes."read", '+
+                'notes."notifyLevel", '+
+                'notes.result, '+
+                'notes.resent, '+
+                'notes.note '+
+                'FROM notes '+
+                'LEFT JOIN uFrom ON notes."userFrom" = uFrom."id" '+
+                'LEFT JOIN uTo ON notes."userTo" = uTo."id" '+
+                'ORDER BY notes."id"';
+
+            var selectQuery = withNotes + ', ' + withUFrom + ', ' + withUTo + mainSelectCase + mainSelectRest;
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -219,44 +291,106 @@ module.exports = {
             if (!req.query.userFrom && !req.query.userTo) {
                 userId = (req.query.userId && !isNotAdmin) ? req.query.userId : userId;
             }
-            var selectQuery =
-            'SELECT v1."user" as userId, '+
+
+            var selectWhere = 'WHERE 1=1 ';
+            if (!req.query.userFrom && !req.query.userTo) {
+                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            } else if (req.query.userFrom && !req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
+            } else if (!req.query.userFrom && req.query.userTo) {
+                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else if (!isNotAdmin){
+                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+            } else {
+                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+            }
+            selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
+
+            var withFrom =
+                'WITH c1 as (SELECT '+
+                'count("public"."Notifications"."id") as count, '+
+                '"Notifications"."userFrom" as user, '+
+                '"Notifications"."entityId" as entityid, '+
+                '"Notifications"."essenceId" as essenceid, '+
+                '"Users"."firstName" AS firstName, '+
+                '"Users"."lastName" AS lastName,  '+
+                '"Users"."isAnonymous" AS isAnonymous, '+
+                'CAST (\'from\' as varchar),  '+
+                'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                'FROM "Notifications"  '+
+                'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
+                selectWhere+ ' '+
+                'GROUP BY "Notifications"."userFrom", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                ') ';
+            var withTo =
+                'c2 as (SELECT '+
+                'count("public"."Notifications"."id") as count, '+
+                '"Notifications"."userTo" as user, '+
+                '"Notifications"."entityId" as entityid, '+
+                '"Notifications"."essenceId" as essenceid, '+
+                '"Users"."firstName" AS firstName, '+
+                '"Users"."lastName" AS lastName,  '+
+                '"Users"."isAnonymous" AS isAnonymous, '+
+                'CAST (\'to\' as varchar),  '+
+                'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
+                'FROM "Notifications"  '+
+                'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
+                selectWhere+ ' '+
+                'GROUP BY "Notifications"."userTo", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                ') ';
+            var withPivot =
+                'c3 as (SELECT ' +
+                'v1."user" as userid, '+
+                'v1."entityid" as entityid, '+
+                'v1."essenceid" as essenceid, '+
                 'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
-                    ' THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
+                'THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
-                    ' THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
+                'THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."unread" ELSE 0 END as INT)) as unreadFrom, '+
-                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo '+
-                'FROM '+
-                '(SELECT '+
-                    'count("public"."Notifications"."id") as count, '+
-                    '"Notifications"."userFrom" as user, '+
-                    '"Users"."firstName" AS firstName, '+
-                    '"Users"."lastName" AS lastName, '+
-                    '"Users"."isAnonymous" AS isAnonymous, '+
-                    'CAST (\'from\' as varchar), '+
-                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
-                    'FROM "Notifications" '+
-                    'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
-                    'WHERE "Notifications"."userTo" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userFrom", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
+                'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."unread" ELSE 0 END as INT)) as unreadTo FROM '+
+                '( '+
+                'select * from c1 '+
                 'UNION '+
-                'SELECT '+
-                    'count("public"."Notifications"."id") as count, '+
-                    '"Notifications"."userTo" as user, '+
-                    '"Users"."firstName" AS firstName, '+
-                    '"Users"."lastName" AS lastName, '+
-                    '"Users"."isAnonymous" AS isAnonymous, '+
-                    'CAST (\'to\' as varchar), '+
-                    'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
-                    'FROM "Notifications" '+
-                    'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
-                    'WHERE "Notifications"."userFrom" = '+parseInt(userId).toString()+' '+
-                    'GROUP BY "Notifications"."userTo", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous"  '+
+                'select * from c2 '+
                 ') as v1 '+
-                'GROUP BY v1."user", v1."firstname", v1."lastname", v1."isanonymous"';
+                'GROUP BY v1."user", v1."entityid", v1."essenceid", v1."firstname", v1."lastname", v1."isanonymous" '+
+                ') ';
+            var withc4 =
+                'c4 as (SELECT ' +
+                'c3.*, '+
+                '"Discussions"."taskId" as taskid, '+
+                '"Tasks"."stepId" as stepid, '+
+                '"WorkflowSteps"."title" as stepname, '+
+                '"WorkflowSteps"."role" as role '+
+                'FROM c3 '+
+                'LEFT JOIN "Discussions" ON c3."entityid" = "Discussions"."id" '+
+                'LEFT JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'LEFT JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                ') ';
+            var mainQuery ='SELECT '+
+                'c4."userid", '+
+                'CASE  WHEN c4."role" IS NOT NULL THEN  c4."role" ELSE c4."firstName" END as role, '+
+                'CASE  WHEN c4."stepname" IS NOT NULL THEN  c4."stepname" ELSE c4."lastName" END as stepname, '+
+                'c4."firstName" as firstname, '+
+                'c4."lastName" as lastname, '+
+                'c4."essenceid" as essenceid, '+
+                'c4."entityid" as entityid, '+
+                'sum(c4."countfrom") as countfrom, '+
+                'sum(c4."countto") as countto,'+
+                'sum(c4."unreadfrom") as unreadfrom, '+
+                'sum(c4."unreadto") as unreadto '+
+                'FROM c4 '+
+                'GROUP BY c4."userid", c4."firstName", c4."lastName", c4."stepname", c4."role", c4."essenceid", c4."entityid" ';
+
+            var selectQuery = withFrom + ', ' + withTo + ', ' + withPivot + ', ' + withc4 + mainQuery;
+
             return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
         }).then(function (data) {
             res.json(data);
@@ -376,7 +510,7 @@ module.exports = {
                     {
                         userFrom: req.user.id,
                         userTo: user.id,
-                        body: 'New user added',
+                        body: 'Invite',
                         essenceId: essenceId,
                         entityId: user.id,
                         notifyLevel: user.notifyLevel,
@@ -385,14 +519,10 @@ module.exports = {
                         company: org,
                         inviter: req.user,
                         token: user.activationToken,
-                        subject: 'Indaba. Organization membership'
+                        subject: 'Indaba. Organization membership',
+                        config: config
                     },
-                    {
-                        notificationName: 'org_invite',
-                        notificationPath: './views/notifications/',
-                        emailName: 'org_invite',
-                        emailPath: './views/emails/'
-                    }
+                    'orgInvite'
                 );
                 if (user.notifyLevel < 2) {
                     return yield * resendNotification(note[0].id);
@@ -503,6 +633,7 @@ function* getInviteNotification(userId) {
             'max("Notifications"."id") as id '+
         'FROM "Notifications" '+
         'WHERE '+
+            '"Notifications"."body" = \'Invite\' AND '+
             '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
             '"Notifications"."entityId" = '+userId.toString() + ' '+
         'GROUP BY '+
@@ -524,7 +655,24 @@ function* getEssenceId(essenceName) {
         'WHERE "Essences"."name" = \''+essenceName+'\'';
     result = yield thunkQuery(query);
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
     }
     return result[0].id;
 }
+
+function* renderFile(templateFile, data) {
+    var res;
+    try {
+        ejs.renderFile(templateFile, data, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            res = result;
+        });
+    }
+    catch(e) {
+        throw new HttpError(403, 'Error render template file `'+templateFile+'` error: `'+e.message+'`');
+    }
+    return res;
+}
+

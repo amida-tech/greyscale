@@ -60,6 +60,7 @@ module.exports = function(config) {
       'bower_components/blob-polyfill/Blob.js',
       'bower_components/file-saver.js/FileSaver.js',
       'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',
+      'bower_components/socket.io-client/socket.io.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",

@@ -7,7 +7,7 @@
                 <div class="col-sm-12">
                     <table class="table table-responsive">
                         <tr ng-repeat="item in view.user" ng-show="item.show">
-                            <td>{{item.title}}</td>
+                            <td>{{item.title|translate}}</td>
                             <td><span>{{model.user[item.field]}}</span></td>
                         </tr>
                         <tr>
@@ -20,6 +20,9 @@
                 </div>
             </rd-widget-body>
             <rd-widget-footer class="text-right">
+                <div class="pull-left">
+                    <a class="btn" ng-click="changePassword()" translate=".CHANGE_PASSWORD"></a>
+                </div>
                 <button class="btn btn-success" ng-click="editProfile()" translate="COMMON.EDIT"></button>
             </rd-widget-footer>
         </rd-widget>

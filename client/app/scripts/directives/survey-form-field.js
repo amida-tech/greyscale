@@ -33,9 +33,13 @@ angular.module('greyscaleApp')
                     } else {
                         var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext">{{field.description}}</p>';
-                        label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
+                        if (!scope.field.blindReview && !scope.field.provideResponses) {
+                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
+                        }
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="{{!field.flags.allowEdit}}" ';
+                        scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
+
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
@@ -67,6 +71,7 @@ angular.module('greyscaleApp')
                             body = '<div id="{{field.cid}}}" class="section-break"><label>{{field.label}}</label></div>';
                             break;
 
+                        case 'scale':
                         case 'number':
                             body = '<div class="input-group"><input type="number" ' + commonPart +
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-int="field">' +
@@ -77,7 +82,7 @@ angular.module('greyscaleApp')
 
                             break;
 
-                        case 'scale':
+                        case 'real_scale':
                             body = '<div class="input-group"><input type="range" ' + commonPart + (!scope.field.intOnly ? ' step="0.0001"' : '') +
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-valid="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
@@ -105,17 +110,17 @@ angular.module('greyscaleApp')
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
 
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{!field.flags.allowEdit}}">{{}}</div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly">{{}}</div>';
                             }
                             body += '</div>';
                             break;
@@ -124,16 +129,16 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="{{!field.flags.allowEdit}}"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="{{!field.flags.allowEdit}}" ' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="{{!field.flags.allowEdit}}"></div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"></div>';
                             }
                             body += '</div>';
                             break;
@@ -141,7 +146,7 @@ angular.module('greyscaleApp')
                         case 'dropdown':
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options"' +
-                                    ' gs-valid="field" ng-readonly="{{!field.flags.allowEdit}}">';
+                                    ' gs-valid="field" ng-readonly="field.flags.readonly">';
                                 if (scope.field.required) {
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
@@ -151,21 +156,29 @@ angular.module('greyscaleApp')
 
                         case 'date':
                             scope.field.options = {
-                                readonly: !scope.field.flags.allowEdit,
-                                disabled: !scope.field.flags.allowEdit,
+                                readonly: scope.field.flags.readonly,
+                                disabled: scope.field.flags.readonly,
                                 required: scope.field.required
                             };
 
-                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" ' +
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" validator="field"' +
                                 'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
+
+                            message += '<span ng-if ="field.ngModel.$error.date" translate="FORMS.WRONG_DATE_FORMAT"></span>';
                             break;
 
                         case 'bullet_points':
-                            body = '<bullets  bullet-field="field"></bullets-field>';
+                            scope.field.options = {
+                                readonly: scope.field.flags.readonly,
+                                disabled: scope.field.flags.readonly,
+                                required: scope.field.required
+                            };
+
+                            body = '<bullets bullet-field="field"></bullets-field>';
                             break;
 
                         default:
-                            $log.debug('not rendering', scope.field);
+                            $log.debug('not rendered', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
@@ -173,8 +186,8 @@ angular.module('greyscaleApp')
                             links = '<div><p translate="SURVEYS.LINKS"></p></div>';
                         }
 
-                        if (scope.field.canAttach) {
-                            attach = '<attachments model="field.attachments"></attachments>';
+                        if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
+                            attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
                         body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;

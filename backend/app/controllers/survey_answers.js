@@ -18,6 +18,9 @@ var
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
     fs = require('fs'),
+    crypto = require('crypto'),
+    config = require('config'),
+    mc = require('app/mc_helper'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -157,8 +160,23 @@ module.exports = {
 
     getAttachment: function (req, res, next) {
         co(function* (){
+            console.log(req.params);
+            console.log(req.params.ticket);
+            try{
+                yield mc.connect();
+                var id = yield mc.get(req.params.tiсket);
+                console.log(id);
+                yield mc.close();
+            }catch(e){
+                throw new HttpError(500, e);
+            };
+
+            if(!id){
+                throw new HttpError(400, 'Token is not valid');
+            }
+
             var attachment = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(id))
             );
             if (!attachment[0]) {
                 throw new HttpError(404, 'Not found');
@@ -173,72 +191,91 @@ module.exports = {
             next(err);
         });
     },
+    getTicket: function (req, res, next) {
+        co(function* (){
+            
+            var attachment = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
 
-    getTicket: function (req, res, next){
-        var memcache = require('memcache');
-        var client = new memcache.Client(11211, 'localhost');
-
-        var mc = new Promise(function(resolve,reject){
-            client.on('connect', function(){
-                resolve('connected');
-            });
-
-            client.on('error', function(e){
-                reject(e);
-                console.log(e);
-            });
-
-            client.connect();
-        });
-
-
-        co(function * (){
-            try{
-                yield mc;
-
-                var result = false;
-
-                yield new Promise(function(resolve,reject){
-                    client.set('key', 'yyyahooo', function(error, result){
-                        if(error){
-                            reject(error);
-                        }
-                        console.log(result);
-                        resolve(result);
-                    });
-                });
-
-                return yield new Promise(function(resolve,reject){
-                    client.get('key' , function(error, result){
-                        if(error){
-                            reject(error);
-                        }
-                        resolve(result);
-                    });
-                });
-
-            }catch(e){
-                throw new HttpError(400, e);
+            if (!attachment[0]) {
+                throw new HttpError(404, 'Attachment not found');
             }
 
+            var ticket = crypto.randomBytes(10).toString('hex');
+
+            try{
+                console.log('here');
+                yield mc.connect();
+                var r = yield mc.set(ticket, attachment[0].id);
+                yield mc.close();
+                return ticket;
+            }catch(e){
+                throw new HttpError(500, e);
+            };
+
         }).then(function(data){
-            res.end(data);
-        },function(err){
+            res.status(201).json({tiсket:data});
+        }, function(err){
+            next(err);
+        });
+    },
+
+    linkAttach: function (req, res, next) {
+        co(function* () {
+            var attach = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+
+            if (!attach[0]) {
+                throw new HttpError(400, 'Attachment with id = ' + req.params.id + ' does not exist');
+            }
+
+            if (attach[0].answerId) {
+                throw new HttpError(400, 'Attachment has already linked with some answer');
+            }
+
+            var answer = yield thunkQuery(
+                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.answerId))
+            );
+
+            if (!answer[0]) {
+                throw new HttpError(400, 'Answer with id = ' + req.params.answerId + ' does not exist');
+            }
+
+            return yield thunkQuery(
+                AnswerAttachment
+                .update({answerId: req.params.answerId})
+                .where(AnswerAttachment.id.equals(req.params.id))
+                .returning(AnswerAttachment.id)
+            );
+
+        }).then(function(data){
+            res.status(202).json(data);
+        }, function(err){
             next(err);
         });
     },
 
     attach: function (req, res, next) {
         co(function* (){
-            var answer = yield thunkQuery(
-                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.id))
-            );
+            if (req.body.answerId) {
+                var answer = yield thunkQuery(
+                    SurveyAnswer.select().where(SurveyAnswer.id.equals(req.body.answerId))
+                );
 
-            if(!answer[0]){
-                throw new HttpError(400, 'Answer with id = ' + req.params.id + ' does not exist');
+                if(!answer[0]){
+                    throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
+                }
             }
+            
             if (req.files.file) {
                 var file = req.files.file;
+
+                if (file.size > config.max_upload_filesize) {
+                    throw new HttpError(400, 'File must be less then 10 MB');
+                }
+
                 var load = new Promise(function (resolve, reject) {
 
                     fs.readFile(file.path, 'hex', function(err, fileData) {
@@ -259,11 +296,14 @@ module.exports = {
                 }
 
                 var record = {
-                    answerId: req.params.id,
                     filename: file.originalname,
                     size: file.size,
                     mimetype: file.mimetype,
                     body: filecontent
+                }
+
+                if (req.body.answerId) {
+                    record.answerId = req.body.answerId;
                 }
 
                 var inserted = yield thunkQuery(
@@ -348,7 +388,7 @@ function *addAnswer (req, dataObject) {
     );
 
     if (!_.first(workflow)) {
-        throw new HttpError(403, 'Workflow is not define for Product id = ' + dataObject.productId);
+        throw new HttpError(403, 'Workflow is not defined for Product id = ' + dataObject.productId);
     }
 
     var curStep = yield thunkQuery(
@@ -376,16 +416,16 @@ function *addAnswer (req, dataObject) {
     curStep = curStep[0];
 
     if (!curStep) {
-        throw new HttpError(403, 'Current step is not define');
+        throw new HttpError(403, 'Current step is not defined');
     }
 
     dataObject.wfStepId = curStep.id;
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Task is not define');
+        throw new HttpError(403, 'Task is not defined');
     }
     if (curStep.task.userId != req.user.id) {
-        throw new HttpError(403, 'Task on this step assigned to another user');
+        throw new HttpError(403, 'Task at this step assigned to another user');
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
@@ -493,23 +533,23 @@ function *moveWorkflow (req, productId, UOAid) {
 
     curStep = curStep[0];
 
-    if (!curStep) {
-        throw new HttpError(403, 'Current step is not define');
+    if (!curStep.workflowId) {
+        throw new HttpError(403, 'Current step is not defined');
     }
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Task is not define for this Product and UOA');
+        throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
     if (!curStep.task) {
-        throw new HttpError(403, 'Survey is not define for this Product');
+        throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
     if (req.user.roleID == 3) { // simple user
         if (curStep.task.userId != req.user.id) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') on this step assigned to another user ' +
+                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
                 '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
             );
         }

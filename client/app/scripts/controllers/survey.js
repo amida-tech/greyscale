@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, $log) {
+        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, $log) {
 
         $scope.loading = true;
 
@@ -29,7 +29,8 @@ angular.module('greyscaleApp')
 
         var reqs = {
             survey: greyscaleSurveyApi.get($stateParams.surveyId),
-            profile: greyscaleProfileSrv.getProfile()
+            profile: greyscaleProfileSrv.getProfile(),
+            languages: greyscaleLanguageApi.list()
         };
 
         if ($stateParams.taskId) {
@@ -42,6 +43,7 @@ angular.module('greyscaleApp')
                     survey: resp.survey,
                     task: resp.task,
                     userId: resp.profile.id,
+                    languages: resp.languages,
                     flags: {}
                 };
                 $scope.model.title = resp.survey.title;
@@ -61,7 +63,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
-                $log.debug(data.flags);
+                $log.debug('step flags', data.flags);
             })
             .finally(function () {
                 $scope.model.surveyData = data;

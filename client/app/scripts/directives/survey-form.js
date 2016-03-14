@@ -3,12 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $location, $timeout,
+    .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
         $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
         var excludedFields = greyscaleGlobals.formBuilder.excludedIndexes;
+
+        var isReadonly = false;
 
         return {
             restrict: 'E',
@@ -26,11 +28,14 @@ angular.module('greyscaleApp')
 
                 scope.save = function () {
                     saveAnswers(scope)
-                        .then(function () {
+                        .then(function (data) {
                             if (scope.surveyData.task) {
                                 return greyscaleProductApi
                                     .product(scope.surveyData.task.productId)
-                                    .taskMove(scope.surveyData.task.uoaId);
+                                    .taskMove(scope.surveyData.task.uoaId)
+                                    .then(function () {
+                                        return data;
+                                    });
                             } else {
                                 return $q.reject('Task is undefined');
                             }
@@ -50,11 +55,18 @@ angular.module('greyscaleApp')
                 });
 
                 function updateForm(data) {
-                    if (data && data.survey) {
-                        prepareFields(scope);
 
-                        if (data.task && data.userId) {
-                            loadAnswers(scope);
+                    if (data) {
+                        if (data.languages) {
+                            initLanguage(scope);
+                        }
+
+                        if (data.survey) {
+                            prepareFields(scope);
+
+                            if (data.task && data.userId) {
+                                loadAnswers(scope);
+                            }
                         }
                     }
                 }
@@ -68,7 +80,8 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
 
                 $scope.model = {
-                    contentOpen: false
+                    contentOpen: false,
+                    lang: null
                 };
 
                 $scope.goField = function (elemId) {
@@ -79,6 +92,20 @@ angular.module('greyscaleApp')
                 };
             }
         };
+
+        function initLanguage(scope) {
+            var _data = scope.surveyData.languages;
+            var l,
+                qty = _data.length,
+                locale = i18n.getLocale();
+
+            for (l = 0; l < qty; l++) {
+                if (_data[l].code === locale) {
+                    scope.model.lang = _data[l].id;
+                }
+            }
+            scope.languages = _data;
+        }
 
         function prepareFields(scope) {
             scope.fields = [];
@@ -99,6 +126,8 @@ angular.module('greyscaleApp')
                 qid = 0,
                 qQty = survey.questions.length;
 
+            isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers;
+
             for (q = 0; q < qQty; q++) {
                 field = survey.questions[q];
                 type = fieldTypes[field.type];
@@ -110,87 +139,95 @@ angular.module('greyscaleApp')
                         href: fldId
                     };
 
-                    if (!field.options && (type === 'radio' || type === 'checkboxes')) {
-                        $log.debug('no options', field.options);
-                        field.options = field.options || [];
-                    }
-
                     fld = {
                         id: field.id,
-                        qid: field.qid,
                         cid: fldId,
                         type: type,
                         label: field.label,
-                        description: field.description,
-                        required: field.isRequired,
-                        listType: field.optionNumbering,
-                        options: field.options,
-                        minLength: field.minLength,
-                        maxLength: field.maxLength,
-                        inWords: field.isWordmml,
-                        units: field.units,
-                        intOnly: field.intOnly,
-                        withOther: field.incOtherOpt,
-                        value: field.value,
-                        links: field.links,
-                        canAttach: field.attachment,
-                        attachments: [],
-                        ngModel: {},
-                        flags: scope.surveyData.flags,
-                        answer: null
+                        description: field.description
                     };
 
-                    switch (type) {
-                    case 'checkboxes':
-                        for (o = 0; o < field.options.length; o++) {
-                            angular.extend(fld.options[o] || {}, {
-                                checked: field.options[o] ? field.options[o].isSelected : false,
-                                name: field.options[o] ? field.options[o].label : ''
-                            });
-                        }
-                        break;
-
-                    case 'dropdown':
-                    case 'radio':
-                        if (type === 'dropdown') {
-                            if (!fld.required) {
-                                fld.options.unshift({
-                                    id: null,
-                                    label: '',
-                                    value: null
-                                });
-                                fld.answer = fld.options[0];
-                            }
-                        }
-
-                        for (o = 0; o < field.options.length; o++) {
-                            if (field.options[o] && field.options[o].isSelected) {
-                                fld.answer = field.options[o];
-                            }
-                        }
-                        break;
-
-                    case 'number':
-                        if (fld.intOnly) {
-                            fld.answer = parseInt(fld.value);
-                        } else {
-                            fld.answer = parseFloat(fld.value);
-                        }
-                        break;
-
-                    default:
-                        fld.answer = fld.value;
-                    }
-
                     if (type === 'section_end') { // close section
-                        r--;
+                        if (r > 0) {
+                            r--;
+                        }
                     } else { //push data into current section
                         if (excludedFields.indexOf(field.type) === -1) {
+                            if (!field.options && (type === 'radio' || type === 'checkboxes')) {
+                                field.options = field.options || [];
+                            }
+
+                            angular.extend(fld, {
+                                qid: field.qid,
+                                required: field.isRequired,
+                                listType: field.optionNumbering,
+                                options: field.options,
+                                minLength: field.minLength,
+                                maxLength: field.maxLength,
+                                inWords: field.isWordmml,
+                                units: field.units,
+                                intOnly: field.intOnly,
+                                withOther: field.incOtherOpt,
+                                value: field.value,
+                                links: field.links,
+                                canAttach: field.attachment,
+                                ngModel: {},
+                                flags: scope.surveyData.flags,
+                                answer: null,
+                                langId: scope.model.lang
+                            });
+
+                            if (fld.canAttach) {
+                                fld.attachments = [];
+                            }
+
+                            switch (type) {
+                            case 'checkboxes':
+                                for (o = 0; o < field.options.length; o++) {
+                                    angular.extend(fld.options[o] || {}, {
+                                        checked: field.options[o] ? field.options[o].isSelected : false,
+                                        name: field.options[o] ? field.options[o].label : ''
+                                    });
+                                }
+                                break;
+
+                            case 'dropdown':
+                            case 'radio':
+                                if (type === 'dropdown') {
+                                    if (!fld.required) {
+                                        fld.options.unshift({
+                                            id: null,
+                                            label: '',
+                                            value: null
+                                        });
+                                        fld.answer = fld.options[0];
+                                    }
+                                }
+
+                                for (o = 0; o < field.options.length; o++) {
+                                    if (field.options[o] && field.options[o].isSelected) {
+                                        fld.answer = field.options[o];
+                                    }
+                                }
+                                break;
+
+                            case 'number':
+                                if (fld.intOnly) {
+                                    fld.answer = parseInt(fld.value);
+                                } else {
+                                    fld.answer = parseFloat(fld.value);
+                                }
+                                break;
+
+                            default:
+                                fld.answer = fld.value;
+                            }
                             qid++;
+                            if (!fld.qid) {
+                                fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
+                            }
                         }
-                        if (!fld.qid) {
-                            fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
-                        }
+
                         ref[r].content.push(item);
                         ref[r].fields.push(fld);
 
@@ -209,7 +246,7 @@ angular.module('greyscaleApp')
 
             scope.fields = fields;
             scope.content = content;
-            scope.lock = false;
+            scope.lock = isReadonly;
         }
 
         function loadAnswers(scope) {
@@ -219,7 +256,6 @@ angular.module('greyscaleApp')
                 UOAid: scope.surveyData.task.uoaId,
                 wfStepId: scope.surveyData.task.stepId,
                 userId: scope.surveyData.userId
-                //                ts: new Date().getTime()
             };
             var answers = {};
 
@@ -230,6 +266,12 @@ angular.module('greyscaleApp')
                     fld = fields[f];
                     answer = answers[fld.cid];
                     if (answer) {
+                        fld.answerId = answer.id;
+                        fld.langId = answer.langId || scope.model.lang;
+                        if (fld.canAttach) {
+                            fld.attachments = answer.attachments || [];
+                        }
+
                         switch (fld.type) {
                         case 'checkboxes':
                             oQty = fld.options.length;
@@ -245,7 +287,7 @@ angular.module('greyscaleApp')
                                 fld.otherOption = {
                                     id: -1,
                                     checked: (!!answer.value),
-                                    value: answer.value
+                                    value: answer.value || fld.value
                                 };
                             }
                             break;
@@ -274,6 +316,7 @@ angular.module('greyscaleApp')
 
                             break;
 
+                        case 'scale':
                         case 'number':
                             if (fld.intOnly) {
                                 fld.answer = parseInt(answer.value);
@@ -286,10 +329,17 @@ angular.module('greyscaleApp')
                             var tmp = angular.fromJson(answer.value);
                             fld.answer = [];
                             for (o = 0; o < tmp.length; o++) {
-                                fld.answer.push({data: tmp[o]});
+                                fld.answer.push({
+                                    data: tmp[o]
+                                });
                             }
-                            fld.answer.push({data: ''});
-                            $log.debug('loading "bullet_points"', tmp, fld.answer, answer);
+                            fld.answer.push({
+                                data: ''
+                            });
+                            break;
+
+                        case 'date':
+                            fld.answer = new Date(answer.value);
                             break;
 
                         default:
@@ -311,9 +361,11 @@ angular.module('greyscaleApp')
                     for (v = 0; v < _answers.length; v++) {
                         fldName = fldNamePrefix + _answers[v].questionId;
                         answer = answers[fldName];
-                        if (!answer || answer.version === null || answer.version < _answers[v].version) {
+                        _answers[v].created = new Date(_answers[v].created);
+
+                        if (!answer || _answers[v].version === null || answer.version < _answers[v].version) {
                             answers[fldName] = _answers[v];
-                            answers[fldName].created = new Date(_answers[v].created);
+
                             if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
                                 scope.savedAt = answers[fldName].created;
                             }
@@ -324,22 +376,33 @@ angular.module('greyscaleApp')
 
                 })
                 .finally(function () {
-                    scope.lock = false;
+                    scope.lock = isReadonly;
                 });
         }
 
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
-            var answers = {};
+            var answers = [];
+            var params = {
+                surveyId: scope.surveyData.survey.id,
+                productId: scope.surveyData.task.productId,
+                UOAid: scope.surveyData.task.uoaId,
+                wfStepId: scope.surveyData.task.stepId,
+                userId: scope.surveyData.userId
+            };
 
-            function saveFields(fields) {
-                var f, fld, qty = fields.length;
+            function preSaveFields(fields) {
+                var f, fld, answer,
+                    qty = fields.length;
+
                 for (f = 0; f < qty; f++) {
                     fld = fields[f];
+
                     if (fld.answer || fld.type === 'checkboxes') {
-                        var answer = {
-                            questionId: fld.id
+                        answer = {
+                            questionId: fld.id,
+                            langId: fld.langId || scope.model.lang
                         };
                         angular.extend(answer, params);
                         switch (fld.type) {
@@ -350,7 +413,7 @@ angular.module('greyscaleApp')
                                     answer.optionId.push(fld.options[o].id);
                                 }
                             }
-                            if (fld.withOther && fld.otherOption.checked) {
+                            if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
                                 answer.value = fld.otherOption.value;
                             }
                             break;
@@ -369,7 +432,6 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'bullet_points':
-                            $log.debug('saving bullets', fld.answer, answer);
                             var tmp = [];
                             for (o = 0; o < fld.answer.length; o++) {
                                 if (fld.answer[o].data) {
@@ -377,7 +439,6 @@ angular.module('greyscaleApp')
                                 }
                             }
                             answer.value = angular.toJson(tmp);
-                            $log.debug('saving bullets', fld.answer, tmp, answer);
                             break;
 
                         default:
@@ -385,44 +446,41 @@ angular.module('greyscaleApp')
                             answer.value = fld.answer;
                         }
 
-                        answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
+                        answers.push(answer);
                     }
 
                     if (fld.sub) {
-                        saveFields(fld.sub);
+                        preSaveFields(fld.sub);
                     }
                 }
             }
 
-            if (scope.surveyForm && scope.surveyForm.$dirty) {
+            if (!scope.lock) {
                 scope.lock = true;
-                var params = {
-                    surveyId: scope.surveyData.survey.id,
-                    productId: scope.surveyData.task.productId,
-                    UOAid: scope.surveyData.task.uoaId,
-                    wfStepId: scope.surveyData.task.stepId,
-                    userId: scope.surveyData.userId
-                };
 
-                saveFields(scope.fields);
-
-                res = $q.all(answers)
+                answers=[];
+                preSaveFields(scope.fields);
+                res = greyscaleSurveyAnswerApi.save(answers, isAuto)
+//                res = $q.all(answers)
                     .then(function (resp) {
-                        for (var r in resp) {
-                            if (resp.hasOwnProperty(r) && scope.surveyForm[r]) {
-                                scope.surveyForm[r].$dirty = false;
-                            }
+                        var r,
+                            canMove= true,
+                            qty = resp.length;
+
+                        $log.debug('all saved');
+                        for (r = 0; r < qty && canMove; r++) {
+                            canMove = (resp[r].status === 'Ok');
+                            $log.debug(resp[r].id, resp[r].questionId, resp[r].status, resp[r].message);
                         }
-                        scope.surveyForm.$dirty = isAuto;
+
                         scope.savedAt = new Date();
-                        return true;
+                        scope.lock = isReadonly;
+                        return canMove;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
-                        return $q.resolve(isAuto);
-                    })
-                    .finally(function () {
-                        scope.lock = false;
+                        scope.lock = isReadonly;
+                        return isAuto;
                     });
             }
             return res;

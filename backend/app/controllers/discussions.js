@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    auth = require('app/auth'),
+    config = require('config'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     Project = require('app/models/projects'),
@@ -71,40 +73,6 @@ module.exports = {
                 '"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId"';
-/*
-                '"Tasks".title as "taskName" '+
-                '"UnitOfAnalysis"."name" as "uoaName", '+
-                '"WorkflowSteps".title as "stepName",  '+
-                '"Products".title as "productName", '+
-                '"Surveys".title as "surveyName" '+
- */
-/*
-            var selectUserField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Discussions"."userId" '+
-                ') AS "userName"';
-            var selectUserFromField =
-                '(SELECT  '+
-                    'CAST( '+
-                        'CASE  '+
-                            'WHEN "isAnonymous" or "WorkflowSteps"."blindReview" '+
-                                'THEN \'Anonymous\'  '+
-                                'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                        'END as varchar '+
-                    ') '+
-                    'FROM "Users" '+
-                    'WHERE "Users"."id" =  "Discussions"."userFromId" '+
-                ') AS "userFromName"';
-*/
-            //selectFields = selectFields + ', ' + selectUserField + ', ' + selectUserFromField;
 
             var selectFrom =
                 'FROM '+
@@ -155,26 +123,42 @@ module.exports = {
             var essenceId = yield * getEssenceId('Discussions');
             var userFrom = yield * getUser(req.user.id);
             var userTo = yield * getUser(req.body.userId);
+            // static blindRewiev
+            var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
+            var ids = yield * getProductAndUoaIds(taskId);
+            var productId = ids.productId;
+            var uoaId = ids.uoaId;
+            var step4userTo = yield * getUserToStep(productId, uoaId, userTo.id);
+            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+            if (step4userTo.blindReview) {
+                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            } else if (userFrom.isAnonymous) {
+                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            }
+            //
+            req.body.isReturn = (isReturn);
+            req.body.isResolve = (isResolve);
             var note = yield * notifications.createNotification(
                 {
                     userFrom: req.user.id,
+                    userFromName: userFromName,
                     userTo: req.body.userId,
                     body: req.body.entry,
                     essenceId: essenceId,
                     entityId: entry.id,
                     discussionEntry:  req.body,
-                    action: 'add',
+                    isReturn: (isReturn),
+                    isResolve: (isResolve),
+                    action: 'Add',
                     notifyLevel: 2,
-                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    subject: 'Indaba. New message in discussion'
+                    config: config
                 },
-                {
-                    notificationName: 'entry',
-                    notificationPath: './views/notifications/',
-                    emailName: 'discussion',
-                    emailPath: './views/emails/'
-                } // ToDo: change templates to EJS engine
+                'discussion'
             );
             return entry;
         }).then(function (data) {
@@ -194,26 +178,40 @@ module.exports = {
             var essenceId = yield * getEssenceId('Discussions');
             var userFrom = yield * getUser(req.user.id);
             var userTo = yield * getUser(entry.userId);
+            // static blindRewiev
+            var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
+            var ids = yield * getProductAndUoaIds(taskId);
+            var productId = ids.productId;
+            var uoaId = ids.uoaId;
+            var step4userTo = yield * getUserToStep(productId, uoaId, userTo.id);
+            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+            if (step4userTo.blindReview) {
+                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            } else if (userFrom.isAnonymous) {
+                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+            }
+            //
             var note = yield * notifications.createNotification(
                 {
                     userFrom: req.user.id,
+                    userFromName: userFromName,
                     userTo: entry.userId,
                     body: entry.entry,
                     essenceId: essenceId,
                     entityId: entry.id,
                     discussionEntry:  entry,
-                    action: 'update',
+                    isReturn: entry.isReturn,
+                    isResolve: entry.isResolve,
                     notifyLevel: 2,
-                    from: {firstName: userFrom.firstName, lastName: userFrom.lastName},
+                    from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    subject: 'Indaba. Update message in discussion'
+                    action: 'Update',
+                    config: config
                 },
-                {
-                    notificationName: 'entry',
-                    notificationPath: './views/notifications/',
-                    emailName: 'discussion',
-                    emailPath: './views/emails/'
-                } // ToDo: change templates to EJS engine
+                'discussion'
             );
             return result;
 
@@ -264,8 +262,9 @@ module.exports = {
             var ids = yield * getProductAndUoaIds(taskId);
             var productId = ids.productId;
             var uoaId = ids.uoaId;
+            var currentStep = yield * getCurrentStep(taskId);
 
-            var result = yield * getUserList(taskId, productId, uoaId);
+            var result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep);
             if (_.first(result)) {
                 for (var i = 0; i < result.length; i++) {
                     userList.push(
@@ -303,11 +302,11 @@ function* checkInsert(req) {
     // if discussion`s entry is entry with "returning" (isReturn flag is true)
     var returnObject=null;
     if (req.body.isReturn) {
-        returnObject = yield * checkForReturnAndResolve(taskId, req.body.userId, 'return');
+        returnObject = yield * checkForReturnAndResolve(req.user, taskId, req.body.userId, 'return');
         req.body = _.extend(req.body, {returnTaskId: returnObject.taskId}); // add returnTaskId
     }
     else if (req.body.isResolve) {
-        returnObject = yield * checkForReturnAndResolve(taskId, req.body.userId, 'resolve');
+        returnObject = yield * checkForReturnAndResolve(req.user, taskId, req.body.userId, 'resolve');
         req.body = _.omit(req.body, 'isReturn', 'isResolve'); // remove isReturn flag from body
     }
     return returnObject;
@@ -322,7 +321,7 @@ function* checkUpdate(req) {
     var entry = yield * checkString(req.body.entry, 'Entry');
 }
 
-function* checkUserId(userId, taskId, tag, currentStepPosition) {
+function* checkUserId(user, userId, taskId, currentStep, tag ) {
     var result;
     if (!userId) {
         throw new HttpError(403, 'User id (userId) must be specified');
@@ -344,14 +343,14 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     var productId = ids.productId;
     var uoaId = ids.uoaId;
 
-    result = yield * getUserList(taskId, productId, uoaId, tag, currentStepPosition);
+    result = yield * getUserList(user, taskId, productId, uoaId, currentStep, tag);
     if (!_.first(result)) {
         throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
     }
     var retObject=null;
 
     for (var i = 0; i < result.length; i++) {
-            if (result[i].id === parseInt(userId)){
+            if (result[i].userid === parseInt(userId)){
                 retObject =
                 {
                     userId: result[i].userid,
@@ -389,7 +388,9 @@ function* checkUserId(userId, taskId, tag, currentStepPosition) {
     return retObject;
 }
 
-function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
+function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
+    var isNotAdmin = !auth.checkAdmin(user);
+    var userId = user.id;
     // available all users for this survey
     var query =
         'SELECT ' +
@@ -399,29 +400,14 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
             '"Tasks"."stepId" as stepid, '+
             '"WorkflowSteps"."title" as stepname, '+
             '"WorkflowSteps"."role" as role, '+
-/*
-            'CAST( '+
-                'CASE  '+
-                    'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
-                    'THEN \'Anonymous\'  '+
-                    'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                'END as varchar '+
-            ') AS "username", '+
-*/
-            'CAST( '+
-                'CASE  '+
-                    'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
-                        'THEN \'Anonymous\'  '+
-                        'ELSE "Users"."firstName" '+
-                'END as varchar '+
-            ') AS "firstName", '+
-            'CAST( '+
-                'CASE  '+
-                    'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
-                        'THEN \'\'  '+
-                        'ELSE "Users"."lastName" '+
-                'END as varchar '+
-            ') AS "lastName", '+
+            'CAST( CASE WHEN '+
+                '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
+                '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
+            'CAST( CASE WHEN '+
+                '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
+                '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
             '"Tasks"."uoaId" as uoaid '+
         'FROM ' +
@@ -432,7 +418,7 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
             '"Tasks"."productId" = ' + productId + ' AND ' +
             '"Tasks"."uoaId" = ' + uoaId +' ';
     if (tag === 'return'){
-        query = query + 'AND "WorkflowSteps"."position" < '+currentStepPosition.toString();
+        query = query + 'AND "WorkflowSteps"."position" < '+currentStep.position.toString();
     } else if (tag == 'resolve') {
         query =
             'SELECT '+
@@ -442,13 +428,14 @@ function* getUserList(taskId, productId, uoaId, tag, currentStepPosition) {
                 '"Tasks"."stepId" as stepid, '+
                 '"WorkflowSteps"."title" as stepname, '+
                 '"WorkflowSteps"."role" as role, '+
-                'CAST( '+
-                    'CASE  '+
-                        'WHEN "Users"."isAnonymous" or "WorkflowSteps"."blindReview" '+
-                            'THEN \'Anonymous\'  '+
-                            'ELSE CONCAT("Users"."firstName", \' \', "Users"."lastName") '+
-                    'END as varchar '+
-                ') AS "username", '+
+                'CAST( CASE WHEN '+
+                    '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
+                    '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                    'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
+                'CAST( CASE WHEN '+
+                    '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
+                    '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                    'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
             '"Tasks"."uoaId" as uoaid '+
             'FROM "Discussions" ' +
@@ -472,9 +459,9 @@ function* getAvailableUsers(req) {
     var ids = yield * getProductAndUoaIds(taskId);
     var productId = ids.productId;
     var uoaId = ids.uoaId;
-    var currentStepPosition = yield * getCurrentStepPosition(taskId);
+    var currentStep = yield * getCurrentStep(taskId);
 
-    result = yield * getUserList(taskId, productId, uoaId);
+    result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep);
     if (_.first(result)) {
         for (var i = 0; i < result.length; i++) {
             availList.push(
@@ -493,7 +480,7 @@ function* getAvailableUsers(req) {
             );
         }
     }
-    result = yield * getUserList(taskId, productId, uoaId, 'return', currentStepPosition);
+    result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep, 'return');
     if (_.first(result)) {
         for (var ii = 0; ii < result.length; ii++) {
             returnList.push(
@@ -512,7 +499,7 @@ function* getAvailableUsers(req) {
             );
         }
     }
-    result = yield * getUserList(taskId, productId, uoaId, 'resolve', currentStepPosition);
+    result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep, 'resolve');
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolveList.push(
@@ -609,7 +596,7 @@ function* getProductAndUoaIds(taskId) {
     return {productId:result[0].productId, uoaId:result[0].uoaId};
 }
 
-function* checkForReturnAndResolve(taskId, userId, tag) {
+function* checkForReturnAndResolve(user, taskId, userId, tag) {
     var result;
     // get current step for survey
     var query =
@@ -632,19 +619,19 @@ function* checkForReturnAndResolve(taskId, userId, tag) {
             +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
     }
 
-    var currentStepPosition = yield * getCurrentStepPosition(taskId);
-    if (currentStepPosition === 0) {
+    var currentStep = yield * getCurrentStep(taskId);
+    if (!currentStep.position || currentStep.position === 0) {
         throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
     }
 
-    return yield * checkUserId(userId, taskId, tag, currentStepPosition); // {returnUserId, returnTaskId, returnStepId}
+    return yield * checkUserId(user, userId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
 }
 
-function* getCurrentStepPosition(taskId) {
-    // get current step position
+function* getCurrentStep(taskId) {
+    // get current step information
     query =
         'SELECT '+
-        '"WorkflowSteps"."position" as position '+
+        '"WorkflowSteps".* '+
         'FROM "Tasks" '+
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
         'WHERE "Tasks"."id" = '+taskId.toString();
@@ -652,7 +639,7 @@ function* getCurrentStepPosition(taskId) {
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find taskId='+taskId.toString()); // just in case - I think, it is not possible case!
     }
-    return (isInt(result[0].position)) ? result[0].position : 0;
+    return result[0];
 }
 
 function* updateProductUOAStep(object) {
@@ -731,6 +718,24 @@ function* getDiscussionEntry(id) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
+    }
+    return result[0];
+}
+
+function* getUserToStep(productId, uoaId, userId) {
+    // get step information for userId
+    query =
+        'SELECT '+
+        '"WorkflowSteps".* '+
+        'FROM "Tasks" '+
+        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+        'WHERE '+
+        '"Tasks"."productId" = '+productId.toString() + ' AND '+
+        '"Tasks"."uoaId" = '+uoaId.toString() + ' AND '+
+        '"Tasks"."userId" = '+userId.toString();
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find step for (productId, uoaId, userId)=('+productId.toString()+', '+uoaId.toString()+', '+userId.toString()+')');
     }
     return result[0];
 }

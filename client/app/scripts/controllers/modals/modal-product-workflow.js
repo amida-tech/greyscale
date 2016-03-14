@@ -10,6 +10,7 @@ angular.module('greyscaleApp')
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
     productWorkflow.dataFilter.organizationId = Organization.id;
+    productWorkflow.dataFilter.product = product;
 
 
     $scope.model = {
@@ -49,19 +50,32 @@ angular.module('greyscaleApp')
         return valid !== 0 && valid == steps.length;
     }
 
+    var permissionFields = ['provideResponses', 'allowEdit', 'allowTranslate'];
+
     function _getSteps() {
         var tableData = productWorkflow.tableParams.data;
         var steps = [];
         angular.forEach(tableData, function(item, i){
             var step = _.pick(item, [
                 'id', 'role', 'startDate', 'endDate',
-                'title', 'writeToAnswers',
-                'discussionParticipation', 'provideResponses', 'seeOthersResponses',
-                'allowEdit', 'allowTranslate', 'blindReview'
+                'title',
+                'discussionParticipation', 'seeOthersResponses',
+                'blindReview'
             ]);
             step.usergroupId = _.map(item.groups, 'id');
             step.position = i;
+            if (item.surveyAccess === 'noWriteToAnswers') {
+                step.writeToAnswers = false;
+            } else if (item.surveyAccess === 'writeToAnswers') {
+                step.writeToAnswers = true;
+            } else {
+                step.writeToAnswers = null;
+            }
+            angular.forEach(permissionFields, function(perm){
+               step[perm] = item.surveyAccess === perm;
+            });
             steps.push(step);
+
         });
         return steps;
     }

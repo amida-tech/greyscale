@@ -45,7 +45,7 @@ module.exports = function (grunt) {
     var i18nConfig = {
         i18nDir: 'i18n',
         l10nDir: 'l10n',
-        supportedLocales: ['en', 'ru']
+        supportedLocales: ['en', 'ru', 'es', 'fr']
     };
 
     // Define the configuration for all the tasks
@@ -559,13 +559,18 @@ module.exports = function (grunt) {
             options: {
                 name: 'greyscale.core',
                 deps: false,
-                dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js'
+                dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js',
+                serializerOptions: {
+                    indent: '\t',
+                    no_trailing_comma: true
+                }
             },
             // Environment targets
             local: {
                 options: {},
                 constants: {
                     greyscaleEnv: {
+                        supportedLocales: ['en', 'ru'],
                         name: 'local',
                         apiProtocol: 'http',
                         apiHostname: 'localhost',
@@ -594,7 +599,7 @@ module.exports = function (grunt) {
                 options: {},
                 constants: {
                     greyscaleEnv: {
-                        supportedLocales: ['en', 'ru'],
+                        supportedLocales: ['en', 'ru', 'es', 'fr'],
                         name: 'dev',
                         apiProtocol: 'http',
                         apiHostname: 'indaba.ntrlab.ru',

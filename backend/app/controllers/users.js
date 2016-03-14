@@ -23,7 +23,9 @@ var client = require('app/db_bootstrap'),
     Emailer = require('lib/mailer'),
     UserUOA = require('app/models/user_uoa'),
     UserGroup = require('app/models/user_groups'),
-    UOA = require('app/models/uoas');
+    UOA = require('app/models/uoas'),
+    Notification = require('app/models/notifications'),
+    notifications = require('app/controllers/notifications');
 
 var Role = require('app/models/roles');
 var Query = require('app/util').Query,
@@ -113,7 +115,7 @@ module.exports = {
             return yield [_counter, user];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
-            res.json(_.last(data));
+            res.json(_.map(_.last(data), User.view));
         }, function (err) {
             next(err);
         });
@@ -123,7 +125,7 @@ module.exports = {
         co(function* () {
             return yield insertOne(req, res, next);
         }).then(function (data) {
-            res.status(201).json(_.first(data));
+            res.status(201).json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -193,6 +195,29 @@ module.exports = {
 
             userId = isExistUser ? isExistUser.id : _.first(userId).id;
 
+            var essenceId = yield * getEssenceId('Users');
+            var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+            var note = yield * notifications.createNotification(
+                {
+                    userFrom: req.user.id,
+                    userTo: userId,
+                    body: 'Invite',
+                    essenceId: essenceId,
+                    entityId: userId,
+                    notifyLevel: notifyLevel,
+                    name: firstName,
+                    surname: lastName,
+                    companyName: OrgNameTemp,
+                    login: req.body.email,
+                    password: pass,
+                    token: activationToken,
+                    subject: 'Indaba. Invite',
+                    config: config
+                },
+                'invite'
+            );
+
+/*
             var options = {
                 to: {
                     name: firstName,
@@ -212,6 +237,7 @@ module.exports = {
             };
             var mailer = new Emailer(options, data);
             mailer.send();
+*/
 
         }).then(function (data) {
             res.status(200).end();
@@ -228,7 +254,7 @@ module.exports = {
             }
             return isExist;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -253,7 +279,7 @@ module.exports = {
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             return updated;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -364,6 +390,7 @@ module.exports = {
 
 
             var newClient;
+            var newUserId = isExistUser ? isExistUser.id : 0;
             if (!isExistUser) {
                 newClient = {
                     'firstName': req.body.firstName,
@@ -377,7 +404,30 @@ module.exports = {
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+                newUserId = userId[0].id;
             }
+
+            var essenceId = yield * getEssenceId('Users');
+            var notifyLevel = 2; // ToDo: Default - need specify
+            var note = yield * notifications.createNotification(
+                {
+                    userFrom: req.user.id,
+                    userTo: newUserId,
+                    body: 'Invite',
+                    essenceId: essenceId,
+                    entityId: newUserId,
+                    notifyLevel: notifyLevel,
+                    name: firstName,
+                    surname: lastName,
+                    company: org,
+                    inviter: req.user,
+                    token: activationToken,
+                    subject: 'Indaba. Organization membership',
+                    config: config
+                },
+                'orgInvite'
+            );
+/*
 
             var options = {
                 to: {
@@ -414,6 +464,7 @@ module.exports = {
             }catch(e){
                 throw new HttpError(400, 'Cannot send invitation email');
             }
+*/
 
             return newClient;
 
@@ -547,7 +598,7 @@ module.exports = {
             }
             return user;
         }).then(function (data) {
-            res.json(_.first(data));
+            res.json(User.view(_.first(data)));
         }, function (err) {
             next(err);
         });
@@ -643,23 +694,33 @@ module.exports = {
                 .where(User.id.equals(req.user.id))
             );
         }).then(function (data) {
-            res.json(data[0]);
+            res.json(User.view(data[0]));
         }, function (err) {
             next(err);
         });
     },
 
     updateSelf: function (req, res, next) {
-        query(
-            User.update(_.pick(req.body, User.editCols)).where(User.id.equals(req.user.id)),
-            function (err, data) {
-                if (!err) {
-                    res.status(202).end();
-                } else {
-                    next(err);
+        co(function* () {
+            var updateObj;
+            if(req.body.password){
+                if (!User.validPassword(req.user.password, req.body.currentPassword)) {
+                    throw new HttpError(400, 'Wrong current password');
                 }
+                updateObj = {
+                    password: User.hashPassword(req.body.password)
+                };
+            } else {
+                updateObj = _.pick(req.body, User.editCols);
             }
-        );
+
+            return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
+
+        }).then(function(){
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
     },
     forgot: function (req, res, next) {
         co(function* () {
@@ -680,6 +741,26 @@ module.exports = {
                     throw new HttpError(400, 'Cannot update user data');
                 } else {
 
+                    var essenceId = yield * getEssenceId('Users');
+                    var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+                    var note = yield * notifications.createNotification(
+                        {
+                            userFrom: user.id,  // ToDo: userFrom???
+                            userTo: user.id,
+                            body: 'Indaba. Restore password',
+                            essenceId: essenceId,
+                            entityId: user.id,
+                            notifyLevel: notifyLevel,
+                            name: user.firstName,
+                            surname: user.lastName,
+                            token: token,
+                            subject: 'Indaba. Restore password',
+                            config: config
+                        },
+                        'forgot'
+                    );
+
+/*
                     var options = {
                         to: {
                             name: user.firstName,
@@ -696,6 +777,7 @@ module.exports = {
                     };
                     var mailer = new Emailer(options, data);
                     mailer.send();
+*/
                 }
             }
         }).then(function (data) {
@@ -712,7 +794,7 @@ module.exports = {
                 if (!_.first(user)) {
                     return next(new HttpError(403, 'Token expired or does not exist'));
                 }
-                res.json(_.last(user));
+                res.json(User.view(_.last(user)));
             } else {
                 next(err);
             }
@@ -857,6 +939,28 @@ function* insertOne(req, res, next) {
 
     var user = yield thunkQuery(User.insert(req.body).returning(User.id));
 
+    if (_.first(user)) {
+        user = _.first(user);
+
+        var essenceId = yield * getEssenceId('Users');
+        var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+        var note = yield * notifications.createNotification(
+            {
+                userFrom: user.id,  // ToDo: userFrom???
+                userTo: user.id,
+                body: 'Thank you for registering at Indaba',
+                essenceId: essenceId,
+                entityId: user.id,
+                notifyLevel: notifyLevel,
+                name: req.body.firstName,
+                surname: req.body.lastName,
+                subject: 'Thank you for registering at Indaba',
+                config: config
+            },
+            'welcome'
+        );
+    }
+/*
     var options = {
         to: {
             name: req.body.firstName,
@@ -868,10 +972,24 @@ function* insertOne(req, res, next) {
     };
     var data = {
         name: req.body.firstName,
-        surname: req.body.lastName,
+        surname: req.body.lastName
     };
     var mailer = new Emailer(options, data);
     mailer.send();
+*/
 
     return user;
+}
+
+function* getEssenceId(essenceName) {
+    query =
+        'SELECT '+
+        '"Essences"."id" '+
+        'FROM "Essences" '+
+        'WHERE "Essences"."name" = \''+essenceName+'\'';
+    result = yield thunkQuery(query);
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+    }
+    return result[0].id;
 }

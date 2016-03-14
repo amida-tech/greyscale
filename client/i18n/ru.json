@@ -47,6 +47,8 @@
         "YES": "Да"
     },
     "DASHBOARD": {
+        "PROJECTS": "",
+        "TASKS": "",
         "UNREAD_MESSAGES_ALERT": ""
     },
     "DATEPICKER": {
@@ -323,6 +325,7 @@
                 "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
+                "SORT_DISABLED": "",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг",
                 "WRITE_ACCESS_READ": "Чтение",
@@ -356,11 +359,34 @@
     "PROFILE": {
         "ACTIVATED": "",
         "ADDRESS": "",
+        "ADDRESS_ERROR": "",
+        "AFFILATION": "",
+        "BIO": "",
+        "CHANGE_PASSWORD": "",
+        "COMPANY_NAME": "",
+        "COMPANY_NAME_ERROR": "",
+        "CREATED": "",
+        "CURRENT_PASSWORD": "",
+        "EMAIL": "",
+        "FIRST_NAME": "",
+        "LANGUAGE": "",
+        "LAST_ACTIVE": "",
+        "LAST_NAME": "",
+        "LOCATION": "",
+        "MOBILE": "",
+        "NEW_PASSWORD": "",
         "NOT_ACTIVATED": "",
         "NOT_VERIFIED": "",
         "ORGANIZATION": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": "",
+        "PHONE": "",
         "PROFILE": "",
+        "REPEAT_PASSWORD": "",
+        "REPEAT_PASSWORD_ERROR": "",
+        "TIMEZONE": "",
         "URL": "",
+        "URL_ERROR": "",
         "VERIFIED": ""
     },
     "PROJECTS": {
@@ -403,9 +429,11 @@
     },
     "ROLE_RIGHTS": {
         "ACTION": "Действие",
+        "ADD_RIGHT_TO_ROLE": "",
         "DELETE_CONFIRM": "Подтвердите удаление правила <b>{{roleRight.action}}</b> роли <b>{{role.name}}</b>",
         "DESCRIPTION": "Описание",
         "ENTITY_TYPE": "Тип объекта",
+        "RIGHT_ERROR": "",
         "ROLE_RIGHT": "Правило роли",
         "ROLE_RIGHTS": "Правила ролей"
     },
@@ -426,11 +454,14 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "PRINT_QUESTIONS": "",
+        "PRINT_SURVEY": "",
         "QUESTION": "",
         "SAVE_DRAFT": "",
         "SELECT_ONE": "",
         "STATUS": "",
         "SUBMIT": "",
+        "TITLE": "",
         "VERSION": "Версии",
         "VIEW": "Просмотр"
     },

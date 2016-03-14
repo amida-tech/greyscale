@@ -3,28 +3,29 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('fieldFile', function () {
+    .directive('fieldFile', function (greyscaleSurveyAnswerApi, $log) {
         return {
             restrict: 'A',
             scope: {
                 files: '=fieldFile'
             },
-            link: function (scope, elem) {
+            link: function (scope, elem, attrs) {
                 elem.bind('change', addFiles);
 
                 function addFiles(fileEvt) {
                     var file = fileEvt.currentTarget.files[0];
                     var reader = new window.FileReader();
-                    reader.onload = function onFileLoad(readerEvt) {
+                    reader.onload = function onFileLoad() {
                         scope.$apply(function (_scope) {
                             var _data = reader.result.substr(reader.result.indexOf(',') + 1);
-                            _scope.files.push({
-                                name: file.name,
+                            var _obj = {
+                                filename: file.name,
                                 size: file.size,
-                                modified: file.lastModifiedDate,
-                                type: file.type,
-                                data: _data
-                            });
+                                mimetype: file.type,
+                                body: _data
+                            };
+                            greyscaleSurveyAnswerApi.addAttach(attrs.answerId, _obj);
+                            _scope.files.push(_obj);
                         });
                     };
                     reader.readAsDataURL(file);

@@ -5,9 +5,11 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleSurveyAnswerApi', function (greyscaleRestSrv) {
+
         return {
             list: _listItems,
-            save: _saveItem
+            save: _saveItem,
+            addAttach: _postAttach
         };
 
         function _api() {
@@ -32,5 +34,9 @@ angular.module('greyscale.rest')
                 param.autosave = isAuto;
             }
             return _api().customPOST(answer, '', param).then(_postProcess);
+        }
+
+        function _postAttach(attachId, body) {
+            return _api().one(attachId + '', 'attach').customPOST(body).then(_postProcess);
         }
     });

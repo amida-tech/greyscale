@@ -33,13 +33,13 @@ angular.module('greyscale.tables')
             title: tns + 'READ',
             sortable: 'read',
             cellTemplate: '<div class="text-center">' +
-            '<i class="fa" ng-class="{\'fa-eye\':row.read, \'fa-eye-slash\':!row.read}" title="{{\''+ tns +'\' + (row.read ? \'WAS_READ\' : \'WAS_NOT_READ\')|translate}}"></i>' +
-            '&nbsp;<a ng-click="ext.toggleRead(row)" class="action" ><small ng-show="row.read" translate="' + tns + 'SET_UNREAD"></small><small ng-hide="row.read" translate="' + tns + 'SET_READ"></small></a>' +
-            '</div>',
+                '<i class="fa" ng-class="{\'fa-eye\':row.read, \'fa-eye-slash\':!row.read}" title="{{\'' + tns + '\' + (row.read ? \'WAS_READ\' : \'WAS_NOT_READ\')|translate}}"></i>' +
+                '&nbsp;<a ng-click="ext.toggleRead(row)" class="action" ><small ng-show="row.read" translate="' + tns + 'SET_UNREAD"></small><small ng-hide="row.read" translate="' + tns + 'SET_READ"></small></a>' +
+                '</div>',
             cellTemplateExtData: {
                 toggleRead: _toggleRead
             }
-        },{
+        }, {
             cellTemplate: '<div class="text-right"><a ng-if="row.toMe" class="action" ng-click="ext.reply(row)" title="{{\'' + tns + 'REPLY\'|translate}}"><i class="fa fa-reply"></i></a></div>',
             cellTemplateExtData: {
                 reply: _reply
