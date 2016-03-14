@@ -110,15 +110,19 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
 
-router.route('/:realm/v0.2/survey_answers/:id/attach')
-    .post(/*authenticate('token').always,*/ /*checkRight('rights_view_all'),*/ surveyAnswers.attach);
+router.route('/:realm/v0.2/attachments')
+    .post(/*authenticate('token').always,*/ surveyAnswers.attach);
+
+router.route('/:realm/v0.2/attachments/get/:ticket')
+    .get(surveyAnswers.getAttachment);
 
 router.route('/:realm/v0.2/attachments/:id/ticket')
     .get(authenticate('token').always, surveyAnswers.getTicket);
 
+router.route('/:realm/v0.2/attachments/:id/link/:answerId')
+    .get(authenticate('token').always, surveyAnswers.linkAttach);
 
-router.route('/:realm/v0.2/attachments/:tiket')
-    .get(surveyAnswers.getAttachment);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
