@@ -721,9 +721,9 @@ function* dumpProduct(productId) {
           '  "UnitOfAnalysis"."name", ' + 
           '  "UnitOfAnalysis"."ISO2", ' + 
           "  format('{%s}', " + 
-          "    string_agg(format('%s:%s', " +
-          '      to_json("SurveyQuestions".id::text), ' + 
-          '      COALESCE(to_json("SurveyAnswers"."value"), to_json("SurveyAnswers"."optionId")) ' + 
+          "    string_agg(format('\"%s\":\"%s\"', " +
+          '      "SurveyQuestions".id, ' + 
+          '      COALESCE("SurveyAnswers"."value", format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\'))) ' + 
           "    ), ',') " + 
           '  ) AS "questions" ' + 
           'FROM ' +
@@ -804,10 +804,10 @@ function* getSubindexes(productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
-          '      to_json("SubindexWeights"."questionId"::text), ' +
-          '      to_json("SubindexWeights"."weight"), ' +
-          '      to_json("SubindexWeights"."type") ' +
+          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+          '      "SubindexWeights"."questionId", ' +
+          '      "SubindexWeights"."weight", ' +
+          '      "SubindexWeights"."type" ' +
           "    ), ',') " +
           '  ) AS "weights" ' +
           'FROM ' +
@@ -835,17 +835,17 @@ function* getIndexes(productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
-        '      to_json("IndexQuestionWeights"."questionId"::text), ' +
-        '      to_json("IndexQuestionWeights"."weight"), ' +
-        '      to_json("IndexQuestionWeights"."type") ' +
+        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        '      "IndexQuestionWeights"."questionId", ' +
+        '      "IndexQuestionWeights"."weight", ' +
+        '      "IndexQuestionWeights"."type" ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
-        "    string_agg(format('%s:{\"weight\": %s, \"type\": %s}', " +
-        '      to_json("IndexSubindexWeights"."subindexId"::text), ' +
-        '      to_json("IndexSubindexWeights"."weight"), ' +
-        '      to_json("IndexSubindexWeights"."type") ' +
+        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        '      "IndexSubindexWeights"."subindexId"::text, ' +
+        '      "IndexSubindexWeights"."weight", ' +
+        '      "IndexSubindexWeights"."type" ' +
         "    ), ',') " +
         '  ) AS "subindexWeights" ' +
         'FROM ' +
