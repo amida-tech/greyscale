@@ -1,0 +1,573 @@
+{
+    "ACTIVATION": {
+        "ACTIVATE": "",
+        "CONFIRMATION": "",
+        "CONFIRMATION_ERROR": "",
+        "FIRST_NAME": "",
+        "FIRST_NAME_ERROR": "",
+        "LAST_NAME": "",
+        "LAST_NAME_ERROR": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": ""
+    },
+    "BRAND": {
+        "SLOGAN": ""
+    },
+    "COMMON": {
+        "ADD": "",
+        "APPLY": "",
+        "ASSIGN": "",
+        "BACK": "",
+        "CANCEL": "",
+        "CHARS": "",
+        "CLOSE": "",
+        "CONFIRM": "",
+        "CONFIRMATION": "",
+        "CONTINUE": "",
+        "CREATE": "",
+        "CURRENT_VALUE": "",
+        "DELETE": "",
+        "EDIT": "",
+        "FURTHER": "",
+        "INFO": "",
+        "NO": "",
+        "OF": "",
+        "ORIGINAL_LANGUAGE": "",
+        "REMIND": "",
+        "RESET": "",
+        "SAVE": "",
+        "SAVE_AND_CONTINUE": "",
+        "SEND": "",
+        "SEND_MESSAGE": "",
+        "SHOW_ALL": "",
+        "SUBMIT": "",
+        "UNASSIGN": "",
+        "VIEW": "",
+        "WORDS": "",
+        "YES": ""
+    },
+    "DASHBOARD": {
+        "PROJECTS": "",
+        "TASKS": "",
+        "UNREAD_MESSAGES_ALERT": ""
+    },
+    "DATEPICKER": {
+        "DATE_FORMAT": "",
+        "DONE": "",
+        "PLACEHOLDER": "",
+        "RESET": "",
+        "TODAY": ""
+    },
+    "ERROR": {
+        "ACCESS_RESTRICTED": "",
+        "TEST": ""
+    },
+    "FILE": {
+        "CONTINUE": "",
+        "SELECT": ""
+    },
+    "FORMS": {
+        "FIELD_REQUIRED": "",
+        "MUST_BE_INT": "",
+        "MUST_BE_NUMBER": "",
+        "WRONG_DATE_FORMAT": ""
+    },
+    "GLOBALS": {
+        "PRODUCTSTATES": {
+            "CANCELLED": "",
+            "COMPLETED": "",
+            "PLANNING": "",
+            "STARTED": "",
+            "SUSPENDED": ""
+        },
+        "PRODUCTTASKSTATUSES": {
+            "COMPLETED": "",
+            "CURRENT": "",
+            "WAITING": ""
+        },
+        "PROJECTSTATES": {
+            "ACTIVE": "",
+            "INACTIVE": ""
+        },
+        "ROLES": {
+            "ADMIN": "",
+            "CLIENT": "",
+            "USER": ""
+        },
+        "UOASTATUS": {
+            "ACTIVE": "",
+            "DELETED": "",
+            "INACTIVE": ""
+        },
+        "UOAVISIBILITY": {
+            "PRIVATE": "",
+            "PUBLIC": ""
+        },
+        "USERROLES": {
+            "CONTRIBUTOR": "",
+            "DECIDER": "",
+            "EDITOR": "",
+            "PROJECT_MANAGER": "",
+            "RESEARCHER": "",
+            "RESEARCH_DIRECTOR": "",
+            "REVIEWER": "",
+            "TRANSLATOR": ""
+        },
+        "WRITETOANSWERSLIST": {
+            "READ": "",
+            "READ_WRITE": ""
+        }
+    },
+    "IMPORT": {
+        "UOAS": {
+            "DESCRIPTION": "",
+            "DOWNLOAD_EXAMPLE": "",
+            "ISO": "",
+            "ISO2": "",
+            "NAME": "",
+            "NAMEISO": "",
+            "RESULTS_TITLE": "",
+            "SHORT_NAME": "",
+            "STATUS": "",
+            "TITLE": "",
+            "UOA_TYPE": "",
+            "VISIBILITY": ""
+        },
+        "USERS": {
+            "DOWNLOAD_EXAMPLE": "",
+            "EMAIL": "",
+            "FIRST_NAME": "",
+            "LAST_NAME": "",
+            "ORGANIZATION": "",
+            "RESULTS_TITLE": "",
+            "STATUS": "",
+            "TITLE": ""
+        }
+    },
+    "LOGIN": {
+        "CHECK_EMAIL_PASSWORD": "",
+        "CHECK_LOGIN_PASSWORD": "",
+        "EMAIL": "",
+        "FORGOT_PASSWORD": "",
+        "GO_LOGIN": "",
+        "LOGIN_INCORRECT": "",
+        "LOGIN_REQUIRED": "",
+        "PASSWORD": "",
+        "PASSWORD_REQUIRED": "",
+        "RESET_SUCCESS": "",
+        "SIGN_IN": "",
+        "TOKEN_SENT": ""
+    },
+    "MY_TASKS": {
+        "FINISHED_TITLE": "",
+        "FUTURE_TITLE": "",
+        "NO_TASKS": "",
+        "PRODUCT": "",
+        "SURVEY": "",
+        "TASK": "",
+        "TERMS": "",
+        "TITLE": "",
+        "UOA": ""
+    },
+    "NAV": {
+        "ACCESS_MANAGEMENT": "",
+        "ACTIVATE": "",
+        "ADMIN_SECTION": "",
+        "CONTENT_SECTION": "",
+        "FORM_BUILDER": "",
+        "GRAPH": "",
+        "HELP": "",
+        "HOME": "",
+        "IMPORT": "",
+        "LOGIN": "",
+        "LOGOUT": "",
+        "NOTIFICATIONS": "",
+        "ORGANIZATIONS": "",
+        "PM_PRODUCT_DASHBOARD": "",
+        "PRODUCT_TASKS": "",
+        "PROFILE": "",
+        "PROJECTS": {
+            "PRODUCTS": "",
+            "SURVEYS": "",
+            "TASKS": "",
+            "USERS_IN_GROUPS": ""
+        },
+        "PROJECT_MANAGEMENT": "",
+        "REGISTER": "",
+        "RESET": "",
+        "SUPPORT": "",
+        "SURVEY": "",
+        "TABLE": "",
+        "TASKS": "",
+        "UOAS": {
+            "LIST": "",
+            "TITLE": ""
+        },
+        "USERS": {
+            "GROUPS": "",
+            "IN_GROUPS": "",
+            "LIST": "",
+            "TITLE": "",
+            "UOA": ""
+        },
+        "VISUALIZATION": "",
+        "WORKFLOW_STEPS": ""
+    },
+    "NOTIFICATIONS": {
+        "DATE_TIME": "",
+        "GO_HISTORY": "",
+        "MARK_AS_READ": "",
+        "MESSAGE": "",
+        "NOTIFICATIONS": "",
+        "NO_UNREAD": "",
+        "READ": "",
+        "SEND_NOTIFICATION": "",
+        "SEND_SUCCESS": "",
+        "SET_READ": "",
+        "SET_UNREAD": "",
+        "USER": "",
+        "WAS_NOT_READ": "",
+        "WAS_READ": ""
+    },
+    "ORGANIZATIONS": {
+        "ADDRESS": "",
+        "ADMIN_USER": "",
+        "DELETE_CONFIRM": "",
+        "IS_ACTIVE": "",
+        "NAME": "",
+        "ORGANIZATION": "",
+        "ORGANIZATIONS": "",
+        "SITE_URL": ""
+    },
+    "PLACEHOLDER": {
+        "ASSIGN_TO": "",
+        "INPUT_MESSAGE": "",
+        "SELECT_QUESTION": ""
+    },
+    "PM_PRODUCT_DASHBOARD": {
+        "COUNT_DELAYED": "",
+        "COUNT_FLAGGED": "",
+        "COUNT_ONTIME": "",
+        "COUNT_OVERDUE": "",
+        "COUNT_STARTED": "",
+        "COUNT_UOAS": "",
+        "DEADLINE": "",
+        "DOWNLOAD_DATA": ""
+    },
+    "PM_PROJECTS": {
+        "NO_PRODUCTS": "",
+        "NO_PROJECTS": "",
+        "PROJECT": ""
+    },
+    "PRODUCTS": {
+        "TABLE": {
+            "CREATE_WORKFLOW": "",
+            "DELETE_CONFIRM": "",
+            "DESCRIPTION": "",
+            "PAUSE_PRODUCT": "",
+            "PLANNING_NOT_FINISH": "",
+            "PRODUCT": "",
+            "SETTINGS": "",
+            "START_PRODUCT": "",
+            "STATUS": "",
+            "SURVEY": "",
+            "SURVEY_STATUS": "",
+            "TASKS": "",
+            "TITLE": "",
+            "UOAS": "",
+            "WORKFLOW": ""
+        },
+        "TASKS": {
+            "DRAG_USER": "",
+            "NO_UOAS": "",
+            "NO_WORKFLOW_STEPS": "",
+            "SEARCH_USER_LABEL": "",
+            "SELECT_USERGROUP": "",
+            "SELECT_USERGROUP_LABEL": "",
+            "TABLE": {
+                "DELETE_CONFIRM": "",
+                "STEP": "",
+                "TASKS_UPDATE_ERROR": "",
+                "TASK_PARAMS": "",
+                "TASK_REMOVE_ERROR": "",
+                "TASK_UPDATE_ERROR": "",
+                "TITLE": "",
+                "UOAS_HEADER": ""
+            },
+            "TASKS_FOR": "",
+            "USERS_NOT_FOUND_BY_GROUP": "",
+            "USERS_NOT_FOUND_BY_SEARCH": ""
+        },
+        "UOAS": {
+            "DELETE_CONFIRM": "",
+            "DESCRIPTION": "",
+            "MODAL_TITLE": "",
+            "NAME": "",
+            "SHORT_NAME": "",
+            "TABLE_TITLE": "",
+            "TYPE": ""
+        },
+        "WORKFLOW": {
+            "DESCRIPTION": "",
+            "DESCRIPTION_REQUIRED": "",
+            "STEPS": {
+                "ADD_GROUP": "",
+                "ALLOW_EDIT": "",
+                "ALLOW_TRANSLATE": "",
+                "ANSWERS_ACCESS": "",
+                "BLIND_REVIEW": "",
+                "DISCUSSION_PARTICIPATION": "",
+                "END_DATE": "",
+                "GROUPS": "",
+                "NO_GROUPS": "",
+                "PERMISSIONS": "",
+                "PRODUCT_WORKFLOW_STEPS": "",
+                "PROVIDE_RESPONSES": "",
+                "ROLE": "",
+                "SEE_OTHERS_RESPONSES": "",
+                "SORT_DISABLED": "",
+                "START_DATE": "",
+                "TITLE": "",
+                "WRITE_ACCESS_READ": "",
+                "WRITE_ACCESS_WRITE": ""
+            },
+            "STEPS_FOR": "",
+            "TITLE": "",
+            "TITLE_REQUIRED": ""
+        }
+    },
+    "PRODUCT_TASKS": {
+        "CURRENT_STEP": "",
+        "DEADLINE": "",
+        "FLAGS": "",
+        "FORCE_COMPLETE": "",
+        "FORCE_NEXT_STEP": "",
+        "LAST_UPDATE": "",
+        "MODAL": {
+            "TITLE": ""
+        },
+        "NOTIFY_USER": "",
+        "PROGRESS": "",
+        "ROLE": "",
+        "STATUS": "",
+        "STEP": "",
+        "STEP_SKIPPED": "",
+        "TITLE": "",
+        "UOA": "",
+        "USER": ""
+    },
+    "PROFILE": {
+        "ACTIVATED": "",
+        "ADDRESS": "",
+        "ADDRESS_ERROR": "",
+        "AFFILATION": "",
+        "BIO": "",
+        "CHANGE_PASSWORD": "",
+        "COMPANY_NAME": "",
+        "COMPANY_NAME_ERROR": "",
+        "CREATED": "",
+        "CURRENT_PASSWORD": "",
+        "EMAIL": "",
+        "FIRST_NAME": "",
+        "LANGUAGE": "",
+        "LAST_ACTIVE": "",
+        "LAST_NAME": "",
+        "LOCATION": "",
+        "MOBILE": "",
+        "NEW_PASSWORD": "",
+        "NOT_ACTIVATED": "",
+        "NOT_VERIFIED": "",
+        "ORGANIZATION": "",
+        "PASSWORD": "",
+        "PASSWORD_ERROR": "",
+        "PHONE": "",
+        "PROFILE": "",
+        "REPEAT_PASSWORD": "",
+        "REPEAT_PASSWORD_ERROR": "",
+        "TIMEZONE": "",
+        "URL": "",
+        "URL_ERROR": "",
+        "VERIFIED": ""
+    },
+    "PROJECTS": {
+        "ACCESS_MATRIX": "",
+        "CLOSE_TIME": "",
+        "CODE_NAME": "",
+        "CREATED": "",
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "HEADER": "",
+        "ITEM": "",
+        "ORGANIZATION": "",
+        "PAUSE_PROJECT": "",
+        "PROJECT": "",
+        "PROJECTS": "",
+        "ROLES": {
+            "DELETE_CONFIRM": "",
+            "ITEM": "",
+            "ROLE": "",
+            "USER": ""
+        },
+        "SELECT_ORGANIZATION": "",
+        "START_PROJECT": "",
+        "START_TIME": "",
+        "STATUS": ""
+    },
+    "RIGHTS": {
+        "ACTION": "",
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "ENTITY_TYPE": "",
+        "RIGHT": "",
+        "RIGHTS": ""
+    },
+    "ROLES": {
+        "NAME": "",
+        "ROLE": "",
+        "ROLES": "",
+        "SYSTEM_ROLE": ""
+    },
+    "ROLE_RIGHTS": {
+        "ACTION": "",
+        "ADD_RIGHT_TO_ROLE": "",
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "ENTITY_TYPE": "",
+        "RIGHT_ERROR": "",
+        "ROLE_RIGHT": "",
+        "ROLE_RIGHTS": ""
+    },
+    "SURVEYS": {
+        "ABOVE": "",
+        "ATTACHMENTS": "",
+        "BELOW": "",
+        "CONTENT": "",
+        "CURRENT_COUNT": "",
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "DISCUSSION": "",
+        "FIELDS": "",
+        "IS_COMPLETE": "",
+        "IS_DRAFT": "",
+        "ITEM": "",
+        "LINKS": "",
+        "MAX": "",
+        "MIN": "",
+        "NAME": "",
+        "PRINT_QUESTIONS": "",
+        "PRINT_SURVEY": "",
+        "QUESTION": "",
+        "SAVE_DRAFT": "",
+        "SELECT_ONE": "",
+        "STATUS": "",
+        "SUBMIT": "",
+        "TITLE": "",
+        "VERSION": "",
+        "VIEW": ""
+    },
+    "TABLES": {
+        "LOADING_DATA": "",
+        "NO_DATA": "",
+        "SELECT_ALL_TITLE": ""
+    },
+    "TRANSLATION": {
+        "REQUIRED": {
+            "LANG": "",
+            "VALUE": ""
+        },
+        "TITLE": ""
+    },
+    "UOAS": {
+        "CREATED": "",
+        "DELETE_CONFIRM": "",
+        "DELETE_CONFIRM_TYPE": "",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "SHORT_NAME": "",
+        "STATUS": "",
+        "TAG": "",
+        "TYPE": "",
+        "TYPE_DESCRIPTION": "",
+        "TYPE_NAME": "",
+        "UNIT_TYPE": "",
+        "UNIT_TYPES": "",
+        "UOA": "",
+        "UOAS": "",
+        "UOA_TAG_LINK": "",
+        "UOA_TAG_LINKS": "",
+        "VISIBILITY": ""
+    },
+    "UOAS_FILTER": {
+        "APPLY_SELECTED": "",
+        "CREATED": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "SHORT_NAME": "",
+        "STATUS": "",
+        "TABLE_TITLE": "",
+        "TYPE": ""
+    },
+    "UOA_TAGS": {
+        "CLASSIFICATION_TYPE": "",
+        "DELETE_CONFIRM": "",
+        "DELETE_CONFIRM_TYPE": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "TAG": "",
+        "TAGS": "",
+        "TAG_TYPE": "",
+        "TAG_TYPES": "",
+        "TYPE_DESCRIPTION": "",
+        "TYPE_NAME": ""
+    },
+    "USERS": {
+        "ANONYMOUS": "",
+        "CHANGE_PASSWORD": "",
+        "CHANGE_PASSWORD_SUCCESS": "",
+        "DELETE_CONFIRM": "",
+        "EMAIL": "",
+        "FIRST_NAME": "",
+        "GROUPS": "",
+        "GROUPS_MODAL": {
+            "NAME": "",
+            "TITLE": ""
+        },
+        "IS_ACTIVE": "",
+        "LAST_ACTIVE": "",
+        "LAST_NAME": "",
+        "NEW_PASSWORD": "",
+        "NOT_LOGGED": "",
+        "NO_GROUPS": "",
+        "ORGANIZATION": "",
+        "RESEND_ACTIVATION": "",
+        "ROLE": "",
+        "SELECT_ORGANIZATION": "",
+        "SET_NEW_PASSWORD_TO": "",
+        "USER": "",
+        "USERS": ""
+    },
+    "USERS_UOA": {
+        "PRIVATE": "",
+        "PUBLIC": "",
+        "UOAS": "",
+        "USERS": ""
+    },
+    "USER_GROUPS": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "NAME": "",
+        "ORGANIZATION": "",
+        "SELECT_ORGANIZATION": "",
+        "USER": "",
+        "USERS_IN_GROUPS": "",
+        "USER_GROUP": "",
+        "USER_GROUPS": ""
+    },
+    "WORKFLOW_STEPS": {
+        "DESCRIPTION": "",
+        "HEADER": "",
+        "ITEM": "",
+        "TITLE": ""
+    }
+}

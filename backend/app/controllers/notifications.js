@@ -1,5 +1,6 @@
 var
     _ = require('underscore'),
+    ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
     auth = require('app/auth'),
@@ -73,8 +74,9 @@ function* checkString(val, keyName) {
 function* createNotification (note, template) {
     note = yield * checkInsert(note);
     var note4insert = _.extend({}, note);
-    template = (template || {});
-    note4insert.note = getHtml(template.notificationName, note4insert, template.notificationPath);
+    template = (template || 'default');
+
+    note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
     var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
     if (parseInt(note.notifyLevel) >  1) {  // onsite notification
@@ -84,7 +86,9 @@ function* createNotification (note, template) {
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
-    note.message = getHtml(template.emailName, note, template.emailPath);
+    note.subject = note.subject || '';
+    note.subject = ejs.render(config.notificationTemplates[template].subject, note);
+    note.message = yield * renderFile(config.notificationTemplates[template].emailBody, note);
     var emailOptions = {
         to: {
             name: userTo.firstName,
@@ -94,28 +98,41 @@ function* createNotification (note, template) {
         },
         html: note.message
     };
-    var updateFields = _.extend({}, {
+
+    var updateFields = {
         email: userTo.email,
         message: note.message,
         subject: note.subject,
         sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null
-        //result: note.result ToDo: Save Result
-    });
+        //result: note.result
+    };
+    // update email's fields before sending
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
     if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-        var mailer = new Emailer(emailOptions, note);
-        mailer.send(function (error, info) {
-            if (error) {
-                console.log('EMAIL RESULT ERROR --->>> '+error);
-                note.result = error;
+        co(function* () {
+            var mailer = new Emailer(emailOptions, note);
+            //Sync mail send
+            var err = false;
+            var sendResult = yield * mailer.sendSync();
+            err = sendResult.name === 'Error';
+            if (err) {
+                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                note.result = sendResult.message;
             } else
             {
-                console.log('EMAIL RESULT --->>> '+info.response);
-                note.result = info.response;
+                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                note.result = sendResult.response;
             }
+            return note.result;
+        }).then(function (result) {
+            co(function* () {
+                updateFields = {result: result};
+                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
+            });
         });
     }
+
     return noteInserted;
 }
 
@@ -135,25 +152,40 @@ function* resendNotification (notificationId) {
         },
         html: note.message
     };
-    var updateFields = _.extend({}, {
-        email: userTo.email, // update eMail
+
+    var updateFields = {
+        email: userTo.email,
         resent: new Date()
-        //result: note.result ToDo: Save Result
-    });
+        //result: note.result
+    };
+    // update email's fields before sending
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
-    var mailer = new Emailer(emailOptions, note);
-    mailer.send(function (error, info) {
-        if (error) {
-            console.log('EMAIL RESULT ERROR --->>> '+error);
-            note.result = error;
-        } else
-        {
-            console.log('EMAIL RESULT --->>> '+info.response);
-            note.result = info.response;
-        }
-    });
-    //}
+    if (!config.email.disable) {  // email notification - does not use notifyLevel
+        // ToDo: exclude duplication
+        co(function* () {
+            var mailer = new Emailer(emailOptions, note);
+            //Sync mail send
+            var err = false;
+            var sendResult = yield * mailer.sendSync();
+            err = sendResult.name === 'Error';
+            if (err) {
+                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                note.result = sendResult.message;
+            } else
+            {
+                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                note.result = sendResult.response;
+            }
+            return note.result;
+        }).then(function (result) {
+            co(function* () {
+                updateFields = {result: result};
+                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
+            });
+        });
+    }
+
     return note;
 }
 
@@ -234,7 +266,7 @@ module.exports = {
                 'notes.sent, '+
                 'notes."read", '+
                 'notes."notifyLevel", '+
-                'notes.ressult, '+
+                'notes.result, '+
                 'notes.resent, '+
                 'notes.note '+
                 'FROM notes '+
@@ -478,7 +510,7 @@ module.exports = {
                     {
                         userFrom: req.user.id,
                         userTo: user.id,
-                        body: 'New user added',
+                        body: 'Invite',
                         essenceId: essenceId,
                         entityId: user.id,
                         notifyLevel: user.notifyLevel,
@@ -487,14 +519,10 @@ module.exports = {
                         company: org,
                         inviter: req.user,
                         token: user.activationToken,
-                        subject: 'Indaba. Organization membership'
+                        subject: 'Indaba. Organization membership',
+                        config: config
                     },
-                    {
-                        notificationName: 'org_invite',
-                        notificationPath: './views/notifications/',
-                        emailName: 'org_invite',
-                        emailPath: './views/emails/'
-                    }
+                    'orgInvite'
                 );
                 if (user.notifyLevel < 2) {
                     return yield * resendNotification(note[0].id);
@@ -605,6 +633,7 @@ function* getInviteNotification(userId) {
             'max("Notifications"."id") as id '+
         'FROM "Notifications" '+
         'WHERE '+
+            '"Notifications"."body" = \'Invite\' AND '+
             '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
             '"Notifications"."entityId" = '+userId.toString() + ' '+
         'GROUP BY '+
@@ -626,7 +655,24 @@ function* getEssenceId(essenceName) {
         'WHERE "Essences"."name" = \''+essenceName+'\'';
     result = yield thunkQuery(query);
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
+        throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
     }
     return result[0].id;
 }
+
+function* renderFile(templateFile, data) {
+    var res;
+    try {
+        ejs.renderFile(templateFile, data, function (err, result) {
+            if (err) {
+                throw err;
+            }
+            res = result;
+        });
+    }
+    catch(e) {
+        throw new HttpError(403, 'Error render template file `'+templateFile+'` error: `'+e.message+'`');
+    }
+    return res;
+}
+

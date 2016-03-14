@@ -456,6 +456,8 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "PRINT_QUESTIONS": "",
+        "PRINT_SURVEY": "",
         "QUESTION": "",
         "RESPONSES": "Обратная связь",
         "REVIEVER_COMMENT": "Комментарий проверяющего",

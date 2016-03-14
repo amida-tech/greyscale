@@ -1,9 +1,9 @@
 <p>
-	Hello {{name}} {{surname}}! 
-	{{inviter.firstName}} {{inviter.lastName}} has just invited you to Indaba
-	as a member of {{company.name}} organization.
+	Hello <%= name %> <%= surname%>! 
+	<%= inviter.firstName %> <%= inviter.lastName %> has just invited you to Indaba
+	as a member of <%= company.name %> organization.
 </p>
 
 <p>
-Please, activate your account by follow this <a href="{{config.domain}}/#activate/{{token}}">link</a>
+Please, activate your account by follow this <a href="<%= config.domain %>/#activate/<%= token %>">link</a>
 </p>

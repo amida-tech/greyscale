@@ -18,19 +18,14 @@ angular.module('greyscaleApp')
                     reader.onload = function onFileLoad() {
                         scope.$apply(function (_scope) {
                             var _data = reader.result.substr(reader.result.indexOf(',') + 1);
-                            greyscaleSurveyAnswerApi.addAttach(attrs.answerId, {
+                            var _obj = {
                                 filename: file.name,
                                 size: file.size,
                                 mimetype: file.type,
                                 body: _data
-                            });
-                            _scope.files.push({
-                                name: file.name,
-                                size: file.size,
-                                modified: file.lastModifiedDate,
-                                type: file.type,
-                                data: _data
-                            });
+                            };
+                            greyscaleSurveyAnswerApi.addAttach(attrs.answerId, _obj);
+                            _scope.files.push(_obj);
                         });
                     };
                     reader.readAsDataURL(file);

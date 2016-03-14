@@ -162,7 +162,7 @@ module.exports = {
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
             }
 
-            var result = yield * setCurrentStepToNull(productId);
+            // var result = yield * setCurrentStepToNull(productId); - not required, as User could require to adjust certain Step's permissions for running Project
 
             return {
                 deleted: deleteIds,

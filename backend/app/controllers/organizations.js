@@ -1,4 +1,5 @@
 var _ = require('underscore'),
+    config = require('config'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Project = require('app/models/projects'),
@@ -226,7 +227,7 @@ module.exports = {
                                         {
                                             userFrom: req.user.id,
                                             userTo: newUser.id,
-                                            body: 'New user added',
+                                            body: 'Invite',
                                             essenceId: essenceId,
                                             entityId: newUser.id,
                                             notifyLevel: newUser.notifyLevel,
@@ -235,43 +236,15 @@ module.exports = {
                                             company: org[0],
                                             inviter: req.user,
                                             token: newUser.activationToken,
-                                            subject: 'Indaba. Organization membership'
+                                            subject: 'Indaba. Organization membership',
+                                            config: config
                                         },
-                                        {
-                                            notificationName: 'org_invite',
-                                            notificationPath: './views/notifications/',
-                                            emailName: 'org_invite',
-                                            emailPath: './views/emails/'
-                                        }
+                                        'orgInvite'
                                     );
 
 
                                 }
 
-/*
-                                var options = {
-                                    to: {
-                                        name: newUser.firstName,
-                                        surname: newUser.lastName,
-                                        email: newUser.email,
-                                        subject: 'Indaba. Organization membership'
-                                    },
-                                    template: 'org_invite'
-                                };
-                                var data = {
-                                    name: newUser.firstName,
-                                    surname: newUser.lastName,
-                                    company: org[0],
-                                    inviter: req.user,
-                                    token: newUser.activationToken
-                                };
-                                var mailer = new Emailer(options, data);
-                                mailer.send(function (data) {
-                                    console.log('EMAIL RESULT --->>>');
-                                    console.log(data);
-
-                                });
-*/
                             }
                         }
 

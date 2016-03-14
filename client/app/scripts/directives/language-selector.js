@@ -1,24 +1,45 @@
 angular.module('greyscaleApp')
-    .directive('languageSelector', function (_, i18n) {
+    .directive('languageSelector', function (_, i18n, greyscaleLanguageApi) {
         return {
             restrict: 'A',
             replace: true,
             templateUrl: 'views/directives/language-selector.html',
             link: function (scope, el) {
-                if (i18n.getLocales().length === 1) {
+                var supportedLocales = i18n.getLocales();
+
+                if (supportedLocales.length === 1) {
                     el.remove();
                     return;
                 }
 
-                scope.languages = i18n.getLanguages();
+                greyscaleLanguageApi.list()
+                    .then(function (langs) {
+                        var languages = [];
+                        angular.forEach(langs, function(lang){
+                            if (~supportedLocales.indexOf(lang.code)) {
+                                languages.push({
+                                    locale: lang.code,
+                                    label: lang.nativeName,
+                                    tooltip: lang.name
+                                });
+                            }
+                        });
 
-                scope.selected = _.find(scope.languages, {
-                    locale: i18n.getLocale()
-                });
+                        if (languages.length <= 1) {
+                            el.remove();
+                            return;
+                        }
 
-                scope.changeLanguage = function (locale) {
-                    i18n.changeLocale(locale);
-                };
+                        scope.languages = languages;
+
+                        scope.selected = _.find(scope.languages, {
+                            locale: i18n.getLocale()
+                        });
+
+                        scope.changeLanguage = function (locale) {
+                            i18n.changeLocale(locale);
+                        };
+                    });
             }
         };
     });

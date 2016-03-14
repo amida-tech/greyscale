@@ -21,6 +21,7 @@ var environments = {
     max_upload_filesize: 10*1024*1024, // 10 MB
     defaultLang: 'en',
     adminRole: 'admin',
+    clientRole: 'client',
     auth: {
       salt: 'saltForHash'
     },
@@ -41,6 +42,39 @@ var environments = {
       sender: {
         name: "Mail sender name",
         email: "mail_sender@email.com"
+      }
+    },
+    //templates for notifications for EJS render
+    notificationTemplates: {
+      default: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>New notification<% } %>',
+        notificationBody: './views/notifications/default.html',
+        emailBody: './views/emails/default.html'
+      },
+      discussion: {
+        subject: 'Indaba. <%= action %> message in discussion',
+        notificationBody: './views/notifications/entry.html',
+        emailBody: './views/emails/discussion.html'
+      },
+      orgInvite: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership<% } %>',
+        notificationBody: './views/notifications/org_invite.html',
+        emailBody: './views/emails/org_invite.html'
+      },
+      invite: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Invite<% } %>',
+        notificationBody: './views/notifications/invite.html',
+        emailBody: './views/emails/invite.html'
+      },
+      forgot: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Restore password<% } %>',
+        notificationBody: './views/notifications/forgot.html',
+        emailBody: './views/emails/forgot.html'
+      },
+      welcome: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Thank you for registering at Indaba<% } %>',
+        notificationBody: './views/notifications/welcome.html',
+        emailBody: './views/emails/welcome.html'
       }
     }
   }

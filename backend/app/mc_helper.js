@@ -7,12 +7,18 @@ var
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query);
     memcache = require('memcache');
-
-expObj = {
-    client: new memcache.Client(
+    var mcClient = new memcache.Client(
         config.mc.port,
         config.mc.host
-    ),
+    );
+
+    var 
+    onConnect = false, 
+    onError = false, 
+    onClose = false;
+
+expObj = {
+    client: mcClient,
     connect: function(){
         client = this.client;
         return new Promise(function(resolve,reject) {
@@ -30,6 +36,7 @@ expObj = {
     },
     set: function(key, value){
         client = this.client;
+        console.log(config.mc.lifetime);
         return new Promise(function(resolve, reject){
             client.set(key, value, function(error, result){
                 if (error) {

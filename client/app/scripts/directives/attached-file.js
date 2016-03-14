@@ -7,25 +7,29 @@ angular.module('greyscaleApp')
         return {
             restrict: 'E',
             replace: true,
-            template: '<div class="col-sm-12 col-xs-12 col-md-6 file-attach"><a class="action action-primary file-link" ng-click="download()">' +
-                '<i class="fa {{iconClass}}"></i>{{file.name}}</a>' +
+            template: '<div class="col-sm-12 col-xs-12 col-md-6 file-attach">' +
+                '<a class="action action-primary file-link" ng-href="{{url}}" ng-click="download($event)" target="_self" download="{{file.filename}}">' +
+                '<i class="fa {{iconClass}}"></i>{{file.filename}}</a>' +
                 '<a class="action action-danger file-remove" ng-click="remove()"><i class="fa fa-trash"></i></a></div>',
             scope: {
                 file: '=attachedItem',
                 remove: '&removeFile'
             },
-            controller: function ($scope, FileSaver, greyscaleBase64Srv) {
+            controller: function ($scope, greyscaleAttachmentApi, $timeout) {
                 $scope.iconClass = 'fa-file';
-                var _saveData = {
-                    data: [],
-                    filename: $scope.file.name
-                };
 
-                $scope.download = function () {
-                    if ($scope.file.data) {
-                        FileSaver.saveAs(greyscaleBase64Srv.b64toBlob($scope.file.data, $scope.file.type), $scope.file.name);
-                    } else {
-
+                $scope.download = function (evt) {
+                    if (!$scope.url) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        greyscaleAttachmentApi.getTicket($scope.file.id)
+                            .then(function (ticket) {
+                                $scope.url = greyscaleAttachmentApi.getLink(ticket);
+                                $timeout(function () {
+                                    evt.currentTarget.click();
+                                    $scope.url = '';
+                                }, 1);
+                            });
                     }
                 };
             }

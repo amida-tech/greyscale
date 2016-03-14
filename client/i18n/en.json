@@ -456,6 +456,8 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "PRINT_QUESTIONS": "Print Questions Only",
+        "PRINT_SURVEY": "Print Survey",
         "QUESTION": "Q",
         "RESPONSES": "Responses",
         "REVIEVER_COMMENT": "Response",
