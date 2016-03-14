@@ -269,9 +269,10 @@ angular.module('greyscaleApp')
 
         scope.lock = true;
         greyscaleSurveyAnswerApi.list(surveyParams)
-                .then(function (_answers) {
-            var v, answer, fldName;
+            .then(function (_answers) {
+            var v, answer, fldName, response;
             answers = {};
+            responses = {};
             for (v = 0; v < _answers.length; v++) {
                 fldName = fldNamePrefix + _answers[v].questionId;
                 answer = answers[fldName];
@@ -287,6 +288,11 @@ angular.module('greyscaleApp')
                         scope.savedAt = answers[fldName].created;
                     }
                 }
+
+                if (!_answers.isResponse) continue;
+                if (!responses[fldName]) responses[fldName] = [];
+                response = responses[fldName];
+                response.push(_answers[v]);
             }
 
             loadRecursive(scope.fields, answers);
@@ -304,6 +310,7 @@ angular.module('greyscaleApp')
             fld = fields[f];
             answer = answers[fld.cid];
             response = responses[fld.cid];
+            if (response) fld.responses = response;
             if (answer) {
                 fld.answerId = answer.id;
                 fld.langId = answer.langId || fld.langId;
@@ -383,7 +390,6 @@ angular.module('greyscaleApp')
 
                     default:
                         fld.answer = answer.value;
-                        fld.responses = response;
                 }
             }
             if (fld.sub) {
@@ -399,144 +405,109 @@ angular.module('greyscaleApp')
 
         if (!scope.lock) {
             scope.lock = true;
-            greyscaleSurveyAnswerApi.list(params).then(function (_answers) {
-                var v, answer, fldName, response;
-                answers = {};
-                responses = {};
-                for (v = 0; v < _answers.length; v++) {
-                    fldName = fldNamePrefix + _answers[v].questionId;
-                    answer = answers[fldName];
-                    if (!answer || answer.version === null || answer.version < _answers[v].version) {
-                        answers[fldName] = _answers[v];
-                        answers[fldName].created = new Date(_answers[v].created);
-                        if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
-                            scope.savedAt = answers[fldName].created;
-                        }
-                    }
 
-                    if (!_answers.isResponse) continue;
-                    if (!responses[fldName]) responses[fldName] = [];
-                    response = responses[fldName];
-                    response.push(_answers[v]);
+            answers = preSaveFields(scope.fields);
+
+            res = greyscaleSurveyAnswerApi.save(answers, isAuto)
+                    .then(function (resp) {
+                var r,
+                    canMove = !isAuto,
+                    qty = resp.length;
+
+                $log.debug('all saved');
+                for (r = 0; r < qty && canMove; r++) {
+                    canMove = (resp[r].statusCode === 200);
                 }
-                answers = preSaveFields(scope.fields);
-
-                res = greyscaleSurveyAnswerApi.save(answers, isAuto).then(function (resp) {
-                    var r,
-                        canMove = !isAuto,
-                        qty = resp.length;
-
-                    $log.debug('all saved');
-                    for (r = 0; r < qty && canMove; r++) {
-                        canMove = (resp[r].statusCode === 200);
-                    }
-                    $log.debug('nextStep', canMove);
-                    canMove = false;
-                    scope.savedAt = new Date();
-                    scope.lock = isReadonly;
-                    return canMove;
-                }).catch(function (err) {
-                    greyscaleUtilsSrv.errorMsg(err);
-                    scope.lock = isReadonly;
-                    return isAuto;
-                });
+                $log.debug('nextStep', canMove);
+                canMove = false;
+                scope.savedAt = new Date();
+                scope.lock = isReadonly;
+                return canMove;
+            })
+                .catch(function (err) {
+                greyscaleUtilsSrv.errorMsg(err);
+                scope.lock = isReadonly;
+                return isAuto;
             });
-            return res;
         }
+        return res;
+    }
 
-        function preSaveFields(fields) {
-            var f, fld, answer,
-                qty = fields.length,
-                _answers = [];
-            for (f = 0; f < qty; f++) {
-                fld = fields[f];
-                if (fld.sub) {
-                    saveFields(fld.sub);
-                } else if (scope.surveyData.flags.provideResponses) {
-                    answer = {
-                        questionId: fld.id,
-                        langId: (typeof fld.langId === 'undefined') ? scope.model.langId : fld.langId,
-                        isResponse: true,
-                        comments: fld.comments,
-                        isAgree: fld.isAgree === "true" ? true : fld.isAgree === "false" ? false : null
-                    };
-                    angular.extend(answer, params);
-                    answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
-                } else if (fld.answer || fld.type === 'checkboxes') {
-                    answer = {
-                        questionId: fld.id,
-                        langId: (typeof fld.langId === 'undefined') ? scope.model.langId : fld.langId
-                    };
+    function preSaveFields(fields) {
+        var f, fld, answer,
+            qty = fields.length,
+            _answers = [];
 
-                    angular.extend(answer, surveyParams);
+        for (f = 0; f < qty; f++) {
+            fld = fields[f];
+            if (fld.sub) {
+                saveFields(fld.sub);
+            } else if (scope.surveyData.flags.provideResponses) {
+                answer = {
+                    questionId: fld.id,
+                    langId: fld.langId,
+                    wfStepId: currentStepId,
+                    userId: currentUserId,
+                    isResponse: true,
+                    comments: fld.comments,
+                    isAgree: fld.isAgree === "true" ? true : fld.isAgree === "false" ? false : null
+                };
+                angular.extend(answer, params);
+                answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
+            } else if (fld.answer || fld.type === 'checkboxes') {
+                answer = {
+                    questionId: fld.id,
+                    langId: fld.langId,
+                    wfStepId: currentStepId,
+                    userId: currentUserId
+                };
 
-                    switch (fld.type) {
-                        case 'checkboxes':
-                            answer.optionId = [];
-                            for (var o = 0; o < fld.options.length; o++) {
-                                if (fld.options[o] && fld.options[o].checked) {
-                                    answer.optionId.push(fld.options[o].id);
-                                }
+                angular.extend(answer, surveyParams);
+
+                switch (fld.type) {
+                    case 'checkboxes':
+                        answer.optionId = [];
+                        for (var o = 0; o < fld.options.length; o++) {
+                            if (fld.options[o] && fld.options[o].checked) {
+                                answer.optionId.push(fld.options[o].id);
                             }
-                            if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
-                                answer.value = fld.otherOption.value;
+                        }
+                        if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
+                            answer.value = fld.otherOption.value;
+                        }
+                        break;
+
+                    case 'dropdown':
+                    case 'radio':
+                        answer.optionId = [];
+                        answer.value = null;
+
+                        if (fld.answer.id) {
+                            if (fld.answer.id !== -1) {
+                                answer.optionId = [fld.answer.id];
                             }
-                            break;
+                            answer.value = fld.answer.value;
+                        }
+                        break;
 
-                        case 'dropdown':
-                        case 'radio':
-                            answer.optionId = [];
-                            answer.value = null;
-
-                            if (fld.answer.id) {
-                                if (fld.answer.id !== -1) {
-                                    answer.optionId = [fld.answer.id];
-                                }
-                                answer.value = fld.answer.value;
+                    case 'bullet_points':
+                        var tmp = [];
+                        for (o = 0; o < fld.answer.length; o++) {
+                            if (fld.answer[o].data) {
+                                tmp.push(fld.answer[o].data);
                             }
-                            break;
+                        }
+                        answer.value = angular.toJson(tmp);
+                        break;
 
-                        case 'bullet_points':
-                            var tmp = [];
-                            for (o = 0; o < fld.answer.length; o++) {
-                                if (fld.answer[o].data) {
-                                    tmp.push(fld.answer[o].data);
-                                }
-                            }
-                            answer.value = angular.toJson(tmp);
-                            break;
-
-                        default:
-                            answer.optionId = [null];
-                            answer.value = fld.answer;
-                    }
-
-                    _answers.push(answer);
+                    default:
+                        answer.optionId = [null];
+                        answer.value = fld.answer;
                 }
+
+                _answers.push(answer);
             }
         }
         return _answers;
     }
-
-    if (scope.surveyForm && scope.surveyForm.$dirty) {
-        scope.lock = true;
-
-        saveFields(scope.fields);
-
-        res = $q.all(answers).then(function (resp) {
-            for (var r in resp) {
-                if (resp.hasOwnProperty(r) && scope.surveyForm[r]) {
-                    scope.surveyForm[r].$dirty = false;
-                }
-            }
-            scope.surveyForm.$dirty = isAuto;
-            scope.savedAt = new Date();
-            return true;
-        }).catch(function (err) {
-            greyscaleUtilsSrv.errorMsg(err);
-            return $q.resolve(isAuto);
-        }).finally(function () {
-            scope.lock = false;
-        });
-    }
-})
+});
