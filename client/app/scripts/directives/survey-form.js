@@ -14,6 +14,7 @@ angular.module('greyscaleApp')
 
         var surveyParams = {};
         var currentUserId, currentStepId;
+        var provideResponses = false;
 
         return {
             restrict: 'E',
@@ -141,6 +142,7 @@ angular.module('greyscaleApp')
 
             currentUserId = scope.surveyData.userId;
             currentStepId = scope.surveyData.task.stepId;
+            provideResponses = scope.surveyData.flags.provideResponses;
 
             isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
 
@@ -414,8 +416,7 @@ angular.module('greyscaleApp')
 
             if (!scope.lock) {
                 scope.lock = true;
-
-                answers = preSaveFields(scope, scope.fields);
+                answers = preSaveFields(scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
@@ -442,7 +443,7 @@ angular.module('greyscaleApp')
             return res;
         }
 
-        function preSaveFields(scope, fields) {
+        function preSaveFields(fields) {
             var f, fld, answer,
                 qty = fields.length,
                 _answers = [];
@@ -450,20 +451,8 @@ angular.module('greyscaleApp')
             for (f = 0; f < qty; f++) {
                 fld = fields[f];
                 if (fld.sub) {
-                    _answers = _answers.concat(preSaveFields(scope, fld.sub));
-                } else if (scope.surveyData.flags.provideResponses) {
-                    answer = {
-                        questionId: fld.id,
-                        langId: fld.langId,
-                        wfStepId: currentStepId,
-                        userId: currentUserId,
-                        isResponse: true,
-                        comments: fld.comments,
-                        isAgree: fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null
-                    };
-                    angular.extend(answer, surveyParams);
-                    _answers.push(answer);
-                } else if (fld.answer || fld.type === 'checkboxes') {
+                    _answers = _answers.concat(preSaveFields(fld.sub));
+                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || answer.comments) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
@@ -512,6 +501,12 @@ angular.module('greyscaleApp')
                     default:
                         answer.optionId = [null];
                         answer.value = fld.answer;
+                    }
+
+                    if (provideResponses) {
+                        answer.isResponse = true;
+                        answer.comments = fld.comments;
+                        answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
                     }
 
                     _answers.push(answer);

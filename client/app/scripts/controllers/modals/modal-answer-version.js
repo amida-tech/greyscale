@@ -2,9 +2,9 @@
 angular.module('greyscaleApp')
     .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, $stateParams, params, greyscaleSurveyAnswerApi, greyscaleUserApi, _) {
     params = params || {};
-    
+
     $scope.params = params;
-    
+
     greyscaleSurveyAnswerApi.list({ questionId: params.field.id, taskId: $stateParams.taskId }).then(function (_answers) {
         _answers = _.sortBy(_answers, 'version');
         var userIds = [];
@@ -19,7 +19,7 @@ angular.module('greyscaleApp')
             });
         } else $scope.answers = _answers;
     });
-    
+
     $scope.close = function () {
         $uibModalInstance.close($scope.model);
     };
@@ -27,7 +27,7 @@ angular.module('greyscaleApp')
         if (!optionId) return;
         for (var i = 0; i < $scope.params.field.options.length; i++) {
             if (!$scope.params.field.options[i] || optionId !== $scope.params.field.options[i].id) continue;
-            return (i + 1) + '. ' + $scope.params.field.options[i].label;
+            return $scope.params.field.options[i].label;
         }
     }
     $scope.getUserName = function (userId) {
