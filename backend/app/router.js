@@ -122,9 +122,8 @@ router.route('/:realm/v0.2/attachments/:id/ticket')
 router.route('/:realm/v0.2/attachments/:id/link/:answerId')
     .get(authenticate('token').always, surveyAnswers.linkAttach);
 
-//router.route('/:realm/v0.2/attachments/:id')
-//    .get(/*authenticate('token').always,*/ /*checkRight('rights_view_all'),*/ surveyAnswers.getAttachment)
-//    .post(surveyAnswers.getTicket);
+router.route('/:realm/v0.2/attachments/:id')
+    .delete(surveyAnswers.delAttachment);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES

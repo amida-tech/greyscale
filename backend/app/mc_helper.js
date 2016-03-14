@@ -6,48 +6,23 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query);
-    memcache = require('memcache');
-    var mcClient = new memcache.Client(
-        config.mc.port,
-        config.mc.host
-    );
 
-    var 
-    onConnect = false, 
-    onError = false, 
-    onClose = false;
 
 expObj = {
-    client: mcClient,
-    connect: function(){
-        client = this.client;
-        return new Promise(function(resolve,reject) {
-            client.on('connect', function(){
-                console.log('mc connected');
-                resolve('connect');
-            });
-
-            client.on('error', function(e){
-                reject(e);
-            });
-
-            client.connect();
-        });
-    },
-    set: function(key, value){
-        client = this.client;
-        console.log(config.mc.lifetime);
+    set: function(client, key, value){
         return new Promise(function(resolve, reject){
-            client.set(key, value, function(error, result){
-                if (error) {
-                    reject(error);
+            client.set(key, value,
+                function(error, result){
+                    if (error) {
+                        reject(error);
+                    }
+                    resolve(result);
                 }
-                resolve(result);
-            }, config.mc.lifetime);
+                ,config.mc.lifetime
+            );
         });
     },
-    get: function(key){
-        client = this.client;
+    get: function(client, key){
         return new Promise(function(resolve, reject){
             client.get(key,function(error, result){
                 if (error) {
@@ -56,23 +31,7 @@ expObj = {
                 resolve(result);
             });
         });
-    },
-    close: function(){
-        client = this.client;
-        return new Promise(function(resolve,reject) {
-            client.on('close', function(){
-                console.log('mc closed');
-                resolve('closed');
-            });
-
-            client.on('error', function(e){
-                reject(e);
-            });
-
-            client.close();
-        });
-
-    }    
+    }
 };
 
 module.exports = expObj;

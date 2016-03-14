@@ -161,15 +161,20 @@ module.exports = {
         });
     },
 
+    delAttachment: function(req, res, next){
+        co(function* (){
+            yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
+        }).then(function(){
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
+    },
+
     getAttachment: function (req, res, next) {
         co(function* (){
-            console.log(req.params);
-            console.log(req.params.ticket);
             try{
-                yield mc.connect();
-                var id = yield mc.get(req.params.tiсket);
-                console.log(id);
-                yield mc.close();
+                var id = yield mc.get(req.mcClient, req.params.ticket);
             }catch(e){
                 throw new HttpError(500, e);
             };
@@ -208,10 +213,7 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                console.log('here');
-                yield mc.connect();
-                var r = yield mc.set(ticket, attachment[0].id);
-                yield mc.close();
+                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
@@ -430,8 +432,6 @@ function *addAnswer (req, dataObject) {
     if (curStep.task.userId != req.user.id) {
         throw new HttpError(403, 'Task at this step assigned to another user');
     }
-
-
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
         if (!dataObject.optionId && !dataObject.isResponse) {
