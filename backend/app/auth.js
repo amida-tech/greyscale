@@ -48,9 +48,9 @@ passport.use(new BasicStrategy({
                 if (!user) {
                     return done(new HttpError(401, 101));
                 }
-                /*if (!User.validPassword(user.password, password)) {
+                if (!User.validPassword(user.password, password)) {
                     return done(new HttpError(401, 105));
-                }*/
+                }
                 if (!user.isActive) {
                     return done(new HttpError(401, 'You have to activate your account'));
                 }
