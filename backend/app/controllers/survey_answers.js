@@ -160,10 +160,12 @@ module.exports = {
 
     getAttachment: function (req, res, next) {
         co(function* (){
-            
+            console.log(req.params);
+            console.log(req.params.ticket);
             try{
                 yield mc.connect();
-                var id = yield mc.get(req.params.tiket);
+                var id = yield mc.get(req.params.tiсket);
+                console.log(id);
                 yield mc.close();
             }catch(e){
                 throw new HttpError(500, e);
@@ -201,19 +203,56 @@ module.exports = {
                 throw new HttpError(404, 'Attachment not found');
             }
 
-            var tiket = crypto.randomBytes(10).toString('hex');
+            var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
+                console.log('here');
                 yield mc.connect();
-                yield mc.set(tiket, attachment[0].id);
+                var r = yield mc.set(ticket, attachment[0].id);
                 yield mc.close();
-                return tiket;
+                return ticket;
             }catch(e){
                 throw new HttpError(500, e);
             };
 
         }).then(function(data){
-            res.status(201).json({tiket:data});
+            res.status(201).json({tiсket:data});
+        }, function(err){
+            next(err);
+        });
+    },
+
+    linkAttach: function (req, res, next) {
+        co(function* () {
+            var attach = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+
+            if (!attach[0]) {
+                throw new HttpError(400, 'Attachment with id = ' + req.params.id + ' does not exist');
+            }
+
+            if (attach[0].answerId) {
+                throw new HttpError(400, 'Attachment has already linked with some answer');
+            }
+
+            var answer = yield thunkQuery(
+                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.answerId))
+            );
+
+            if (!answer[0]) {
+                throw new HttpError(400, 'Answer with id = ' + req.params.answerId + ' does not exist');
+            }
+
+            return yield thunkQuery(
+                AnswerAttachment
+                .update({answerId: req.params.answerId})
+                .where(AnswerAttachment.id.equals(req.params.id))
+                .returning(AnswerAttachment.id)
+            );
+
+        }).then(function(data){
+            res.status(202).json(data);
         }, function(err){
             next(err);
         });
@@ -221,13 +260,16 @@ module.exports = {
 
     attach: function (req, res, next) {
         co(function* (){
-            var answer = yield thunkQuery(
-                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.id))
-            );
+            if (req.body.answerId) {
+                var answer = yield thunkQuery(
+                    SurveyAnswer.select().where(SurveyAnswer.id.equals(req.body.answerId))
+                );
 
-            if(!answer[0]){
-                throw new HttpError(400, 'Answer with id = ' + req.params.id + ' does not exist');
+                if(!answer[0]){
+                    throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
+                }
             }
+            
             if (req.files.file) {
                 var file = req.files.file;
 
@@ -255,11 +297,14 @@ module.exports = {
                 }
 
                 var record = {
-                    answerId: req.params.id,
                     filename: file.originalname,
                     size: file.size,
                     mimetype: file.mimetype,
                     body: filecontent
+                }
+
+                if (req.body.answerId) {
+                    record.answerId = req.body.answerId;
                 }
 
                 var inserted = yield thunkQuery(
