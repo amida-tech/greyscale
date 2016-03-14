@@ -383,7 +383,7 @@ angular.module('greyscaleApp')
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
-            var answers = {};
+            var answers = [];
             var params = {
                 surveyId: scope.surveyData.survey.id,
                 productId: scope.surveyData.task.productId,
@@ -392,8 +392,7 @@ angular.module('greyscaleApp')
                 userId: scope.surveyData.userId
             };
 
-
-            function saveFields(fields) {
+            function preSaveFields(fields) {
                 var f, fld, answer,
                     qty = fields.length;
 
@@ -447,24 +446,36 @@ angular.module('greyscaleApp')
                             answer.value = fld.answer;
                         }
 
-                        answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
+                        answers.push(answer);
                     }
 
                     if (fld.sub) {
-                        saveFields(fld.sub);
+                        preSaveFields(fld.sub);
                     }
                 }
             }
+
             if (!scope.lock) {
                 scope.lock = true;
 
-                saveFields(scope.fields);
-
-                res = $q.all(answers)
+                answers=[];
+                preSaveFields(scope.fields);
+                res = greyscaleSurveyAnswerApi.save(answers, isAuto)
+//                res = $q.all(answers)
                     .then(function (resp) {
+                        var r,
+                            canMove= true,
+                            qty = resp.length;
+
+                        $log.debug('all saved');
+                        for (r = 0; r < qty && canMove; r++) {
+                            canMove = (resp[r].status === 'Ok');
+                            $log.debug(resp[r].id, resp[r].questionId, resp[r].status, resp[r].message);
+                        }
+
                         scope.savedAt = new Date();
                         scope.lock = isReadonly;
-                        return true;
+                        return canMove;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
