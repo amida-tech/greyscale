@@ -160,6 +160,7 @@ angular.module('greyscale.core')
 
         this.logout = function () {
             return greyscaleUserApi.logout().finally(function () {
+                greyscaleTokenSrv(null);
                 _profile = null;
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);

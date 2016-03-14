@@ -77,3 +77,40 @@
 .lower-latin .survey-option:before {
     content: counter(survey-option, lower-latin) ". ";
 }
+
+
+.field-wrapped {
+    position: relative;
+}
+
+.field-wrapped .wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    opacity: 0.01;
+    background-color: white;
+    z-index: 10;
+}
+
+.field-responses {
+    padding: 5px 0 10px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.field-comment {
+    position: relative;
+    padding: 5px 0 10px;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.field-comment .field-comment-radio {
+    position: absolute;
+    left: 200px;
+    top: 25px;
+}
