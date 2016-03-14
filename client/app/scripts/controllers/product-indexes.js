@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
         };
 
         _initIndexesTables();
-        _loadData().then(function() {
+        _loadData().then(function () {
             $scope.model.indexesTable.tableParams.reload();
             $scope.model.subindexesTable.tableParams.reload();
         });
@@ -35,13 +35,17 @@ angular.module('greyscaleApp')
                     dataFormat: 'action',
                     actions: [{
                         icon: 'fa-pencil',
-                        handler: function (row) { _editIndex(row, type); }
+                        handler: function (row) {
+                            _editIndex(row, type);
+                        }
                     }, {
                         icon: 'fa-trash',
-                        handler: function (row) { _removeIndex(row, type); }
+                        handler: function (row) {
+                            _removeIndex(row, type);
+                        }
                     }]
                 }],
-                dataPromise: function() {
+                dataPromise: function () {
                     var deferred = $q.defer();
                     if (type === 'index') {
                         deferred.resolve($scope.model.indexes);
@@ -51,7 +55,9 @@ angular.module('greyscaleApp')
                     return deferred.promise;
                 },
                 add: {
-                    handler: function() { _editIndex({}, type); }
+                    handler: function () {
+                        _editIndex({}, type);
+                    }
                 }
             };
         }
@@ -73,7 +79,9 @@ angular.module('greyscaleApp')
                             break;
                         }
                     }
-                    if (!updated) { collection.push(index); }
+                    if (!updated) {
+                        collection.push(index);
+                    }
 
                     if (type === 'index') {
                         $scope.model.indexesTable.tableParams.reload();
@@ -110,7 +118,7 @@ angular.module('greyscaleApp')
         function _loadData() {
             return _loadProduct(productId)
                 .then(_loadProductIndexes)
-                .then(function(data) {
+                .then(function (data) {
                     $scope.model.product = data.product;
                     $scope.model.indexes = data.indexes;
                     $scope.model.subindexes = data.subindexes;

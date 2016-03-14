@@ -14,7 +14,9 @@ angular.module('greyscale.rest')
         }
 
         function _getList(params) {
-            return api().getList('', {query: params});
+            return api().getList('', {
+                query: params
+            });
         }
 
         function _add(product) {
@@ -46,31 +48,31 @@ angular.module('greyscale.rest')
         }
 
         function _indexes(productId) {
-            return function() {
+            return function () {
                 return api().one(productId + '').one('aggregate').get();
             };
         }
 
         function _indexesList(productId) {
-            return function() {
+            return function () {
                 return _productIndexesApi(productId).get();
             };
         }
 
         function _subindexesList(productId) {
-            return function() {
+            return function () {
                 return _productSubindexesApi(productId).get();
             };
         }
 
         function _indexesListUpdate(productId) {
-            return function(indexes) {
+            return function (indexes) {
                 return _productIndexesApi(productId).customPUT(indexes);
             };
         }
 
         function _subindexesListUpdate(productId) {
-            return function(indexes) {
+            return function (indexes) {
                 return _productSubindexesApi(productId).customPUT(indexes);
             };
         }

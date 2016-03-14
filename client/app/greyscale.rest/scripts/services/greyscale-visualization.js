@@ -8,31 +8,31 @@ angular.module('greyscale.rest')
         }
 
         function _list(organizationId) {
-            return function(params) {
+            return function (params) {
                 return api(organizationId).get(params);
             };
         }
 
         function _get(organizationId) {
-            return function(visualizationId) {
+            return function (visualizationId) {
                 return api(organizationId).one(visualizationId + '').get();
             };
         }
 
         function _add(organizationId) {
-            return function(visualization) {
+            return function (visualization) {
                 return api(organizationId).customPOST(visualization);
             };
         }
 
         function _update(organizationId) {
-            return function(visualizationId, visualization) {
+            return function (visualizationId, visualization) {
                 return api(organizationId).one(visualizationId + '').customPUT(visualization);
             };
         }
 
         function _del(organizationId) {
-            return function(visualizationId) {
+            return function (visualizationId) {
                 return api(organizationId).one(visualizationId + '').remove();
             };
         }

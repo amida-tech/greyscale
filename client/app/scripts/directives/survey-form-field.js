@@ -5,48 +5,47 @@
 angular.module('greyscaleApp')
     .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log) {
 
-    return {
-        restrict: 'AE',
-        scope: {
-            field: '=surveyFormField'
-        },
-        template: '',
-        link: function (scope, elem) {
-            scope.showVersion = function (field) {
-                greyscaleModalsSrv.showVersion({
-                    field: field
-                    }).then(function (model) {
-                    });
-            };
+        return {
+            restrict: 'AE',
+            scope: {
+                field: '=surveyFormField'
+            },
+            template: '',
+            link: function (scope, elem) {
+                scope.showVersion = function (field) {
+                    greyscaleModalsSrv.showVersion({
+                        field: field
+                    }).then(function (model) {});
+                };
 
-            if (scope.field) {
-                var body = '';
-                if (scope.field.sub) {
-                    scope.sectionOpen = false;
-                    scope.model = scope.field.sub;
+                if (scope.field) {
+                    var body = '';
+                    if (scope.field.sub) {
+                        scope.sectionOpen = false;
+                        scope.model = scope.field.sub;
 
-                    body = '<uib-accordion><uib-accordion-group is-open="sectionOpen"><uib-accordion-heading>' +
+                        body = '<uib-accordion><uib-accordion-group is-open="sectionOpen"><uib-accordion-heading>' +
                             '<span class="' + (scope.field.required ? 'required' : '') + '">{{field.label}}</span>' +
                             '<i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
                             '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading><div class="form-group" ' +
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
-                } else {
-                    var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
+                    } else {
+                        var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
-                    if (!scope.field.flags.blindReview && !scope.field.flags.provideResponses) {
-                        label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
-                    }
+                        if (!scope.field.flags.blindReview && !scope.field.flags.provideResponses) {
+                            label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
+                        }
 
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
                         var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly" ';
 
-                    var borders = getBorders(scope.field);
-                    var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
-                    var links = '';
-                    var attach = '';
+                        var borders = getBorders(scope.field);
+                        var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
+                        var links = '';
+                        var attach = '';
 
-                    switch (scope.field.type) {
+                        switch (scope.field.type) {
                         case 'paragraph':
                         case 'text':
                             if (scope.field.type === 'text') {
@@ -180,32 +179,32 @@ angular.module('greyscaleApp')
                         default:
                             $log.debug('not rendered', scope.field);
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
-                    }
+                        }
 
-                    if (scope.field.links) {
-                        links = '<div><p translate="SURVEYS.LINKS"></p></div>';
-                    }
+                        if (scope.field.links) {
+                            links = '<div><p translate="SURVEYS.LINKS"></p></div>';
+                        }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
                             attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
-                    }
-                    body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                        }
+                        body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
-                }
+                    }
 
-                if (scope.field.flags.seeOthersResponses) {
-                    //TODO here is pervious responses
-                    body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
+                    if (scope.field.flags.seeOthersResponses) {
+                        //TODO here is pervious responses
+                        body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                             '<div translate="SURVEYS.RESPONSES"></div>' +
                             '<div ng-repeat="resp in field.responses">' +
                             '<div ng-class="{ \'accepted\': field.isAgree === true, \'rejected\': field.isAgree === false }">{{resp.comments}}</div>' +
                             '</div>' +
                             '</div>';
-                }
+                    }
 
-                if (scope.field.flags.provideResponses) {
-                    body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
-                    body += '<div class="field-comment">' +
+                    if (scope.field.flags.provideResponses) {
+                        body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
+                        body += '<div class="field-comment">' +
                             '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
                             '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
                             '<div class="field-comment-radio">' +
@@ -218,39 +217,39 @@ angular.module('greyscaleApp')
                             '</div>' +
                             '</div>';
 
+                    }
+                    elem.append(body);
+
+                    $compile(elem.contents())(scope);
                 }
-                elem.append(body);
-
-                $compile(elem.contents())(scope);
             }
-        }
-    };
+        };
 
-    function getBorders(field) {
-        var borders = [];
-        var suffix = '';
-        var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
-        var numericTypes = ['number', 'scale'];
+        function getBorders(field) {
+            var borders = [];
+            var suffix = '';
+            var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
+            var numericTypes = ['number', 'scale'];
 
-        if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
-            field.maxLength = null;
-        }
-        field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
-
-        if (supportedTypes.indexOf(field.type) !== -1) {
-            if (numericTypes.indexOf(field.type) === -1) {
-                suffix = ' ' + field.lengthMeasure;
+            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
+                field.maxLength = null;
             }
-            if (field.minLength !== null && field.minLength >= 0) {
-                borders.push('<span ng-class="{error: field.ngModel.$error.min}">' + i18n.translate('SURVEYS.MIN') +
+            field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));
+
+            if (supportedTypes.indexOf(field.type) !== -1) {
+                if (numericTypes.indexOf(field.type) === -1) {
+                    suffix = ' ' + field.lengthMeasure;
+                }
+                if (field.minLength !== null && field.minLength >= 0) {
+                    borders.push('<span ng-class="{error: field.ngModel.$error.min}">' + i18n.translate('SURVEYS.MIN') +
                         ': ' + field.minLength + suffix + '</span>');
-            }
-            if (field.maxLength !== null && field.maxLength >= 0) {
-                borders.push('<span ng-class="{error: field.ngModel.$error.max}">' + i18n.translate('SURVEYS.MAX') +
+                }
+                if (field.maxLength !== null && field.maxLength >= 0) {
+                    borders.push('<span ng-class="{error: field.ngModel.$error.max}">' + i18n.translate('SURVEYS.MAX') +
                         ': ' + field.maxLength + suffix + '</span>');
+                }
             }
-        }
 
-        return borders.join(', ');
-    }
-});
+            return borders.join(', ');
+        }
+    });

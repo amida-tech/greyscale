@@ -3,12 +3,11 @@
 angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http, $scope, $q, Organization, greyscaleVisualizationApi, greyscaleModalsSrv) {
     var tns = 'VISUALIZATIONS.';
 
-    $scope.model = {
-    };
+    $scope.model = {};
 
     _initTable();
-    Organization.$watch($scope, function() {
-        _loadData().then(function() {
+    Organization.$watch($scope, function () {
+        _loadData().then(function () {
             $scope.model.visualizationsTable.tableParams.reload();
         });
     });
@@ -31,12 +30,14 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
                     handler: _removeVisualization
                 }]
             }],
-            dataPromise: function() {
+            dataPromise: function () {
                 var deferred = $q.defer();
                 deferred.resolve($scope.model.visualizations);
                 return deferred.promise;
             },
-            add: { handler: _editVisualization }
+            add: {
+                handler: _editVisualization
+            }
         };
     }
 
@@ -71,7 +72,9 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
                         break;
                     }
                 }
-                if (!updated) { $scope.model.visualizations.push(visualization); }
+                if (!updated) {
+                    $scope.model.visualizations.push(visualization);
+                }
                 $scope.model.visualizationsTable.tableParams.reload();
             });
     }

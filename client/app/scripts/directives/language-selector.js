@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
                 greyscaleLanguageApi.list()
                     .then(function (langs) {
                         var languages = [];
-                        angular.forEach(langs, function(lang){
+                        angular.forEach(langs, function (lang) {
                             if (~supportedLocales.indexOf(lang.code)) {
                                 languages.push({
                                     locale: lang.code,

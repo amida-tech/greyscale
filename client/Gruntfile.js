@@ -562,6 +562,7 @@ module.exports = function (grunt) {
                 dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js',
                 serializerOptions: {
                     indent: '\t',
+                    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                     no_trailing_comma: true
                 }
             },
