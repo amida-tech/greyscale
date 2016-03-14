@@ -139,7 +139,7 @@ angular.module('greyscaleApp')
         currentUserId = scope.surveyData.userId;
         currentStepId = scope.surveyData.task.stepId;
 
-        isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers;
+        isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
 
         for (q = 0; q < qQty; q++) {
             field = survey.questions[q];
@@ -406,7 +406,7 @@ angular.module('greyscaleApp')
         if (!scope.lock) {
             scope.lock = true;
 
-            answers = preSaveFields(scope.fields);
+            answers = preSaveFields(scope);
 
             res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
@@ -433,7 +433,8 @@ angular.module('greyscaleApp')
         return res;
     }
 
-    function preSaveFields(fields) {
+    function preSaveFields(scope) {
+        var fields = scope.fields;
         var f, fld, answer,
             qty = fields.length,
             _answers = [];
@@ -452,8 +453,8 @@ angular.module('greyscaleApp')
                     comments: fld.comments,
                     isAgree: fld.isAgree === "true" ? true : fld.isAgree === "false" ? false : null
                 };
-                angular.extend(answer, params);
-                answers[fld.cid] = greyscaleSurveyAnswerApi.save(answer, isAuto);
+                angular.extend(answer, surveyParams);
+                _answers.push(answer);
             } else if (fld.answer || fld.type === 'checkboxes') {
                 answer = {
                     questionId: fld.id,
