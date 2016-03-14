@@ -179,11 +179,13 @@
         "HELP": "Help",
         "HOME": "Dashboard",
         "IMPORT": "Import",
+        "INDEX-VISUALIZATION": "Indexes",
         "LOGIN": "Login",
         "LOGOUT": "Logout",
         "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
+        "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
         "PROFILE": "Profile",
         "PROJECTS": {
@@ -211,6 +213,7 @@
             "UOA": "Targets"
         },
         "VISUALIZATION": "Visualization",
+        "VISUALIZATIONS": "Visualizations",
         "WORKFLOW_STEPS": "Workflow Steps"
     },
     "NOTIFICATIONS": {
@@ -260,10 +263,39 @@
         "PROJECT": "Project"
     },
     "PRODUCTS": {
+        "INDEXES": {
+            "FORM": {
+                "AVG_DIVISORS": "average",
+                "DIVISOR": "Divisor",
+                "MODAL_TITLE": "Edit Index {{index.title}}",
+                "MODAL_TITLE_CREATE": "Create Index",
+                "SUGGESTED_DIVISORS": "Suggested divisors",
+                "SUM_DIVISORS": "sum",
+                "TITLE": "Title",
+                "WEIGHTS": {
+                    "FIELD": "Field",
+                    "QUESTION": "Question",
+                    "TYPE": "Type",
+                    "WEIGHT": "Weight"
+                },
+                "WEIGHTS_LABEL": "Weights"
+            },
+            "INDEXES_TABLE": {
+                "DIVISOR": "Divisor",
+                "TABLE_TITLE": "Indexes",
+                "TITLE": "Title"
+            },
+            "SUBINDEXES_TABLE": {
+                "DIVISOR": "Divisor",
+                "TABLE_TITLE": "Subindexes",
+                "TITLE": "Title"
+            }
+        },
         "TABLE": {
             "CREATE_WORKFLOW": "Create Workflow",
             "DELETE_CONFIRM": "Please confirm deleting of project <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
+            "INDEXES": "Indexes",
             "PAUSE_PRODUCT": "Suspend Project",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Targets, Workflow Steps and Tasks for this Project.",
             "PRODUCT": "Project",
@@ -456,8 +488,10 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
-        "PRINT_QUESTIONS": "Print Questions Only",
-        "PRINT_SURVEY": "Print Survey",
+        "PRINT_ALL": "Print with answers",
+        "PRINT_BLANK": "Print blank",
+        "PRINT_QUESTIONS": "Print questions only",
+        "PRINT_SURVEY": "Print survey",
         "QUESTION": "Q",
         "RESPONSES": "Responses",
         "REVIEVER_COMMENT": "Response",
@@ -567,6 +601,12 @@
         "USERS_IN_GROUPS": "Users In Groups",
         "USER_GROUP": "User Group",
         "USER_GROUPS": "User Groups"
+    },
+    "VISUALIZATIONS": {
+        "MODAL_TITLE": "Edit Visualization {{visualization.title}}",
+        "MODAL_TITLE_CREATE": "Create Visualization",
+        "TITLE": "Title",
+        "VISUALIZATIONS": "Visualizations"
     },
     "WORKFLOW_STEPS": {
         "DESCRIPTION": "Description",

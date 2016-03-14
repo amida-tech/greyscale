@@ -99,6 +99,10 @@ angular.module('greyscale.tables')
                 title: tns + 'TASKS',
                 class: 'info',
                 handler: _editProductTasks
+            }, {
+                title: tns + 'INDEXES',
+                class: 'info',
+                handler: _editProductIndexes
             }]
         }, {
             show: true,
@@ -217,6 +221,13 @@ angular.module('greyscale.tables')
 
         function _editProductTasks(product) {
             $state.go('projects.setup.tasks', {
+                productId: product.id,
+                product: product
+            });
+        }
+
+        function _editProductIndexes(product) {
+            $state.go('projects.setup.indexes', {
                 productId: product.id,
                 product: product
             });

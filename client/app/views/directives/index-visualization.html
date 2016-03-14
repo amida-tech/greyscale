@@ -1,0 +1,77 @@
+<ng-form id="filterForm" name="filterForm" class="form">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="productDropdown" class="control-label col-sm-4"> Product </label>
+        <div class="col-sm-8">
+          <select class="form-control" id="productDropdown" ng-model="filterForm.productSelected" ng-options="product as product.title for product in products track by product.id">
+            <option value="">Select Product</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="topicDropdown" class="control-label col-sm-4"> Target </label>
+        <div class="col-sm-8">
+          <div isteven-multi-select
+             input-model="topics"
+             output-model="filterForm.topicSelected"
+             max-labels="0"
+             max-height="300px"
+             item-label="name"
+             tick-property="selected"
+             class="topicSelectedState"></div>
+          <input type="text" ng-model="filterForm.topicSelected" style="display:none"/>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="indexDropdown" class="control-label col-sm-4"> Index </label>
+        <div class="col-sm-8">
+          <select class="form-control" ng-model="filterForm.indexSelected" ng-options="index as index.title for index in indexes" id="indexDropdown" placeholder="Index...">
+            <option value="">Select Index</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="form-group">
+        <label for="visualizationTypeRadio" class="control-label col-sm-4"> Visualization </label>
+        <div class="col-sm-8">
+          <select class="form-control" id="visualizationTypeRadio" ng-model="filterForm.visualizationType">
+            <option value="map">Choropleth Map</option>
+            <option value="graph">Ranked Bar Graph</option>
+            <option value="comparative">Comparative Graph</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-sm-6 controls">
+      <button type="submit" class="btn btn-success" ng-click="drawVisualization()">Visualize</button>
+      <button type="submit" class="btn btn-default" ng-click="resetFilters()">Clear</button>
+      <button type="submit" class="btn btn-success" ng-show="savedVisualization" ng-click="saveVisualization()">Save</button>
+    </div>
+
+    <div class="col-sm-6">
+      <div class="form-group" ng-show="filterForm.visualizationType == 'comparative'">
+        <label for="comparativeTopic" class="control-label col-sm-4"> Compare to </label>
+        <div class="col-sm-8">
+          <select class="form-control" id="comparativeTopic" ng-model="filterForm.comparativeTopic" ng-options="topic.name for topic in filterForm.topicSelected track by topic.id">
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-form>
+<div id="viz"></div>
