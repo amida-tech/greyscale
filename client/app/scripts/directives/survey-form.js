@@ -440,7 +440,7 @@ angular.module('greyscaleApp')
                     };
 
                     angular.extend(answer, surveyParams);
-                    
+
                     switch (fld.type) {
                     case 'checkboxes':
                         answer.optionId = [];
