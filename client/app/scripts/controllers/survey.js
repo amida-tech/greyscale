@@ -5,7 +5,7 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, $log) {
+        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, $log, $location) {
 
         $scope.loading = true;
 
@@ -36,7 +36,7 @@ angular.module('greyscaleApp')
         if ($stateParams.taskId) {
             reqs.task = greyscaleTaskApi.get($stateParams.taskId);
         }
-
+        $location.href('google.com');
         $q.all(reqs)
             .then(function (resp) {
                 data = {
