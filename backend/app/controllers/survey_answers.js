@@ -431,8 +431,10 @@ function *addAnswer (req, dataObject) {
         throw new HttpError(403, 'Task at this step assigned to another user');
     }
 
+
+
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
-        if (!dataObject.optionId) {
+        if (!dataObject.optionId && !dataObject.isResponse) {
             throw new HttpError(403, 'You should provide optionId for this type of question');
         } else {
             for (optIndex in dataObject.optionId) {
@@ -451,7 +453,7 @@ function *addAnswer (req, dataObject) {
             }
         }
     } else {
-        if (!dataObject.value) {
+        if (!dataObject.value && !dataObject.isResponse) {
             throw new HttpError(403, 'You should provide value for this type of question');
         }
     }
@@ -567,26 +569,26 @@ function *moveWorkflow (req, productId, UOAid) {
             )
     );
 
-    var _numberOfQuestions = yield thunkQuery(
-        'SELECT COUNT(*) ' +
-        'FROM "SurveyQuestions" ' +
-        'WHERE "surveyId" = ' + curStep.survey.id
-    );
+    //var _numberOfQuestions = yield thunkQuery(
+    //    'SELECT COUNT(*) ' +
+    //    'FROM "SurveyQuestions" ' +
+    //    'WHERE "surveyId" = ' + curStep.survey.id
+    //);
+    //
+    //var _numberOfVersioned = yield thunkQuery(
+    //    'SELECT COUNT(v."questionId") ' +
+    //    'FROM (' +
+    //        'SELECT "questionId", MAX("version") AS maxVersion ' +
+    //        'FROM "SurveyAnswers" ' +
+    //        'WHERE "UOAid" = ' + UOAid + ' ' +
+    //        'AND "wfStepId" = ' + curStep.id + ' ' +
+    //        'AND "productId" = ' + productId + ' ' +
+    //        'AND "version" IS NOT NULL ' +
+    //        'GROUP BY "questionId"' +
+    //    ') AS v ' +
+    //    'GROUP BY v.maxVersion');
 
-    var _numberOfVersioned = yield thunkQuery(
-        'SELECT COUNT(v."questionId") ' +
-        'FROM (' +
-            'SELECT "questionId", MAX("version") AS maxVersion ' +
-            'FROM "SurveyAnswers" ' +
-            'WHERE "UOAid" = ' + UOAid + ' ' +
-            'AND "wfStepId" = ' + curStep.id + ' ' +
-            'AND "productId" = ' + productId + ' ' +
-            'AND "version" IS NOT NULL ' +
-            'GROUP BY "questionId"' +
-        ') AS v ' +
-        'GROUP BY v.maxVersion');
-
-    if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+    //if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
         if(nextStep[0]){ // next step exists, set it to current
             yield thunkQuery(
                 ProductUOA
@@ -617,12 +619,12 @@ function *moveWorkflow (req, productId, UOAid) {
             }
         }
         console.log(nextStep);
-    } else {
-        throw new HttpError(
-            403,
-            'Some questions don\'t have answers ' +
-            '(questions = '+_numberOfQuestions[0].count+'' +
-            ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
-            ', cannot move to another step');
-    }
+    //} else {
+    //    throw new HttpError(
+    //        403,
+    //        'Some questions don\'t have answers ' +
+    //        '(questions = '+_numberOfQuestions[0].count+'' +
+    //        ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
+    //        ', cannot move to another step');
+    //}
 }
