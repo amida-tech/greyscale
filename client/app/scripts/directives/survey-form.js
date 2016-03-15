@@ -288,6 +288,8 @@ angular.module('greyscaleApp')
                     var v, answer, fldName, response, qId;
                     recentAnswers = {};
                     responses = {};
+                    surveyAnswers = {};
+                    
                     for (v = 0; v < _answers.length; v++) {
                         qId = fldNamePrefix + _answers[v].questionId;
 
