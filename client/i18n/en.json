@@ -491,6 +491,7 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "NO_DATA": "No data",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
         "PRINT_QUESTIONS": "Print questions only",

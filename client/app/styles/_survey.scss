@@ -100,7 +100,6 @@
 
 .field-responses {
     padding: 5px 0 10px;
-    border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
     margin-bottom: 20px;
 }
@@ -133,22 +132,25 @@
 .field-response {
     padding: 5px 0;
     border-top: 1px solid #ccc;
-    border-bottom: 1px solid #ccc;
 }
 
 .field-response .fa {
     font-size: 20px;
+    margin-right: 5px;
+}
+
+.field-response .field-response-text {
     margin-right: 10px;
 }
 
-.field-response .fa-times {
+.field-response .fa-times, .field-response-text {
     color: #ccc;
 }
 
-.field-response .fa-ban {
+.field-response .fa-ban, .field-response-text.no {
     color: $red;
 }
 
-.field-response .fa-check {
+.field-response .fa-check, .field-response-text.yes {
     color: $green;
 }

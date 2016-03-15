@@ -193,13 +193,13 @@ angular.module('greyscaleApp')
                     }
 
                     if (scope.field.flags.seeOthersResponses || scope.field.flags.allowEdit) {
-                        //TODO here is pervious responses
                         body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                             '<div translate="SURVEYS.RESPONSES"></div>' +
                             '<div ng-repeat="resp in field.responses">' +
                             '<div class="field-response">' +
                             '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree === true, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null }"></i>' +
-                            '<span>{{resp.comments}}</span>' +
+                            '<span class="field-response-text" ng-class="{ \'yes\': resp.isAgree === true, \'no\': resp.isAgree === false }">{{(resp.isAgree === true ? "SURVEYS.AGREE" : resp.isAgree === false ? "SURVEYS.DISAGREE" : "SURVEYS.NO_DATA")|translate}}</span>' +
+                            '<span class="field-response-comment">{{resp.comments}}</span>' +
                             '</div>' +
                             '</div>' +
                             '</div>';
