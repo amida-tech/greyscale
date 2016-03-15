@@ -108,7 +108,8 @@ router.route('/:realm/v0.2/survey_answers')
 
 router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
-    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
+    .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
 router.route('/:realm/v0.2/attachments')
     .post(authenticate('token').always, surveyAnswers.attach);
