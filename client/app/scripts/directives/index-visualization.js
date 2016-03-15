@@ -14,8 +14,8 @@ angular.module('greyscaleApp')
                 scope.visualizationTitle = null;
                 scope.topics = [];
 
-                Organization.$watch(scope, function() {
-                    _loadProducts().then(function() {
+                Organization.$watch(scope, function () {
+                    _loadProducts().then(function () {
                         if ($stateParams.visualizationId) {
                             scope.savedVisualization = true;
                             _loadVisualization($stateParams.visualizationId);
