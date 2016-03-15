@@ -9,7 +9,10 @@
             </div>
             <div gs-edit-version="">
                 {{(field.type === "radio" || field.type === "checkboxes") && answer.value ? "Other:" : ""}}
-                {{answer.value}}
+                <span ng-if="field.type !== 'bullet_points'">answer.value</span>
+                <ul ng-if="field.type === 'bullet_points'">
+                    <li ng-repeat="val in answer.value">{{val}}</li>
+                </ul>
             </div>
         </uib-accordion-group>
     </uib-accordion>
