@@ -5,10 +5,10 @@
             <div class="row header">
                 <div class="user pull-right">
                     <div organization-selector></div>
-                    <div class="item dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i></a>
+                    <div class="item dropdown user-menu">
+                        <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i></a> <span class="username">{{model.user.firstName}} {{model.user.lastName}}&nbsp;&ndash;&nbsp;</span>
                         <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="dropdown-header">{{model.user.firstName}} {{model.user.lastName}}</li>
+                            <li class="dropdown-header">{{model.user.firstName}} {{model.user.lastName}} ({{model.user.roleName}})</li>
                             <li class="divider"></li>
 
                             <li class="link">

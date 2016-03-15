@@ -48,6 +48,9 @@
     },
     "DASHBOARD": {
         "PROJECTS": "Projects",
+        "ROLE_ADMIN": "Admin",
+        "ROLE_SUPERADMIN": "Super User",
+        "ROLE_USER": "User",
         "TASKS": "Tasks",
         "UNREAD_MESSAGES_ALERT": "You have {{count}} unread messages"
     },

@@ -3,7 +3,9 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('DashboardCtrl', function ($scope, $rootScope, $state, greyscaleSideMenu, greyscaleProfileSrv) {
+    .controller('DashboardCtrl', function ($scope, $rootScope, $state, greyscaleSideMenu, greyscaleProfileSrv, greyscaleGlobals, i18n) {
+
+        var _level;
 
         $scope.model = {
             menu: {
@@ -18,7 +20,7 @@ angular.module('greyscaleApp')
             toggle: false
         };
         greyscaleProfileSrv.getProfile().then(function (profile) {
-            var _level = greyscaleProfileSrv.getAccessLevelMask();
+            _level = greyscaleProfileSrv.getAccessLevelMask();
             var _groups = [];
 
             $scope.model.user = profile;
@@ -44,8 +46,24 @@ angular.module('greyscaleApp')
                 }
             }
             $scope.model.menu.groups = _groups;
+
+            var roleName = 'ROLE_USER';
+            if (_isAdmin()) {
+                roleName = 'ROLE_ADMIN';
+            } else if (_isSuperAdmin()) {
+                roleName = 'ROLE_SUPERADMIN';
+            }
+            $scope.model.user.roleName = i18n.translate('DASHBOARD.' + roleName);
         });
         $scope.logout = function () {
             $rootScope.$emit('logout');
         };
+
+        function _isSuperAdmin() {
+            return (_level & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
+        }
+
+        function _isAdmin() {
+            return (_level & greyscaleGlobals.userRoles.admin.mask) === greyscaleGlobals.userRoles.admin.mask;
+        }
     });
