@@ -3,6 +3,7 @@ var _ = require('underscore'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Project = require('app/models/projects'),
+    Product = require('app/models/products'),
     crypto = require('crypto'),
     vl = require('validator'),
     HttpError = require('app/error').HttpError,
@@ -29,6 +30,23 @@ module.exports = {
             } else {
                 next(new HttpError(404, 'Not found'));
             }
+        });
+    },
+
+    selectProducts: function (req, res, next) {
+        co(function* () {
+            return yield thunkQuery(
+                Product
+                .select(
+                    Product.star()
+                )
+                .from(Product.join(Project).on(Product.projectId.equals(Project.id)))
+                .where(Project.organizationId.equals(req.params.id))
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
         });
     },
 

@@ -11,7 +11,8 @@ angular.module('greyscale.rest')
             get: _get,
             add: _add,
             update: _update,
-            delete: _delete
+            delete: _delete,
+            products: _products
         };
 
         function api() {
@@ -36,5 +37,9 @@ angular.module('greyscale.rest')
 
         function _delete(id) {
             return api().one(id + '').remove();
+        }
+
+        function _products(id) {
+            return api().one(id + '').one('products').get()
         }
     });
