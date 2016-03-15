@@ -7,7 +7,7 @@
             <div ng-repeat="optionId in answer.optionId">
                 {{getOptionLabel(optionId)}}
             </div>
-            <div>
+            <div gs-edit-version="">
                 {{(params.field.type === "radio" || params.field.type === "checkboxes") && answer.value ? "Other:" : ""}}
                 {{answer.value}}
             </div>
