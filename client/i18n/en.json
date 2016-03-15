@@ -349,7 +349,7 @@
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
                 "ALLOW_TRANSLATE": "Translate",
-                "ANSWERS_ACCESS": "Survey access",
+                "ANSWERS_ACCESS": "Survey Access",
                 "BLIND_REVIEW": "Blind Review",
                 "DISCUSSION_PARTICIPATION": "Discussion Participation",
                 "END_DATE": "End Date",
@@ -508,7 +508,7 @@
     },
     "TABLES": {
         "LOADING_DATA": "Loading Data...",
-        "NO_DATA": "No data",
+        "NO_DATA": "No Data",
         "SELECT_ALL_TITLE": "Check/Uncheck All"
     },
     "TRANSLATION": {
