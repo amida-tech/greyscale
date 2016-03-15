@@ -20,10 +20,12 @@
     .panel-title {
         font-size: $font-size-base;
     }
+
     .panel-body {
         padding-top: 5px;
         padding-bottom: 5px;
     }
+
     .row > div.file-attach {
         margin-bottom: 3px;
         padding-right: $grid-gutter-width;
@@ -31,10 +33,12 @@
 
     .file-attach {
         font-size: $font-size-sub;
+
         .file-link {
             i {
                 margin-right: 3px;
             }
+
             white-space: nowrap;
             text-overflow: ellipsis;
             overflow: hidden;
@@ -110,7 +114,18 @@
 }
 
 .field-comment .field-comment-radio {
-    position: absolute;
-    left: 200px;
-    top: 25px;
+    float: left;
+}
+
+.field-comment textarea {
+    float: left;
+    margin-right: 10px;
+    height: 71px;
+}
+
+.field-comment::after {
+    content: " ";
+    float: none;
+    clear: both;
+    display: block;
 }
