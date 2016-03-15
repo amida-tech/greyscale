@@ -27,7 +27,9 @@ angular.module('greyscaleApp')
                 scope.$watch('surveyData', updateForm);
 
                 scope.saveDraft = function () {
-                    saveAnswers(scope, true);
+                    if (!isReadonly) {
+                        saveAnswers(scope, true);
+                    }
                 };
 
                 scope.save = function () {
@@ -88,7 +90,8 @@ angular.module('greyscaleApp')
 
                 $scope.model = {
                     contentOpen: false,
-                    lang: null
+                    lang: null,
+                    formLocked: true
                 };
 
                 $scope.goField = function (elemId) {
@@ -118,7 +121,7 @@ angular.module('greyscaleApp')
             scope.fields = [];
             scope.content = [];
             scope.recentSaved = null;
-            scope.lock = true;
+            scope.model.formLocked = true;
 
             var content = [];
             var fields = [];
@@ -128,6 +131,7 @@ angular.module('greyscaleApp')
             }];
 
             var survey = scope.surveyData.survey;
+            var task = scope.surveyData.task;
 
             var o, item, fld, fldId, q, field, type,
                 r = 0,
@@ -135,16 +139,18 @@ angular.module('greyscaleApp')
                 qQty = survey.questions.length;
 
             surveyParams = {
-                surveyId: scope.surveyData.survey.id,
-                productId: scope.surveyData.task.productId,
-                UOAid: scope.surveyData.task.uoaId
+                surveyId: survey.id,
+                productId: task.productId,
+                UOAid: task.uoaId
             };
 
             currentUserId = scope.surveyData.userId;
-            currentStepId = scope.surveyData.task.stepId;
+            currentStepId = task.stepId;
             provideResponses = scope.surveyData.flags.provideResponses;
 
-            isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
+            isReadonly = (!task || task.status !== 'current') || !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
+
+            $log.debug(isReadonly);
 
             for (q = 0; q < qQty; q++) {
                 field = survey.questions[q];
@@ -265,14 +271,14 @@ angular.module('greyscaleApp')
 
             scope.fields = fields;
             scope.content = content;
-            scope.lock = isReadonly;
+            scope.model.formLocked = isReadonly;
         }
 
         function loadAnswers(scope) {
             var answers = {};
             var responses = {};
 
-            scope.lock = true;
+            scope.model.formLocked = true;
             greyscaleSurveyAnswerApi.list(surveyParams)
                 .then(function (_answers) {
                     var v, answer, fldName, response;
@@ -307,7 +313,7 @@ angular.module('greyscaleApp')
 
                 })
                 .finally(function () {
-                    scope.lock = isReadonly;
+                    scope.model.formLocked = isReadonly;
                 });
         }
 
@@ -413,8 +419,8 @@ angular.module('greyscaleApp')
             var res = $q.resolve(isAuto);
             var answers = [];
 
-            if (!scope.lock) {
-                scope.lock = true;
+            if (!scope.model.formLocked) {
+                scope.model.formLocked = true;
                 answers = preSaveFields(scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
@@ -430,12 +436,12 @@ angular.module('greyscaleApp')
                         $log.debug('nextStep', canMove);
                         canMove = false;
                         scope.savedAt = new Date();
-                        scope.lock = isReadonly;
+                        scope.model.formLocked = isReadonly;
                         return canMove;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
-                        scope.lock = isReadonly;
+                        scope.model.formLocked = isReadonly;
                         return isAuto;
                     });
             }
