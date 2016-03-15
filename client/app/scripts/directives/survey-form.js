@@ -592,6 +592,7 @@ angular.module('greyscaleApp')
             printable.find('.survey-form-field-input').each(function () {
                 var field = $(this);
                 var type = field.attr('survey-form-field-type');
+                var replace;
                 switch (type) {
                 case 'text':
                 case 'paragraph':
@@ -601,38 +602,58 @@ angular.module('greyscaleApp')
 
                 case 'bullet_points':
                     var bullets = field.find('bullet-item');
-                    var list = [];
+                    replace = [];
                     bullets.each(function (i, bullet) {
                         var val = $(bullet).find('input').val();
                         if (val !== '') {
-                            list.push('<div class="bullet-point"><i class="fa fa-caret-right"></i> ' + val + '</div>');
+                            replace.push('<div class="bullet-point"><i class="fa fa-caret-right"></i> ' + val + '</div>');
                         }
                     });
-                    field.replaceWith('<p>' + list.join('') + '</p>');
+                    field.replaceWith('<p>' + replace.join('') + '</p>');
                     break;
 
                 case 'radio':
                     var radios = field.find('[type="radio"]');
+                    var addon = field.next().hasClass('input-group') ? field.next().find('[type="radio"]') : [];
+                    if (addon.length) {
+                        radios = radios.add(addon);
+                    }
+                    replace = '';
                     radios.each(function (i, radio) {
                         if (radio.checked) {
                             radio = $(radio);
+                            var labelValue = '';
                             var label = radio.parent().find('span');
-                            field.replaceWith('<p>' + label.html() + '</p>');
+                            if (label.length) {
+                                labelValue = label.html();
+                            } else {
+                                label = radio.closest('.input-group').find('input[type="text"]');
+                                labelValue = label.val();
+                            }
+                            replace = '<p>' + labelValue + '</p>';
                         }
                     });
+                    field.replaceWith(replace);
                     break;
 
                 case 'checkboxes':
                     var checkboxes = field.find('[type="checkbox"]');
-                    var labels = [];
+                    replace = [];
                     checkboxes.each(function (i, checkbox) {
                         if (checkbox.checked) {
                             checkbox = $(checkbox);
+                            var labelValue = '';
                             var label = checkbox.parent().find('span');
-                            labels.push('<p>' + label.html() + '</p>');
+                            if (label.length) {
+                                labelValue = label.html();
+                            } else {
+                                label = checkbox.closest('.input-group').find('input[type="text"]');
+                                labelValue = label.val();
+                            }
+                            replace.push('<p>' + labelValue + '</p>');
                         }
                     });
-                    field.replaceWith(labels.join(''));
+                    field.replaceWith(replace.join(''));
                     break;
 
                 case 'dropdown':
@@ -650,8 +671,12 @@ angular.module('greyscaleApp')
                 case 'scale':
                     var unit = field.find('.input-group-addon');
                     var value = field.find('input');
+                    replace = '';
                     unit = unit.length ? unit.html() : '';
-                    field.replaceWith('<p>' + value.val() + ' ' + unit + '</p>');
+                    if (value.val() !== '') {
+                        replace = '<p>' + value.val() + ' ' + unit + '</p>';
+                    }
+                    field.replaceWith(replace);
                     break;
                 }
             });
