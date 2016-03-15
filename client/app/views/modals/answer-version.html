@@ -7,13 +7,7 @@
             <div ng-repeat="optionId in answer.optionId">
                 {{getOptionLabel(optionId)}}
             </div>
-            <div gs-edit-version="answer" data-field-type="{{field.type}}">
-                {{(field.type === "radio" || field.type === "checkboxes") && answer.value ? "Other:" : ""}}
-                <span ng-if="field.type !== 'bullet_points'">{{answer.value}}</span>
-                <ul ng-if="field.type === 'bullet_points'">
-                    <li ng-repeat="val in answer.value">{{val}}</li>
-                </ul>
-            </div>
+            <div gs-version="field" gs-version-index="$index"></div>
         </uib-accordion-group>
     </uib-accordion>
 </div>
