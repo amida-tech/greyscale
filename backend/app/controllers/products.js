@@ -729,8 +729,10 @@ function* dumpProduct(productId) {
           "  format('{%s}', " + 
           "    string_agg(format('\"%s\":%s', " +
           '      "SurveyQuestions".id, ' + 
+          // use optionId for multichoice questions, value otherwise
           '      CASE ' +
-          '        WHEN "SurveyAnswers"."value" is null THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
+          '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
+          '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
           '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
           '      END ' +
           "    ), ',') " + 
