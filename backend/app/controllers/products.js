@@ -705,6 +705,10 @@ function* updateCurrentStepId(req) {
     }
     var stepIdMinPosition = result[0].id;
 
+    yield thunkQuery(
+        ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
+    );
+
     // update all currentStepId with min position step ID for specified productId
     var updateProductUOAQuery =
         'UPDATE "ProductUOA" '+

@@ -32,13 +32,15 @@ angular.module('greyscaleApp')
                 }
                 //Load data dump on product selection
                 scope.$watch('filterForm.productSelected', function (product) {
-                    if (!scope.loadingConfig) { _loadData(product); }
+                    if (!scope.loadingConfig) {
+                        _loadData(product);
+                    }
                 });
-                        
+
                 function _loadData(product) {
                     if (!product || _.isEmpty(product)) {
-                      scope.vizData = null;
-                      return $q.when(null);
+                        scope.vizData = null;
+                        return $q.when(null);
                     }
 
                     return greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
@@ -63,9 +65,11 @@ angular.module('greyscaleApp')
                         });
                     });
                 }
-                
+
                 function applyFilters(data, callback) {
-                    if (!data) { callback(data); }
+                    if (!data) {
+                        callback(data);
+                    }
 
                     //Handles case when data has not been narrowed, only variable changed
                     //length==0 because topicSelected ng-multi-select not registering as dirty (TODO)
@@ -85,7 +89,7 @@ angular.module('greyscaleApp')
                         callback(filteredVizData);
                     }
                 }
-                
+
                 function renderMap(plotData, index) {
                     var mapData = [{
                         type: 'choropleth',
@@ -105,7 +109,9 @@ angular.module('greyscaleApp')
                     var layout = {
                         title: '\'' + index.title + '\' Choropleth Map',
                         geo: {
-                            projection: { type: 'mercator' },
+                            projection: {
+                                type: 'mercator'
+                            },
                             resolution: '50',
                             showframe: false,
                             showcoastlines: true,
@@ -114,7 +120,9 @@ angular.module('greyscaleApp')
                         width: $('#viz').width() - 20,
                         height: 500
                     };
-                    Plotly.newPlot('viz', mapData, layout, { showLink: false });
+                    Plotly.newPlot('viz', mapData, layout, {
+                        showLink: false
+                    });
                 }
 
                 function renderBarGraph(plotData, index) {
@@ -127,7 +135,9 @@ angular.module('greyscaleApp')
                         type: 'bar',
                         x: _.pluck(plotData, 'name'),
                         y: _.pluck(_.pluck(plotData, index.collection), index.id),
-                        marker: { color: 'rgb(164, 194, 244)' }
+                        marker: {
+                            color: 'rgb(164, 194, 244)'
+                        }
                     }];
 
                     var layout = {
@@ -142,12 +152,18 @@ angular.module('greyscaleApp')
                                 showarrow: false
                             };
                         }),
-                        xaxis: { title: 'Target' },
-                        yaxis: { title: index.title },
+                        xaxis: {
+                            title: 'Target'
+                        },
+                        yaxis: {
+                            title: index.title
+                        },
                         width: $('#viz').width() - 20,
                         height: 500
                     };
-                    Plotly.newPlot('viz', graphData, layout, { showLink: false });
+                    Plotly.newPlot('viz', graphData, layout, {
+                        showLink: false
+                    });
                 }
 
                 function renderComparative(plotData, index) {
@@ -155,7 +171,9 @@ angular.module('greyscaleApp')
 
                     // average across all selected topics
                     var values = _.pluck(_.pluck(plotData, index.collection), index.id);
-                    var average = _.reduce(values, function (m, n) { return m + n; }, 0) / values.length;
+                    var average = _.reduce(values, function (m, n) {
+                        return m + n;
+                    }, 0) / values.length;
 
                     var comparedColor = 'rgb(164, 194, 244)';
                     var selectedColor = 'rgb(255, 217, 102)';
@@ -178,13 +196,15 @@ angular.module('greyscaleApp')
                     }, {
                         type: 'scatter',
                         x: labels,
-                        y: _.times(labels.length, function() { return average; }),
+                        y: _.times(labels.length, function () {
+                            return average;
+                        }),
                         name: 'Regional Average',
                         showlegend: true,
                         marker: {
                             color: averageColor
                         },
-                        mode:  'lines',
+                        mode: 'lines',
                         line: {
                             dash: 'dot',
                             width: 4
@@ -196,8 +216,12 @@ angular.module('greyscaleApp')
                         title: '\'' + index.title + '\' Comparative Bar Graph',
                         height: 500,
                         width: $('#viz').width() - 20,
-                        xaxis: { title: 'Target' },
-                        yaxis: { title: index.title }
+                        xaxis: {
+                            title: 'Target'
+                        },
+                        yaxis: {
+                            title: index.title
+                        }
                     };
                     Plotly.newPlot('viz', graphData, layout, {
                         showLink: false
@@ -277,7 +301,7 @@ angular.module('greyscaleApp')
                     scope.filterForm.productSelected = _.findWhere(scope.products, {
                         id: config.productId
                     }) || {};
-                    return _loadData(scope.filterForm.productSelected).then(function() {
+                    return _loadData(scope.filterForm.productSelected).then(function () {
                         // isteven-multi-select requires us to set selection by modifying
                         // input model and setting 'selected'
                         scope.filterForm.topicSelected = scope.topics.map(function (topic) {
@@ -308,7 +332,7 @@ angular.module('greyscaleApp')
                     });
                 }
 
-                scope.saveVisualization = function() {
+                scope.saveVisualization = function () {
                     return greyscaleVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
                 };
             }

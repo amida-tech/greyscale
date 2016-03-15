@@ -185,7 +185,9 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     index: index,
-                    type: function () { return type; },
+                    type: function () {
+                        return type;
+                    },
                     product: product
                 }
             }).result;
@@ -229,7 +231,6 @@ angular.module('greyscaleApp')
             sendNotification: _sendNotification,
             changePassword: _changePassword,
             editIndex: _editIndex,
-            editVisualization: _editVisualization,
-            confirm: _confirm
+            editVisualization: _editVisualization
         };
     });

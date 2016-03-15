@@ -111,12 +111,15 @@ module.exports = {
                     req.body[i].status = 'Ok';
                     req.body[i].id = answer.id;
                     req.body[i].message = 'Added';
+                    req.body[i].statusCode = 200;
                 }catch(err){
                     req.body[i].status = 'Fail';
                     if (err instanceof HttpError) {
                         req.body[i].message = err.message.message;
+                        req.body[i].statusCode = err.status;
                     } else {
                         req.body[i].message = 'internal error';
+                        req.body[i].statusCode = 500;
                     }
                     console.log(err);
                 }
@@ -158,15 +161,20 @@ module.exports = {
         });
     },
 
+    delAttachment: function(req, res, next){
+        co(function* (){
+            yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
+        }).then(function(){
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
+    },
+
     getAttachment: function (req, res, next) {
         co(function* (){
-            console.log(req.params);
-            console.log(req.params.ticket);
             try{
-                yield mc.connect();
-                var id = yield mc.get(req.params.tiсket);
-                console.log(id);
-                yield mc.close();
+                var id = yield mc.get(req.mcClient, req.params.ticket);
             }catch(e){
                 throw new HttpError(500, e);
             };
@@ -191,7 +199,6 @@ module.exports = {
             next(err);
         });
     },
-
     getTicket: function (req, res, next) {
         co(function* (){
             
@@ -206,10 +213,7 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                console.log('here');
-                yield mc.connect();
-                var r = yield mc.set(ticket, attachment[0].id);
-                yield mc.close();
+                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
@@ -430,7 +434,7 @@ function *addAnswer (req, dataObject) {
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
-        if (!dataObject.optionId) {
+        if (!dataObject.optionId && !dataObject.isResponse) {
             throw new HttpError(403, 'You should provide optionId for this type of question');
         } else {
             for (optIndex in dataObject.optionId) {
@@ -449,7 +453,7 @@ function *addAnswer (req, dataObject) {
             }
         }
     } else {
-        if (!dataObject.value) {
+        if (!dataObject.value && !dataObject.isResponse) {
             throw new HttpError(403, 'You should provide value for this type of question');
         }
     }
@@ -565,26 +569,26 @@ function *moveWorkflow (req, productId, UOAid) {
             )
     );
 
-    var _numberOfQuestions = yield thunkQuery(
-        'SELECT COUNT(*) ' +
-        'FROM "SurveyQuestions" ' +
-        'WHERE "surveyId" = ' + curStep.survey.id
-    );
+    //var _numberOfQuestions = yield thunkQuery(
+    //    'SELECT COUNT(*) ' +
+    //    'FROM "SurveyQuestions" ' +
+    //    'WHERE "surveyId" = ' + curStep.survey.id
+    //);
+    //
+    //var _numberOfVersioned = yield thunkQuery(
+    //    'SELECT COUNT(v."questionId") ' +
+    //    'FROM (' +
+    //        'SELECT "questionId", MAX("version") AS maxVersion ' +
+    //        'FROM "SurveyAnswers" ' +
+    //        'WHERE "UOAid" = ' + UOAid + ' ' +
+    //        'AND "wfStepId" = ' + curStep.id + ' ' +
+    //        'AND "productId" = ' + productId + ' ' +
+    //        'AND "version" IS NOT NULL ' +
+    //        'GROUP BY "questionId"' +
+    //    ') AS v ' +
+    //    'GROUP BY v.maxVersion');
 
-    var _numberOfVersioned = yield thunkQuery(
-        'SELECT COUNT(v."questionId") ' +
-        'FROM (' +
-            'SELECT "questionId", MAX("version") AS maxVersion ' +
-            'FROM "SurveyAnswers" ' +
-            'WHERE "UOAid" = ' + UOAid + ' ' +
-            'AND "wfStepId" = ' + curStep.id + ' ' +
-            'AND "productId" = ' + productId + ' ' +
-            'AND "version" IS NOT NULL ' +
-            'GROUP BY "questionId"' +
-        ') AS v ' +
-        'GROUP BY v.maxVersion');
-
-    if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
+    //if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
         if(nextStep[0]){ // next step exists, set it to current
             yield thunkQuery(
                 ProductUOA
@@ -615,12 +619,12 @@ function *moveWorkflow (req, productId, UOAid) {
             }
         }
         console.log(nextStep);
-    } else {
-        throw new HttpError(
-            403,
-            'Some questions don\'t have answers ' +
-            '(questions = '+_numberOfQuestions[0].count+'' +
-            ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
-            ', cannot move to another step');
-    }
+    //} else {
+    //    throw new HttpError(
+    //        403,
+    //        'Some questions don\'t have answers ' +
+    //        '(questions = '+_numberOfQuestions[0].count+'' +
+    //        ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
+    //        ', cannot move to another step');
+    //}
 }

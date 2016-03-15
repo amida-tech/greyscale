@@ -46,7 +46,7 @@ module.exports = {
                             'ORDER BY '+
                             '"SurveyQuestions"."position" '+
                         ') '+
-                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq )'
+                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)'
                 )
                 .where(Survey.id.equals(req.params.id))
                 .group(Survey.id)
@@ -267,15 +267,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
         question = _.first(question);
     }
 
-    var surveyId = isCreate ? req.params.id : dataObj.surveyId;
-
-    //if (surveyId) {
-    //    var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(surveyId)));
-    //    if (!_.first(survey)) {
-    //        throw new HttpError(403, 'Survey with id = ' + surveyId + ' does not exist');
-    //    }
-    //    dataObj.surveyId = surveyId;
-    //}
+    var surveyId = isCreate ? req.params.id : question.surveyId;
 
     if (dataObj.type) {
         if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) === -1) {
@@ -300,60 +292,41 @@ function* checkQuestionData(req, dataObj, isCreate) {
         dataObj.position = isNaN(parseInt(dataObj.position)) ? 0 : parseInt(dataObj.position);
 
         if (dataObj.position > nextPos || dataObj.position < 1) {
-            dataObj.position = nextPos;
-        } else {
-            if ((isCreate && _.first(maxPos))) {
-                yield thunkQuery(
+            dataObj.position = isCreate ? nextPos : (nextPos-1);
+        }
+
+        if ((isCreate && _.first(maxPos))) {
+            yield thunkQuery( // CREATE
+                'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
+                'WHERE (' +
+                '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
+                ')'
+            );
+        }
+        if (!isCreate && (question.position != dataObj.position)) { // EDIT
+            if (question.position < dataObj.position) {
+                var q =
+                    'UPDATE "SurveyQuestions" SET "position" = "position"-1 ' +
+                    'WHERE (' +
+                    '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                    'AND ("SurveyQuestions"."position" > ' + question.position + ')' +
+                    'AND ("SurveyQuestions"."position" <= ' + dataObj.position + ')' +
+                    ')';
+            } else {
+                var q =
                     'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                     'WHERE (' +
                     '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
+                    'AND ("SurveyQuestions"."position" < ' + question.position + ')' +
                     'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
-                    ')'
-
-                    // TODO cannot increment position via ORM
-                    //SurveyQuestion.update({position : position+1})
-                    //    .where(SurveyQuestion.surveyId.equals(surveyId))
-                    //    .and(SurveyQuestion.position.gte(req.body.position))
-                );
-            }
-            if (!isCreate && (question.position !== dataObj.position)) {
-                if (question.position < dataObj.position) {
-                    var q =
-                        'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
-                        'WHERE (' +
-                        '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
-                        'AND ("SurveyQuestions"."position" > ' + question.position + ')' +
-                        'AND ("SurveyQuestions"."position" <= ' + dataObj.position + ')' +
-                        ')';
-                } else {
-                    var q =
-                        'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
-                        'WHERE (' +
-                        '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
-                        'AND ("SurveyQuestions"."position" < ' + question.position + ')' +
-                        'AND ("SurveyQuestions"."position" >= ' + dataObj.position + ')' +
-                        ')';
-                }
-
-                yield thunkQuery(q);
+                    ')';
             }
 
+            yield thunkQuery(q);
         }
+
     }
 
 }
 
-//function* getProjectId(userId) {
-//    query =
-//        'SELECT "Projects"."id" '+
-//        'FROM "Users" '+
-//        'INNER JOIN "Organizations" ON "Users"."organizationId" = "Organizations"."id" '+
-//        'INNER JOIN "Projects" ON "Projects"."organizationId" = "Organizations"."id" '+
-//        'WHERE "Users"."id" = ' + parseInt(userId).toString();
-//
-//    result = yield thunkQuery(query);
-//    if (!_.first(result)) {
-//        throw new HttpError(403, 'Error find ProjectId for user with id `'+parseInt(userId).toString()+'`');
-//    }
-//    return result[0].id;
-//}

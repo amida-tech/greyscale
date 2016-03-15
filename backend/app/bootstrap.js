@@ -16,7 +16,13 @@ var config = require('config'),
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
 
+
 app.on('start', function () {
+    // MEMCHACHE
+    app.use(function(req,res,next){
+        req.mcClient = mcClient;
+        next();
+    });
 
     // Init logger
     app.use(logger.initialize());
@@ -53,10 +59,12 @@ app.on('start', function () {
         next();
     });
 
+
+
     app.all('*', function (req, res, next) {
         var acceptLanguage = require('accept-language'),
-            Query = require('app/util').Query;
-        var query = new Query(),
+            Query = require('app/util').Query,
+            query = new Query(),
             thunkify = require('thunkify'),
             _ = require('underscore'),
             Language = require('app/models/languages'),
@@ -83,6 +91,8 @@ app.on('start', function () {
         }
 
     });
+
+
 
     // Route requests to controllers/actions
     app.use(require('app/router'));
@@ -194,12 +204,38 @@ app.on('start', function () {
         }
     });
 
-    // Start server
-    var server = app.listen(process.env.PORT || config.port || 3000, function () {
-        logger.info(util.format('Listening on port %d', server.address().port));
+    function startServer() {
+        // Start server
+        var server = app.listen(process.env.PORT || config.port || 3000, function () {
+            logger.info(util.format('Listening on port %d', server.address().port));
+        });
+
+        require('app/socket/socket-controller.server').init(server);
+    }
+
+
+    //Connect to memchache server
+    var memcache = require('memcache');
+
+    var mcClient = new memcache.Client(
+        config.mc.port,
+        config.mc.host
+    );
+
+    mcClient.on('connect', function(){
+        console.log('mc connected');
+        startServer();
     });
 
-    require('app/socket/socket-controller.server').init(server);
+    mcClient.on('error', function(e){
+        console.log('MEMCACHE ERROR');
+        console.log(e);
+    });
+
+    mcClient.connect();
+
+
+
 
 });
 
