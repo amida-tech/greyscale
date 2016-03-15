@@ -3,14 +3,11 @@
 </modal-form-header>
 <div class="modal-body">
     <uib-accordion close-others="true">
-        <uib-accordion-group ng-repeat="answer in answers" heading="#{{answer.version + ' - ' + (answer.created | date:format) + ' - ' + getUserName(answer.userId)}}">
+        <uib-accordion-group ng-repeat="answer in field.prevAnswers" heading="#{{answer.version + ' - ' + (answer.created | date:format) + ' - ' + getUserName(answer.userId)}}">
             <div ng-repeat="optionId in answer.optionId">
                 {{getOptionLabel(optionId)}}
             </div>
-            <div gs-edit-version="">
-                {{(params.field.type === "radio" || params.field.type === "checkboxes") && answer.value ? "Other:" : ""}}
-                {{answer.value}}
-            </div>
+            <div gs-version="field" gs-version-index="$index"></div>
         </uib-accordion-group>
     </uib-accordion>
 </div>

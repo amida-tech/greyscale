@@ -288,6 +288,8 @@ angular.module('greyscaleApp')
                     var v, answer, fldName, response, qId;
                     recentAnswers = {};
                     responses = {};
+                    surveyAnswers = {};
+
                     for (v = 0; v < _answers.length; v++) {
                         qId = fldNamePrefix + _answers[v].questionId;
 
@@ -295,7 +297,9 @@ angular.module('greyscaleApp')
                             surveyAnswers[qId] = [];
                         }
 
-                        surveyAnswers[qId].push(_answers[v]);
+                        if (_answers[v].version) {
+                            surveyAnswers[qId].push(_answers[v]);
+                        }
 
                         fldName = fldNamePrefix + _answers[v].questionId;
 
@@ -344,6 +348,11 @@ angular.module('greyscaleApp')
                 }
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
+                    if (fld.type === 'bullet_points') {
+                        for (var i = 0; i < fld.prevAnswers.length; i++) {
+                            fld.prevAnswers[i].value = JSON.parse(fld.prevAnswers[i].value);
+                        }
+                    }
                 }
                 if (answer) {
                     fld.answerId = answer.id;
@@ -447,12 +456,10 @@ angular.module('greyscaleApp')
                             canMove = !isAuto,
                             qty = resp.length;
 
-                        $log.debug('all saved');
                         for (r = 0; r < qty && canMove; r++) {
                             canMove = (resp[r].statusCode === 200);
                         }
-                        $log.debug('nextStep', canMove);
-                        canMove = false;
+
                         scope.savedAt = new Date();
                         scope.model.formLocked = isReadonly;
                         return canMove;
@@ -546,6 +553,7 @@ angular.module('greyscaleApp')
                 switch (type) {
                 case 'text':
                 case 'date':
+                case 'email':
                     field.replaceWith('<div class="handwrite-field"></div>');
                     break;
 
@@ -570,19 +578,107 @@ angular.module('greyscaleApp')
                     options.each(function (i, option) {
                         option = $(option);
                         if (option.val() !== '' && option.text() !== '') {
-                            select.append('<span class="select-option"><i class="fa fa-square-o"></i> ' + option.text() + '</span>');
+                            select.append('<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() + '</span>');
                         }
                     });
                     field.replaceWith(select);
                     break;
 
-                default:
-                    //console.log(type);
                 }
             });
         }
 
         function _printRenderAnswers(printable) {
-            console.log('ra');
+            printable.find('.survey-form-field-input').each(function () {
+                var field = $(this);
+                var type = field.attr('survey-form-field-type');
+                var replace;
+                switch (type) {
+                case 'text':
+                case 'paragraph':
+                case 'email':
+                    field.replaceWith('<p>' + field.find('input, textarea').val() + '</p>');
+                    break;
+
+                case 'bullet_points':
+                    var bullets = field.find('bullet-item');
+                    replace = [];
+                    bullets.each(function (i, bullet) {
+                        var val = $(bullet).find('input').val();
+                        if (val !== '') {
+                            replace.push('<div class="bullet-point"><i class="fa fa-caret-right"></i> ' + val + '</div>');
+                        }
+                    });
+                    field.replaceWith('<p>' + replace.join('') + '</p>');
+                    break;
+
+                case 'radio':
+                    var radios = field.find('[type="radio"]');
+                    var addon = field.next().hasClass('input-group') ? field.next().find('[type="radio"]') : [];
+                    if (addon.length) {
+                        radios = radios.add(addon);
+                    }
+                    replace = '';
+                    radios.each(function (i, radio) {
+                        if (radio.checked) {
+                            radio = $(radio);
+                            var labelValue = '';
+                            var label = radio.parent().find('span');
+                            if (label.length) {
+                                labelValue = label.html();
+                            } else {
+                                label = radio.closest('.input-group').find('input[type="text"]');
+                                labelValue = label.val();
+                            }
+                            replace = '<p>' + labelValue + '</p>';
+                        }
+                    });
+                    field.replaceWith(replace);
+                    break;
+
+                case 'checkboxes':
+                    var checkboxes = field.find('[type="checkbox"]');
+                    replace = [];
+                    checkboxes.each(function (i, checkbox) {
+                        if (checkbox.checked) {
+                            checkbox = $(checkbox);
+                            var labelValue = '';
+                            var label = checkbox.parent().find('span');
+                            if (label.length) {
+                                labelValue = label.html();
+                            } else {
+                                label = checkbox.closest('.input-group').find('input[type="text"]');
+                                labelValue = label.val();
+                            }
+                            replace.push('<p>' + labelValue + '</p>');
+                        }
+                    });
+                    field.replaceWith(replace.join(''));
+                    break;
+
+                case 'dropdown':
+                    var select = field.find('select');
+                    var selected = select.find('option:selected');
+                    field.replaceWith('<p>' + selected.html() + '</p>');
+                    break;
+
+                case 'date':
+                    var date = field.find('[ng-model]');
+                    field.replaceWith('<p>' + date.val() + '</p>');
+                    break;
+
+                case 'number':
+                case 'scale':
+                    var unit = field.find('.input-group-addon');
+                    var value = field.find('input');
+                    replace = '';
+                    unit = unit.length ? unit.html() : '';
+                    if (value.val() !== '') {
+                        replace = '<p>' + value.val() + ' ' + unit + '</p>';
+                    }
+                    field.replaceWith(replace);
+                    break;
+                }
+            });
         }
     });

@@ -48,6 +48,9 @@
     },
     "DASHBOARD": {
         "PROJECTS": "",
+        "ROLE_ADMIN": "",
+        "ROLE_SUPERADMIN": "",
+        "ROLE_USER": "",
         "TASKS": "",
         "UNREAD_MESSAGES_ALERT": ""
     },
@@ -488,6 +491,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "",
+        "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",

@@ -48,6 +48,9 @@
     },
     "DASHBOARD": {
         "PROJECTS": "",
+        "ROLE_ADMIN": "",
+        "ROLE_SUPERADMIN": "",
+        "ROLE_USER": "",
         "TASKS": "",
         "UNREAD_MESSAGES_ALERT": ""
     },
@@ -129,8 +132,8 @@
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",
-            "TITLE": "Импорт целей",
-            "UOA_TYPE": "Тип цели",
+            "TITLE": "Импорт субъектов",
+            "UOA_TYPE": "Тип субъекта",
             "VISIBILITY": "Видимость"
         },
         "USERS": {
@@ -167,7 +170,7 @@
         "TASK": "Задача",
         "TERMS": "Сроки",
         "TITLE": "Мои задачи",
-        "UOA": "Цель"
+        "UOA": "Субъект"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Управление доступом",
@@ -203,14 +206,14 @@
         "TASKS": "Задачи",
         "UOAS": {
             "LIST": "Список",
-            "TITLE": "Цели"
+            "TITLE": "Субъекты"
         },
         "USERS": {
             "GROUPS": "Группы",
             "IN_GROUPS": "",
             "LIST": "Список",
             "TITLE": "Пользователи",
-            "UOA": "Цели"
+            "UOA": "Субъекты"
         },
         "VISUALIZATION": "Визуализация",
         "VISUALIZATIONS": "",
@@ -306,12 +309,12 @@
             "SURVEY_STATUS": "Статус опроса",
             "TASKS": "Задачи",
             "TITLE": "Название",
-            "UOAS": "Цели",
+            "UOAS": "Субъекты",
             "WORKFLOW": "Процесс"
         },
         "TASKS": {
             "DRAG_USER": "Перетащите пользователя на задачу",
-            "NO_UOAS": "У этого проекта не заданы цели.",
+            "NO_UOAS": "У этого проекта не заданы субъекты.",
             "NO_WORKFLOW_STEPS": "У этого проекта нет шагов рабочего процесса.",
             "SEARCH_USER_LABEL": "или по имени или E-mail",
             "SELECT_USERGROUP": "Выберите роль...",
@@ -324,19 +327,19 @@
                 "TASK_REMOVE_ERROR": "Ошибка удаления задачи",
                 "TASK_UPDATE_ERROR": "Ошибка обновления задачи",
                 "TITLE": "Задачи",
-                "UOAS_HEADER": "Цель"
+                "UOAS_HEADER": "Субъект"
             },
             "TASKS_FOR": "Задачи <small>для проекта \"{{product}}\"</small>",
             "USERS_NOT_FOUND_BY_GROUP": "Не найдеы пользователи с группой \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Не найдены пользователи с \"{{search}}\"."
         },
         "UOAS": {
-            "DELETE_CONFIRM": "Подтвердите удаление цели <b>{{uoa.name}}</b> из проекта <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Подтвердите удаление субъекта <b>{{uoa.name}}</b> из проекта <b>{{product.title}}</b>",
             "DESCRIPTION": "Описание",
-            "MODAL_TITLE": "Цели <small>для проекта \"{{product.title}}\"</small>",
+            "MODAL_TITLE": "Субъекты <small>для проекта \"{{product.title}}\"</small>",
             "NAME": "Название",
             "SHORT_NAME": "Короткое название",
-            "TABLE_TITLE": "Цели проекта",
+            "TABLE_TITLE": "Субъекты проекта",
             "TYPE": "Тип"
         },
         "WORKFLOW": {
@@ -385,7 +388,7 @@
         "STEP": "Шаг",
         "STEP_SKIPPED": "",
         "TITLE": "Название",
-        "UOA": "Цель",
+        "UOA": "Субъект",
         "USER": "Пользователь"
     },
     "PROFILE": {
@@ -488,6 +491,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",
@@ -517,9 +521,9 @@
     },
     "UOAS": {
         "CREATED": "Создан",
-        "DELETE_CONFIRM": "Подтвердите удаление цели <b>{{uoa.name}}</b>",
-        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа цели <b>{{uoaType.name}}</b>",
-        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи цели <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM": "Подтвердите удаление субъекта <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Подтвердите удаление типа субъекта <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Подтвердите удаление связи субъекта <b>{{uoa.name}}</b> с тегом <b>{{tag.name}}</b>",
         "DESCRIPTION": "Описание",
         "NAME": "Название",
         "SHORT_NAME": "Короткое название",
@@ -528,12 +532,12 @@
         "TYPE": "Тип",
         "TYPE_DESCRIPTION": "Описание",
         "TYPE_NAME": "Название",
-        "UNIT_TYPE": "Тип цели",
-        "UNIT_TYPES": "Типы целей",
-        "UOA": "Цель",
-        "UOAS": "Цели",
-        "UOA_TAG_LINK": "Связь цели и тега",
-        "UOA_TAG_LINKS": "Связь целей и тегов",
+        "UNIT_TYPE": "Тип субъекта",
+        "UNIT_TYPES": "Типы субъектов",
+        "UOA": "Субъект",
+        "UOAS": "Субъекты",
+        "UOA_TAG_LINK": "Связь субъекта и тега",
+        "UOA_TAG_LINKS": "Связь субъектов и тегов",
         "VISIBILITY": "Видимость"
     },
     "UOAS_FILTER": {
@@ -543,7 +547,7 @@
         "NAME": "Название",
         "SHORT_NAME": "Короткое название",
         "STATUS": "Статус",
-        "TABLE_TITLE": "Выберите цели",
+        "TABLE_TITLE": "Выберите субъектов",
         "TYPE": "Тип"
     },
     "UOA_TAGS": {

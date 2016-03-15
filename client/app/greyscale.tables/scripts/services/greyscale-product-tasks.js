@@ -20,7 +20,7 @@ angular.module('greyscale.tables')
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 '       uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'"' +
-                '       ng-class="{active:item.active}" ng-repeat="item in row.progress track by $index">' +
+                '       ng-class="{active:item.active, delayed: item.delayed}" ng-repeat="item in row.progress track by $index">' +
                 '    <i ng-if="item.flagged" class="fa fa-flag"></i>' +
                 '</span>' +
                 '</span>'
@@ -154,6 +154,7 @@ angular.module('greyscale.tables')
                 angular.forEach(uoaTasks, function (task) {
                     if (!currentTask && task.status === 'current') {
                         currentTask = _getTaskProgressData(task, uoaTasks);
+                        currentTask.delayed = new Date(currentTask.lastVersionDate) < new Date(currentTask.startDate);
                     }
                 });
                 if (currentTask) {

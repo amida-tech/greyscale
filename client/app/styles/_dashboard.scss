@@ -99,7 +99,9 @@
             display: inline-block;
             text-align: center;
             vertical-align: middle;
-
+            &.user-menu {
+                padding-right: 0;
+            }
             .dropdown-toggle {
                 height: inherit;
                 line-height: 68px;
@@ -107,6 +109,10 @@
                 .fa-caret-down {
                     display: none;
                 }
+            }
+            .username {
+                position: relative;
+                top: -4px;
             }
             .dropdown-menu {
                 right: 100%;
@@ -493,10 +499,13 @@ ul.sidebar .sidebar-list .menu-icon {
 }
 
 .task-status-completed {
-    color: $green;
+    color: $gray;
 }
 .task-status-current {
-    color: $gray;
+    color: $green;
+    &.delayed {
+        color: $red;
+    }
 }
 .task-status-waiting {
     color: #bbb;
