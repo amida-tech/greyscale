@@ -447,12 +447,10 @@ angular.module('greyscaleApp')
                             canMove = !isAuto,
                             qty = resp.length;
 
-                        $log.debug('all saved');
                         for (r = 0; r < qty && canMove; r++) {
                             canMove = (resp[r].statusCode === 200);
                         }
-                        $log.debug('nextStep', canMove);
-                        canMove = false;
+
                         scope.savedAt = new Date();
                         scope.model.formLocked = isReadonly;
                         return canMove;
