@@ -294,7 +294,7 @@ angular.module('greyscaleApp')
                             }
                         }
 
-                        if (!_answers.isResponse) {
+                        if (!_answers[v].isResponse) {
                             continue;
                         }
                         if (!responses[fldName]) {
@@ -303,7 +303,6 @@ angular.module('greyscaleApp')
                         response = responses[fldName];
                         response.push(_answers[v]);
                     }
-
                     loadRecursive(scope.fields, answers, responses);
 
                 })

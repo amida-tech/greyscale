@@ -197,7 +197,10 @@ angular.module('greyscaleApp')
                         body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                             '<div translate="SURVEYS.RESPONSES"></div>' +
                             '<div ng-repeat="resp in field.responses">' +
-                            '<div ng-class="{ \'accepted\': field.isAgree === true, \'rejected\': field.isAgree === false }">{{resp.comments}}</div>' +
+                            '<div class="field-response">' +
+                            '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree === true, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null }"></i>' +
+                            '<span>{{resp.comments}}</span>' +
+                            '</div>' +
                             '</div>' +
                             '</div>';
                     }
