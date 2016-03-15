@@ -1,7 +1,6 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, $stateParams, params,
-        greyscaleSurveyAnswerApi, greyscaleUserApi, _, $log) {
+    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, params, greyscaleUserApi) {
         params = params || {};
 
         $scope.field = params.field;
@@ -9,15 +8,11 @@ angular.module('greyscaleApp')
         var a = $scope.field.prevAnswers.length;
         var userIds = [], users = {};
 
-        $log.debug($scope.field.prevAnswers);
-
         for (; a--;) {
             if (userIds.indexOf($scope.field.prevAnswers[a].userId) === -1) {
                 userIds.push($scope.field.prevAnswers[a].userId);
             }
         }
-
-        $scope.answers = $scope.field.prevAnswers;
 
         if (userIds.length > 0) {
             greyscaleUserApi.list({id: userIds.join('|')})
@@ -28,7 +23,7 @@ angular.module('greyscaleApp')
                     }
                 });
         }
-        
+
         $scope.close = function () {
             $uibModalInstance.close($scope.model);
         };
@@ -46,10 +41,9 @@ angular.module('greyscaleApp')
         };
 
         $scope.getUserName = function (userId) {
-            var usr = users[userId];
             var res = '';
             if (users[userId]) {
-                res = users[userId].firstName  + ' ' + users[userId].lastName;
+                res = [users[userId].firstName, users[userId].lastName].join(' ');
             }
             return res;
         };
