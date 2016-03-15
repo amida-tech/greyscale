@@ -197,7 +197,7 @@ angular.module('greyscaleApp')
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
-                                prevAnswers:[],
+                                prevAnswers: [],
                                 responses: null,
                                 langId: scope.model.lang
                             });

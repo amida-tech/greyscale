@@ -1,10 +1,19 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, $stateParams, params,
-        greyscaleSurveyAnswerApi, greyscaleUserApi, _) {
+        greyscaleSurveyAnswerApi, greyscaleUserApi, _, $log) {
         params = params || {};
 
         $scope.params = params;
+        var a = $scope.params.prevAnswers.length;
+
+        $log.debug($scope.params.prevAnswers);
+        $scope.model = {
+            
+        };
+        for (; a--;) {
+            if ($scope)
+        }
 
         greyscaleSurveyAnswerApi.list({questionId: params.field.id, taskId: $stateParams.taskId})
             .then(function (_answers) {
