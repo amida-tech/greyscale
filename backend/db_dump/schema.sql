@@ -376,7 +376,8 @@ CREATE TABLE "IndexQuestionWeights" (
     "indexId" integer NOT NULL,
     "questionId" integer NOT NULL,
     weight numeric NOT NULL,
-    type character varying NOT NULL
+    type character varying NOT NULL,
+    aggregateType character varying
 );
 
 
@@ -707,7 +708,8 @@ CREATE TABLE "SubindexWeights" (
     "subindexId" integer NOT NULL,
     "questionId" integer NOT NULL,
     weight numeric NOT NULL,
-    type character varying NOT NULL
+    type character varying NOT NULL,
+    aggregateType character varying
 );
 
 

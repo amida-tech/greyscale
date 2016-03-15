@@ -276,6 +276,7 @@
                 "SUM_DIVISORS": "sum",
                 "TITLE": "Title",
                 "WEIGHTS": {
+                    "AGGREGATE_TYPE": "Aggregation Type",
                     "FIELD": "Field",
                     "QUESTION": "Question",
                     "TYPE": "Type",

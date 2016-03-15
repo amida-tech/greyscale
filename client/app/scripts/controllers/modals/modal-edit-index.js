@@ -42,7 +42,6 @@ angular.module('greyscaleApp')
     function _loadSubindexes() {
         return greyscaleProductApi.product(product.id).subindexesList().then(function (subindexes) {
             $scope.model.subindexes = subindexes;
-            console.log($scope.model.subindexes);
         });
     }
 
@@ -91,6 +90,44 @@ angular.module('greyscaleApp')
                 '<option value="percentile">Percentile Rank</option>' +
                 '</select>'
         });
+        if (type === 'index') {
+            cols.push({
+                field: 'weight',
+                title: tableTns + 'AGGREGATE_TYPE',
+                cellTemplate: '<select ng-show="ext.needsAggregate(row.type, row.field)" class="form-control" ng-model="row.weight.aggregateType">' +
+                    '<option value="sum">Sum</option>' +
+                    '<option value="average">Average</option>' +
+                    '</select>' +
+                    '<div class="aggregate-type" ng-hide="ext.needsAggregate(row.type, row.field)">N/A</div>',
+                cellTemplateExtData: {
+                    // if question is multiselection type that needs aggregate type
+                    // (sum or average)
+                    needsAggregate: function (fieldType, questionId) {
+                        if (fieldType !== 'question') { return false; }
+                        var question = _.findWhere($scope.model.questions, { id: questionId });
+                        return question && question.type === 2; // multiselect
+                    }
+                }
+            });
+        } else if (type === 'subindex') {
+            cols.push({
+                field: 'weight',
+                title: tableTns + 'AGGREGATE_TYPE',
+                cellTemplate: '<select ng-show="ext.needsAggregate(row.field)" class="form-control" ng-model="row.weight.aggregateType">' +
+                    '<option value="sum">Sum</option>' +
+                    '<option value="average">Average</option>' +
+                    '</select>' +
+                    '<div class="aggregate-type" ng-hide="ext.needsAggregate(row.field)">N/A</div>',
+                cellTemplateExtData: {
+                    // if question is multiselection type that needs aggregate type
+                    // (sum or average)
+                    needsAggregate: function (questionId) {
+                        var question = _.findWhere($scope.model.questions, { id: questionId });
+                        return question && question.type === 2; // multiselect
+                    }
+                }
+            });
+        }
         cols.push({
             dataFormat: 'action',
             actions: [{

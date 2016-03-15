@@ -238,7 +238,7 @@ angular.module('greyscaleApp')
                     }
 
                     //remove UOAs without data for selected index
-                    var plotData = plotData.filter(function (uoa) {
+                    plotData = plotData.filter(function (uoa) {
                         return typeof uoa[index.collection][index.id] === 'number';
                     });
 

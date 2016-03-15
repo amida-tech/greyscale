@@ -276,6 +276,7 @@
                 "SUM_DIVISORS": "",
                 "TITLE": "",
                 "WEIGHTS": {
+                    "AGGREGATE_TYPE": "",
                     "FIELD": "",
                     "QUESTION": "",
                     "TYPE": "",

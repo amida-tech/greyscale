@@ -318,7 +318,8 @@ module.exports = {
                         indexId: indexId,
                         questionId: questionId,
                         weight: req.body[i].questionWeights[questionId].weight,
-                        type: req.body[i].questionWeights[questionId].type
+                        type: req.body[i].questionWeights[questionId].type,
+                        aggregateType: req.body[i].questionWeights[questionId].aggregateType
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                 }
@@ -411,7 +412,8 @@ module.exports = {
                         subindexId: subindexId,
                         questionId: questionId,
                         weight: req.body[i].weights[questionId].weight,
-                        type: req.body[i].weights[questionId].type
+                        type: req.body[i].weights[questionId].type,
+                        aggregateType: req.body[i].weights[questionId].aggregateType
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                 }
@@ -816,10 +818,14 @@ function* getSubindexes(productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
           '      "SubindexWeights"."questionId", ' +
           '      "SubindexWeights"."weight", ' +
-          '      "SubindexWeights"."type" ' +
+          '      "SubindexWeights"."type", ' +
+          '      CASE ' +
+          '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
+          '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
+          '      END ' +
           "    ), ',') " +
           '  ) AS "weights" ' +
           'FROM ' +
@@ -847,10 +853,14 @@ function* getIndexes(productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
         '      "IndexQuestionWeights"."questionId", ' +
         '      "IndexQuestionWeights"."weight", ' +
-        '      "IndexQuestionWeights"."type" ' +
+        '      "IndexQuestionWeights"."type", ' +
+        '      CASE ' +
+        '        WHEN "IndexQuestionWeights"."aggregateType" is null THEN \'null\' ' +
+        '        ELSE format(\'"%s"\', "IndexQuestionWeights"."aggregateType") ' +
+        '      END ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
@@ -902,13 +912,22 @@ function* parseNumericalAnswer(raw, questionType) {
             ))[0]);
         }
 
-        // TODO: sum or average based on user-specified choice
-        parsed = parseFloat(selected[0].value);
+        parsed = selected.map(function (selection) {
+            return parseFloat(selection.value);
+        });
     } else {
         console.log("Non-numerical question of type %d", questionType);
         parsed = parseFloat(raw);
     }
     return parsed;
+}
+
+function sum(arr) {
+    return arr.reduce(function (s, v) { return s + v; });
+}
+
+function avg(arr) {
+    return sum(arr)/arr.length;
 }
 
 function* aggregateIndexes(productId) {
@@ -976,8 +995,31 @@ function* aggregateIndexes(productId) {
     data.forEach(function (datum) {
         for (var questionId in datum['questions']) {
             var val = datum['questions'][questionId];
-            if (!(questionId in qMins) || val < qMins[questionId]) { qMins[questionId] = val; }
-            if (!(questionId in qMaxes) || val > qMaxes[questionId]) { qMaxes[questionId] = val; }
+            if (val.constructor === Array) {
+                var valSum = sum(val);
+                var valAvg = avg(val);
+                if (!(questionId in qMins)) {
+                    qMins[questionId] = {
+                        sum: valSum,
+                        average: valAvg
+                    };
+                } else {
+                    if (valSum < qMins[questionId].sum) { qMins[questionId].sum = valSum; }
+                    if (valAvg < qMins[questionId].average) { qMins[questionId].average = valAvg; }
+                }
+                if (!(questionId in qMaxes)) {
+                    qMaxes[questionId] = {
+                        sum: valSum,
+                        average: valAvg
+                    };
+                } else {
+                    if (valSum > qMaxes[questionId].sum) { qMaxes[questionId].sum = valSum; }
+                    if (valAvg > qMaxes[questionId].average) { qMaxes[questionId].average = valAvg; }
+                }
+            } else {
+                if (!(questionId in qMins) || val < qMins[questionId]) { qMins[questionId] = val; }
+                if (!(questionId in qMaxes) || val > qMaxes[questionId]) { qMaxes[questionId] = val; }
+            }
         }
     });
 
@@ -989,10 +1031,24 @@ function* aggregateIndexes(productId) {
             for (var questionId in subindex['weights']) {
                 var weight = subindex['weights'][questionId];
                 var val = data[i]['questions'][questionId];
+                if (val.constructor === Array) {
+                    if (weight.aggregateType === "average") { // average
+                        val = avg(val);
+                    } else { // sum
+                        weight.aggregateType = 'sum';
+                        val = sum(val);
+                    }
+                }
                 if (weight.type === 'value') { // raw value
                     value += weight.weight * val;
                 } else if (weight.type === 'percentile') { // percentile rank
-                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
+                    var min = qMins[questionId];
+                    var max = qMaxes[questionId];
+                    if (typeof min === 'object') { // typeof max = 'object'
+                        min = min[weight.aggregateType];
+                        max = max[weight.aggregateType];
+                    }
+                    value += weight.weight * (val - min) / (max - min);
                 }
             }
             data[i]['subindexes'][subindex['id']] = value / subindex['divisor'];
@@ -1019,10 +1075,24 @@ function* aggregateIndexes(productId) {
             for (var questionId in index['questionWeights']) {
                 var weight = index['questionWeights'][questionId];
                 var val = data[i]['questions'][questionId];
+                if (val.constructor === Array) {
+                    if (weight.aggregateType === 'average') { // average
+                        val = avg(val);
+                    } else { // sum
+                        weight.aggregateType = 'sum';
+                        val = sum(val);
+                    }
+                }
                 if (weight.type === 'value') { // raw value
                     value += weight.weight * val;
                 } else if (weight.type === 'percentile') { // percentile rank
-                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
+                    var min = qMins[questionId];
+                    var max = qMaxes[questionId];
+                    if (typeof min === 'object') { // typeof max = 'object'
+                        min = min[weight.aggregateType];
+                        max = max[weight.aggregateType];
+                    }
+                    value += weight.weight * (val - min) / (max - min);
                 }
             }
             for (var subindexId in index['subindexWeights']) {
