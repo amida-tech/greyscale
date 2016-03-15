@@ -32,6 +32,16 @@ angular.module('greyscaleApp')
                     var printing = $('<div><div class="' + mode + '">' + area.html() + '</div></div>');
                     printable.html(printing.html());
                     printable.find('a[href]').attr('href', '#');
+                    if (!mode.match('clean-inputs') && !mode.match('hide-inputs')) {
+                        area.find(inputSelector).each(function () {
+                            var printInput = printable.find('#' + this.id);
+                            if (this.checked) {
+                                printInput.prop('checked', this.checked);
+                            } else if (this.value) {
+                                printInput.val(this.value);
+                            }
+                        });
+                    }
                     if (typeof scope.preprocess === 'function') {
                         scope.preprocess(printable);
                     }
