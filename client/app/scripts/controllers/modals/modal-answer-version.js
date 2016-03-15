@@ -9,10 +9,10 @@ angular.module('greyscaleApp')
 
         $log.debug($scope.params.prevAnswers);
         $scope.model = {
-            
+
         };
         for (; a--;) {
-            if ($scope)
+            //if ($scope)
         }
 
         greyscaleSurveyAnswerApi.list({questionId: params.field.id, taskId: $stateParams.taskId})
