@@ -41,12 +41,12 @@
             </div>
             <div>
                 <button class="btn btn-default pull-left" ng-click="back()" translate="COMMON.BACK"></button>
-                <button class="btn pull-right" ng-click="saveDraft()" ng-disabled="!surveyForm.$dirty"
+                <button class="btn pull-right" ng-click="saveDraft()" ng-disabled="!surveyForm.$dirty || model.formLocked"
                         translate="SURVEYS.SAVE_DRAFT"></button>
 
                 <button class="btn btn-primary pull-right"
                         ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || lock"
+                        ng-disabled="surveyForm.$invalid || model.formLocked"
                         translate="SURVEYS.SUBMIT"></button>
             </div>
         </div>

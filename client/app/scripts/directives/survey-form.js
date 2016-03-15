@@ -15,6 +15,7 @@ angular.module('greyscaleApp')
         var surveyParams = {};
         var currentUserId, currentStepId;
         var provideResponses = false;
+        var surveyAnswers = [];
 
         return {
             restrict: 'E',
@@ -27,7 +28,9 @@ angular.module('greyscaleApp')
                 scope.$watch('surveyData', updateForm);
 
                 scope.saveDraft = function () {
-                    saveAnswers(scope, true);
+                    if (!isReadonly) {
+                        saveAnswers(scope, true);
+                    }
                 };
 
                 scope.save = function () {
@@ -88,7 +91,8 @@ angular.module('greyscaleApp')
 
                 $scope.model = {
                     contentOpen: false,
-                    lang: null
+                    lang: null,
+                    formLocked: true
                 };
 
                 $scope.goField = function (elemId) {
@@ -118,7 +122,7 @@ angular.module('greyscaleApp')
             scope.fields = [];
             scope.content = [];
             scope.recentSaved = null;
-            scope.lock = true;
+            scope.model.formLocked = true;
 
             var content = [];
             var fields = [];
@@ -128,6 +132,7 @@ angular.module('greyscaleApp')
             }];
 
             var survey = scope.surveyData.survey;
+            var task = scope.surveyData.task;
 
             var o, item, fld, fldId, q, field, type,
                 r = 0,
@@ -135,16 +140,16 @@ angular.module('greyscaleApp')
                 qQty = survey.questions.length;
 
             surveyParams = {
-                surveyId: scope.surveyData.survey.id,
-                productId: scope.surveyData.task.productId,
-                UOAid: scope.surveyData.task.uoaId
+                surveyId: survey.id,
+                productId: task.productId,
+                UOAid: task.uoaId
             };
 
             currentUserId = scope.surveyData.userId;
-            currentStepId = scope.surveyData.task.stepId;
+            currentStepId = task.stepId;
             provideResponses = scope.surveyData.flags.provideResponses;
 
-            isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
+            isReadonly = (!task || task.status !== 'current') || !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
 
             for (q = 0; q < qQty; q++) {
                 field = survey.questions[q];
@@ -192,6 +197,7 @@ angular.module('greyscaleApp')
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
+                                prevAnswers:[],
                                 responses: null,
                                 langId: scope.model.lang
                             });
@@ -265,49 +271,64 @@ angular.module('greyscaleApp')
 
             scope.fields = fields;
             scope.content = content;
-            scope.lock = isReadonly;
+            scope.model.formLocked = isReadonly;
         }
 
         function loadAnswers(scope) {
-            var answers = {};
+            var recentAnswers = {};
             var responses = {};
+            var query = angular.extend({
+                    order: 'version'
+                },
+                surveyParams);
 
-            scope.lock = true;
-            greyscaleSurveyAnswerApi.list(surveyParams)
+            scope.model.formLocked = true;
+            greyscaleSurveyAnswerApi.list(query)
                 .then(function (_answers) {
-                    var v, answer, fldName, response;
-                    answers = {};
+                    var v, answer, fldName, response, qId;
+                    recentAnswers = {};
                     responses = {};
                     for (v = 0; v < _answers.length; v++) {
+                        qId = fldNamePrefix + _answers[v].questionId;
+
+                        if (!surveyAnswers[qId]) {
+                            surveyAnswers[qId] = [];
+                        }
+
+                        surveyAnswers[qId].push(_answers[v]);
+
                         fldName = fldNamePrefix + _answers[v].questionId;
-                        answer = answers[fldName];
+
+                        answer = recentAnswers[fldName];
+
                         _answers[v].created = new Date(_answers[v].created);
 
                         if (!answer ||
                             _answers[v].version === null && _answers[v].userId === currentUserId ||
                             answer.version < _answers[v].version
                         ) {
-                            answers[fldName] = _answers[v];
+                            recentAnswers[qId] = _answers[v];
 
-                            if (!scope.savedAt || scope.savedAt < answers[fldName].created) {
-                                scope.savedAt = answers[fldName].created;
+                            if (!scope.savedAt || scope.savedAt < recentAnswers[qId].created) {
+                                scope.savedAt = recentAnswers[qId].created;
                             }
                         }
 
                         if (!_answers[v].isResponse) {
                             continue;
                         }
-                        if (!responses[fldName]) {
-                            responses[fldName] = [];
+                        if (!responses[qId]) {
+                            responses[qId] = [];
                         }
-                        response = responses[fldName];
+                        response = responses[qId];
                         response.push(_answers[v]);
                     }
-                    loadRecursive(scope.fields, answers, responses);
+
+                    loadRecursive(scope.fields, recentAnswers, responses);
 
                 })
                 .finally(function () {
-                    scope.lock = isReadonly;
+                    scope.model.formLocked = isReadonly;
                 });
         }
 
@@ -320,6 +341,9 @@ angular.module('greyscaleApp')
                 response = responses[fld.cid];
                 if (response) {
                     fld.responses = response;
+                }
+                if (surveyAnswers[fld.cid]) {
+                    fld.prevAnswers = surveyAnswers[fld.cid];
                 }
                 if (answer) {
                     fld.answerId = answer.id;
@@ -413,8 +437,8 @@ angular.module('greyscaleApp')
             var res = $q.resolve(isAuto);
             var answers = [];
 
-            if (!scope.lock) {
-                scope.lock = true;
+            if (!scope.model.formLocked) {
+                scope.model.formLocked = true;
                 answers = preSaveFields(scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
@@ -430,12 +454,12 @@ angular.module('greyscaleApp')
                         $log.debug('nextStep', canMove);
                         canMove = false;
                         scope.savedAt = new Date();
-                        scope.lock = isReadonly;
+                        scope.model.formLocked = isReadonly;
                         return canMove;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
-                        scope.lock = isReadonly;
+                        scope.model.formLocked = isReadonly;
                         return isAuto;
                     });
             }
@@ -515,45 +539,45 @@ angular.module('greyscaleApp')
         }
 
         function _printRenderBlank(printable) {
-            printable.find('.survey-form-field-input').each(function(){
+            printable.find('.survey-form-field-input').each(function () {
                 var field = $(this);
                 var type = field.attr('survey-form-field-type');
 
                 switch (type) {
-                    case 'text':
-                    case 'date':
-                        field.replaceWith('<div class="handwrite-field"></div>');
+                case 'text':
+                case 'date':
+                    field.replaceWith('<div class="handwrite-field"></div>');
                     break;
 
-                    case 'paragraph':
-                        field.replaceWith('<div class="handwrite-field small-line"></div>'.repeat(5));
+                case 'paragraph':
+                    field.replaceWith('<div class="handwrite-field small-line"></div>'.repeat(5));
                     break;
 
-                    case 'number':
-                    case 'scale':
-                        var unit = field.find('.input-group-addon');
-                        unit = unit.length ? unit.html() : '';
-                        field.replaceWith('<div class="handwrite-field unit-line"><span class="pull-right">' + unit + '</span></div>');
+                case 'number':
+                case 'scale':
+                    var unit = field.find('.input-group-addon');
+                    unit = unit.length ? unit.html() : '';
+                    field.replaceWith('<div class="handwrite-field unit-line"><span class="pull-right">' + unit + '</span></div>');
                     break;
 
-                    case 'bullet_points':
-                        field.replaceWith('<div class="handwrite-field bullet-line"><i class="fa fa-caret-right"></i><div></div></div>'.repeat(5));
+                case 'bullet_points':
+                    field.replaceWith('<div class="handwrite-field bullet-line"><i class="fa fa-caret-right"></i><div></div></div>'.repeat(5));
                     break;
 
-                    case 'dropdown':
-                        var select = $('<div class="handwrite-field select-options"></div>');
-                        var options = field.find('select option');
-                        options.each(function(i, option){
-                            option = $(option);
-                            if (option.val() !== '' && option.text() !== '') {
-                                select.append('<span class="select-option"><i class="fa fa-square-o"></i> ' + option.text() + '</span>');
-                            }
-                        });
-                        field.replaceWith(select);
+                case 'dropdown':
+                    var select = $('<div class="handwrite-field select-options"></div>');
+                    var options = field.find('select option');
+                    options.each(function (i, option) {
+                        option = $(option);
+                        if (option.val() !== '' && option.text() !== '') {
+                            select.append('<span class="select-option"><i class="fa fa-square-o"></i> ' + option.text() + '</span>');
+                        }
+                    });
+                    field.replaceWith(select);
                     break;
 
-                    default:
-                        //console.log(type);
+                default:
+                    //console.log(type);
                 }
             });
         }
