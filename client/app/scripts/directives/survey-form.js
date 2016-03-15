@@ -516,7 +516,47 @@ angular.module('greyscaleApp')
         }
 
         function _printRenderBlank(printable) {
-            console.log('ci');
+            printable.find('.survey-form-field-input').each(function(){
+                var field = $(this);
+                var type = field.attr('survey-form-field-type');
+
+                switch (type) {
+                    case 'text':
+                    case 'date':
+                        field.replaceWith('<div class="handwrite-field"></div>');
+                    break;
+
+                    case 'paragraph':
+                        field.replaceWith('<div class="handwrite-field small-line"></div>'.repeat(5));
+                    break;
+
+                    case 'number':
+                    case 'scale':
+                        var unit = field.find('.input-group-addon');
+                        unit = unit.length ? unit.html() : '';
+                        field.replaceWith('<div class="handwrite-field unit-line"><span class="pull-right">' + unit + '</span></div>');
+                    break;
+
+                    case 'bullet_points':
+                        field.replaceWith('<div class="handwrite-field bullet-line"><i class="fa fa-caret-right"></i><div></div></div>'.repeat(5));
+                    break;
+
+                    case 'dropdown':
+                        var select = $('<div class="handwrite-field select-options"></div>');
+                        var options = field.find('select option');
+                        options.each(function(i, option){
+                            option = $(option);
+                            if (option.val() !== '' && option.text() !== '') {
+                                select.append('<span class="select-option"><i class="fa fa-square-o"></i> ' + option.text() + '</span>');
+                            }
+                        });
+                        field.replaceWith(select);
+                    break;
+
+                    default:
+                        //console.log(type);
+                }
+            });
         }
 
         function _printRenderAnswers(printable) {
