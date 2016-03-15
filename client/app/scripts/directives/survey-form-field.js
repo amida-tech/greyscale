@@ -192,7 +192,7 @@ angular.module('greyscaleApp')
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
                     }
 
-                    if (scope.field.flags.seeOthersResponses) {
+                    if (scope.field.flags.seeOthersResponses || scope.field.flags.allowEdit) {
                         //TODO here is pervious responses
                         body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                             '<div translate="SURVEYS.RESPONSES"></div>' +
