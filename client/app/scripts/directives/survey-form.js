@@ -295,7 +295,9 @@ angular.module('greyscaleApp')
                             surveyAnswers[qId] = [];
                         }
 
-                        surveyAnswers[qId].push(_answers[v]);
+                        if (_answers[v].version) {
+                            surveyAnswers[qId].push(_answers[v]);
+                        }
 
                         fldName = fldNamePrefix + _answers[v].questionId;
 

@@ -8,7 +8,7 @@
                 {{getOptionLabel(optionId)}}
             </div>
             <div gs-edit-version="">
-                {{(params.field.type === "radio" || params.field.type === "checkboxes") && answer.value ? "Other:" : ""}}
+                {{(field.type === "radio" || field.type === "checkboxes") && answer.value ? "Other:" : ""}}
                 {{answer.value}}
             </div>
         </uib-accordion-group>
