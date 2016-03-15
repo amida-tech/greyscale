@@ -452,7 +452,7 @@ angular.module('greyscaleApp')
                 fld = fields[f];
                 if (fld.sub) {
                     _answers = _answers.concat(preSaveFields(fld.sub));
-                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || answer.comments) {
+                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comments) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
