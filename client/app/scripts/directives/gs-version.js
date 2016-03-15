@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsVersion', function ($log, $filter) {
+    .directive('gsVersion', function ($filter) {
         return {
             restrict: 'AEC',
             transclude: true,
@@ -40,11 +40,20 @@ angular.module('greyscaleApp')
                     break;
 
                 case 'bullet_points':
-                    $scope.model.list = angular.fromJson(answer.value);
+                    $scope.model.list = answer.value;
                     break;
 
                 default:
                     $scope.model.text = answer.value;
+                }
+            },
+            link: function (scope, elem) {
+                var fld = scope.field;
+                var answer = fld.prevAnswers[scope.index];
+                var textFields = ['text', 'paragraph', 'bullet_points'];
+
+                if (fld.flags.allowEdit && (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value)) {
+                    elem.append('<a class="btn btn-xs action-primary pull-right" ng-show="1"><i class="fa fa-pencil"></i></a>');
                 }
             }
         };
