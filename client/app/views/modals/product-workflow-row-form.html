@@ -52,15 +52,15 @@
         </div>
         <div class="col-md-4">
             <label translate="{{ext.formFields.writeToAnswers.title}}"></label>
-            <div class="radio"><label><input type="radio" name="row.surveyAccess"
-                                             ng-model="row.surveyAccess"
-                                             ng-value="'noWriteToAnswers'">
-                <i class="chk-box"></i><span translate=".WRITE_ACCESS_READ"></span></label>
-            </div>
             <div class="radio"><label><input type="radio" name="surveyAccess"
                                              ng-model="row.surveyAccess"
                                              ng-value="'writeToAnswers'">
                 <i class="chk-box"></i><span translate=".WRITE_ACCESS_WRITE"></span></label>
+            </div>
+            <div class="radio"><label><input type="radio" name="row.surveyAccess"
+                                             ng-model="row.surveyAccess"
+                                             ng-value="'noWriteToAnswers'">
+                <i class="chk-box"></i><span translate=".WRITE_ACCESS_READ"></span></label>
             </div>
             <div class="radio"><label><input type="radio" name="surveyAccess"
                                              ng-model="row.surveyAccess"

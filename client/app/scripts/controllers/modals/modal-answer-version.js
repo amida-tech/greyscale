@@ -1,41 +1,28 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, $stateParams, params,
-        greyscaleSurveyAnswerApi, greyscaleUserApi, _, $log) {
+    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, params, greyscaleUserApi) {
         params = params || {};
 
-        $scope.params = params;
-        var a = $scope.params.prevAnswers.length;
+        $scope.field = params.field;
 
-        $log.debug($scope.params.prevAnswers);
-        $scope.model = {
-            
-        };
+        var a = $scope.field.prevAnswers.length;
+        var userIds = [], users = {};
+
         for (; a--;) {
-            if ($scope)
+            if (userIds.indexOf($scope.field.prevAnswers[a].userId) === -1) {
+                userIds.push($scope.field.prevAnswers[a].userId);
+            }
         }
 
-        greyscaleSurveyAnswerApi.list({questionId: params.field.id, taskId: $stateParams.taskId})
-            .then(function (_answers) {
-                _answers = _.sortBy(_answers, 'version');
-                var userIds = [];
-                for (var i = _answers.length - 1; i >= 0; i--) {
-                    if (_answers[i].version === null) {
-                        _answers.splice(i, 1);
-                    } else if (userIds.indexOf(_answers[i].userId) === -1) {
-                        userIds.push(_answers[i].userId);
+        if (userIds.length > 0) {
+            greyscaleUserApi.list({id: userIds.join('|')})
+                .then(function (_users) {
+                    var u, qty = _users.length;
+                    for (u = 0; u < qty; u++) {
+                        users[_users[u].id] = _users[u];
                     }
-                }
-
-                if (userIds.length > 0) {
-                    greyscaleUserApi.list({id: userIds.join('|')}).then(function (_users) {
-                        $scope.users = _users;
-                        $scope.answers = _answers;
-                    });
-                } else {
-                    $scope.answers = _answers;
-                }
-            });
+                });
+        }
 
         $scope.close = function () {
             $uibModalInstance.close($scope.model);
@@ -45,23 +32,19 @@ angular.module('greyscaleApp')
             if (!optionId) {
                 return;
             }
-            for (var i = 0; i < $scope.params.field.options.length; i++) {
-                if (!$scope.params.field.options[i] || optionId !== $scope.params.field.options[i].id) {
+            for (var i = 0; i < $scope.field.options.length; i++) {
+                if (!$scope.field.options[i] || optionId !== $scope.field.options[i].id) {
                     continue;
                 }
-                return $scope.params.field.options[i].label;
+                return $scope.field.options[i].label;
             }
         };
 
         $scope.getUserName = function (userId) {
-            if (!userId || !$scope.users) {
-                return;
+            var res = '';
+            if (users[userId]) {
+                res = [users[userId].firstName, users[userId].lastName].join(' ');
             }
-            for (var i = 0; i < $scope.users.length; i++) {
-                if (userId !== $scope.users[i].id) {
-                    continue;
-                }
-                return $scope.users[i].firstName + ' ' + $scope.users[i].lastName;
-            }
+            return res;
         };
     });

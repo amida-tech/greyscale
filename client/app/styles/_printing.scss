@@ -45,6 +45,15 @@
             .field-comment {
                 display: none;
             }
+            .input-group {
+                display: none;
+            }
+            attachments {
+                display: none;
+            }
+            .version-button {
+                display: none;
+            }
         }
         .open-collapsible {
             .panel-heading {
@@ -99,6 +108,7 @@
                     top: 10px;
                     float: left;
                     clear: left;
+                    color: #ccc;
                 }
                 div {
                     height: 100%;
@@ -112,11 +122,17 @@
                 .select-option {
                     display: inline-block;
                     margin: 4px 20px 0 4px;
+                    .fa {
+                        color: #ccc;
+                    }
                 }
             }
             .pull-right {
                 position: relative;
                 top: 10px;
+            }
+            .bullet-point {
+                color: #ccc;
             }
         }
 
