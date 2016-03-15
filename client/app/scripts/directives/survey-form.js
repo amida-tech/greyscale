@@ -348,7 +348,7 @@ angular.module('greyscaleApp')
                 }
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
-                    if (fld.type === "bullet_points") {
+                    if (fld.type === 'bullet_points') {
                         for (var i = 0; i < fld.prevAnswers.length; i++) {
                             fld.prevAnswers[i].value = JSON.parse(fld.prevAnswers[i].value);
                         }
