@@ -129,3 +129,26 @@
     clear: both;
     display: block;
 }
+
+.field-response {
+    padding: 5px 0;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.field-response .fa {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.field-response .fa-times {
+    color: #ccc;
+}
+
+.field-response .fa-ban {
+    color: $red;
+}
+
+.field-response .fa-check {
+    color: $green;
+}
