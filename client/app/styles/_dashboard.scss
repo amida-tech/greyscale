@@ -499,10 +499,13 @@ ul.sidebar .sidebar-list .menu-icon {
 }
 
 .task-status-completed {
-    color: $green;
+    color: $gray;
 }
 .task-status-current {
-    color: $gray;
+    color: $green;
+    &.delayed {
+        color: $red;
+    }
 }
 .task-status-waiting {
     color: #bbb;

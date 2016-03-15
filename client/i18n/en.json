@@ -132,8 +132,8 @@
             "RESULTS_TITLE": "Import Results",
             "SHORT_NAME": "Short Name",
             "STATUS": "Status",
-            "TITLE": "Import Targets",
-            "UOA_TYPE": "Target Type",
+            "TITLE": "Import Subjects",
+            "UOA_TYPE": "Subject Type",
             "VISIBILITY": "Visibility"
         },
         "USERS": {
@@ -170,7 +170,7 @@
         "TASK": "Task",
         "TERMS": "Terms",
         "TITLE": "My Tasks",
-        "UOA": "Target"
+        "UOA": "Subject"
     },
     "NAV": {
         "ACCESS_MANAGEMENT": "Access management",
@@ -206,14 +206,14 @@
         "TASKS": "Tasks",
         "UOAS": {
             "LIST": "List",
-            "TITLE": "Targets"
+            "TITLE": "Subjects"
         },
         "USERS": {
             "GROUPS": "Groups",
             "IN_GROUPS": "Users In Groups",
             "LIST": "List",
             "TITLE": "Users",
-            "UOA": "Targets"
+            "UOA": "Subjects"
         },
         "VISUALIZATION": "Visualization",
         "VISUALIZATIONS": "Visualizations",
@@ -256,7 +256,7 @@
         "COUNT_ONTIME": "On Time",
         "COUNT_OVERDUE": "Overdue",
         "COUNT_STARTED": "Started",
-        "COUNT_UOAS": "Targets",
+        "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
         "DOWNLOAD_DATA": "Download Data"
     },
@@ -300,7 +300,7 @@
             "DESCRIPTION": "Description",
             "INDEXES": "Indexes",
             "PAUSE_PRODUCT": "Suspend Project",
-            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Targets, Workflow Steps and Tasks for this Project.",
+            "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Subjects, Workflow Steps and Tasks for this Project.",
             "PRODUCT": "Project",
             "SETTINGS": "Settings",
             "START_PRODUCT": "Start Project",
@@ -309,12 +309,12 @@
             "SURVEY_STATUS": "Survey Status",
             "TASKS": "Tasks",
             "TITLE": "Title",
-            "UOAS": "Targets",
+            "UOAS": "Subjects",
             "WORKFLOW": "Workflow"
         },
         "TASKS": {
             "DRAG_USER": "Drag And Drop User To Task",
-            "NO_UOAS": "This Project has no Targets.",
+            "NO_UOAS": "This Project has no Subjects.",
             "NO_WORKFLOW_STEPS": "This Project has no Workflow Steps.",
             "SEARCH_USER_LABEL": "Or By Name Or E-mail",
             "SELECT_USERGROUP": "Select User Group ...",
@@ -327,19 +327,19 @@
                 "TASK_REMOVE_ERROR": "Server error while removing task",
                 "TASK_UPDATE_ERROR": "Server error while updating task",
                 "TITLE": "Tasks",
-                "UOAS_HEADER": "Target"
+                "UOAS_HEADER": "Subject"
             },
             "TASKS_FOR": "Tasks <small>for \"{{product}}\" Project</small>",
             "USERS_NOT_FOUND_BY_GROUP": "Can't Found Users With User group \"{{group}}\".",
             "USERS_NOT_FOUND_BY_SEARCH": "Can't Found Users Matches \"{{search}}\"."
         },
         "UOAS": {
-            "DELETE_CONFIRM": "Please confirm deleting Target <b>{{uoa.name}}</b> from project <b>{{product.title}}</b>",
+            "DELETE_CONFIRM": "Please confirm deleting Subject <b>{{uoa.name}}</b> from project <b>{{product.title}}</b>",
             "DESCRIPTION": "Description",
-            "MODAL_TITLE": "Targets <small>For \"{{product.title}}\" Project</small>",
+            "MODAL_TITLE": "Subjects <small>For \"{{product.title}}\" Project</small>",
             "NAME": "Name",
             "SHORT_NAME": "Short Name",
-            "TABLE_TITLE": "Product Targets",
+            "TABLE_TITLE": "Product Subjects",
             "TYPE": "Type"
         },
         "WORKFLOW": {
@@ -388,7 +388,7 @@
         "STEP": "Workflow Step",
         "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
-        "UOA": "Target",
+        "UOA": "Subject",
         "USER": "User"
     },
     "PROFILE": {
@@ -491,6 +491,7 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "NO_DATA": "No data",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
         "PRINT_QUESTIONS": "Print questions only",
@@ -520,9 +521,9 @@
     },
     "UOAS": {
         "CREATED": "Created",
-        "DELETE_CONFIRM": "Please confirm deleting of Target <b>{{uoa.name}}</b>",
-        "DELETE_CONFIRM_TYPE": "Please confirm deleting of Target Type <b>{{uoaType.name}}</b>",
-        "DELETE_CONFIRM_UOA_TAG_LINK": "Please confirm deleting of link Target <b>{{uoa.name}}</b> to Tag <b>{{tag.name}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of Subject <b>{{uoa.name}}</b>",
+        "DELETE_CONFIRM_TYPE": "Please confirm deleting of Subject Type <b>{{uoaType.name}}</b>",
+        "DELETE_CONFIRM_UOA_TAG_LINK": "Please confirm deleting of link Subject <b>{{uoa.name}}</b> to Tag <b>{{tag.name}}</b>",
         "DESCRIPTION": "Description",
         "NAME": "Name",
         "SHORT_NAME": "Short Name",
@@ -531,12 +532,12 @@
         "TYPE": "Type",
         "TYPE_DESCRIPTION": "Type Description",
         "TYPE_NAME": "Type Name",
-        "UNIT_TYPE": "Target Type",
-        "UNIT_TYPES": "Target Types",
-        "UOA": "Target",
-        "UOAS": "Targets",
-        "UOA_TAG_LINK": "Target to Tag link",
-        "UOA_TAG_LINKS": "Target to Tag links",
+        "UNIT_TYPE": "Subject Type",
+        "UNIT_TYPES": "Subject Types",
+        "UOA": "Subject",
+        "UOAS": "Subjects",
+        "UOA_TAG_LINK": "Subject to Tag link",
+        "UOA_TAG_LINKS": "Subject to Tag links",
         "VISIBILITY": "Visibility"
     },
     "UOAS_FILTER": {
@@ -546,7 +547,7 @@
         "NAME": "Name",
         "SHORT_NAME": "Short Name",
         "STATUS": "Status",
-        "TABLE_TITLE": "Select Target",
+        "TABLE_TITLE": "Select Subject",
         "TYPE": "Type"
     },
     "UOA_TAGS": {
@@ -591,7 +592,7 @@
     "USERS_UOA": {
         "PRIVATE": "Private",
         "PUBLIC": "Public",
-        "UOAS": "Targets",
+        "UOAS": "Subjects",
         "USERS": "Users"
     },
     "USER_GROUPS": {

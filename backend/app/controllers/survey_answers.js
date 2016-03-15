@@ -99,6 +99,74 @@ module.exports = {
         });
     },
 
+    update: function (req, res, next) {
+        co(function* (){
+            if((typeof req.body.isResponse == 'undefined') || (typeof req.body.value == 'undefined')){
+                throw new HttpError(400, 'You should pass isResponse and value parameters');
+            }
+
+            var curStepAlias = 'curStep';
+
+            var result = (yield thunkQuery(
+                SurveyAnswer
+                .select(
+                    'row_to_json("SurveyAnswers") as "answer"',
+                    'row_to_json("WorkflowSteps") as "step"',
+                    'row_to_json("Tasks") as "task"',
+                    'row_to_json("curStep") as "curStep"'
+                )
+                .from(
+                    SurveyAnswer
+                    .leftJoin(WorkflowStep)
+                    .on(WorkflowStep.id.equals(SurveyAnswer.wfStepId))
+                    .leftJoin(Task)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(ProductUOA)
+                    .on(
+                        ProductUOA.productId.equals(SurveyAnswer.productId)
+                        .and(ProductUOA.UOAid.equals(SurveyAnswer.UOAid))
+                    )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(WorkflowStep.as(curStepAlias).id.equals(ProductUOA.currentStepId))
+                )
+                .where(SurveyAnswer.id.equals(req.params.id))
+            ))[0];
+
+            if (!result) {
+                throw new HttpError(404, 'answer does not exist');
+            }
+
+            if (result.step.id != result.curStep.id) {
+                throw new HttpError(403, 'Step for this answer is not current');
+            }
+
+            if (result.task.userId != req.user.id) {
+                console.log(result.task);
+                console.log(req.user.id);
+                throw new HttpError(403, 'Task for this answer assigned to another user');
+            }
+
+            if (!result.step.allowEdit) {
+                throw new HttpError(403, 'You do not have permission to edit this answer');
+            }
+
+            if (req.body.isResponse) {
+                var updateObj = {comments: req.body.value};
+            } else {
+                var updateObj = {value: req.body.value};
+            }
+
+            return yield thunkQuery(
+                SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
+            );
+
+        }).then(function (){
+            res.status(202).end();
+        }, function (err) {
+            next(err);
+        });
+    },
+
     add: function (req, res, next) {
         co(function* () {
             if(!Array.isArray(req.body)){
