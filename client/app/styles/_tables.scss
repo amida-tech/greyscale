@@ -125,10 +125,13 @@ table.table-col-fixed {
             opacity: 1;
         }
         &.status-current {
-            background: #ee0000;
+            background: $green;
+            &.delayed {
+                background: $red;
+            }
         }
         &.status-completed {
-            background: #00bc00;
+            background: $gray;
         }
         &.status-waiting {
             background: #aaa;
