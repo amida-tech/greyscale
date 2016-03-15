@@ -34,6 +34,7 @@
             display: none;
         }
         .form-group {
+            page-break-inside: avoid;
             .subtext {
                 display: none;
             }
@@ -74,6 +75,48 @@
                 .checkbox-list {
                     display: none;
                 }
+            }
+        }
+
+        .handwrite-field {
+            height: 35px;
+            border-bottom: 1px solid #ccc;
+            &:first-child {
+                margin-top: -10px;
+            }
+            &.small-line {
+                //&:not(:first-child) {
+                //    height: 25px;
+                //}
+            }
+            &.bullet-line {
+                //&:not(:first-child) {
+                //    height: 25px;
+                //}
+                border: none;
+                .fa {
+                    position: relative;
+                    top: 10px;
+                    float: left;
+                    clear: left;
+                }
+                div {
+                    height: 100%;
+                    border-bottom: 1px solid #ccc;
+                    margin-left: 20px;
+                }
+            }
+            &.select-options {
+                border:none;
+                height: auto;
+                .select-option {
+                    display: inline-block;
+                    margin: 4px 20px 0 4px;
+                }
+            }
+            .pull-right {
+                position: relative;
+                top: 10px;
             }
         }
 

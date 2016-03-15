@@ -13,6 +13,7 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    ProductUOA = require('app/models/product_uoa'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -40,16 +41,45 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
+            var curStepAlias = 'curStep';
             var task = yield thunkQuery(
                 Task
                 .select(
-                    Task.star()
-                    //'row_to_json("Workflows".*) as workflow'
+                    Task.star(),
+                    'CASE ' +
+                        'WHEN (' +
+                            'SELECT ' +
+                            '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isReturn" = true ' +
+                            'AND "Discussions"."isResolve" = false ' +
+                            'LIMIT 1' +
+                        ') IS NULL ' +
+                        'THEN FALSE ' +
+                        'ELSE TRUE ' +
+                    'END as flagged',
+                    'CASE ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                    'END as status '
                 )
                 .from(
                     Task
-                    //.leftJoin(Workflow)
-                    //.on(Product.id.equals(Workflow.productId))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(ProductUOA)
+                    .on(
+                        ProductUOA.productId.equals(Task.productId)
+                            .and(ProductUOA.UOAid.equals(Task.uoaId))
+                    )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
+                    )
                 )
                 .where(Task.id.equals(req.params.id))
             );

@@ -14,7 +14,8 @@ var columns = [
     'surveyId',
     'isResponse',
     'isAgree',
-    'comments'
+    'comments',
+    'langId'
 
 ];
 

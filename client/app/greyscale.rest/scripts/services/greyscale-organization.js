@@ -40,6 +40,6 @@ angular.module('greyscale.rest')
         }
 
         function _products(id) {
-            return api().one(id + '').one('products').get()
+            return api().one(id + '').one('products').get();
         }
     });

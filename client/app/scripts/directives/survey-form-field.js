@@ -188,7 +188,7 @@ angular.module('greyscaleApp')
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
                             attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
-                        body = label + body + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                        body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
                     }
 
@@ -197,7 +197,10 @@ angular.module('greyscaleApp')
                         body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                             '<div translate="SURVEYS.RESPONSES"></div>' +
                             '<div ng-repeat="resp in field.responses">' +
-                            '<div ng-class="{ \'accepted\': field.isAgree === true, \'rejected\': field.isAgree === false }">{{resp.comments}}</div>' +
+                            '<div class="field-response">' +
+                            '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree === true, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null }"></i>' +
+                            '<span>{{resp.comments}}</span>' +
+                            '</div>' +
                             '</div>' +
                             '</div>';
                     }
@@ -209,10 +212,10 @@ angular.module('greyscaleApp')
                             '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
                             '<div class="field-comment-radio">' +
                             '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                            ' value="true" ng-model="field.isAgree" /><i class="chk-box"></i>' +
+                            ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                             '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
                             '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                            ' value="false" ng-model="field.isAgree" /><i class="chk-box"></i>' +
+                            ' value="false" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                             '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
                             '</div>' +
                             '</div>';

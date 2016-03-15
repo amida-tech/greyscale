@@ -111,7 +111,7 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete);
 
 router.route('/:realm/v0.2/attachments')
-    .post(/*authenticate('token').always,*/ surveyAnswers.attach);
+    .post(authenticate('token').always, surveyAnswers.attach);
 
 router.route('/:realm/v0.2/attachments/get/:ticket')
     .get(surveyAnswers.getAttachment);

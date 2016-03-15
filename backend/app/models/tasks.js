@@ -12,9 +12,6 @@ var Task = sql.define({
         'productId',
         'startDate',
         'endDate',
-        'accessToDiscussions',
-        'accessToResponses',
-        'writeToAnswers',
         'userId'
     ]
 });
@@ -24,9 +21,6 @@ Task.editCols = [
     'description',
     'startDate',
     'endDate',
-    'accessToDiscussions',
-    'accessToResponses',
-    'writeToAnswers',
     'userId'
 ];
 

@@ -479,7 +479,7 @@
         "DELETE_CONFIRM": "Please confirm deleting of survey <b>{{survey.title}}</b>",
         "DESCRIPTION": "Description",
         "DISAGREE": "Disagree",
-        "DISCUSSION": "Group discussion",
+        "DISCUSSION": "Discussion",
         "FIELDS": "Fields",
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
