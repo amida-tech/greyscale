@@ -23,7 +23,7 @@ CREATE TABLE "IndexSubindexWeights" (
 );
 
 
-ALTER TABLE "IndexSubindexWeights" OWNER TO rickards;
+ALTER TABLE "IndexSubindexWeights" OWNER TO indaba;
 
 --
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
