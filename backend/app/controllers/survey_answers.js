@@ -10,6 +10,8 @@ var
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    Project = require('app/models/projects'),
+    Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
@@ -52,8 +54,52 @@ module.exports = {
         co(function* () {
             var condition = _.pick(req.params,['productId','UOAid']);
 
-            if(req.params.userId){
-                condition.userId = req.params.userId;
+            if(req.user.roleID == 3) {
+                var user_tasks = yield thunkQuery(
+                    Task.select()
+                    .where(
+                        {
+                            uoaId     : req.params.UOAid,
+                            productId : req.params.productId,
+                            userId    : req.user.id
+                        }
+                    )
+                );
+                if(!user_tasks[0]){
+                    throw new HttpError(
+                        403,
+                        'You should be owner at least of 1 task for this product and subject'
+                    );
+                }
+            }
+
+            if(req.user.roleID == 2){
+                var org = yield thunkQuery(
+                    Product
+                    .select(Organization.star())
+                    .from(
+                        Product
+                        .leftJoin(Project)
+                        .on(Product.projectId.equals(Project.id))
+                        .leftJoin(Organization)
+                        .on(Project.organizationId.equals(Organization.id))
+                    )
+                    .where(Product.id.equals(req.params.productId))
+                );
+
+                if (!org[0]) {
+                    throw new HttpError(
+                        403,
+                        'Cannot find organization for this product'
+                    );
+                }
+
+                if (org[0].id != req.user.organizationId) {
+                    throw new HttpError(
+                        403,
+                        'You cannot see answers from other organizations'
+                    );
+                }
             }
 
             return yield thunkQuery(
@@ -104,18 +150,7 @@ module.exports = {
         }, function(err){
             next(err);
         });
-        //var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        //query(q, function (err, data) {
-        //    if (err) {
-        //        return next(err);
-        //    }
-        //    if (_.first(data)) {
-        //        res.json(_.first(data));
-        //    } else {
-        //        return next(new HttpError(404, 'Not found'));
-        //    }
-        //
-        //});
+
     },
 
     delete: function (req, res, next) {
@@ -170,14 +205,6 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            //if (result.step.id != result.curStep.id) {
-            //    throw new HttpError(
-            //        403,
-            //        'Step for this answer is not current ' +
-            //        '(step = '+ result.step.id +' current step = '+result.curStep.id+')'
-            //    );
-            //}
-
             if (result.task.userId != req.user.id) {
                 throw new HttpError(
                     403,
@@ -196,13 +223,11 @@ module.exports = {
                 var updateObj = {value: req.body.value};
             }
 
-            //return  result;
             return yield thunkQuery(
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
         }).then(function (data){
-            //res.json(data);
             res.status(202).end('updated');
         }, function (err) {
             next(err);
