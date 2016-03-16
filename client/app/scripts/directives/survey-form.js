@@ -285,13 +285,9 @@ angular.module('greyscaleApp')
         function loadAnswers(scope) {
             var recentAnswers = {};
             var responses = {};
-            var query = angular.extend({
-                    order: 'version'
-                },
-                surveyParams);
 
             scope.model.formLocked = true;
-            greyscaleSurveyAnswerApi.list(query)
+            greyscaleSurveyAnswerApi.list(surveyParams.productId,surveyParams.UOAid)
                 .then(function (_answers) {
                     var v, answer, qId,
                         qty = _answers.length;

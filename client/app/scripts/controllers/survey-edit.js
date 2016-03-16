@@ -119,4 +119,5 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
     });

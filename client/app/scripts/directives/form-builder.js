@@ -6,7 +6,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals) {
+    .directive('formBuilder', function (greyscaleGlobals, $compile) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
@@ -189,6 +189,13 @@ angular.module('greyscaleApp')
                             }
                         };
                         formbuilder.on('save', formBuilderSave);
+                    }
+
+                    var control = $('[form-builder-control]');
+                    var controlCopy;
+                    if (control.length) {
+                        controlCopy = control.clone().html();
+                        elem.find('.fb-form').after($compile(controlCopy)(scope));
                     }
                 }
 
