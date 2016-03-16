@@ -145,11 +145,19 @@ angular.module('greyscaleApp')
                 UOAid: task.uoaId
             };
 
+            if (!task || task.status !== 'current') {
+                angular.extend(scope.surveyData.flags, {
+                    allowEdit: false,
+                    writeToAnswers: false,
+                    provideResponses: false
+                });
+            }
+
             currentUserId = scope.surveyData.userId;
             currentStepId = task.stepId;
             provideResponses = scope.surveyData.flags.provideResponses;
 
-            isReadonly = (!task || task.status !== 'current') || !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
+            isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
 
             for (q = 0; q < qQty; q++) {
                 field = survey.questions[q];
