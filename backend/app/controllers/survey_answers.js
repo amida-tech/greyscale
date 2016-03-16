@@ -137,13 +137,21 @@ module.exports = {
             }
 
             if (result.step.id != result.curStep.id) {
-                throw new HttpError(403, 'Step for this answer is not current');
+                throw new HttpError(
+                    403,
+                    'Step for this answer is not current ' +
+                    '(step = '+ result.step.id +' current step = '+result.curStep.id+')'
+                );
             }
 
             if (result.task.userId != req.user.id) {
                 console.log(result.task);
                 console.log(req.user.id);
-                throw new HttpError(403, 'Task for this answer assigned to another user');
+                throw new HttpError(
+                    403,
+                    'Task (id = '+ result.task.id +') for this answer assigned to another user ' +
+                    '(task user id = '+ result.task.userId +', user id = '+ req.user.id +')'
+                );
             }
 
             if (!result.step.allowEdit) {
