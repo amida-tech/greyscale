@@ -21,15 +21,12 @@ angular.module('greyscaleApp')
                 var fld = $scope.field;
                 var answer = fld.prevAnswers[$scope.index];
                 var textFields = ['text', 'paragraph', 'bullet_points'];
-                fld.flags.allowEdit = true;
+
+                fillValues();
 
                 $scope.model = angular.extend({
                     editable: fld.flags.allowEdit && (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value)
                 }, $scope.model);
-
-                fillValues();
-
-                $log.debug($scope.values);
 
                 $scope.edit = toggleEditMode;
 
