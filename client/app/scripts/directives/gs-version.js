@@ -23,30 +23,36 @@ angular.module('greyscaleApp')
                     editMode: false
                 };
 
-                switch (fld.type) {
-                case 'date':
-                    $scope.model.text = $filter('date')(new Date(answer.value), 'yyyy/MM/dd');
-                    break;
+                updateField();
 
-                case 'radio':
-                case 'checkbox':
-                    if (fld.withOther && answer.value) {
-                        $scope.model.text = 'Other: ' + answer.value;
+                $scope.$watch('field.prevAnswers[index].value', updateField);
+
+                function updateField() {
+                    switch (fld.type) {
+                    case 'date':
+                        $scope.model.text = $filter('date')(new Date(answer.value), 'yyyy/MM/dd');
+                        break;
+
+                    case 'radio':
+                    case 'checkbox':
+                        if (fld.withOther && answer.value) {
+                            $scope.model.text = 'Other: ' + answer.value;
+                        }
+                        break;
+
+                    case 'dropdown':
+                        if (!answer.optionId || answer.optionId.length < 1) {
+                            $scope.model.text = 'no option was selected';
+                        }
+                        break;
+
+                    case 'bullet_points':
+                        $scope.model.list = answer.value;
+                        break;
+
+                    default:
+                        $scope.model.text = answer.value;
                     }
-                    break;
-
-                case 'dropdown':
-                    if (!answer.optionId || answer.optionId.length < 1) {
-                        $scope.model.text = 'no option was selected';
-                    }
-                    break;
-
-                case 'bullet_points':
-                    $scope.model.list = answer.value;
-                    break;
-
-                default:
-                    $scope.model.text = answer.value;
                 }
             }
         };
