@@ -9,14 +9,14 @@ angular.module('greyscaleApp')
             transclude: true,
             replace: true,
             template: '<div  class="form-group"><ng-transclude ng-hide="model.editMode" class="form-control-static"></ng-transclude>' +
-            '<div ng-show="model.editMode">' +
-            '<input type="text" class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type!==\'paragraph\'"/>' +
-            '<textarea class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type===\'paragraph\'"></textarea>' +
-            '<a class="btn btn-xs action-primary pull-right" ng-show="model.editMode" ng-click="apply()"><i class="fa fa-check"></i></a>' +
-            '<a class="btn btn-xs action pull-right" ng-show="model.editMode" ng-click="cancel()"><i class="fa fa-minus"></i></a>' +
-            '</div>' +
-            '<a class="btn btn-xs action-primary pull-right" ng-hide="model.editMode || !model.editable" ng-click="edit()"><i class="fa fa-pencil"></i></a>' +
-            '</div>',
+                '<div ng-show="model.editMode">' +
+                '<input type="text" class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type!==\'paragraph\'"/>' +
+                '<textarea class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type===\'paragraph\'"></textarea>' +
+                '<a class="btn btn-xs action-primary pull-right" ng-show="model.editMode" ng-click="apply()"><i class="fa fa-check"></i></a>' +
+                '<a class="btn btn-xs action pull-right" ng-show="model.editMode" ng-click="cancel()"><i class="fa fa-minus"></i></a>' +
+                '</div>' +
+                '<a class="btn btn-xs action-primary pull-right" ng-hide="model.editMode || !model.editable" ng-click="edit()"><i class="fa fa-pencil"></i></a>' +
+                '</div>',
             controller: function ($scope) {
                 var fld = $scope.field;
                 var answer = fld.prevAnswers[$scope.index];
@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                 $scope.values = scalarToObjects(answer.value);
 
                 $scope.model = angular.extend({
-                    editable: true || fld.flags.allowEdit && (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value)
+                    editable: fld.flags.allowEdit && (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value)
                 }, $scope.model);
 
                 $scope.edit = toggleEditMode;
@@ -39,7 +39,6 @@ angular.module('greyscaleApp')
                     var _value,
                         _arr = objectsToScalar($scope.values);
 
-
                     if (fld.type === 'bullet_points') {
                         _value = angular.toJson(_arr);
                     } else {
@@ -47,9 +46,9 @@ angular.module('greyscaleApp')
                     }
 
                     greyscaleSurveyAnswerApi.update(answer.id, {
-                        isResponse: answer.isResponse,
-                        value: _value
-                    })
+                            isResponse: answer.isResponse,
+                            value: _value
+                        })
                         .then(function (resp) {
                             if (resp === 'updated') {
                                 if (fld.type === 'bullet_points') {
@@ -75,20 +74,24 @@ angular.module('greyscaleApp')
                     if (isArray) {
                         qty = value.length;
                         for (i = 0; i < qty; i++) {
-                            data.push({val: value[i]});
+                            data.push({
+                                val: value[i]
+                            });
                         }
                     } else {
-                        data.push({val: value});
+                        data.push({
+                            val: value
+                        });
                     }
                     return data;
                 }
 
                 function objectsToScalar(objs) {
                     var i,
-                        data =[],
+                        data = [],
                         qty = objs.length;
 
-                    for (i=0; i<qty; i++) {
+                    for (i = 0; i < qty; i++) {
                         data.push(objs[i].val);
                     }
                     return data;

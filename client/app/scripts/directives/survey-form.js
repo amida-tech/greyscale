@@ -293,27 +293,31 @@ angular.module('greyscaleApp')
             scope.model.formLocked = true;
             greyscaleSurveyAnswerApi.list(query)
                 .then(function (_answers) {
-                    var v, answer, fldName, response, qId;
+                    var v, answer, qId,
+                        qty = _answers.length;
+
                     recentAnswers = {};
                     responses = {};
                     surveyAnswers = {};
 
-                    for (v = 0; v < _answers.length; v++) {
+                    for (v = 0; v < qty; v++) {
                         qId = fldNamePrefix + _answers[v].questionId;
+                        _answers[v].created = new Date(_answers[v].created);
 
                         if (!surveyAnswers[qId]) {
                             surveyAnswers[qId] = [];
                         }
+                        if (!responses[qId]) {
+                            responses[qId] = [];
+                        }
 
-                        if (_answers[v].version) {
+                        if (_answers[v].isResponse) {
+                            responses[qId].push(_answers[v]);
+                        } else if (_answers[v].version) {
                             surveyAnswers[qId].push(_answers[v]);
                         }
 
-                        fldName = fldNamePrefix + _answers[v].questionId;
-
-                        answer = recentAnswers[fldName];
-
-                        _answers[v].created = new Date(_answers[v].created);
+                        answer = recentAnswers[qId];
 
                         if (!answer ||
                             _answers[v].version === null && _answers[v].userId === currentUserId ||
@@ -325,15 +329,6 @@ angular.module('greyscaleApp')
                                 scope.savedAt = recentAnswers[qId].created;
                             }
                         }
-
-                        if (!_answers[v].isResponse) {
-                            continue;
-                        }
-                        if (!responses[qId]) {
-                            responses[qId] = [];
-                        }
-                        response = responses[qId];
-                        response.push(_answers[v]);
                     }
 
                     loadRecursive(scope.fields, recentAnswers, responses);

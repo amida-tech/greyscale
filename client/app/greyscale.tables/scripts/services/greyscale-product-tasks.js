@@ -205,13 +205,13 @@ angular.module('greyscale.tables')
         }
 
         function _isOnTime(task) {
-            var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0,0,0,0);
+            var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0, 0, 0, 0);
             var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59, 999);
             return !shouldBeStarted || !!task.lastVersionDate || !shouldBeEnded;
         }
 
         function _isOverdueDeadline(task) {
-            return task.status !== 'completed' && new Date(task.endDate) <= new Date().setHours(0,0,0,0);
+            return task.status !== 'completed' && new Date(task.endDate) <= new Date().setHours(0, 0, 0, 0);
         }
 
         function _handleProgressBlockClick(e, scope) {
