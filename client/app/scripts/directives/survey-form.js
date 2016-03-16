@@ -349,10 +349,14 @@ angular.module('greyscaleApp')
                 fQty = fields.length;
             for (f = 0; f < fQty; f++) {
                 fld = fields[f];
-                answer = answers[fld.cid];
-                response = responses[fld.cid];
-                if (response) {
-                    fld.responses = response;
+                if (answers) {
+                    answer = answers[fld.cid];
+                }
+                if (responses) {
+                    response = responses[fld.cid];
+                    if (response) {
+                        fld.responses = response;
+                    }
                 }
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
