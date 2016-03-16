@@ -860,11 +860,20 @@ module.exports = {
                         'ELSE TRUE ' +
                     'END as flagged',
                     'CASE ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'WHEN ' +
+                            '"' + curStepAlias + '"."position" > "WorkflowSteps"."position" ' +
+                        'THEN \'completed\' ' +
+                        'WHEN (' +
+                            '"' + curStepAlias + '"."position" IS NULL ' +
+                            'AND ("WorkflowSteps"."position" = 0) ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'OR (' +
+                            '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'THEN \'current\' ' +
+                        'ELSE \'waiting\'' +
                     'END as status '
                 )
                 .from(
