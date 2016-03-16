@@ -207,7 +207,13 @@ angular.module('greyscale.tables')
         function _isOnTime(task) {
             var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0, 0, 0, 0);
             var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59, 999);
-            return !shouldBeStarted || !!task.lastVersionDate || !shouldBeEnded;
+            if (!shouldBeStarted) {
+                return true;
+            }
+            if (task.lastVersionDate) {
+                return new Date(task.endDate).setHours(23, 59, 59, 999) > new Date(task.lastVersionDate);
+            }
+            return !shouldBeEnded;
         }
 
         function _isOverdueDeadline(task) {
