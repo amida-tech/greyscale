@@ -2,7 +2,7 @@
   "name": "greyscale-client",
   "version": "0.0.0",
   "dependencies": {
-    "formbuilder": "https://github.com/amida-tech/indaba-formbuilder.git#greyscale",
+    "formbuilder": "https://github.com/amida-tech/indaba-formbuilder.git#ntrlab",
     "angular": "1.4",
     "bootstrap-sass-official": "^3.2.0",
     "angular-cookies": "^1.4.0",
