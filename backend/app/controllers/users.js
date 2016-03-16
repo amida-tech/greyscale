@@ -400,7 +400,8 @@ module.exports = {
                     'password': User.hashPassword(pass),
                     'isActive': false,
                     'activationToken': activationToken,
-                    'organizationId': org.id
+                    'organizationId': org.id,
+                    'isAnonymous' : req.body.isAnonymous ? true : false
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
