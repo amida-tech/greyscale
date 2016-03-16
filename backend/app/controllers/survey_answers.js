@@ -119,8 +119,7 @@ module.exports = {
                     SurveyAnswer
                     .leftJoin(WorkflowStep)
                     .on(WorkflowStep.id.equals(SurveyAnswer.wfStepId))
-                    .leftJoin(Task)
-                    .on(Task.stepId.equals(WorkflowStep.id))
+
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(SurveyAnswer.productId)
@@ -128,6 +127,12 @@ module.exports = {
                     )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(WorkflowStep.as(curStepAlias).id.equals(ProductUOA.currentStepId))
+                    .leftJoin(Task)
+                    .on(
+                        Task.stepId.equals(WorkflowStep.as(curStepAlias).id)
+                        .and(Task.uoaId.equals(SurveyAnswer.UOAid))
+                        .and(Task.productId.equals(SurveyAnswer.productId))
+                    )
                 )
                 .where(SurveyAnswer.id.equals(req.params.id))
             ))[0];
@@ -136,26 +141,24 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (result.step.id != result.curStep.id) {
-                throw new HttpError(
-                    403,
-                    'Step for this answer is not current ' +
-                    '(step = '+ result.step.id +' current step = '+result.curStep.id+')'
-                );
-            }
+            //if (result.step.id != result.curStep.id) {
+            //    throw new HttpError(
+            //        403,
+            //        'Step for this answer is not current ' +
+            //        '(step = '+ result.step.id +' current step = '+result.curStep.id+')'
+            //    );
+            //}
 
             if (result.task.userId != req.user.id) {
-                console.log(result.task);
-                console.log(req.user.id);
                 throw new HttpError(
                     403,
-                    'Task (id = '+ result.task.id +') for this answer assigned to another user ' +
+                    'Task (id = '+ result.task.id +') on current workflow step assigned to another user ' +
                     '(task user id = '+ result.task.userId +', user id = '+ req.user.id +')'
                 );
             }
 
-            if (!result.step.allowEdit) {
-                throw new HttpError(403, 'You do not have permission to edit this answer');
+            if (!result.curStep.allowEdit) {
+                throw new HttpError(403, 'You do not have permission to edit answers');
             }
 
             if (req.body.isResponse) {
@@ -164,11 +167,13 @@ module.exports = {
                 var updateObj = {value: req.body.value};
             }
 
+            //return  result;
             return yield thunkQuery(
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
-        }).then(function (){
+        }).then(function (data){
+            //res.json(data);
             res.status(202).end();
         }, function (err) {
             next(err);
