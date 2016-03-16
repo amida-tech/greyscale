@@ -174,7 +174,7 @@ module.exports = {
 
         }).then(function (data){
             //res.json(data);
-            res.status(202).end();
+            res.status(202).end('updated');
         }, function (err) {
             next(err);
         });
