@@ -48,6 +48,35 @@ module.exports = {
 
     },
 
+    getByProdUoa: function (req, res, next) {
+        co(function* () {
+            var condition = _.pick(req.params,['productId','UOAid']);
+
+            if(req.params.userId){
+                condition.userId = req.params.userId;
+            }
+
+            return yield thunkQuery(
+                SurveyAnswer
+                    .select(
+                        SurveyAnswer.star(),
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                            'FROM "AnswerAttachments" a ' +
+                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                        ') as att) as attachments'
+                    )
+                    .from(SurveyAnswer)
+                    .where(condition)
+                , _.omit(req.query,['productId','UOAid'])
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     selectOne: function (req, res, next) {
         co(function* (){
             var result = yield thunkQuery(
@@ -207,18 +236,6 @@ module.exports = {
 
                 result.push(req.body[i]);
             }
-
-            //if (!req.query.autosave) {
-            //    try {
-            //        yield * moveWorkflow(req, dataObject.productId, dataObject.UOAid);
-            //    } catch (e) {
-            //        if (e instanceof HttpError) {
-            //            throw e;
-            //        } else {
-            //            throw new HttpError(403, 'Move workflow internal error');
-            //        }
-            //    }
-            //}
 
             return result;
         }).then(function (data) {

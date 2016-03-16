@@ -106,6 +106,9 @@ router.route('/:realm/v0.2/survey_answers')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
 
+router.route('/:realm/v0.2/survey_answers/:productId/:UOAid')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa)
+
 router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)

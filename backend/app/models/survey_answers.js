@@ -26,7 +26,9 @@ var SurveyAnswer = sql.define({
 
 SurveyAnswer.editCols = [
     'value',
-    'optionId'
+    'optionId',
+    'isResponse',
+    'comments'
 ];
 
 SurveyAnswer.translate = [

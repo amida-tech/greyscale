@@ -1,0 +1,12 @@
+ALTER TABLE "Users" OWNER TO "indaba";
+ALTER TABLE "Essences" OWNER TO "indaba";
+ALTER TABLE "EssenceRoles" OWNER TO "indaba";
+ALTER TABLE "AccessPermissions" OWNER TO "indaba";
+ALTER TABLE "Roles" OWNER TO "indaba";
+ALTER TABLE "AccessMatrices" OWNER TO "indaba";
+ALTER TABLE "Rights" OWNER TO "indaba";
+ALTER TABLE "RolesRights" OWNER TO "indaba";
+ALTER TABLE "UserRights" OWNER TO "indaba";
+ALTER TABLE "Products" OWNER TO "indaba";
+ALTER TABLE "Token" OWNER TO "indaba";
+ALTER TABLE "Organizations" OWNER TO "indaba";
