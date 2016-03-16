@@ -9,7 +9,7 @@
                     <span translate=".COUNT_UOAS"></span><br>
                 </td>
                 <td>
-                    <span translate=".COUNT_ONTIME"></span>
+                    <span translate=".COUNT_ONTIME"></span> / <span translate=".COUNT_STARTED"></span>
                 </td>
                 <td>
                     <span translate=".COUNT_DELAYED"></span>
@@ -21,10 +21,10 @@
 
             <tr class="indicator-values">
                 <td>
-                    &nbsp;<strong>{{model.uoas.length}}</strong>&nbsp;
+                    &nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;
                 </td>
                 <td>
-                    &nbsp;<strong>{{model.count.onTime}}</strong>&nbsp;
+                    &nbsp;<strong>{{model.count.onTime}} / {{model.count.started}}</strong>&nbsp;
                 </td>
                 <td>
                     &nbsp;<strong>{{model.count.delayed}}</strong>&nbsp;
