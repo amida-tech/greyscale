@@ -30,7 +30,9 @@
         "EDIT": "",
         "FURTHER": "",
         "INFO": "",
+        "NEVER": "",
         "NO": "",
+        "NO_DATA": "",
         "OF": "",
         "ORIGINAL_LANGUAGE": "",
         "REMIND": "",
@@ -150,6 +152,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "",
         "CHECK_LOGIN_PASSWORD": "",
+        "CONFIRMATION": "",
         "EMAIL": "",
         "FORGOT_PASSWORD": "",
         "GO_LOGIN": "",
@@ -247,6 +250,7 @@
     },
     "PLACEHOLDER": {
         "ASSIGN_TO": "",
+        "FLAG": "",
         "INPUT_MESSAGE": "",
         "SELECT_QUESTION": ""
     },
@@ -272,9 +276,11 @@
                 "DIVISOR": "",
                 "MODAL_TITLE": "",
                 "MODAL_TITLE_CREATE": "",
+                "QUESTION": "",
                 "SUGGESTED_DIVISORS": "",
                 "SUM_DIVISORS": "",
                 "TITLE": "",
+                "VALUE": "",
                 "WEIGHTS": {
                     "FIELD": "",
                     "QUESTION": "",
@@ -487,6 +493,7 @@
         "IS_COMPLETE": "",
         "IS_DRAFT": "",
         "ITEM": "",
+        "LAST_SAVED": "",
         "LINKS": "",
         "MAX": "",
         "MIN": "",

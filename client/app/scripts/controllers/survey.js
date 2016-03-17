@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
+    .controller('SurveyCtrl', function (_, $scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, $log, $location) {
 
         $scope.loading = true;
@@ -60,6 +60,7 @@ angular.module('greyscaleApp')
                         for (f = 0; f < fLen; f++) {
                             data.flags[flags[f]] = steps[s][flags[f]];
                         }
+                        data.task.step = steps[s];
                     }
                 }
                 $log.debug('step flags', data.flags);

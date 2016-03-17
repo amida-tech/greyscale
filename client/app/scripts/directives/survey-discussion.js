@@ -111,7 +111,9 @@ angular.module('greyscaleApp')
                         for (u = 0; u < qty; u++) {
                             scope.model.associate[users[u].userId] = users[u];
                             if (users[u].userId !== scope.surveyData.userId) {
-                                scope.model.assignTo.push(users[u]);
+                                var user = angular.copy(users[u]);
+                                user.role = task.step.role;
+                                scope.model.assignTo.push(user);
                             }
                         }
                         return greyscaleDiscussionApi.list(params);

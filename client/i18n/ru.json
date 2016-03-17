@@ -30,7 +30,9 @@
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "INFO": "Информация",
+        "NEVER": "",
         "NO": "Нет",
+        "NO_DATA": "",
         "OF": "из",
         "ORIGINAL_LANGUAGE": "Язык создания",
         "REMIND": "Напомнить",
@@ -150,6 +152,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Проверьте E-mail/Пароль",
         "CHECK_LOGIN_PASSWORD": "Проверьте Логин/Пароль",
+        "CONFIRMATION": "",
         "EMAIL": "Эл. почта",
         "FORGOT_PASSWORD": "Забыл пароль...",
         "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
@@ -247,6 +250,7 @@
     },
     "PLACEHOLDER": {
         "ASSIGN_TO": "",
+        "FLAG": "",
         "INPUT_MESSAGE": "",
         "SELECT_QUESTION": ""
     },
@@ -272,9 +276,11 @@
                 "DIVISOR": "",
                 "MODAL_TITLE": "",
                 "MODAL_TITLE_CREATE": "",
+                "QUESTION": "",
                 "SUGGESTED_DIVISORS": "",
                 "SUM_DIVISORS": "",
                 "TITLE": "",
+                "VALUE": "",
                 "WEIGHTS": {
                     "FIELD": "",
                     "QUESTION": "",
@@ -487,6 +493,7 @@
         "IS_COMPLETE": "",
         "IS_DRAFT": "",
         "ITEM": "Опрос",
+        "LAST_SAVED": "",
         "LINKS": "",
         "MAX": "",
         "MIN": "",

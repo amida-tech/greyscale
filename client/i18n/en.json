@@ -30,7 +30,9 @@
         "EDIT": "Edit",
         "FURTHER": "Further",
         "INFO": "Info",
+        "NEVER": "Never",
         "NO": "No",
+        "NO_DATA": "No Data",
         "OF": "of",
         "ORIGINAL_LANGUAGE": "Original language",
         "REMIND": "Remind",
@@ -150,6 +152,7 @@
     "LOGIN": {
         "CHECK_EMAIL_PASSWORD": "Please check your E-mail/Password",
         "CHECK_LOGIN_PASSWORD": "Please check your Login/Password",
+        "CONFIRMATION": "Confirmation",
         "EMAIL": "E-mail",
         "FORGOT_PASSWORD": "Forgot password...",
         "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
@@ -247,6 +250,7 @@
     },
     "PLACEHOLDER": {
         "ASSIGN_TO": "Assign to",
+        "FLAG": "Flag",
         "INPUT_MESSAGE": "Entry",
         "SELECT_QUESTION": "Question"
     },
@@ -272,9 +276,11 @@
                 "DIVISOR": "Divisor",
                 "MODAL_TITLE": "Edit Index {{index.title}}",
                 "MODAL_TITLE_CREATE": "Create Index",
+                "QUESTION": "Question",
                 "SUGGESTED_DIVISORS": "Suggested divisors",
                 "SUM_DIVISORS": "sum",
                 "TITLE": "Title",
+                "VALUE": "Value",
                 "WEIGHTS": {
                     "FIELD": "Field",
                     "QUESTION": "Question",
@@ -487,6 +493,7 @@
         "IS_COMPLETE": "Complete",
         "IS_DRAFT": "In Draft",
         "ITEM": "Survey",
+        "LAST_SAVED": "Last Saved",
         "LINKS": "Links",
         "MAX": "max",
         "MIN": "min",
