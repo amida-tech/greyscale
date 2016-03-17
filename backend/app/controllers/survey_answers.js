@@ -286,6 +286,15 @@ module.exports = {
 
     delAttachment: function(req, res, next){
         co(function* (){
+            var attach = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+            if (!attach[0]) {
+                throw new HttpError(404, 'Attachment not found');
+            }
+            if(attach[0].owner != req.user.id){
+                throw new HttpError(404, 'Only owner can delete attachment');
+            }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
             res.status(204).end();
@@ -427,7 +436,8 @@ module.exports = {
                     filename: file.originalname,
                     size: file.size,
                     mimetype: file.mimetype,
-                    body: filecontent
+                    body: filecontent,
+                    owner: req.user.id
                 }
 
                 if (req.body.answerId) {

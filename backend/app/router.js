@@ -127,7 +127,7 @@ router.route('/:realm/v0.2/attachments/:id/link/:answerId')
     .get(authenticate('token').always, surveyAnswers.linkAttach);
 
 router.route('/:realm/v0.2/attachments/:id')
-    .delete(surveyAnswers.delAttachment);
+    .delete(authenticate('token').always, surveyAnswers.delAttachment);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
