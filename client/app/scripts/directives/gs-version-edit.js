@@ -9,9 +9,9 @@ angular.module('greyscaleApp')
             transclude: true,
             replace: true,
             template: '<div  class="form-group"><ng-transclude ng-hide="model.editMode" class="form-control-static"></ng-transclude>' +
-                '<div ng-show="model.editMode">' +
-                '<input type="text" class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type!==\'paragraph\'"/>' +
-                '<textarea class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type===\'paragraph\'"></textarea>' +
+                '<div ng-show="model.editMode" class="clearfix">' +
+                '<input type="text" class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type!==\'paragraph\' && !resp"/>' +
+                '<textarea class="form-control" ng-repeat="item in values" ng-model="item.val" ng-if="field.type===\'paragraph\' || resp"></textarea>' +
                 '<a class="btn btn-xs action-primary pull-right" ng-show="model.editMode" ng-click="apply()"><i class="fa fa-check"></i></a>' +
                 '<a class="btn btn-xs action pull-right" ng-show="model.editMode" ng-click="cancel()"><i class="fa fa-minus"></i></a>' +
                 '</div>' +
@@ -19,20 +19,22 @@ angular.module('greyscaleApp')
                 '</div>',
             controller: function ($scope) {
                 var fld = $scope.field;
-                var answer = fld.prevAnswers[$scope.index];
+                var resp = $scope.resp;
+
+                var answer = (resp) ? resp : fld.prevAnswers[$scope.index];
                 var textFields = ['text', 'paragraph', 'bullet_points'];
 
-                $scope.values = scalarToObjects(answer.value);
+                $scope.values = scalarToObjects(answer);
 
                 $scope.model = angular.extend({
-                    editable: fld.flags.allowEdit && (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value)
+                    editable: fld.flags.allowEdit && (answer.isResponse || (textFields.indexOf(fld.type) !== -1 || fld.withOther && answer.value))
                 }, $scope.model);
 
                 $scope.edit = toggleEditMode;
 
                 $scope.cancel = function () {
                     toggleEditMode();
-                    $scope.values = scalarToObjects(answer.value);
+                    $scope.values = scalarToObjects(answer);
                 };
 
                 $scope.apply = function () {
@@ -51,10 +53,14 @@ angular.module('greyscaleApp')
                         })
                         .then(function (resp) {
                             if (resp === 'updated') {
-                                if (fld.type === 'bullet_points') {
-                                    answer.value = _arr;
+                                if (answer.isResponse) {
+                                    answer.comments = _arr[0];
                                 } else {
-                                    answer.value = _arr[0];
+                                    if (fld.type === 'bullet_points') {
+                                        answer.value = _arr;
+                                    } else {
+                                        answer.value = _arr[0];
+                                    }
                                 }
                             }
                         })
@@ -66,12 +72,14 @@ angular.module('greyscaleApp')
                     $scope.model.editMode = !$scope.model.editMode;
                 }
 
-                function scalarToObjects(value) {
+                function scalarToObjects(answer) {
                     var i, qty,
-                        data = [],
-                        isArray = angular.isArray(value);
+                        value,
+                        data = [];
 
-                    if (isArray) {
+                    value = (answer && answer.isResponse) ? answer.comments : answer.value;
+
+                    if (angular.isArray(value)) {
                         qty = value.length;
                         for (i = 0; i < qty; i++) {
                             data.push({

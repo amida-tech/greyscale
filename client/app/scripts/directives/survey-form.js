@@ -287,7 +287,7 @@ angular.module('greyscaleApp')
             var responses = {};
 
             scope.model.formLocked = true;
-            greyscaleSurveyAnswerApi.list(surveyParams.productId,surveyParams.UOAid)
+            greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
                     var v, answer, qId,
                         qty = _answers.length;
