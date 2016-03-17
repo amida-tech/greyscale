@@ -889,8 +889,6 @@ module.exports = {
                     .on(Product.surveyId.equals(Survey.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(Discussion)
-                    .on(Task.id.equals(Discussion.taskId))
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(Task.productId)
