@@ -28,6 +28,7 @@ SurveyAnswer.editCols = [
     'value',
     'optionId',
     'isResponse',
+    'isAgree',
     'comments'
 ];
 
