@@ -57,6 +57,7 @@ angular.module('greyscale.core')
         this._setAccessLevel = function () {
             if (_profile) {
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
+                $rootScope.checkAccessRole = _checkAccessRole;
                 return _profile;
                 /*
                  return greyscaleEntityTypeRoleApi.list({
