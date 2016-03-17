@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     auth = require('app/auth'),
     config = require('config'),
+    common = require('app/queries/common'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     Project = require('app/models/projects'),
@@ -120,14 +121,14 @@ module.exports = {
                 var returnTask = yield * updateReturnTask(returnObject.discussionId);
                 newStep = yield * checkUpdateProductUOAStep(returnObject);
             }
-            var essenceId = yield * getEssenceId('Discussions');
-            var userFrom = yield * getUser(req.user.id);
-            var userTo = yield * getUser(req.body.userId);
+            var essenceId = yield * common.getEssenceId('Discussions');
+            var userFrom = yield * common.getUser(req.user.id);
+            var userTo = yield * common.getUser(req.body.userId);
             // static blindRewiev
             var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
-            var ids = yield * getProductAndUoaIds(taskId);
-            var productId = ids.productId;
-            var uoaId = ids.uoaId;
+            var task = yield * common.getTask(taskId);
+            var productId = task.productId;
+            var uoaId = task.uoaId;
             var step4userTo = yield * getUserToStep(productId, uoaId, userTo.id);
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
@@ -174,15 +175,15 @@ module.exports = {
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)));
-            var entry = yield * getDiscussionEntry(req.params.id);
-            var essenceId = yield * getEssenceId('Discussions');
-            var userFrom = yield * getUser(req.user.id);
-            var userTo = yield * getUser(entry.userId);
+            var entry = yield * common.getDiscussionEntry(req.params.id);
+            var essenceId = yield * common.getEssenceId('Discussions');
+            var userFrom = yield * common.getUser(req.user.id);
+            var userTo = yield * common.getUser(entry.userId);
             // static blindRewiev
             var taskId = yield * checkOneId(req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
-            var ids = yield * getProductAndUoaIds(taskId);
-            var productId = ids.productId;
-            var uoaId = ids.uoaId;
+            var task = yield * common.getTask(taskId);
+            var productId = task.productId;
+            var uoaId = task.uoaId;
             var step4userTo = yield * getUserToStep(productId, uoaId, userTo.id);
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
@@ -259,9 +260,9 @@ module.exports = {
             var userList=[];
 
             var taskId = yield * checkOneId(req.params.taskId, Task, 'id', 'taskId', 'Task');
-            var ids = yield * getProductAndUoaIds(taskId);
-            var productId = ids.productId;
-            var uoaId = ids.uoaId;
+            var task = yield * common.getTask(taskId);
+            var productId = task.productId;
+            var uoaId = task.uoaId;
             var currentStep = yield * getCurrentStep(taskId);
 
             var result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep);
@@ -339,9 +340,9 @@ function* checkUserId(user, userId, taskId, currentStep, tag ) {
     }
     // user Id must be in list of available users for this survey
     // 1st - get productId and uoaId for this task
-    var ids = yield * getProductAndUoaIds(taskId);
-    var productId = ids.productId;
-    var uoaId = ids.uoaId;
+    var task = yield * common.getTask(taskId);
+    var productId = task.productId;
+    var uoaId = task.uoaId;
 
     result = yield * getUserList(user, taskId, productId, uoaId, currentStep, tag);
     if (!_.first(result)) {
@@ -456,9 +457,9 @@ function* getAvailableUsers(req) {
     var availList=[];
 
     var taskId = yield * checkOneId(req.query.taskId, Task, 'id', 'taskId', 'Task');
-    var ids = yield * getProductAndUoaIds(taskId);
-    var productId = ids.productId;
-    var uoaId = ids.uoaId;
+    var task = yield * common.getTask(taskId);
+    var productId = task.productId;
+    var uoaId = task.uoaId;
     var currentStep = yield * getCurrentStep(taskId);
 
     result = yield * getUserList(req.user, taskId, productId, uoaId, currentStep);
@@ -529,10 +530,10 @@ function* getAvailableUsers(req) {
 
 function* checkNextEntry(id, checkOnly) {
     var result;
-    var entry = yield * getDiscussionEntry(id);
-    var ids = yield * getProductAndUoaIds(entry.taskId);
-    var productId = ids.productId;
-    var uoaId = ids.uoaId;
+    var entry = yield * common.getDiscussionEntry(id);
+    var task = yield * common.getTask(entry.taskId);
+    var productId = task.productId;
+    var uoaId = task.uoaId;
 
     var query =
         'SELECT '+
@@ -540,8 +541,8 @@ function* checkNextEntry(id, checkOnly) {
         'FROM "Discussions" '+
         'INNER JOIN "public"."Tasks" ON "public"."Discussions"."taskId" = "public"."Tasks"."id" '+
         'WHERE '+
-            '"Tasks"."uoaId" = '+ids.uoaId.toString()+' AND '+
-            '"Tasks"."productId" = '+ids.productId.toString()+' AND '+
+            '"Tasks"."uoaId" = '+uoaId.toString()+' AND '+
+            '"Tasks"."productId" = '+productId.toString()+' AND '+
             '"Discussions".order > '+entry.order.toString();
     result = yield thunkQuery(query);
     if (_.first(result)) {
@@ -554,9 +555,9 @@ function* checkNextEntry(id, checkOnly) {
 function* getNextOrder(taskId, questionId) {
 
     // 1st - get productId and uoaId for this task
-    var ids = yield * getProductAndUoaIds(taskId);
-    var productId = ids.productId;
-    var uoaId = ids.uoaId;
+    var task = yield * common.getTask(taskId);
+    var productId = task.productId;
+    var uoaId = task.uoaId;
 
     // then get max order for question
     var result;
@@ -578,22 +579,6 @@ function* getNextOrder(taskId, questionId) {
     // get next order
     // if not found records, nextOrder must be 1  - the first entry for question
     return (!_.first(result)) ? 1 : result[0].maxorder + 1;
-}
-
-function* getProductAndUoaIds(taskId) {
-    var query =
-        'SELECT '+
-        '"Tasks"."uoaId", '+
-        '"Tasks"."productId" '+
-        'FROM '+
-        '"Tasks" '+
-        'WHERE '+
-        '"Tasks"."id" = '+taskId;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with taskId=`'+taskId+'` does not exist'); // just in case - not possible case!
-    }
-    return {productId:result[0].productId, uoaId:result[0].uoaId};
 }
 
 function* checkForReturnAndResolve(user, taskId, userId, tag) {
@@ -682,44 +667,6 @@ function* updateReturnTask(discussionId) {
         'SET "isResolve" = true, "updated" = now() '+
         'WHERE "id"= '+discussionId.toString();
     return yield thunkQuery(updateReturnTaskQuery);
-}
-
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
-    }
-    return result[0].id;
-}
-
-function* getUser(userId) {
-    query =
-        'SELECT "Users".* '+
-        'FROM "Users" '+
-        'WHERE "Users"."id" = ' + parseInt(userId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
-    }
-    return result[0];
-}
-
-function* getDiscussionEntry(id) {
-    var result;
-    var query =
-        'SELECT "Discussions".* '+
-        'FROM "Discussions" '+
-        'WHERE "Discussions"."id" = '+id;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Entry with id=`'+id+'` does not exist in discussions'); // just in case - not possible case!
-    }
-    return result[0];
 }
 
 function* getUserToStep(productId, uoaId, userId) {

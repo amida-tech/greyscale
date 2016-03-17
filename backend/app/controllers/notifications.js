@@ -3,6 +3,7 @@ var
     ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
+    common = require('app/queries/common'),
     auth = require('app/auth'),
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
@@ -82,7 +83,7 @@ function* createNotification (note, template) {
     if (parseInt(note.notifyLevel) >  1) {  // onsite notification
         socketController.sendNotification(note.userTo);
     }
-    var userTo = yield * getUser(note.userTo);
+    var userTo = yield * common.getUser(note.userTo);
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
@@ -140,9 +141,9 @@ function* resendNotification (notificationId) {
     if (config.email.disable) {
         return false;
     }
-    var note = yield * getNotification(notificationId);
+    var note = yield * common.getNotification(notificationId);
     //if (parseInt(note.notifyLevel) >  1) {  // email notification - do not check!
-    var userTo = yield * getUser(note.userTo);
+    var userTo = yield * common.getUser(note.userTo);
     var emailOptions = {
         to: {
             name: userTo.firstName,
@@ -196,7 +197,7 @@ module.exports = {
             req.query = _.extend(req.query, req.body);
             var isNotAdmin = !auth.checkAdmin(req.user);
             var currentUserId = req.user.id;
-            var essenceId = yield * getEssenceId('Discussions');
+            var essenceId = yield * common.getEssenceId('Discussions');
             var userId = req.query.userId;
 
             var selectWhere = 'WHERE 1=1 ';
@@ -474,7 +475,7 @@ module.exports = {
 
     reply: function (req, res, next) {
         co(function* () {
-            var note = yield * getNotification(req.params.notificationId);
+            var note = yield * common.getNotification(req.params.notificationId);
             if (req.user.id !== note.userTo && !auth.checkAdmin(req.user)) {
                 throw new HttpError(403, 'You cannot send reply for this notification (not yours)!');
             }
@@ -503,9 +504,9 @@ module.exports = {
         co(function* () {
             var result = yield * getInviteNotification(req.params.userId);
             if (!_.first(result)) {
-                var user = yield * getUser(req.params.userId);
-                var org = yield * getOrganization(user.organizationId);
-                var essenceId = yield * getEssenceId('Users');
+                var user = yield * common.getUser(req.params.userId);
+                var org = yield * common.getOrganization(user.organizationId);
+                var essenceId = yield * common.getEssenceId('Users');
                 var note = yield * createNotification(
                     {
                         userFrom: req.user.id,
@@ -546,7 +547,7 @@ function* checkInsert(note) {
     var body = yield * checkString(note.body, 'Body');
     if (note.essenceId) {
         var essenceId = yield * checkOneId(note.essenceId, Essence, 'id', 'essenceId', 'Essence');
-        var essence = yield * getEssence(essenceId);
+        var essence = yield * common.getEssence(essenceId);
         var model;
         try {
             model = require('app/models/' + essence.fileName);
@@ -559,26 +560,6 @@ function* checkInsert(note) {
 }
 
 
-function* getEssence(essenceId) {
-    // get Essence info
-    query =
-        'SELECT '+
-        '"Essences".* '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."id" = '+essenceId.toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find essenceId='+essenceId.toString()); // just in case - I think, it is not possible case, because have been checked before
-    }
-    return {
-        tableName: result[0].tableName,
-        name: result[0].name,
-        fileName: result[0].fileName,
-        nameField: result[0].nameField
-    };
-
-}
-
 function getHtml(templateName, data, templatePath) {
     templateName =  (templateName || 'default');
     var templateFile =  (templatePath || './views/notifications/') + templateName + '.html';
@@ -590,44 +571,9 @@ function getHtml(templateName, data, templatePath) {
     return _.template(templateContent)(data);
 }
 
-function* getUser(userId) {
-    query =
-        'SELECT "Users".* '+
-        'FROM "Users" '+
-        'WHERE "Users"."id" = ' + parseInt(userId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
-    }
-    return result[0];
-}
-
-function* getOrganization(orgId) {
-    query =
-        'SELECT "Organizations".* FROM "Organizations" '+
-        'WHERE "Organizations"."id" = ' + parseInt(orgId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Organization with id `'+parseInt(orgId).toString()+'`');
-    }
-    return result[0];
-}
-
-function* getNotification(notificationId) {
-    query =
-        'SELECT "Notifications".* '+
-        'FROM "Notifications" '+
-        'WHERE "Notifications"."id" = ' + parseInt(notificationId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Notification with id `'+parseInt(notificationId).toString()+'`');
-    }
-    return result[0];
-}
-
 function* getInviteNotification(userId) {
     // get EssenceId
-    var essenceId = yield * getEssenceId('Users');
+    var essenceId = yield * common.getEssenceId('Users');
     query =
         'SELECT '+
             'max("Notifications"."id") as id '+
@@ -645,19 +591,6 @@ function* getInviteNotification(userId) {
         console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
     return result;
-}
-
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
-    }
-    return result[0].id;
 }
 
 function* renderFile(templateFile, data) {

@@ -12,7 +12,7 @@
             </ul>
             <!--<button class="btn btn-default" print-area="survey-form" print-mode="open-collapsible hide-inputs"><i class="fa fa-print"></i></button>-->
         </span>
-        <p class="subtext pull-right">last saved: {{( savedAt || 'never') | date:"short" }}</p>
+        <p class="subtext pull-right"><span translate=".LAST_SAVED"></span>: <span ng-if="savedAt">{{savedAt|date:'short'}}</span><span ng-if="!savedAt" translate="COMMON.NEVER"></span></p>
     </div>
 
     <uib-accordion>
