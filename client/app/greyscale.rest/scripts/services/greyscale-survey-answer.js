@@ -25,21 +25,11 @@ angular.module('greyscale.rest')
             return res;
         }
 
-        function _listItems(params) {
-            return _api().get(params).then(_processResp);
-        }
-
         function _listAnswers(productId, uoaId, params) {
-            var _params = angular.extend({order:'version'},params);
-            return _api().one(productId+'', uoaId+'').get(_params)
-                .then(_processResp)
-                .catch(function(){
-                    angular.extend(_params, {
-                        productId: productId,
-                        UOAid: uoaId
-                    });
-                    return _listItems(_params);
-                });
+            var _params = angular.extend({
+                order: 'version'
+            }, params);
+            return _api().one(productId + '', uoaId + '').get(_params).then(_processResp);
         }
 
         function _saveItem(answer, isAuto) {

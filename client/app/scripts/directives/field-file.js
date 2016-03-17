@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('fieldFile', function (greyscaleSurveyAnswerApi, $log) {
+    .directive('fieldFile', function (greyscaleSurveyAnswerApi) {
         return {
             restrict: 'A',
             scope: {
