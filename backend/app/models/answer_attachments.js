@@ -6,7 +6,9 @@ var columns = [
     'filename',
     'size',
     'mimetype',
-    'body'
+    'body',
+    'created',
+    'owner'
 ];
 
 var AnswerAttachment = sql.define({
