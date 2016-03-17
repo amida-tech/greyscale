@@ -20,6 +20,7 @@ var
     notifications = require('app/controllers/notifications'),
 
     co = require('co'),
+    sql = require('sql'),
     Query = require('app/util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
@@ -58,7 +59,7 @@ var getUser = function* (userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (essenceName) {
-    var result = yield thunkQuery(Essence.select().from(Essence).where(Essence.name.equals(essenceName)));
+    var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.name).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
     }

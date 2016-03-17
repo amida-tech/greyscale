@@ -8,4 +8,5 @@ values
 ('Groups', 'Groups', 'groups', 'title'),
 ('Organizations', 'Organizations', 'organizations', 'name'),
 ('Tasks', 'Tasks', 'tasks', 'title'),
-('WorflowSteps', 'WorflowSteps', 'worflowSteps', 'title')
+('WorflowSteps', 'WorflowSteps', 'worflowSteps', 'title'),
+('Notifications', 'Notifications', 'notifications', 'body')

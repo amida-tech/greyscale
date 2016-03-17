@@ -5,6 +5,8 @@ var
     config = require('config'),
     common = require('app/queries/common'),
     auth = require('app/auth'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
     Essence = require('app/models/essences'),
@@ -28,6 +30,15 @@ var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
             selectQuery = selectQuery +where+'"'+model+'"."'+key+'" = '+val;
+        }
+    }
+    return selectQuery;
+};
+
+var whereInt = function(selectQuery, val, model, key){
+    if(val) {
+        if ( isInt(val)) {
+            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
         }
     }
     return selectQuery;
@@ -413,49 +424,70 @@ module.exports = {
             req.body = _.extend(req.body, {reading: new Date()});
             return yield thunkQuery(Notification.update(req.body).where(Notification.id.equals(req.params.notificationId)));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entity: req.params.notificationId,
+                info: 'Mark notification as '+(req.body.read ? 'read' : 'unread')
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
         });
     },
     markAllRead: function (req, res, next) {
+        var selectQuery;
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var update =
-                'UPDATE '+
-                '"Notifications" '+
-                'SET "read" = true, "reading" = now() ';
-            var where = 'WHERE 1=1 ';
-            where = setWhereInt(where, req.query.userFrom, 'Notifications', 'userFrom');
-            where = setWhereInt(where, req.query.userTo, 'Notifications', 'userTo');
-
-            var query = update + where;
-            return yield thunkQuery(query);
+            selectQuery = Notification.update({read: true, reading: new Date()});
+            selectQuery = whereInt(selectQuery, req.query.userFrom, Notification, 'userFrom');
+            selectQuery = whereInt(selectQuery, req.query.userTo, Notification, 'userTo');
+            selectQuery = selectQuery.returning(Notification.id);
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entities: JSON.stringify(data),
+                quantity: data.length,
+                info: 'Mark as read all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
         });
     },
     deleteList: function (req, res, next) {
+        var selectQuery;
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var deleteQuery =
-                'DELETE FROM "Notifications" ';
-            var where = '';
-            if (typeof req.body.all === 'undefined') {
-                if (typeof req.body.id !== 'undefined') {
-                    where = setWhereInt(where, req.query.id, 'Notifications', 'id');
+            selectQuery = Notification.delete();
+            if (typeof req.query.all === 'undefined') {
+                if (typeof req.query.id !== 'undefined') {
+                    selectQuery = whereInt(selectQuery, req.query.id, Notification, 'id');
                 } else {
-                    where = setWhereInt(where, req.query.userFrom, 'Notifications', 'userFrom');
-                    where = setWhereInt(where, req.query.userTo, 'Notifications', 'userTo');
+                    selectQuery = whereInt(selectQuery, req.query.userFrom, Notification, 'userFrom');
+                    selectQuery = whereInt(selectQuery, req.query.userTo, Notification, 'userTo');
                 }
-                if (where === '') where = 'WHERE 1=0';
+                if (!selectQuery.whereClause) {
+                    return null;
+                }
             }
-
-            var query = deleteQuery + where;
-            return yield thunkQuery(query);
+            selectQuery = selectQuery.returning(Notification.id);
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
+            if (data) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'delete',
+                    object: 'notifications',
+                    entities: JSON.stringify(data),
+                    quantity: data.length,
+                    info: 'Delete all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
+                });
+            }
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -467,6 +499,13 @@ module.exports = {
             req.body.userFrom = req.user.id; // ignore userFrom from body - use from req.user
             return yield * createNotification(req.body);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'notifications',
+                entity: _.first(data).id,
+                info: 'Added new notification'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -494,6 +533,13 @@ module.exports = {
         co(function* () {
             return yield * resendNotification(req.params.notificationId);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entity: req.params.notificationId,
+                info: 'Resend notification'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -501,9 +547,10 @@ module.exports = {
     },
 
     resendUserInvite: function (req, res, next) {
+        var resend = false;
         co(function* () {
-            var result = yield * getInviteNotification(req.params.userId);
-            if (!_.first(result)) {
+            var inviteNote = yield * getInviteNotification(req.params.userId);
+            if (!inviteNote) {
                 var user = yield * common.getUser(req.params.userId);
                 var org = yield * common.getOrganization(user.organizationId);
                 var essenceId = yield * common.getEssenceId('Users');
@@ -525,14 +572,32 @@ module.exports = {
                     },
                     'orgInvite'
                 );
+                bologger.log({
+                    user: req.user.id,
+                    action: 'insert',
+                    object: 'notifications',
+                    entity: note[0].id,
+                    info: 'Create user invite notification'
+                });
                 if (user.notifyLevel < 2) {
+                    resend = note[0].id;
                     return yield * resendNotification(note[0].id);
                 }
                 return note;
             } else {
-                return yield * resendNotification(result[0].id);
+                resend = inviteNote.id;
+                return yield * resendNotification(inviteNote.id);
             }
         }).then(function (data) {
+            if (resend) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'update',
+                    object: 'notifications',
+                    entity: resend,
+                    info: 'Resend user invite notification'
+                });
+            }
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -590,7 +655,7 @@ function* getInviteNotification(userId) {
         //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
         console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
-    return result;
+    return result[0];
 }
 
 function* renderFile(templateFile, data) {
