@@ -725,9 +725,14 @@ function* dumpProduct(productId) {
           '  "UnitOfAnalysis"."name", ' + 
           '  "UnitOfAnalysis"."ISO2", ' + 
           "  format('{%s}', " + 
-          "    string_agg(format('\"%s\":\"%s\"', " +
+          "    string_agg(format('\"%s\":%s', " +
           '      "SurveyQuestions".id, ' + 
-          '      COALESCE("SurveyAnswers"."value", format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\'))) ' + 
+          // use optionId for multichoice questions, value otherwise
+          '      CASE ' +
+          '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
+          '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
+          '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
+          '      END ' +
           "    ), ',') " + 
           '  ) AS "questions" ' + 
           'FROM ' +
@@ -794,10 +799,15 @@ function* dumpProduct(productId) {
 function parseWeights(weightsString) {
     // parse JSON weights string into js object
     // due to postgres quirks, {} represented as '{:}'
-    if (weightsString === '{:{"weight": , "type": }}') {
+    /*if (weightsString === '{:{"weight": , "type": }}') {
         return {};
     } else {
         return JSON.parse(weightsString);
+    }*/
+    try {
+        return JSON.parse(weightsString);
+    } catch (e) {
+        return {};
     }
 }
 

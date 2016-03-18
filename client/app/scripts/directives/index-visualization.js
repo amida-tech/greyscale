@@ -237,6 +237,11 @@ angular.module('greyscaleApp')
                         return null;
                     }
 
+                    //remove UOAs without data for selected index
+                    var plotData = plotData.filter(function (uoa) {
+                        return typeof uoa[index.collection][index.id] === 'number';
+                    });
+
                     if (scope.filterForm.visualizationType === 'graph') {
                         renderBarGraph(plotData, index);
                     } else if (scope.filterForm.visualizationType === 'map') {
