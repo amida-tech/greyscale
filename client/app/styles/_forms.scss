@@ -11,19 +11,19 @@
     }
 }
 
+.translation-input,
 .translation {
     position: relative;
-}
-
-.translation-input i,
-.translation i {
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    height: 1em;
-    right: 1em;
-    cursor: pointer;
+    & i {
+        position: absolute;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+        height: 1em;
+        right: 15px;
+        cursor: pointer;
+        z-index: 10;
+    }
 }
 
 .translation-form {

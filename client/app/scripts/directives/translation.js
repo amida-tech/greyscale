@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('translation', function ($compile, greyscaleModalsSrv, $log) {
+    .directive('translation', function ($compile, greyscaleModalsSrv, greyscaleUtilsSrv, $log) {
         return {
             restrict: 'A',
             transclude: true,
@@ -12,21 +12,34 @@ angular.module('greyscaleApp')
                     var _translation = {
                         essenceId: $scope.field.essenceId,
                         entityId: $scope.field.answerId,
-                        value: $scope.field.answer,
-                        field: 'value',
-                        langId: $scope.field.langId
+                        langId: $scope.field.langId,
+                        type: $scope.field.type
                     };
+
+                    var _data = {
+                        field: 'value',
+                        value: $scope.field.answer
+                    };
+
+                    switch ($scope.field.type) {
+                    case 'radio':
+                    case 'checkboxes':
+                        _data.value = $scope.field.answer.value;
+                        break;
+                    }
+
+                    angular.extend(_translation, _data);
 
                     if (_translation.value) {
                         greyscaleModalsSrv.editTranslations(_translation)
-                            .then(function (result) {
-                                $log.debug(result);
-                            });
+                            .catch(greyscaleUtilsSrv.errorMsg);
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('TRANSLATION.NOTHING_TO_TRANSLATE');
                     }
                 };
             },
             link: function (scope, elem) {
-                var wrapper = angular.element('<div class="translation"/></div>');
+                var wrapper = angular.element('<div class="translation clearfix"/></div>');
 
                 elem.after(wrapper);
                 wrapper.prepend(elem);

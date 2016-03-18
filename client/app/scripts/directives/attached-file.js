@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                         greyscaleAttachmentApi.getTicket($scope.file.id)
                             .then(function (ticket) {
                                 $scope.url = greyscaleAttachmentApi.getLink(ticket);
-                                $timeout(function(){
+                                $timeout(function () {
                                     evt.currentTarget.click();
                                 });
                             });
