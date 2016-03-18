@@ -491,7 +491,7 @@ angular.module('greyscaleApp')
                 fld = fields[f];
                 if (fld.sub) {
                     _answers = _answers.concat(preSaveFields(fld.sub));
-                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comments) {
+                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comments || fld.canAttach && fld.attachments.length) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
@@ -548,7 +548,7 @@ angular.module('greyscaleApp')
                         answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
                     }
 
-                    if (fld.attachments) {
+                    if (fld.canAttach) {
                         answer.attachments = _.map(fld.attachments, 'id');
                     }
 
