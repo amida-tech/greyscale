@@ -45,6 +45,11 @@ angular.module('greyscaleApp')
                         var links = '';
                         var attach = '';
                         var flags = scope.field.flags;
+                        var translation = '';
+
+                        if (flags.allowTranslate) {
+                            translation = ' translation';
+                        }
 
                         switch (scope.field.type) {
                         case 'paragraph':
@@ -55,11 +60,7 @@ angular.module('greyscaleApp')
                                 body = '<textarea ';
                             }
 
-                            if (flags.allowTranslate) {
-                                body += 'translation ';
-                            }
-
-                            body += commonPart + ' gs-length="field">';
+                            body += commonPart + translation + ' gs-length="field">';
 
                             if (scope.field.type === 'paragraph') {
                                 body += '</textarea>';
@@ -124,7 +125,8 @@ angular.module('greyscaleApp')
                                     '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly">{{}}</div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    translation + '></div>';
                             }
                             body += '</div>';
                             break;
@@ -142,7 +144,8 @@ angular.module('greyscaleApp')
                                     '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"></div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    translation + '></div>';
                             }
                             body += '</div>';
                             break;
@@ -202,7 +205,7 @@ angular.module('greyscaleApp')
                             //TODO here is pervious responses
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
-                                '<div class="field-response" gs-version-edit><span>' +
+                                '<div class="field-response" gs-version-edit><span >' +
                                 '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
                                 '{{resp.comments}}</span></div></div></div>';
                         }

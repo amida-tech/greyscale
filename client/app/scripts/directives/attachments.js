@@ -27,6 +27,8 @@ angular.module('greyscaleApp')
 
                 $scope.remove = removeAttach;
 
+                $scope.model = $scope.model || [];
+
                 $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
@@ -71,7 +73,7 @@ angular.module('greyscaleApp')
                 function removeAttach(idx) {
                     var deleted = $scope.model.splice(idx, 1);
                     greyscaleAttachmentApi.delete(deleted[0].id)
-                        .catch(function(err){
+                        .catch(function (err) {
                             greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
                         });
                 }

@@ -520,6 +520,7 @@
         "SELECT_ALL_TITLE": ""
     },
     "TRANSLATION": {
+        "NOTHING_TO_TRANSLATE": "",
         "REQUIRED": {
             "LANG": "",
             "VALUE": ""

@@ -520,6 +520,7 @@
         "SELECT_ALL_TITLE": "Отметить/Снять все"
     },
     "TRANSLATION": {
+        "NOTHING_TO_TRANSLATE": "",
         "REQUIRED": {
             "LANG": "Не указан язык",
             "VALUE": "Не указан перевод"

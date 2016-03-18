@@ -520,6 +520,7 @@
         "SELECT_ALL_TITLE": "Check/Uncheck All"
     },
     "TRANSLATION": {
+        "NOTHING_TO_TRANSLATE": "No data for translation",
         "REQUIRED": {
             "LANG": "Laguage required",
             "VALUE": "Translation required"

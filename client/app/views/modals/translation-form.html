@@ -16,7 +16,13 @@
                 <div class="col-sm-10">
                     <input type="text" class="form-control" name="trn_{{$index}}" translation-input="$index"
                            ng-model="item.value"
-                           ng-required="true" ng-minlength="1">
+                           ng-required="true" ng-minlength="1"
+                        ng-if="model.original.type !== 'paragraph'">
+
+                    <textarea class="form-control" name="trn_{{$index}}" translation-input="$index"
+                           ng-model="item.value"
+                           ng-required="true" ng-minlength="1"
+                           ng-if="model.original.type === 'paragraph'"></textarea>
 
                 </div>
                 <div class="col-sm-2">
