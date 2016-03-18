@@ -7,17 +7,28 @@ var HttpError = require('app/error').HttpError,
 exports.Query = function () {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
-
+        console.log(app.locals.realm);
         if (arguments.length === 2) {
             cb = options;
         }
 
-        var arlen = arguments.length;
+        var arlen = arguments.length; 
 
         client.connect(function (err) {
             if (err) {
                 return console.error('could not connect to postgres', err);
             }
+            client.query("SET search_path TO "+app.locals.realm+";", function(err, result){
+                if (err) {
+                    return console.error('could not set namespace', err);
+                }
+                doQuery(queryObject, options, cb);
+                // END
+            })
+            
+        });
+
+        function doQuery(queryObject, options, cb){
             //START
             if (typeof queryObject === 'string') {
                 console.log(queryObject);
@@ -102,8 +113,7 @@ exports.Query = function () {
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
-            // END
-        });
+        }
 
     };
 };
