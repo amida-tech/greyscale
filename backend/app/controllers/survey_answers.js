@@ -36,7 +36,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -109,7 +109,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -132,7 +132,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(
