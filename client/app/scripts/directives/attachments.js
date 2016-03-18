@@ -13,12 +13,16 @@ angular.module('greyscaleApp')
             },
             template: '<div class="panel attachments"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row">' +
-                '<attached-file attached-item="item" ng-repeat="item in model" remove-file="remove($index)"></attached-file>' +
-                '</div><div class="row"><input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-hide="options.readonly">' +
-                '</div></div></div>',
+                '<attached-file attached-item="item" ng-repeat="item in model track by $index" remove-file="remove($index)"></attached-file>' +
+                '</div><form ng-show="!uploader.progress" class="row"><input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-hide="options.readonly">' +
+                '</form>' +
+                '<div class="progress" ng-if="uploader.progress">' +
+                '  <div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }"></div>' +
+                '</div>' +
+                '</div></div>',
 
-            controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv) {
-                var _url = greyscaleUtilsSrv.getApiBase() + '/' + ['survey_answers', $scope.ansewerId].join('/'),
+            controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv, greyscaleAttachmentApi) {
+                var _url = greyscaleUtilsSrv.getApiBase() + '/attachments',
                     _token = greyscaleTokenSrv();
 
                 $scope.remove = removeAttach;
@@ -34,28 +38,42 @@ angular.module('greyscaleApp')
                 });
 
                 uploader.onBeforeUploadItem = function (item) {
-                    $log.debug('uploading', item);
-                    item.url = _url;
                     item.headers.token = _token;
+                    item.formData = [{
+                        answerId: $scope.answerId
+                    }];
+                    item.idx = $scope.inProgress.length;
                     $scope.inProgress.push(item);
                 };
 
                 uploader.onCompleteItem = function (item, data) {
-                    $log.debug('completed', item, data);
+                    if (!item.isError) {
+                        $log.debug('completed', item, data);
+                        $scope.model.push({
+                            id: data.id,
+                            filename: item.file.name,
+                            mimeType: item.file.mimetype
+                        });
+                    }
+
                     uploader.clearQueue();
+                    $element.find('form')[0].reset();
+                    $scope.inProgress.splice(item.idx, 1);
                     $timeout(function () {
                         $scope.$digest();
                     });
                 };
 
-                uploader.onErrorItem = function (file, response) {
-                    greyscaleUtilsSrv.errorMsg(response, 'Upload file');
+                uploader.onErrorItem = function (file, response, status, headers) {
+                    greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
                 };
 
                 function removeAttach(idx) {
-                    /* 2do add API call to remove on server */
                     var deleted = $scope.model.splice(idx, 1);
-                    $log.debug('2do add API call to remove file on server', deleted);
+                    greyscaleAttachmentApi.delete(deleted[0].id)
+                        .catch(function(err){
+                            greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
+                        });
                 }
             }
         };
