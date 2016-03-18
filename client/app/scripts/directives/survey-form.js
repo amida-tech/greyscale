@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function ($q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -318,7 +318,7 @@ angular.module('greyscaleApp')
                         answer = recentAnswers[qId];
 
                         if (!answer ||
-                            _answers[v].version === null && _answers[v].userId === currentUserId ||
+                            _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
                             answer.version < _answers[v].version
                         ) {
                             recentAnswers[qId] = _answers[v];
@@ -364,7 +364,6 @@ angular.module('greyscaleApp')
                 }
                 if (answer) {
                     fld.answerId = answer.id;
-                    $log.debug(answer.id);
                     fld.langId = answer.langId || fld.langId;
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
