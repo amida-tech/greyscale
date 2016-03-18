@@ -27,6 +27,8 @@ angular.module('greyscaleApp')
 
                 $scope.remove = removeAttach;
 
+                $scope.model = $scope.model || [];
+
                 $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
