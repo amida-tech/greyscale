@@ -205,9 +205,11 @@ angular.module('greyscaleApp')
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
+                                answerId: null,
                                 prevAnswers: [],
                                 responses: null,
-                                langId: scope.model.lang
+                                langId: scope.model.lang,
+                                essenceId: scope.surveyData.essenceId
                             });
 
                             if (fld.canAttach) {
@@ -338,11 +340,14 @@ angular.module('greyscaleApp')
         function loadRecursive(fields, answers, responses) {
             var f, fld, answer, o, oQty, response,
                 fQty = fields.length;
+
+            if (!answers) {
+                return;
+            }
+
             for (f = 0; f < fQty; f++) {
                 fld = fields[f];
-                if (answers) {
-                    answer = answers[fld.cid];
-                }
+                answer = answers[fld.cid];
                 if (responses) {
                     response = responses[fld.cid];
                     if (response) {
@@ -359,6 +364,7 @@ angular.module('greyscaleApp')
                 }
                 if (answer) {
                     fld.answerId = answer.id;
+                    $log.debug(answer.id);
                     fld.langId = answer.langId || fld.langId;
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
@@ -442,6 +448,7 @@ angular.module('greyscaleApp')
                     loadRecursive(fld.sub, answers);
                 }
             }
+
         }
 
         function saveAnswers(scope, isAuto) {

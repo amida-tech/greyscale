@@ -3,13 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalTranslationCtrl', function ($scope, $q, _, greyscaleUtilsSrv,$uibModalInstance, translation,
+    .controller('ModalTranslationCtrl', function ($scope, $q, _, greyscaleUtilsSrv, $uibModalInstance, translation,
         greyscaleLanguageApi, greyscaleTranslationApi) {
 
         $scope.model = {
             translations: [translation],
             originalTrn: [translation],
-            languages: []
+            languages: [],
+            original: translation
         };
 
         $scope.close = closeModal;
@@ -24,9 +25,21 @@ angular.module('greyscaleApp')
         };
 
         $q.all(req).then(function (res) {
-            $scope.model.languages = res.lang;
+            var l,
+                qty = res.lang.length;
+            $scope.model.languages = [];
+
+            for (l = 0; l < qty; l++) {
+                if (res.lang[l].id === $scope.model.original.langId) {
+                    $scope.model.original.langId = res.lang[l].code;
+                } else {
+                    $scope.model.languages.push(res.lang[l]);
+                }
+            }
+
             $scope.model.translations = res.trns;
             $scope.model.originalTrn = angular.copy(res.trns);
+
         });
 
         function closeModal() {

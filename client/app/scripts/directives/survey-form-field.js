@@ -45,7 +45,6 @@ angular.module('greyscaleApp')
                         var links = '';
                         var attach = '';
                         var flags = scope.field.flags;
-                        var wrapper = 'div';
 
                         switch (scope.field.type) {
                         case 'paragraph':
@@ -54,6 +53,10 @@ angular.module('greyscaleApp')
                                 body = '<input type="text" ';
                             } else {
                                 body = '<textarea ';
+                            }
+
+                            if (flags.allowTranslate) {
+                                body += 'translation ';
                             }
 
                             body += commonPart + ' gs-length="field">';
