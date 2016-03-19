@@ -12,7 +12,8 @@ var Log = sql.define({
         'entities',
         'quantity',
         'info',
-        'error'
+        'error',
+        'result'
     ]
 });
 Log.insertCols = [
@@ -25,7 +26,8 @@ Log.insertCols = [
     'entities',
     'quantity',
     'info',
-    'error'
+    'error',
+    'result'
 ];
 
 module.exports = Log;
