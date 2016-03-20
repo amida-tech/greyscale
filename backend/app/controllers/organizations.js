@@ -1,5 +1,6 @@
 var _ = require('underscore'),
     config = require('config'),
+    common = require('app/queries/common'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Project = require('app/models/projects'),
@@ -9,6 +10,8 @@ var _ = require('underscore'),
     HttpError = require('app/error').HttpError,
     util = require('util'),
     async = require('async'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Query = require('app/util').Query,
     query = new Query(),
     co = require('co'),
@@ -87,6 +90,13 @@ module.exports = {
                 );
             }
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'organizations',
+                entity: req.params.id,
+                info: 'Update organization'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -103,15 +113,30 @@ module.exports = {
                 )
                 .returning(Organization.id)
             );
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'organizations',
+                entity: org[0].id,
+                info: 'Add organization'
+            });
             // TODO creates project in background, may be need to disable in future
-            yield thunkQuery(
+            var project = yield thunkQuery(
                 Project.insert(
                     {
                         organizationId: org[0].id,
                         codeName: 'Org_' + org[0].id + '_project'
                     }
                 )
+                .returning(Project.id)
             );
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'projects',
+                entity: project[0].id,
+                info: 'Add project to organization `'+org[0].id+'`'
+            });
             return org;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -222,6 +247,13 @@ module.exports = {
                                 var created = yield thunkQuery(
                                     User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
                                 );
+                                bologger.log({
+                                    user: req.user.id,
+                                    action: 'insert',
+                                    object: 'users',
+                                    entity: created[0].id,
+                                    info: 'Add user (bulk import)'
+                                });
 
                                 //if (roleID == 2) {
                                 //    yield thunkQuery(
@@ -240,7 +272,7 @@ module.exports = {
                                     //}else{
                                         newUser.message = 'Added';
                                     //}
-                                    var essenceId = yield * getEssenceId('Users');
+                                    var essenceId = yield * common.getEssenceId('Users');
                                     var note = yield * notifications.createNotification(
                                         {
                                             userFrom: req.user.id,
@@ -299,15 +331,3 @@ function* checkOrgData(req){
     }
 }
 
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
-    }
-    return result[0].id;
-}

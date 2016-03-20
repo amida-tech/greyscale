@@ -4,6 +4,8 @@ var _ = require('underscore'),
     HttpError = require('app/error').HttpError,
     util = require('util'),
     async = require('async'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Query = require('app/util').Query,
     query = new Query(),
     co = require('co'),
@@ -56,6 +58,13 @@ module.exports = {
             };
             return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'groups',
+                entity: _.first(data).id,
+                info: 'Add new group'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -75,6 +84,13 @@ module.exports = {
             };
             return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'groups',
+                entity: req.params.id,
+                info: 'Update group'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -88,6 +104,13 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'groups',
+                entity: req.params.id,
+                info: 'Delete group'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);
