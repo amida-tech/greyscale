@@ -23,7 +23,7 @@ angular.module('greyscaleApp')
                             entityId: _resp.id,
                             langId: _resp.langId,
                             type: 'paragraph',
-                            field: 'comment',
+                            field: 'comments',
                             value: _resp.comments
                         };
                     } else {
