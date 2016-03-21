@@ -31,3 +31,13 @@
 .aggregate-type {
     margin-top: 8px;
 }
+
+// comparative viz
+.comparative {
+    margin: 10px;
+
+    .axis path, .axis line {
+      fill: none;
+      stroke: black;
+    }
+}
