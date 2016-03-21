@@ -9,11 +9,7 @@ angular.module('greyscale.core')
 
         var _profile = null;
         var _profilePromise = null;
-        var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
-        var _messages = [];
-        var _associate = {};
-        var _associateArray = [];
 
         this.isSuperAdmin = _isSuperAdmin;
 
@@ -33,7 +29,14 @@ angular.module('greyscale.core')
                         if (!_profilePromise || force) {
                             _profilePromise = greyscaleUserApi.get()
                                 .then(function (profileData) {
-                                    _profile = profileData;
+                                    _profile = profileData.plain();
+
+                                    if (_profile && _profile.organization) {
+                                        $rootScope.realm = _profile.organization.realm;
+                                    } else {
+                                        $rootScope.realm = null;
+                                    }
+
                                     return _profile;
                                 })
                                 .then(self._setAccessLevel)
