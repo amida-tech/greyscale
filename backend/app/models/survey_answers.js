@@ -35,7 +35,8 @@ SurveyAnswer.editCols = [
 ];
 
 SurveyAnswer.translate = [
-    'value'
+    'value',
+    'comments'
 ];
 
 
