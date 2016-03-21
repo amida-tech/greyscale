@@ -205,6 +205,18 @@ angular.module('greyscaleApp')
             }).result;
         }
 
+        function _addProduct(products) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/add-product.html',
+                controller: 'ModalAddProductCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    products: products
+                }
+            }).result;
+        }
+
         return {
             editRec: modalForm,
             showRec: modalRecInfo,
@@ -231,6 +243,7 @@ angular.module('greyscaleApp')
             sendNotification: _sendNotification,
             changePassword: _changePassword,
             editIndex: _editIndex,
-            editVisualization: _editVisualization
+            editVisualization: _editVisualization,
+            addProduct: _addProduct
         };
     });
