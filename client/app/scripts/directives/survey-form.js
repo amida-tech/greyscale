@@ -61,6 +61,9 @@ angular.module('greyscaleApp')
 
                 scope.printRenderBlank = _printRenderBlank;
                 scope.printRenderAnswers = _printRenderAnswers;
+                scope.updateAnswers = function(){
+                    updateForm(scope.surveyData);
+                };
 
                 function goNextStep(data) {
                     if (scope.surveyData.task) {
@@ -556,7 +559,7 @@ angular.module('greyscaleApp')
                         answer.value = null;
 
                         if (fld.answer.id) {
-                            if (fld.answer.id !== -1) {
+                            if (fld.answer !== -1) {
                                 answer.optionId = [fld.answer.id];
                             }
                             answer.value = fld.answer.value;

@@ -13,8 +13,7 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
         if (domain[0] === 'www') {
             domain.splice(0, 1);
         }
-
-        if (domain.length >= baseLength) {
+        if (!window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/) && domain.length >= baseLength) {
             realm = domain[0];
         }
 
