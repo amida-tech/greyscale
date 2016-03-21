@@ -1003,7 +1003,7 @@ function calcMinsMaxes(data) {
 
     data.forEach(function (datum) {
         for (var id in datum) {
-            if (datum[id].constructor === Array) { // array of values
+            if (datum && datum[id].constructor === Array) { // array of values
                 var valSum = sum(datum[id]);
                 var valAvg = avg(datum[id]);
                 if (!(id in mins)) {
@@ -1018,7 +1018,7 @@ function calcMinsMaxes(data) {
                     if (valSum > maxes[id].sum) { maxes[id].sum = valSum; }
                     if (valAvg > maxes[id].average) { maxes[id].average = valAvg; }
                 }
-            } else { // single value
+            } else if (datum) { // single value
                 var val = datum[id];
                 if (!(id in mins) || val < mins[id]) { mins[id] = val; }
                 if (!(id in maxes) || val > maxes[id]) { maxes[id] = val; }
@@ -1035,7 +1035,7 @@ function calcTerm(weights, vals, minsMaxes) {
         var weight = weights[id];
         var val = vals[id];
 
-        if (val.constructor === Array) {
+        if (val && val.constructor === Array) {
             if (weight.aggregateType === "average") { // average
                 val = avg(val);
             } else { // sum
