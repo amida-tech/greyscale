@@ -65,6 +65,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
+        "STEP_SUBMIT": "Task submit error",
         "TEST": "Test error"
     },
     "FILE": {
@@ -511,6 +512,7 @@
         "STATUS": "Status",
         "SUBMIT": "Save and Submit",
         "TITLE": "Title",
+        "TRANSLATED": "Translation complete",
         "VERSION": "Versions",
         "VIEW": "View"
     },

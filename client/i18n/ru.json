@@ -65,6 +65,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Доступ ограничен к",
+        "STEP_SUBMIT": "",
         "TEST": "Тестовая ошибка"
     },
     "FILE": {
@@ -511,6 +512,7 @@
         "STATUS": "",
         "SUBMIT": "",
         "TITLE": "",
+        "TRANSLATED": "",
         "VERSION": "Версии",
         "VIEW": "Просмотр"
     },

@@ -65,6 +65,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "",
+        "STEP_SUBMIT": "",
         "TEST": ""
     },
     "FILE": {
@@ -511,6 +512,7 @@
         "STATUS": "",
         "SUBMIT": "",
         "TITLE": "",
+        "TRANSLATED": "",
         "VERSION": "",
         "VIEW": ""
     },

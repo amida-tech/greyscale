@@ -205,7 +205,7 @@ angular.module('greyscaleApp')
                             //TODO here is pervious responses
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
-                                '<div class="field-response" gs-version-edit><span >' +
+                                '<div class="field-response" gs-version-edit' + translation + '><span>' +
                                 '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
                                 '{{resp.comments}}</span></div></div></div>';
                         }

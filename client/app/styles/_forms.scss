@@ -14,7 +14,7 @@
 .translation-input,
 .translation {
     position: relative;
-    & i {
+    & .translation-icon {
         position: absolute;
         margin: auto;
         top: 0;
@@ -71,6 +71,13 @@ upload-form,
         min-height: 12pt;
     }
     .radio {
+        margin: 0;
+    }
+}
+
+button .checkbox,
+button .checkbox-inline {
+    label {
         margin: 0;
     }
 }
