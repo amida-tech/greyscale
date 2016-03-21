@@ -23,7 +23,7 @@ angular.module('greyscaleApp')
 
                 function _printArea(area) {
                     var mode = attr.printCssMode || '';
-                    area.find(inputSelector).each(function (i,input) {
+                    area.find(inputSelector).each(function (i, input) {
                         input = $(input);
                         input.attr('data-id', Math.round(Math.random() * 1e12));
                     });

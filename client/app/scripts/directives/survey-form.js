@@ -66,7 +66,7 @@ angular.module('greyscaleApp')
 
                 scope.printRenderBlank = _printRenderBlank;
                 scope.printRenderAnswers = _printRenderAnswers;
-                scope.updateAnswers = function(){
+                scope.updateAnswers = function () {
                     updateForm(scope.surveyData);
                 };
 
@@ -87,7 +87,7 @@ angular.module('greyscaleApp')
                     if (disable === undefined) {
                         disable = true;
                     }
-                    angular.forEach(scope.fields, function(field){
+                    angular.forEach(scope.fields, function (field) {
                         field.flags.readonly = disable;
                     });
                     scope.model.formLocked = disable;
@@ -99,31 +99,33 @@ angular.module('greyscaleApp')
 
                     var taskId = scope.surveyData.task.id;
                     scope.model.formLocked = true;
-                    scope.saveDraft().then(function(){
-                        greyscaleDiscussionApi.scopeList({taskId: taskId})
-                            .then(function(scopeList){
-                                var resolveList = scopeList.resolveList;
-                                if (!resolveList[0]) {
-                                    //todo error
-                                    return;
-                                }
+                    scope.saveDraft().then(function () {
+                            greyscaleDiscussionApi.scopeList({
+                                    taskId: taskId
+                                })
+                                .then(function (scopeList) {
+                                    var resolveList = scopeList.resolveList;
+                                    if (!resolveList[0]) {
+                                        //todo error
+                                        return;
+                                    }
 
-                                var resolve = resolveList[0];
-                                console.log(resolve);
-                                var msg = {
-                                    taskId: taskId,
-                                    userId: resolve.userId,
-                                    questionId: resolve.questionId,
-                                    isResolve: true,
-                                    entry: scope.resolveFlagData.entry
-                                };
-                                greyscaleDiscussionApi.add(msg)
-                                    .then(function(){
+                                    var resolve = resolveList[0];
+                                    console.log(resolve);
+                                    var msg = {
+                                        taskId: taskId,
+                                        userId: resolve.userId,
+                                        questionId: resolve.questionId,
+                                        isResolve: true,
+                                        entry: scope.resolveFlagData.entry
+                                    };
+                                    greyscaleDiscussionApi.add(msg)
+                                        .then(function () {
 
-                                    });
-                            });
-                    })
-                        .finally(function(){
+                                        });
+                                });
+                        })
+                        .finally(function () {
                             scope.model.formLocked = false;
                         });
                 }
@@ -406,6 +408,10 @@ angular.module('greyscaleApp')
                         ) {
                             if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
                                 recentAnswers[qId] = _answers[v];
+                            }
+
+                            if (!recentAnswers[qId]) {
+                                return;
                             }
 
                             if (!scope.savedAt || scope.savedAt < recentAnswers[qId].created) {
