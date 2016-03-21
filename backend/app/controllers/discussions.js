@@ -421,6 +421,7 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
     var query =
         'SELECT ' +
             '"Tasks"."userId" as userid, ' +
+            '"Tasks"."questionsId" as questionid, ' +
             '"Tasks"."id" as taskid, '+
             '"Tasks"."title" as taskname, '+
             '"Tasks"."stepId" as stepid, '+
@@ -449,6 +450,7 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
         query =
             'SELECT '+
                 '"Tasks"."userId" as userid, ' +
+                '"Tasks"."questionsId" as questionid, ' +
                 '"Tasks"."id" as taskid, '+
                 '"Tasks"."title" as taskname, '+
                 '"Tasks"."stepId" as stepid, '+
@@ -493,6 +495,7 @@ function* getAvailableUsers(req) {
             availList.push(
                 {
                     userId: result[i].userid,
+                    questionId: result[i].questionid,
                     firstName: result[i].firstName,
                     lastName: result[i].lastName,
                     taskId: result[i].taskid,
@@ -512,6 +515,7 @@ function* getAvailableUsers(req) {
             returnList.push(
                 {
                     userId: result[ii].userid,
+                    questionId: result[i].questionid,
                     firstName: result[ii].firstName,
                     lastName: result[ii].lastName,
                     taskId: result[ii].taskid,
@@ -531,6 +535,7 @@ function* getAvailableUsers(req) {
             resolveList.push(
                 {
                     userId: result[j].userid,
+                    questionId: result[i].questionid,
                     firstName: result[j].firstName,
                     lastName: result[j].lastName,
                     taskId: result[j].taskid,

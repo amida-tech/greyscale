@@ -504,7 +504,7 @@ module.exports = {
                 action: 'insert',
                 object: 'notifications',
                 entity: _.first(data).id,
-                info: 'Added new notification'
+                info: 'Add new notification'
             });
             res.status(201).json(_.first(data));
         }, function (err) {
