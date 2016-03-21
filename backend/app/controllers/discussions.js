@@ -421,7 +421,7 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
     var query =
         'SELECT ' +
             '"Tasks"."userId" as userid, ' +
-            '"Tasks"."questionsId" as questionid, ' +
+            '"Tasks"."questionId" as questionid, ' +
             '"Tasks"."id" as taskid, '+
             '"Tasks"."title" as taskname, '+
             '"Tasks"."stepId" as stepid, '+
@@ -450,7 +450,7 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
         query =
             'SELECT '+
                 '"Tasks"."userId" as userid, ' +
-                '"Tasks"."questionsId" as questionid, ' +
+                '"Tasks"."questionId" as questionid, ' +
                 '"Tasks"."id" as taskid, '+
                 '"Tasks"."title" as taskname, '+
                 '"Tasks"."stepId" as stepid, '+
