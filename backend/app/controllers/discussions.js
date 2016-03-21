@@ -634,8 +634,10 @@ function* checkForReturnAndResolve(user, taskId, userId, tag) {
     }
 
     var currentStep = yield * getCurrentStep(taskId);
-    if (!currentStep.position || currentStep.position === 0) {
-        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
+    if (tag === 'return') {
+        if (!currentStep.position || currentStep.position === 0) {
+            throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because there are not previous steps');
+        }
     }
 
     return yield * checkUserId(user, userId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
