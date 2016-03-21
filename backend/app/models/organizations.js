@@ -7,7 +7,8 @@ var columns = [
     'adminUserId',
     'url',
     'enforceApiSecurity',
-    'isActive'
+    'isActive',
+    'realm'
 ];
 
 var Organization = sql.define({
