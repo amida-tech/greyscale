@@ -351,7 +351,9 @@ angular.module('greyscaleApp')
                             _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
                             answer.version < _answers[v].version
                         ) {
-                            recentAnswers[qId] = _answers[v];
+                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
+                                recentAnswers[qId] = _answers[v];
+                            }
 
                             if (!scope.savedAt || scope.savedAt < recentAnswers[qId].created) {
                                 scope.savedAt = recentAnswers[qId].created;
