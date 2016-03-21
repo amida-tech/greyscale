@@ -434,7 +434,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },  
+    },
 
     aggregateIndexesCsv: function (req, res, next) {
         var productId = parseInt(req.params.id);
@@ -475,7 +475,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },  
+    },
 
   selectOne: function (req, res, next) {
     co(function* (){
@@ -720,21 +720,21 @@ function* updateCurrentStepId(req) {
 
 function* dumpProduct(productId) {
   var q =
-          'SELECT ' + 
-          '  "SurveyAnswers"."UOAid" AS "id", ' + 
-          '  "UnitOfAnalysis"."name", ' + 
-          '  "UnitOfAnalysis"."ISO2", ' + 
-          "  format('{%s}', " + 
+          'SELECT ' +
+          '  "SurveyAnswers"."UOAid" AS "id", ' +
+          '  "UnitOfAnalysis"."name", ' +
+          '  "UnitOfAnalysis"."ISO2", ' +
+          "  format('{%s}', " +
           "    string_agg(format('\"%s\":%s', " +
-          '      "SurveyQuestions".id, ' + 
+          '      "SurveyQuestions".id, ' +
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
           '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
           '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
           '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
           '      END ' +
-          "    ), ',') " + 
-          '  ) AS "questions" ' + 
+          "    ), ',') " +
+          '  ) AS "questions" ' +
           'FROM ' +
           '  "SurveyQuestions" ' +
           'LEFT JOIN ' +

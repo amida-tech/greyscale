@@ -507,6 +507,7 @@
         "QUESTION": "Q",
         "RESPONSES": "Responses",
         "REVIEVER_COMMENT": "Response",
+        "SAVE_AND_RESOLVE": "Resolve",
         "SAVE_DRAFT": "Save as Draft",
         "SELECT_ONE": "select one",
         "STATUS": "Status",

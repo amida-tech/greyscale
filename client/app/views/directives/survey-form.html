@@ -53,16 +53,30 @@
                         ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly"
                         translate="SURVEYS.SAVE_DRAFT"></button>
 
-                <button class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
+                <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
                         ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || isLocked()" translate="SURVEYS.SUBMIT">
+                        ng-disabled="surveyForm.$invalid || model.formLocked"
+                        translate="SURVEYS.SUBMIT">
                 </button>
 
                 <button class="btn btn-primary pull-right" ng-show="surveyData.flags.allowTranslate && !model.translated"
-                    disabled="disabled">
+                        disabled="disabled">
                     <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
                         <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
                 </button>
+
+                <form name="resolveForm" ng-if="surveyData.task.flagged" class="form-inline pull-right">
+                    <textarea class="form-control"
+                              placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"
+                              name="resolveForm.entry"
+                              ng-model="resolveFlagData.entry"
+                              ng-required="true"></textarea>
+                    <button class="btn btn-primary"
+                            ng-disabled="resolveForm.$invalid || model.formLocked"
+                            ng-click="resolve()"
+                            style="vertical-align: top">
+                        <span translate="SURVEYS.SAVE_AND_RESOLVE"></span> <i class="fa fa-flag"></i></button>
+                </form>
             </div>
         </div>
     </div>

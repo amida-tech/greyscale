@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, $state, i18n) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -31,9 +31,14 @@ angular.module('greyscaleApp')
 
                 scope.saveDraft = function () {
                     if (!isReadonly) {
-                        saveAnswers(scope, true);
+                        return saveAnswers(scope, true);
+                    } else {
+                        return $q.reject();
                     }
                 };
+
+                scope.resolveFlagData = {};
+                scope.resolve = _resolve;
 
                 scope.save = function () {
                     var _p = $q.reject('ERROR.STEP_SUBMIT');
@@ -76,6 +81,51 @@ angular.module('greyscaleApp')
                     } else {
                         return $q.reject('Task is undefined');
                     }
+                }
+
+                function _disableFields(disable) {
+                    if (disable === undefined) {
+                        disable = true;
+                    }
+                    angular.forEach(scope.fields, function(field){
+                        field.flags.readonly = disable;
+                    });
+                    scope.model.formLocked = disable;
+                }
+
+                function _resolve() {
+
+                    //_disableFields();
+
+                    var taskId = scope.surveyData.task.id;
+                    scope.model.formLocked = true;
+                    scope.saveDraft().then(function(){
+                        greyscaleDiscussionApi.scopeList({taskId: taskId})
+                            .then(function(scopeList){
+                                var resolveList = scopeList.resolveList;
+                                if (!resolveList[0]) {
+                                    //todo error
+                                    return;
+                                }
+
+                                var resolve = resolveList[0];
+                                console.log(resolve);
+                                var msg = {
+                                    taskId: taskId,
+                                    userId: resolve.userId,
+                                    questionId: resolve.questionId,
+                                    isResolve: true,
+                                    entry: scope.resolveFlagData.entry
+                                };
+                                greyscaleDiscussionApi.add(msg)
+                                    .then(function(){
+
+                                    });
+                            });
+                    })
+                        .finally(function(){
+                            scope.model.formLocked = false;
+                        });
                 }
 
                 function updateForm(data) {
