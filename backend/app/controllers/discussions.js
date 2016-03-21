@@ -534,7 +534,7 @@ function* getAvailableUsers(req) {
             resolveList.push(
                 {
                     userId: result[j].userid,
-                    questionId: result[i].questionid,
+                    questionId: result[j].questionid,
                     firstName: result[j].firstName,
                     lastName: result[j].lastName,
                     taskId: result[j].taskid,
