@@ -421,7 +421,6 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
     var query =
         'SELECT ' +
             '"Tasks"."userId" as userid, ' +
-            '"Tasks"."questionId" as questionid, ' +
             '"Tasks"."id" as taskid, '+
             '"Tasks"."title" as taskname, '+
             '"Tasks"."stepId" as stepid, '+
@@ -450,7 +449,6 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
         query =
             'SELECT '+
                 '"Tasks"."userId" as userid, ' +
-                '"Tasks"."questionId" as questionid, ' +
                 '"Tasks"."id" as taskid, '+
                 '"Tasks"."title" as taskname, '+
                 '"Tasks"."stepId" as stepid, '+
@@ -465,7 +463,8 @@ function* getUserList(user, taskId, productId, uoaId, currentStep, tag) {
                     '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
                     'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
-            '"Tasks"."uoaId" as uoaid '+
+            '"Tasks"."uoaId" as uoaid, '+
+            '"Discussions"."questionId" as questionid ' +
             'FROM "Discussions" ' +
             'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
@@ -495,7 +494,7 @@ function* getAvailableUsers(req) {
             availList.push(
                 {
                     userId: result[i].userid,
-                    questionId: result[i].questionid,
+                    //questionId: result[i].questionid,
                     firstName: result[i].firstName,
                     lastName: result[i].lastName,
                     taskId: result[i].taskid,
@@ -515,7 +514,7 @@ function* getAvailableUsers(req) {
             returnList.push(
                 {
                     userId: result[ii].userid,
-                    questionId: result[i].questionid,
+                    //questionId: result[i].questionid,
                     firstName: result[ii].firstName,
                     lastName: result[ii].lastName,
                     taskId: result[ii].taskid,
