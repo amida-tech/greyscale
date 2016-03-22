@@ -129,7 +129,7 @@ angular.module('greyscale.core')
 
         function _getApiBase() {
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
-            var path = [greyscaleEnv.apiRealm, greyscaleEnv.apiVersion].join('/');
+            var path = [$rootScope.realm || 'public', greyscaleEnv.apiVersion].join('/');
             return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
         }
 

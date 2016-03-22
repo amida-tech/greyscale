@@ -9,10 +9,7 @@ angular.module('greyscaleApp')
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
         var excludedFields = greyscaleGlobals.formBuilder.excludedIndexes;
-
         var isReadonly = false;
-        var lockFlag = false;
-
         var surveyParams = {};
         var currentUserId, currentStepId;
         var provideResponses = false;
@@ -33,7 +30,7 @@ angular.module('greyscaleApp')
                     if (!isReadonly) {
                         return saveAnswers(scope, true);
                     } else {
-                        return $q.reject();
+                        return $q.reject('');
                     }
                 };
 
