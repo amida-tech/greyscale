@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -70,6 +70,17 @@ angular.module('greyscaleApp')
                     updateForm(scope.surveyData);
                 };
 
+                scope.lock = _lock;
+                scope.unlock = _unlock;
+
+                function _lock() {
+                    scope.model.locked = true;
+                }
+
+                function _unlock() {
+                    scope.model.locked = false;
+                }
+
                 function goNextStep(data) {
                     if (scope.surveyData.task) {
                         return greyscaleProductApi
@@ -94,40 +105,37 @@ angular.module('greyscaleApp')
                 }
 
                 function _resolve() {
+                    scope.lock();
 
                     //_disableFields();
 
                     var taskId = scope.surveyData.task.id;
-                    scope.model.formLocked = true;
-                    scope.saveDraft().then(function () {
-                            greyscaleDiscussionApi.scopeList({
-                                    taskId: taskId
-                                })
-                                .then(function (scopeList) {
-                                    var resolveList = scopeList.resolveList;
-                                    if (!resolveList[0]) {
-                                        //todo error
-                                        return;
-                                    }
-
-                                    var resolve = resolveList[0];
-                                    console.log(resolve);
-                                    var msg = {
-                                        taskId: taskId,
-                                        userId: resolve.userId,
-                                        questionId: resolve.questionId,
-                                        isResolve: true,
-                                        entry: scope.resolveFlagData.entry
-                                    };
-                                    greyscaleDiscussionApi.add(msg)
-                                        .then(function () {
-
-                                        });
-                                });
+                    scope.saveDraft()
+                        .then(function () {
+                            return greyscaleDiscussionApi.scopeList({
+                                taskId: taskId
+                            });
                         })
-                        .finally(function () {
-                            scope.model.formLocked = false;
-                        });
+                        .then(function (scopeList) {
+                            var resolveList = scopeList.resolveList;
+                            if (!resolveList[0]) {
+                                //todo error
+                                return $q.reject('no resolve list');
+                            }
+
+                            var resolve = resolveList[0];
+                            $log.debug(resolve);
+                            return {
+                                taskId: taskId,
+                                userId: resolve.userId,
+                                questionId: resolve.questionId,
+                                isResolve: true,
+                                entry: scope.resolveFlagData.entry
+                            };
+                        })
+                        .then(greyscaleDiscussionApi.add)
+                        .catch(greyscaleUtilsSrv.errorMsg)
+                        .finally(scope.unlock);
                 }
 
                 function updateForm(data) {
@@ -179,7 +187,7 @@ angular.module('greyscaleApp')
                     _locked = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses; //is readonly
                     _locked = _locked && !$scope.model.translated;
 
-                    return lockFlag || _locked;
+                    return _locked;
                 };
             }
         };
@@ -202,10 +210,8 @@ angular.module('greyscaleApp')
             scope.fields = [];
             scope.content = [];
             scope.recentSaved = null;
-            lockFlag = true;
-            scope.model.formLocked = true;
 
-            scope.model.translated = !scope.surveyData.flags.allowTranslate;
+            scope.lock();
 
             var content = [];
             var fields = [];
@@ -241,8 +247,10 @@ angular.module('greyscaleApp')
             currentStepId = task.stepId;
             provideResponses = scope.surveyData.flags.provideResponses;
 
-            isReadonly = !scope.surveyData.flags.allowEdit && !scope.surveyData.flags.writeToAnswers && !scope.surveyData.flags.provideResponses;
-            scope.formReadonly = isReadonly;
+            isReadonly = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses;
+
+            scope.model.formReadonly = isReadonly;
+            scope.model.translated = !flags.allowTranslate;
 
             for (q = 0; q < qQty; q++) {
                 field = survey.questions[q];
@@ -366,14 +374,14 @@ angular.module('greyscaleApp')
 
             scope.fields = fields;
             scope.content = content;
-            lockFlag = false;
+            scope.unlock();
         }
 
         function loadAnswers(scope) {
             var recentAnswers = {};
             var responses = {};
 
-            lockFlag = true;
+            scope.lock();
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
                     var v, answer, qId,
@@ -410,22 +418,15 @@ angular.module('greyscaleApp')
                                 recentAnswers[qId] = _answers[v];
                             }
 
-                            if (!recentAnswers[qId]) {
-                                return;
-                            }
-
-                            if (!scope.savedAt || scope.savedAt < recentAnswers[qId].created) {
+                            if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
                                 scope.savedAt = recentAnswers[qId].created;
                             }
                         }
                     }
 
                     loadRecursive(scope.fields, recentAnswers, responses);
-
                 })
-                .finally(function () {
-                    lockFlag = false;
-                });
+                .finally(scope.unlock);
         }
 
         function loadRecursive(fields, answers, responses) {
@@ -551,7 +552,7 @@ angular.module('greyscaleApp')
             var answers = [];
 
             if (!isReadonly) {
-                lockFlag = true;
+                scope.lock();
                 answers = preSaveFields(scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
@@ -570,9 +571,7 @@ angular.module('greyscaleApp')
                         greyscaleUtilsSrv.errorMsg(err);
                         return isAuto;
                     })
-                    .finally(function () {
-                        lockFlag = false;
-                    });
+                    .finally(scope.unlock);
             }
             return res;
         }
@@ -624,9 +623,11 @@ angular.module('greyscaleApp')
 
                     case 'bullet_points':
                         var tmp = [];
-                        for (o = 0; o < fld.answer.length; o++) {
-                            if (fld.answer[o].data) {
-                                tmp.push(fld.answer[o].data);
+                        if (fld.answer) {
+                            for (o = 0; o < fld.answer.length; o++) {
+                                if (fld.answer[o].data) {
+                                    tmp.push(fld.answer[o].data);
+                                }
                             }
                         }
                         answer.value = angular.toJson(tmp);

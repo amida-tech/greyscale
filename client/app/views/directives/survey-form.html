@@ -50,12 +50,12 @@
             <div>
                 <button class="btn btn-default pull-left" ng-click="back()" translate="COMMON.BACK"></button>
                 <button class="btn pull-right" ng-click="saveDraft()"
-                        ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly"
+                        ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly || model.locked"
                         translate="SURVEYS.SAVE_DRAFT"></button>
 
                 <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
                         ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || model.formLocked"
+                        ng-disabled="surveyForm.$invalid || isLocked() || model.locked"
                         translate="SURVEYS.SUBMIT">
                 </button>
 
@@ -72,7 +72,7 @@
                               ng-model="resolveFlagData.entry"
                               ng-required="true"></textarea>
                     <button class="btn btn-primary"
-                            ng-disabled="resolveForm.$invalid || model.formLocked"
+                            ng-disabled="resolveForm.$invalid || model.locked"
                             ng-click="resolve()"
                             style="vertical-align: top">
                         <span translate="SURVEYS.SAVE_AND_RESOLVE"></span> <i class="fa fa-flag"></i></button>
