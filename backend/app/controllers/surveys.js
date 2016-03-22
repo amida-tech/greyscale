@@ -220,6 +220,11 @@ function* addQuestion (req, dataObj) {
             insertObj.questionId = result.id;
             insertArr.push(insertObj);
         }
+
+        console.log('OPTIONS TO PUSH');
+
+        console.log(insertArr);
+
         result.options = yield thunkQuery(
             SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
         );
