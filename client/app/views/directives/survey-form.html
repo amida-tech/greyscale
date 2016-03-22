@@ -15,7 +15,6 @@
                        print-close="updateAnswers()"><span
                     translate=".PRINT_ALL"></span></a></li>
             </ul>
-            <!--<button class="btn btn-default" print-area="survey-form" print-mode="open-collapsible hide-inputs"><i class="fa fa-print"></i></button>-->
         </span>
 
         <p class="subtext pull-right"><span translate=".LAST_SAVED"></span>: <span ng-if="savedAt">{{savedAt|date:'short'}}</span><span
@@ -45,38 +44,44 @@
                 </div>
                 <div class="form-group"
                      ng-repeat="fld in fields"
-                     survey-form-field="fld"></div>
+                     survey-form-field="fld" field-disabled="surveyData.disabledFields"></div>
             </div>
             <div>
                 <button class="btn btn-default pull-left" ng-click="back()" translate="COMMON.BACK"></button>
-                <button class="btn pull-right" ng-click="saveDraft()"
-                        ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly || model.locked"
-                        translate="SURVEYS.SAVE_DRAFT"></button>
 
-                <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
-                        ng-click="save()"
-                        ng-disabled="surveyForm.$invalid || isLocked() || model.locked"
-                        translate="SURVEYS.SUBMIT">
-                </button>
+                <div class="pull-right">
 
-                <button class="btn btn-primary pull-right" ng-show="surveyData.flags.allowTranslate && !model.translated"
-                        disabled="disabled">
-                    <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
-                        <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
-                </button>
+                    <div ng-if="surveyData.task.flagged" class="form-horizontal" style="margin:0 0 10px 5px;">
+                        <textarea class="form-control"
+                                  placeholder="{{'SURVEYS.RESOLVE_ENTRY' | translate}}"
+                                  ng-model="resolveFlagData.entry"
+                                  ng-required="true"></textarea>
 
-                <form name="resolveForm" ng-if="surveyData.task.flagged" class="form-inline pull-right">
-                    <textarea class="form-control"
-                              placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"
-                              name="resolveForm.entry"
-                              ng-model="resolveFlagData.entry"
-                              ng-required="true"></textarea>
-                    <button class="btn btn-primary"
-                            ng-disabled="resolveForm.$invalid || model.locked"
+                    </div>
+
+                    <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
+                            ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly || model.locked"
+                            translate="SURVEYS.SAVE_DRAFT"></button>
+
+                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
+                            ng-click="save()"
+                            ng-disabled="surveyForm.$invalid || isLocked() || model.locked"
+                            translate="SURVEYS.SUBMIT">
+                    </button>
+
+                    <button class="btn btn-primary pull-right" ng-show="surveyData.flags.allowTranslate && !model.translated"
+                            disabled="disabled">
+                        <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
+                            <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
+                    </button>
+
+                    <button ng-if="surveyData.task.flagged"
+                            class="btn btn-primary pull-right"
+                            ng-disabled="!resolveFlagData.entry || model.locked"
                             ng-click="resolve()"
                             style="vertical-align: top">
                         <span translate="SURVEYS.SAVE_AND_RESOLVE"></span> <i class="fa fa-flag"></i></button>
-                </form>
+                </div>
             </div>
         </div>
     </div>

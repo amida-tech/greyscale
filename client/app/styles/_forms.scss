@@ -60,9 +60,14 @@ upload-form,
 }
 
 .form-group .subtext {
-    max-height: 3.5em;
+//    max-height: 3.5em;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.field-description,
+.field-response span {
+    white-space: pre;
 }
 
 .input-group-addon {

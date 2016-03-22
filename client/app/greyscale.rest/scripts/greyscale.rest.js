@@ -6,16 +6,7 @@
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
     .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
 
-        var domain = window.location.hostname.split('.');
         var realm = 'public';
-        var baseLength = 'dev-mt'.indexOf(greyscaleEnv.name) !== -1 ? 4 : 3;
-
-        if (domain[0] === 'www') {
-            domain.splice(0, 1);
-        }
-        if (!window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/) && domain.length >= baseLength) {
-            realm = domain[0];
-        }
 
         RestangularProvider.setBaseUrl(
             (greyscaleEnv.apiProtocol || 'http') + '://' +

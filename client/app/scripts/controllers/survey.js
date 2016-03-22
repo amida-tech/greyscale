@@ -75,4 +75,11 @@ angular.module('greyscaleApp')
                 $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
                 $scope.loading = false;
             });
+
+        $scope.disableOnMove = function (msg) {
+            if (msg.isReturn) {
+                $scope.model.surveyData.disabledFields = true;
+            }
+        };
+
     });
