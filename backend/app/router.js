@@ -509,6 +509,7 @@ router.route('/:realm/v0.2/uoataglinks/:id')
 //    Visualizations
 //----------------------------------------------------------------------------------------------------------------------
 var Visualization = require('app/controllers/visualizations');
+var ComparativeVisualization = require('app/controllers/comparative_visualizations');
 
 router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
     .get(authenticate('token').always, Visualization.select)
@@ -518,5 +519,14 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
     .get(authenticate('token').always, Visualization.selectOne)
     .put(authenticate('token').always, /*checkRight(), */ Visualization.updateOne)
     .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.select)
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.insertOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectOne)
+    .put(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.updateOne)
+    .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
 
 module.exports = router;

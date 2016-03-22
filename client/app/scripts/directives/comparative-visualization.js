@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('comparativeViz', function ($window, $http, $stateParams, $q, Organization, greyscaleOrganizationApi, greyscaleModalsSrv, greyscaleProductApi) {
+    .directive('comparativeViz', function ($window, $http, $stateParams, $q, Organization, greyscaleOrganizationApi, greyscaleModalsSrv, greyscaleProductApi, greyscaleVisualizationApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/comparative-visualization.html',
@@ -15,8 +15,7 @@ angular.module('greyscaleApp')
                         scope.allProducts = products;
 
                         // load test data
-                        scope.products = JSON.parse('[{"product":{"id":48,"title":"2014 Ratings","description":"2014 Ratings","originalLangId":null,"projectId":56,"surveyId":108,"status":3,"langId":null},"index":{"id":3,"title":"Rating","divisor":1,"questionWeights":{"344":{"weight":1,"type":"value","aggregateType":null}},"subindexWeights":{}},"$$hashKey":"object:101","data":[{"id":14,"name":"Russia","ISO2":"","questions":{"344":4},"subindexes":{},"indexes":{"3":4},"x":10,"y":10,"val":4},{"id":60,"name":"Canada","ISO2":"CA","questions":{"344":3},"subindexes":{},"indexes":{"3":3},"x":45,"y":10,"val":3},{"id":16,"name":"USA","ISO2":"","questions":{"344":5},"subindexes":{},"indexes":{"3":5},"x":80,"y":10,"val":5},{"id":43,"name":"Belgium","ISO2":"BE","questions":{"344":2},"subindexes":{},"indexes":{"3":2},"x":115,"y":10,"val":2},{"id":45,"name":"Bulgaria","ISO2":"BG","questions":{"344":3},"subindexes":{},"indexes":{"3":3},"x":150,"y":10,"val":3},{"id":15,"name":"Germany","ISO2":"","questions":{"344":4},"subindexes":{},"indexes":{"3":4},"x":185,"y":10,"val":4},{"id":70,"name":"China","ISO2":"CN","questions":{"344":5},"subindexes":{},"indexes":{"3":5},"x":220,"y":10,"val":5}]},{"product":{"id":49,"title":"2015 Ratings","description":"2015 Ratings","originalLangId":null,"projectId":56,"surveyId":108,"status":3,"langId":null},"index":{"id":4,"title":"Rating","divisor":1,"questionWeights":{"344":{"weight":1,"type":"value","aggregateType":null}},"subindexWeights":{}},"$$hashKey":"object:127","data":[{"id":14,"name":"Russia","ISO2":"","questions":{"344":3},"subindexes":{},"indexes":{"4":3},"x":10,"y":45,"val":3},{"id":60,"name":"Canada","ISO2":"CA","questions":{"344":4},"subindexes":{},"indexes":{"4":4},"x":45,"y":45,"val":4},{"id":16,"name":"USA","ISO2":"","questions":{"344":4},"subindexes":{},"indexes":{"4":4},"x":80,"y":45,"val":4},{"id":43,"name":"Belgium","ISO2":"BE","questions":{"344":1},"subindexes":{},"indexes":{"4":1},"x":115,"y":45,"val":1},{"id":15,"name":"Germany","ISO2":"","questions":{"344":3},"subindexes":{},"indexes":{"4":3},"x":185,"y":45,"val":3},{"id":70,"name":"China","ISO2":"CN","questions":{"344":5},"subindexes":{},"indexes":{"4":5},"x":220,"y":45,"val":5},{"id":96,"name":"France","ISO2":"FR","questions":{"344":3},"subindexes":{},"indexes":{"4":3},"x":255,"y":45,"val":3}]},{"product":{"id":50,"title":"2016 Ratings","description":"2016 Ratings","originalLangId":null,"projectId":56,"surveyId":108,"status":3,"langId":null},"index":{"id":5,"title":"Rating","divisor":1,"questionWeights":{"344":{"weight":1,"type":"value","aggregateType":null}},"subindexWeights":{}}}]');
-                        scope.productsTable.tableParams.reload();
+                        _loadVisualization(1);
                     });
                 }
                 Organization.$watch(scope, _loadProducts);
@@ -77,13 +76,49 @@ angular.module('greyscaleApp')
                     });
 
                     $q.all(promises).then(function () {
-                        renderVisualization(preprocessData(products));
+                        _renderVisualization(_preprocessData(products));
                         if (products.length === 0) {
-                            clearVisualization();
+                            _clearVisualization();
                         }
                     });
                 }, true);
 
+
+                // LOADING/SAVING
+                function _getConfiguration() {
+                    var products = scope.products.map(function (datum) {
+                        return {
+                            productId: datum.product.id,
+                            indexId: datum.index.id
+                        };
+                    });
+                    return {
+                        products: products
+                    };
+                }
+
+                function _saveVisualization() {
+                    return greyscaleVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
+                }
+
+                function _loadConfiguration(vizData) {
+                    return $q.all(vizData.products.map(function (datum) {
+                        // product
+                        datum.product = _.findWhere(scope.allProducts, { id: datum.productId });
+                        // index
+                        return greyscaleProductApi.product(datum.productId).indexesList().then(function (indexes) {
+                            datum.index = _.findWhere(indexes, { id: datum.indexId });
+                            return datum;
+                        });
+                    })).then(function (data) {
+                        scope.products = data;
+                        scope.productsTable.tableParams.reload();
+                    });
+                }
+
+                function _loadVisualization(vizId) {
+                    return greyscaleVisualizationApi(Organization.id).get(vizId).then(_loadConfiguration);
+                }
 
                 // VISUALIZATION
                 var layout = {
@@ -111,7 +146,7 @@ angular.module('greyscaleApp')
                     colors: ['white', 'blue'] // 2 only
                 };
 
-                function preprocessData(productIndexes) {
+                function _preprocessData(productIndexes) {
                     var l = layout.targets;
                     l.positions = {};
                     l.targets = [];
@@ -139,7 +174,7 @@ angular.module('greyscaleApp')
                     return data;
                 }
 
-                function clearVisualization(data) {
+                function _clearVisualization(data) {
                     var d3 = $window.d3;
                     var svg = d3.select('svg');
                     svg.select('#grid #background').attr('fill', '#fff');
@@ -147,7 +182,7 @@ angular.module('greyscaleApp')
                     svg.select('#scale rect').attr('fill', '#fff');
                 }
 
-                function renderVisualization(data) {
+                function _renderVisualization(data) {
                     var d3 = $window.d3;
 
                     // construct color scale
