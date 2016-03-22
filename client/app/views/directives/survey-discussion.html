@@ -33,7 +33,7 @@
             </select>
         </div>
         <div class="form-group clearfix">
-            <div class="checkbox-inline" ng-if="!surveyData.task.flagged"><label class="text-danger">
+            <div class="checkbox-inline" ng-if="!surveyData.task.flagged && !flagIsDisabled()"><label class="text-danger">
                 <input type="checkbox" ng-model="model.msg.isReturn"/> <i class="chk-box"></i> <span translate="PLACEHOLDER.FLAG"></span></label>
             </div>
 

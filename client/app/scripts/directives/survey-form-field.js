@@ -8,7 +8,8 @@ angular.module('greyscaleApp')
         return {
             restrict: 'AE',
             scope: {
-                field: '=surveyFormField'
+                field: '=surveyFormField',
+                isDisabled: '=fieldDisabled'
             },
             template: '',
             link: function (scope, elem) {
@@ -38,7 +39,7 @@ angular.module('greyscaleApp')
 
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly" ';
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
@@ -115,14 +116,14 @@ angular.module('greyscaleApp')
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
 
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
                                     '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
@@ -135,13 +136,13 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly || isDisabled"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
                                     '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
@@ -153,7 +154,7 @@ angular.module('greyscaleApp')
                         case 'dropdown':
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options"' +
-                                    ' gs-valid="field" ng-readonly="field.flags.readonly">';
+                                    ' gs-valid="field" ng-readonly="field.flags.readonly || isDisabled">';
                                 if (scope.field.required) {
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
@@ -194,7 +195,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
-                            attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
+                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
 
                         body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +

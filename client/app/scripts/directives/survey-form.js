@@ -38,6 +38,7 @@ angular.module('greyscaleApp')
                 scope.resolve = _resolve;
 
                 scope.save = function () {
+
                     var _p = $q.reject('ERROR.STEP_SUBMIT');
                     if (flags.allowTranslate) {
                         if (scope.model.translated) {
@@ -91,23 +92,11 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function _disableFields(disable) {
-                    if (disable === undefined) {
-                        disable = true;
-                    }
-                    angular.forEach(scope.fields, function (field) {
-                        field.flags.readonly = disable;
-                    });
-                    scope.model.formLocked = disable;
-                }
-
                 function _resolve() {
                     scope.lock();
 
-                    //_disableFields();
-
                     var taskId = scope.surveyData.task.id;
-                    scope.saveDraft()
+                    saveAnswers(scope)
                         .then(function () {
                             return greyscaleDiscussionApi.scopeList({
                                 taskId: taskId
@@ -116,7 +105,6 @@ angular.module('greyscaleApp')
                         .then(function (scopeList) {
                             var resolveList = scopeList.resolveList;
                             if (!resolveList[0]) {
-                                //todo error
                                 return $q.reject('no resolve list');
                             }
 
@@ -131,6 +119,9 @@ angular.module('greyscaleApp')
                             };
                         })
                         .then(greyscaleDiscussionApi.add)
+                        .then(function () {
+                            $state.go('tasks');
+                        })
                         .catch(greyscaleUtilsSrv.errorMsg)
                         .finally(scope.unlock);
                 }

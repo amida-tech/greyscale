@@ -505,6 +505,7 @@
         "PRINT_QUESTIONS": "",
         "PRINT_SURVEY": "",
         "QUESTION": "",
+        "RESOLVE_ENTRY": "",
         "RESPONSES": "Обратная связь",
         "REVIEVER_COMMENT": "Комментарий проверяющего",
         "SAVE_AND_RESOLVE": "",
