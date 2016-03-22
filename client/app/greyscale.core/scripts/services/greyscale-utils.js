@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, greyscaleRolesSrv, $log, inform,
-        i18n) {
+        i18n, $rootScope) {
 
         return {
             decode: _decode,
