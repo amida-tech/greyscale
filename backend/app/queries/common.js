@@ -16,9 +16,6 @@ var
     Notification = require('app/models/notifications'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
-
-    notifications = require('app/controllers/notifications'),
-
     co = require('co'),
     sql = require('sql'),
     Query = require('app/util').Query,
