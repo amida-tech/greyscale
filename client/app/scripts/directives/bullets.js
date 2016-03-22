@@ -2,12 +2,24 @@
  * Created by igi on 04.03.16.
  */
 angular.module('greyscaleApp')
-    .directive('bullets', function () {
+    .directive('bullets', function ($compile) {
         return {
             restrict: 'E',
-            template: '<bullet-item answer="item" ng-repeat="item in field.answer" remove-item="remove($index)" ' +
-                'add-item="addEmpty($index)" validator="field" options="field.options" ' +
-                'is-last="($index === field.answer.length-1)" translation></bullet-item>',
+            template: '',
+            link: function(scope, elem) {
+                var body = '<bullet-item answer="item" ng-repeat="item in field.answer" remove-item="remove($index)" ' +
+                    'add-item="addEmpty($index)" validator="field" options="field.options" ' +
+                    'is-last="($index === field.answer.length-1)"';
+                if (scope.field.flags.allowTranslate) {
+                    body += 'translate';
+                }
+                body += '></bullet-item>';
+
+                elem.append(body);
+
+                $compile(elem.contents())(scope);
+
+            },
             controller: function ($scope) {
 
                 $scope.remove = _remove;
