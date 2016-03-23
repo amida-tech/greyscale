@@ -324,10 +324,10 @@ module.exports = {
                         action: 'delete',
                         object: 'IndexQuestionWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             indexId: req.body[i].id
-                        }),
+                        },
                         quantity: 1,
                         info: 'Drop all existing question weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
                     });
@@ -339,10 +339,10 @@ module.exports = {
                         action: 'delete',
                         object: 'IndexSubindexWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             indexId: req.body[i].id
-                        }),
+                        },
                         quantity: 1,
                         info: 'Drop all existing subindex weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
                     });
@@ -380,11 +380,11 @@ module.exports = {
                         action: 'insert',
                         object: 'IndexQuestionWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             indexId: indexId,
                             questionId: questionId
-                        }),
+                        },
                         quantity: 1,
                         info: 'Add new question weight for index `'+indexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
                     });
@@ -402,11 +402,11 @@ module.exports = {
                         action: 'insert',
                         object: 'IndexSubindexWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             indexId: indexId,
                             subindexId: subindexId
-                        }),
+                        },
                         quantity: 1,
                         info: 'Add new subindex weight for index `'+indexId+'` for subindex `'+subindexId+'` for product `'+req.params.id+'`'
                     });
@@ -487,10 +487,10 @@ module.exports = {
                         action: 'delete',
                         object: 'SubindexWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             subindexId: subindexId
-                        }),
+                        },
                         quantity: 1,
                         info: 'Drop all existing weights for subindex `'+subindexId+'` for product `'+req.params.id+'`'
                     });
@@ -526,11 +526,11 @@ module.exports = {
                         action: 'insert',
                         object: 'SubindexWeights',
                         entity: null,
-                        entities: JSON.stringify({
+                        entities: {
                             productId: req.params.id,
                             subindexId: subindexId,
                             questionId: questionId
-                        }),
+                        },
                         quantity: 1,
                         info: 'Add new weight for subindex `'+subindexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
                     });
@@ -711,10 +711,10 @@ module.exports = {
                     action: 'insert',
                     object: 'ProductUOA',
                     entity: null,
-                    entities: JSON.stringify({
+                    entities: {
                         productId: req.params.id,
                         uoaId: uoaId
-                    }),
+                    },
                     quantity: 1,
                     info: 'Add new subject `'+uoaId+'` for product `'+req.params.id+'`'
                 });
@@ -765,7 +765,7 @@ module.exports = {
                 action: 'insert',
                 object: 'ProductUOA',
                 entity: null,
-                entities: JSON.stringify(data),
+                entities: data,
                 quantity: data.length,
                 info: 'Add new subjects (uoas) for product `'+req.params.id+'`'
             });
@@ -787,10 +787,10 @@ module.exports = {
                     action: 'delete',
                     object: 'ProductUOA',
                     entity: null,
-                    entities: JSON.stringify({
+                    entities: {
                         productId: req.params.id,
                         uoaId: req.params.uoaid
-                    }),
+                    },
                     quantity: 1,
                     info: 'Delete subject `'+req.params.uoaid+'` for product `'+req.params.id+'`'
                 });
