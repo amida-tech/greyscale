@@ -568,7 +568,7 @@ function* checkNextEntry(id, checkOnly) {
         'SELECT '+
         '"Discussions"."questionId" '+
         'FROM "Discussions" '+
-        'INNER JOIN "public"."Tasks" ON "public"."Discussions"."taskId" = "public"."Tasks"."id" '+
+        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE '+
             '"Tasks"."uoaId" = '+uoaId.toString()+' AND '+
             '"Tasks"."productId" = '+productId.toString()+' AND '+
@@ -693,7 +693,7 @@ function* checkUpdateProductUOAStep(object) {
     var query =
         'SELECT "Discussions"."questionId" '+
         'FROM "Discussions" '+
-        'INNER JOIN "public"."Tasks" ON "public"."Discussions"."taskId" = "public"."Tasks"."id" '+
+        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE '+
         '"Discussions"."isResolve" <> "Discussions"."isReturn" AND '+
         '"Tasks"."uoaId" = '+object.uoaId.toString()+' AND '+

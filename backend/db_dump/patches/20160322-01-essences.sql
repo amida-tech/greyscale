@@ -22,7 +22,8 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('Subindexes', 'Subindexes', 'subindexes', 'title'),
 ('IndexQuestionWeights', 'IndexQuestionWeights', 'index_question_weights', 'type'),
 ('IndexSubindexWeights', 'IndexSubindexWeights', 'index_subindex_weights', 'type'),
-('SubindexWeights', 'SubindexWeights', 'subindex_weights', 'type')
+('SubindexWeights', 'SubindexWeights', 'subindex_weights', 'type'),
+('Translations', 'Translations', 'translations', 'field')
 ),
 upsert as
 ( 
