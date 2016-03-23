@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -112,6 +114,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Delete task'
+            });
             res.status(204).end();
         });
     },
@@ -124,6 +133,13 @@ module.exports = {
                 .where(Task.id.equals(req.params.id))
             );
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Update task'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -142,11 +158,18 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'tasks',
+                entity: _.first(data).id,
+                info: 'Add new task'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
-    },
+    }
 
 };
 
