@@ -149,6 +149,8 @@ angular.module('greyscaleApp')
 
                 // VISUALIZATION
                 var layout = {
+                    vPadding: 10,
+                    hPadding: 0,
                     targets: {
                         hPadding: 12.5,
                         vPadding: 12.5,
@@ -168,7 +170,8 @@ angular.module('greyscaleApp')
                     axis: {
                         colorWidth: 20,
                         innerPadding: 5,
-                        minHeight: 150
+                        minHeight: 150,
+                        fontSize: 12
                     },
                     colors: ['#DB3340', '#20DA9B'] // 2 only
                 };
@@ -194,6 +197,8 @@ angular.module('greyscaleApp')
                             target.val = target.indexes[productIndex.index.id];
 
                             return target;
+                        }).filter(function (target) {
+                            return typeof target.val !== 'undefined' && target.val !== null;
                         });
                         return productIndex;
                     });
@@ -225,11 +230,12 @@ angular.module('greyscaleApp')
                     var svg = d3.select('svg');
 
                     // hover text
-                    // TODO: fix tooltips (not working with dynamic data viz)
-                    /*var tip = d3.tip()
+                    var tip = d3.tip()
                         .attr('class', 'd3-tip')
+                        .direction('e')
+                        .offset([0,8])
                         .html(function (d) { return d.val; });
-                    svg.call(tip);*/
+                    svg.call(tip);
 
                     // grid of targets
                     var l = layout.targets;
@@ -254,8 +260,8 @@ angular.module('greyscaleApp')
                         .attr('class', 'target')
                         .attr('width', l.width)
                         .attr('height', l.height)
-                        /*.on('mouseover', tip.show)
-                        .on('mouseout', tip.hide)*/;
+                        .on('mouseover', tip.show)
+                        .on('mouseout', tip.hide);
                     cols.exit().remove();
                     cols
                         .attr('x', function (d) { return d.x; })
@@ -339,10 +345,11 @@ angular.module('greyscaleApp')
                     var axisG = scale.select('#axis')
                         .attr('transform', 'translate(' + (l.colorWidth + l.innerPadding) + ', 0)')
                         .attr('class', 'axis')
+                        .attr('font-size', l.fontSize + 'px')
                         .call(axis);
                     var bbox = axisG.node().getBBox();
-                    vizWidth += bbox.width;
-                    vizHeight = vOffset + bbox.height;
+                    vizWidth += bbox.width + layout.hPadding;
+                    vizHeight = vOffset + bbox.height + layout.vPadding;
 
                     // resize svg and container (for styling)
                     $('.comparative-container').width(0);
