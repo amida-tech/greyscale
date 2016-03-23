@@ -611,6 +611,7 @@
         "MODAL_TITLE": "Edit Visualization {{visualization.title}}",
         "MODAL_TITLE_CREATE": "Create Visualization",
         "TITLE": "Title",
+        "TYPE": "Type",
         "VISUALIZATIONS": "Visualizations"
     },
     "WORKFLOW_STEPS": {

@@ -15,6 +15,7 @@ module.exports = {
                 ComparativeVisualization
                 .select(
                     ComparativeVisualization.id,
+                    ComparativeVisualization.title,
                     "format('[%s]', " +
                         "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " + 
                             '"ComparativeVisualizationProducts"."productId", ' +
@@ -35,7 +36,7 @@ module.exports = {
                 )
             );
             return results.map(function (viz) {
-                viz.products = JSON.parse(viz.products);
+                viz.products = parseProductsString(viz.products);
                 return viz;
             });
         }).then(function (data) {
@@ -46,21 +47,35 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        /*co(function* () {
+        co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
-            var objToInsert = _.pick(req.body,
-                ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']
-            );
-            objToInsert.organizationId = req.params.organizationId;
-            return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
+            // insert ComparativeVisualization
+            var viz = {
+                title: req.body.title,
+                organizationId: req.params.organizationId
+            };
+            var result = yield thunkQuery(ComparativeVisualization.insert(viz).returning(ComparativeVisualization.id));
+            console.log("VIZID", result[0].id);
+
+            // insert ComparativeVisualizationProducts
+            var products = req.body.products || [];
+            for (var i = 0; i < products.length; i++) {
+                yield thunkQuery(ComparativeVisualizationProduct.insert({
+                    visualizationId: result[0].id,
+                    productId: products[i].productId,
+                    indexId: products[i].indexId
+                }));
+            }
+
+            return result;
         }).then(function (data) {
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
-        });*/
+        });
     },
 
     updateOne: function (req, res, next) {
@@ -104,18 +119,17 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
-        /*co(function* () {
-            var result = yield thunkQuery(
-                Visualization.delete().where(
-                    Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
+        co(function* () {
+            return yield thunkQuery(
+                ComparativeVisualization.delete().where(
+                    ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
                 )
             );
-            return result;
         }).then(function (data) {
             res.status(204).end();
         }, function (err) {
             next(err);
-        });*/
+        });
     },
 
     selectOne: function (req, res, next) {
@@ -124,6 +138,7 @@ module.exports = {
                 ComparativeVisualization
                 .select(
                     ComparativeVisualization.id,
+                    ComparativeVisualization.title,
                     "format('[%s]', " +
                         "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " + 
                             '"ComparativeVisualizationProducts"."productId", ' +
@@ -147,7 +162,7 @@ module.exports = {
             if (!result[0]) {
                 throw new HttpError(404, 'Not found');
             }
-            result[0].products = JSON.parse(result[0].products);
+            result[0].products = parseProductsString(result[0].products);
             return result[0];
         }).then(function (data) {
             res.json(data);
@@ -156,3 +171,14 @@ module.exports = {
         });
     }
 };
+
+function parseProductsString(productsString) {
+    // parse JSON products string into js object
+    // due to postgres quirks, [] represented as '[,]'
+    try {
+        return JSON.parse(productsString);
+    } catch (e) {
+        return []
+    }
+}
+

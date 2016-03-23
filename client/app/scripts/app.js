@@ -478,8 +478,8 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             }
         })
         .state('comparative-visualization', {
-            parent: 'home',
-            url: 'comparative-visualization',
+            parent: 'visualizations',
+            url: '/comparative/:visualizationId',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/comparative-visualization.html',

@@ -1,11 +1,14 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('comparativeViz', function ($window, $http, $stateParams, $q, Organization, greyscaleOrganizationApi, greyscaleModalsSrv, greyscaleProductApi, greyscaleVisualizationApi) {
+    .directive('comparativeViz', function ($window, $http, $stateParams, $q, Organization, greyscaleOrganizationApi, greyscaleModalsSrv, greyscaleProductApi, greyscaleComparativeVisualizationApi) {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/comparative-visualization.html',
             link: function (scope, element, attrs) {
+                scope.savedVisualization = false;
+                scope.visualizationTitle = null;
+
                 // PRODUCT SELECTION
                 scope.products = [];
 
@@ -13,12 +16,16 @@ angular.module('greyscaleApp')
                 function _loadProducts() {
                     return greyscaleOrganizationApi.products(Organization.id).then(function (products) {
                         scope.allProducts = products;
-
-                        // load test data
-                        _loadVisualization(1);
                     });
                 }
-                Organization.$watch(scope, _loadProducts);
+                Organization.$watch(scope, function () {
+                    _loadProducts().then(function () {
+                        if ($stateParams.visualizationId) {
+                            scope.savedVisualization = true;
+                            _loadVisualization($stateParams.visualizationId);
+                        }
+                    });
+                });
 
                 //Table for product selection and index normalization
                 scope.productsTable = {
@@ -93,15 +100,18 @@ angular.module('greyscaleApp')
                         };
                     });
                     return {
-                        products: products
+                        products: products,
+                        title: scope.visualizationTitle
                     };
                 }
 
-                function _saveVisualization() {
-                    return greyscaleVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
-                }
+                scope.saveVisualization = function () {
+                    return greyscaleComparativeVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
+                };
 
                 function _loadConfiguration(vizData) {
+                    scope.visualizationTitle = vizData.title;
+                    scope.model.title = vizData.title;
                     return $q.all(vizData.products.map(function (datum) {
                         // product
                         datum.product = _.findWhere(scope.allProducts, { id: datum.productId });
@@ -117,7 +127,8 @@ angular.module('greyscaleApp')
                 }
 
                 function _loadVisualization(vizId) {
-                    return greyscaleVisualizationApi(Organization.id).get(vizId).then(_loadConfiguration);
+                    scope.visualizationId = vizId;
+                    return greyscaleComparativeVisualizationApi(Organization.id).get(vizId).then(_loadConfiguration);
                 }
 
                 // VISUALIZATION

@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleVisualizationApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleComparativeVisualizationApi', function (greyscaleRestSrv, $q) {
 
         function api(organizationId) {
-            return greyscaleRestSrv().one('organizations', organizationId).one('visualizations');
+            return greyscaleRestSrv().one('organizations', organizationId).one('comparative_visualizations');
         }
 
         function _list(organizationId) {

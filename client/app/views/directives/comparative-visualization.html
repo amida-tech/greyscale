@@ -1,4 +1,9 @@
-<widget-table model="productsTable"></widget-table>
+<div class="col-sm-9">
+    <widget-table model="productsTable"></widget-table>
+</div>
+<div class="col-sm-3">
+    <button type="submit" class="btn btn-success" ng-show="savedVisualization" ng-click="saveVisualization()">Save</button>
+</div>
 
 <svg width="850" height="400" class="comparative">
     <g id="grid">
