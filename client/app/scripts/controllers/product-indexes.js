@@ -83,13 +83,17 @@ angular.module('greyscaleApp')
                         collection.push(index);
                     }
 
+                    var promise;
                     if (type === 'index') {
                         $scope.model.indexesTable.tableParams.reload();
-                        greyscaleProductApi.product(productId).indexesListUpdate($scope.model.indexes);
+                        promise =greyscaleProductApi.product(productId).indexesListUpdate($scope.model.indexes);
                     } else if (type === 'subindex') {
                         $scope.model.subindexesTable.tableParams.reload();
-                        greyscaleProductApi.product(productId).subindexesListUpdate($scope.model.subindexes);
+                        promise = greyscaleProductApi.product(productId).subindexesListUpdate($scope.model.subindexes);
                     }
+                    promise.then(function() {
+                        _loadProductIndexes($scope.model.product).then(_storeProductIndexes);
+                    });
                 });
         }
 
@@ -120,11 +124,7 @@ angular.module('greyscaleApp')
         function _loadData() {
             return _loadProduct(productId)
                 .then(_loadProductIndexes)
-                .then(function (data) {
-                    $scope.model.product = data.product;
-                    $scope.model.indexes = data.indexes;
-                    $scope.model.subindexes = data.subindexes;
-                });
+                .then(_storeProductIndexes);
         }
 
         function _loadProduct(productId) {
@@ -147,5 +147,11 @@ angular.module('greyscaleApp')
                 subindexes: greyscaleProductApi.product(productId).subindexesList()
             };
             return $q.all(reqs);
+        }
+
+        function _storeProductIndexes(data) {
+            $scope.model.product = data.product;
+            $scope.model.indexes = data.indexes;
+            $scope.model.subindexes = data.subindexes;
         }
     });
