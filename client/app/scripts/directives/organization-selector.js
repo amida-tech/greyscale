@@ -90,7 +90,11 @@ angular.module('greyscaleApp')
                     if (!Organization.projectId) {
                         throw 'Organization id=' + Organization.id + ' has no valid project';
                     }
+
+                    $rootScope.realm = Organization.realm || 'public';
+
                     $cookies.put('orgId', Organization.id);
+
                     $timeout(function () {
                         $scope.$apply();
                     });
