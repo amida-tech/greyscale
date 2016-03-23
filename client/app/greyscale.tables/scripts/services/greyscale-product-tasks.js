@@ -58,11 +58,13 @@ angular.module('greyscale.tables')
             cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             show: true,
-            dataFormat: 'action',
+            //dataFormat: 'action',
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
-            actions: [{
-                icon: 'fa-eye'
-            }]
+            cellTemplate: '<div class="text-right" ng-if="!row.allCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
+                            '<div class="text-right" ng-if="row.allCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
+            //actions: [{
+            //    icon: 'fa-eye'
+            //}]
         }];
 
         var _table = {
@@ -199,6 +201,7 @@ angular.module('greyscale.tables')
             if (!unCompletedCount) {
                 var activeTask = _.find(task.progress, 'active');
                 activeTask.active = false;
+                task.allCompleted = true;
             }
 
             task.progress = _.sortBy(task.progress, 'step.position');
