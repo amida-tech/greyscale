@@ -34,6 +34,7 @@
         "NO": "No",
         "NO_DATA": "No Data",
         "OF": "of",
+        "ORGANIZATION": "Organization",
         "ORIGINAL_LANGUAGE": "Original language",
         "REMIND": "Remind",
         "RESET": "Reset",
@@ -159,6 +160,7 @@
         "GO_LOGIN": "Go to <a href=\"{{href}}\">login</a> page.",
         "LOGIN_INCORRECT": "User with entered e-mail doesn`t exists.",
         "LOGIN_REQUIRED": "Login is required.",
+        "ORGANIZATION_REQUIRED": "Organization is required",
         "PASSWORD": "Password",
         "PASSWORD_REQUIRED": "Password is required.",
         "RESET_SUCCESS": "Password was updated successfully.",
@@ -396,6 +398,7 @@
         "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
         "UOA": "Subject",
+        "UOA_TASKS_COMPLETED": "Subject Tasks Completed",
         "USER": "User"
     },
     "PROFILE": {

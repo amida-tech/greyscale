@@ -450,7 +450,7 @@ module.exports = {
                 user: req.user.id,
                 action: 'update',
                 object: 'notifications',
-                entities: JSON.stringify(data),
+                entities: data,
                 quantity: data.length,
                 info: 'Mark as read all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
             });
@@ -483,7 +483,7 @@ module.exports = {
                     user: req.user.id,
                     action: 'delete',
                     object: 'notifications',
-                    entities: JSON.stringify(data),
+                    entities: data,
                     quantity: data.length,
                     info: 'Delete all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
                 });

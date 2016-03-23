@@ -1,6 +1,6 @@
 <div class="panel panel-default">
     <div class="panel-body">
-        <div name="registerForm" class="form-horizontal" ng-form="registerForm">
+        <div name="loginForm" class="form-horizontal" ng-form="loginForm">
             <div class="form-group">
                 <label for="email" class="col-sm-4 control-label" translate="LOGIN.EMAIL"></label>
 
@@ -8,12 +8,13 @@
                     <input type="text" class="form-control" name="email" id="email" ng-model="model.email"
                            ng-required="true" ng-minlength="1" focus="true">
 
-                    <div class="text-center" ng-messages="registerForm.email.$error" role="alert"
-                         ng-if="registerForm.email.$dirty">
+                    <div class="text-center" ng-messages="loginForm.email.$error" role="alert"
+                         ng-if="loginForm.email.$dirty">
                         <span ng-message="required, minlength" class="help-block">e-mail is required.</span>
                     </div>
                 </div>
             </div>
+            <realm-select></realm-select>
             <div class="form-group">
                 <label for="name" class="col-sm-4 control-label">First name</label>
 
@@ -21,8 +22,8 @@
                     <input type="text" class="form-control" name="name" id="name" ng-model="model.name"
                            ng-required="true" ng-minlength="1">
 
-                    <div class="text-center" ng-messages="registerForm.name.$error" role="alert"
-                         ng-if="registerForm.name.$dirty">
+                    <div class="text-center" ng-messages="loginForm.name.$error" role="alert"
+                         ng-if="loginForm.name.$dirty">
                         <span ng-message="requred, minlength" class="help-block">Please input your name.</span>
                     </div>
                 </div>
@@ -34,8 +35,8 @@
                     <input type="text" class="form-control" name="last_name" id="last_name" ng-model="model.lastName"
                            ng-required="true" ng-minlength="1">
 
-                    <div class="text-center" ng-messages="registerForm.name.$error" role="alert"
-                         ng-if="registerForm.name.$dirty">
+                    <div class="text-center" ng-messages="loginForm.name.$error" role="alert"
+                         ng-if="loginForm.name.$dirty">
                         <span ng-message="requred, minlength" class="help-block">Please input your name.</span>
                     </div>
                 </div>
@@ -47,8 +48,8 @@
                     <input type="password" class="form-control" name="password" id="password" ng-model="model.password"
                            required ng-minlength="8">
                 </div>
-                <div class="text-center" ng-messages="registerForm.password.$error" role="alert"
-                     ng-if="registerForm.password.$dirty">
+                <div class="text-center" ng-messages="loginForm.password.$error" role="alert"
+                     ng-if="loginForm.password.$dirty">
                     <span ng-message="required,minlength"
                           class="help-block">Password must be 8 characters or more.</span>
                 </div>
@@ -61,8 +62,8 @@
                            ng-model="model.passwordConf"
                            ng-required="true" ng-minlength="8" is-equal="{{model.password}}">
 
-                    <div class="text-center" ng-messages="registerForm.password_conf.$error" role="alert"
-                         ng-if="registerForm.password_conf.$dirty">
+                    <div class="text-center" ng-messages="loginForm.password_conf.$error" role="alert"
+                         ng-if="loginForm.password_conf.$dirty">
                         <span ng-message="equal" class="help-block">Passwords are not match.</span>
                     </div>
                 </div>
@@ -81,7 +82,7 @@
                 <div class="col-sm-4 col-md-offset-8">
                     <button id="main-login-btn" type="submit" class="btn btn-primary pull-right"
                             ng-click="register()"
-                            ng-disabled="registerForm.$invalid">Register
+                            ng-disabled="loginForm.$invalid">Register
                     </button>
                 </div>
                 <!--

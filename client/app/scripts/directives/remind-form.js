@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('remindForm', function (greyscaleUserApi, greyscaleEnv, $state, $log) {
+    .directive('remindForm', function (greyscaleUserApi, greyscaleEnv) {
         return {
             templateUrl: 'views/directives/remind-form.html',
             restrict: 'AE',
@@ -13,18 +13,22 @@ angular.module('greyscaleApp')
                         value: greyscaleEnv.defaultUser || ''
                     },
                     error: null,
-                    success: ''
+                    success: '',
+                    realms: []
                 };
 
                 $scope.remind = function () {
-                    if ($scope.remindForm.$valid) {
+                    if ($scope.loginForm.$valid) {
                         $scope.model.error = '';
                         greyscaleUserApi.remindPasswd($scope.model.login.value)
                             .then(function () {
                                 $scope.model.success = 'LOGIN.TOKEN_SENT';
                             }).catch(function (err) {
-                                $log.debug(err);
-                                $scope.model.error = 'LOGIN.LOGIN_INCORRECT';
+                                if (err && err.data && err.data.e === 300) {
+                                    $scope.model.realms = err.data.message
+                                } else {
+                                    $scope.model.error = 'LOGIN.LOGIN_INCORRECT';
+                                }
                             });
                     } else {
                         $scope.model.error = 'LOGIN.CHECK_LOGIN_PASSWORD';

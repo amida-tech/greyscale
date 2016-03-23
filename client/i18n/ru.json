@@ -34,6 +34,7 @@
         "NO": "Нет",
         "NO_DATA": "",
         "OF": "из",
+        "ORGANIZATION": "",
         "ORIGINAL_LANGUAGE": "Язык создания",
         "REMIND": "Напомнить",
         "RESET": "Сброс",
@@ -159,6 +160,7 @@
         "GO_LOGIN": "Перейти на страницу <a href=\"{{href}}\">входа</a>.",
         "LOGIN_INCORRECT": "Пользователь с указанным e-mail не существует.",
         "LOGIN_REQUIRED": "Логин обязателен",
+        "ORGANIZATION_REQUIRED": "",
         "PASSWORD": "Пароль",
         "PASSWORD_REQUIRED": "Пароль обязателен",
         "RESET_SUCCESS": "Пароль был успешно обновлен.",
@@ -396,6 +398,7 @@
         "STEP_SKIPPED": "",
         "TITLE": "Название",
         "UOA": "Субъект",
+        "UOA_TASKS_COMPLETED": "",
         "USER": "Пользователь"
     },
     "PROFILE": {

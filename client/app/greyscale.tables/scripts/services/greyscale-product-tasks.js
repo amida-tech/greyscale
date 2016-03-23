@@ -58,11 +58,13 @@ angular.module('greyscale.tables')
             cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             show: true,
-            dataFormat: 'action',
+            //dataFormat: 'action',
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
-            actions: [{
-                icon: 'fa-eye'
-            }]
+            cellTemplate: '<div class="text-right" ng-if="!row.allCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
+                            '<div class="text-right" ng-if="row.allCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
+            //actions: [{
+            //    icon: 'fa-eye'
+            //}]
         }];
 
         var _table = {
@@ -175,6 +177,7 @@ angular.module('greyscale.tables')
         function _getTaskProgressData(task, uoaTasks) {
             task.progress = [];
             var id = parseInt(task.id);
+            var unCompletedCount = 0;
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
                     stepId: step.id
@@ -186,11 +189,20 @@ angular.module('greyscale.tables')
                 } else {
                     var progressTask = _.pick(stepTask, ['id', 'status', 'flagged', 'step', 'user', 'endDate']);
                     task.progress.push(progressTask);
+                    if (task.status !== 'completed') {
+                        unCompletedCount++;
+                    }
                     if (progressTask.id === id) {
                         progressTask.active = true;
                     }
                 }
             });
+
+            if (!unCompletedCount) {
+                var activeTask = _.find(task.progress, 'active');
+                activeTask.active = false;
+                task.allCompleted = true;
+            }
 
             task.progress = _.sortBy(task.progress, 'step.position');
 
