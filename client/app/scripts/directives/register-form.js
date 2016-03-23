@@ -41,11 +41,15 @@ angular.module('greyscaleApp')
                         })
                         .then($scope.cancel)
                         .catch(function (err) {
-                            $log.debug(err);
-                            if (err.data && err.data.message) {
-                                $scope.model.err = err.data.message;
+                            if (err && err.data && err.data.e === 300) {
+                                $scope.model.realms = err.data.message
                             } else {
-                                $scope.model.err = 'Register error.';
+                                $log.debug(err);
+                                if (err.data && err.data.message) {
+                                    $scope.model.err = err.data.message;
+                                } else {
+                                    $scope.model.err = 'Register error.';
+                                }
                             }
                         });
                 };

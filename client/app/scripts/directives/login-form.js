@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('loginForm', function (greyscaleUserApi, greyscaleEnv, $rootScope, $log) {
+    .directive('loginForm', function (greyscaleUserApi, greyscaleEnv) {
         return {
             templateUrl: 'views/directives/login-form.html',
             restrict: 'AE',
@@ -10,9 +10,8 @@ angular.module('greyscaleApp')
                 $scope.model = {
                     login: greyscaleEnv.defaultUser || '',
                     password: greyscaleEnv.defaultPassword || '',
-                    orgs: [],
-                    error: null,
-                    realm: 'public'
+                    realms: [],
+                    error: null
                 };
 
                 $scope.submitLogin = function () {
@@ -22,9 +21,8 @@ angular.module('greyscaleApp')
                                 $rootScope.$emit('login');
                             })
                             .catch(function (err) {
-                                $log.debug(err);
                                 if (err && err.data && err.data.e === 300) {
-                                    $scope.model.orgs = err.data.message
+                                    $scope.model.realms = err.data.message
                                 } else {
                                     $scope.model.error = 'LOGIN.CHECK_EMAIL_PASSWORD';
                                 }
@@ -32,11 +30,6 @@ angular.module('greyscaleApp')
                     } else {
                         $scope.model.error = 'LOGIN.CHECK_LOGIN_PASSWORD';
                     }
-                };
-
-                $scope.updateOrg = function() {
-                    $log.debug($scope.model.realm);
-                    $rootScope.realm = $scope.model.realm;
                 };
             }
         };
