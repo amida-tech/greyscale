@@ -101,6 +101,15 @@
     .lower-latin .survey-option:before {
         content: counter(survey-option, lower-latin) ". ";
     }
+
+    .radio,
+    .radio-inline,
+    .checkbox,
+    .checkbox-inline {
+        input + .chk-box {
+            margin: 3px 0 auto 0;
+        }
+    }
 }
 
 .field-wrapped {
