@@ -72,8 +72,8 @@ passport.use(new BasicStrategy({
                 }
 
                 if (userInNamespace.length == 1) {
-                    var user = userInNamespace[0];
-                    yield checkUser(user, password);
+                    user = user[0];
+                    yield * checkUser(user, password);
                     return user;
                 }
 
@@ -139,6 +139,15 @@ passport.use(new TokenStrategy({
         passReqToCallback: true
     },
     function (req, tokenBody, done) {
+
+        //co(function* (){
+        //
+        //}).then(function(){
+        //
+        //}, function() {
+        //
+        //});
+
 
         query(
             Token
