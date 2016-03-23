@@ -28,16 +28,40 @@
     }
 }
 
-.aggregate-type {
+.aggregate-typem, .visualization-type {
     margin-top: 8px;
 }
 
 // comparative viz
 .comparative {
-    margin: 10px;
+    display: block;
+    margin: 0 auto;
 
     .axis path, .axis line {
       fill: none;
       stroke: black;
+    }
+}
+
+.comparative-container {
+    overflow-x: scroll;
+}
+
+.products-indexes {
+    rd-widget-header {
+        display: none;
+    }
+
+    padding-right: 0px;
+    margin-bottom: 0px !important;
+}
+
+.products-indexes-buttons {
+    padding-right: 37.5px;
+    margin-bottom: 0px !important;
+
+    .btn {
+        width: 100%;
+        margin-top: 10px;
     }
 }

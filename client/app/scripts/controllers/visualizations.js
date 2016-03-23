@@ -68,6 +68,8 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
     }
 
     function _editVisualization(visualization) {
+        if (!visualization) { visualization = {}; }
+
         greyscaleModalsSrv.editVisualization(visualization)
             .then(function (visualization) {
                 var api = greyscaleVisualizationApi;

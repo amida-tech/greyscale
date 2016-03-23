@@ -27,6 +27,11 @@ angular.module('greyscaleApp')
                     });
                 });
 
+                scope.clearProducts = function () {
+                    scope.products = [];
+                    scope.productsTable.tableParams.reload();
+                };
+
                 //Table for product selection and index normalization
                 scope.productsTable = {
                     title: 'Selected Products',
@@ -57,15 +62,26 @@ angular.module('greyscaleApp')
                         return $q.when(scope.products);
                     },
                     add: {
-                        handler: function () {
-                            greyscaleModalsSrv.addProduct(function () {
-                                return $q.when(scope.allProducts);
-                            }).then(function (productIndex) {
-                                scope.products.push(productIndex);
-                                scope.productsTable.tableParams.reload();
-                            });
-                        }
+                        handler: scope.addProduct
                     }
+                };
+                scope.addProduct = function () {
+                    greyscaleModalsSrv.addProduct(function () {
+                        return $q.when(scope.allProducts).then(function (products) {
+                            // hide already-added products
+                            var added = new Set();
+                            scope.products.forEach(function (datum) {
+                                added.add(datum.product.id);
+                            });
+
+                            return products.filter(function (product) {
+                                return !added.has(product.id);
+                            });
+                        });
+                    }).then(function (productIndex) {
+                        scope.products.push(productIndex);
+                        scope.productsTable.tableParams.reload();
+                    });
                 };
 
                 // DATA AGGREGATION
@@ -154,7 +170,7 @@ angular.module('greyscaleApp')
                         innerPadding: 5,
                         minHeight: 150
                     },
-                    colors: ['white', 'blue'] // 2 only
+                    colors: ['#DB3340', '#20DA9B'] // 2 only
                 };
 
                 function _preprocessData(productIndexes) {
@@ -289,6 +305,7 @@ angular.module('greyscaleApp')
                     if (axisHeight < l.minHeight) { axisHeight = l.minHeight; }
                     var scale = svg.select('#scale')
                         .attr('transform', 'translate(' + vizWidth + ', ' + vOffset + ')');
+                    vizWidth += l.colorWidth + l.innerPadding;
                     var pos = d3.scale.linear() // position encoder
                         .domain(color.domain())
                         .range([0, axisHeight]);
@@ -323,8 +340,14 @@ angular.module('greyscaleApp')
                         .attr('transform', 'translate(' + (l.colorWidth + l.innerPadding) + ', 0)')
                         .attr('class', 'axis')
                         .call(axis);
+                    var bbox = axisG.node().getBBox();
+                    vizWidth += bbox.width;
+                    vizHeight = vOffset + bbox.height;
 
-
+                    // resize svg and container (for styling)
+                    $('.comparative-container').width(0);
+                    $('.comparative-container').width($('comparative-viz > div.row').outerWidth(true) - 1);
+                    $('svg').attr('width', vizWidth).attr('height', vizHeight);
                 }
             }
         };
