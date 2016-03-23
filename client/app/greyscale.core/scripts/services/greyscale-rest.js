@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv) {
+    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv, $log) {
         return function (headers) {
             headers = headers || {};
 
@@ -30,6 +30,7 @@ angular.module('greyscale.core')
                     });
                 }
 
+                $log.debug(_realm);
                 if (_realm) {
                     RestangularConfigurer.setBaseUrl(
                         (greyscaleEnv.apiProtocol || 'http') + '://' +
