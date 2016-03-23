@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     UnitOfAnalysisTag = require('app/models/uoatags'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
@@ -58,6 +60,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.insert(req.body).returning(UnitOfAnalysisTag.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'UnitOfAnalysisTag',
+                entity: _.first(data).id,
+                info: 'Add new uoa tag'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -68,6 +77,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.update(req.body).where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'UnitOfAnalysisTag',
+                entity: req.params.id,
+                info: 'Update uoa tag'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -78,6 +94,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.delete().where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'UnitOfAnalysisTag',
+                entity: req.params.id,
+                info: 'Delete uoa tag'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);

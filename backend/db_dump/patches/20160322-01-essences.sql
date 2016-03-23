@@ -13,6 +13,7 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('UnitOfAnalysisType', 'UnitOfAnalysisType', 'uoatypes', 'name'),
 ('UnitOfAnalysisClassType', 'UnitOfAnalysisClassType', 'uoaclasstypes', 'name'),
 ('UnitOfAnalysisTag', 'UnitOfAnalysisTag', 'uoatags', 'name'),
+('UnitOfAnalysisTagLink', 'UnitOfAnalysisTagLink', 'uoataglinks', 'id'),
 ('Projects', 'projects', 'projects', 'codeName'),
 ('Discussions', 'Discussions', 'discussions', 'name'),
 ('Users', 'Users', 'users', 'email'),

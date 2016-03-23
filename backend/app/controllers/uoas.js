@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     vl = require('validator'),
     UnitOfAnalysis = require('app/models/uoas'),
     UnitOfAnalysisType = require('app/models/uoatypes'),
@@ -60,9 +62,16 @@ module.exports = {
         co(function* () {
             req.body.creatorId = req.user.id;
             req.body.ownerId = req.user.id;
-            req.body.createTime = new Date();
+            req.body.created = new Date();
             return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'UnitOfAnalysis',
+                entity: _.first(data).id,
+                info: 'Add new uoa'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -71,9 +80,17 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            delete req.body.createTime;
+            delete req.body.created;
+            req.body.updated = new Date();
             return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'UnitOfAnalysis',
+                entity: req.params.id,
+                info: 'Update uoa'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -84,6 +101,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'UnitOfAnalysis',
+                entity: req.params.id,
+                info: 'Delete uoa'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -268,6 +292,13 @@ module.exports = {
                                         newUoa.id = created[0].id;
                                         newUoa.parse_status = 'Ok';
                                         newUoa.messages.push('Added');
+                                        bologger.log({
+                                            user: req.user.id,
+                                            action: 'insert',
+                                            object: (!bologger.data.essence) ? 'UnitOfAnalysis' : null,
+                                            entity: created[0].id,
+                                            info: 'Add new uoa (bulk import)'
+                                        });
                                     }
                                 }
                             }
