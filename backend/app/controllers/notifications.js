@@ -324,7 +324,7 @@ module.exports = {
 
             var withFrom =
                 'WITH c1 as (SELECT '+
-                'count("public"."Notifications"."id") as count, '+
+                'count("Notifications"."id") as count, '+
                 '"Notifications"."userFrom" as user, '+
                 '"Notifications"."entityId" as entityid, '+
                 '"Notifications"."essenceId" as essenceid, '+
@@ -340,7 +340,7 @@ module.exports = {
                 ') ';
             var withTo =
                 'c2 as (SELECT '+
-                'count("public"."Notifications"."id") as count, '+
+                'count("Notifications"."id") as count, '+
                 '"Notifications"."userTo" as user, '+
                 '"Notifications"."entityId" as entityid, '+
                 '"Notifications"."essenceId" as essenceid, '+
