@@ -46,9 +46,9 @@ module.exports = {
             if (!data.length) {
                 needNewToken = true;
             }
-            if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
-                needNewToken = true;
-            }
+            //if (!needNewToken && new Date(data[0].issuedAt).getTime() + config.authToken.expiresAfterSeconds < Date.now()) {
+            //    needNewToken = true;
+            //}
             if (needNewToken) {
                 var token = yield thunkrandomBytes(32);
                 token = token.toString('hex');

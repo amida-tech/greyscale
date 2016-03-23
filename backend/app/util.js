@@ -1,13 +1,13 @@
-var HttpError = require('app/error').HttpError,
-    moment = require('moment'),
-
-    _ = require('underscore'),
-    ClientPG = require('app/db_bootstrap');
+var
+    HttpError = require('app/error').HttpError,
+    moment    = require('moment'),
+    _         = require('underscore'),
+    ClientPG  = require('app/db_bootstrap');
 
 exports.Query = function () {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
-        console.log(app.locals.realm);
+
         if (arguments.length === 2) {
             cb = options;
         }
@@ -18,47 +18,59 @@ exports.Query = function () {
             if (err) {
                 return console.error('could not connect to postgres', err);
             }
+            console.log("SET PATH");
             client.query("SET search_path TO "+app.locals.realm+";", function(err, result){
                 if (err) {
                     return console.error('could not set namespace', err);
                 }
                 doQuery(queryObject, options, cb);
-                // END
             })
             
         });
 
         function doQuery(queryObject, options, cb){
-            //START
+            console.log(app.locals.realm);
             if (typeof queryObject === 'string') {
                 console.log(queryObject);
                 client.query(queryObject, options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
+
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
+
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
+
                     if (Object.keys(optWhere).length) {
                         var whereObj = {};
+
                         for (var property in optWhere) {
                             var condition;
+
                             if (optWhere[property].indexOf('>') === 0) {
+
                                 condition = queryObject.table[property].gt(optWhere[property].replace('>', '').trim());
+
                             } else if (optWhere[property].indexOf('<') === 0) {
+
                                 condition = queryObject.table[property].lt(optWhere[property].replace('<', '').trim());
+
                             } else if (moment(optWhere[property], 'YYYY-MM-DD', true).isValid()) {
+
                                 var startDate = new Date(optWhere[property]);
                                 var endDate = new Date(optWhere[property]);
                                 endDate.setDate(endDate.getDate() + 1);
                                 condition = queryObject.table[property]
                                     .gte(startDate.toISOString())
                                     .and(queryObject.table[property].lt(endDate.toISOString()));
+
                             } else {
+
                                 if (optWhere[property].indexOf('|') > 0) {
                                     // where field in ()
                                     condition = queryObject.table[property].in(optWhere[property].split('|'));
@@ -66,15 +78,17 @@ exports.Query = function () {
                                     // where field = value
                                     condition = queryObject.table[property].equals(optWhere[property]);
                                 }
-                            }
-                            Object.keys(whereObj).length ? (whereObj = whereObj.and(condition)) : (whereObj = condition);
 
+                            }
+
+                            Object.keys(whereObj).length ? (whereObj = whereObj.and(condition)) : (whereObj = condition);
                         }
                         queryObject.where(whereObj);
                     }
 
                     if (options.order) {
                         var sorted = options.order.split(',');
+
                         for (var i = 0; i < sorted.length; i++) {
                             var sort = sorted[i];
                             queryObject.order(queryObject.table[sort.replace('-', '').trim()][sort.indexOf('-') === 0 ? 'descending' : 'ascending']);
@@ -96,20 +110,24 @@ exports.Query = function () {
                 client.query(queryObject.toQuery(), function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
+
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
+
                     if (options.fields) {
                         var fields = (options.fields).split(',');
                         result.rows = _.map(result.rows, function (i) {
                             return _.pick(i, fields);
                         });
                     }
+
                     if (queryObject.table.hideCol) {
                         result.rows = _.map(result.rows, function (i) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
+
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
@@ -179,8 +197,10 @@ exports.getTranslateQuery = function (langId, model, condition) {
     }
 
     query = query.from(from);
+
     if (typeof condition !== 'undefined') {
         query = query.where(condition);
     }
+
     return query;
 };

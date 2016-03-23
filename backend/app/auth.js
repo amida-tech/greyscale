@@ -34,29 +34,103 @@ var requestRights = 'ARRAY(' +
     ') AS rights';
 
 // Register strategy for Basic HTTP auth
+
+// List of orgs (with namespaces) stored both in public and 'client' schemas
+// Tokens stored only in 'client' schema
+
+
 passport.use(new BasicStrategy({
         passReqToCallback: true
     },
     function (req, email, password, done) {
-        query(
-            User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([sql.functions.UPPER(User.email).equals(email.toUpperCase())]),
-            function (err, user) {
-                if (err) {
-                    return done(err);
+
+        co(function* (){
+
+            var userInNamespace = [];
+
+            if (app.locals.realm == 'public'){
+                var orgs = yield thunkQuery(
+                    Organization.select().where(Organization.realm.isNotNull())
+                );
+
+                if (!orgs[0]){
+                    throw new HttpError(403, 'Cannot find available namespaces');
                 }
-                user = user[0];
-                if (!user) {
-                    return done(new HttpError(401, 101));
+
+                for (var i in orgs) { // TODO STORE salt for each client somewhere ???
+                    var user = yield * findUserInNamespace(orgs[i].realm, email);
+                    if (user[0]) {
+                        userInNamespace.push({
+                            realm: orgs[i].realm,
+                            orgName: user[0].orgName
+                        });
+                    }
                 }
-                if (!User.validPassword(user.password, password)) {
-                    return done(new HttpError(401, 105));
+
+                if (!userInNamespace.length) {
+                    throw new HttpError(401, 101);
                 }
-                if (!user.isActive) {
-                    return done(new HttpError(401, 'You have to activate your account'));
+
+                if (userInNamespace.length == 1) {
+                    var user = userInNamespace[0];
+                    yield checkUser(user, password);
+                    return user;
                 }
-                delete user.password;
-                return done(null, user);
-            });
+
+                throw new HttpError(300, userInNamespace);
+
+            } else {
+                var user = yield * findUserInNamespace(app.locals.realm, email);
+
+                if (!user.length) {
+                    throw new HttpError(401, 101);
+                }
+
+                return user[0];
+            }
+        }).then(function(user){
+            delete user.password;
+            done(null, user);
+        }, function(err){
+            done(err);
+        });
+
+        function *checkUser (user, password){
+            if (!User.validPassword(user.password, password)) {
+                throw new HttpError(401, 105);
+            }
+
+            if (!user.isActive) {
+                throw new HttpError(401, 'You have to activate your account')
+            }
+        }
+
+
+        function *findUserInNamespace (namespace, email){
+            console.log('find User');
+            app.locals.realm = namespace; // SET NEW NAMESPACE
+
+            return yield thunkQuery(
+                User
+                    .select(
+                        User.star(),
+                        Role.name.as('role'),
+                        Organization.name.as('orgName')
+                    )
+                    .from(
+                        User
+                            .leftJoin(Role)
+                            .on(User.roleID.equals(Role.id))
+                            .leftJoin(Organization)
+                            .on(User.organizationId.equals(Organization.id))
+                    )
+                    .where(
+                        sql.functions.UPPER(User.email).equals(email.toUpperCase())
+                    )
+            );
+
+        }
+
     }
 ));
 
@@ -118,6 +192,9 @@ module.exports = {
                 passport.authenticate(strategy, {
                     session: false
                 }, function (err, user, info) {
+
+                    console.log(user);
+
                     if (user) {
                         req.user = user;
                     }

@@ -30,14 +30,6 @@ app.on('start', function () {
     app.use('/:realm',function(req,res,next){
         app.locals.realm = req.params.realm;
         next();
-        // co(function*(){
-        //     console.log(req.params);
-        //     return yield thunkQuery("SET search_path TO "+req.params.realm+";");
-        // }).then(function(data){
-        //     next();
-        // },function(err){
-        //     next(err);
-        // });
     });
     // MEMCHACHE
     app.use(function(req,res,next){
