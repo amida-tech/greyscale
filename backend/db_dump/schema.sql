@@ -1385,6 +1385,53 @@ ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
 ALTER SEQUENCE "Visualizations_id_seq" OWNED BY "Visualizations".id;
 
 --
+-- Name: ComparativeVisualizationProducts; Type: TABLE; Schema: public; Owner: rickards; Tablespace: 
+--
+
+CREATE TABLE "ComparativeVisualizationProducts" (
+    "visualizationId" integer NOT NULL,
+    "productId" integer NOT NULL,
+    "indexId" integer NOT NULL
+);
+
+
+ALTER TABLE "ComparativeVisualizationProducts" OWNER TO rickards;
+
+--
+-- Name: ComparativeVisualizations; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
+--
+
+CREATE TABLE "ComparativeVisualizations" (
+    id integer NOT NULL,
+    title character varying,
+    "organizationId" integer NOT NULL
+);
+
+
+ALTER TABLE "ComparativeVisualizations" OWNER TO indaba;
+
+--
+-- Name: ComparativeVisualizations_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
+--
+
+CREATE SEQUENCE "ComparativeVisualizations_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE "ComparativeVisualizations_id_seq" OWNER TO indaba;
+
+--
+-- Name: ComparativeVisualizations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indaba
+--
+
+ALTER SEQUENCE "ComparativeVisualizations_id_seq" OWNED BY "ComparativeVisualizations".id;
+
+
+--
 -- Name: WorkflowSteps; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
 --
 
@@ -1680,6 +1727,12 @@ ALTER TABLE ONLY "WorkflowSteps" ALTER COLUMN id SET DEFAULT nextval('"WorkflowS
 --
 
 ALTER TABLE ONLY "Workflows" ALTER COLUMN id SET DEFAULT nextval('"Workflows_id_seq"'::regclass);
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: indaba
+--
+
+ALTER TABLE ONLY "ComparativeVisualizations" ALTER COLUMN id SET DEFAULT nextval('"ComparativeVisualizations_id_seq"'::regclass);
 
 
 --
@@ -2669,6 +2722,21 @@ ALTER TABLE ONLY "AccessPermissions"
 ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissoins_pkey" PRIMARY KEY (id);
 
+--
+-- Name: ComparativeVisualizationProducts_pkey; Type: CONSTRAINT; Schema: public; Owner: rickards; Tablespace: 
+--
+
+ALTER TABLE ONLY "ComparativeVisualizationProducts"
+    ADD CONSTRAINT "ComparativeVisualizationProducts_pkey" PRIMARY KEY ("visualizationId", "productId", "indexId");
+
+
+--
+-- Name: ComparativeVisualizations_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "ComparativeVisualizations"
+    ADD CONSTRAINT "ComparativeVisualizations_pkey" PRIMARY KEY (id);
+
 
 --
 -- Name: EntityRoles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
@@ -3093,6 +3161,37 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 ALTER TABLE ONLY "Indexes"
     ADD CONSTRAINT "Indexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
+
+--
+-- Name: ComparativeVisualizationProducts_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+--
+
+ALTER TABLE ONLY "ComparativeVisualizationProducts"
+    ADD CONSTRAINT "ComparativeVisualizationProducts_indexId_fkey" FOREIGN KEY ("indexId") REFERENCES "Indexes"(id);
+
+
+--
+-- Name: ComparativeVisualizationProducts_productId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+--
+
+ALTER TABLE ONLY "ComparativeVisualizationProducts"
+    ADD CONSTRAINT "ComparativeVisualizationProducts_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
+
+
+--
+-- Name: ComparativeVisualizationProducts_visualizationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+--
+
+ALTER TABLE ONLY "ComparativeVisualizationProducts"
+    ADD CONSTRAINT "ComparativeVisualizationProducts_visualizationId_fkey" FOREIGN KEY ("visualizationId") REFERENCES "ComparativeVisualizations"(id);
+
+
+--
+-- Name: ComparativeVisualizations_organizationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
+--
+
+ALTER TABLE ONLY "ComparativeVisualizations"
+    ADD CONSTRAINT "ComparativeVisualizations_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organizations"(id);
 
 
 --
