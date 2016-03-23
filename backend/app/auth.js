@@ -48,38 +48,38 @@ passport.use(new BasicStrategy({
 
             var userInNamespace = [];
 
-            if (app.locals.realm == 'public'){
-                var orgs = yield thunkQuery(
-                    Organization.select().where(Organization.realm.isNotNull())
-                );
-
-                if (!orgs[0]){
-                    throw new HttpError(403, 'Cannot find available namespaces');
-                }
-
-                for (var i in orgs) { // TODO STORE salt for each client somewhere ???
-                    var user = yield * findUserInNamespace(orgs[i].realm, email);
-                    if (user[0]) {
-                        userInNamespace.push({
-                            realm: orgs[i].realm,
-                            orgName: user[0].orgName
-                        });
-                    }
-                }
-
-                if (!userInNamespace.length) {
-                    throw new HttpError(401, 101);
-                }
-
-                if (userInNamespace.length == 1) {
-                    user = user[0];
-                    yield * checkUser(user, password);
-                    return user;
-                }
-
-                throw new HttpError(300, userInNamespace);
-
-            } else {
+            //if (app.locals.realm == 'public'){
+            //    var orgs = yield thunkQuery(
+            //        Organization.select().where(Organization.realm.isNotNull())
+            //    );
+            //
+            //    if (!orgs[0]){
+            //        throw new HttpError(403, 'Cannot find available namespaces');
+            //    }
+            //
+            //    for (var i in orgs) { // TODO STORE salt for each client somewhere ???
+            //        var user = yield * findUserInNamespace(orgs[i].realm, email);
+            //        if (user[0]) {
+            //            userInNamespace.push({
+            //                realm: orgs[i].realm,
+            //                orgName: user[0].orgName
+            //            });
+            //        }
+            //    }
+            //
+            //    if (!userInNamespace.length) {
+            //        throw new HttpError(401, 101);
+            //    }
+            //
+            //    if (userInNamespace.length == 1) {
+            //        user = user[0];
+            //        yield * checkUser(user, password);
+            //        return user;
+            //    }
+            //
+            //    throw new HttpError(300, userInNamespace);
+            //
+            //} else {
                 var user = yield * findUserInNamespace(app.locals.realm, email);
 
                 if (!user.length) {
@@ -87,7 +87,7 @@ passport.use(new BasicStrategy({
                 }
 
                 return user[0];
-            }
+            //}
         }).then(function(user){
             delete user.password;
             done(null, user);
@@ -104,7 +104,6 @@ passport.use(new BasicStrategy({
                 throw new HttpError(401, 'You have to activate your account')
             }
         }
-
 
         function *findUserInNamespace (namespace, email){
             console.log('find User');
@@ -140,17 +139,9 @@ passport.use(new TokenStrategy({
     },
     function (req, tokenBody, done) {
 
-        //co(function* (){
-        //
-        //}).then(function(){
-        //
-        //}, function() {
-        //
-        //});
-
-
-        query(
-            Token
+        co(function* (){
+            var data = yield thunkQuery(
+                Token
                 .select(
                     Token.star(),
                     User.star(),
@@ -158,36 +149,62 @@ passport.use(new TokenStrategy({
                     requestRights,
                     Project.id.as('projectId')
                 )
-            .from(
-                Token
-                .leftJoin(User).on(User.id.equals(Token.userID))
-                .leftJoin(Role).on(User.roleID.equals(Role.id))
-                .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
-            )
-            .where(Token.body.equals(tokenBody)),
-            function (err, data) {
-                if (err) {
-                    return done(err);
-                }
-                if (!data.length) {
-                    req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
-                    return done(null, false);
-                }
+                .from(
+                    Token
+                        .leftJoin(User).on(User.id.equals(Token.userID))
+                        .leftJoin(Role).on(User.roleID.equals(Role.id))
+                        .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                        .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                )
+                .where(Token.body.equals(tokenBody))
+            );
 
-                req.debug(util.format('Authentication OK for token: %s', tokenBody));
-                query(
-                    User.update({lastActive: new Date()}).where(User.id.equals(data[0].id)),
-                    function (err, updateData) {
-                        if (err) {
-                            return done(err);
-                        }
-                        return done(null, _.pick(data[0], User.sesInfo));
-                    }
-                );
-
+            if (!data.length) {
+                req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
+                return false;
             }
-        );
+
+            req.debug(util.format('Authentication OK for token: %s', tokenBody));
+
+            yield thunkQuery(
+                User.update(
+                    {
+                        lastActive: new Date()
+                    }
+                )
+                .where(User.id.equals(data[0].id))
+            )
+
+            return _.pick(data[0], User.sesInfo);
+
+        }).then(function(result) {
+            done(null, result);
+        }, function(err) {
+            done(err);
+        });
+
+
+        //query(
+        //    ,
+        //    function (err, data) {
+        //        if (err) {
+        //            return done(err);
+        //        }
+        //
+        //
+        //
+        //        query(
+        //            ,
+        //            function (err, updateData) {
+        //                if (err) {
+        //                    return done(err);
+        //                }
+        //                return done(null, );
+        //            }
+        //        );
+        //
+        //    }
+        //);
     }
 ));
 

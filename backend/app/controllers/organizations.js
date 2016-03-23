@@ -120,6 +120,11 @@ module.exports = {
                 entity: org[0].id,
                 info: 'Add organization'
             });
+
+            //yield thunkQuery("SELECT clone_schema('sceleton',"+ req.body.realm +", true)");
+            //
+            //app.locals.realm = req.body.realm;
+
             // TODO creates project in background, may be need to disable in future
             var project = yield thunkQuery(
                 Project.insert(
@@ -317,6 +322,10 @@ module.exports = {
 
 function* checkOrgData(req){
     if (!req.params.id){ //create
+        //if (!req.body.name || !req.body.realm) {
+        //    throw new HttpError(400, 'name and realm fields are required');
+        //}
+
         if (!req.body.name) {
             throw new HttpError(400, 'name field is required');
         }
