@@ -209,7 +209,7 @@ angular.module('greyscaleApp')
             }];
 
             var survey = scope.surveyData.survey;
-            var task = scope.surveyData.task;
+            var task = scope.surveyData.task || {};
 
             var o, item, fld, fldId, q, field, type,
                 r = 0,

@@ -15,91 +15,102 @@
         padding: 0 5px;
     }
 }
+.survey-form {
 
-.attachments {
-    .panel-title {
-        font-size: $font-size-base;
-    }
+    .attachments {
+        .panel-title {
+            font-size: $font-size-base;
+        }
 
-    .panel-body {
-        padding-top: 5px;
-        padding-bottom: 5px;
-    }
+        .panel-body {
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
 
-    .row > div.file-attach {
-        margin-bottom: 3px;
-        padding-right: $grid-gutter-width;
-    }
+        .row > div.file-attach {
+            margin-bottom: 3px;
+            padding-right: $grid-gutter-width;
+        }
 
-    .file-attach {
-        font-size: $font-size-sub;
+        .file-attach {
+            font-size: $font-size-sub;
 
-        .file-link {
-            i {
-                margin-right: 3px;
+            .file-link {
+                i {
+                    margin-right: 3px;
+                }
+
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                display: block;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                margin: auto;
             }
 
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            overflow: hidden;
-            display: block;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            margin: auto;
+            .file-remove {
+                position: absolute;
+                right: floor($grid-gutter-width/2);
+                top: 0;
+                bottom: 0;
+                margin: auto;
+            }
         }
+    }
 
-        .file-remove {
-            position: absolute;
-            right: floor($grid-gutter-width/2);
-            top: 0;
-            bottom: 0;
-            margin: auto;
+    .option-list {
+        list-style-type: none;
+        list-style-position: inside;
+        counter-reset: survey-option;
+    }
+
+    .survey-option {
+        /* These are technically the same, but use both */
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+
+        -ms-word-break: break-all;
+        /* This is the dangerous one in WebKit, as it breaks things wherever */
+        word-break: break-all;
+        /* Instead use this non-standard one: */
+        word-break: break-word;
+
+        /* Adds a hyphen where the word breaks, if supported (No Blink) */
+        -ms-hyphens: auto;
+        -moz-hyphens: auto;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+        font-size: $font-size-base*0.9;
+    }
+
+    .survey-option:before {
+        counter-increment: survey-option;
+        content: counter(survey-option, none);
+    }
+
+    .upper-latin .survey-option:before {
+        content: counter(survey-option, upper-latin) ". ";
+    }
+
+    .decimal .survey-option:before {
+        content: counter(survey-option, decimal) ". ";
+    }
+
+    .lower-latin .survey-option:before {
+        content: counter(survey-option, lower-latin) ". ";
+    }
+
+    .radio,
+    .radio-inline,
+    .checkbox,
+    .checkbox-inline {
+        input + .chk-box {
+            margin: 3px 0 auto 0;
         }
     }
 }
-
-.option-list {
-    list-style-type: none;
-    list-style-position: inside;
-    counter-reset: survey-option;
-}
-
-.survey-option {
-    /* These are technically the same, but use both */
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-
-    -ms-word-break: break-all;
-    /* This is the dangerous one in WebKit, as it breaks things wherever */
-    word-break: break-all;
-    /* Instead use this non-standard one: */
-    word-break: break-word;
-
-    /* Adds a hyphen where the word breaks, if supported (No Blink) */
-    -ms-hyphens: auto;
-    -moz-hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphens: auto;
-}
-
-.survey-option:before {
-    counter-increment: survey-option;
-    content: counter(survey-option, none);
-}
-
-.upper-latin .survey-option:before {
-    content: counter(survey-option, upper-latin) ". ";
-}
-
-.decimal .survey-option:before {
-    content: counter(survey-option, decimal) ". ";
-}
-
-.lower-latin .survey-option:before {
-    content: counter(survey-option, lower-latin) ". ";
-}
-
 
 .field-wrapped {
     position: relative;

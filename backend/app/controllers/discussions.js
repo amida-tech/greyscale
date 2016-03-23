@@ -670,7 +670,8 @@ function* updateProductUOAStep(object) {
             action: 'update',
             object: 'productUOA',
             entity: null,
-            entities: {productId: object.productId, uoaId: object.uoaId, currentStepId: object.stepId},
+            entities: JSON.stringify({productId: object.productId, uoaId: object.uoaId, currentStepId: object.stepId}),
+            quantity: 1,
             info: 'Update current step for survey'
         });
     } else {
@@ -710,7 +711,8 @@ function* checkUpdateProductUOAStep(object) {
                 action: 'update',
                 object: 'productUOA',
                 entity: null,
-                entities: {productId: object.productId, uoaId: object.uoaId, currentStepId: object.stepId},
+                entities: JSON.stringify({productId: object.productId, uoaId: object.uoaId, currentStepId: object.stepId}),
+                quantity: 1,
                 info: 'Update current step for survey (when resolving)'
             });
         } else {
