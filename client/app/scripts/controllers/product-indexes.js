@@ -109,8 +109,10 @@ angular.module('greyscaleApp')
 
             if (type === 'index') {
                 $scope.model.indexesTable.tableParams.reload();
+                greyscaleProductApi.product(productId).indexesListUpdate($scope.model.indexes);
             } else if (type === 'subindex') {
                 $scope.model.subindexesTable.tableParams.reload();
+                greyscaleProductApi.product(productId).subindexesListUpdate($scope.model.subindexes);
             }
         }
 

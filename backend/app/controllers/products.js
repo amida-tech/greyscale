@@ -333,6 +333,16 @@ module.exports = {
                 }
             }
 
+            // remove all old indexes
+            yield thunkQuery(
+                Index
+                    .delete()
+                    .where(
+                        Index.productId.equals(req.params.id)
+                        .and(Index.id.notIn(res.inserted.concat(res.updated)))
+                    )
+            );
+
             return res;
         }).then(function (data) {
             res.json(data);
@@ -416,6 +426,16 @@ module.exports = {
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                 }
             }
+
+            // remove all old indexes
+            yield thunkQuery(
+                Subindex
+                    .delete()
+                    .where(
+                        Subindex.productId.equals(req.params.id)
+                        .and(Subindex.id.notIn(res.inserted.concat(res.updated)))
+                    )
+            );
 
             return res;
         }).then(function (data) {
