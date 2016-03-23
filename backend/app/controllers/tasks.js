@@ -61,7 +61,8 @@ module.exports = {
                     'END as flagged',
                     'CASE ' +
                         'WHEN ' +
-                            '"' + curStepAlias + '"."position" > "WorkflowSteps"."position" ' +
+                            '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                            'OR ("ProductUOA"."isComplete" = TRUE) ' +
                         'THEN \'completed\' ' +
                         'WHEN (' +
                             '"' + curStepAlias + '"."position" IS NULL ' +

@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
     $scope.save = function () {
         var steps = _getSteps();
         var resolveData = {
-            workflow: $scope.model.product.workflow,
+            workflow: $scope.model.product.workflow || {},
             steps: steps
         };
         resolveData.workflow.productId = product.id;

@@ -3,7 +3,7 @@
 </modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
 
-    <div name="dataForm" class="form" ng-form="dataForm">
+    <form name="model.dataForm" class="form">
         <div class="form-group">
             <label translate=".TITLE"></label>
 
@@ -12,8 +12,8 @@
                        ng-model="model.product.workflow.name"
                        ng-required="true" ng-minlength="1">
 
-                <div class="text-center" ng-messages="dataForm.name.$error" role="alert"
-                     ng-if="dataForm.name.$dirty">
+                <div class="text-center" ng-messages="model.dataForm.name.$error" role="alert"
+                     ng-if="model.dataForm.name.$dirty">
                     <span ng-message="required, minlength" class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
                 </div>
             </div>
@@ -26,20 +26,20 @@
                           ng-model="model.product.workflow.description"
                           ng-required="true" ng-minlength="1"></textarea>
 
-                <div class="text-center" ng-messages="dataForm.description.$error" role="alert"
-                     ng-if="dataForm.description.$dirty">
+                <div class="text-center" ng-messages="model.dataForm.description.$error" role="alert"
+                     ng-if="model.dataForm.description.$dirty">
                     <span ng-message="required, minlength" class="help-block"><span
                         translate=".DESCRIPTION_REQUIRED"></span></span>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     <widget-table model="model.productWorkflow"></widget-table>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="this.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()"
+    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()"
             translate="COMMON.SAVE_AND_CONTINUE"></button>
 </div>
 
