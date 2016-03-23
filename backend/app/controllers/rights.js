@@ -1,4 +1,6 @@
 var _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Right = require('app/models/rights'),
     vl = require('validator'),
     HttpError = require('app/error').HttpError,
@@ -33,6 +35,13 @@ module.exports = {
             }
             return yield thunkQuery(Right.insert(req.body).returning(Right.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'rights',
+                entity: _.first(data).id,
+                info: 'Add new right'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -60,6 +69,13 @@ module.exports = {
             Right.update(req.body).where(Right.id.equals(req.params.id)),
             function (err, data) {
                 if (!err) {
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'update',
+                        object: 'rights',
+                        entity: req.params.id,
+                        info: 'Update right'
+                    });
                     res.status(202).end();
                 } else {
                     next(err);
@@ -73,6 +89,13 @@ module.exports = {
             Right.delete().where(Right.id.equals(req.params.id)),
             function (err) {
                 if (!err) {
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'rights',
+                        entity: req.params.id,
+                        info: 'Delete right'
+                    });
                     res.status(204).end();
                 } else {
                     next(err);
