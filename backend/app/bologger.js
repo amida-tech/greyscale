@@ -24,6 +24,12 @@ BoLogger.prototype.init = function* (object) {
 };
 
 BoLogger.prototype.extend = function (data) {
+    if (typeof data.entity === 'undefined'){
+        delete this.data.entity;
+    }
+    if (typeof data.entities === 'undefined'){
+        delete this.data.entities;
+    }
     this.data = (_.extend(this.data, _.pick(data, Log.insertCols)));
 };
 
