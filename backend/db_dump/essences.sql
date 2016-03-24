@@ -29,7 +29,10 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('Translations', 'Translations', 'translations', 'field'),
 ('Roles', 'Roles', 'roles', 'name'),
 ('Rights', 'Rights', 'rights', 'action'),
-('RoleRights', 'RoleRights', 'role_rights', 'roleId')
+('RoleRights', 'RoleRights', 'role_rights', 'roleId'),
+('Visualizations', 'Visualizations', 'visualizations', 'title'),
+('AccessMatrices', 'AccessMatrices', 'access_matrices', 'name'),
+('AccessPermissions', 'AccessPermissions', 'access_permissions', 'id')
 ),
 upsert as
 ( 

@@ -1,4 +1,6 @@
 var _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Visualization = require('app/models/visualizations'),
     HttpError = require('app/error').HttpError,
     Query = require('app/util').Query,
@@ -32,6 +34,13 @@ module.exports = {
             objToInsert.organizationId = req.params.organizationId;
             return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'visualizations',
+                entity: _.first(data).id,
+                info: 'Add new visualization'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -51,6 +60,17 @@ module.exports = {
                 Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
             ));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'visualizations',
+                entity: req.params.id,
+                entities: {
+                    organizationId: req.params.organizationId
+                },
+                quantity: 1,
+                info: 'Update visualization'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -66,6 +86,17 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'visualizations',
+                entity: req.params.id,
+                entities: {
+                    organizationId: req.params.organizationId
+                },
+                quantity: 1,
+                info: 'Delete visualization'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);

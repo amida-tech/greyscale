@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     crypto = require('crypto'),
     Project = require('app/models/projects'),
     Product = require('app/models/products'),
@@ -51,6 +53,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'projects',
+                entity: req.params.id,
+                info: 'Delete project'
+            });
             res.status(204).end();
         });
     },
@@ -69,6 +78,13 @@ module.exports = {
             }
             return result;
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'projects',
+                entity: req.params.id,
+                info: 'Update project'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -133,6 +149,13 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'projects',
+                entity: _.first(data).id,
+                info: 'Add new project'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
