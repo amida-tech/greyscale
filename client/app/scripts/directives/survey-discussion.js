@@ -141,10 +141,11 @@ angular.module('greyscaleApp')
                         var r, q, quest, msg, discuss,
                             qid = 0,
                             rQty = resp.length,
-                            qQty = survey.questions.length;
+                            questions = survey.questions || [],
+                            qQty = questions.length;
 
                         for (q = 0; q < qQty; q++) {
-                            quest = survey.questions[q];
+                            quest = questions[q];
                             if (sectionTypes.indexOf(quest.type) === -1) {
                                 qid++;
                                 if (!quest.qid) {
