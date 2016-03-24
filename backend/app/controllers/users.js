@@ -70,11 +70,25 @@ module.exports = {
 
     checkToken: function (req, res, next) {
         co(function* () {
-            var existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
+
+            var existToken = false;
+
+            if (app.locals.realm != 'public') { // looking for admin token
+                var curNameSpace = app.locals.realm;
+                existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
+                app.locals.realm = curNameSpace;
+            }
+
+            if (!existToken) { // looking for simple user token
+                existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
+            }
+
             if (!_.first(existToken)) {
                 throw new HttpError(400, 'Token invalid');
             }
+
             return existToken;
+
         }).then(function (data) {
             res.status(200).end();
         }, function (err) {
@@ -289,23 +303,13 @@ module.exports = {
         co(function* () {
             var org = false;
 
-            //if (req.user.roleID == 2) {
-            //    var org = yield thunkQuery(
-            //        Organization
-            //            .select(Organization.star())
-            //            .from(Organization)
-            //            .where(Organization.adminUserId.equals(req.user.id))
-            //    );
-            //    org = _.first(org);
-            //} else if (req.user.roleID == 3) {
-                var org = yield thunkQuery(
-                    Organization
-                        .select(Organization.star())
-                        .from(Organization)
-                        .where(Organization.id.equals(req.user.organizationId))
-                );
-                org = _.first(org);
-            //}
+            var org = yield thunkQuery(
+                Organization
+                    .select(Organization.star())
+                    .from(Organization)
+                    .where(Organization.id.equals(req.user.organizationId))
+            );
+            org = _.first(org);
 
             if (!org) {
                 throw new HttpError(404, 'Not found');
@@ -656,6 +660,10 @@ module.exports = {
     selectSelf: function (req, res, next) {
         co(function* (){
 
+            if (req.user.roleID == 1) {
+                app.locals.realm = 'public';
+            }
+
             var rightsReq =
                 'ARRAY(' +
                     ' SELECT "Rights"."action" FROM "RolesRights" ' +
@@ -788,18 +796,22 @@ module.exports = {
         });
     },
     checkRestoreToken: function (req, res, next) {
-        query(User.select().where(
-            User.resetPasswordToken.equals(req.params.token)
-            .and(User.resetPasswordExpires.gt(Date.now()))), function (err, user) {
-            if (!err) {
-                if (!_.first(user)) {
-                    return next(new HttpError(403, 'Token expired or does not exist'));
-                }
-                res.json(User.view(_.last(user)));
-            } else {
-                next(err);
+        co(function* (){
+            var user = yield thunkQuery(
+                User.select().where(
+                    User.resetPasswordToken.equals(req.params.token)
+                    .and(User.resetPasswordExpires.gt(Date.now()))
+                )
+            );
+            if (!_.first(user)) {
+                throw new HttpError(403, 'Token expired or does not exist');
             }
+        }).then(function(user){
+            res.json(User.view(_.first(user)));
+        }, function(err){
+            next(err);
         });
+
     },
     resetPassword: function (req, res, next) {
         co(function* () {

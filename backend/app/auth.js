@@ -51,6 +51,16 @@ passport.use(new BasicStrategy({
             // at first change schema to public, after check turn it back
             var admin = yield *checkIsAdmin(email);
 
+            var schemas = yield thunkQuery(
+                "SELECT pg_catalog.pg_namespace.nspname " +
+                "FROM pg_catalog.pg_namespace " +
+                "INNER JOIN pg_catalog.pg_user " +
+                "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+                "AND (pg_catalog.pg_user.usename = 'indaba')"
+            );
+
+            console.log(schemas);
+
             if (admin) {
                 yield * checkUser(admin, password);
                 return admin;
