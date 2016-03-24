@@ -1,4 +1,6 @@
 var _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     RoleRights = require('app/models/role_rights'),
     Roles = require('app/models/roles'),
     Rights = require('app/models/rights'),
@@ -63,10 +65,16 @@ module.exports = {
                 throw new HttpError(400, 'You can add right only to system roles. For simple roles use access matrices');
             }
 
-            var result = yield thunkQuery(RoleRights.insert(_.pick(req.params, RoleRights.table._initialConfig.columns)));
+            return yield thunkQuery(RoleRights.insert(_.pick(req.params, RoleRights.table._initialConfig.columns)));
 
-            return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'rolerights',
+                entities: data,
+                info: 'Add new right to role'
+            });
             res.status(201).end();
         }, function (err) {
             next(err);
@@ -78,11 +86,18 @@ module.exports = {
             RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID'])),
             function (err) {
                 if (!err) {
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'rolerights',
+                        entities: _.pick(req.params, ['roleID', 'rightID']),
+                        info: 'Delete right from role'
+                    });
                     res.status(204).end();
                 } else {
                     next(err);
                 }
             });
-    },
+    }
 
 };

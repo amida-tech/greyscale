@@ -42,7 +42,7 @@ angular.module('greyscaleApp')
                         .then($scope.cancel)
                         .catch(function (err) {
                             if (err && err.data && err.data.e === 300) {
-                                $scope.model.realms = err.data.message
+                                $scope.model.realms = err.data.message;
                             } else {
                                 $log.debug(err);
                                 if (err.data && err.data.message) {

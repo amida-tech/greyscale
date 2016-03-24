@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
                                 $scope.model.success = 'LOGIN.TOKEN_SENT';
                             }).catch(function (err) {
                                 if (err && err.data && err.data.e === 300) {
-                                    $scope.model.realms = err.data.message
+                                    $scope.model.realms = err.data.message;
                                 } else {
                                     $scope.model.error = 'LOGIN.LOGIN_INCORRECT';
                                 }

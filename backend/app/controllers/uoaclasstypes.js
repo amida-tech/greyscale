@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     UnitOfAnalysisClassType = require('app/models/uoaclasstypes'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
@@ -58,6 +60,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisClassType.insert(req.body).returning(UnitOfAnalysisClassType.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'UnitOfAnalysisClassType',
+                entity: _.first(data).id,
+                info: 'Add new uoa class type'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -68,6 +77,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisClassType.update(req.body).where(UnitOfAnalysisClassType.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'UnitOfAnalysisClassType',
+                entity: req.params.id,
+                info: 'Update uoa class type'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -78,6 +94,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisClassType.delete().where(UnitOfAnalysisClassType.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'UnitOfAnalysisClassType',
+                entity: req.params.id,
+                info: 'Delete uoa class type'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);

@@ -24,7 +24,10 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('IndexQuestionWeights', 'IndexQuestionWeights', 'index_question_weights', 'type'),
 ('IndexSubindexWeights', 'IndexSubindexWeights', 'index_subindex_weights', 'type'),
 ('SubindexWeights', 'SubindexWeights', 'subindex_weights', 'type'),
-('Translations', 'Translations', 'translations', 'field')
+('Translations', 'Translations', 'translations', 'field'),
+('Roles', 'Roles', 'roles', 'name'),
+('Rights', 'Rights', 'rights', 'action'),
+('RoleRights', 'RoleRights', 'role_rights', 'roleId')
 ),
 upsert as
 ( 

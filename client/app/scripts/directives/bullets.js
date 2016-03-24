@@ -6,7 +6,7 @@ angular.module('greyscaleApp')
         return {
             restrict: 'E',
             template: '',
-            link: function(scope, elem) {
+            link: function (scope, elem) {
                 var body = '<bullet-item answer="item" ng-repeat="item in field.answer" remove-item="remove($index)" ' +
                     'add-item="addEmpty($index)" validator="field" options="field.options" ' +
                     'is-last="($index === field.answer.length-1)"';

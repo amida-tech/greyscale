@@ -115,7 +115,7 @@ angular.module('greyscaleApp')
                         return a.position - b.position;
                     });
                     scope.$emit('form-changes-saved');
-                    $timeout(function(){
+                    $timeout(function () {
                         scope.$apply();
                     });
                 }

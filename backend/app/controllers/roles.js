@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     // tables
     Role = require('app/models/roles');
 
@@ -44,6 +46,13 @@ module.exports = {
         query(Role.insert(req.body).returning(Role.id),
             function (err, data) {
                 if (!err) {
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'roles',
+                        entity: _.first(data).id,
+                        info: 'Add new role'
+                    });
                     res.status(201).json(_.first(data));
                 } else {
                     next(err);
@@ -55,11 +64,18 @@ module.exports = {
             Role.update(req.body).where(Role.id.equals(req.params.id)),
             function (err, data) {
                 if (!err) {
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'update',
+                        object: 'roles',
+                        entity: req.params.id,
+                        info: 'Update role'
+                    });
                     res.status(202).end();
                 } else {
                     next(err);
                 }
             }
         );
-    },
+    }
 };

@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     UnitOfAnalysisTagLink = require('app/models/uoataglinks'),
     UnitOfAnalysisTag = require('app/models/uoatags'),
     UnitOfAnalysisClassType = require('app/models/uoaclasstypes'),
@@ -99,6 +101,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'UnitOfAnalysisTagLink',
+                entity: _.first(data).id,
+                info: 'Add new uoa tag link'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -109,6 +118,13 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'UnitOfAnalysisTagLink',
+                entity: req.params.id,
+                info: 'Delete uoa tag link'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);

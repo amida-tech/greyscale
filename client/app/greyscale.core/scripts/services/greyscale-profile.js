@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
-        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope) {
+        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope, greyscaleRealmSrv) {
 
         var _profile = null;
         var _profilePromise = null;
@@ -30,13 +30,6 @@ angular.module('greyscale.core')
                             _profilePromise = greyscaleUserApi.get()
                                 .then(function (profileData) {
                                     _profile = profileData.plain();
-
-                                    if (_profile && _profile.organization) {
-                                        $rootScope.realm = _profile.organization.realm;
-                                    } else {
-                                        $rootScope.realm = null;
-                                    }
-
                                     return _profile;
                                 })
                                 .then(self._setAccessLevel)
@@ -75,6 +68,7 @@ angular.module('greyscale.core')
             return this.getProfile()
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
+                    greyscaleRealmSrv(null);
                     $log.debug('getAccessLevel says:', err);
                     return greyscaleUtilsSrv.getRoleMask(-1, true);
                 });
@@ -87,6 +81,7 @@ angular.module('greyscale.core')
         this.logout = function () {
             return greyscaleUserApi.logout().finally(function () {
                 greyscaleTokenSrv(null);
+                greyscaleRealmSrv(null);
                 _profile = null;
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
