@@ -24,7 +24,7 @@ gem install compass
 
 npm install -g grunt-cli bower yo generator-karma generator-angular
 
-# Go to the src directory and run 
+# Go to the client directory and run 
 npm install
 bower install
 

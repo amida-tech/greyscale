@@ -6,7 +6,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout) {
+    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
@@ -179,6 +179,7 @@ angular.module('greyscaleApp')
                         formbuilder.off('save');
                     }
                     if (window.Formbuilder) {
+                        angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
                             selector: '#formbuilder',
                             bootstrapData: data
