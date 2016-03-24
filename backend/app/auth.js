@@ -47,53 +47,86 @@ passport.use(new BasicStrategy({
         co(function* (){
 
             var userInNamespace = [];
+            // admins records should exist only in public schema,
+            // at first change schema to public, after check turn it back
+            var admin = yield *checkIsAdmin(email);
 
-            if (app.locals.realm == 'public'){
-                var orgs = yield thunkQuery(
-                    Organization.select().where(Organization.realm.isNotNull())
-                );
-
-                if (!orgs[0]){
-                    throw new HttpError(403, 'Cannot find available namespaces');
-                }
-
-                for (var i in orgs) { // TODO STORE salt for each client somewhere ???
-                    var user = yield * findUserInNamespace(orgs[i].realm, email);
-                    if (user[0]) {
-                        userInNamespace.push({
-                            realm: orgs[i].realm,
-                            orgName: user[0].orgName
-                        });
-                    }
-                }
-
-                if (!userInNamespace.length) {
-                    throw new HttpError(401, 101);
-                }
-
-                if (userInNamespace.length == 1) {
-                    user = user[0];
-                    yield * checkUser(user, password);
-                    return user;
-                }
-
-                throw new HttpError(300, userInNamespace);
-
+            if (admin) {
+                yield * checkUser(admin, password);
+                return admin;
             } else {
-                var user = yield * findUserInNamespace(app.locals.realm, email);
+                if (app.locals.realm == 'public') {
+                    var orgs = yield thunkQuery(
+                        Organization.select().where(Organization.realm.isNotNull())
+                    );
 
-                if (!user.length) {
-                    throw new HttpError(401, 101);
+                    if (!orgs[0]){
+                        throw new HttpError(403, 'Cannot find available namespaces');
+                    }
+
+                    for (var i in orgs) { // TODO STORE salt for each client somewhere ???
+                        var user = yield * findUserInNamespace(orgs[i].realm, email);
+                        if (user[0]) {
+                            userInNamespace.push({
+                                realm: orgs[i].realm,
+                                orgName: user[0].orgName
+                            });
+                        }
+                    }
+
+                    if (!userInNamespace.length) {
+                        throw new HttpError(401, 101);
+                    }
+
+                    if (userInNamespace.length == 1) {
+                        user = user[0];
+                        yield * checkUser(user, password);
+                        return user;
+                    }
+
+                    throw new HttpError(300, userInNamespace);
+
+                } else {
+                    var user = yield * findUserInNamespace(app.locals.realm, email);
+
+                    if (!user.length) {
+                        throw new HttpError(401, 101);
+                    }
+
+                    return user[0];
                 }
-
-                return user[0];
             }
+            console.log(admin);
+
+
         }).then(function(user){
             delete user.password;
             done(null, user);
         }, function(err){
             done(err);
         });
+
+        function *checkIsAdmin (email){
+            var curNamespace = app.locals.realm;
+            app.locals.realm = 'public';
+
+            var user =  yield thunkQuery(
+                User.select().where(
+                    {
+                        roleID : 1,
+                        email : email
+                    }
+                )
+            );
+            app.locals.realm = curNamespace;
+
+            if(user.length){
+                return user[0];
+            } else {
+                return false;
+            }
+
+        }
 
         function *checkUser (user, password){
             if (!User.validPassword(user.password, password)) {
@@ -140,24 +173,13 @@ passport.use(new TokenStrategy({
     function (req, tokenBody, done) {
 
         co(function* (){
-            var data = yield thunkQuery(
-                Token
-                .select(
-                    Token.star(),
-                    User.star(),
-                    Role.name.as('role'),
-                    requestRights,
-                    Project.id.as('projectId')
-                )
-                .from(
-                    Token
-                        .leftJoin(User).on(User.id.equals(Token.userID))
-                        .leftJoin(Role).on(User.roleID.equals(Role.id))
-                        .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                        .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
-                )
-                .where(Token.body.equals(tokenBody))
-            );
+
+            // we are looking for admin tokens only in public schema
+            var data = yield* findTokenInNamespace('public', tokenBody);
+
+            if (!data) { // if not admin, looking for simple users
+                var data = yield* findTokenInNamespace(app.locals.realm, tokenBody);
+            }
 
             if (!data.length) {
                 req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
@@ -183,28 +205,32 @@ passport.use(new TokenStrategy({
             done(err);
         });
 
+        function * findTokenInNamespace(realm, tokenBody){
+            var currentNamespace = app.locals.realm;
+            app.locals.realm = realm;
+            data =  yield thunkQuery(
+                Token
+                    .select(
+                        Token.star(),
+                        User.star(),
+                        Role.name.as('role'),
+                        requestRights,
+                        Project.id.as('projectId')
+                    )
+                    .from(
+                        Token
+                            .leftJoin(User).on(User.id.equals(Token.userID))
+                            .leftJoin(Role).on(User.roleID.equals(Role.id))
+                            .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                            .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                    )
+                    .where(Token.body.equals(tokenBody))
+            );
+            app.locals.realm = currentNamespace;
+            return data[0] ? data[0] : false;
 
-        //query(
-        //    ,
-        //    function (err, data) {
-        //        if (err) {
-        //            return done(err);
-        //        }
-        //
-        //
-        //
-        //        query(
-        //            ,
-        //            function (err, updateData) {
-        //                if (err) {
-        //                    return done(err);
-        //                }
-        //                return done(null, );
-        //            }
-        //        );
-        //
-        //    }
-        //);
+        }
+
     }
 ));
 
