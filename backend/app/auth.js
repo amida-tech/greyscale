@@ -48,38 +48,38 @@ passport.use(new BasicStrategy({
 
             var userInNamespace = [];
 
-            //if (app.locals.realm == 'public'){
-            //    var orgs = yield thunkQuery(
-            //        Organization.select().where(Organization.realm.isNotNull())
-            //    );
-            //
-            //    if (!orgs[0]){
-            //        throw new HttpError(403, 'Cannot find available namespaces');
-            //    }
-            //
-            //    for (var i in orgs) { // TODO STORE salt for each client somewhere ???
-            //        var user = yield * findUserInNamespace(orgs[i].realm, email);
-            //        if (user[0]) {
-            //            userInNamespace.push({
-            //                realm: orgs[i].realm,
-            //                orgName: user[0].orgName
-            //            });
-            //        }
-            //    }
-            //
-            //    if (!userInNamespace.length) {
-            //        throw new HttpError(401, 101);
-            //    }
-            //
-            //    if (userInNamespace.length == 1) {
-            //        user = user[0];
-            //        yield * checkUser(user, password);
-            //        return user;
-            //    }
-            //
-            //    throw new HttpError(300, userInNamespace);
-            //
-            //} else {
+            if (app.locals.realm == 'public'){
+                var orgs = yield thunkQuery(
+                    Organization.select().where(Organization.realm.isNotNull())
+                );
+
+                if (!orgs[0]){
+                    throw new HttpError(403, 'Cannot find available namespaces');
+                }
+
+                for (var i in orgs) { // TODO STORE salt for each client somewhere ???
+                    var user = yield * findUserInNamespace(orgs[i].realm, email);
+                    if (user[0]) {
+                        userInNamespace.push({
+                            realm: orgs[i].realm,
+                            orgName: user[0].orgName
+                        });
+                    }
+                }
+
+                if (!userInNamespace.length) {
+                    throw new HttpError(401, 101);
+                }
+
+                if (userInNamespace.length == 1) {
+                    user = user[0];
+                    yield * checkUser(user, password);
+                    return user;
+                }
+
+                throw new HttpError(300, userInNamespace);
+
+            } else {
                 var user = yield * findUserInNamespace(app.locals.realm, email);
 
                 if (!user.length) {
@@ -87,7 +87,7 @@ passport.use(new BasicStrategy({
                 }
 
                 return user[0];
-            //}
+            }
         }).then(function(user){
             delete user.password;
             done(null, user);
