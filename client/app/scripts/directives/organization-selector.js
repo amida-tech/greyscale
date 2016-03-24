@@ -38,7 +38,7 @@ angular.module('greyscaleApp')
         };
         return org;
     })
-    .directive('organizationSelector', function (_, $q, $timeout, $rootScope, greyscaleProfileSrv,
+    .directive('organizationSelector', function (_, $q, $timeout, $rootScope, greyscaleProfileSrv, greyscaleRealmSrv,
         greyscaleGlobals, greyscaleProjectApi, greyscaleOrganizationApi, $cookies, Organization) {
         return {
             restrict: 'A',
@@ -91,7 +91,7 @@ angular.module('greyscaleApp')
                         throw 'Organization id=' + Organization.id + ' has no valid project';
                     }
 
-                    $rootScope.realm = Organization.realm || 'public';
+                    greyscaleRealmSrv(Organization.realm || 'public');
 
                     $cookies.put('orgId', Organization.id);
 

@@ -22,7 +22,7 @@ angular.module('greyscaleApp')
                             })
                             .catch(function (err) {
                                 if (err && err.data && err.data.e === 300) {
-                                    $scope.model.realms = err.data.message
+                                    $scope.model.realms = err.data.message;
                                 } else {
                                     $scope.model.error = 'LOGIN.CHECK_EMAIL_PASSWORD';
                                 }
