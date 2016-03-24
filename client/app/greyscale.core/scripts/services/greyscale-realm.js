@@ -6,7 +6,7 @@ angular.module('greyscale.core')
     .factory('greyscaleRealmSrv', function ($cookieStore, $log) {
         var _realm = null,
             _default = 'public';
-        
+
         return function (val) {
             if (typeof val !== 'undefined' && val !== _default) {
                 if (val) {
