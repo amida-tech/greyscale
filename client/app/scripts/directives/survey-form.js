@@ -214,7 +214,8 @@ angular.module('greyscaleApp')
             var o, item, fld, fldId, q, field, type,
                 r = 0,
                 qid = 0,
-                qQty = survey.questions.length;
+                questions = survey.questions || [],
+                qQty = questions.length;
 
             surveyParams = {
                 surveyId: survey.id,
@@ -241,7 +242,7 @@ angular.module('greyscaleApp')
             scope.model.translated = !flags.allowTranslate;
 
             for (q = 0; q < qQty; q++) {
-                field = survey.questions[q];
+                field = questions[q];
                 type = fieldTypes[field.type];
                 if (type) {
                     fldId = fldNamePrefix + field.id;
