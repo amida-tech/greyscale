@@ -4,9 +4,11 @@
 'use strict';
 angular.module('greyscale.core')
     .factory('greyscaleRealmSrv', function ($cookieStore, $log) {
-        var _realm = 'public';
+        var _realm = null,
+            _default = 'public';
+        
         return function (val) {
-            if (typeof val !== 'undefined' && val !== 'public') {
+            if (typeof val !== 'undefined' && val !== _default) {
                 if (val) {
                     $cookieStore.put('realm', val);
                     $log.debug('set realm to', val);
@@ -14,10 +16,10 @@ angular.module('greyscale.core')
                     $log.debug('removed realm', _realm);
                     $cookieStore.remove('realm');
                 }
-                _realm = val || 'public';
+                _realm = val || _default;
             } else {
                 if (!_realm) {
-                    _realm = $cookieStore.get('realm');
+                    _realm = $cookieStore.get('realm') || _default;
                     $log.debug('restored realm', _realm);
                 }
             }
