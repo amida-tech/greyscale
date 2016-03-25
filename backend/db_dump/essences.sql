@@ -4,6 +4,7 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('SurveyQuestions', 'Survey Questions', 'survey_questions', 'label'),
 ('SurveyQuestionOptions', 'Survey Question Options', 'survey_question_options', 'label'),
 ('SurveyAnswers', 'Survey Answers', 'survey_answers', 'value'),
+('AnswerAttachments', 'AnswerAttachments', 'answer_attachments', 'filename'),
 ('Groups', 'Groups', 'groups', 'title'),
 ('Organizations', 'Organizations', 'organizations', 'name'),
 ('Tasks', 'Tasks', 'tasks', 'title'),

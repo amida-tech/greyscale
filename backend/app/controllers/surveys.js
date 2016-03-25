@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
@@ -79,10 +81,25 @@ module.exports = {
                     yield thunkQuery(
                         SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
                     ); // delete options
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'survey question options',
+                        entities: {questionId: questions[i].id},
+                        quantity: 1,
+                        info: 'Delete survey question options for question '+questions[i].id
+                    });
 
                     yield thunkQuery(
                         SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
                     ); // delete question
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'survey questions',
+                        entity: questions[i].id,
+                        info: 'Delete survey question'
+                    });
                 }
             }
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
@@ -104,6 +121,13 @@ module.exports = {
                         .update(updateObj)
                         .where(Survey.id.equals(req.params.id))
                 );
+                bologger.log({
+                    user: req.user.id,
+                    action: 'update',
+                    object: 'surveys',
+                    entity: req.params.id,
+                    info: 'Update survey'
+                });
             }
         }).then(function (data) {
             res.status(202).end();
@@ -133,6 +157,13 @@ module.exports = {
 
             return survey;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'surveys',
+                entity: data.id,
+                info: 'Add new survey'
+            });
             res.status(201).json(data);
         }, function (err) {
             next(err);
@@ -186,6 +217,13 @@ module.exports = {
                 .where(SurveyQuestion.id.equals(req.params.id))
             );
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'survey questions',
+                entity: req.params.id,
+                info: 'Update survey question'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -197,6 +235,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'survey questions',
+                entity: req.params.id,
+                info: 'Delete survey question'
+            });
             res.status(204).end();
         });
     }
@@ -212,6 +257,13 @@ function* addQuestion (req, dataObj) {
             .returning(SurveyQuestion.id)
     );
     result = result[0];
+    bologger.log({
+        user: req.user.id,
+        action: 'insert',
+        object: 'survey questions',
+        entity: result.id,
+        info: 'Add new survey question'
+    });
 
     if (dataObj.options && dataObj.options.length) {
         var insertArr = [];
@@ -224,6 +276,14 @@ function* addQuestion (req, dataObj) {
         result.options = yield thunkQuery(
             SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
         );
+        bologger.log({
+            user: req.user.id,
+            action: 'insert',
+            object: 'survey question options',
+            entities: result.options,
+            quantity: (result.options) ? result.options.length : 0,
+            info: 'Add new survey question options'
+        });
     }
 
     return result;
