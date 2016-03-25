@@ -11,6 +11,7 @@ angular.module('greyscaleApp')
 
                 // PRODUCT SELECTION
                 scope.products = [];
+                scope.datasets = [];
 
                 //Load all products
                 function _loadProducts() {
@@ -29,6 +30,7 @@ angular.module('greyscaleApp')
 
                 scope.clearProducts = function () {
                     scope.products = [];
+                    scope.datasets = [];
                     scope.productsTable.tableParams.reload();
                 };
 
@@ -36,13 +38,11 @@ angular.module('greyscaleApp')
                 scope.productsTable = {
                     title: 'Selected Products',
                     cols: [{
-                        field: 'product.title',
-                        title: 'Product',
-                        cellClass: 'text-center'
-                    }, {
-                        field: 'index.title',
-                        title: 'Index',
-                        cellClass: 'text-center'
+                        field: 'product',
+                        title: 'Dataset',
+                        cellClass: 'text-center',
+                        cellTemplate: '<span ng-if="row.product">{{row.product.title}} ({{row.index.title}})</span>' +
+                            '<span ng-if="!row.product">{{row.title}}</span>'
                     }, {
                         dataFormat: 'action',
                         actions: [{
@@ -59,7 +59,7 @@ angular.module('greyscaleApp')
                         }]
                     }],
                     dataPromise: function () {
-                        return $q.when(scope.products);
+                        return $q.when(scope.products.concat(scope.datasets));
                     },
                     add: {
                         handler: scope.addProduct
@@ -84,12 +84,31 @@ angular.module('greyscaleApp')
                     });
                 };
 
+                // IMPORTING DATASETS
+                scope.importDataset = function () {
+                    greyscaleModalsSrv.importDataset(scope.visualizationId).then(function (dataset) {
+                        dataset.cols = dataset.cols.map(function (col) {
+                            return col.title;
+                        });
+                        dataset.dataCol = dataset.dataCol.id;
+                        dataset.uoaCol = dataset.uoaCol.id;
+                        if (dataset.yearCol) { dataset.yearCol = dataset.yearCol.id; }
+
+                        console.log(dataset);
+                        greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).add(dataset).then(function (d) {
+                            console.log(d);
+                        });
+                    });
+                };
+
                 // DATA AGGREGATION
                 scope.aggregates = {};
+                scope.datasetsData = {};
 
-                scope.$watch('products', function (products) {
+                scope.$watch('[products,datasets]', function (products) {
                     var promises = [];
-                    products.forEach(function (product) {
+                    // aggregate data for each product
+                    scope.products.forEach(function (product) {
                         if (!(product.product.id in scope.aggregates)) {
                             var promise = greyscaleProductApi.product(product.product.id).aggregate().then(function(res) {
                                 scope.aggregates[product.product.id] = res.agg;
@@ -97,15 +116,51 @@ angular.module('greyscaleApp')
                             promises.push(promise);
                         }
                     });
+                    // load data from each dataset
+                    scope.datasets.forEach(function (dataset) {
+                        if (!(dataset.id in scope.datasetsData)) {
+                            var promise = greyscaleComparativeVisualizationApi(Organization.id)
+                                .datasets(scope.visualizationId)
+                                .get(dataset.id)
+                                .then(function (data) {
+                                    scope.datasetsData[dataset.id] = data;
+                            });
+                            promises.push(promise);
+                        }
+
+                    });
 
                     $q.all(promises).then(function () {
-                        _renderVisualization(_preprocessData(products));
-                        if (products.length === 0) {
+                        var data = _selectProductData(scope.products).concat(_selectDatasetData(scope.datasets));
+                        _renderVisualization(_preprocessData(data));
+                        if (data.length === 0) {
                             _clearVisualization();
                         }
                     });
                 }, true);
 
+                function _selectProductData(productIndexes) {
+                    return productIndexes.map(function (productIndex) {
+                        productIndex.title = productIndex.product.title;
+                        productIndex.data = scope.aggregates[productIndex.product.id].map(function (target) {
+                            // index value
+                            target.val = target.indexes[productIndex.index.id];
+
+                            return target;
+                        }).filter(function (target) {
+                            return typeof target.val !== 'undefined' && target.val !== null;
+                        });
+                        return productIndex;
+                    });
+                }
+
+                function _selectDatasetData(datasets) {
+                    var results = [];
+                    datasets.forEach(function (dataset) {
+                        results = results.concat(scope.datasetsData[dataset.id]);
+                    });
+                    return results;
+                }
 
                 // LOADING/SAVING
                 function _getConfiguration() {
@@ -138,6 +193,12 @@ angular.module('greyscaleApp')
                         });
                     })).then(function (data) {
                         scope.products = data;
+                        scope.productsTable.tableParams.reload();
+                    }).then(function() {
+                        // imported datasets
+                        return greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).list();
+                    }).then(function(data) {
+                        scope.datasets = data;
                         scope.productsTable.tableParams.reload();
                     });
                 }
@@ -182,7 +243,7 @@ angular.module('greyscaleApp')
                     l.targets = [];
 
                     var data = productIndexes.map(function (productIndex, idx) {
-                        productIndex.data = scope.aggregates[productIndex.product.id].map(function (target) {
+                        productIndex.data = productIndex.data.map(function (target) {
                             // horizontal position
                             if (!(target.id in l.positions)) {
                                 l.positions[target.id] = Object.keys(l.positions).length * (l.width + l.hPadding) + l.hPadding;
@@ -193,12 +254,7 @@ angular.module('greyscaleApp')
                             // vertical position
                             target.y = idx * (l.height + l.vPadding) + l.vPadding;
 
-                            // index value
-                            target.val = target.indexes[productIndex.index.id];
-
                             return target;
-                        }).filter(function (target) {
-                            return typeof target.val !== 'undefined' && target.val !== null;
                         });
                         return productIndex;
                     });
@@ -302,7 +358,7 @@ angular.module('greyscaleApp')
                     labels.exit().remove();
                     labels
                         .attr('y', function (d, i) { return i * vHeight + offset; })
-                        .text(function (d) { return d.product.title; });
+                        .text(function (d) { return d.title; });
                     
 
                     // color scale axis
@@ -352,9 +408,11 @@ angular.module('greyscaleApp')
                     vizHeight = vOffset + bbox.height + layout.vPadding;
 
                     // resize svg and container (for styling)
-                    $('.comparative-container').width(0);
-                    $('.comparative-container').width($('comparative-viz > div.row').outerWidth(true) - 1);
-                    $('svg').attr('width', vizWidth).attr('height', vizHeight);
+                    if (data.length > 0) {
+                        $('.comparative-container').width(0);
+                        $('.comparative-container').width($('comparative-viz > div.row').outerWidth(true) - 1);
+                        $('svg').attr('width', vizWidth).attr('height', vizHeight);
+                    }
                 }
             }
         };

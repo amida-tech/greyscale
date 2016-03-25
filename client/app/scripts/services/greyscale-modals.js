@@ -185,9 +185,7 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     index: index,
-                    type: function () {
-                        return type;
-                    },
+                    type: $q.when(type),
                     product: product
                 }
             }).result;
@@ -213,6 +211,18 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     products: products
+                }
+            }).result;
+        }
+
+        function _importDataset(visualizationId) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/import-dataset.html',
+                controller: 'ModalImportDatasetCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    visualizationId: $q.when(visualizationId)
                 }
             }).result;
         }
@@ -244,6 +254,7 @@ angular.module('greyscaleApp')
             changePassword: _changePassword,
             editIndex: _editIndex,
             editVisualization: _editVisualization,
-            addProduct: _addProduct
+            addProduct: _addProduct,
+            importDataset: _importDataset
         };
     });

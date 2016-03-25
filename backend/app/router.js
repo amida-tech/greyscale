@@ -529,4 +529,16 @@ router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizati
     .put(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.updateOne)
     .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
 
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.insertDataset);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets/parse')
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.parseDataset);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDataset);
+    /*.put(authenticate('token').always, /*checkRight(), *//* ComparativeVisualization.updateDataset)
+    .delete(authenticate('token').always, /*checkRight(), *//* ComparativeVisualization.deleteDataset);*/
+
 module.exports = router;
