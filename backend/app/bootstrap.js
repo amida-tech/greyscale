@@ -93,29 +93,43 @@ app.on('start', function () {
         next();
     });
 
-    app.all('*', function (req, res, next) {
-        var acceptLanguage = require('accept-language');
-
-        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
-            query(Language.select().from(Language).where(Language.code.equals(config.defaultLang)), function (err, data) {
-                console.log(data);
-                req.lang = _.first(data);
-                next();
-            });
-        } else {
-            var languages = {};
-            query(Language.select().from(Language), function (err, data) {
-                for (var i in data) {
-                    languages[data[i].code] = data[i];
-                }
-                acceptLanguage.languages(Object.keys(languages));
-                var code = acceptLanguage.get(req.headers['accept-language']);
-                req.lang = languages[code];
-                next();
-            });
-        }
-
-    });
+    //app.all('*', function (req, res, next) {
+    //    var acceptLanguage = require('accept-language');
+    //    co(function*(){
+    //        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language).where(Language.code.equals(config.defaultLang))
+    //            );
+    //
+    //            console.log(data);
+    //            req.lang = _.first(data);
+    //
+    //        } else {
+    //            var languages = {};
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language)
+    //            );
+    //
+    //            if(!data.length){
+    //                throw new HttpError(400, 'You do not have any language record in DB, please provide some');
+    //            }
+    //
+    //            for (var i in data) {
+    //                languages[data[i].code] = data[i];
+    //            }
+    //
+    //            acceptLanguage.languages(Object.keys(languages));
+    //            var code = acceptLanguage.get(req.headers['accept-language']);
+    //            req.lang = languages[code];
+    //
+    //        }
+    //    }).then(function(){
+    //        next();
+    //    }, function(err){
+    //        next(err);
+    //    });
+    //
+    //});
 
 
 
