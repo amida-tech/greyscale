@@ -37,11 +37,14 @@ var Query = require('app/util').Query,
 
 module.exports = {
     token: function (req, res, next) {
-
+        var realm = app.locals.realm;
         co(function* () {
+
+            app.locals.realm = config.pgConnect.adminSchema;
             var needNewToken = false;
             var data = yield thunkQuery(Token.select().where({
-                userID: req.user.id
+                userID : req.user.id,
+                realm  : realm
             }));
             if (!data.length) {
                 needNewToken = true;
@@ -53,15 +56,17 @@ module.exports = {
                 var token = yield thunkrandomBytes(32);
                 token = token.toString('hex');
                 return yield thunkQuery(Token.insert({
-                    'userID': req.user.id,
-                    'body': token
+                    userID : req.user.id,
+                    body   : token,
+                    realm  : realm
                 }).returning(Token.body));
             } else {
                 return data;
             }
         }).then(function (data) {
             res.json({
-                token: data[0].body
+                token: data[0].body,
+                realm: realm
             });
         }, function (err) {
             next(err);
@@ -71,17 +76,17 @@ module.exports = {
     checkToken: function (req, res, next) {
         co(function* () {
 
-            var existToken = false;
+            var realm = app.locals.realm;
+            app.locals.realm = config.pgConnect.adminSchema;
 
-            if (app.locals.realm != 'public') { // looking for admin token
-                var curNameSpace = app.locals.realm;
-                existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
-                app.locals.realm = curNameSpace;
-            }
-
-            if (!existToken) { // looking for simple user token
-                existToken = yield thunkQuery(Token.select().where(Token.body.equals(req.params.token)));
-            }
+            var existToken = yield thunkQuery(
+                Token
+                .select()
+                .where(
+                    Token.body.equals(req.params.token)
+                    .and(Token.realm.equals(realm))
+                )
+            );
 
             if (!_.first(existToken)) {
                 throw new HttpError(400, 'Token invalid');
