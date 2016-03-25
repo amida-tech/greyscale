@@ -68,9 +68,9 @@ angular.module('greyscale.core')
             return this.getProfile()
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
-                    greyscaleRealmSrv(null);
+                    _logout();
                     $log.debug('getAccessLevel says:', err);
-                    return greyscaleUtilsSrv.getRoleMask(-1, true);
+                    return _accessLevel;
                 });
         };
 
@@ -79,14 +79,17 @@ angular.module('greyscale.core')
         };
 
         this.logout = function () {
-            return greyscaleUserApi.logout().finally(function () {
-                greyscaleTokenSrv(null);
-                greyscaleRealmSrv(null);
-                _profile = null;
-                _profilePromise = null;
-                _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
-            });
+            return greyscaleUserApi.logout()
+                .finally(_logout);
         };
+
+        function _logout() {
+            greyscaleTokenSrv(null);
+            greyscaleRealmSrv(null);
+            _profile = null;
+            _profilePromise = null;
+            _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
+        }
 
         function _isSuperAdmin() {
             return (_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) === greyscaleGlobals.userRoles.superAdmin.mask;
