@@ -4,7 +4,8 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv, $log) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv,
+        greyscaleRealmSrv) {
 
         return {
             login: _login,
@@ -81,6 +82,7 @@ angular.module('greyscale.rest')
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
+                    greyscaleRealmSrv(resp.realm);
                     return resp;
                 });
         }
