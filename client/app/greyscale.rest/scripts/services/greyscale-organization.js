@@ -15,31 +15,31 @@ angular.module('greyscale.rest')
             products: _products
         };
 
-        function api() {
-            return greyscaleRestSrv().one('organizations');
+        function api(realm) {
+            return greyscaleRestSrv({}, realm).one('organizations');
         }
 
-        function _list(param) {
-            return api().get(param);
+        function _list(param, realm) {
+            return api(realm).get(param);
         }
 
-        function _add(org) {
-            return api().customPOST(org);
+        function _add(org, realm) {
+            return api(realm).customPOST(org);
         }
 
-        function _get(id) {
-            return api().one(id).get();
+        function _get(id, realm) {
+            return api(realm).one(id).get();
         }
 
-        function _update(org) {
-            return api().one(org.id + '').customPUT(org);
+        function _update(org, realm) {
+            return api(realm).one(org.id + '').customPUT(org);
         }
 
-        function _delete(id) {
-            return api().one(id + '').remove();
+        function _delete(id, realm) {
+            return api(realm).one(id + '').remove();
         }
 
-        function _products(id) {
-            return api().one(id + '').one('products').get();
+        function _products(id, realm) {
+            return api(realm).one(id + '').one('products').get();
         }
     });

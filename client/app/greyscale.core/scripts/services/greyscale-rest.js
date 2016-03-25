@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv, greyscaleRealmSrv) {
-        return function (headers) {
+        return function (headers, realm) {
             headers = headers || {};
 
             var aHeaders = {
@@ -22,7 +22,7 @@ angular.module('greyscale.core')
 
             return Restangular.withConfig(function (RestangularConfigurer) {
                 var token = greyscaleTokenSrv();
-                var _realm = greyscaleRealmSrv();
+                var _realm = realm || greyscaleRealmSrv();
 
                 if (token) {
                     angular.extend(aHeaders, {

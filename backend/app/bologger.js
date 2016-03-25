@@ -30,6 +30,9 @@ BoLogger.prototype.extend = function (data) {
     if (typeof data.entities === 'undefined'){
         delete this.data.entities;
     }
+    if (typeof data.quantity === 'undefined'){
+        delete this.data.quantity;
+    }
     this.data = (_.extend(this.data, _.pick(data, Log.insertCols)));
 };
 

@@ -165,7 +165,7 @@ module.exports = {
                             user: req.user.id,
                             action: 'update',
                             object: 'workflowstepgroups',
-                            info: 'Delete workflow step groups for step '+ req.body[i].id
+                            info: 'Delete all workflow step groups for step '+ req.body[i].id
                         });
                     }
                 } else {
@@ -200,6 +200,7 @@ module.exports = {
                         action: 'insert',
                         object: 'workflowstepgroups',
                         entities: insertGroupObjs,
+                        quantity: insertGroupObjs.length,
                         info: 'Insert workflow step group(s)'
                     });
                 }
@@ -214,6 +215,7 @@ module.exports = {
                     action: 'delete',
                     object: 'workflowstepgroups',
                     entities: deleteIds,
+                    quantity: deleteIds.length,
                     info: 'Delete workflow step group(s)'
                 });
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
@@ -222,6 +224,7 @@ module.exports = {
                     action: 'delete',
                     object: 'workflowsteps',
                     entities: deleteIds,
+                    quantity: deleteIds.length,
                     info: 'Delete workflow step(s)'
                 });
             }
