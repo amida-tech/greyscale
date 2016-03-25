@@ -1,2 +1,2 @@
 SET search_path TO 'public';
-ALTER TABLE "Token" ADD COLUMN "realm" varchar (80);
+ALTER TABLE "Token" ADD COLUMN "realm" varchar (80) NOT NULL;

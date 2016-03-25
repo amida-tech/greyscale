@@ -82,6 +82,8 @@ User.hashPassword = function (password) {
 };
 
 User.validPassword = function (pas, checkpas) {
+    console.log(pas);
+    console.log(this.hashPassword(checkpas));
     return pas === this.hashPassword(checkpas);
 };
 

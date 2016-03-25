@@ -91,12 +91,11 @@ passport.use(new BasicStrategy({
 
                 } else { // situation after found user in several schemas and set one of them
                     var user = yield * findUserInNamespace(app.locals.realm, email);
-
                     if (!user.length) {
                         throw new HttpError(401, 101);
                     }
 
-                    yield * checkUser(user, password);
+                    yield * checkUser(user[0], password);
                     // allready in right namespace
                     return user[0];
                 }
