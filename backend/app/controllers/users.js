@@ -220,7 +220,7 @@ module.exports = {
 
             var essenceId = yield * getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-            var note = yield * notifications.createNotification(
+            var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.id,
                     userTo: userId,
@@ -426,7 +426,7 @@ module.exports = {
 
             var essenceId = yield * getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify
-            var note = yield * notifications.createNotification(
+            var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.id,
                     userTo: newUserId,
@@ -784,7 +784,7 @@ module.exports = {
 
                     var essenceId = yield * getEssenceId(req, 'Users');
                     var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-                    var note = yield * notifications.createNotification(
+                    var note = yield * notifications.createNotification(req,
                         {
                             userFrom: user.id,  // ToDo: userFrom???
                             userTo: user.id,
@@ -996,7 +996,7 @@ function* insertOne(req, res, next) {
 
         var essenceId = yield * getEssenceId(req, 'Users');
         var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-        var note = yield * notifications.createNotification(
+        var note = yield * notifications.createNotification(req,
             {
                 userFrom: user.id,  // ToDo: userFrom???
                 userTo: user.id,

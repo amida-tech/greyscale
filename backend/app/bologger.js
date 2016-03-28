@@ -20,7 +20,7 @@ function BoLogger() {
 }
 
 BoLogger.prototype.init = function* (object) {
-    this.data.essence = yield common.getEssenceId(object);
+    this.data.essence = yield common.getEssenceId(null, object); // ToDo: fix after bologger refactoring
 };
 
 BoLogger.prototype.extend = function (data) {
@@ -46,6 +46,7 @@ BoLogger.prototype.log = function (data) {
             data.entities = JSON.stringify(data.entities);
         }
         this.extend(data);
+        // ToDo: before refactoring log to public
         var id = yield thunkQuery(Log.insert(this.data).returning(Log.id));
         return data;
     }).then(function (data) {

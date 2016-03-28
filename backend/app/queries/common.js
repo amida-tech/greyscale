@@ -24,12 +24,14 @@ var
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
-function* getEntityById(id, model, key) {
+function* getEntityById(req, id, model, key) {
+    var thunkQuery = req.thunkQuery;
     return yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
 }
 
-var getTask = function* (taskId) {
-    var result = yield * getEntityById(taskId, Task, 'id');
+var getTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, taskId, Task, 'id');
     if (!_.first(result)) {
         throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
     }
@@ -37,8 +39,8 @@ var getTask = function* (taskId) {
 };
 exports.getTask = getTask;
 
-var getDiscussionEntry = function* (entryId) {
-    var result = yield * getEntityById(entryId, Discussion, 'id');
+var getDiscussionEntry = function* (req, entryId) {
+    var result = yield * getEntityById(req, entryId, Discussion, 'id');
     if (!_.first(result)) {
         throw new HttpError(403, 'Entry with id `'+parseInt(userId).toString()+'` does not exist in discussions');
     }
@@ -46,8 +48,8 @@ var getDiscussionEntry = function* (entryId) {
 };
 exports.getDiscussionEntry = getDiscussionEntry;
 
-var getUser = function* (userId) {
-    var result = yield * getEntityById(userId, User, 'id');
+var getUser = function* (req, userId) {
+    var result = yield * getEntityById(req, userId, User, 'id');
     if (!_.first(result)) {
         throw new HttpError(403, 'User with id `'+parseInt(userId).toString()+'` does not exist');
     }
@@ -55,7 +57,10 @@ var getUser = function* (userId) {
 };
 exports.getUser = getUser;
 
-var getEssenceId = function* (essenceName) {
+var getEssenceId = function* (req, essenceName) {
+    if (req) { // ToDo: Remove after bologer refactoring
+        var thunkQuery = req.thunkQuery;
+    }
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.name).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
@@ -64,7 +69,8 @@ var getEssenceId = function* (essenceName) {
 };
 exports.getEssenceId = getEssenceId;
 
-var getNotification = function* (notificationId) {
+var getNotification = function* (req, notificationId) {
+    var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Notification.select().from(Notification).where(Notification.id.equals(notificationId)));
     if (!_.first(result)) {
         throw new HttpError(403, 'Notification with id `'+parseInt(notificationId).toString()+'` does not exist');
@@ -73,7 +79,8 @@ var getNotification = function* (notificationId) {
 };
 exports.getNotification = getNotification;
 
-var getOrganization = function* (orgId) {
+var getOrganization = function* (req, orgId) {
+    var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Organization.select().from(Organization).where(Organization.id.equals(orgId)));
     if (!_.first(result)) {
         throw new HttpError(403, 'Organization with id `'+parseInt(orgId).toString()+'` does not exist');
@@ -82,7 +89,8 @@ var getOrganization = function* (orgId) {
 };
 exports.getOrganization = getOrganization;
 
-var getEssence = function* (essenceId) {
+var getEssence = function* (req, essenceId) {
+    var thunkQuery = req.thunkQuery;
     // get Essence info
     var result = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(essenceId)));
     if (!_.first(result)) {
