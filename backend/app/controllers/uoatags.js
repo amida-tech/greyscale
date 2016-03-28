@@ -65,6 +65,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysisTag.insert(req.body).returning(UnitOfAnalysisTag.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'UnitOfAnalysisTag',
@@ -83,6 +84,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysisTag.update(req.body).where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'UnitOfAnalysisTag',
@@ -101,6 +103,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysisTag.delete().where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'UnitOfAnalysisTag',

@@ -85,6 +85,7 @@ module.exports = {
                         SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
                     ); // delete options
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'survey question options',
@@ -97,6 +98,7 @@ module.exports = {
                         SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
                     ); // delete question
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'survey questions',
@@ -126,6 +128,7 @@ module.exports = {
                         .where(Survey.id.equals(req.params.id))
                 );
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'update',
                     object: 'surveys',
@@ -163,6 +166,7 @@ module.exports = {
             return survey;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'surveys',
@@ -226,6 +230,7 @@ module.exports = {
             );
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'survey questions',
@@ -247,6 +252,7 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'survey questions',
@@ -272,6 +278,7 @@ function* addQuestion (req, dataObj) {
     );
     result = result[0];
     bologger.log({
+        req: req,
         user: req.user.id,
         action: 'insert',
         object: 'survey questions',
@@ -291,6 +298,7 @@ function* addQuestion (req, dataObj) {
             SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'insert',
             object: 'survey question options',

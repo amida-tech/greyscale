@@ -47,6 +47,7 @@ module.exports = {
             return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'groups',
@@ -74,6 +75,7 @@ module.exports = {
             return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'groups',
@@ -95,6 +97,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'groups',

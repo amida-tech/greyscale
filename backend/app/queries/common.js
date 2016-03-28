@@ -58,12 +58,10 @@ var getUser = function* (req, userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) {
-    if (req) { // ToDo: Remove after bologer refactoring
-        var thunkQuery = req.thunkQuery;
-    }
-    var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.name).equals(essenceName.toUpperCase())]));
+    var thunkQuery = (req) ?  req.thunkQuery : thunkQuery;
+    var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
+        throw new HttpError(403, 'Error find Essence for table name `'+essenceName+'`');
     }
     return result[0].id;
 };

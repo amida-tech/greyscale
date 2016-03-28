@@ -101,6 +101,7 @@ module.exports = {
             }
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'organizations',
@@ -126,6 +127,7 @@ module.exports = {
                 .returning(Organization.id)
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'organizations',
@@ -146,6 +148,7 @@ module.exports = {
                 .returning(Project.id)
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'projects',
@@ -264,6 +267,7 @@ module.exports = {
                                     User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
                                 );
                                 bologger.log({
+                                    req: req,
                                     user: req.user.id,
                                     action: 'insert',
                                     object: 'users',

@@ -105,6 +105,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'UnitOfAnalysisTagLink',
@@ -123,6 +124,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'UnitOfAnalysisTagLink',

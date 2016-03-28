@@ -71,6 +71,7 @@ module.exports = {
 
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'rolerights',
@@ -92,6 +93,7 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'rolerights',
