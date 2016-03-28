@@ -24,11 +24,10 @@ app = require('express')();
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
 
-
 app.on('start', function () {
     
-    app.use('/:realm',function(req,res,next){
-
+    app.use('/:realm',function(req, res, next){
+        // realm not set
         co(function*(){
             var schemas = yield thunkQuery(
                 "SELECT pg_catalog.pg_namespace.nspname " +
@@ -44,14 +43,16 @@ app.on('start', function () {
             if (req.params.realm != config.pgConnect.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
                 throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
             }
-        }).then(function(){
-            app.locals.realm = req.params.realm;
+            return req.params.realm;
+        }).then(function(data){
+            var query = new Query(data);
+            req.thunkQuery = thunkify(query);
             next();
         }, function(err){
             next(err);
         });
-
     });
+
     // MEMCHACHE
     app.use(function(req,res,next){
         req.mcClient = mcClient;
@@ -93,29 +94,43 @@ app.on('start', function () {
         next();
     });
 
-    app.all('*', function (req, res, next) {
-        var acceptLanguage = require('accept-language');
-
-        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
-            query(Language.select().from(Language).where(Language.code.equals(config.defaultLang)), function (err, data) {
-                console.log(data);
-                req.lang = _.first(data);
-                next();
-            });
-        } else {
-            var languages = {};
-            query(Language.select().from(Language), function (err, data) {
-                for (var i in data) {
-                    languages[data[i].code] = data[i];
-                }
-                acceptLanguage.languages(Object.keys(languages));
-                var code = acceptLanguage.get(req.headers['accept-language']);
-                req.lang = languages[code];
-                next();
-            });
-        }
-
-    });
+    //app.all('*', function (req, res, next) {
+    //    var acceptLanguage = require('accept-language');
+    //    co(function*(){
+    //        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language).where(Language.code.equals(config.defaultLang))
+    //            );
+    //
+    //            console.log(data);
+    //            req.lang = _.first(data);
+    //
+    //        } else {
+    //            var languages = {};
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language)
+    //            );
+    //
+    //            if(!data.length){
+    //                throw new HttpError(400, 'You do not have any language record in DB, please provide some');
+    //            }
+    //
+    //            for (var i in data) {
+    //                languages[data[i].code] = data[i];
+    //            }
+    //
+    //            acceptLanguage.languages(Object.keys(languages));
+    //            var code = acceptLanguage.get(req.headers['accept-language']);
+    //            req.lang = languages[code];
+    //
+    //        }
+    //    }).then(function(){
+    //        next();
+    //    }, function(err){
+    //        next(err);
+    //    });
+    //
+    //});
 
 
 
