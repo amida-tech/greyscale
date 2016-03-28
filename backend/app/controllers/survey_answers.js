@@ -170,7 +170,7 @@ module.exports = {
                 req: req,
                 user: req.user.id,
                 action: 'delete',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Delete survey answer'
             });
@@ -250,7 +250,7 @@ module.exports = {
                 req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Update survey answer'
             });
@@ -686,7 +686,7 @@ function *addAnswer (req, dataObject) {
             req: req,
             user: req.user.id,
             action: 'update',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: existsNullVer[0].id,
             info: 'Update survey answer'
         });
@@ -701,7 +701,7 @@ function *addAnswer (req, dataObject) {
             req: req,
             user: req.user.id,
             action: 'insert',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: answer.id,
             info: 'Add new survey answer'
         });

@@ -88,7 +88,7 @@ module.exports = {
                         req: req,
                         user: req.user.id,
                         action: 'delete',
-                        object: 'survey question options',
+                        object: 'SurveyQuestionOptions',
                         entities: {questionId: questions[i].id},
                         quantity: 1,
                         info: 'Delete survey question options for question '+questions[i].id
@@ -101,7 +101,7 @@ module.exports = {
                         req: req,
                         user: req.user.id,
                         action: 'delete',
-                        object: 'survey questions',
+                        object: 'SurveyQuestions',
                         entity: questions[i].id,
                         info: 'Delete survey question'
                     });
@@ -233,7 +233,7 @@ module.exports = {
                 req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'survey questions',
+                object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Update survey question'
             });
@@ -255,7 +255,7 @@ module.exports = {
                 req: req,
                 user: req.user.id,
                 action: 'delete',
-                object: 'survey questions',
+                object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Delete survey question'
             });
@@ -281,7 +281,7 @@ function* addQuestion (req, dataObj) {
         req: req,
         user: req.user.id,
         action: 'insert',
-        object: 'survey questions',
+        object: 'SurveyQuestions',
         entity: result.id,
         info: 'Add new survey question'
     });
@@ -301,7 +301,7 @@ function* addQuestion (req, dataObj) {
             req: req,
             user: req.user.id,
             action: 'insert',
-            object: 'survey question options',
+            object: 'SurveyQuestionOptions',
             entities: result.options,
             quantity: (result.options) ? result.options.length : 0,
             info: 'Add new survey question options'
