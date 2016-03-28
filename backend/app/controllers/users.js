@@ -25,6 +25,7 @@ var client = require('app/db_bootstrap'),
     UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
     Notification = require('app/models/notifications'),
+    Essence = require('app/models/essences'),
     notifications = require('app/controllers/notifications');
 
 var Role = require('app/models/roles');
@@ -111,7 +112,6 @@ module.exports = {
                         .and(Token.realm.equals(req.params.realm))
                     )
             );
-
 
         }).then(function(){
             res.status(202).end();
@@ -218,7 +218,7 @@ module.exports = {
 
             userId = isExistUser ? isExistUser.id : _.first(userId).id;
 
-            var essenceId = yield * getEssenceId('Users');
+            var essenceId = yield * getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(
                 {
@@ -424,7 +424,7 @@ module.exports = {
                 newUserId = userId[0].id;
             }
 
-            var essenceId = yield * getEssenceId('Users');
+            var essenceId = yield * getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify
             var note = yield * notifications.createNotification(
                 {
@@ -782,7 +782,7 @@ module.exports = {
                     throw new HttpError(400, 'Cannot update user data');
                 } else {
 
-                    var essenceId = yield * getEssenceId('Users');
+                    var essenceId = yield * getEssenceId(req, 'Users');
                     var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
                     var note = yield * notifications.createNotification(
                         {
@@ -994,7 +994,7 @@ function* insertOne(req, res, next) {
     if (_.first(user)) {
         user = _.first(user);
 
-        var essenceId = yield * getEssenceId('Users');
+        var essenceId = yield * getEssenceId(req, 'Users');
         var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(
             {
@@ -1033,13 +1033,11 @@ function* insertOne(req, res, next) {
     return user;
 }
 
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
+function* getEssenceId(req, essenceName) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Essence.select().where(Essence.tableName.equals(essenceName))
+    );
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
     }

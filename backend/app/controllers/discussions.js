@@ -68,6 +68,7 @@ function* checkString(val, keyName) {
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var task = yield * common.getTask(req.query.taskId);
             var productId = task.productId;
@@ -110,6 +111,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
@@ -182,6 +184,7 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkUpdate(req);
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
@@ -242,6 +245,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Discussion.delete().where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
@@ -259,6 +263,7 @@ module.exports = {
     },
 
     getEntryScope: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield * getAvailableUsers(req);
         }).then(function (data) {
@@ -268,6 +273,7 @@ module.exports = {
         });
     },
     getEntryUpdate: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             /*
              Possible update ONLY discussion`s message (entry) if discussion`s entry does not have next message for current Question
@@ -281,6 +287,7 @@ module.exports = {
         });
     },
     getUsers: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var userList=[];
 
