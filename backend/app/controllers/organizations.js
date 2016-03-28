@@ -22,21 +22,28 @@ var _ = require('underscore'),
 
 module.exports = {
 
-    selectOne: function (req, res, next) {
-        var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+    selectOne: function (req, res, next) { //TODO superadmin request
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Organization.select().from(Organization).where(Organization.id.equals(req.params.id))
+            );
+            if(!data.length) {
+                throw new HttpError(404, 'Not found');
             }
-            if (_.first(data)) {
-                res.json(_.first(data));
-            } else {
-                next(new HttpError(404, 'Not found'));
-            }
+            return data;
+        }).then(function(data){
+            res.json(_.first(data));
+        }, function(err){
+            next(err);
         });
+
     },
 
     selectProducts: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(
                 Product
@@ -54,6 +61,7 @@ module.exports = {
     },
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
 
         co(function* () {
             return yield thunkQuery(
@@ -79,6 +87,8 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
@@ -104,6 +114,8 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var org = yield thunkQuery(
@@ -121,9 +133,7 @@ module.exports = {
                 info: 'Add organization'
             });
 
-            //yield thunkQuery("SELECT clone_schema('sceleton',"+ req.body.realm +", true)");
-            //
-            //app.locals.realm = req.body.realm;
+
 
             // TODO creates project in background, may be need to disable in future
             var project = yield thunkQuery(
@@ -155,6 +165,7 @@ module.exports = {
         // fields order
         // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
         // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
+        var thunkQuery = req.thunkQuery;
 
         var csv = require('csv');
         var fs = require('fs');
@@ -321,11 +332,9 @@ module.exports = {
 };
 
 function* checkOrgData(req){
-    if (!req.params.id){ //create
-        //if (!req.body.name || !req.body.realm) {
-        //    throw new HttpError(400, 'name and realm fields are required');
-        //}
+    var thunkQuery = req.thunkQuery;
 
+    if (!req.params.id){ //create
         if (!req.body.name) {
             throw new HttpError(400, 'name field is required');
         }

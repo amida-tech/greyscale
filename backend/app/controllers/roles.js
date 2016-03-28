@@ -15,14 +15,7 @@ var co = require('co'),
 module.exports = {
 
     select: function (req, res, next) {
-        //var q = Role.select().from(Role);
-        //console.log('query',query)
-        //query(q, function (err, data) {
-        //  if (err) {
-        //    return next(err);
-        //  }
-        //  res.json(data);
-        //});
+        var thunkQuery = req.thunkQuery;
 
         co(function* () {
             return yield thunkQuery(Role.select().from(Role), _.omit(req.query, 'offset', 'limit', 'order'));
@@ -34,48 +27,62 @@ module.exports = {
 
     },
     selectOne: function (req, res, next) {
-        query(Role.select().where(_.pick(req.params, ['id'])), function (err, role) {
-            if (!err) {
-                res.json(_.first(role));
-            } else {
-                next(err);
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Role.select().where(_.pick(req.params, ['id']))
+            );
+            if(!data.length){
+                throw new HttpError(404, 'Not found');
             }
+            return data;
+        }).then(function(role){
+            res.json(_.first(role));
+        }, function(err){
+            next(err);
         });
+
     },
     insertOne: function (req, res, next) {
-        query(Role.insert(req.body).returning(Role.id),
-            function (err, data) {
-                if (!err) {
-                    bologger.log({
-                        user: req.user.id,
-                        action: 'insert',
-                        object: 'roles',
-                        entity: _.first(data).id,
-                        info: 'Add new role'
-                    });
-                    res.status(201).json(_.first(data));
-                } else {
-                    next(err);
-                }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Role.insert(req.body).returning(Role.id)
+            );
+        }).then(function(data){
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'roles',
+                entity: _.first(data).id,
+                info: 'Add new role'
             });
+            res.status(201).json(_.first(data));
+        }, function(err){
+
+        });
+
     },
     updateOne: function (req, res, next) {
-        query(
-            Role.update(req.body).where(Role.id.equals(req.params.id)),
-            function (err, data) {
-                if (!err) {
-                    bologger.log({
-                        user: req.user.id,
-                        action: 'update',
-                        object: 'roles',
-                        entity: req.params.id,
-                        info: 'Update role'
-                    });
-                    res.status(202).end();
-                } else {
-                    next(err);
-                }
-            }
-        );
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Role.update(req.body).where(Role.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'roles',
+                entity: req.params.id,
+                info: 'Update role'
+            });
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
     }
 };

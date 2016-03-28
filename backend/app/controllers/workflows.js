@@ -18,6 +18,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Workflow.select().from(Workflow), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
@@ -25,22 +26,27 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-
     },
 
     selectOne: function (req, res, next) {
-        query(Workflow.select().where(Workflow.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function* (){
+            var data = yield thunkQuery(
+                Workflow.select().where(Workflow.id.equals(req.params.id))
+            );
             if (!_.first(data)) {
-                return next(new HttpError(404, 'Not found'));
+                 throw new HttpError(404, 'Not found');
             }
+        }).then(function(data){
             res.status(200).json(_.first(data));
+        }, function(err){
+            next(err);
         });
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkData(req);
             var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
@@ -60,10 +66,13 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
-        query(Workflow.delete().where(Workflow.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Workflow.delete().where(Workflow.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
                 user: req.user.id,
                 action: 'delete',
@@ -72,10 +81,14 @@ module.exports = {
                 info: 'Delete workflow'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkData(req);
             var result = yield thunkQuery(Workflow.insert(req.body).returning(Workflow.id));
@@ -95,6 +108,7 @@ module.exports = {
     },
 
     steps: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var q = WorkflowStep
                 .select(
@@ -119,6 +133,7 @@ module.exports = {
     },
 
     stepsUpdate: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
@@ -229,7 +244,7 @@ module.exports = {
                 });
             }
 
-            // var result = yield * setCurrentStepToNull(productId); - not required, as User could require to adjust certain Step's permissions for running Project
+            // var result = yield * setCurrentStepToNull(req, productId); - not required, as User could require to adjust certain Step's permissions for running Project
 
             return {
                 deleted: deleteIds,
@@ -251,6 +266,7 @@ module.exports = {
 };
 
 function* checkData(req) {
+    var thunkQuery = req.thunkQuery;
     var product = yield thunkQuery(Product.select().where(Product.id.equals(req.body.productId)));
     if (!_.first(product)) {
         throw new HttpError(403, 'Product with id = ' + req.body.productId + ' does not exist');
@@ -278,13 +294,14 @@ function* checkData(req) {
 
 }
 
-function* setCurrentStepToNull(productId) {
-
+function* setCurrentStepToNull(req, productId) {
+    var thunkQuery = req.thunkQuery;
     // update all currentStepId to NULL for specified productId (for every UOA)
-    var updateProductUOAQuery =
-        'UPDATE "ProductUOA" '+
-        'SET "currentStepId" = NULL '+
-        'WHERE "productId"= '+productId;
-    result = yield thunkQuery(updateProductUOAQuery);
+
+    result = yield thunkQuery(
+        ProductUOA
+            .update({currentStepId: null})
+            .where(ProductUOA.productId.equals(productId))
+    );
 
 }

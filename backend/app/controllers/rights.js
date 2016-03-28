@@ -15,6 +15,7 @@ var _ = require('underscore'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(Right.select(Right.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
             var right = thunkQuery(Right.select(), req.query);
@@ -29,6 +30,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (!req.body.action) {
                 throw new HttpError(403, 'Action field is required');
@@ -50,6 +52,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params)));
             if (!_.first(right)) {
@@ -65,41 +68,46 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
-        query(
-            Right.update(req.body).where(Right.id.equals(req.params.id)),
-            function (err, data) {
-                if (!err) {
-                    bologger.log({
-                        user: req.user.id,
-                        action: 'update',
-                        object: 'rights',
-                        entity: req.params.id,
-                        info: 'Update right'
-                    });
-                    res.status(202).end();
-                } else {
-                    next(err);
-                }
-            }
-        );
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+           return yield thunkQuery(
+               Right.update(req.body).where(Right.id.equals(req.params.id))
+           );
+        }).then(function(data){
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'rights',
+                entity: req.params.id,
+                info: 'Update right'
+            });
+            res.status(202).end();
+        }, function(err){
+            next(err);
+        });
+
     },
 
     deleteOne: function (req, res, next) {
-        query(
-            Right.delete().where(Right.id.equals(req.params.id)),
-            function (err) {
-                if (!err) {
-                    bologger.log({
-                        user: req.user.id,
-                        action: 'delete',
-                        object: 'rights',
-                        entity: req.params.id,
-                        info: 'Delete right'
-                    });
-                    res.status(204).end();
-                } else {
-                    next(err);
-                }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            yield thunkQuery(
+                Right.delete().where(Right.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'rights',
+                entity: req.params.id,
+                info: 'Delete right'
             });
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
+
     }
 };

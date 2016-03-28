@@ -675,7 +675,7 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function(){
+        co(function* (){
             return yield thunkQuery(
                 User.delete().where(User.id.equals(req.params.id))
             );

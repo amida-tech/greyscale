@@ -23,6 +23,8 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(Project.select().from(Project), req.query);
         }).then(function (data) {
@@ -33,6 +35,8 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             var project = yield thunkQuery(Project.select().from(Project).where(Project.id.equals(req.params.id)));
             if (!_.first(project)) {
@@ -48,11 +52,13 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = Project.delete().where(Project.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return data = yield thunkQuery(
+                Project.delete().where(Project.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
                 user: req.user.id,
                 action: 'delete',
@@ -61,10 +67,13 @@ module.exports = {
                 info: 'Delete project'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
             var updateObj = _.pick(req.body, ['title', 'description', 'startTime', 'closeTime', 'status', 'codeName']);
@@ -92,6 +101,7 @@ module.exports = {
     },
 
     productList: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Product
@@ -114,6 +124,7 @@ module.exports = {
     },
 
     surveyList: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var data = yield thunkQuery(
                 Survey
@@ -138,6 +149,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkProjectData(req);
             // patch for status
@@ -167,6 +179,7 @@ module.exports = {
 };
 
 function* checkProjectData(req) {
+    var thunkQuery = req.thunkQuery;
     var orgId = req.user.organizationId;
 
     if(req.user.roleID == 1){

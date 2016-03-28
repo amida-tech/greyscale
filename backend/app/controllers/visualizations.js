@@ -11,6 +11,7 @@ var _ = require('underscore'),
 
 module.exports = {
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Visualization.select().where(
                 Visualization.organizationId.equals(req.params.organizationId)
@@ -23,6 +24,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -48,6 +50,7 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -78,6 +81,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.delete().where(
@@ -104,6 +108,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.select().where(

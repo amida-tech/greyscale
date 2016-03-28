@@ -14,21 +14,8 @@ var _ = require('underscore'),
 
 module.exports = {
 
-    //select: function (req, res, next) {
-    //    co(function* () {
-    //        var _counter = thunkQuery(Right.select(Right.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-    //        var right = thunkQuery(Right.select(), req.query);
-    //
-    //        return yield [_counter, right];
-    //    }).then(function (data) {
-    //        res.set('X-Total-Count', _.first(data[0]).counter);
-    //        res.json(_.last(data));
-    //    }, function (err) {
-    //        next(err);
-    //    });
-    //},
-
     selectByOrg: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot view groups from other organizations');
@@ -45,6 +32,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot post groups to other organizations');
@@ -72,6 +60,7 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.body.organizationId)) {
                 throw new HttpError(400, 'You cannot update groups from other organizations');
@@ -98,6 +87,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Group.delete().where(Group.id.equals(req.params.id))
@@ -118,6 +108,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Group.select().where(Group.id.equals(req.params.id))

@@ -17,6 +17,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
         }).then(function (data) {
@@ -27,6 +28,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var data = yield thunkQuery(
                 Survey
@@ -66,6 +68,7 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var products = yield thunkQuery(
                 Product.select().where(Product.surveyId.equals(req.params.id))
@@ -111,6 +114,7 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
             var updateObj = _.pick(req.body, Survey.editCols);
@@ -137,6 +141,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
 
@@ -171,6 +176,7 @@ module.exports = {
     },
 
     questions: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
             if (!_.first(survey)) {
@@ -199,6 +205,7 @@ module.exports = {
     },
 
     questionAdd: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield* addQuestion(req, req.body);
         }).then(function (data) {
@@ -209,6 +216,7 @@ module.exports = {
     },
 
     questionEdit: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkQuestionData(req, req.body, false);
             return yield thunkQuery(
@@ -231,10 +239,13 @@ module.exports = {
     },
 
     questionDelete: function (req, res, next) {
-        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
                 user: req.user.id,
                 action: 'delete',
@@ -243,13 +254,16 @@ module.exports = {
                 info: 'Delete survey question'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     }
 
 };
 
 function* addQuestion (req, dataObj) {
-
+    var thunkQuery = req.thunkQuery;
     yield * checkQuestionData(req, dataObj, true);
     var result = yield thunkQuery(
         SurveyQuestion
@@ -290,6 +304,7 @@ function* addQuestion (req, dataObj) {
 }
 
 function* checkSurveyData(req) {
+    var thunkQuery = req.thunkQuery;
     // if user is superadmin (roleId=1) get projectId from body and check it
     // else get projectId from req.user.projectId
 
@@ -310,6 +325,7 @@ function* checkSurveyData(req) {
 }
 
 function* checkQuestionData(req, dataObj, isCreate) {
+    var thunkQuery = req.thunkQuery;
     if (isCreate) {
         if (
             typeof dataObj.label === 'undefined' ||
