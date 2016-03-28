@@ -277,8 +277,8 @@ module.exports = {
                                     //}else{
                                         newUser.message = 'Added';
                                     //}
-                                    var essenceId = yield * common.getEssenceId('Users');
-                                    var note = yield * notifications.createNotification(
+                                    var essenceId = yield * common.getEssenceId(req, 'Users');
+                                    var note = yield * notifications.createNotification(req,
                                         {
                                             userFrom: req.user.id,
                                             userTo: newUser.id,
