@@ -53,6 +53,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'workflows',
@@ -74,6 +75,7 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'workflows',
@@ -95,6 +97,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'workflows',
@@ -167,6 +170,7 @@ module.exports = {
                             .where(WorkflowStep.id.equals(req.body[i].id))
                         );
                         bologger.log({
+                            req: req,
                             user: req.user.id,
                             action: 'update',
                             object: 'workflowsteps',
@@ -177,6 +181,7 @@ module.exports = {
                             WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
                         );
                         bologger.log({
+                            req: req,
                             user: req.user.id,
                             action: 'update',
                             object: 'workflowstepgroups',
@@ -191,6 +196,7 @@ module.exports = {
                     req.body[i].id = insertId[0].id;
                     //insertArr.push(insertObj);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'workflowsteps',
@@ -211,6 +217,7 @@ module.exports = {
                 if (insertGroupObjs.length) {
                     yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'workflowstepgroups',
@@ -226,6 +233,7 @@ module.exports = {
             for (var i in deleteIds) {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'delete',
                     object: 'workflowstepgroups',
@@ -235,6 +243,7 @@ module.exports = {
                 });
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'delete',
                     object: 'workflowsteps',

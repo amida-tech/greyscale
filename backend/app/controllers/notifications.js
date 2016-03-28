@@ -431,6 +431,7 @@ module.exports = {
             return yield thunkQuery(Notification.update(req.body).where(Notification.id.equals(req.params.notificationId)));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'notifications',
@@ -454,6 +455,7 @@ module.exports = {
             return yield thunkQuery(selectQuery);
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'notifications',
@@ -488,6 +490,7 @@ module.exports = {
         }).then(function (data) {
             if (data) {
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'delete',
                     object: 'notifications',
@@ -508,6 +511,7 @@ module.exports = {
             return yield * createNotification(req, req.body);
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'notifications',
@@ -542,6 +546,7 @@ module.exports = {
             return yield * resendNotification(req, req.params.notificationId);
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'notifications',
@@ -581,6 +586,7 @@ module.exports = {
                     'orgInvite'
                 );
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'insert',
                     object: 'notifications',
@@ -599,6 +605,7 @@ module.exports = {
         }).then(function (data) {
             if (resend) {
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'update',
                     object: 'notifications',

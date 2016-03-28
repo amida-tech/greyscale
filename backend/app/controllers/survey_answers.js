@@ -167,9 +167,10 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Delete survey answer'
             });
@@ -246,9 +247,10 @@ module.exports = {
 
         }).then(function (data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Update survey answer'
             });
@@ -325,6 +327,7 @@ module.exports = {
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'answerattachments',
@@ -426,6 +429,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'answerattachments',
@@ -493,6 +497,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                     AnswerAttachment.insert(record).returning(AnswerAttachment.id)
                 );
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'insert',
                     object: 'answerattachments',
@@ -678,9 +683,10 @@ function *addAnswer (req, dataObject) {
                 .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'update',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: existsNullVer[0].id,
             info: 'Update survey answer'
         });
@@ -692,9 +698,10 @@ function *addAnswer (req, dataObject) {
         );
         answer = answer[0];
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'insert',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: answer.id,
             info: 'Add new survey answer'
         });
@@ -777,6 +784,7 @@ function *moveWorkflow (req, productId, UOAid) {
                 .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'update',
             object: 'ProductUOA',
@@ -796,6 +804,7 @@ function *moveWorkflow (req, productId, UOAid) {
                 .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'update',
             object: 'ProductUOA',
@@ -822,6 +831,7 @@ function *moveWorkflow (req, productId, UOAid) {
                 Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'Product',

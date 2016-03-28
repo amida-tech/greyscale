@@ -163,6 +163,7 @@ module.exports = {
                         updateObj.id = req.body[i].id;
                         res.updated.push(req.body[i].id);
                         bologger.log({
+                            req: req,
                             user: req.user.id,
                             action: 'update',
                             object: 'tasks',
@@ -177,6 +178,7 @@ module.exports = {
                     req.body[i].id = _.first(id).id;
                     res.inserted.push(req.body[i].id);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'tasks',
@@ -320,6 +322,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'update',
                         object: 'indexes',
@@ -332,6 +335,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'IndexQuestionWeights',
@@ -347,6 +351,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'IndexSubindexWeights',
@@ -370,6 +375,7 @@ module.exports = {
                     indexId = _.first(id).id;
                     res.inserted.push(indexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'Indexes',
@@ -388,6 +394,7 @@ module.exports = {
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'IndexQuestionWeights',
@@ -410,6 +417,7 @@ module.exports = {
                     };
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'IndexSubindexWeights',
@@ -484,6 +492,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'update',
                         object: 'Subindexes',
@@ -499,6 +508,7 @@ module.exports = {
                     subindexId = req.body[i].id;
                     res.updated.push(subindexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'SubindexWeights',
@@ -519,6 +529,7 @@ module.exports = {
                     subindexId = _.first(id).id;
                     res.inserted.push(subindexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'Subindexes',
@@ -538,6 +549,7 @@ module.exports = {
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'SubindexWeights',
@@ -656,6 +668,7 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'products',
@@ -679,6 +692,7 @@ module.exports = {
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'products',
@@ -702,6 +716,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'products',
@@ -746,6 +761,7 @@ module.exports = {
             );
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'ProductUOA',
@@ -802,6 +818,7 @@ module.exports = {
             return yield thunkQuery(ProductUOA.insert(insertArr).returning('*'));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'ProductUOA',
@@ -829,6 +846,7 @@ module.exports = {
             );
         }).then(function(){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'ProductUOA',

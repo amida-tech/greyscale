@@ -19,8 +19,8 @@ function BoLogger() {
     this.data = {};
 }
 
-BoLogger.prototype.init = function* (object) {
-    this.data.essence = yield common.getEssenceId(null, object); // ToDo: fix after bologger refactoring
+BoLogger.prototype.init = function* (object, req) {
+    this.data.essence = yield common.getEssenceId(req, object);
 };
 
 BoLogger.prototype.extend = function (data) {
@@ -40,13 +40,13 @@ BoLogger.prototype.log = function (data) {
     co.call(this, function* () {
         //data.essence = yield * common.getEssenceId(data.object);
         if (data.object) {
-            yield this.init(data.object);
+            yield this.init(data.object, data.req);
         }
         if (typeof data.entities === 'object') {
             data.entities = JSON.stringify(data.entities);
         }
+        var thunkQuery = (data.req) ?  data.req.thunkQuery : thunkQuery;
         this.extend(data);
-        // ToDo: before refactoring log to public
         var id = yield thunkQuery(Log.insert(this.data).returning(Log.id));
         return data;
     }).then(function (data) {

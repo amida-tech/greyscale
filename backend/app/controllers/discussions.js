@@ -121,6 +121,7 @@ module.exports = {
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'discussions',
@@ -192,6 +193,7 @@ module.exports = {
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'discussions',
@@ -251,6 +253,7 @@ module.exports = {
             return yield thunkQuery(Discussion.delete().where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'discussions',
@@ -682,6 +685,7 @@ function* updateProductUOAStep(req, object) {
     );
     if (_.first(res)) {
         bologger.log({
+            req: req,
             action: 'update',
             object: 'productUOA',
             entity: null,
@@ -691,6 +695,7 @@ function* updateProductUOAStep(req, object) {
         });
     } else {
         bologger.error({
+            req: req,
             action: 'update',
             object: 'productUOA',
             entity: null,
@@ -724,6 +729,7 @@ function* checkUpdateProductUOAStep(req, object) {
         );
         if (_.first(res)) {
             bologger.log({
+                req: req,
                 action: 'update',
                 object: 'productUOA',
                 entity: null,
@@ -733,6 +739,7 @@ function* checkUpdateProductUOAStep(req, object) {
             });
         } else {
             bologger.error({
+                req: req,
                 action: 'update',
                 object: 'productUOA',
                 entity: null,
@@ -750,12 +757,14 @@ function* updateReturnTask(req, discussionId) {
     );
     if (_.first(res)) {
         bologger.log({
+            req: req,
             action: 'update',
             entity: discussionId,
             info: 'Update task, that was returned before (resolve task)'
         });
     } else {
         bologger.error({
+            req: req,
             action: 'update',
             entity: discussionId,
             info: 'Update task, that was returned before (resolve task)'

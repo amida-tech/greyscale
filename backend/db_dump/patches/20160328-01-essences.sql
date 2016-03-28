@@ -38,11 +38,11 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 upsert as
 ( 
     update "Essences" m 
-        set "tableName" = nv."tableName",
+        set "name" = nv."name",
             "fileName" = nv."fileName",
             "nameField" = nv."nameField"
     FROM new_values nv
-    WHERE upper(m."name") = upper(nv."name")
+    WHERE upper(m."tableName") = upper(nv."tableName")
     RETURNING m.*
 )
 -- select * from upsert
@@ -51,4 +51,4 @@ SELECT "tableName","name","fileName","nameField"
 FROM new_values
 WHERE NOT EXISTS (SELECT 1 
                   FROM upsert up 
-                  WHERE upper(up."name") = upper(new_values."name"))
+                  WHERE upper(up."tableName") = upper(new_values."tableName"))
