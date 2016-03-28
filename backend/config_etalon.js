@@ -11,7 +11,8 @@ var environments = {
       password: 'password',
       database: 'database',
       host: 'host',
-      port: 5432
+      port: 5432,
+      adminSchema: 'public'
     },
     mc: { // memcache
       host: 'localhost',

@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
     AnswerAttachment = require('app/models/answer_attachments'),
@@ -159,6 +161,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'survey answers',
+                entity: req.params.id,
+                info: 'Delete survey answer'
+            });
             res.status(204).end();
         });
     },
@@ -228,6 +237,13 @@ module.exports = {
             );
 
         }).then(function (data){
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'survey answers',
+                entity: req.params.id,
+                info: 'Update survey answer'
+            });
             res.status(202).end('updated');
         }, function (err) {
             next(err);
@@ -297,6 +313,13 @@ module.exports = {
             }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'answerattachments',
+                entity: req.params.id,
+                info: 'Delete answerattachment'
+            });
             res.status(204).end();
         }, function(err){
             next(err);
@@ -309,7 +332,7 @@ module.exports = {
                 var id = yield mc.get(req.mcClient, req.params.ticket);
             }catch(e){
                 throw new HttpError(500, e);
-            };
+            }
 
             if(!id){
                 throw new HttpError(400, 'Token is not valid');
@@ -333,7 +356,7 @@ module.exports = {
     },
     getTicket: function (req, res, next) {
         co(function* (){
-            
+
             var attachment = yield thunkQuery(
                 AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
             );
@@ -345,11 +368,11 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
+var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
-            };
+            }
 
         }).then(function(data){
             res.status(201).json({tiсket:data});
@@ -388,6 +411,13 @@ module.exports = {
             );
 
         }).then(function(data){
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'answerattachments',
+                entity: data[0].id,
+                info: 'Update (link) answer attachment'
+            });
             res.status(202).json(data);
         }, function(err){
             next(err);
@@ -405,7 +435,7 @@ module.exports = {
                     throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
                 }
             }
-            
+
             if (req.files.file) {
                 var file = req.files.file;
 
@@ -438,7 +468,7 @@ module.exports = {
                     mimetype: file.mimetype,
                     body: filecontent,
                     owner: req.user.id
-                }
+                };
 
                 if (req.body.answerId) {
                     record.answerId = req.body.answerId;
@@ -447,6 +477,13 @@ module.exports = {
                 var inserted = yield thunkQuery(
                     AnswerAttachment.insert(record).returning(AnswerAttachment.id)
                 );
+                bologger.log({
+                    user: req.user.id,
+                    action: 'insert',
+                    object: 'answerattachments',
+                    entity: inserted[0].id,
+                    info: 'Insert answer attachment'
+                });
 
                 return inserted[0];
 
@@ -625,6 +662,13 @@ function *addAnswer (req, dataObject) {
                 .update(_.pick(dataObject, editFields))
                 .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
+        bologger.log({
+            user: req.user.id,
+            action: 'update',
+            object: 'survey answers',
+            entity: existsNullVer[0].id,
+            info: 'Update survey answer'
+        });
     } else {
         var answer = yield thunkQuery(
             SurveyAnswer
@@ -632,6 +676,13 @@ function *addAnswer (req, dataObject) {
                 .returning(SurveyAnswer.id)
         );
         answer = answer[0];
+        bologger.log({
+            user: req.user.id,
+            action: 'insert',
+            object: 'survey answers',
+            entity: answer.id,
+            info: 'Add new survey answer'
+        });
     }
 
     return answer;
@@ -728,6 +779,18 @@ function *moveWorkflow (req, productId, UOAid) {
                     .update({currentStepId: nextStep[0].id})
                     .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
             );
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'ProductUOA',
+                entities: {
+                    productId: curStep.task.productId,
+                    uoaId: curStep.task.uoaId,
+                    currentStepId: nextStep[0].id
+                },
+                quantity: 1,
+                info: 'Update currentStep to `'+nextStep[0].id+'` for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+            });
         }else{
             // set productUOA status to complete
             yield thunkQuery(
@@ -735,6 +798,18 @@ function *moveWorkflow (req, productId, UOAid) {
                     .update({isComplete: true})
                     .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
             );
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'ProductUOA',
+                entities: {
+                    productId: curStep.task.productId,
+                    uoaId: curStep.task.uoaId,
+                    isComplete: true
+                },
+                quantity: 1,
+                info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+            });
             var uncompleted = yield thunkQuery( // check for uncompleted
                 ProductUOA
                     .select()
@@ -749,6 +824,13 @@ function *moveWorkflow (req, productId, UOAid) {
                 yield thunkQuery(
                     Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
                 );
+                bologger.log({
+                    user: req.user.id,
+                    action: 'update',
+                    object: 'Product',
+                    entity: curStep.task.productId,
+                    info: 'Set product status to complete'
+                });
             }
         }
         console.log(nextStep);

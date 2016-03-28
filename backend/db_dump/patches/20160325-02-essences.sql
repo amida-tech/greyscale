@@ -4,10 +4,13 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('SurveyQuestions', 'Survey Questions', 'survey_questions', 'label'),
 ('SurveyQuestionOptions', 'Survey Question Options', 'survey_question_options', 'label'),
 ('SurveyAnswers', 'Survey Answers', 'survey_answers', 'value'),
+('AnswerAttachments', 'AnswerAttachments', 'answer_attachments', 'filename'),
 ('Groups', 'Groups', 'groups', 'title'),
 ('Organizations', 'Organizations', 'organizations', 'name'),
 ('Tasks', 'Tasks', 'tasks', 'title'),
-('WorflowSteps', 'WorflowSteps', 'worflowSteps', 'title'),
+('Workflows', 'Workflows', 'workflows', 'name'),
+('WorfklowSteps', 'WorkflowSteps', 'workflow_steps', 'title'),
+('WorfklowStepGroups', 'WorkflowStepGroups', 'workflow_step_groups', 'stepId'),
 ('Products', 'Products', 'products', 'title'),
 ('UnitOfAnalysis', 'UnitOfAnalysis', 'uoas', 'name'),
 ('UnitOfAnalysisType', 'UnitOfAnalysisType', 'uoatypes', 'name'),
@@ -27,7 +30,10 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('Translations', 'Translations', 'translations', 'field'),
 ('Roles', 'Roles', 'roles', 'name'),
 ('Rights', 'Rights', 'rights', 'action'),
-('RoleRights', 'RoleRights', 'role_rights', 'roleId')
+('RoleRights', 'RoleRights', 'role_rights', 'roleId'),
+('Visualizations', 'Visualizations', 'visualizations', 'title'),
+('AccessMatrices', 'AccessMatrices', 'access_matrices', 'name'),
+('AccessPermissions', 'AccessPermissions', 'access_permissions', 'id')
 ),
 upsert as
 ( 

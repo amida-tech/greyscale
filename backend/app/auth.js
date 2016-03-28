@@ -51,36 +51,27 @@ passport.use(new BasicStrategy({
             // at first change schema to public, after check turn it back
             var admin = yield *checkIsAdmin(email);
 
-            var schemas = yield thunkQuery(
-                "SELECT pg_catalog.pg_namespace.nspname " +
-                "FROM pg_catalog.pg_namespace " +
-                "INNER JOIN pg_catalog.pg_user " +
-                "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                "AND (pg_catalog.pg_user.usename = 'indaba')"
-            );
-
-            console.log(schemas);
-
             if (admin) {
+                //if (app.locals.realm == 'public') {
+                //    throw new HttpError(300, req.schemas);
+                //}
                 yield * checkUser(admin, password);
                 return admin;
             } else {
                 if (app.locals.realm == 'public') {
-                    var orgs = yield thunkQuery(
-                        Organization.select().where(Organization.realm.isNotNull())
-                    );
 
-                    if (!orgs[0]){
-                        throw new HttpError(403, 'Cannot find available namespaces');
-                    }
+                    var userArr = [];
 
-                    for (var i in orgs) { // TODO STORE salt for each client somewhere ???
-                        var user = yield * findUserInNamespace(orgs[i].realm, email);
+                    for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
+                        var user = yield * findUserInNamespace(req.schemas[i], email);
+                        console.log(user);
                         if (user[0]) {
                             userInNamespace.push({
-                                realm: orgs[i].realm,
+                                realm: req.schemas[i],
                                 orgName: user[0].orgName
                             });
+                            user[0].realm = req.schemas[i];
+                            userArr.push(user[0]);
                         }
                     }
 
@@ -89,24 +80,26 @@ passport.use(new BasicStrategy({
                     }
 
                     if (userInNamespace.length == 1) {
-                        user = user[0];
+                        user = userArr[0];
                         yield * checkUser(user, password);
+                        // set namespace to user namespace and go to users.token
+                        app.locals.realm = user.realm;
                         return user;
                     }
 
                     throw new HttpError(300, userInNamespace);
 
-                } else {
+                } else { // situation after found user in several schemas and set one of them
                     var user = yield * findUserInNamespace(app.locals.realm, email);
-
                     if (!user.length) {
                         throw new HttpError(401, 101);
                     }
 
+                    yield * checkUser(user[0], password);
+                    // allready in right namespace
                     return user[0];
                 }
             }
-            console.log(admin);
 
 
         }).then(function(user){
@@ -184,14 +177,16 @@ passport.use(new TokenStrategy({
 
         co(function* (){
 
-            // we are looking for admin tokens only in public schema
-            var data = yield* findTokenInNamespace('public', tokenBody);
-
-            if (!data) { // if not admin, looking for simple users
-                var data = yield* findTokenInNamespace(app.locals.realm, tokenBody);
+            // we are looking for all tokens only in public schema
+            try{
+                var user = yield* findToken(tokenBody);
+            }catch(err){
+                throw new HttpError(500, 'Database error '+err);
             }
 
-            if (!data.length) {
+            console.log(user);
+
+            if (!user) {
                 req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
                 return false;
             }
@@ -204,10 +199,10 @@ passport.use(new TokenStrategy({
                         lastActive: new Date()
                     }
                 )
-                .where(User.id.equals(data[0].id))
+                .where(User.id.equals(user.id))
             )
 
-            return _.pick(data[0], User.sesInfo);
+            return _.pick(user, User.sesInfo);
 
         }).then(function(result) {
             done(null, result);
@@ -215,29 +210,47 @@ passport.use(new TokenStrategy({
             done(err);
         });
 
-        function * findTokenInNamespace(realm, tokenBody){
-            var currentNamespace = app.locals.realm;
-            app.locals.realm = realm;
-            data =  yield thunkQuery(
+        function * findToken(tokenBody){
+            var realm = app.locals.realm;
+
+            app.locals.realm = config.pgConnect.adminSchema; // set schema to admin schema
+
+            var existToken = yield thunkQuery(
                 Token
+                    .select()
+                    .where(
+                        Token.body.equals(tokenBody)
+                            .and(Token.realm.equals(realm))
+                    )
+            );
+
+            if(!existToken[0]) {
+                return false;
+            }
+
+            app.locals.realm = realm; // turn back schema
+
+            var data =  yield thunkQuery(
+                User
                     .select(
-                        Token.star(),
+                        //Token.star(),
                         User.star(),
                         Role.name.as('role'),
                         requestRights,
                         Project.id.as('projectId')
                     )
                     .from(
-                        Token
-                            .leftJoin(User).on(User.id.equals(Token.userID))
+                        User
+                            //.leftJoin(User).on(User.id.equals(Token.userID))
                             .leftJoin(Role).on(User.roleID.equals(Role.id))
                             .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
                             .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
                     )
-                    .where(Token.body.equals(tokenBody))
+                    .where(
+                        User.id.equals(existToken[0].userID)
+                    )
             );
-            app.locals.realm = currentNamespace;
-            return data[0] ? data[0] : false;
+            return (data[0] ? data[0] : false);
 
         }
 
