@@ -58,7 +58,9 @@ var getUser = function* (req, userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) {
-    var thunkQuery = req.thunkQuery;
+    if (req) { // ToDo: Remove after bologer refactoring
+        var thunkQuery = req.thunkQuery;
+    }
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.name).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
