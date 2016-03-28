@@ -3,29 +3,71 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('translation', function ($compile, greyscaleModalsSrv, $log) {
+    .directive('translation', function ($compile, greyscaleModalsSrv, greyscaleUtilsSrv) {
         return {
-            scope: {
-                translation: '=?'
-            },
             restrict: 'A',
+            controller: function ($scope) {
+                $scope.toggleTranslation = function () {
+                    var
+                        _field = $scope.field,
+                        _answer = _field.answer,
+                        _resp = $scope.resp,
+                        _index = $scope.$index,
+                        _translation = {
+                            essenceId: _field.essenceId
+                        },
+                        _data = {};
+
+                    if (_resp) {
+                        _data = {
+                            entityId: _resp.id,
+                            langId: _resp.langId,
+                            type: 'paragraph',
+                            field: 'comments',
+                            value: _resp.comments
+                        };
+                    } else {
+                        _data = {
+                            entityId: _field.answerId,
+                            langId: _field.langId,
+                            type: _field.type,
+                            field: 'value',
+                            value: _answer
+                        };
+
+                        switch (_field.type) {
+
+                        case 'bullet_points':
+                            _data.index = _index;
+                            break;
+
+                        case 'radio':
+                        case 'checkboxes':
+                            _data.value = _answer.value;
+                            break;
+                        }
+                    }
+
+                    angular.extend(_translation, _data);
+
+                    if (_translation.value) {
+                        greyscaleModalsSrv.editTranslations(_translation)
+                            .catch(greyscaleUtilsSrv.errorMsg);
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('TRANSLATION.NOTHING_TO_TRANSLATE');
+                    }
+                };
+            },
             link: function (scope, elem) {
-                var wrapper = angular.element('<div class="translation"/></div>');
+                var wrapper = angular.element('<div class="translation clearfix"/></div>');
 
                 elem.after(wrapper);
                 wrapper.prepend(elem);
 
-                var anIcon = angular.element('<i class="fa fa-language text-info" ng-click="toggleTranslation()"></i>');
+                var anIcon = angular.element('<i class="fa fa-language translation-icon action action-primary" ng-click="toggleTranslation()"></i>');
 
                 $compile(anIcon)(scope);
                 wrapper.append(anIcon);
-
-                scope.toggleTranslation = function () {
-                    greyscaleModalsSrv.editTranslations(scope.translation)
-                        .then(function (result) {
-                            $log.debug(result);
-                        });
-                };
 
                 scope.$on('$destroy', function () {
                     wrapper.after(elem);

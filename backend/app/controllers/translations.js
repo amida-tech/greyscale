@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Translations = require('app/models/translations'),
     Essence = require('app/models/essences'),
     Language = require('app/models/languages'),
@@ -63,6 +65,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'translations',
+                entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
+                info: 'Update translation'
+            });
             res.status(202).end();
         });
     },
@@ -80,6 +89,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'translations',
+                entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
+                info: 'Delete translation'
+            });
             res.status(204).end();
         });
     },
@@ -94,7 +110,7 @@ module.exports = {
                 'essenceId': req.body.essenceId,
                 'entityId': req.body.entityId,
                 'field': req.body.field,
-                'langId': req.body.langId,
+                'langId': req.body.langId
             };
             var item = yield thunkQuery(Translations.select().from(Translations).where(condition));
             if (_.first(item)) {
@@ -132,6 +148,19 @@ module.exports = {
             yield thunkQuery(Translations.insert(req.body));
 
         }).then(function () {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'translations',
+                entities: {
+                    'essenceId': req.body.essenceId,
+                    'entityId': req.body.entityId,
+                    'field': req.body.field,
+                    'langId': req.body.langId,
+                    'value' : req.body.value
+                },
+                info: 'Add new translation'
+            });
             res.status(201).end();
         }, function (err) {
             next(err);

@@ -8,7 +8,8 @@ angular.module('greyscaleApp')
         return {
             restrict: 'AE',
             scope: {
-                field: '=surveyFormField'
+                field: '=surveyFormField',
+                isDisabled: '=fieldDisabled'
             },
             template: '',
             link: function (scope, elem) {
@@ -38,12 +39,18 @@ angular.module('greyscaleApp')
 
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly" ';
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
                         var links = '';
                         var attach = '';
+                        var flags = scope.field.flags;
+                        var translation = '';
+
+                        if (flags.allowTranslate) {
+                            translation = ' translation';
+                        }
 
                         switch (scope.field.type) {
                         case 'paragraph':
@@ -54,7 +61,7 @@ angular.module('greyscaleApp')
                                 body = '<textarea ';
                             }
 
-                            body += commonPart + ' gs-length="field">';
+                            body += commonPart + translation + ' gs-length="field">';
 
                             if (scope.field.type === 'paragraph') {
                                 body += '</textarea>';
@@ -109,17 +116,18 @@ angular.module('greyscaleApp')
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
 
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="checkbox">' +
-                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly">{{}}</div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    translation + '></div>';
                             }
                             body += '</div>';
                             break;
@@ -128,16 +136,17 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly || isDisabled"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly" ' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"></div>';
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    translation + '></div>';
                             }
                             body += '</div>';
                             break;
@@ -145,7 +154,7 @@ angular.module('greyscaleApp')
                         case 'dropdown':
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<select ' + commonPart + 'ng-options="opt as opt.label for opt in field.options"' +
-                                    ' gs-valid="field" ng-readonly="field.flags.readonly">';
+                                    ' gs-valid="field" ng-readonly="field.flags.readonly || isDisabled">';
                                 if (scope.field.required) {
                                     body += '<option disabled="disabled" class="hidden" selected value="" translate="SURVEYS.SELECT_ONE"></option>';
                                 }
@@ -186,41 +195,39 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
-                            attach = '<attachments model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
+                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
+
                         body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
+
+                        if (flags.seeOthersResponses || flags.allowEdit) {
+
+                            //TODO here is pervious responses
+                            body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
+                                '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
+                                '<div class="field-response" gs-version-edit' + translation + '><span>' +
+                                '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
+                                '{{resp.comments}}</span></div></div></div>';
+                        }
+
+                        if (flags.provideResponses) {
+                            body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
+                            body += '<div class="field-comment">' +
+                                '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
+                                '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
+                                '<div class="field-comment-radio">' +
+                                '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
+                                ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
+                                '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
+                                ' value="false" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
+                                '</div></div>';
+
+                        }
                     }
 
-                    if (scope.field.flags.seeOthersResponses || scope.field.flags.allowEdit) {
-                        body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
-                            '<div translate="SURVEYS.RESPONSES"></div>' +
-                            '<div ng-repeat="resp in field.responses">' +
-                            '<div class="field-response">' +
-                            '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree === true, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null }"></i>' +
-                            '<span class="field-response-text" ng-class="{ \'yes\': resp.isAgree === true, \'no\': resp.isAgree === false }">{{(resp.isAgree === true ? "SURVEYS.AGREE" : resp.isAgree === false ? "SURVEYS.DISAGREE" : "SURVEYS.NO_DATA")|translate}}</span>' +
-                            '<span class="field-response-comment">{{resp.comments}}</span>' +
-                            '</div>' +
-                            '</div>' +
-                            '</div>';
-                    }
-
-                    if (scope.field.flags.provideResponses) {
-                        body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
-                        body += '<div class="field-comment">' +
-                            '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
-                            '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
-                            '<div class="field-comment-radio">' +
-                            '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                            ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
-                            '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
-                            '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                            ' value="false" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
-                            '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
-                            '</div>' +
-                            '</div>';
-
-                    }
                     elem.append(body);
 
                     $compile(elem.contents())(scope);

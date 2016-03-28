@@ -1,0 +1,1 @@
+ALTER TABLE "Organizations" ADD COLUMN "realm" character varying(80);

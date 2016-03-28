@@ -1,6 +1,6 @@
 <div class="panel panel-default">
     <div class="panel-body">
-        <form name="remindForm" class="form-horizontal">
+        <form name="loginForm" class="form-horizontal">
             <div class="form-group">
                 <label for="login" class="col-sm-4 control-label">{{model.login.label|translate}}</label>
 
@@ -8,13 +8,14 @@
                     <input type="text" class="form-control" name="login" id="login" ng-model="model.login.value"
                            ng-required="true" ng-minlength="1">
 
-                    <div class="text-center" ng-messages="remindForm.login.$error" role="alert"
-                         ng-if="remindForm.login.$dirty">
+                    <div class="text-center" ng-messages="loginForm.login.$error" role="alert"
+                         ng-if="loginForm.login.$dirty">
                         <span ng-message="required, minlength" class="help-block"><span
                             translate="LOGIN.LOGIN_REQUIRED"></span></span>
                     </div>
                 </div>
             </div>
+            <realm-select></realm-select>
             <div class="form-group" ng-show="model.success">
                 <div class="col-sm-12">
                     <p class="form-control-static">{{model.success|translate}}</p>
@@ -26,7 +27,7 @@
                 <div class="col-sm-12 text-right">
                     <button id="main-login-btn" type="submit" class="btn btn-primary"
                             ng-click="remind()"
-                            ng-disabled="remindForm.$invalid">{{'COMMON.REMIND'|translate}}
+                            ng-disabled="loginForm.$invalid">{{'COMMON.REMIND'|translate}}
                     </button>
                 </div>
             </div>

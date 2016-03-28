@@ -106,6 +106,9 @@ router.route('/:realm/v0.2/survey_answers')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
 
+router.route('/:realm/v0.2/survey_answers/:productId/:UOAid')
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa)
+
 router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
@@ -124,7 +127,7 @@ router.route('/:realm/v0.2/attachments/:id/link/:answerId')
     .get(authenticate('token').always, surveyAnswers.linkAttach);
 
 router.route('/:realm/v0.2/attachments/:id')
-    .delete(surveyAnswers.delAttachment);
+    .delete(authenticate('token').always, surveyAnswers.delAttachment);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
@@ -231,11 +234,11 @@ router.route('/:realm/v0.2/products/:id/aggregate.csv')
 
 router.route('/:realm/v0.2/products/:id/indexes')
     .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
-    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editIndexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
 
 router.route('/:realm/v0.2/products/:id/subindexes')
     .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
-    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editSubindexes)
+    .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
 
 router.route('/:realm/v0.2/products/:id/export.csv')
     .get(/*authenticate('token').always,*/ products.export);

@@ -6,7 +6,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals) {
+    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
@@ -115,7 +115,9 @@ angular.module('greyscaleApp')
                         return a.position - b.position;
                     });
                     scope.$emit('form-changes-saved');
-                    scope.$apply();
+                    $timeout(function () {
+                        scope.$apply();
+                    });
                 }
 
                 function createFormBuilder() {
@@ -177,6 +179,7 @@ angular.module('greyscaleApp')
                         formbuilder.off('save');
                     }
                     if (window.Formbuilder) {
+                        angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
                             selector: '#formbuilder',
                             bootstrapData: data
@@ -189,6 +192,13 @@ angular.module('greyscaleApp')
                             }
                         };
                         formbuilder.on('save', formBuilderSave);
+                    }
+
+                    var control = $('[form-builder-control]');
+                    var controlCopy;
+                    if (control.length) {
+                        controlCopy = control.clone().html();
+                        elem.find('.fb-form').after($compile(controlCopy)(scope));
                     }
                 }
 

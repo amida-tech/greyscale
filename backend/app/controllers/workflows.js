@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Workflow = require('app/models/workflows'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
@@ -44,6 +46,13 @@ module.exports = {
             var result = yield thunkQuery(Workflow.update(req.body).where(Workflow.id.equals(req.params.id)));
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'workflows',
+                entity: req.params.id,
+                info: 'Update workflow'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -55,6 +64,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'workflows',
+                entity: req.params.id,
+                info: 'Delete workflow'
+            });
             res.status(204).end();
         });
     },
@@ -65,6 +81,13 @@ module.exports = {
             var result = yield thunkQuery(Workflow.insert(req.body).returning(Workflow.id));
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'workflows',
+                entity: _.first(data).id,
+                info: 'Add new workflow'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -128,9 +151,22 @@ module.exports = {
                             .update(updateObj)
                             .where(WorkflowStep.id.equals(req.body[i].id))
                         );
+                        bologger.log({
+                            user: req.user.id,
+                            action: 'update',
+                            object: 'workflowsteps',
+                            entity: req.body[i].id,
+                            info: 'Update workflow step'
+                        });
                         yield thunkQuery(
                             WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
                         );
+                        bologger.log({
+                            user: req.user.id,
+                            action: 'update',
+                            object: 'workflowstepgroups',
+                            info: 'Delete all workflow step groups for step '+ req.body[i].id
+                        });
                     }
                 } else {
                     var insertObj = _.pick(req.body[i], WorkflowStep.table._initialConfig.columns);
@@ -139,6 +175,13 @@ module.exports = {
                     insertIds.push(insertId[0].id);
                     req.body[i].id = insertId[0].id;
                     //insertArr.push(insertObj);
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'workflowsteps',
+                        entity: req.body[i].id,
+                        info: 'Insert workflow step'
+                    });
                 }
                 var insertGroupObjs = [];
                 for (var groupIndex in req.body[i].usergroupId) {
@@ -152,6 +195,14 @@ module.exports = {
                 console.log(insertGroupObjs);
                 if (insertGroupObjs.length) {
                     yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'workflowstepgroups',
+                        entities: insertGroupObjs,
+                        quantity: insertGroupObjs.length,
+                        info: 'Insert workflow step group(s)'
+                    });
                 }
             }
 
@@ -159,7 +210,23 @@ module.exports = {
 
             for (var i in deleteIds) {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
+                bologger.log({
+                    user: req.user.id,
+                    action: 'delete',
+                    object: 'workflowstepgroups',
+                    entities: deleteIds,
+                    quantity: deleteIds.length,
+                    info: 'Delete workflow step group(s)'
+                });
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
+                bologger.log({
+                    user: req.user.id,
+                    action: 'delete',
+                    object: 'workflowsteps',
+                    entities: deleteIds,
+                    quantity: deleteIds.length,
+                    info: 'Delete workflow step(s)'
+                });
             }
 
             // var result = yield * setCurrentStepToNull(productId); - not required, as User could require to adjust certain Step's permissions for running Project

@@ -3,13 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalTranslationCtrl', function ($scope, $q, _, greyscaleUtilsSrv,$uibModalInstance, translation,
-        greyscaleLanguageApi, greyscaleTranslationApi) {
+    .controller('ModalTranslationCtrl', function ($scope, $q, _, greyscaleUtilsSrv, $uibModalInstance, translation,
+        greyscaleLanguageApi, greyscaleTranslationApi, $log) {
 
         $scope.model = {
-            translations: [translation],
-            originalTrn: [translation],
-            languages: []
+            translations: [],
+            originalTrn: [],
+            languages: [],
+            original: {}
         };
 
         $scope.close = closeModal;
@@ -17,16 +18,56 @@ angular.module('greyscaleApp')
         $scope.del = removeTranslaction;
         $scope.save = saveChanges;
 
+        var _idx = 0,
+            valuesLength = 1;
+
         var req = {
             lang: greyscaleLanguageApi.list(),
             trns: greyscaleTranslationApi.listByEntity(translation.essenceId, translation.entityId,
                 {field: translation.field})
         };
 
+        if (translation.type === 'bullet_points') {
+            _idx = translation.index || 0;
+            valuesLength = translation.value.length;
+        }
+
         $q.all(req).then(function (res) {
-            $scope.model.languages = res.lang;
-            $scope.model.translations = res.trns;
+            var l,
+                qty = res.lang.length,
+                _origin = angular.copy(translation);
+
+            $scope.model.languages = [];
+
+            for (l = 0; l < qty; l++) {
+                if (res.lang[l].id === _origin.langId) {
+                    _origin.langId = res.lang[l].code;
+                } else {
+                    $scope.model.languages.push(res.lang[l]);
+                }
+            }
+
+            if (translation.type === 'bullet_points') {
+                var _jsonArr, i,
+                    q = res.trns.length;
+
+                _origin.value = translation.value[translation.index].data;
+                $log.debug('length is ', translation.value.length);
+
+                for (i = 0; i < q; i++) {
+                    _jsonArr = angular.fromJson(res.trns[i].value);
+                    res.trns[i].valueArr = _jsonArr;
+                    res.trns[i].value = _jsonArr[_idx];
+                }
+
+                $scope.model.translations = res.trns;
+            } else {
+                $scope.model.translations = res.trns;
+            }
             $scope.model.originalTrn = angular.copy(res.trns);
+
+            $scope.model.original = _origin;
+
         });
 
         function closeModal() {
@@ -47,6 +88,9 @@ angular.module('greyscaleApp')
 
             for (t = 0; t < $scope.model.translations.length; t++) {
                 trn = $scope.model.translations[t];
+                if (translation.type === 'bullet_points') {
+                    bulletsToString(trn);
+                }
 
                 for (var ot = 0; ot < $scope.model.originalTrn.length; ot++) {
                     var oTrn = $scope.model.originalTrn[ot];
@@ -82,5 +126,18 @@ angular.module('greyscaleApp')
             }
 
             $uibModalInstance.close($q.all(taskReqs));
+        }
+
+        function bulletsToString(rec) {
+            if (!rec.valueArr){
+                rec.valueArr = [];
+                rec.valueArr.length = valuesLength;
+                rec.valueArr.fill('');
+            }
+            rec.valueArr[_idx] = rec.value;
+
+            rec.value = angular.toJson(rec.valueArr);
+
+            delete rec.valueArr;
         }
     });

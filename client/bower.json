@@ -2,7 +2,7 @@
   "name": "greyscale-client",
   "version": "0.0.0",
   "dependencies": {
-    "formbuilder": "https://github.com/manticorra/formbuilder.git#gh-pages",
+    "formbuilder": "https://github.com/amida-tech/indaba-formbuilder.git#ntrlab",
     "angular": "1.4",
     "bootstrap-sass-official": "^3.2.0",
     "angular-cookies": "^1.4.0",
@@ -59,7 +59,7 @@
     }
   },
   "resolutions": {
-    "angular": "1.4.9",
+    "angular": "1.5.2",
     "d3": "3.5.0",
     "font-awesome": "~4.5.0",
     "lodash": "^3.10.1"

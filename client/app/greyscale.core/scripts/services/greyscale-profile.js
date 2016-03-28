@@ -5,15 +5,11 @@
 
 angular.module('greyscale.core')
     .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
-        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope) {
+        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope, greyscaleRealmSrv) {
 
         var _profile = null;
         var _profilePromise = null;
-        var _userRoles = [];
         var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
-        var _messages = [];
-        var _associate = {};
-        var _associateArray = [];
 
         this.isSuperAdmin = _isSuperAdmin;
 
@@ -33,7 +29,7 @@ angular.module('greyscale.core')
                         if (!_profilePromise || force) {
                             _profilePromise = greyscaleUserApi.get()
                                 .then(function (profileData) {
-                                    _profile = profileData;
+                                    _profile = profileData.plain();
                                     return _profile;
                                 })
                                 .then(self._setAccessLevel)
@@ -57,90 +53,13 @@ angular.module('greyscale.core')
         this._setAccessLevel = function () {
             if (_profile) {
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
-                return greyscaleEntityTypeRoleApi.list({
-                    userId: _profile.id
-                }).then(function (usrRoles) {
-                    for (var r = 0; r < usrRoles.length; r++) {
-                        if (_profile && usrRoles.userId === _profile.id) {
-                            _accessLevel = _accessLevel | greyscaleUtilsSrv.getRoleMask(usrRoles[r].roleId);
-                        }
-                    }
-                    _userRoles = usrRoles;
-                    $rootScope.checkAccessRole = _checkAccessRole;
-                    return _profile;
-                });
+                $rootScope.checkAccessRole = _checkAccessRole;
+                return _profile;
             } else {
                 return $q.reject('no user data loaded');
             }
         };
 
-        this._setAssociate = function () {
-            if (_profile) {
-                return greyscaleUserApi.list({
-                        organizationId: _profile.organizationId // while API users/self/associate not implemented
-                    })
-                    .then(function (associate) {
-                        var i, user,
-                            qty = associate.length;
-                        _associate = {};
-                        _associateArray = [];
-                        for (i = 0; i < qty; i++) {
-                            user = associate[i];
-                            if (!user.isAnonymous || _isAdmin()) {
-                                _associate[user.id] = {
-                                    id: user.id,
-                                    firstName: user.firstName || '',
-                                    lastName: user.lastName || '',
-                                    email: user.email || ''
-                                };
-                                _associateArray.push(_associate[user.id]);
-                            }
-
-                        }
-                        return _profile;
-                    })
-                    .catch(function (err) {
-                        $log.debug(err.message || err);
-                        _associate = {};
-                        _associateArray = [];
-                        return _profile;
-                    });
-            } else {
-                return $q.reject('no user data loaded');
-            }
-        };
-        /* disabled while not used
-                this.getAssociate = function () {
-                    return this.getProfile()
-                        .then(function () {
-                            return _associate;
-                        })
-                        .catch(function () {
-                            return [];
-                        });
-                };
-
-                this.getMember = function (userId) {
-                    var member = _associate[userId];
-                    if (!member) {
-                        member = {
-                            id: userId,
-                            firstName: i18n.translate('USERS.ANONYMOUS'),
-                            lastName: '',
-                            email: ''
-                        };
-                    }
-                    return member;
-                };
-
-                this.recentMessages = function () {
-                    return $q.reject('recentMessages is not implemented yet');
-                };
-
-                this.getMessages = function () {
-                    return _messages;
-                };
-        */
         this.getAccessLevelMask = function () {
             return _accessLevel;
         };
@@ -149,6 +68,7 @@ angular.module('greyscale.core')
             return this.getProfile()
                 .then(this.getAccessLevelMask)
                 .catch(function (err) {
+                    greyscaleRealmSrv(null);
                     $log.debug('getAccessLevel says:', err);
                     return greyscaleUtilsSrv.getRoleMask(-1, true);
                 });
@@ -161,6 +81,7 @@ angular.module('greyscale.core')
         this.logout = function () {
             return greyscaleUserApi.logout().finally(function () {
                 greyscaleTokenSrv(null);
+                greyscaleRealmSrv(null);
                 _profile = null;
                 _profilePromise = null;
                 _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);

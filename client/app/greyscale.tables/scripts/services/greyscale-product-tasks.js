@@ -20,7 +20,7 @@ angular.module('greyscale.tables')
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 '       uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'"' +
-                '       ng-class="{active:item.active, delayed: item.delayed}" ng-repeat="item in row.progress track by $index">' +
+                '       ng-class="{active:item.active, delayed: item.active && !row.onTime}" ng-repeat="item in row.progress track by $index">' +
                 '    <i ng-if="item.flagged" class="fa fa-flag"></i>' +
                 '</span>' +
                 '</span>'
@@ -47,9 +47,9 @@ angular.module('greyscale.tables')
             //}, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
-            cellTemplate: '<span ng-class="{\'text-danger\': ext.isOverdue(row) }">{{row.endDate|date}}</span>',
+            cellTemplate: '<span ng-class="{\'text-danger\': ext.isOverdueDeadline(row) }">{{row.endDate|date}}</span>',
             cellTemplateExtData: {
-                isOverdue: _dateIsOverdue
+                isOverdueDeadline: _isOverdueDeadline
             }
         }, {
             title: tns + 'LAST_UPDATE',
@@ -58,11 +58,13 @@ angular.module('greyscale.tables')
             cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             show: true,
-            dataFormat: 'action',
+            //dataFormat: 'action',
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
-            actions: [{
-                icon: 'fa-eye'
-            }]
+            cellTemplate: '<div class="text-right" ng-if="!row.allCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
+                '<div class="text-right" ng-if="row.allCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
+            //actions: [{
+            //    icon: 'fa-eye'
+            //}]
         }];
 
         var _table = {
@@ -150,24 +152,32 @@ angular.module('greyscale.tables')
             var currentTasks = [];
             var grouppedTasks = _.groupBy(tasks, 'uoaId');
             angular.forEach(grouppedTasks, function (uoaTasks) {
+                uoaTasks = _.sortBy(uoaTasks, 'position');
                 var currentTask;
                 angular.forEach(uoaTasks, function (task) {
                     if (!currentTask && task.status === 'current') {
-                        currentTask = _getTaskProgressData(task, uoaTasks);
-                        currentTask.delayed = new Date(currentTask.lastVersionDate) < new Date(currentTask.startDate);
+                        currentTask = _setCurrentTask(task, uoaTasks);
                     }
                 });
-                if (currentTask) {
-                    currentTasks.push(currentTask);
+                if (!currentTask) {
+                    currentTask = _setCurrentTask(uoaTasks[0], uoaTasks);
                 }
+                currentTasks.push(currentTask);
             });
-
             return $q.when(currentTasks);
+        }
+
+        function _setCurrentTask(task, uoaTasks) {
+            var currentTask = _getTaskProgressData(task, uoaTasks);
+            currentTask.started = !!currentTask.lastVersionDate;
+            currentTask.onTime = _isOnTime(currentTask);
+            return currentTask;
         }
 
         function _getTaskProgressData(task, uoaTasks) {
             task.progress = [];
             var id = parseInt(task.id);
+            var unCompletedCount = 0;
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
                     stepId: step.id
@@ -179,11 +189,20 @@ angular.module('greyscale.tables')
                 } else {
                     var progressTask = _.pick(stepTask, ['id', 'status', 'flagged', 'step', 'user', 'endDate']);
                     task.progress.push(progressTask);
+                    if (task.status !== 'completed') {
+                        unCompletedCount++;
+                    }
                     if (progressTask.id === id) {
                         progressTask.active = true;
                     }
                 }
             });
+
+            if (!unCompletedCount) {
+                var activeTask = _.find(task.progress, 'active');
+                activeTask.active = false;
+                task.allCompleted = true;
+            }
 
             task.progress = _.sortBy(task.progress, 'step.position');
 
@@ -197,8 +216,20 @@ angular.module('greyscale.tables')
             return task;
         }
 
-        function _dateIsOverdue(task) {
-            return task.status !== 'completed' && (new Date(task.endDate) < new Date());
+        function _isOnTime(task) {
+            var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0, 0, 0, 0);
+            var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59, 999);
+            if (!shouldBeStarted) {
+                return true;
+            }
+            if (task.lastVersionDate) {
+                return new Date(task.endDate).setHours(23, 59, 59, 999) > new Date(task.lastVersionDate);
+            }
+            return !shouldBeEnded;
+        }
+
+        function _isOverdueDeadline(task) {
+            return task.status !== 'completed' && new Date(task.endDate) <= new Date().setHours(0, 0, 0, 0);
         }
 
         function _handleProgressBlockClick(e, scope) {

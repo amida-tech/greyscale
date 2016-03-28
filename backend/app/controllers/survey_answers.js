@@ -10,6 +10,8 @@ var
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    Project = require('app/models/projects'),
+    Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
@@ -34,7 +36,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -48,6 +50,79 @@ module.exports = {
 
     },
 
+    getByProdUoa: function (req, res, next) {
+        co(function* () {
+            var condition = _.pick(req.params,['productId','UOAid']);
+
+            if(req.user.roleID == 3) {
+                var user_tasks = yield thunkQuery(
+                    Task.select()
+                    .where(
+                        {
+                            uoaId     : req.params.UOAid,
+                            productId : req.params.productId,
+                            userId    : req.user.id
+                        }
+                    )
+                );
+                if(!user_tasks[0]){
+                    throw new HttpError(
+                        403,
+                        'You should be owner at least of 1 task for this product and subject'
+                    );
+                }
+            }
+
+            if(req.user.roleID == 2){
+                var org = yield thunkQuery(
+                    Product
+                    .select(Organization.star())
+                    .from(
+                        Product
+                        .leftJoin(Project)
+                        .on(Product.projectId.equals(Project.id))
+                        .leftJoin(Organization)
+                        .on(Project.organizationId.equals(Organization.id))
+                    )
+                    .where(Product.id.equals(req.params.productId))
+                );
+
+                if (!org[0]) {
+                    throw new HttpError(
+                        403,
+                        'Cannot find organization for this product'
+                    );
+                }
+
+                if (org[0].id != req.user.organizationId) {
+                    throw new HttpError(
+                        403,
+                        'You cannot see answers from other organizations'
+                    );
+                }
+            }
+
+            return yield thunkQuery(
+                SurveyAnswer
+                    .select(
+                        SurveyAnswer.star(),
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                            'FROM "AnswerAttachments" a ' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        ') as att) as attachments'
+                    )
+                    .from(SurveyAnswer)
+                    .where(condition)
+                , _.omit(req.query,['productId','UOAid'])
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     selectOne: function (req, res, next) {
         co(function* (){
             var result = yield thunkQuery(
@@ -57,7 +132,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(
@@ -75,18 +150,7 @@ module.exports = {
         }, function(err){
             next(err);
         });
-        //var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        //query(q, function (err, data) {
-        //    if (err) {
-        //        return next(err);
-        //    }
-        //    if (_.first(data)) {
-        //        res.json(_.first(data));
-        //    } else {
-        //        return next(new HttpError(404, 'Not found'));
-        //    }
-        //
-        //});
+
     },
 
     delete: function (req, res, next) {
@@ -119,8 +183,7 @@ module.exports = {
                     SurveyAnswer
                     .leftJoin(WorkflowStep)
                     .on(WorkflowStep.id.equals(SurveyAnswer.wfStepId))
-                    .leftJoin(Task)
-                    .on(Task.stepId.equals(WorkflowStep.id))
+
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(SurveyAnswer.productId)
@@ -128,6 +191,12 @@ module.exports = {
                     )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(WorkflowStep.as(curStepAlias).id.equals(ProductUOA.currentStepId))
+                    .leftJoin(Task)
+                    .on(
+                        Task.stepId.equals(WorkflowStep.as(curStepAlias).id)
+                        .and(Task.uoaId.equals(SurveyAnswer.UOAid))
+                        .and(Task.productId.equals(SurveyAnswer.productId))
+                    )
                 )
                 .where(SurveyAnswer.id.equals(req.params.id))
             ))[0];
@@ -136,18 +205,16 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (result.step.id != result.curStep.id) {
-                throw new HttpError(403, 'Step for this answer is not current');
-            }
-
             if (result.task.userId != req.user.id) {
-                console.log(result.task);
-                console.log(req.user.id);
-                throw new HttpError(403, 'Task for this answer assigned to another user');
+                throw new HttpError(
+                    403,
+                    'Task (id = '+ result.task.id +') on current workflow step assigned to another user ' +
+                    '(task user id = '+ result.task.userId +', user id = '+ req.user.id +')'
+                );
             }
 
-            if (!result.step.allowEdit) {
-                throw new HttpError(403, 'You do not have permission to edit this answer');
+            if (!result.curStep.allowEdit) {
+                throw new HttpError(403, 'You do not have permission to edit answers');
             }
 
             if (req.body.isResponse) {
@@ -160,8 +227,8 @@ module.exports = {
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
-        }).then(function (){
-            res.status(202).end();
+        }).then(function (data){
+            res.status(202).end('updated');
         }, function (err) {
             next(err);
         });
@@ -195,18 +262,6 @@ module.exports = {
                 result.push(req.body[i]);
             }
 
-            //if (!req.query.autosave) {
-            //    try {
-            //        yield * moveWorkflow(req, dataObject.productId, dataObject.UOAid);
-            //    } catch (e) {
-            //        if (e instanceof HttpError) {
-            //            throw e;
-            //        } else {
-            //            throw new HttpError(403, 'Move workflow internal error');
-            //        }
-            //    }
-            //}
-
             return result;
         }).then(function (data) {
             res.json(data);
@@ -231,6 +286,15 @@ module.exports = {
 
     delAttachment: function(req, res, next){
         co(function* (){
+            var attach = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+            if (!attach[0]) {
+                throw new HttpError(404, 'Attachment not found');
+            }
+            if(attach[0].owner != req.user.id){
+                throw new HttpError(404, 'Only owner can delete attachment');
+            }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
             res.status(204).end();
@@ -372,7 +436,8 @@ module.exports = {
                     filename: file.originalname,
                     size: file.size,
                     mimetype: file.mimetype,
-                    body: filecontent
+                    body: filecontent,
+                    owner: req.user.id
                 }
 
                 if (req.body.answerId) {

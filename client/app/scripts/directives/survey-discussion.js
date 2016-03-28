@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
             restrict: 'E',
             replace: true,
             scope: {
-                surveyData: '=?'
+                surveyData: '=?',
+                onSend: '=msgOnSubmit'
             },
             templateUrl: 'views/directives/survey-discussion.html',
             link: function (scope) {
@@ -42,11 +43,28 @@ angular.module('greyscaleApp')
                                     $scope.model.questions[q].messages.push(convertMsg(body, $scope.model.associate));
                                 }
                             }
+                            if (typeof $scope.onSend === 'function') {
+                                $scope.onSend(body);
+                            }
                         })
                         .catch(greyscaleUtilsSrv.errorMsg)
                         .finally(function () {
                             emptyMsgForm();
                         });
+                };
+
+                $scope.flagIsDisabled = function () {
+                    var hasUnresolvedFlag = false;
+                    angular.forEach($scope.model.questions, function (q) {
+                        if (q.messages && q.messages.length) {
+                            angular.forEach(q.messages, function (m) {
+                                if (!hasUnresolvedFlag && m.flagged && !m.resolved) {
+                                    hasUnresolvedFlag = true;
+                                }
+                            });
+                        }
+                    });
+                    return hasUnresolvedFlag;
                 };
 
                 emptyMsgForm();
@@ -82,6 +100,7 @@ angular.module('greyscaleApp')
                 to: getUser(associate, msg.userId),
                 sent: msg.created || new Date(),
                 flagged: msg.isReturn,
+                resolved: msg.isResolve,
                 body: msg.entry
             };
         }
@@ -111,7 +130,9 @@ angular.module('greyscaleApp')
                         for (u = 0; u < qty; u++) {
                             scope.model.associate[users[u].userId] = users[u];
                             if (users[u].userId !== scope.surveyData.userId) {
-                                scope.model.assignTo.push(users[u]);
+                                var user = angular.copy(users[u]);
+                                user.role = task.step.role;
+                                scope.model.assignTo.push(user);
                             }
                         }
                         return greyscaleDiscussionApi.list(params);
@@ -120,10 +141,11 @@ angular.module('greyscaleApp')
                         var r, q, quest, msg, discuss,
                             qid = 0,
                             rQty = resp.length,
-                            qQty = survey.questions.length;
+                            questions = survey.questions || [],
+                            qQty = questions.length;
 
                         for (q = 0; q < qQty; q++) {
-                            quest = survey.questions[q];
+                            quest = questions[q];
                             if (sectionTypes.indexOf(quest.type) === -1) {
                                 qid++;
                                 if (!quest.qid) {

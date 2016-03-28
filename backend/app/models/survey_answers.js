@@ -15,7 +15,8 @@ var columns = [
     'isResponse',
     'isAgree',
     'comments',
-    'langId'
+    'langId',
+    'attachments'
 
 ];
 
@@ -26,11 +27,16 @@ var SurveyAnswer = sql.define({
 
 SurveyAnswer.editCols = [
     'value',
-    'optionId'
+    'optionId',
+    'isResponse',
+    'isAgree',
+    'comments',
+    'attachments'
 ];
 
 SurveyAnswer.translate = [
-    'value'
+    'value',
+    'comments'
 ];
 
 

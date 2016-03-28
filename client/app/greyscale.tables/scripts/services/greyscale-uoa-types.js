@@ -19,7 +19,6 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'id',
             dataFormat: 'text',
-            dataRequired: true,
             dataReadOnly: true
         }, {
             field: 'name',

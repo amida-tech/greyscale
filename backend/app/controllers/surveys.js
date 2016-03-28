@@ -213,13 +213,14 @@ function* addQuestion (req, dataObj) {
     );
     result = result[0];
 
-    if (dataObj.options) {
+    if (dataObj.options && dataObj.options.length) {
         var insertArr = [];
         for (var i in dataObj.options) {
             var insertObj = _.pick(dataObj.options[i], SurveyQuestionOption.table._initialConfig.columns);
             insertObj.questionId = result.id;
             insertArr.push(insertObj);
         }
+
         result.options = yield thunkQuery(
             SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
         );

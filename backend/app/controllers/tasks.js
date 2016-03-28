@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -51,7 +53,7 @@ module.exports = {
                             'SELECT ' +
                             '"Discussions"."id" ' +
                             'FROM "Discussions" ' +
-                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                             'AND "Discussions"."isReturn" = true ' +
                             'AND "Discussions"."isResolve" = false ' +
                             'LIMIT 1' +
@@ -60,15 +62,27 @@ module.exports = {
                         'ELSE TRUE ' +
                     'END as flagged',
                     'CASE ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'WHEN ' +
+                            '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                            'OR ("ProductUOA"."isComplete" = TRUE) ' +
+                        'THEN \'completed\' ' +
+                        'WHEN (' +
+                            '"' + curStepAlias + '"."position" IS NULL ' +
+                            'AND ("WorkflowSteps"."position" = 0) ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'OR (' +
+                            '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'THEN \'current\' ' +
+                        'ELSE \'waiting\'' +
                     'END as status '
                 )
                 .from(
                     Task
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)
@@ -100,6 +114,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Delete task'
+            });
             res.status(204).end();
         });
     },
@@ -112,6 +133,13 @@ module.exports = {
                 .where(Task.id.equals(req.params.id))
             );
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Update task'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -130,11 +158,18 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'tasks',
+                entity: _.first(data).id,
+                info: 'Add new task'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
-    },
+    }
 
 };
 

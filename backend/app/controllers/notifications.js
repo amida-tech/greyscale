@@ -3,7 +3,10 @@ var
     ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
+    common = require('app/queries/common'),
     auth = require('app/auth'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
     Essence = require('app/models/essences'),
@@ -27,6 +30,15 @@ var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
             selectQuery = selectQuery +where+'"'+model+'"."'+key+'" = '+val;
+        }
+    }
+    return selectQuery;
+};
+
+var whereInt = function(selectQuery, val, model, key){
+    if(val) {
+        if ( isInt(val)) {
+            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
         }
     }
     return selectQuery;
@@ -82,7 +94,7 @@ function* createNotification (note, template) {
     if (parseInt(note.notifyLevel) >  1) {  // onsite notification
         socketController.sendNotification(note.userTo);
     }
-    var userTo = yield * getUser(note.userTo);
+    var userTo = yield * common.getUser(note.userTo);
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
@@ -140,9 +152,9 @@ function* resendNotification (notificationId) {
     if (config.email.disable) {
         return false;
     }
-    var note = yield * getNotification(notificationId);
+    var note = yield * common.getNotification(notificationId);
     //if (parseInt(note.notifyLevel) >  1) {  // email notification - do not check!
-    var userTo = yield * getUser(note.userTo);
+    var userTo = yield * common.getUser(note.userTo);
     var emailOptions = {
         to: {
             name: userTo.firstName,
@@ -196,7 +208,7 @@ module.exports = {
             req.query = _.extend(req.query, req.body);
             var isNotAdmin = !auth.checkAdmin(req.user);
             var currentUserId = req.user.id;
-            var essenceId = yield * getEssenceId('Discussions');
+            var essenceId = yield * common.getEssenceId('Discussions');
             var userId = req.query.userId;
 
             var selectWhere = 'WHERE 1=1 ';
@@ -312,7 +324,7 @@ module.exports = {
 
             var withFrom =
                 'WITH c1 as (SELECT '+
-                'count("public"."Notifications"."id") as count, '+
+                'count("Notifications"."id") as count, '+
                 '"Notifications"."userFrom" as user, '+
                 '"Notifications"."entityId" as entityid, '+
                 '"Notifications"."essenceId" as essenceid, '+
@@ -328,7 +340,7 @@ module.exports = {
                 ') ';
             var withTo =
                 'c2 as (SELECT '+
-                'count("public"."Notifications"."id") as count, '+
+                'count("Notifications"."id") as count, '+
                 '"Notifications"."userTo" as user, '+
                 '"Notifications"."entityId" as entityid, '+
                 '"Notifications"."essenceId" as essenceid, '+
@@ -412,49 +424,70 @@ module.exports = {
             req.body = _.extend(req.body, {reading: new Date()});
             return yield thunkQuery(Notification.update(req.body).where(Notification.id.equals(req.params.notificationId)));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entity: req.params.notificationId,
+                info: 'Mark notification as '+(req.body.read ? 'read' : 'unread')
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
         });
     },
     markAllRead: function (req, res, next) {
+        var selectQuery;
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var update =
-                'UPDATE '+
-                '"Notifications" '+
-                'SET "read" = true, "reading" = now() ';
-            var where = 'WHERE 1=1 ';
-            where = setWhereInt(where, req.query.userFrom, 'Notifications', 'userFrom');
-            where = setWhereInt(where, req.query.userTo, 'Notifications', 'userTo');
-
-            var query = update + where;
-            return yield thunkQuery(query);
+            selectQuery = Notification.update({read: true, reading: new Date()});
+            selectQuery = whereInt(selectQuery, req.query.userFrom, Notification, 'userFrom');
+            selectQuery = whereInt(selectQuery, req.query.userTo, Notification, 'userTo');
+            selectQuery = selectQuery.returning(Notification.id);
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entities: data,
+                quantity: data.length,
+                info: 'Mark as read all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
         });
     },
     deleteList: function (req, res, next) {
+        var selectQuery;
         co(function* () {
             req.query = _.extend(req.query, req.body);
-            var deleteQuery =
-                'DELETE FROM "Notifications" ';
-            var where = '';
-            if (typeof req.body.all === 'undefined') {
-                if (typeof req.body.id !== 'undefined') {
-                    where = setWhereInt(where, req.query.id, 'Notifications', 'id');
+            selectQuery = Notification.delete();
+            if (typeof req.query.all === 'undefined') {
+                if (typeof req.query.id !== 'undefined') {
+                    selectQuery = whereInt(selectQuery, req.query.id, Notification, 'id');
                 } else {
-                    where = setWhereInt(where, req.query.userFrom, 'Notifications', 'userFrom');
-                    where = setWhereInt(where, req.query.userTo, 'Notifications', 'userTo');
+                    selectQuery = whereInt(selectQuery, req.query.userFrom, Notification, 'userFrom');
+                    selectQuery = whereInt(selectQuery, req.query.userTo, Notification, 'userTo');
                 }
-                if (where === '') where = 'WHERE 1=0';
+                if (!selectQuery.whereClause) {
+                    return null;
+                }
             }
-
-            var query = deleteQuery + where;
-            return yield thunkQuery(query);
+            selectQuery = selectQuery.returning(Notification.id);
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
+            if (data) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'delete',
+                    object: 'notifications',
+                    entities: data,
+                    quantity: data.length,
+                    info: 'Delete all notifications '+(selectQuery.whereClause ? selectQuery.whereClause.toString() : '')
+                });
+            }
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -466,6 +499,13 @@ module.exports = {
             req.body.userFrom = req.user.id; // ignore userFrom from body - use from req.user
             return yield * createNotification(req.body);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'notifications',
+                entity: _.first(data).id,
+                info: 'Add new notification'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -474,7 +514,7 @@ module.exports = {
 
     reply: function (req, res, next) {
         co(function* () {
-            var note = yield * getNotification(req.params.notificationId);
+            var note = yield * common.getNotification(req.params.notificationId);
             if (req.user.id !== note.userTo && !auth.checkAdmin(req.user)) {
                 throw new HttpError(403, 'You cannot send reply for this notification (not yours)!');
             }
@@ -493,6 +533,13 @@ module.exports = {
         co(function* () {
             return yield * resendNotification(req.params.notificationId);
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'notifications',
+                entity: req.params.notificationId,
+                info: 'Resend notification'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -500,12 +547,13 @@ module.exports = {
     },
 
     resendUserInvite: function (req, res, next) {
+        var resend = false;
         co(function* () {
-            var result = yield * getInviteNotification(req.params.userId);
-            if (!_.first(result)) {
-                var user = yield * getUser(req.params.userId);
-                var org = yield * getOrganization(user.organizationId);
-                var essenceId = yield * getEssenceId('Users');
+            var inviteNote = yield * getInviteNotification(req.params.userId);
+            if (!inviteNote) {
+                var user = yield * common.getUser(req.params.userId);
+                var org = yield * common.getOrganization(user.organizationId);
+                var essenceId = yield * common.getEssenceId('Users');
                 var note = yield * createNotification(
                     {
                         userFrom: req.user.id,
@@ -524,14 +572,32 @@ module.exports = {
                     },
                     'orgInvite'
                 );
+                bologger.log({
+                    user: req.user.id,
+                    action: 'insert',
+                    object: 'notifications',
+                    entity: note[0].id,
+                    info: 'Create user invite notification'
+                });
                 if (user.notifyLevel < 2) {
+                    resend = note[0].id;
                     return yield * resendNotification(note[0].id);
                 }
                 return note;
             } else {
-                return yield * resendNotification(result[0].id);
+                resend = inviteNote.id;
+                return yield * resendNotification(inviteNote.id);
             }
         }).then(function (data) {
+            if (resend) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'update',
+                    object: 'notifications',
+                    entity: resend,
+                    info: 'Resend user invite notification'
+                });
+            }
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -546,7 +612,7 @@ function* checkInsert(note) {
     var body = yield * checkString(note.body, 'Body');
     if (note.essenceId) {
         var essenceId = yield * checkOneId(note.essenceId, Essence, 'id', 'essenceId', 'Essence');
-        var essence = yield * getEssence(essenceId);
+        var essence = yield * common.getEssence(essenceId);
         var model;
         try {
             model = require('app/models/' + essence.fileName);
@@ -559,26 +625,6 @@ function* checkInsert(note) {
 }
 
 
-function* getEssence(essenceId) {
-    // get Essence info
-    query =
-        'SELECT '+
-        '"Essences".* '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."id" = '+essenceId.toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find essenceId='+essenceId.toString()); // just in case - I think, it is not possible case, because have been checked before
-    }
-    return {
-        tableName: result[0].tableName,
-        name: result[0].name,
-        fileName: result[0].fileName,
-        nameField: result[0].nameField
-    };
-
-}
-
 function getHtml(templateName, data, templatePath) {
     templateName =  (templateName || 'default');
     var templateFile =  (templatePath || './views/notifications/') + templateName + '.html';
@@ -590,44 +636,9 @@ function getHtml(templateName, data, templatePath) {
     return _.template(templateContent)(data);
 }
 
-function* getUser(userId) {
-    query =
-        'SELECT "Users".* '+
-        'FROM "Users" '+
-        'WHERE "Users"."id" = ' + parseInt(userId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find User with id `'+parseInt(userId).toString()+'`');
-    }
-    return result[0];
-}
-
-function* getOrganization(orgId) {
-    query =
-        'SELECT "Organizations".* FROM "Organizations" '+
-        'WHERE "Organizations"."id" = ' + parseInt(orgId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Organization with id `'+parseInt(orgId).toString()+'`');
-    }
-    return result[0];
-}
-
-function* getNotification(notificationId) {
-    query =
-        'SELECT "Notifications".* '+
-        'FROM "Notifications" '+
-        'WHERE "Notifications"."id" = ' + parseInt(notificationId).toString();
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Notification with id `'+parseInt(notificationId).toString()+'`');
-    }
-    return result[0];
-}
-
 function* getInviteNotification(userId) {
     // get EssenceId
-    var essenceId = yield * getEssenceId('Users');
+    var essenceId = yield * common.getEssenceId('Users');
     query =
         'SELECT '+
             'max("Notifications"."id") as id '+
@@ -644,20 +655,7 @@ function* getInviteNotification(userId) {
         //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
         console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
-    return result;
-}
-
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'`');
-    }
-    return result[0].id;
+    return result[0];
 }
 
 function* renderFile(templateFile, data) {

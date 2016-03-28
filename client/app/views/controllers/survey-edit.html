@@ -1,5 +1,5 @@
-<div class="row">
-    <div name="dataForm" class="form-horizontal" ng-form="dataForm">
+<div class="row survey-edit">
+    <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
         <div class="form-group" ng-show="model.survey.id">
             <label class="col-sm-4 control-label">ID:</label>
             <div class="col-sm-8">
@@ -31,7 +31,12 @@
 
         <form-builder ng-model="model.survey"></form-builder>
 
-        <button class="btn btn-default" ng-click="cancel()" translate="COMMON.CANCEL"></button>
-        <button class="btn btn-primary" ng-click="save()" ng-disabled="dataForm.$invalid || !dataForm.$dirty" translate="COMMON.SAVE"></button>
+        <div no-compile form-builder-control>
+            <div class="form-builder-control">
+                <button class="btn btn-default" ng-click="cancel()" translate="COMMON.CANCEL"></button>
+                <button class="btn btn-primary" ng-click="save()" ng-disabled="dataForm.$invalid || !dataForm.$dirty" translate="COMMON.SAVE"></button>
+            </div>
+        </div>
+
     </div>
 </div>

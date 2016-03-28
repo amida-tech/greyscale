@@ -1,6 +1,8 @@
 var
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     csv = require('express-csv'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
@@ -64,7 +66,7 @@ module.exports = {
                             'SELECT ' +
                                 '"Discussions"."id" ' +
                             'FROM "Discussions" ' +
-                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                             'AND "Discussions"."isReturn" = true ' +
                             'AND "Discussions"."isResolve" = false ' +
                             'LIMIT 1' +
@@ -75,9 +77,9 @@ module.exports = {
                     'CASE ' +
                         'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
                         'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN ("' + curStepAlias + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
                         'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
                         'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
                     'END as status ',
                     WorkflowStep.position,
                     '(' +
@@ -154,6 +156,13 @@ module.exports = {
                         var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
                         updateObj.id = req.body[i].id;
                         res.updated.push(req.body[i].id);
+                        bologger.log({
+                            user: req.user.id,
+                            action: 'update',
+                            object: 'tasks',
+                            entity: req.body[i].id,
+                            info: 'Update task for product `'+req.params.id+'`'
+                        });
                     }
                 } else { // create
                     var id = yield thunkQuery(
@@ -161,6 +170,13 @@ module.exports = {
                     );
                     req.body[i].id = _.first(id).id;
                     res.inserted.push(req.body[i].id);
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'tasks',
+                        entity: req.body[i].id,
+                        info: 'Add new task for product `'+req.params.id+'`'
+                    });
                 }
 
             }
@@ -291,13 +307,44 @@ module.exports = {
                     yield thunkQuery(Index.update(indexObj).where(Index.id.equals(req.body[i].id)), {
                         'realm': req.param('realm')
                     });
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'update',
+                        object: 'indexes',
+                        entity: req.body[i].id,
+                        info: 'Update index for product `'+req.params.id+'`'
+                    });
 
                     // drop all existing weights
                     yield thunkQuery(IndexQuestionWeight.delete().where(IndexQuestionWeight.indexId.equals(req.body[i].id)), {
                         'realm': req.param('realm')
                     });
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'IndexQuestionWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            indexId: req.body[i].id
+                        },
+                        quantity: 1,
+                        info: 'Drop all existing question weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
+                    });
                     yield thunkQuery(IndexSubindexWeight.delete().where(IndexSubindexWeight.indexId.equals(req.body[i].id)), {
                         'realm': req.param('realm')
+                    });
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'IndexSubindexWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            indexId: req.body[i].id
+                        },
+                        quantity: 1,
+                        info: 'Drop all existing subindex weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
                     });
 
                     indexId = req.body[i].id;
@@ -310,6 +357,13 @@ module.exports = {
 
                     indexId = _.first(id).id;
                     res.inserted.push(indexId);
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'Indexes',
+                        entity: indexId,
+                        info: 'Add new index for product `'+req.params.id+'`'
+                    });
                 }
 
                 // insert weights
@@ -321,6 +375,19 @@ module.exports = {
                         type: req.body[i].questionWeights[questionId].type
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'IndexQuestionWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            indexId: indexId,
+                            questionId: questionId
+                        },
+                        quantity: 1,
+                        info: 'Add new question weight for index `'+indexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
+                    });
                 }
                 for (var subindexId in req.body[i].subindexWeights) {
                     var weightObj = {
@@ -330,6 +397,19 @@ module.exports = {
                         type: req.body[i].subindexWeights[subindexId].type
                     };
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'IndexSubindexWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            indexId: indexId,
+                            subindexId: subindexId
+                        },
+                        quantity: 1,
+                        info: 'Add new subindex weight for index `'+indexId+'` for subindex `'+subindexId+'` for product `'+req.params.id+'`'
+                    });
                 }
             }
 
@@ -397,6 +477,13 @@ module.exports = {
                     yield thunkQuery(Subindex.update(subindexObj).where(Subindex.id.equals(req.body[i].id)), {
                         'realm': req.param('realm')
                     });
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'update',
+                        object: 'Subindexes',
+                        entity: req.body[i].id,
+                        info: 'Update subindex for product `'+req.params.id+'`'
+                    });
 
                     // drop all existing weights
                     yield thunkQuery(SubindexWeight.delete().where(SubindexWeight.subindexId.equals(req.body[i].id)), {
@@ -405,6 +492,18 @@ module.exports = {
 
                     subindexId = req.body[i].id;
                     res.updated.push(subindexId);
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'delete',
+                        object: 'SubindexWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            subindexId: subindexId
+                        },
+                        quantity: 1,
+                        info: 'Drop all existing weights for subindex `'+subindexId+'` for product `'+req.params.id+'`'
+                    });
                 } else { // create
                     subindexObj.productId = req.params.id;
                     var id = yield thunkQuery(Subindex.insert(subindexObj).returning(Subindex.id), {
@@ -413,6 +512,14 @@ module.exports = {
 
                     subindexId = _.first(id).id;
                     res.inserted.push(subindexId);
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'Subindexes',
+                        entity: subindexId,
+                        entities: null,
+                        info: 'Add new subindex for product `'+req.params.id+'`'
+                    });
                 }
 
                 // insert weights
@@ -424,6 +531,19 @@ module.exports = {
                         type: req.body[i].weights[questionId].type
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
+                    bologger.log({
+                        user: req.user.id,
+                        action: 'insert',
+                        object: 'SubindexWeights',
+                        entity: null,
+                        entities: {
+                            productId: req.params.id,
+                            subindexId: subindexId,
+                            questionId: questionId
+                        },
+                        quantity: 1,
+                        info: 'Add new weight for subindex `'+subindexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
+                    });
                 }
             }
 
@@ -454,7 +574,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },  
+    },
 
     aggregateIndexesCsv: function (req, res, next) {
         var productId = parseInt(req.params.id);
@@ -495,7 +615,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },  
+    },
 
   selectOne: function (req, res, next) {
     co(function* (){
@@ -529,6 +649,13 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                user: req.user.id,
+                action: 'delete',
+                object: 'products',
+                entity: req.params.id,
+                info: 'Delete product'
+            });
             res.status(204).end();
         });
     },
@@ -541,6 +668,13 @@ module.exports = {
             }
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'update',
+                object: 'products',
+                entity: req.params.id,
+                info: 'Update product'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -555,6 +689,13 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'products',
+                entity: _.first(data).id,
+                info: 'Add new product'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -585,6 +726,18 @@ module.exports = {
             UOAid: req.params.uoaid
         }), function (err, data) {
             if (!err) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'insert',
+                    object: 'ProductUOA',
+                    entity: null,
+                    entities: {
+                        productId: req.params.id,
+                        uoaId: uoaId
+                    },
+                    quantity: 1,
+                    info: 'Add new subject `'+uoaId+'` for product `'+req.params.id+'`'
+                });
                 res.status(201).end();
             } else {
                 next(err);
@@ -625,8 +778,17 @@ module.exports = {
                 });
             }
 
-            return yield thunkQuery(ProductUOA.insert(insertArr));
+            return yield thunkQuery(ProductUOA.insert(insertArr).returning('*'));
         }).then(function (data) {
+            bologger.log({
+                user: req.user.id,
+                action: 'insert',
+                object: 'ProductUOA',
+                entity: null,
+                entities: data,
+                quantity: data.length,
+                info: 'Add new subjects (uoas) for product `'+req.params.id+'`'
+            });
             res.json(data);
         }, function (err) {
             next(err);
@@ -640,6 +802,18 @@ module.exports = {
             UOAid: req.params.uoaid
         }), function (err, data) {
             if (!err) {
+                bologger.log({
+                    user: req.user.id,
+                    action: 'delete',
+                    object: 'ProductUOA',
+                    entity: null,
+                    entities: {
+                        productId: req.params.id,
+                        uoaId: req.params.uoaid
+                    },
+                    quantity: 1,
+                    info: 'Delete subject `'+req.params.uoaid+'` for product `'+req.params.id+'`'
+                });
                 res.status(204).end();
             } else {
                 next(err);
@@ -740,21 +914,21 @@ function* updateCurrentStepId(req) {
 
 function* dumpProduct(productId) {
   var q =
-          'SELECT ' + 
-          '  "SurveyAnswers"."UOAid" AS "id", ' + 
-          '  "UnitOfAnalysis"."name", ' + 
-          '  "UnitOfAnalysis"."ISO2", ' + 
-          "  format('{%s}', " + 
+          'SELECT ' +
+          '  "SurveyAnswers"."UOAid" AS "id", ' +
+          '  "UnitOfAnalysis"."name", ' +
+          '  "UnitOfAnalysis"."ISO2", ' +
+          "  format('{%s}', " +
           "    string_agg(format('\"%s\":%s', " +
-          '      "SurveyQuestions".id, ' + 
+          '      "SurveyQuestions".id, ' +
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
           '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
           '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
           '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
           '      END ' +
-          "    ), ',') " + 
-          '  ) AS "questions" ' + 
+          "    ), ',') " +
+          '  ) AS "questions" ' +
           'FROM ' +
           '  "SurveyQuestions" ' +
           'LEFT JOIN ' +

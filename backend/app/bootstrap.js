@@ -7,17 +7,30 @@ var config = require('config'),
     bodyParser = require('body-parser'),
     multer = require('multer'),
     passport = require('passport'),
-    app = require('express')(),
     util = require('util'),
     pg = require('pg'),
     fs = require('fs'),
-    HttpError = require('app/error').HttpError;
+    HttpError = require('app/error').HttpError,
+    Query = require('app/util').Query,
+    query = new Query(),
+    thunkify = require('thunkify'),
+    _ = require('underscore'),
+    Language = require('app/models/languages'),
+    thunkQuery = thunkify(query),
+    co = require('co');
+
+app = require('express')();
 
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
 
 
 app.on('start', function () {
+    
+    app.use('/:realm',function(req,res,next){
+        app.locals.realm = req.params.realm;
+        next();
+    });
     // MEMCHACHE
     app.use(function(req,res,next){
         req.mcClient = mcClient;
@@ -59,17 +72,8 @@ app.on('start', function () {
         next();
     });
 
-
-
     app.all('*', function (req, res, next) {
-        var acceptLanguage = require('accept-language'),
-            Query = require('app/util').Query,
-            query = new Query(),
-            thunkify = require('thunkify'),
-            _ = require('underscore'),
-            Language = require('app/models/languages'),
-            thunkQuery = thunkify(query),
-            config = require('config');
+        var acceptLanguage = require('accept-language');
 
         if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
             query(Language.select().from(Language).where(Language.code.equals(config.defaultLang)), function (err, data) {
