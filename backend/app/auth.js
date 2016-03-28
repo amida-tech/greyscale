@@ -55,7 +55,7 @@ passport.use(new BasicStrategy({
                 yield * checkUser(admin, password);
                 return admin;
             } else {
-                if (app.locals.realm == 'public') {
+                if (req.params.realm == 'public') {
 
                     var userArr = [];
 
@@ -80,14 +80,14 @@ passport.use(new BasicStrategy({
                         user = userArr[0];
                         yield * checkUser(user, password);
                         // set namespace to user namespace and go to users.token
-                        app.locals.realm = user.realm;
+                        req.params.realm = user.realm;
                         return user;
                     }
 
                     throw new HttpError(300, userInNamespace);
 
                 } else { // situation after found user in several schemas and set one of them
-                    var user = yield * findUserInNamespace(app.locals.realm, email);
+                    var user = yield * findUserInNamespace(req.params.realm, email);
                     if (!user.length) {
                         throw new HttpError(401, 101);
                     }
@@ -167,13 +167,11 @@ passport.use(new TokenStrategy({
     },
     function (req, tokenBody, done) {
 
-        var thunkQuery = req.thunkQuery;
-
         co(function* (){
 
             // we are looking for all tokens only in public schema
             try{
-                var user = yield* findToken(tokenBody);
+                var user = yield* findToken(req, tokenBody);
             }catch(err){
                 throw new HttpError(500, 'Database error '+err);
             }
@@ -204,17 +202,18 @@ passport.use(new TokenStrategy({
             done(err);
         });
 
-        function * findToken(tokenBody){
-            var realm = app.locals.realm;
+        function * findToken(req, tokenBody){
 
-            app.locals.realm = config.pgConnect.adminSchema; // set schema to admin schema
+            var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-            var existToken = yield thunkQuery(
+            var clientThunkQuery = thunkify(new Query(req.params.realm));
+
+            var existToken = yield admThunkQuery( // select from public
                 Token
                     .select()
                     .where(
                         Token.body.equals(tokenBody)
-                            .and(Token.realm.equals(realm))
+                        .and(Token.realm.equals(req.params.realm))
                     )
             );
 
@@ -222,12 +221,9 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            app.locals.realm = realm; // turn back schema
-
-            var data =  yield thunkQuery(
+            var data =  yield clientThunkQuery(
                 User
                     .select(
-                        //Token.star(),
                         User.star(),
                         Role.name.as('role'),
                         requestRights,
@@ -235,7 +231,6 @@ passport.use(new TokenStrategy({
                     )
                     .from(
                         User
-                            //.leftJoin(User).on(User.id.equals(Token.userID))
                             .leftJoin(Role).on(User.roleID.equals(Role.id))
                             .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
                             .leftJoin(Project).on(Project.organizationId.equals(Organization.id))

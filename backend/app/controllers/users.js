@@ -100,7 +100,9 @@ module.exports = {
 
     logout: function (req, res, next) {
         co(function*(){
-            if (!req.params.id && !req.user.id) {
+            var id = req.params.id || req.user.id;
+
+            if (!id) {
                 throw new HttpError(404);
             }
 
@@ -688,13 +690,13 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        if (req.user.roleID == 1) { //admin
+            var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+        } else {
+            var thunkQuery = thunkify(new Query(req.params.realm));
+        }
+
         co(function* (){
-
-            if (req.user.roleID == 1) {
-                app.locals.realm = 'public';
-            }
-
             var rightsReq =
                 'ARRAY(' +
                     ' SELECT "Rights"."action" FROM "RolesRights" ' +

@@ -2,12 +2,17 @@ var
     HttpError = require('app/error').HttpError,
     moment    = require('moment'),
     _         = require('underscore'),
-    ClientPG  = require('app/db_bootstrap');
+    ClientPG  = require('app/db_bootstrap'),
+    config    = require('config');
 
 
 
 
 exports.Query = function (realm) {
+    if (typeof realm == 'undefined') {
+        realm = config.pgConnect.adminSchema;
+    }
+
     return function (queryObject, options, cb) {
         var client = new ClientPG();
 

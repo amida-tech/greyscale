@@ -28,19 +28,22 @@ app.on('start', function () {
     
     app.use('/:realm',function(req, res, next){
         // realm not set
+        var cpg = config.pgConnect;
         co(function*(){
             var schemas = yield thunkQuery(
                 "SELECT pg_catalog.pg_namespace.nspname " +
                 "FROM pg_catalog.pg_namespace " +
                 "INNER JOIN pg_catalog.pg_user " +
                 "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                "AND (pg_catalog.pg_user.usename = '"+config.pgConnect.user+"')"
+                "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
             );
             req.schemas = [];
             for (var i in schemas) {
-                req.schemas.push(schemas[i].nspname);
+                if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
+                    req.schemas.push(schemas[i].nspname);
+                }
             }
-            if (req.params.realm != config.pgConnect.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
+            if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
                 throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
             }
             return req.params.realm;
