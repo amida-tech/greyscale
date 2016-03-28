@@ -568,7 +568,7 @@ module.exports = {
     aggregateIndexes: function (req, res, next) {
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(productId);
+            return yield aggregateIndexes(productId, false);
         }).then(function (result) {
             res.json(result);
         }, function (err) {
@@ -579,7 +579,7 @@ module.exports = {
     aggregateIndexesCsv: function (req, res, next) {
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(productId);
+            return yield aggregateIndexes(productId, false);
         }).then(function (result) {
             // column titles
             var titles = {
@@ -1072,28 +1072,39 @@ function* getIndexes(productId) {
     });
 }
 
-function* parseNumericalAnswer(raw, questionType) {
-    var parsed;
+function* parseAnswer(answer, questionType) {
     if (questionType === 5 || questionType === 7) { // numerical or currency
-        parsed = parseFloat(raw);
+        return parseFloat(answer);
     } else if (questionType === 3 || questionType === 4) { // single selection
         var selected = (yield thunkQuery(
-            SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
+            SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(answer))
         ))[0];
-
-        parsed = parseFloat(selected.value);
+        return selected.value;
     } else if (questionType === 2) { // multiple selection
         // selected options
         var selected = [];
-        for (var j = 0; j < raw.length; j++) {
+        for (var j = 0; j < answer.length; j++) {
             selected.push((yield thunkQuery(
-                SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw[j]))
+                SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(answer[j]))
             ))[0]);
         }
-
-        parsed = selected.map(function (selection) {
-            return parseFloat(selection.value);
+        return selected.map(function (selection) {
+            return selection.value;
         });
+    } else {
+        return answer;
+    }
+}
+
+function* parseNumericalAnswer(raw, questionType) {
+    var parsed;
+    if (questionType === 5 || questionType === 7) { // numerical or currency
+        parsed = raw;
+    } else if (questionType === 3 || questionType === 4) { // single selection
+        parsed = parseFloat(raw);
+    } else if (questionType === 2) { // multiple selection
+        // selected options
+        parsed = raw.map(parseFloat);
     } else {
         console.log("Aggregation: Parsed %d from %s", parsed, raw);
         console.log("Aggregation: Non-numerical question of type %d", questionType);
@@ -1110,7 +1121,7 @@ function avg(arr) {
     return sum(arr)/arr.length;
 }
 
-function filterData(data, questions, indexes, subindexes) {
+function filterData(data, questions, indexes, subindexes, allQuestions) {
     // only return questions for which at least one UOA has an answer
     var questionsPresent = new Set();
 
@@ -1132,7 +1143,7 @@ function filterData(data, questions, indexes, subindexes) {
         for (var questionId in data[i].questions) {
             if (questionsRequired.has(questionId)) {
                 questionsPresent.add(questionId);
-            } else {
+            } else if (!allQuestions) {
                 delete data[i].questions[questionId];
             }
         }
@@ -1143,10 +1154,10 @@ function filterData(data, questions, indexes, subindexes) {
         return questionsPresent.has(question.id.toString());
     });
 
-    return { data: data, questions: questions };
+    return { questions: questions, questionsRequired: questionsRequired };
 }
 
-function* parseNumericalAnswers(data, questions) {
+function* parseAnswers(data, questions, questionsRequired) {
     // type of each question
     var questionTypes = {};
     questions.forEach(function (question) {
@@ -1155,10 +1166,19 @@ function* parseNumericalAnswers(data, questions) {
 
     for (var i = 0; i < data.length; i++) {
         for (var questionId in data[i].questions) {
-            data[i].questions[questionId] = yield parseNumericalAnswer(
+            // turn option id into options
+            data[i].questions[questionId] = yield parseAnswer(
                 data[i].questions[questionId],
                 questionTypes[questionId]
             );
+
+            // only questions which we're using in aggregation
+            if (questionsRequired.has(questionId)) {
+                data[i].questions[questionId] = yield parseNumericalAnswer(
+                    data[i].questions[questionId],
+                    questionTypes[questionId]
+                );
+            }
         }
     }
 
@@ -1246,7 +1266,7 @@ function calcTerm(weights, vals, minsMaxes) {
     return value;
 }
 
-function* aggregateIndexes(productId) {
+function* aggregateIndexes(productId, allQuestions) {
     // get data
     var data = yield dumpProduct(productId);
     var subindexes = yield getSubindexes(productId);
@@ -1254,12 +1274,24 @@ function* aggregateIndexes(productId) {
     var questions = yield getQuestions(productId);
 
     // initial preprocessing
-    var filtered = filterData(data, questions, indexes, subindexes);
-    questions = filtered.questions;
-    data = yield parseNumericalAnswers(filtered.data, questions);
+    var filtered = filterData(data, questions, indexes, subindexes, allQuestions);
+    if (!allQuestions) {
+        questions = filtered.questions;
+    }
+    data = yield parseAnswers(data, questions, filtered.questionsRequired);
 
     // precalculate min/max of questions for subindex percentile calculations
-    qMinsMaxes = calcMinsMaxes(_.pluck(data, 'questions'));
+    // qMinsMaxes = calcMinsMaxes(_.pluck(data, 'questions'));
+    qMinsMaxes = calcMinsMaxes(data.map(function (datum) {
+        var qs = {};
+        for (var qid in datum.questions) {
+            if (filtered.questionsRequired.has(qid)) {
+                qs[qid] = datum.questions[qid];
+            }
+        }
+        return qs;
+    }));
+    console.log(qMinsMaxes);
 
     // calculate subindexes
     for (var i = 0; i < data.length; i++) {
@@ -1296,3 +1328,4 @@ function* aggregateIndexes(productId) {
 
     return result;
 }
+module.exports.calcAggregateIndexes = aggregateIndexes;
