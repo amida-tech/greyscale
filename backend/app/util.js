@@ -4,7 +4,10 @@ var
     _         = require('underscore'),
     ClientPG  = require('app/db_bootstrap');
 
-exports.Query = function () {
+
+
+
+exports.Query = function (realm) {
     return function (queryObject, options, cb) {
         var client = new ClientPG();
 
@@ -26,10 +29,11 @@ exports.Query = function () {
             if (typeof queryObject === 'string') {
 
                 var queryString =
-                    (typeof app.locals.realm != 'undefined') ?
-                    ("SET search_path TO "+app.locals.realm+"; " + queryObject)
+                    (typeof realm != 'undefined') ?
+                    ("SET search_path TO "+realm+"; " + queryObject)
                     : queryObject;
                 console.log(queryString);
+
                 client.query(queryString, options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
@@ -104,10 +108,10 @@ exports.Query = function () {
 
                 }
 
-                var queryString =
-                    (typeof app.locals.realm == 'undefined')
+                var queryString = // TODO turn back original function
+                    (typeof realm == 'undefined')
                     ? queryObject.toQuery().text
-                    : "SET search_path TO "+app.locals.realm+"; " + queryObject.toQuery().text;
+                    : "SET search_path TO " + realm + "; " + queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 

@@ -19,7 +19,7 @@ var Query = require('app/util').Query,
     sql = require('sql'),
     _ = require('underscore'),
     co = require('co'),
-    thunkify = require('thunkify'),
+    thunkify = require('thunkify');
     thunkQuery = thunkify(query);
 
 var Right = require('app/models/rights'),
@@ -43,7 +43,7 @@ passport.use(new BasicStrategy({
         passReqToCallback: true
     },
     function (req, email, password, done) {
-
+        //var thunkQuery = req.thunkQuery;
         co(function* (){
 
             var userInNamespace = [];
@@ -52,9 +52,6 @@ passport.use(new BasicStrategy({
             var admin = yield *checkIsAdmin(email);
 
             if (admin) {
-                //if (app.locals.realm == 'public') {
-                //    throw new HttpError(300, req.schemas);
-                //}
                 yield * checkUser(admin, password);
                 return admin;
             } else {
@@ -110,8 +107,6 @@ passport.use(new BasicStrategy({
         });
 
         function *checkIsAdmin (email){
-            var curNamespace = app.locals.realm;
-            app.locals.realm = 'public';
 
             var user =  yield thunkQuery(
                 User.select().where(
@@ -121,7 +116,6 @@ passport.use(new BasicStrategy({
                     }
                 )
             );
-            app.locals.realm = curNamespace;
 
             if(user.length){
                 return user[0];
@@ -142,9 +136,7 @@ passport.use(new BasicStrategy({
         }
 
         function *findUserInNamespace (namespace, email){
-            console.log('find User');
-            app.locals.realm = namespace; // SET NEW NAMESPACE
-
+            var thunkQuery = thunkify(new Query(namespace));
             return yield thunkQuery(
                 User
                     .select(
@@ -174,6 +166,8 @@ passport.use(new TokenStrategy({
         passReqToCallback: true
     },
     function (req, tokenBody, done) {
+
+        var thunkQuery = req.thunkQuery;
 
         co(function* (){
 
@@ -315,6 +309,7 @@ module.exports = {
 
     checkPermission: function (action) {
         return function (req, res, next) {
+            var thunkQuery = req.thunkQuery;
             co(function* () {
 
                 if (req.user.roleID === 1) {
@@ -383,6 +378,7 @@ module.exports = {
 
     checkRight: function (action) {
         return function (req, res, next) {
+            var thunkQuery = req.thunkQuery;
             if (!action) {
                 next(new HttpError(400, 'Bad action!'));
             }
