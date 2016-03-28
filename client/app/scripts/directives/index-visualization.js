@@ -43,7 +43,7 @@ angular.module('greyscaleApp')
                         return $q.when(null);
                     }
 
-                    return greyscaleProductApi.product(product.id).indexes().then(function (vizData) {
+                    return greyscaleProductApi.product(product.id).aggregate().then(function (vizData) {
                         scope.vizData = vizData.agg;
                         scope.topics = vizData.agg.map(function (row) {
                             return {

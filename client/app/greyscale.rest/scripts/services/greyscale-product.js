@@ -47,7 +47,7 @@ angular.module('greyscale.rest')
             return api().one(productId + '').one('subindexes');
         }
 
-        function _indexes(productId) {
+        function _aggregate(productId) {
             return function () {
                 return api().one(productId + '').one('aggregate').get();
             };
@@ -134,7 +134,7 @@ angular.module('greyscale.rest')
                 tasksListUpdate: _tasksListUpdate(productId),
                 tasksDel: _tasksDel(productId),
                 taskMove: _taskMove(productId),
-                indexes: _indexes(productId),
+                aggregate: _aggregate(productId),
                 indexesList: _indexesList(productId),
                 indexesListUpdate: _indexesListUpdate(productId),
                 subindexesList: _subindexesList(productId),
