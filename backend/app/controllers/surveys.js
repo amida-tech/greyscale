@@ -109,6 +109,14 @@ module.exports = {
             }
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'Surveys',
+                entity: req.params.id,
+                info: 'Delete survey'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);
