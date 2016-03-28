@@ -528,10 +528,10 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
 var DataExport = require('app/controllers/data_export');
 
 router.route('/:realm/v0.2/data-api/datasets')
-    .get(DataExport.select);
+    .get(DataExport.authenticate, DataExport.select);
 
 router.route('/:realm/v0.2/data-api/datasets/:id')
-    .get(DataExport.selectOne);
+    .get(DataExport.authenticate, DataExport.selectOne);
 
 
 module.exports = router;
