@@ -695,6 +695,7 @@ function* updateProductUOAStep(req, object) {
         });
     } else {
         bologger.error({
+            req: req,
             action: 'update',
             object: 'productUOA',
             entity: null,
@@ -738,6 +739,7 @@ function* checkUpdateProductUOAStep(req, object) {
             });
         } else {
             bologger.error({
+                req: req,
                 action: 'update',
                 object: 'productUOA',
                 entity: null,
@@ -762,6 +764,7 @@ function* updateReturnTask(req, discussionId) {
         });
     } else {
         bologger.error({
+            req: req,
             action: 'update',
             entity: discussionId,
             info: 'Update task, that was returned before (resolve task)'
