@@ -221,8 +221,6 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            console.log(existToken);
-
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
                     User
@@ -240,26 +238,28 @@ passport.use(new TokenStrategy({
                         )
                 );
             } else {
-                var data =  yield clientThunkQuery(
-                    User
-                        .select(
-                            User.star(),
-                            Role.name.as('role'),
-                            requestRights,
-                            Project.id.as('projectId')
-                        )
-                        .from(
-                            User
-                                .leftJoin(Role).on(User.roleID.equals(Role.id))
-                                .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                                .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
-                        )
-                        .where(
-                            User.id.equals(existToken[0].userID)
-                        )
-                );
+                if (existToken[0].realm == req.params.realm) {
+                    var data =  yield clientThunkQuery(
+                        User
+                            .select(
+                                User.star(),
+                                Role.name.as('role'),
+                                requestRights,
+                                Project.id.as('projectId')
+                            )
+                            .from(
+                                User
+                                    .leftJoin(Role).on(User.roleID.equals(Role.id))
+                                    .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                                    .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                            )
+                            .where(
+                                User.id.equals(existToken[0].userID)
+                            )
+                    );
+                }
+                return false;
             }
-
 
             return (data[0] ? data[0] : false);
 
