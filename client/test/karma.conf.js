@@ -61,6 +61,7 @@ module.exports = function(config) {
       'bower_components/file-saver.js/FileSaver.js',
       'bower_components/angular-file-saver/dist/angular-file-saver.bundle.js',
       'bower_components/socket.io-client/socket.io.js',
+      'bower_components/d3-tip/index.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",
