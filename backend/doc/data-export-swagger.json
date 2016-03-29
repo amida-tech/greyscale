@@ -1,0 +1,247 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Indaba Data API",
+        "description": "Turn knowledge into data",
+        "version": "0.2"
+    },
+    "host": "localhost:3005",
+    "schemes": [
+        "http"
+    ],
+    "basePath": "/google/v0.2/data-api",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/datasets": {
+            "get": {
+                "summary": "List Datasets",
+                "description": "List all datasets available for download\n",
+                "tags": [
+                    "Datasets"
+                ],
+                "parameters": [
+                    {
+                        "name": "api_key",
+                        "in": "query",
+                        "type": "string",
+                        "description": "API key issued by client organization",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "An array of datasets",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/DatasetOverview"
+                            }
+                        },
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "id": 1,
+                                    "title": "Malaria Dataset"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/datasets/{id}": {
+            "get": {
+                "summary": "Dump Dataset",
+                "description": "Return specific dataset, including calculated subindexes and indexes\n",
+                "tags": [
+                    "Datasets"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "type": "number",
+                        "description": "Unique identifier of dataset",
+                        "required": true
+                    },
+                    {
+                        "name": "api_key",
+                        "in": "query",
+                        "type": "string",
+                        "description": "API key issued by client organization",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Dataset data",
+                        "schema": {
+                            "$ref": "#/definitions/Dataset"
+                        },
+                        "examples": {
+                            "application/json": {
+                                "questions": [
+                                    {
+                                        "id": 1,
+                                        "title": "What is the Health Budget for Malaria?"
+                                    },
+                                    {
+                                        "id": 2,
+                                        "title": "What is the state of Malaria in your country?"
+                                    }
+                                ],
+                                "subindexes": [
+                                    {
+                                        "id": 1,
+                                        "title": "Malaria Rating Subindex"
+                                    }
+                                ],
+                                "indexes": [
+                                    {
+                                        "id": 1,
+                                        "title": "Malaria Rating index"
+                                    }
+                                ],
+                                "data": [
+                                    {
+                                        "id": 1,
+                                        "name": "Narnia",
+                                        "ISO2": "NA",
+                                        "questions": {
+                                            "1": 100000,
+                                            "2": "Average"
+                                        },
+                                        "subindexes": {
+                                            "1": 100
+                                        },
+                                        "indexes": {
+                                            "1": 12
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "DatasetOverview": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "description": "Unique identifier for dataset"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of dataset"
+                }
+            }
+        },
+        "Dataset": {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Question"
+                    }
+                },
+                "subindexes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Subindex"
+                    }
+                },
+                "indexes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Index"
+                    }
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Target"
+                    }
+                }
+            }
+        },
+        "Question": {
+            "type": "object",
+            "description": "Question gathered in dataset",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier of question"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of question"
+                }
+            }
+        },
+        "Subindex": {
+            "type": "object",
+            "description": "Subindex calculated from dataset",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier of subindex"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of subindex"
+                }
+            }
+        },
+        "Index": {
+            "type": "object",
+            "description": "Index calculated from dataset",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier of index"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Title of index"
+                }
+            }
+        },
+        "Target": {
+            "type": "object",
+            "description": "Dataset values for a single target (country)",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "Unique identifier of target"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Name of target"
+                },
+                "ISO2": {
+                    "type": "string",
+                    "description": "ISO 2-letter country code of target"
+                },
+                "questions": {
+                    "type": "object",
+                    "description": "Values of questions answered for target ({questionId: value})      \n"
+                },
+                "subindexes": {
+                    "type": "object",
+                    "description": "Values of subindexes calculated for target ({subindexId: value}) \n"
+                },
+                "indexes": {
+                    "type": "object",
+                    "description": "Values of indexes calculated for target ({indexId: value})\n"
+                }
+            }
+        }
+    }
+}

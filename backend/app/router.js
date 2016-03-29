@@ -522,4 +522,16 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
     .put(authenticate('token').always, /*checkRight(), */ Visualization.updateOne)
     .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
 
+//----------------------------------------------------------------------------------------------------------------------
+//    Data Export
+//----------------------------------------------------------------------------------------------------------------------
+var DataExport = require('app/controllers/data_export');
+
+router.route('/:realm/v0.2/data-api/datasets')
+    .get(DataExport.authenticate, DataExport.select);
+
+router.route('/:realm/v0.2/data-api/datasets/:id')
+    .get(DataExport.authenticate, DataExport.selectOne);
+
+
 module.exports = router;
