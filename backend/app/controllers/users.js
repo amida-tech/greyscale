@@ -77,20 +77,13 @@ module.exports = {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
         co(function* () {
-            // NOT possible to detect admin because user can be not authorized
-
-            //if (req.user.roleID == 1) {
-            //    var realm = config.pgConnect.adminSchema;
-            //} else {
-            //    var realm = req.params.realm;
-            //}
 
             var existToken = yield thunkQuery(
                 Token
                 .select()
                 .where(
                     Token.body.equals(req.params.token)
-                    //.and(Token.realm.equals(realm))
+                    .and(Token.realm.equals(req.params.realm))
                 )
             );
 

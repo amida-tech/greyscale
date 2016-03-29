@@ -38,6 +38,13 @@ app.on('start', function () {
         var cpg = config.pgConnect;
         co(function*(){
 
+            // reset
+            //try{
+            //    var schemas = yield mc.set(req.mcClient, 'schemas', 'sdf', 1);
+            //}catch(e){
+            //    throw new HttpError(500, e);
+            //}
+
             try{
                 var schemas = yield mc.get(req.mcClient, 'schemas');
             }catch(e){
@@ -61,7 +68,7 @@ app.on('start', function () {
                     }
                 }
                 try{
-                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 600);
+                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
                 }catch(e){
                     throw new HttpError(500, e);
                 }

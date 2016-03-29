@@ -148,7 +148,7 @@ passport.use(new BasicStrategy({
                         User
                             .leftJoin(Role)
                             .on(User.roleID.equals(Role.id))
-                            .leftJoin(Organization)
+                            .join(Organization)
                             .on(User.organizationId.equals(Organization.id))
                     )
                     .where(
