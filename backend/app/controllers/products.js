@@ -34,6 +34,8 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(
                 Product
@@ -55,6 +57,8 @@ module.exports = {
     },
 
     tasks: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             var curStepAlias = 'curStep';
             return yield thunkQuery(
@@ -119,6 +123,8 @@ module.exports = {
     },
 
     editTasks: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             var product = yield thunkQuery(
                 Product.select().where(Product.id.equals(req.params.id))
@@ -157,6 +163,7 @@ module.exports = {
                         updateObj.id = req.body[i].id;
                         res.updated.push(req.body[i].id);
                         bologger.log({
+                            req: req,
                             user: req.user.id,
                             action: 'update',
                             object: 'tasks',
@@ -171,6 +178,7 @@ module.exports = {
                     req.body[i].id = _.first(id).id;
                     res.inserted.push(req.body[i].id);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'tasks',
@@ -190,7 +198,9 @@ module.exports = {
     },
 
   export: function (req, res, next) {
-    co(function* (){
+      var thunkQuery = req.thunkQuery;
+
+      co(function* (){
       var q =
               'SELECT ' +
               '"Tasks"."id" as "taskId", ' +
@@ -262,9 +272,11 @@ module.exports = {
   },
 
     indexes: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield getIndexes(productId);
+            return yield getIndexes(req, productId);
         }).then(function (indexes) {
             res.json(indexes);
         }, function (err) {
@@ -273,6 +285,8 @@ module.exports = {
     },
 
     editIndexes: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             var product = yield thunkQuery(
                 Product.select().where(Product.id.equals(req.params.id))
@@ -308,6 +322,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'update',
                         object: 'indexes',
@@ -320,6 +335,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'IndexQuestionWeights',
@@ -335,6 +351,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'IndexSubindexWeights',
@@ -358,6 +375,7 @@ module.exports = {
                     indexId = _.first(id).id;
                     res.inserted.push(indexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'Indexes',
@@ -376,6 +394,7 @@ module.exports = {
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'IndexQuestionWeights',
@@ -398,6 +417,7 @@ module.exports = {
                     };
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'IndexSubindexWeights',
@@ -433,9 +453,11 @@ module.exports = {
 
 
     subindexes: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield getSubindexes(productId);
+            return yield getSubindexes(req, productId);
         }).then(function (subindexes) {
             res.json(subindexes);
         }, function (err) {
@@ -444,6 +466,8 @@ module.exports = {
     },
 
     editSubindexes: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             var product = yield thunkQuery(
                 Product.select().where(Product.id.equals(req.params.id))
@@ -478,6 +502,7 @@ module.exports = {
                         'realm': req.param('realm')
                     });
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'update',
                         object: 'Subindexes',
@@ -493,6 +518,7 @@ module.exports = {
                     subindexId = req.body[i].id;
                     res.updated.push(subindexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
                         object: 'SubindexWeights',
@@ -513,6 +539,7 @@ module.exports = {
                     subindexId = _.first(id).id;
                     res.inserted.push(subindexId);
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'Subindexes',
@@ -532,6 +559,7 @@ module.exports = {
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'insert',
                         object: 'SubindexWeights',
@@ -566,9 +594,11 @@ module.exports = {
     },
 
     aggregateIndexes: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(productId, false);
+            return yield aggregateIndexes(req, productId, false);
         }).then(function (result) {
             res.json(result);
         }, function (err) {
@@ -577,9 +607,11 @@ module.exports = {
     },
 
     aggregateIndexesCsv: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(productId, false);
+            return yield aggregateIndexes(req, productId, false);
         }).then(function (result) {
             // column titles
             var titles = {
@@ -617,39 +649,46 @@ module.exports = {
         });
     },
 
-  selectOne: function (req, res, next) {
-    co(function* (){
-      var product =  yield thunkQuery(
-          Product
-              .select(
-                  Product.star(),
-                  'row_to_json("Workflows".*) as workflow'
-              )
-              .from(
-                  Product
-                      .leftJoin(Workflow)
-                      .on(Product.id.equals(Workflow.productId))
-              )
-          .where(Product.id.equals(req.params.id))
-      );
-      if(!_.first(product)){
-        throw new HttpError(403, 'Not found');
-      }
-      return _.first(product);
-    }).then(function(data){
-      res.json(data);
-    },function(err){
-      next(err);
-    })
-  },
+    selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
+        co(function* (){
+            var product =  yield thunkQuery(
+                Product
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows".*) as workflow'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Product.id.equals(Workflow.productId))
+                )
+                .where(Product.id.equals(req.params.id))
+            );
+
+            if(!_.first(product)){
+                throw new HttpError(403, 'Not found');
+            }
+
+            return _.first(product);
+        }).then(function(data){
+            res.json(data);
+        },function(err){
+            next(err);
+        })
+    },
 
     delete: function (req, res, next) {
-        var q = Product.delete().where(Product.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Product.delete().where(Product.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'products',
@@ -657,10 +696,14 @@ module.exports = {
                 info: 'Delete product'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
@@ -669,6 +712,7 @@ module.exports = {
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'products',
@@ -682,6 +726,8 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield * checkProductData(req);
             var result = yield thunkQuery(
@@ -690,6 +736,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'products',
@@ -703,6 +750,8 @@ module.exports = {
     },
 
     UOAselect: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(
                 ProductUOA.select(UOA.star(), ProductUOA.currentStepId)
@@ -721,31 +770,39 @@ module.exports = {
     },
 
     UOAadd: function (req, res, next) {
-        query(ProductUOA.insert({
-            productId: req.params.id,
-            UOAid: req.params.uoaid
-        }), function (err, data) {
-            if (!err) {
-                bologger.log({
-                    user: req.user.id,
-                    action: 'insert',
-                    object: 'ProductUOA',
-                    entity: null,
-                    entities: {
-                        productId: req.params.id,
-                        uoaId: uoaId
-                    },
-                    quantity: 1,
-                    info: 'Add new subject `'+uoaId+'` for product `'+req.params.id+'`'
-                });
-                res.status(201).end();
-            } else {
-                next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            yield thunkQuery(
+                ProductUOA.insert({
+                    productId: req.params.id,
+                    UOAid: req.params.uoaid
+                })
+            );
+        }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'ProductUOA',
+                entity: null,
+                entities: {
+                    productId: req.params.id,
+                    uoaId: uoaId
+                },
+                quantity: 1,
+                info: 'Add new subject `'+uoaId+'` for product `'+req.params.id+'`'
+            });
+
+            res.status(201).end();
+        }, function(err){
+            next(err);
         });
     },
 
     UOAaddMultiple: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of unit ids in request body');
@@ -781,6 +838,7 @@ module.exports = {
             return yield thunkQuery(ProductUOA.insert(insertArr).returning('*'));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'ProductUOA',
@@ -797,33 +855,40 @@ module.exports = {
     },
 
     UOAdelete: function (req, res, next) {
-        query(ProductUOA.delete().where({
-            productId: req.params.id,
-            UOAid: req.params.uoaid
-        }), function (err, data) {
-            if (!err) {
-                bologger.log({
-                    user: req.user.id,
-                    action: 'delete',
-                    object: 'ProductUOA',
-                    entity: null,
-                    entities: {
-                        productId: req.params.id,
-                        uoaId: req.params.uoaid
-                    },
-                    quantity: 1,
-                    info: 'Delete subject `'+req.params.uoaid+'` for product `'+req.params.id+'`'
-                });
-                res.status(204).end();
-            } else {
-                next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                ProductUOA.delete().where({
+                    productId: req.params.id,
+                    UOAid: req.params.uoaid
+                })
+            );
+        }).then(function(){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'ProductUOA',
+                entity: null,
+                entities: {
+                    productId: req.params.id,
+                    uoaId: req.params.uoaid
+                },
+                quantity: 1,
+                info: 'Delete subject `'+req.params.uoaid+'` for product `'+req.params.id+'`'
+            });
+            res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     }
 
 };
 
 function* checkProductData(req) {
+    var thunkQuery = req.thunkQuery;
     if (!req.params.id) { // create
         if (!req.body.projectId) {
             throw new HttpError(403, 'Matrix id and Project id fields are required');
@@ -861,7 +926,7 @@ function* checkProductData(req) {
 }
 
 function* updateCurrentStepId(req) {
-
+    var thunkQuery = req.thunkQuery;
     var result;
     // get min step position for specified productId
     var minStepPositionQuery =
@@ -912,8 +977,9 @@ function* updateCurrentStepId(req) {
 
 }
 
-function* dumpProduct(productId) {
-  var q =
+function* dumpProduct(req, productId) {
+    var thunkQuery = req.thunkQuery;
+    var q =
           'SELECT ' +
           '  "SurveyAnswers"."UOAid" AS "id", ' +
           '  "UnitOfAnalysis"."name", ' +
@@ -1000,7 +1066,8 @@ function parseWeights(weightsString) {
     }
 }
 
-function* getSubindexes(productId) {
+function* getSubindexes(req, productId) {
+    var thunkQuery = req.thunkQuery;
     var q =
           'SELECT ' +
           '  "Subindexes"."id", ' +
@@ -1031,8 +1098,9 @@ function* getSubindexes(productId) {
     });
 }
 
-function* getIndexes(productId) {
-    q =
+function* getIndexes(req, productId) {
+    var thunkQuery = req.thunkQuery;
+    var q =
         'SELECT ' +
         '  "Indexes"."id", ' +
         '  "Indexes"."title", ' +
@@ -1072,7 +1140,9 @@ function* getIndexes(productId) {
     });
 }
 
-function* parseAnswer(answer, questionType) {
+function* parseAnswer(req, answer, questionType) {
+    var thunkQuery = req.thunkQuery;
+
     if (questionType === 5 || questionType === 7) { // numerical or currency
         return parseFloat(answer);
     } else if (questionType === 3 || questionType === 4) { // single selection
@@ -1120,7 +1190,6 @@ function sum(arr) {
 function avg(arr) {
     return sum(arr)/arr.length;
 }
-
 function filterData(data, questions, indexes, subindexes, allQuestions) {
     // only return questions for which at least one UOA has an answer
     var questionsPresent = new Set();
@@ -1157,7 +1226,7 @@ function filterData(data, questions, indexes, subindexes, allQuestions) {
     return { questions: questions, questionsRequired: questionsRequired };
 }
 
-function* parseAnswers(data, questions, questionsRequired) {
+function* parseAnswers(req, data, questions, questionsRequired) {
     // type of each question
     var questionTypes = {};
     questions.forEach(function (question) {
@@ -1168,6 +1237,7 @@ function* parseAnswers(data, questions, questionsRequired) {
         for (var questionId in data[i].questions) {
             // turn option id into options
             data[i].questions[questionId] = yield parseAnswer(
+                req,
                 data[i].questions[questionId],
                 questionTypes[questionId]
             );
@@ -1185,7 +1255,8 @@ function* parseAnswers(data, questions, questionsRequired) {
     return data;
 }
 
-function* getQuestions(productId) {
+function* getQuestions(req, productId) {
+    var thunkQuery = req.thunkQuery;
     q =
         'SELECT ' +
         '  "SurveyQuestions"."id", ' +
@@ -1266,19 +1337,19 @@ function calcTerm(weights, vals, minsMaxes) {
     return value;
 }
 
-function* aggregateIndexes(productId, allQuestions) {
+function* aggregateIndexes(req, productId, allQuestions) {
     // get data
-    var data = yield dumpProduct(productId);
-    var subindexes = yield getSubindexes(productId);
-    var indexes = yield getIndexes(productId);
-    var questions = yield getQuestions(productId);
+    var data = yield dumpProduct(req, productId);
+    var subindexes = yield getSubindexes(req, productId);
+    var indexes = yield getIndexes(req, productId);
+    var questions = yield getQuestions(req, productId);
 
     // initial preprocessing
     var filtered = filterData(data, questions, indexes, subindexes, allQuestions);
     if (!allQuestions) {
         questions = filtered.questions;
     }
-    data = yield parseAnswers(data, questions, filtered.questionsRequired);
+    data = yield parseAnswers(req, data, questions, filtered.questionsRequired);
 
     // precalculate min/max of questions for subindex percentile calculations
     // qMinsMaxes = calcMinsMaxes(_.pluck(data, 'questions'));

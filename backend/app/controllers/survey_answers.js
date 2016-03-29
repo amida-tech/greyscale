@@ -30,6 +30,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 SurveyAnswer
@@ -53,6 +54,7 @@ module.exports = {
     },
 
     getByProdUoa: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var condition = _.pick(req.params,['productId','UOAid']);
 
@@ -126,6 +128,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             var result = yield thunkQuery(
                 SurveyAnswer
@@ -156,23 +159,29 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Delete survey answer'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     update: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             if((typeof req.body.isResponse == 'undefined') || (typeof req.body.value == 'undefined')){
                 throw new HttpError(400, 'You should pass isResponse and value parameters');
@@ -238,9 +247,10 @@ module.exports = {
 
         }).then(function (data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'survey answers',
+                object: 'SurveyAnswers',
                 entity: req.params.id,
                 info: 'Update survey answer'
             });
@@ -251,6 +261,7 @@ module.exports = {
     },
 
     add: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if(!Array.isArray(req.body)){
                 req.body = [req.body];
@@ -287,6 +298,7 @@ module.exports = {
     },
 
     productUOAmove: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             try{
                 yield * moveWorkflow(req, req.params.id, req.params.uoaid);
@@ -301,6 +313,7 @@ module.exports = {
     },
 
     delAttachment: function(req, res, next){
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             var attach = yield thunkQuery(
                 AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
@@ -314,6 +327,7 @@ module.exports = {
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'answerattachments',
@@ -327,6 +341,7 @@ module.exports = {
     },
 
     getAttachment: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             try{
                 var id = yield mc.get(req.mcClient, req.params.ticket);
@@ -355,6 +370,7 @@ module.exports = {
         });
     },
     getTicket: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
 
             var attachment = yield thunkQuery(
@@ -382,6 +398,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
     },
 
     linkAttach: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var attach = yield thunkQuery(
                 AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
@@ -412,6 +429,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 
         }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'answerattachments',
@@ -425,6 +443,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
     },
 
     attach: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             if (req.body.answerId) {
                 var answer = yield thunkQuery(
@@ -478,6 +497,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                     AnswerAttachment.insert(record).returning(AnswerAttachment.id)
                 );
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'insert',
                     object: 'answerattachments',
@@ -502,7 +522,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 };
 
 function *addAnswer (req, dataObject) {
-
+    var thunkQuery = req.thunkQuery;
     if (!Array.isArray(dataObject.optionId)) {
         dataObject.optionId = [dataObject.optionId];
     }
@@ -663,9 +683,10 @@ function *addAnswer (req, dataObject) {
                 .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'update',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: existsNullVer[0].id,
             info: 'Update survey answer'
         });
@@ -677,9 +698,10 @@ function *addAnswer (req, dataObject) {
         );
         answer = answer[0];
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'insert',
-            object: 'survey answers',
+            object: 'SurveyAnswers',
             entity: answer.id,
             info: 'Add new survey answer'
         });
@@ -689,6 +711,7 @@ function *addAnswer (req, dataObject) {
 }
 
 function *moveWorkflow (req, productId, UOAid) {
+    var thunkQuery = req.thunkQuery;
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
@@ -753,93 +776,70 @@ function *moveWorkflow (req, productId, UOAid) {
             )
     );
 
-    //var _numberOfQuestions = yield thunkQuery(
-    //    'SELECT COUNT(*) ' +
-    //    'FROM "SurveyQuestions" ' +
-    //    'WHERE "surveyId" = ' + curStep.survey.id
-    //);
-    //
-    //var _numberOfVersioned = yield thunkQuery(
-    //    'SELECT COUNT(v."questionId") ' +
-    //    'FROM (' +
-    //        'SELECT "questionId", MAX("version") AS maxVersion ' +
-    //        'FROM "SurveyAnswers" ' +
-    //        'WHERE "UOAid" = ' + UOAid + ' ' +
-    //        'AND "wfStepId" = ' + curStep.id + ' ' +
-    //        'AND "productId" = ' + productId + ' ' +
-    //        'AND "version" IS NOT NULL ' +
-    //        'GROUP BY "questionId"' +
-    //    ') AS v ' +
-    //    'GROUP BY v.maxVersion');
 
-    //if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
-        if(nextStep[0]){ // next step exists, set it to current
+    if(nextStep[0]){ // next step exists, set it to current
+        yield thunkQuery(
+            ProductUOA
+                .update({currentStepId: nextStep[0].id})
+                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+        );
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'update',
+            object: 'ProductUOA',
+            entities: {
+                productId: curStep.task.productId,
+                uoaId: curStep.task.uoaId,
+                currentStepId: nextStep[0].id
+            },
+            quantity: 1,
+            info: 'Update currentStep to `'+nextStep[0].id+'` for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+        });
+    }else{
+        // set productUOA status to complete
+        yield thunkQuery(
+            ProductUOA
+                .update({isComplete: true})
+                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+        );
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'update',
+            object: 'ProductUOA',
+            entities: {
+                productId: curStep.task.productId,
+                uoaId: curStep.task.uoaId,
+                isComplete: true
+            },
+            quantity: 1,
+            info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+        });
+        var uncompleted = yield thunkQuery( // check for uncompleted
+            ProductUOA
+                .select()
+                .where(
+                    {
+                        productId: curStep.task.productId,
+                        isComplete: false
+                    }
+                )
+        );
+        if (!uncompleted.length) { // set product status to complete
             yield thunkQuery(
-                ProductUOA
-                    .update({currentStepId: nextStep[0].id})
-                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'ProductUOA',
-                entities: {
-                    productId: curStep.task.productId,
-                    uoaId: curStep.task.uoaId,
-                    currentStepId: nextStep[0].id
-                },
-                quantity: 1,
-                info: 'Update currentStep to `'+nextStep[0].id+'` for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+                object: 'Product',
+                entity: curStep.task.productId,
+                info: 'Set product status to complete'
             });
-        }else{
-            // set productUOA status to complete
-            yield thunkQuery(
-                ProductUOA
-                    .update({isComplete: true})
-                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
-            );
-            bologger.log({
-                user: req.user.id,
-                action: 'update',
-                object: 'ProductUOA',
-                entities: {
-                    productId: curStep.task.productId,
-                    uoaId: curStep.task.uoaId,
-                    isComplete: true
-                },
-                quantity: 1,
-                info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
-            });
-            var uncompleted = yield thunkQuery( // check for uncompleted
-                ProductUOA
-                    .select()
-                    .where(
-                        {
-                            productId: curStep.task.productId,
-                            isComplete: false
-                        }
-                    )
-            );
-            if (!uncompleted.length) { // set product status to complete
-                yield thunkQuery(
-                    Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
-                );
-                bologger.log({
-                    user: req.user.id,
-                    action: 'update',
-                    object: 'Product',
-                    entity: curStep.task.productId,
-                    info: 'Set product status to complete'
-                });
-            }
         }
-        console.log(nextStep);
-    //} else {
-    //    throw new HttpError(
-    //        403,
-    //        'Some questions don\'t have answers ' +
-    //        '(questions = '+_numberOfQuestions[0].count+'' +
-    //        ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
-    //        ', cannot move to another step');
-    //}
+    }
+    console.log(nextStep);
+
 }

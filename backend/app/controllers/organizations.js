@@ -22,21 +22,28 @@ var _ = require('underscore'),
 
 module.exports = {
 
-    selectOne: function (req, res, next) {
-        var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+    selectOne: function (req, res, next) { //TODO superadmin request
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Organization.select().from(Organization).where(Organization.id.equals(req.params.id))
+            );
+            if(!data.length) {
+                throw new HttpError(404, 'Not found');
             }
-            if (_.first(data)) {
-                res.json(_.first(data));
-            } else {
-                next(new HttpError(404, 'Not found'));
-            }
+            return data;
+        }).then(function(data){
+            res.json(_.first(data));
+        }, function(err){
+            next(err);
         });
+
     },
 
     selectProducts: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(
                 Product
@@ -56,20 +63,36 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
-            return yield thunkQuery(
-                Organization
-                .select(
-                    Organization.star(),
-                    '(SELECT ' +
-                        '"Projects"."id" ' +
-                    'FROM "Projects"' +
-                    'WHERE ' +
-                        '"Projects"."organizationId" = "Organizations"."id"' +
-                    'LIMIT 1) as "projectId"'
-                )
-                .from(Organization),
-                _.omit(req.query, 'offset', 'limit', 'order')
-            );
+            if (req.user.roleID == 1 && req.params.realm == config.pgConnect.adminSchema) {
+                var data = [];
+                for (var i in req.schemas) {
+                    var thunkQuery = thunkify(new Query(req.schemas[i]));
+                    var org = yield thunkQuery(Organization.select().where(Organization.realm.equals(req.schemas[i])));
+                    if (org.length) {
+                        data.push(org[0]);
+                    }
+                }
+                return data;
+
+            } else {
+                var thunkQuery = thunkify(new Query(req.params.realm));
+
+                var data = yield thunkQuery(
+                    Organization
+                        .select(
+                            Organization.star(),
+                            '(SELECT ' +
+                            '"Projects"."id" ' +
+                            'FROM "Projects"' +
+                            'WHERE ' +
+                            '"Projects"."organizationId" = "Organizations"."id"' +
+                            'LIMIT 1) as "projectId"'
+                        )
+                        .from(Organization),
+                    _.omit(req.query, 'offset', 'limit', 'order')
+                );
+            }
+            return data;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -79,6 +102,8 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
@@ -91,6 +116,7 @@ module.exports = {
             }
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'organizations',
@@ -104,6 +130,8 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var org = yield thunkQuery(
@@ -114,6 +142,7 @@ module.exports = {
                 .returning(Organization.id)
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'organizations',
@@ -121,9 +150,7 @@ module.exports = {
                 info: 'Add organization'
             });
 
-            //yield thunkQuery("SELECT clone_schema('sceleton',"+ req.body.realm +", true)");
-            //
-            //app.locals.realm = req.body.realm;
+
 
             // TODO creates project in background, may be need to disable in future
             var project = yield thunkQuery(
@@ -136,6 +163,7 @@ module.exports = {
                 .returning(Project.id)
             );
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'projects',
@@ -155,6 +183,7 @@ module.exports = {
         // fields order
         // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
         // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
+        var thunkQuery = req.thunkQuery;
 
         var csv = require('csv');
         var fs = require('fs');
@@ -253,6 +282,7 @@ module.exports = {
                                     User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
                                 );
                                 bologger.log({
+                                    req: req,
                                     user: req.user.id,
                                     action: 'insert',
                                     object: 'users',
@@ -277,8 +307,8 @@ module.exports = {
                                     //}else{
                                         newUser.message = 'Added';
                                     //}
-                                    var essenceId = yield * common.getEssenceId('Users');
-                                    var note = yield * notifications.createNotification(
+                                    var essenceId = yield * common.getEssenceId(req, 'Users');
+                                    var note = yield * notifications.createNotification(req,
                                         {
                                             userFrom: req.user.id,
                                             userTo: newUser.id,
@@ -321,11 +351,9 @@ module.exports = {
 };
 
 function* checkOrgData(req){
-    if (!req.params.id){ //create
-        //if (!req.body.name || !req.body.realm) {
-        //    throw new HttpError(400, 'name and realm fields are required');
-        //}
+    var thunkQuery = req.thunkQuery;
 
+    if (!req.params.id){ //create
         if (!req.body.name) {
             throw new HttpError(400, 'name field is required');
         }

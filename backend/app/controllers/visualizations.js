@@ -11,6 +11,7 @@ var _ = require('underscore'),
 
 module.exports = {
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Visualization.select().where(
                 Visualization.organizationId.equals(req.params.organizationId)
@@ -23,6 +24,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -35,6 +37,7 @@ module.exports = {
             return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'visualizations',
@@ -48,6 +51,7 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -61,6 +65,7 @@ module.exports = {
             ));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'visualizations',
@@ -78,6 +83,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.delete().where(
@@ -87,6 +93,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'visualizations',
@@ -104,6 +111,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.select().where(

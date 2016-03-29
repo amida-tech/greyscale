@@ -21,6 +21,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Task
@@ -42,6 +43,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var curStepAlias = 'curStep';
             var task = yield thunkQuery(
@@ -109,12 +111,15 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = Task.delete().where(Task.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Task.delete().where(Task.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'tasks',
@@ -122,10 +127,13 @@ module.exports = {
                 info: 'Delete task'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Task
@@ -134,6 +142,7 @@ module.exports = {
             );
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'tasks',
@@ -147,6 +156,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
             var result = yield thunkQuery(
@@ -159,6 +169,7 @@ module.exports = {
             return result;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'tasks',
@@ -174,6 +185,7 @@ module.exports = {
 };
 
 function* checkTaskData(req) {
+    var thunkQuery = req.thunkQuery;
     if (!req.params.id) {
         if (
             typeof req.body.uoaId === 'undefined' ||

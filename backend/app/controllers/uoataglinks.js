@@ -24,6 +24,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var selectQueryCounter = UnitOfAnalysisTagLink.select(UnitOfAnalysisTagLink.count('counter'));
             var selectQuery = UnitOfAnalysisTagLink.select();
@@ -53,6 +54,7 @@ module.exports = {
     },
 
     checkInsert: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
 
             var dataClassTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
@@ -98,10 +100,12 @@ module.exports = {
     */
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.insert(req.body).returning(UnitOfAnalysisTagLink.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'UnitOfAnalysisTagLink',
@@ -115,10 +119,12 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTagLink.delete().where(UnitOfAnalysisTagLink.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'UnitOfAnalysisTagLink',

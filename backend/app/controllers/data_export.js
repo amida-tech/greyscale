@@ -78,7 +78,7 @@ module.exports = {
                 throw new HttpError(404, 'Invalid dataset id');
             }
 
-            return yield products.calcAggregateIndexes(productId, true);
+            return yield products.calcAggregateIndexes(req, productId, true);
         }).then(function (result) {
             result.data = result.agg;
             delete result.agg;

@@ -22,6 +22,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
             var uoa = thunkQuery(UnitOfAnalysis.select(), _.omit(req.query, 'offset', 'limit', 'order'));
@@ -35,6 +36,7 @@ module.exports = {
     },
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
             var langId = yield * detectLanguage(req);
@@ -49,6 +51,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function (data) {
@@ -59,6 +62,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             req.body.creatorId = req.user.id;
             req.body.ownerId = req.user.id;
@@ -66,6 +70,7 @@ module.exports = {
             return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'UnitOfAnalysis',
@@ -79,12 +84,14 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             delete req.body.created;
             req.body.updated = new Date();
             return yield thunkQuery(UnitOfAnalysis.update(req.body).where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'UnitOfAnalysis',
@@ -98,10 +105,12 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysis.delete().where(UnitOfAnalysis.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'UnitOfAnalysis',
@@ -115,7 +124,7 @@ module.exports = {
     },
 
     csvImport: function (req, res, next) {
-
+        var thunkQuery = req.thunkQuery;
 /*
         Field	            Type            	            Comment
         Id	                int NOT NULL AUTO_INCREMENT
@@ -293,6 +302,7 @@ module.exports = {
                                         newUoa.parse_status = 'Ok';
                                         newUoa.messages.push('Added');
                                         bologger.log({
+                                            req: req,
                                             user: req.user.id,
                                             action: 'insert',
                                             object: (!bologger.data.essence) ? 'UnitOfAnalysis' : null,

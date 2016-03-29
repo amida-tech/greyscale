@@ -35,6 +35,7 @@ module.exports = {
             return yield thunkQuery(AccessMatrix.insert(req.body).returning(AccessMatrix.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'AccessMatrices',
@@ -65,6 +66,7 @@ module.exports = {
                 return next(err);
             }
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'AccessPermissions',
@@ -96,6 +98,7 @@ module.exports = {
         }).then(function (data) {
             console.log(_.first(data));
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'AccessPermissions',

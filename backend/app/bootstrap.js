@@ -17,6 +17,7 @@ var config = require('config'),
     _ = require('underscore'),
     Language = require('app/models/languages'),
     thunkQuery = thunkify(query),
+    mc = require('app/mc_helper'),
     co = require('co');
 
 app = require('express')();
@@ -24,38 +25,66 @@ app = require('express')();
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
 
-
 app.on('start', function () {
-    
-    app.use('/:realm',function(req,res,next){
 
-        co(function*(){
-            var schemas = yield thunkQuery(
-                "SELECT pg_catalog.pg_namespace.nspname " +
-                "FROM pg_catalog.pg_namespace " +
-                "INNER JOIN pg_catalog.pg_user " +
-                "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                "AND (pg_catalog.pg_user.usename = '"+config.pgConnect.user+"')"
-            );
-            req.schemas = [];
-            for (var i in schemas) {
-                req.schemas.push(schemas[i].nspname);
-            }
-            if (req.params.realm != config.pgConnect.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
-                throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
-            }
-        }).then(function(){
-            app.locals.realm = req.params.realm;
-            next();
-        }, function(err){
-            next(err);
-        });
-
-    });
     // MEMCHACHE
     app.use(function(req,res,next){
         req.mcClient = mcClient;
         next();
+    });
+
+    app.use('/:realm',function(req, res, next){
+        // realm not set
+        var cpg = config.pgConnect;
+        co(function*(){
+
+            // reset
+            //try{
+            //    var schemas = yield mc.set(req.mcClient, 'schemas', 'sdf', 1);
+            //}catch(e){
+            //    throw new HttpError(500, e);
+            //}
+
+            try{
+                var schemas = yield mc.get(req.mcClient, 'schemas');
+            }catch(e){
+                throw new HttpError(500, e);
+            }
+
+            if (schemas) {
+                req.schemas = schemas.split(',');
+            } else {
+                var schemas = yield thunkQuery(
+                    "SELECT pg_catalog.pg_namespace.nspname " +
+                    "FROM pg_catalog.pg_namespace " +
+                    "INNER JOIN pg_catalog.pg_user " +
+                    "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+                    "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
+                );
+                req.schemas = [];
+                for (var i in schemas) {
+                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
+                        req.schemas.push(schemas[i].nspname);
+                    }
+                }
+                try{
+                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
+                }catch(e){
+                    throw new HttpError(500, e);
+                }
+            }
+
+            if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
+                throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
+            }
+            return req.params.realm;
+        }).then(function(data){
+            var query = new Query(data);
+            req.thunkQuery = thunkify(query);
+            next();
+        }, function(err){
+            next(err);
+        });
     });
 
     // Init logger
@@ -93,29 +122,43 @@ app.on('start', function () {
         next();
     });
 
-    app.all('*', function (req, res, next) {
-        var acceptLanguage = require('accept-language');
-
-        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
-            query(Language.select().from(Language).where(Language.code.equals(config.defaultLang)), function (err, data) {
-                console.log(data);
-                req.lang = _.first(data);
-                next();
-            });
-        } else {
-            var languages = {};
-            query(Language.select().from(Language), function (err, data) {
-                for (var i in data) {
-                    languages[data[i].code] = data[i];
-                }
-                acceptLanguage.languages(Object.keys(languages));
-                var code = acceptLanguage.get(req.headers['accept-language']);
-                req.lang = languages[code];
-                next();
-            });
-        }
-
-    });
+    //app.all('*', function (req, res, next) {
+    //    var acceptLanguage = require('accept-language');
+    //    co(function*(){
+    //        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language).where(Language.code.equals(config.defaultLang))
+    //            );
+    //
+    //            console.log(data);
+    //            req.lang = _.first(data);
+    //
+    //        } else {
+    //            var languages = {};
+    //            var data = yield thunkQuery(
+    //                Language.select().from(Language)
+    //            );
+    //
+    //            if(!data.length){
+    //                throw new HttpError(400, 'You do not have any language record in DB, please provide some');
+    //            }
+    //
+    //            for (var i in data) {
+    //                languages[data[i].code] = data[i];
+    //            }
+    //
+    //            acceptLanguage.languages(Object.keys(languages));
+    //            var code = acceptLanguage.get(req.headers['accept-language']);
+    //            req.lang = languages[code];
+    //
+    //        }
+    //    }).then(function(){
+    //        next();
+    //    }, function(err){
+    //        next(err);
+    //    });
+    //
+    //});
 
 
 

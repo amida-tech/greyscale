@@ -17,6 +17,7 @@ var _ = require('underscore'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(
                 RoleRights
@@ -43,6 +44,7 @@ module.exports = {
         });
     },
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var isExists = yield thunkQuery(RoleRights.select().where(_.pick(req.params, ['roleID', 'rightID'])));
             if (_.first(isExists)) {
@@ -69,6 +71,7 @@ module.exports = {
 
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'rolerights',
@@ -82,22 +85,25 @@ module.exports = {
 
     },
     deleteOne: function (req, res, next) {
-        query(
-            RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID'])),
-            function (err) {
-                if (!err) {
-                    bologger.log({
-                        user: req.user.id,
-                        action: 'insert',
-                        object: 'rolerights',
-                        entities: _.pick(req.params, ['roleID', 'rightID']),
-                        info: 'Delete right from role'
-                    });
-                    res.status(204).end();
-                } else {
-                    next(err);
-                }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID']))
+            );
+        }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'rolerights',
+                entities: _.pick(req.params, ['roleID', 'rightID']),
+                info: 'Delete right from role'
             });
-    }
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
+s    }
 
 };

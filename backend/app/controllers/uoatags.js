@@ -20,6 +20,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')));
             var uoaTag = thunkQuery(UnitOfAnalysisTag.select(), _.omit(req.query, 'offset', 'limit', 'order'));
@@ -33,6 +34,7 @@ module.exports = {
     },
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.count('counter')));
             var langId = yield * detectLanguage(req);
@@ -47,6 +49,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisTag, UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function (data) {
@@ -57,10 +60,12 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.insert(req.body).returning(UnitOfAnalysisTag.id));
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'UnitOfAnalysisTag',
@@ -74,10 +79,12 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.update(req.body).where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'UnitOfAnalysisTag',
@@ -91,10 +98,12 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(UnitOfAnalysisTag.delete().where(UnitOfAnalysisTag.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'UnitOfAnalysisTag',

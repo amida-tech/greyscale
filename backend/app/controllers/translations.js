@@ -66,6 +66,7 @@ module.exports = {
                 return next(err);
             }
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
                 object: 'translations',
@@ -90,6 +91,7 @@ module.exports = {
                 return next(err);
             }
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
                 object: 'translations',
@@ -149,6 +151,7 @@ module.exports = {
 
         }).then(function () {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'translations',

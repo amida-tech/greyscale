@@ -17,6 +17,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
         }).then(function (data) {
@@ -27,6 +28,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var data = yield thunkQuery(
                 Survey
@@ -66,6 +68,7 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var products = yield thunkQuery(
                 Product.select().where(Product.surveyId.equals(req.params.id))
@@ -82,9 +85,10 @@ module.exports = {
                         SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
                     ); // delete options
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
-                        object: 'survey question options',
+                        object: 'SurveyQuestionOptions',
                         entities: {questionId: questions[i].id},
                         quantity: 1,
                         info: 'Delete survey question options for question '+questions[i].id
@@ -94,9 +98,10 @@ module.exports = {
                         SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
                     ); // delete question
                     bologger.log({
+                        req: req,
                         user: req.user.id,
                         action: 'delete',
-                        object: 'survey questions',
+                        object: 'SurveyQuestions',
                         entity: questions[i].id,
                         info: 'Delete survey question'
                     });
@@ -104,6 +109,14 @@ module.exports = {
             }
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'Surveys',
+                entity: req.params.id,
+                info: 'Delete survey'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -111,6 +124,7 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
             var updateObj = _.pick(req.body, Survey.editCols);
@@ -122,6 +136,7 @@ module.exports = {
                         .where(Survey.id.equals(req.params.id))
                 );
                 bologger.log({
+                    req: req,
                     user: req.user.id,
                     action: 'update',
                     object: 'surveys',
@@ -137,6 +152,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
 
@@ -158,6 +174,7 @@ module.exports = {
             return survey;
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'insert',
                 object: 'surveys',
@@ -171,6 +188,7 @@ module.exports = {
     },
 
     questions: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
             if (!_.first(survey)) {
@@ -199,6 +217,7 @@ module.exports = {
     },
 
     questionAdd: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield* addQuestion(req, req.body);
         }).then(function (data) {
@@ -209,6 +228,7 @@ module.exports = {
     },
 
     questionEdit: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkQuestionData(req, req.body, false);
             return yield thunkQuery(
@@ -218,9 +238,10 @@ module.exports = {
             );
         }).then(function (data) {
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'update',
-                object: 'survey questions',
+                object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Update survey question'
             });
@@ -231,25 +252,32 @@ module.exports = {
     },
 
     questionDelete: function (req, res, next) {
-        query(SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id)), function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id))
+            );
+        }).then(function(data){
             bologger.log({
+                req: req,
                 user: req.user.id,
                 action: 'delete',
-                object: 'survey questions',
+                object: 'SurveyQuestions',
                 entity: req.params.id,
                 info: 'Delete survey question'
             });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     }
 
 };
 
 function* addQuestion (req, dataObj) {
-
+    var thunkQuery = req.thunkQuery;
     yield * checkQuestionData(req, dataObj, true);
     var result = yield thunkQuery(
         SurveyQuestion
@@ -258,9 +286,10 @@ function* addQuestion (req, dataObj) {
     );
     result = result[0];
     bologger.log({
+        req: req,
         user: req.user.id,
         action: 'insert',
-        object: 'survey questions',
+        object: 'SurveyQuestions',
         entity: result.id,
         info: 'Add new survey question'
     });
@@ -277,9 +306,10 @@ function* addQuestion (req, dataObj) {
             SurveyQuestionOption.insert(insertArr).returning(SurveyQuestionOption.id)
         );
         bologger.log({
+            req: req,
             user: req.user.id,
             action: 'insert',
-            object: 'survey question options',
+            object: 'SurveyQuestionOptions',
             entities: result.options,
             quantity: (result.options) ? result.options.length : 0,
             info: 'Add new survey question options'
@@ -290,6 +320,7 @@ function* addQuestion (req, dataObj) {
 }
 
 function* checkSurveyData(req) {
+    var thunkQuery = req.thunkQuery;
     // if user is superadmin (roleId=1) get projectId from body and check it
     // else get projectId from req.user.projectId
 
@@ -310,6 +341,7 @@ function* checkSurveyData(req) {
 }
 
 function* checkQuestionData(req, dataObj, isCreate) {
+    var thunkQuery = req.thunkQuery;
     if (isCreate) {
         if (
             typeof dataObj.label === 'undefined' ||
