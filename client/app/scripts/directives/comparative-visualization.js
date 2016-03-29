@@ -151,6 +151,8 @@ angular.module('greyscaleApp')
                                         }
                                     }
                                 }
+
+                                scope.productsTable.tableParams.reload();
                             });
                         // new dataset
                         } else {
@@ -160,13 +162,13 @@ angular.module('greyscaleApp')
 
                             greyscaleComparativeVisualizationApi(Organization.id)
                                 .datasets(scope.visualizationId)
-                                .add(dataset).then(function(dataset) {
+                                .add(dataset).then(function(resp) {
+                                    dataset.id = resp.id;
 
-                                scope.datasets.push(dataset);
+                                    scope.datasets.push(dataset);
+                                    scope.productsTable.tableParams.reload();
                             });
                         }
-
-                        scope.productsTable.tableParams.reload();
                     });
                 };
 
