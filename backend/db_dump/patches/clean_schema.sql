@@ -55,8 +55,8 @@ BEGIN
 	-- DELETE superadmins, drop tables, what is not in use
 	DELETE FROM "Logs" WHERE "user" IN (SELECT "id" FROM "Users" WHERE "roleID" = 1);
     UPDATE "Projects" SET "adminUserId" = NULL WHERE "adminUserId" IN (SELECT "id" FROM "Users" WHERE "roleID" = 1);
-    UPDATE "UnitOfAnalysis" SET "creatorId" = (SELECT "id" FROM "Users" WHERE "organizationId" = 10 AND "roleID"=2 LIMIT 1);
-    UPDATE "UnitOfAnalysis" SET "ownerId" = (SELECT "id" FROM "Users" WHERE "organizationId" = 10 AND "roleID"=2 LIMIT 1);
+    UPDATE "UnitOfAnalysis" SET "creatorId" = (SELECT "id" FROM "Users" WHERE "organizationId" = org_id AND "roleID"=2 LIMIT 1);
+    UPDATE "UnitOfAnalysis" SET "ownerId" = (SELECT "id" FROM "Users" WHERE "organizationId" = org_id AND "roleID"=2 LIMIT 1);
     DROP TABLE "EssenceRoles";
     DROP TABLE "SurveyAnswerVersions";
     DELETE FROM "Users" WHERE "roleID" = 1
