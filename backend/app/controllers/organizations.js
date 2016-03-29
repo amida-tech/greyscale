@@ -61,23 +61,38 @@ module.exports = {
     },
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            return yield thunkQuery(
-                Organization
-                .select(
-                    Organization.star(),
-                    '(SELECT ' +
-                        '"Projects"."id" ' +
-                    'FROM "Projects"' +
-                    'WHERE ' +
-                        '"Projects"."organizationId" = "Organizations"."id"' +
-                    'LIMIT 1) as "projectId"'
-                )
-                .from(Organization),
-                _.omit(req.query, 'offset', 'limit', 'order')
-            );
+            if (req.user.roleID == 1) {
+                var data = [];
+                for (var i in req.schemas) {
+                    var thunkQuery = thunkify(new Query(req.schemas[i]));
+                    var org = yield thunkQuery(Organization.select().where(Organization.realm.equals(req.schemas[i])));
+                    if (org.length) {
+                        data.push(org[0]);
+                    }
+                }
+                return data;
+
+            } else {
+                var thunkQuery = thunkify(new Query(req.params.realm));
+
+                var data = yield thunkQuery(
+                    Organization
+                        .select(
+                            Organization.star(),
+                            '(SELECT ' +
+                            '"Projects"."id" ' +
+                            'FROM "Projects"' +
+                            'WHERE ' +
+                            '"Projects"."organizationId" = "Organizations"."id"' +
+                            'LIMIT 1) as "projectId"'
+                        )
+                        .from(Organization),
+                    _.omit(req.query, 'offset', 'limit', 'order')
+                );
+            }
+            return data;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
