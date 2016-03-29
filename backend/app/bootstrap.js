@@ -17,6 +17,7 @@ var config = require('config'),
     _ = require('underscore'),
     Language = require('app/models/languages'),
     thunkQuery = thunkify(query),
+    mc = require('app/mc_helper'),
     co = require('co');
 
 app = require('express')();
@@ -25,24 +26,50 @@ app = require('express')();
 //require('app/db_bootstrap')(app);
 
 app.on('start', function () {
-    
+
+    // MEMCHACHE
+    app.use(function(req,res,next){
+        req.mcClient = mcClient;
+        next();
+    });
+
     app.use('/:realm',function(req, res, next){
         // realm not set
         var cpg = config.pgConnect;
         co(function*(){
-            var schemas = yield thunkQuery(
-                "SELECT pg_catalog.pg_namespace.nspname " +
-                "FROM pg_catalog.pg_namespace " +
-                "INNER JOIN pg_catalog.pg_user " +
-                "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
-            );
-            req.schemas = [];
-            for (var i in schemas) {
-                if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
-                    req.schemas.push(schemas[i].nspname);
+
+            try{
+                var schemas = yield mc.get(req.mcClient, 'schemas');
+            }catch(e){
+                throw new HttpError(500, e);
+            }
+
+            if (schemas) {
+                req.schemas = schemas;
+            } else {
+                var schemas = yield thunkQuery(
+                    "SELECT pg_catalog.pg_namespace.nspname " +
+                    "FROM pg_catalog.pg_namespace " +
+                    "INNER JOIN pg_catalog.pg_user " +
+                    "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+                    "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
+                );
+                req.schemas = [];
+                for (var i in schemas) {
+                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
+                        req.schemas.push(schemas[i].nspname);
+                    }
+                }
+                try{
+                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 600);
+                }catch(e){
+                    throw new HttpError(500, e);
                 }
             }
+
+            console.log(schemas);
+
+
             if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
                 throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
             }
@@ -54,12 +81,6 @@ app.on('start', function () {
         }, function(err){
             next(err);
         });
-    });
-
-    // MEMCHACHE
-    app.use(function(req,res,next){
-        req.mcClient = mcClient;
-        next();
     });
 
     // Init logger

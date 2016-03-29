@@ -9,7 +9,10 @@ var
 
 
 expObj = {
-    set: function(client, key, value){
+    set: function(client, key, value, lifetime){
+        if (typeof lifetime == 'undefined') {
+            lifetime = config.mc.lifetime;
+        }
         return new Promise(function(resolve, reject){
             client.set(key, value,
                 function(error, result){
@@ -18,7 +21,7 @@ expObj = {
                     }
                     resolve(result);
                 }
-                ,config.mc.lifetime
+                ,lifetime
             );
         });
     },

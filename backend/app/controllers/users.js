@@ -77,8 +77,6 @@ module.exports = {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
         co(function* () {
-
-
             // NOT possible to detect admin because user can be not authorized
 
             //if (req.user.roleID == 1) {
