@@ -8,11 +8,7 @@ angular.module('greyscaleApp')
 
         $scope.model = {};
 
-        greyscaleProfileSrv.getProfile()
-            .then(function (profile) {
-
-                _getUnreadNotifications(profile);
-            });
+        greyscaleProfileSrv.getProfile().then(_getUnreadNotifications);
 
         function _getUnreadNotifications(profile) {
             var params = {
