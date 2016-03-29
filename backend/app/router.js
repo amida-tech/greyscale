@@ -537,8 +537,8 @@ router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizati
     .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.parseDataset);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
-    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDataset);
-    /*.put(authenticate('token').always, /*checkRight(), *//* ComparativeVisualization.updateDataset)
-    .delete(authenticate('token').always, /*checkRight(), *//* ComparativeVisualization.deleteDataset);*/
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
+    .put(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.updateDataset)
+    .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 <modal-form-header>
-    <span>Import Dataset</span>
+    <span ng-if="!model.editing">Import Dataset</span>
+    <span ng-if="model.editing">Edit Dataset</span>
 </modal-form-header>
 <div class="modal-body">
     <div class="row">
@@ -25,7 +26,9 @@
             <div class="form-group" ng-if="model.dataset.cols">
                 <label for="uoaCol" class="col-sm-2 control-label">Target Column</label>
                 <div class="col-sm-9">
-                    <select class="form-control" ng-model="model.dataset.uoaCol" ng-options="col as col.title for col in model.dataset.cols track by col.id" name="uoaCol"></select>
+                    <select class="form-control" ng-model="model.dataset.uoaCol" ng-options="col.id as col.title for col in model.dataset.cols" name="uoaCol">
+                        <option value="">Select Column</option>
+                    </select>
                 </div>
             </div>
 
@@ -43,14 +46,18 @@
             <div class="form-group" ng-if="model.dataset.cols">
                 <label for="yearCol" class="col-sm-2 control-label">Year Column</label>
                 <div class="col-sm-9">
-                    <select class="form-control" ng-model="model.dataset.yearCol" ng-options="col as col.title for col in model.dataset.cols track by col.id" name="yearCol"></select>
+                    <select class="form-control" ng-model="model.dataset.yearCol" ng-options="col.id as col.title for col in model.dataset.cols" name="yearCol">
+                        <option value="">No Year Column</option>
+                    </select>
                 </div>
             </div>
 
             <div class="form-group" ng-if="model.dataset.cols">
                 <label for="dataCol" class="col-sm-2 control-label">Data Column</label>
                 <div class="col-sm-9">
-                    <select class="form-control" ng-model="model.dataset.dataCol" ng-options="col as col.title for col in model.dataset.cols track by col.id" name="dataCol"></select>
+                    <select class="form-control" ng-model="model.dataset.dataCol" ng-options="col.id as col.title for col in model.dataset.cols" name="dataCol">
+                        <option value="">Select Column</option>
+                    </select>
                 </div>
             </div>
 
@@ -59,5 +66,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-success" ng-click="save()" ng-disabled="!model.dataset.cols || !model.dataset.uoaCol || !model.dataset.uoaType || !model.dataset.dataCol" translate="COMMON.SAVE"></button>
+    <button class="btn btn-success" ng-click="save()" ng-disabled="!model.dataset.cols || model.dataset.uoaCol === null || model.dataset.uoaType === null || model.dataset.dataCol === null" translate="COMMON.SAVE"></button>
 </div>

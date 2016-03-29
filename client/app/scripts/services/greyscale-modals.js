@@ -203,25 +203,27 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _addProduct(products) {
+        function _addProduct(productIndex, products) {
             return $uibModal.open({
                 templateUrl: 'views/modals/add-product.html',
                 controller: 'ModalAddProductCtrl',
                 size: 'md',
                 windowClass: 'modal fade in',
                 resolve: {
+                    productIndex: productIndex,
                     products: products
                 }
             }).result;
         }
 
-        function _importDataset(visualizationId) {
+        function _importDataset(dataset, visualizationId) {
             return $uibModal.open({
                 templateUrl: 'views/modals/import-dataset.html',
                 controller: 'ModalImportDatasetCtrl',
                 size: 'md',
                 windowClass: 'modal fade in',
                 resolve: {
+                    dataset: dataset,
                     visualizationId: $q.when(visualizationId)
                 }
             }).result;

@@ -3,8 +3,8 @@
         <widget-table model="productsTable"></widget-table>
     </div>
     <div class="col-sm-2 products-indexes-buttons">
-        <button type="submit" class="btn btn-default" ng-click="addProduct()">Add</button>
-        <button type="submit" class="btn btn-default" ng-show="savedVisualization" ng-click="importDataset()">Import</button>
+        <button type="submit" class="btn btn-default" ng-click="editProduct({})">Add</button>
+        <button type="submit" class="btn btn-default" ng-show="savedVisualization" ng-click="importDataset({})">Import</button>
         <button type="submit" class="btn btn-default" ng-click="clearProducts()">Clear</button>
         <button type="submit" class="btn btn-success" ng-show="savedVisualization" ng-click="saveVisualization()">Save</button>
     </div>

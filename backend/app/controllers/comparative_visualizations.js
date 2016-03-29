@@ -353,17 +353,84 @@ module.exports = {
                 throw new HttpError(400, 'No such visualization');
             }
 
-            return yield thunkQuery(
+            var datasets = yield thunkQuery(
                 ImportedDataset.select(
                     ImportedDataset.id,
-                    ImportedDataset.title
+                    ImportedDataset.title,
+                    ImportedDataset.cols,
+                    ImportedDataset.uoaCol,
+                    ImportedDataset.uoaType,
+                    ImportedDataset.yearCol,
+                    ImportedDataset.dataCol
                 )
                 .where(
                     ImportedDataset.visualizationId.equals(req.params.id)
                 )
             );
+            return datasets.map(function (dataset) {
+                dataset.cols = dataset.cols.map(function (title, i) {
+                    return {
+                        title: title,
+                        id: i
+                    };
+                });
+                return dataset;
+            });
         }).then(function (data) {
             res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    deleteDataset: function (req, res, next) {
+        co(function* () {
+            // check viz and organization id
+            var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
+                ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
+            ));
+            if (!viz) {
+                throw new HttpError(400, 'No such visualization');
+            }
+
+            return yield thunkQuery(
+                ImportedDataset.delete().where(
+                    ImportedDataset.id.equals(req.params.datasetId).and(ImportedDataset.visualizationId.equals(req.params.id))
+                )
+            );
+        }).then(function (data) {
+            res.status(204).end();
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    updateDataset: function (req, res, next) {
+        // TODO
+        co(function* () {
+            // check viz and organization id
+            var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
+                ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
+            ));
+            if (!viz) {
+                throw new HttpError(400, 'No such visualization');
+            }
+
+            // only non-data cols updateable
+            if (
+                typeof req.body.uoaCol === 'undefined' ||
+                typeof req.body.uoaType === 'undefined' ||
+                typeof req.body.dataCol === 'undefined'
+            ) {
+                throw new HttpError(403, 'uoaCol, uoaType and dataCol fields are required');
+            }
+
+            var dataset = _.pick(req.body, ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol']);
+            return yield thunkQuery(ImportedDataset.update(dataset).where(
+                ImportedDataset.id.equals(req.params.datasetId).and(ImportedDataset.visualizationId.equals(req.params.id))
+            ));
+        }).then(function (data) {
+            res.status(202).json(_.first(data));
         }, function (err) {
             next(err);
         });

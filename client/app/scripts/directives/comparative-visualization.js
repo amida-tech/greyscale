@@ -30,8 +30,14 @@ angular.module('greyscaleApp')
 
                 scope.clearProducts = function () {
                     scope.products = [];
+                    scope.datasets.forEach(function (dataset) {
+                        greyscaleComparativeVisualizationApi(Organization.id)
+                            .datasets(scope.visualizationId)
+                            .del(dataset.id);
+                    });
                     scope.datasets = [];
                     scope.productsTable.tableParams.reload();
+                    scope.saveVisualization();
                 };
 
                 //Table for product selection and index normalization
@@ -39,20 +45,44 @@ angular.module('greyscaleApp')
                     title: 'Selected Products',
                     cols: [{
                         field: 'product',
-                        title: 'Dataset',
+                        title: 'Datasource',
                         cellClass: 'text-center',
                         cellTemplate: '<span ng-if="row.product">{{row.product.title}} ({{row.index.title}})</span>' +
                             '<span ng-if="!row.product">{{row.title}}</span>'
                     }, {
                         dataFormat: 'action',
                         actions: [{
+                            icon: 'fa-edit',
+                            handler: function (row) {
+                                if (row.product) {
+                                    scope.editProduct(row);
+                                } else {
+                                    scope.importDataset(row);
+                                }
+                            }
+                        }, {
                             icon: 'fa-trash',
                             handler: function (row) {
-                                for (var i = 0; i < scope.products.length; i++) {
-                                    if (scope.products[i].product.id === row.product.id && scope.products[i].index.id === row.index.id) {
-                                        scope.products.splice(i, 1);
-                                        break;
+                                // TODO delete datasets as well
+                                var i;
+                                if (row.product) {
+                                    for (i = 0; i < scope.products.length; i++) {
+                                        if (scope.products[i].product.id === row.product.id && scope.products[i].index.id === row.index.id) {
+                                            scope.products.splice(i, 1);
+                                            break;
+                                        }
                                     }
+                                    scope.saveVisualization();
+                                } else {
+                                    for (i = 0; i < scope.datasets.length; i++) {
+                                        if (scope.datasets[i].id === row.id) {
+                                            scope.datasets.splice(i, 1);
+                                            break;
+                                        }
+                                    }
+                                    greyscaleComparativeVisualizationApi(Organization.id)
+                                        .datasets(scope.visualizationId)
+                                        .del(row.id);
                                 }
                                 scope.productsTable.tableParams.reload();
                             }
@@ -60,13 +90,10 @@ angular.module('greyscaleApp')
                     }],
                     dataPromise: function () {
                         return $q.when(scope.products.concat(scope.datasets));
-                    },
-                    add: {
-                        handler: scope.addProduct
                     }
                 };
-                scope.addProduct = function () {
-                    greyscaleModalsSrv.addProduct(function () {
+                scope.editProduct = function (productIndex) {
+                    greyscaleModalsSrv.addProduct(productIndex, function () {
                         return $q.when(scope.allProducts).then(function (products) {
                             // hide already-added products
                             var added = new Set();
@@ -75,29 +102,71 @@ angular.module('greyscaleApp')
                             });
 
                             return products.filter(function (product) {
-                                return !added.has(product.id);
+                                // include currently selected product when editing
+                                return !added.has(product.id) ||
+                                    (productIndex && productIndex.product && product.id === productIndex.product.id);
                             });
                         });
-                    }).then(function (productIndex) {
-                        scope.products.push(productIndex);
+                    }).then(function (newProductIndex) {
+                        var added = false;
+                        if (productIndex && productIndex.product) {
+                            for (var i = 0; i < scope.products.length; i++) {
+                                if (scope.products[i].product.id === productIndex.product.id && scope.products[i].index.id === productIndex.index.id) {
+                                    scope.products[i].product = newProductIndex.product;
+                                    scope.products[i].index = newProductIndex.index;
+                                    added = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!added) {
+                            scope.products.push(newProductIndex);
+                        }
+
                         scope.productsTable.tableParams.reload();
+                        scope.saveVisualization();
                     });
                 };
 
                 // IMPORTING DATASETS
-                scope.importDataset = function () {
-                    greyscaleModalsSrv.importDataset(scope.visualizationId).then(function (dataset) {
-                        dataset.cols = dataset.cols.map(function (col) {
-                            return col.title;
-                        });
-                        dataset.dataCol = dataset.dataCol.id;
-                        dataset.uoaCol = dataset.uoaCol.id;
-                        if (dataset.yearCol) { dataset.yearCol = dataset.yearCol.id; }
+                scope.importDataset = function (dataset) {
+                    greyscaleModalsSrv.importDataset(dataset, scope.visualizationId).then(function (dataset) {
+                        // update existing dataset
+                        if (dataset.id) {
+                            greyscaleComparativeVisualizationApi(Organization.id)
+                                .datasets(scope.visualizationId)
+                                .update(dataset.id, dataset)
+                                .then(function() {
 
-                        console.log(dataset);
-                        greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).add(dataset).then(function (d) {
-                            console.log(d);
-                        });
+                                for (var i = 0; i < scope.datasets.length; i++) {
+                                    if (scope.datasets[i].id === dataset.id) {
+                                        // editable fields
+                                        ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol'].forEach(function (field) {
+                                            scope.datasets[i][field] = dataset[field];
+                                        });
+
+                                        // clear cached data
+                                        if (dataset.id in scope.datasetsData) {
+                                            delete scope.datasetsData[dataset.id];
+                                        }
+                                    }
+                                }
+                            });
+                        // new dataset
+                        } else {
+                            dataset.cols = dataset.cols.map(function (col) {
+                                return col.title;
+                            });
+
+                            greyscaleComparativeVisualizationApi(Organization.id)
+                                .datasets(scope.visualizationId)
+                                .add(dataset).then(function(dataset) {
+
+                                scope.datasets.push(dataset);
+                            });
+                        }
+
+                        scope.productsTable.tableParams.reload();
                     });
                 };
 
@@ -106,6 +175,7 @@ angular.module('greyscaleApp')
                 scope.datasetsData = {};
 
                 scope.$watch('[products,datasets]', function (products) {
+                    console.log("WATCH CALLED");
                     var promises = [];
                     // aggregate data for each product
                     scope.products.forEach(function (product) {
@@ -130,14 +200,19 @@ angular.module('greyscaleApp')
 
                     });
 
-                    $q.all(promises).then(function () {
-                        var data = _selectProductData(scope.products).concat(_selectDatasetData(scope.datasets));
-                        _renderVisualization(_preprocessData(data));
-                        if (data.length === 0) {
-                            _clearVisualization();
-                        }
-                    });
+                    $q.all(promises).then(_render);
                 }, true);
+
+                function _render() {
+                    console.log("RENDER CALLED");
+                    console.log("scope.datasets", scope.datasets);
+                    var data = _selectProductData(scope.products).concat(_selectDatasetData(scope.datasets));
+                    console.log("render data", data);
+                    _renderVisualization(_preprocessData(data));
+                    if (data.length === 0) {
+                        _clearVisualization();
+                    }
+                }
 
                 function _selectProductData(productIndexes) {
                     return productIndexes.map(function (productIndex) {
@@ -194,6 +269,7 @@ angular.module('greyscaleApp')
                     })).then(function (data) {
                         scope.products = data;
                         scope.productsTable.tableParams.reload();
+                        scope.datasets = [];
                     }).then(function() {
                         // imported datasets
                         return greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).list();

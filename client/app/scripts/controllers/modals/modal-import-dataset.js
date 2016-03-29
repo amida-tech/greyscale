@@ -1,11 +1,15 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalImportDatasetCtrl', function($scope, $uibModalInstance, $q, visualizationId, Organization) {
+.controller('ModalImportDatasetCtrl', function($scope, $uibModalInstance, $q, dataset, visualizationId, Organization) {
     $scope.model = {
-        dataset: {},
-        visualizationId: angular.copy(visualizationId)
+        dataset: angular.copy(dataset),
+        visualizationId: angular.copy(visualizationId),
+        editing: false
     };
+    if ($scope.model.dataset.id) {
+        $scope.model.editing = true;
+    }
 
     Organization.$watch($scope, function () {
         $scope.model.organizationId = Organization.id;
