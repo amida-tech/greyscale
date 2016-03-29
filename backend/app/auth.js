@@ -257,8 +257,10 @@ passport.use(new TokenStrategy({
                                 User.id.equals(existToken[0].userID)
                             )
                     );
+                } else { // try to auth realm with token from other realm
+                    return false;
                 }
-                return false;
+
             }
 
             return (data[0] ? data[0] : false);
