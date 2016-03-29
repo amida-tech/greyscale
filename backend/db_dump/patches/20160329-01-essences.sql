@@ -33,7 +33,10 @@ WITH new_values ("tableName","name","fileName","nameField") as (
 ('RoleRights', 'RoleRights', 'role_rights', 'roleId'),
 ('Visualizations', 'Visualizations', 'visualizations', 'title'),
 ('AccessMatrices', 'AccessMatrices', 'access_matrices', 'name'),
-('AccessPermissions', 'AccessPermissions', 'access_permissions', 'id')
+('AccessPermissions', 'AccessPermissions', 'access_permissions', 'id'),
+('Token', 'Token', 'token', 'realm'),
+('UserUOA', 'UserUOA', 'user_uoa', 'UserId'),
+('UserGroups', 'UserGroups', 'user_groups', 'UserId')
 ),
 upsert as
 ( 

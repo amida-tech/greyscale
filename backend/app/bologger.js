@@ -45,7 +45,7 @@ BoLogger.prototype.log = function (data) {
         if (typeof data.entities === 'object') {
             data.entities = JSON.stringify(data.entities);
         }
-        var thunkQuery = (data.req) ?  data.req.thunkQuery : thunkQuery;
+        var thunkQuery = (data.req) ?  data.req.thunkQuery : global.thunkQuery;
         this.extend(data);
         var id = yield thunkQuery(Log.insert(this.data).returning(Log.id));
         return data;
