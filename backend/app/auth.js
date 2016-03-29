@@ -213,7 +213,7 @@ passport.use(new TokenStrategy({
                     .select()
                     .where(
                         Token.body.equals(tokenBody)
-                        .and(Token.realm.equals(req.params.realm))
+                        //.and(Token.realm.equals(req.params.realm))
                     )
             );
 
@@ -221,24 +221,46 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            var data =  yield clientThunkQuery(
-                User
-                    .select(
-                        User.star(),
-                        Role.name.as('role'),
-                        requestRights,
-                        Project.id.as('projectId')
-                    )
-                    .from(
-                        User
-                            .leftJoin(Role).on(User.roleID.equals(Role.id))
-                            .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                            .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
-                    )
-                    .where(
-                        User.id.equals(existToken[0].userID)
-                    )
-            );
+            console.log(existToken);
+
+            if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
+                var data =  yield admThunkQuery(
+                    User
+                        .select(
+                            User.star(),
+                            Role.name.as('role')
+                        )
+                        .from(
+                            User
+                            .leftJoin(Role)
+                            .on(User.roleID.equals(Role.id))
+                        )
+                        .where(
+                            User.id.equals(existToken[0].userID)
+                        )
+                );
+            } else {
+                var data =  yield clientThunkQuery(
+                    User
+                        .select(
+                            User.star(),
+                            Role.name.as('role'),
+                            requestRights,
+                            Project.id.as('projectId')
+                        )
+                        .from(
+                            User
+                                .leftJoin(Role).on(User.roleID.equals(Role.id))
+                                .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                                .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                        )
+                        .where(
+                            User.id.equals(existToken[0].userID)
+                        )
+                );
+            }
+
+
             return (data[0] ? data[0] : false);
 
         }

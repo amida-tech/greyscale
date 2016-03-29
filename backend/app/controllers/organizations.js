@@ -63,7 +63,7 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
-            if (req.user.roleID == 1) {
+            if (req.user.roleID == 1 && req.params.realm == config.pgConnect.adminSchema) {
                 var data = [];
                 for (var i in req.schemas) {
                     var thunkQuery = thunkify(new Query(req.schemas[i]));

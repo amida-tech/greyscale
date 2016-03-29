@@ -45,7 +45,7 @@ app.on('start', function () {
             }
 
             if (schemas) {
-                req.schemas = schemas;
+                req.schemas = schemas.split(',');
             } else {
                 var schemas = yield thunkQuery(
                     "SELECT pg_catalog.pg_namespace.nspname " +
@@ -66,9 +66,6 @@ app.on('start', function () {
                     throw new HttpError(500, e);
                 }
             }
-
-            console.log(schemas);
-
 
             if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
                 throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
