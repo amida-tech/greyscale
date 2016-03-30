@@ -609,7 +609,41 @@ module.exports = function (grunt) {
                         enableDebugLog: true
                     }
                 }
-            }
+            },
+            demo: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        supportedLocales: ['en', 'ru', 'es', 'fr'],
+                        name: 'dev',
+                        apiProtocol: 'https',
+                        apiHostname: 'demo.indaba.amida-tech.com',
+                        apiPort: '443',
+                        apiRealm: 'dev',
+                        apiVersion: 'v0.2',
+                        //defaultUser: 'su@mail.net',
+                        //defaultPassword: 'testuser',
+                        enableDebugLog: true
+                    }
+                }
+            },
+            prod: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        supportedLocales: ['en', 'ru', 'es', 'fr'],
+                        name: 'dev',
+                        apiProtocol: 'https',
+                        apiHostname: 'app.indaba.amida-tech.com',
+                        apiPort: '443',
+                        apiRealm: 'dev',
+                        apiVersion: 'v0.2',
+                        //defaultUser: 'su@mail.net',
+                        //defaultPassword: 'testuser',
+                        enableDebugLog: true
+                    }
+                }
+            }             
         },
 
         dock: {
