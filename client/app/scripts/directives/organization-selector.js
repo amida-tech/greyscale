@@ -96,7 +96,7 @@ angular.module('greyscaleApp')
                     $cookies.put('orgId', Organization.id);
 
                     if (!Organization.projectId) {
-                        console.error('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
+                        $log.debug('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
                     }
 
                     $timeout(function () {

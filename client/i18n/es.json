@@ -68,6 +68,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "",
+        "BAD_TOKEN": "",
         "STEP_SUBMIT": "",
         "TEST": ""
     },

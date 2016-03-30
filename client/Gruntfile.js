@@ -578,6 +578,7 @@ module.exports = function (grunt) {
                         apiPort: '3005',
                         apiVersion: 'v0.2',
                         adminSchema: 'public',
+                        tokenTTLsec: 60,
                         enableDebugLog: true
                     }
                 }
@@ -592,6 +593,7 @@ module.exports = function (grunt) {
                         apiPort: process.env.SERVICE_PORT,
                         apiVersion: process.env.SERVICE_VER,
                         adminSchema: process.env.SERVICE_SCHEMA,
+                        tokenTTLsec: process.env.SERVICE_TOKEN_TTL,
                         enableDebugLog: false
                     }
                 }
@@ -609,6 +611,7 @@ module.exports = function (grunt) {
                         defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
                         adminSchema: 'public',
+                        tokenTTLsec: 60,
                         enableDebugLog: true
                     }
                 }

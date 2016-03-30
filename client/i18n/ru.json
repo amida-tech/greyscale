@@ -68,6 +68,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Доступ ограничен к",
+        "BAD_TOKEN": "",
         "STEP_SUBMIT": "",
         "TEST": "Тестовая ошибка"
     },

@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
             roles: greyscaleRolesTbl
         };
 
-        Organization.$watch($scope, _renderAccessTables)
+        Organization.$watch($scope, _renderAccessTables);
 
         $scope.selectRole = function (role) {
             if (typeof role !== 'undefined') {

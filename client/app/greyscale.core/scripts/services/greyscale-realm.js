@@ -3,9 +3,9 @@
  */
 'use strict';
 angular.module('greyscale.core')
-    .factory('greyscaleRealmSrv', function ($cookieStore, greyscaleGlobals, $log) {
+    .factory('greyscaleRealmSrv', function ($cookieStore, greyscaleEnv, $log) {
         var _realm,
-            _default = greyscaleGlobals.realm;
+            _default = greyscaleEnv.adminSchema || 'public';
 
         _initRealm();
 
@@ -32,7 +32,7 @@ angular.module('greyscale.core')
             if (typeof val !== 'undefined' && val !== _default) {
                 if (val) {
                     $cookieStore.put(_valName, val);
-                    $log.debug(_valName, val);
+                    $log.debug('set', _valName, val);
                 } else {
                     $log.debug('removed', _valName, _realm[name]);
                     $cookieStore.remove(_valName);

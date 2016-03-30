@@ -4,23 +4,23 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
-        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope, greyscaleRealmSrv, $interval) {
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi,
+        greyscaleUtilsSrv, greyscaleGlobals, $log, $rootScope, greyscaleRealmSrv, $interval, greyscaleEnv) {
 
-        var _profile = null;
-        var _profilePromise = null;
-        var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
-        var _realm = greyscaleGlobals.realm;
-        var _tokenChecker;
+        var _tokenChecker,
+            _profile = null,
+            _profilePromise = null,
+            _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true),
+            _tokenTTL = (greyscaleEnv.tokenTTLsec || 60) * 1000;
 
         this.isSuperAdmin = _isSuperAdmin;
 
         this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
-            var self = this;
-            var token = greyscaleTokenSrv();
-            var res;
+            var res,
+                self = this,
+                token = greyscaleTokenSrv();
 
             if (token) {
                 if (_profile && !force) {
@@ -28,15 +28,14 @@ angular.module('greyscale.core')
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {
-                        _realm = greyscaleRealmSrv.origin();
-                        _profilePromise = greyscaleUserApi.get(_realm)
+                        _profilePromise = greyscaleUserApi.get(greyscaleRealmSrv.origin())
                             .then(function (profileData) {
-                                _tokenChecker = $interval(_checkToken, greyscaleGlobals.tokenTTLsec * 1000);
+                                _cancelTokenChecker();
+                                _tokenChecker = $interval(_checkToken, _tokenTTL);
                                 _profile = profileData.plain();
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
-                            /*.then(self._setAssociate)*/
                             .finally(function () {
                                 _profilePromise = null;
                             });
@@ -86,9 +85,7 @@ angular.module('greyscale.core')
         };
 
         function _logout() {
-            if (_tokenChecker) {
-                $interval.cancel(_tokenChecker);
-            }
+            _cancelTokenChecker();
             greyscaleTokenSrv(null);
             greyscaleRealmSrv.init(null);
             _profile = null;
@@ -134,12 +131,18 @@ angular.module('greyscale.core')
         }
 
         function _checkToken() {
-            greyscaleUserApi.isAuthenticated(_realm).then(function (isAuth) {
-                if (!isAuth) {
-                    //_logout();
-                    $rootScope.emit('logout');
-                }
-            });
+            greyscaleUserApi.isAuthenticated(greyscaleRealmSrv.origin())
+                .then(function (isAuth) {
+                    if (!isAuth) {
+                        greyscaleUtilsSrv.errorMsg('ERROR.BAD_TOKEN');
+                        $rootScope.emit('logout');
+                    }
+                });
         }
 
+        function _cancelTokenChecker() {
+            if (_tokenChecker) {
+                $interval.cancel(_tokenChecker);
+            }
+        }
     });

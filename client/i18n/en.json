@@ -68,6 +68,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
+        "BAD_TOKEN": "Authentication check error",
         "STEP_SUBMIT": "Task submit error",
         "TEST": "Test error"
     },
