@@ -11,7 +11,7 @@ angular.module('greyscale.core')
             _profile = null,
             _profilePromise = null,
             _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true),
-            _tokenTTL = (greyscaleEnv.tokenTTLsec || 60) * 1000;
+            _tokenTTL = (greyscaleEnv.tokenTTLsec || greyscaleGlobals.tokenTTLsec) * 1000;
 
         this.isSuperAdmin = _isSuperAdmin;
 

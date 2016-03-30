@@ -3,9 +3,9 @@
  */
 'use strict';
 angular.module('greyscale.core')
-    .factory('greyscaleRealmSrv', function ($cookieStore, greyscaleEnv, $log) {
+    .factory('greyscaleRealmSrv', function ($cookieStore, greyscaleEnv, greyscaleGlobals, $log) {
         var _realm,
-            _default = greyscaleEnv.adminSchema || 'public';
+            _default = greyscaleEnv.adminSchema || greyscaleGlobals.adminSchema;
 
         _initRealm();
 
