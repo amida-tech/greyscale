@@ -121,11 +121,11 @@ BEGIN
  
     FOR column_, default_ IN
       SELECT column_name::text, 
-             REPLACE(column_default::text, source_schema, dest_schema) 
+             REPLACE(column_default::text, 'nextval(''', 'nextval(''' || dest_schema || '.') 
         FROM information_schema.COLUMNS 
        WHERE table_schema = dest_schema 
          AND TABLE_NAME = object 
-         AND column_default LIKE 'nextval(%' || quote_ident(source_schema) || '%::regclass)'
+         AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
     END LOOP;
