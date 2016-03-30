@@ -134,8 +134,8 @@ angular.module('greyscale.tables')
 
         function getData() {
             var reqs = {
-                orgs: greyscaleOrganizationApi.list(),
-                users: greyscaleUserApi.list()
+                orgs: greyscaleOrganizationApi.list({},'public'),
+                users: greyscaleUserApi.list({}, 'public')
             };
 
             return $q.all(reqs)

@@ -18,7 +18,9 @@ angular.module('greyscale.core')
         this.getProfile = function (force) {
             var self = this;
 
-            return greyscaleUserApi.isAuthenticated().then(function (isAuth) {
+            var realm = _isSuperAdmin() ? 'public' : undefined;
+
+            return greyscaleUserApi.isAuthenticated(realm).then(function (isAuth) {
                 var res;
 
                 if (isAuth) {
@@ -27,7 +29,7 @@ angular.module('greyscale.core')
                         res = $q.resolve(_profile);
                     } else {
                         if (!_profilePromise || force) {
-                            _profilePromise = greyscaleUserApi.get()
+                            _profilePromise = greyscaleUserApi.get(realm)
                                 .then(function (profileData) {
                                     _profile = profileData.plain();
                                     return _profile;

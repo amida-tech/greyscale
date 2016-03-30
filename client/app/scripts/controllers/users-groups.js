@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
         Organization.$watch($scope, _renderUserGroupsTable);
 
         function _renderUserGroupsTable() {
-            _groupsTable.dataFilter.organizationId = Organization.id;
+            //_groupsTable.dataFilter.organizationId = Organization.id;
             if ($scope.model.groups) {
                 $scope.model.groups.tableParams.reload();
             } else {

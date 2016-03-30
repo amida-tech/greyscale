@@ -35,16 +35,16 @@ angular.module('greyscale.rest')
             return selfAPI().one('organization');
         }
 
-        function userAPI() {
-            return greyscaleRestSrv().one('users');
+        function userAPI(realm) {
+            return greyscaleRestSrv({}, realm).one('users');
         }
 
         function selfAPI() {
             return userAPI().one('self');
         }
 
-        function _self() {
-            return userAPI().one('self').get();
+        function _self(realm) {
+            return userAPI(realm).one('self').get();
         }
 
         function _save(data) {
@@ -71,8 +71,9 @@ angular.module('greyscale.rest')
             return Restangular.one('users').one('activate', token).customPOST(data);
         }
 
-        function _listUsers(params) {
-            return userAPI().get(params);
+        function _listUsers(params, realm) {
+            console.log(realm);
+            return userAPI(realm).get(params);
         }
 
         function _login(user, passwd) {
@@ -87,11 +88,11 @@ angular.module('greyscale.rest')
                 });
         }
 
-        function _isAuthenticated() {
+        function _isAuthenticated(realm) {
             var _token = greyscaleTokenSrv();
             var res = $q.resolve(false);
             if (_token) {
-                res = userAPI().one('checkToken', _token).get()
+                res = userAPI(realm).one('checkToken', _token).get()
                     .then(function () {
                         return true;
                     })

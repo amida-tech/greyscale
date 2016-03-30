@@ -18,7 +18,8 @@ angular.module('greyscaleApp')
         };
 
         function _renderUsersTable() {
-            _usersTable.dataFilter.organizationId = Organization.id;
+            console.log('dddd');
+            //_usersTable.dataFilter.organizationId = Organization.id;
             if ($scope.model.users.tableParams) {
                 $scope.model.users.tableParams.reload();
             }

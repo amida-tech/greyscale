@@ -124,9 +124,15 @@ angular.module('greyscaleApp')
                 model.$loading = undefined;
             });
 
-            if (typeof config.onReload === 'function') {
-                ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
-            }
+
+            ngTableEventsChannel.onAfterReloadData(function(){
+                if (model.tableParams.data.length === 0 && model.dataMap.length > 0) {
+                    model.tableParams.pager.prev();
+                }
+                if (typeof config.onReload === 'function') {
+                    config.onReload();
+                }
+            }, scope);
 
             scope.$getRowClass = function (row) {
                 if (typeof model.rowClass === 'function') {

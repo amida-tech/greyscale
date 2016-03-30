@@ -1,12 +1,15 @@
 <span class="organization-selector">
-    <span ng-if="!model.list||model.organization.$lock" class="display">{{model.organization.shortName || model.organization.name}}</span>
-    <span ng-if="model.list && !model.organization.$lock">
-        <span class="display">{{model.organization.shortName || model.organization.name}}</span>
-        <a><i class="fa fa-caret-down"></i></a>
-        <select hidden-select
-                ng-model="model.organization"
-                ng-options="org as org.name for org in model.organizations track by org.id"
-                ng-change="organizationChanged(model.organization)">
-        </select>
+    <span ng-if="!model.organization.$global">
+        <span ng-if="!model.list||model.organization.$lock" class="display">{{model.organization.shortName || model.organization.name}}</span>
+        <span ng-if="model.list && !model.organization.$lock">
+            <span class="display">{{model.organization.shortName || model.organization.name}}</span>
+            <a><i class="fa fa-caret-down"></i></a>
+            <select hidden-select
+                    ng-model="model.organization"
+                    ng-options="org as org.name for org in model.organizations track by org.id"
+                    ng-change="organizationChanged(model.organization)">
+            </select>
+        </span>
     </span>
+    <span ng-if="model.organization.$global" translate="COMMON.GLOBALLY"></span>
 </span>
