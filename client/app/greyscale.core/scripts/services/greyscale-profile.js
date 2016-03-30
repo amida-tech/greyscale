@@ -20,9 +20,6 @@ angular.module('greyscale.core')
         this.getProfile = function (force) {
             var self = this;
             var token = greyscaleTokenSrv();
-            //            var realm = _isSuperAdmin() ? 'public' : undefined;
-
-            //            return greyscaleUserApi.isAuthenticated(realm).then(function (isAuth) {
             var res;
 
             if (token) {
@@ -31,9 +28,9 @@ angular.module('greyscale.core')
                     res = $q.resolve(_profile);
                 } else {
                     if (!_profilePromise || force) {
+                        _realm = greyscaleRealmSrv.origin();
                         _profilePromise = greyscaleUserApi.get(_realm)
                             .then(function (profileData) {
-                                _realm = greyscaleRealmSrv.origin();
                                 _tokenChecker = $interval(_checkToken, greyscaleGlobals.tokenTTLsec * 1000);
                                 _profile = profileData.plain();
                                 return _profile;
@@ -53,7 +50,6 @@ angular.module('greyscale.core')
             }
 
             return res;
-            //            });
         };
 
         this._setAccessLevel = function () {
