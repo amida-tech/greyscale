@@ -67,7 +67,21 @@ module.exports = {
                 var data = [];
                 for (var i in req.schemas) {
                     var thunkQuery = thunkify(new Query(req.schemas[i]));
-                    var org = yield thunkQuery(Organization.select().where(Organization.realm.equals(req.schemas[i])));
+                    var org = yield thunkQuery(
+                        Organization
+                            .select(
+                                Organization.star(),
+                                '(SELECT ' +
+                                '"Projects"."id" ' +
+                                'FROM "Projects"' +
+                                'WHERE ' +
+                                '"Projects"."organizationId" = "Organizations"."id"' +
+                                'LIMIT 1) as "projectId"'
+                            )
+                            .where(
+                                Organization.realm.equals(req.schemas[i])
+                            )
+                    );
                     if (org.length) {
                         data.push(org[0]);
                     }
