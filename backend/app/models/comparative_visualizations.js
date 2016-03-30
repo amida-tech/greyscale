@@ -3,6 +3,7 @@ var sql = require('sql');
 var columns = [
     'id',
     'title',
+    'uoaIds',
     'organizationId'
 ];
 

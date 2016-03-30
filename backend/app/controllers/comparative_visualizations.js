@@ -23,7 +23,8 @@ module.exports = {
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
                         "), ',')" +
-                    ') AS products'
+                    ') AS products ',
+                    '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )
                 .where(
                     ComparativeVisualization.organizationId.equals(req.params.organizationId)
@@ -57,7 +58,8 @@ module.exports = {
             // insert ComparativeVisualization
             var viz = {
                 title: req.body.title,
-                organizationId: req.params.organizationId
+                organizationId: req.params.organizationId,
+                uoaIds: req.body.targetIds
             };
             var result = yield thunkQuery(ComparativeVisualization.insert(viz).returning(ComparativeVisualization.id));
             console.log("VIZID", result[0].id);
@@ -95,7 +97,10 @@ module.exports = {
             }
 
             // update ComparativeVisualization
-            yield thunkQuery(ComparativeVisualization.update({ title: req.body.title }).where(
+            yield thunkQuery(ComparativeVisualization.update({
+                title: req.body.title,
+                uoaIds: req.body.targetIds
+            }).where(
                 ComparativeVisualization.id.equals(req.params.id)
             ));
 
@@ -146,7 +151,8 @@ module.exports = {
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
                         "), ',')" +
-                    ') AS products'
+                    ') AS products',
+                    '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )
                 .where(
                     ComparativeVisualization.id.equals(req.params.id)
