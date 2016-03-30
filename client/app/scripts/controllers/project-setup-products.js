@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
 
         $scope.model = {};
 
-        Organization.$watch('projectId', $scope, _renderProductsTable);
+        Organization.$watch($scope, _renderProductsTable);
 
         function _renderProductsTable() {
             products.dataFilter.projectId = Organization.projectId;

@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
                 targetScope = arguments[1];
                 handler = arguments[2];
             } else {
-                field = 'id';
+                field = 'realm';
                 targetScope = arguments[0];
                 handler = arguments[1];
             }
@@ -36,18 +36,6 @@ angular.module('greyscaleApp')
                         throw 'Can\'t find organization by ' + field + '=' + value;
                     }
                 });
-        };
-        org.$isGlobal = function () {
-            return global;
-        };
-        org.$useGlobally = function (scope) {
-            org.$global = true;
-            scope.$on('$destroy', function () {
-                org.$global = false;
-            });
-            if (org.$selectorScope) {
-                org.$selectorScope.model.organization = org;
-            }
         };
         return org;
     })
@@ -82,39 +70,38 @@ angular.module('greyscaleApp')
 
                             var organizationId = parseInt($cookies.get('orgId'));
 
-                            var organization = _.find(organizations, {
+                            var organization = _.find($scope.model.organizations, {
                                 id: organizationId
                             });
 
                             if (organization) {
-                                angular.extend(Organization, organization);
-                            } else if (organizations.length) {
-                                angular.extend(Organization, organizations[0]);
+                                $scope.model.organization = organization;
+                            } else if ($scope.model.organizations.length) {
+                                $scope.model.organization = $scope.model.organizations[0];
                             }
-                            Organization.$promise = $q.when(true);
                             $scope.organizationChanged();
                         });
                     } else {
-                        angular.extend(Organization, profile.organization);
-                        Organization.projectId = profile.projectId;
-                        greyscaleRealmSrv.current(Organization.realm || 'public');
+                        $scope.model.organization = profile.organization;
+                        $scope.model.organization.projectId = profile.projectId;
+                        $scope.organizationChanged();
                     }
                 });
 
                 $scope.organizationChanged = function () {
-                    console.log('org', Organization);
                     Organization = angular.extend(Organization, $scope.model.organization);
 
                     greyscaleRealmSrv.current(Organization.realm || 'public');
 
                     $cookies.put('orgId', Organization.id);
 
-                    //if (!Organization.projectId) {
-                    //    throw 'Organization id=' + Organization.id + ' has no valid project';
-                    //}
+                    if (!Organization.projectId) {
+                        console.error('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
+                    }
 
                     $timeout(function () {
                         $scope.$digest();
+                        Organization.$promise = $q.when(true);
                     });
                 };
 

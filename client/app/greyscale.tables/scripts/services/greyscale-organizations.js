@@ -99,7 +99,7 @@ angular.module('greyscale.tables')
                 okType: 'danger',
                 okText: 'COMMON.DELETE'
             }).then(function () {
-                greyscaleOrganizationApi.delete(organization.id)
+                greyscaleOrganizationApi.delete(organization.id, organization.realm)
                     .then(reloadTable)
                     .catch(function (err) {
                         errorHandler(err, 'deleting');
@@ -114,9 +114,9 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleOrganizationApi.update(newRec);
+                        return greyscaleOrganizationApi.update(newRec, organization.realm);
                     } else {
-                        return greyscaleOrganizationApi.add(newRec);
+                        return greyscaleOrganizationApi.add(newRec, 'public');
                     }
                 })
                 .then(reloadTable)

@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
             surveys: surveys
         };
 
-        Organization.$watch('projectId', $scope, _renderSurveysTable);
+        Organization.$watch($scope, _renderSurveysTable);
 
         function _renderSurveysTable() {
             surveys.dataFilter.projectId = Organization.projectId;

@@ -16,7 +16,9 @@ angular.module('greyscaleApp')
         greyscaleUoasTbl,
         greyscaleUoaClassTypesTbl,
         greyscaleUoaTagsTbl,
-        greyscaleUoaTagLinksTbl) {
+        greyscaleUoaTagLinksTbl, Organization) {
+
+        Organization.$watch($scope, _renderUoaTables);
 
         $scope.model = {
             uoas: greyscaleUoasTbl,
@@ -35,5 +37,19 @@ angular.module('greyscaleApp')
             }
             return $scope.model.uoas.current;
         };
+
+        function _renderUoaTables() {
+            _reloadTable($scope.model.uoas);
+            _reloadTable($scope.model.uoaTypes);
+            _reloadTable($scope.model.uoaTags);
+            _reloadTable($scope.model.uoaTagLinks);
+            _reloadTable($scope.model.uoaClassTypes);
+        }
+
+        function _reloadTable(table) {
+            if (table && table.tableParams) {
+                table.tableParams.reload();
+            }
+        }
 
     });

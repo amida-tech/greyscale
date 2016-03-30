@@ -72,7 +72,6 @@ angular.module('greyscale.rest')
         }
 
         function _listUsers(params, realm) {
-            $log.debug('list users for realm', realm);
             return userAPI(realm).get(params);
         }
 

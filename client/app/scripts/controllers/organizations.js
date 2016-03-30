@@ -4,11 +4,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('OrganizationsCtrl', function ($scope, greyscaleOrganizationsTbl, Organization) {
+    .controller('OrganizationsCtrl', function ($scope, greyscaleOrganizationsTbl) {
         $scope.model = {
             orgs: greyscaleOrganizationsTbl
         };
-
-        Organization.$useGlobally($scope);
-
     });

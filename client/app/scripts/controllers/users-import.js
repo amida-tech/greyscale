@@ -27,7 +27,6 @@ angular.module('greyscaleApp')
 
         function _renderUsersImportTable() {
             $scope.model.organization = Organization;
-            //_usersImportTable.dataFilter.organizationId = Organization.id;
             if ($scope.model.importUsers && $scope.model.importUsers.tableParams) {
                 $scope.model.importUsers.tableParams.reload();
             } else {

@@ -3,14 +3,11 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('SuperusersCtrl', function ($scope, greyscaleSuperusersTbl, Organization) {
+    .controller('SuperusersCtrl', function ($scope, greyscaleSuperusersTbl) {
 
         var _table = greyscaleSuperusersTbl;
 
         $scope.model = {
             superusers: _table
         };
-
-        Organization.$useGlobally($scope);
-
     });
