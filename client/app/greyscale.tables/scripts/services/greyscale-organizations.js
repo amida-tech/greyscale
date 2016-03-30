@@ -134,7 +134,7 @@ angular.module('greyscale.tables')
 
         function getData() {
             var reqs = {
-                orgs: greyscaleOrganizationApi.list({},'public'),
+                orgs: greyscaleOrganizationApi.list({}, 'public'),
                 users: greyscaleUserApi.list({}, 'public')
             };
 

@@ -5,7 +5,7 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv,
-        greyscaleRealmSrv) {
+        greyscaleRealmSrv, $log) {
 
         return {
             login: _login,
@@ -72,7 +72,7 @@ angular.module('greyscale.rest')
         }
 
         function _listUsers(params, realm) {
-            console.log(realm);
+            $log.debug('list users for realm', realm);
             return userAPI(realm).get(params);
         }
 
@@ -83,7 +83,7 @@ angular.module('greyscale.rest')
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
-                    greyscaleRealmSrv(resp.realm);
+                    greyscaleRealmSrv.init(resp.realm);
                     return resp;
                 });
         }

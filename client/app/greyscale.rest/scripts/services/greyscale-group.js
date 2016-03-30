@@ -15,8 +15,9 @@ angular.module('greyscale.rest')
         }
 
         function _list(params) {
+            console.log('1');
             return _userGroupAPI().get(params)
-                .catch(function(){
+                .catch(function () {
                     return [];
                 });
         }

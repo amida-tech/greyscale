@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
-        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n, greyscaleNotificationApi, inform) {
+    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, greyscaleNotificationApi, greyscaleOrganizationApi) {
         var accessLevel;
 
         var tns = 'USERS.';
@@ -187,7 +187,7 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserApi.update(newRec);
                     } else {
-                        //newRec.organizationId = _getOrganizationId();
+                        newRec.organizationId = _getOrganizationId();
                         //if (_isSuperAdmin()) {
                         //    return greyscaleUserApi.inviteAdmin(newRec);
                         //} else if (_isAdmin()) {
@@ -234,17 +234,17 @@ angular.module('greyscale.tables')
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
 
-        //function _getOrganizationId() {
-        //    return _table.dataFilter.organizationId;
-        //}
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
 
         function _getUsers() {
 
-            //var organizationId = _getOrganizationId();
-            //
-            //if (!organizationId) {
-            //    return $q.reject('400');
-            //}
+            var organizationId = _getOrganizationId();
+
+            if (!organizationId) {
+                return $q.reject('400');
+            }
 
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
@@ -261,7 +261,7 @@ angular.module('greyscale.tables')
                         isSystem: true
                     }),
                     users: greyscaleUserApi.list(),
-                    groups: greyscaleGroupApi.list()
+                    groups: greyscaleOrganizationApi.groups(organizationId)
                 };
 
                 return $q.all(reqs).then(function (promises) {

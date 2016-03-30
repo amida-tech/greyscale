@@ -37,13 +37,13 @@ angular.module('greyscaleApp')
                     }
                 });
         };
-        org.$isGlobal = function(){
+        org.$isGlobal = function () {
             return global;
         };
-        org.$useGlobally = function(scope){
+        org.$useGlobally = function (scope) {
             org.$global = true;
-            scope.$on('$destroy', function(){
-               org.$global = false;
+            scope.$on('$destroy', function () {
+                org.$global = false;
             });
             if (org.$selectorScope) {
                 org.$selectorScope.model.organization = org;
@@ -97,15 +97,15 @@ angular.module('greyscaleApp')
                     } else {
                         angular.extend(Organization, profile.organization);
                         Organization.projectId = profile.projectId;
-                        greyscaleRealmSrv(Organization.realm || 'public');
+                        greyscaleRealmSrv.current(Organization.realm || 'public');
                     }
                 });
 
                 $scope.organizationChanged = function () {
-                    console.log('org',Organization);
+                    console.log('org', Organization);
                     Organization = angular.extend(Organization, $scope.model.organization);
 
-                    greyscaleRealmSrv(Organization.realm || 'public');
+                    greyscaleRealmSrv.current(Organization.realm || 'public');
 
                     $cookies.put('orgId', Organization.id);
 

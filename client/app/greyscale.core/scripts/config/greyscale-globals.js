@@ -152,7 +152,9 @@ angular.module('greyscale.core')
             }, {
                 value: 'completed',
                 name: 'COMPLETED'
-            }]
+            }],
+            realm: 'public',
+            tokenTTLsec: 15
         };
 
         return {
@@ -190,6 +192,8 @@ angular.module('greyscale.core')
     })
     .run(function (greyscaleGlobals, i18n) {
 
+        var _translationPrefix = 'i18n:';
+
         _translate(greyscaleGlobals);
 
         function _translate(data) {
@@ -197,10 +201,8 @@ angular.module('greyscale.core')
                 dataSetTns;
             angular.forEach(data, function (dataSet, name) {
                 dataSetTns = tns + name.toUpperCase() + '.';
-                if (angular.isString(dataSet)) {
-                    if (name !== 'loremIpsum') {
-                        data[name] = _translateString(dataSetTns, dataSet);
-                    }
+                if (angular.isString(dataSet) && dataSet.indexOf(_translationPrefix) === 0) {
+                    data[name] = _translateString(dataSetTns, dataSet.substring(_translationPrefix.length));
                 } else if (angular.isArray(dataSet) || angular.isObject(dataSet)) {
                     _translateList(dataSetTns, dataSet);
                 }

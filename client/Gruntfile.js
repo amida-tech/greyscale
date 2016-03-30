@@ -577,6 +577,7 @@ module.exports = function (grunt) {
                         apiHostname: 'localhost',
                         apiPort: '3005',
                         apiVersion: 'v0.2',
+                        adminSchema: 'public',
                         enableDebugLog: true
                     }
                 }
@@ -590,6 +591,7 @@ module.exports = function (grunt) {
                         apiHostname: process.env.SERVICE_HOST,
                         apiPort: process.env.SERVICE_PORT,
                         apiVersion: process.env.SERVICE_VER,
+                        adminSchema: process.env.SERVICE_SCHEMA,
                         enableDebugLog: false
                     }
                 }
@@ -606,6 +608,7 @@ module.exports = function (grunt) {
                         apiVersion: 'v0.2',
                         defaultUser: 'su@mail.net',
                         defaultPassword: 'testuser',
+                        adminSchema: 'public',
                         enableDebugLog: true
                     }
                 }
