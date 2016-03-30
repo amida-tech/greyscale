@@ -58,7 +58,7 @@ var getUser = function* (req, userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) {
-    var thunkQuery = (req) ?  req.thunkQuery : thunkQuery;
+    var thunkQuery = (req) ?  req.thunkQuery : global.thunkQuery;
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence for table name `'+essenceName+'`');
