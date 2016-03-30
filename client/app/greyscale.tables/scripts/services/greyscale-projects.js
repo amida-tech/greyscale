@@ -118,22 +118,20 @@ angular.module('greyscale.tables')
             return greyscaleGlobals.projectStates;
         }
 
-        function _getOrganizationId() {
-            return _table.dataFilter.organizationId;
-        }
+        //function _getOrganizationId() {
+        //    return _table.dataFilter.organizationId;
+        //}
 
         function _getData() {
 
-            var organizationId = _getOrganizationId();
-
-            if (!organizationId) {
-                return $q.reject('400');
-            }
+            //var organizationId = _getOrganizationId();
+            //
+            //if (!organizationId) {
+            //    return $q.reject('400');
+            //}
 
             var req = {
-                prjs: greyscaleProjectApi.list({
-                    organizationId: organizationId
-                }),
+                prjs: greyscaleProjectApi.list(),
                 matrices: greyscaleAccessApi.matrices()
             };
 
@@ -173,7 +171,7 @@ angular.module('greyscale.tables')
                         return greyscaleProjectApi.update(newPrj);
                     } else {
                         op = 'adding';
-                        newPrj.organizationId = _getOrganizationId();
+                        //newPrj.organizationId = _getOrganizationId();
                         return greyscaleProjectApi.add(newPrj);
                     }
                 })

@@ -27,12 +27,12 @@ angular.module('greyscale.tables')
         };
 
         function getData() {
-            var organizationId = _table.dataFilter.organizationId;
-            if (!organizationId) {
-                return $q.reject('400');
-            }
+            //var organizationId = _table.dataFilter.organizationId;
+            //if (!organizationId) {
+            //    return $q.reject('400');
+            //}
             var reqs = {
-                groups: greyscaleGroupApi.list(organizationId)
+                groups: greyscaleGroupApi.list()
             };
 
             return $q.all(reqs).then(function (promises) {

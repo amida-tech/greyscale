@@ -32,9 +32,7 @@ angular.module('greyscaleApp')
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
                 var req = {
-                    _users: greyscaleUserApi.list({
-                        organizationId: profile.organizationId
-                    }),
+                    _users: greyscaleUserApi.list(),
                     _pubUoa: greyscaleUoaApi.list({
                         visibility: 1,
                         status: '1',

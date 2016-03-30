@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
+    .factory('greyscaleSuperusersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n, greyscaleNotificationApi, inform) {
         var accessLevel;
 
@@ -37,16 +37,6 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'lastName'
         }, {
-            field: 'roleID',
-            title: tns + 'ROLE',
-            dataFormat: 'option',
-            dataNoEmptyOption: true,
-            dataSet: {
-                getData: _getRoles,
-                keyField: 'id',
-                valField: 'title'
-            }
-        }, {
             field: 'lastActive',
             title: tns + 'LAST_ACTIVE',
             show: true,
@@ -66,17 +56,6 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'isAnonymous',
             dataFormat: 'boolean'
-        }, {
-            show: true,
-            title: tns + 'GROUPS',
-            cellClass: 'text-center col-sm-2',
-            dataReadOnly: 'both',
-            dataHide: true,
-            cellTemplate: '<small>{{ext.getGroups(row)}}</small><small class="text-muted" ng-hide="row.usergroupId.length" translate="' + tns + 'NO_GROUPS"></small> <a ng-show="widgetCell" class="action" ng-click="ext.editGroups(row); $event.stopPropagation()"><i class="fa fa-pencil"></i></a>',
-            cellTemplateExtData: {
-                getGroups: _getGroups,
-                editGroups: _editGroups
-            }
         }, {
             title: '',
             show: false,
@@ -187,13 +166,12 @@ angular.module('greyscale.tables')
                         action = 'editing';
                         return greyscaleUserApi.update(newRec);
                     } else {
-                        //newRec.organizationId = _getOrganizationId();
-                        //if (_isSuperAdmin()) {
-                        //    return greyscaleUserApi.inviteAdmin(newRec);
-                        //} else if (_isAdmin()) {
-                        //    return greyscaleUserApi.inviteUser(newRec);
-                        //}
-                        return greyscaleUserApi.inviteUser(newRec);
+                        newRec.organizationId = _getOrganizationId();
+                        if (_isSuperAdmin()) {
+                            return greyscaleUserApi.inviteAdmin(newRec);
+                        } else if (_isAdmin()) {
+                            return greyscaleUserApi.inviteUser(newRec);
+                        }
                     }
                 })
                 .then(reloadTable)
@@ -234,39 +212,21 @@ angular.module('greyscale.tables')
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
 
-        //function _getOrganizationId() {
-        //    return _table.dataFilter.organizationId;
-        //}
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
 
         function _getUsers() {
-
-            //var organizationId = _getOrganizationId();
-            //
-            //if (!organizationId) {
-            //    return $q.reject('400');
-            //}
 
             return greyscaleProfileSrv.getProfile().then(function (profile) {
 
                 dicts.profile = profile;
 
-                accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-                //var listFilter = {
-                //    organizationId: organizationId
-                //};
-
                 var reqs = {
-                    roles: greyscaleRoleApi.list({
-                        isSystem: true
-                    }),
-                    users: greyscaleUserApi.list(),
-                    groups: greyscaleGroupApi.list()
+                    users: greyscaleUserApi.list({}, 'public'),
                 };
 
                 return $q.all(reqs).then(function (promises) {
-                    dicts.roles = _addTitles(promises.roles);
-                    dicts.groups = promises.groups;
                     greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                     return promises.users;
                 });

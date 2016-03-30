@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
 
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
-    productWorkflow.dataFilter.organizationId = Organization.id;
+    //productWorkflow.dataFilter.organizationId = Organization.id;
     productWorkflow.dataFilter.product = product;
 
 

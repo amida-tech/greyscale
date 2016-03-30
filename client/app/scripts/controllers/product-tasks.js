@@ -634,10 +634,8 @@ angular.module('greyscaleApp')
 
         function _loadUsersData() {
             var reqs = {
-                users: greyscaleUserApi.list({
-                    organizationId: Organization.id
-                }),
-                groups: greyscaleGroupApi.list(Organization.id)
+                users: greyscaleUserApi.list(),
+                groups: greyscaleGroupApi.list()
             };
 
             return $q.all(reqs).then(function (promises) {
