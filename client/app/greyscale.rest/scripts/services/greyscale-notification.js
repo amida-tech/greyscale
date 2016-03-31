@@ -11,16 +11,16 @@ angular.module('greyscale.rest')
             setUnread: _setUnread
         };
 
-        function api() {
-            return greyscaleRestSrv().one('notifications');
+        function api(realm) {
+            return greyscaleRestSrv({}, realm).one('notifications');
         }
 
         function _list(param) {
             return api().get(param);
         }
 
-        function _resendUserInvite(userId) {
-            return api().one('resenduserinvite').one('' + userId).customPUT();
+        function _resendUserInvite(userId, realm) {
+            return api(realm).one('resenduserinvite').one('' + userId).customPUT();
         }
 
         function _send(data) {

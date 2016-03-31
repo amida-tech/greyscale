@@ -5,7 +5,7 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv,
-        greyscaleRealmSrv, $log) {
+        greyscaleRealmSrv, $log, greyscaleGlobals) {
 
         return {
             login: _login,
@@ -14,6 +14,7 @@ angular.module('greyscale.rest')
             get: _self,
             list: _listUsers,
             register: _register,
+            inviteSuperAdmin: _inviteSuperAdmin,
             inviteAdmin: _inviteAdmin,
             inviteUser: _inviteUser,
             activate: _activate,
@@ -107,20 +108,24 @@ angular.module('greyscale.rest')
             return userAPI().one('logout').post();
         }
 
-        function _inviteAdmin(userData) {
-            return orgAPI().one('invite').customPOST(userData);
+        function _inviteSuperAdmin(userData) {
+            return userAPI(greyscaleGlobals.realm).one('invite').customPOST(userData);
+        }
+
+        function _inviteAdmin(userData, realm) {
+            return userAPI(realm).one('invite').customPOST(userData);
         }
 
         function _inviteUser(userData) {
             return orgAPI().one('invite').customPOST(userData);
         }
 
-        function updateUser(data) {
-            return userAPI().one(data.id + '').customPUT(data);
+        function updateUser(data, realm) {
+            return userAPI(realm).one(data.id + '').customPUT(data);
         }
 
-        function delUser(id) {
-            return userAPI().one(id + '').remove();
+        function delUser(id, realm) {
+            return userAPI(realm).one(id + '').remove();
         }
 
         function _uoaAPI(userId) {

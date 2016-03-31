@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalChangePasswordCtrl', function($scope, user, greyscaleUtilsSrv, greyscaleProfileSrv, $uibModalInstance, greyscaleUserApi, inform, i18n) {
+.controller('ModalChangePasswordCtrl', function($scope, user, data, greyscaleUtilsSrv, greyscaleProfileSrv, $uibModalInstance, greyscaleUserApi, inform, i18n) {
 
     $scope.model = {
         user: user,
@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
     };
 
     $scope.save = function () {
-        greyscaleUserApi.update($scope.model.form)
+        greyscaleUserApi.update($scope.model.form, data.realm)
             .then(function () {
                 $uibModalInstance.close();
                 inform.add(i18n.translate('USERS.CHANGE_PASSWORD_SUCCESS'), {

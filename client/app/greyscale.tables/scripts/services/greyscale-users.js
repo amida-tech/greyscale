@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
-        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, greyscaleNotificationApi, greyscaleOrganizationApi) {
+        greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, greyscaleNotificationApi, greyscaleGroupApi) {
         var accessLevel;
 
         var tns = 'USERS.';
@@ -188,12 +188,11 @@ angular.module('greyscale.tables')
                         return greyscaleUserApi.update(newRec);
                     } else {
                         newRec.organizationId = _getOrganizationId();
-                        //if (_isSuperAdmin()) {
-                        //    return greyscaleUserApi.inviteAdmin(newRec);
-                        //} else if (_isAdmin()) {
-                        //    return greyscaleUserApi.inviteUser(newRec);
-                        //}
-                        return greyscaleUserApi.inviteUser(newRec);
+                        if (_isSuperAdmin()) {
+                            return greyscaleUserApi.inviteAdmin(newRec);
+                        } else if (_isAdmin()) {
+                            return greyscaleUserApi.inviteUser(newRec);
+                        }
                     }
                 })
                 .then(reloadTable)
@@ -261,7 +260,7 @@ angular.module('greyscale.tables')
                         isSystem: true
                     }),
                     users: greyscaleUserApi.list(),
-                    groups: greyscaleOrganizationApi.groups(organizationId)
+                    groups: greyscaleGroupApi.list(organizationId)
                 };
 
                 return $q.all(reqs).then(function (promises) {

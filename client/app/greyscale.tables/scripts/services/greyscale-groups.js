@@ -49,13 +49,22 @@ angular.module('greyscale.tables')
             }
         };
 
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
+
         function _getData() {
-            var req = {
-                groups: greyscaleGroupApi.list()
-            };
-            return $q.all(req).then(function (promises) {
-                return promises.groups;
-            });
+            var organizationId = _getOrganizationId();
+            if (!organizationId) {
+                return $q.reject();
+            } else {
+                var req = {
+                    groups: greyscaleGroupApi.list(organizationId)
+                };
+                return $q.all(req).then(function (promises) {
+                    return promises.groups;
+                });
+            }
         }
 
         function _editGroup(group) {
@@ -66,7 +75,8 @@ angular.module('greyscale.tables')
                         return greyscaleGroupApi.update(editGroup);
                     } else {
                         op = 'adding';
-                        return greyscaleGroupApi.add(editGroup);
+                        var organizationId = _getOrganizationId();
+                        return greyscaleGroupApi.add(organizationId, editGroup);
                     }
                 })
                 .then(_reload)

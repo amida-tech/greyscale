@@ -14,16 +14,16 @@ angular.module('greyscale.rest')
             return greyscaleRestSrv().one('groups');
         }
 
-        function _list(params) {
-            console.log('1');
-            return _userGroupAPI().get(params)
-                .catch(function () {
-                    return [];
-                });
+        function _orgUserGroupAPI(orgId) {
+            return greyscaleRestSrv().one('organizations').one('' + orgId).one('groups');
         }
 
-        function _add(group) {
-            return _userGroupAPI().customPOST(group);
+        function _list(orgId, params) {
+            return _orgUserGroupAPI(orgId).get(params);
+        }
+
+        function _add(orgId, group) {
+            return _orgUserGroupAPI(orgId).customPOST(group);
         }
 
         function _update(group) {

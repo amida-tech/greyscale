@@ -164,21 +164,21 @@ angular.module('greyscale.tables')
             return _table.dataFilter.product;
         }
 
-        //function _getOrganizationId() {
-        //    return _table.dataFilter.organizationId;
-        //}
+        function _getOrganizationId() {
+            return _table.dataFilter.organizationId;
+        }
 
         function _getData() {
 
             var workflowId = _getWorkflowId();
-            //var organizationId = _getOrganizationId();
+            var organizationId = _getOrganizationId();
             var roleFilter = {
                 isSystem: false
             };
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
                 roles: greyscaleRoleApi.list(roleFilter),
-                groups: greyscaleGroupApi.list()
+                groups: greyscaleGroupApi.list(organizationId)
             };
 
             return $q.all(req).then(function (promises) {

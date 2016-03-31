@@ -5,7 +5,7 @@ angular.module('greyscaleApp')
 
 
     var _userGroupsTable = greyscaleUserGroupsTbl;
-    //_userGroupsTable.dataFilter.organizationId = Organization.id;
+    _userGroupsTable.dataFilter.organizationId = Organization.id;
     _userGroupsTable.dataFilter.selectedIds = user.usergroupId;
 
 

@@ -10,6 +10,8 @@ angular.module('greyscale.tables')
 
         var tns = 'USERS.';
 
+        var _realm = greyscaleGlobals.realm;
+
         var dicts = {};
 
         var _fields = [{
@@ -112,22 +114,6 @@ angular.module('greyscale.tables')
             }
         };
 
-        function _getRoles() {
-            if (_isSuperAdmin()) {
-                return dicts.roles;
-            } else {
-                return _.filter(dicts.roles, function (o) {
-                    return o.id >= dicts.profile.roleID;
-                });
-            }
-        }
-
-        function _getGroups(user) {
-            return _.map(_.filter(dicts.groups, function (o) {
-                return ~user.usergroupId.indexOf(o.id);
-            }), 'title').join(', ');
-        }
-
         function _delRecord(rec) {
             greyscaleModalsSrv.confirm({
                 message: tns + 'DELETE_CONFIRM',
@@ -135,7 +121,7 @@ angular.module('greyscale.tables')
                 okType: 'danger',
                 okText: 'COMMON.DELETE'
             }).then(function () {
-                greyscaleUserApi.delete(rec.id)
+                greyscaleUserApi.delete(rec.id, _realm)
                     .then(reloadTable)
                     .catch(function (err) {
                         errorHandler(err, 'deleting');
@@ -152,7 +138,7 @@ angular.module('greyscale.tables')
         }
 
         function _changePassword(user) {
-            greyscaleModalsSrv.changePassword(user);
+            greyscaleModalsSrv.changePassword(user, _realm);
         }
 
         function _editRecord(user) {
@@ -164,14 +150,9 @@ angular.module('greyscale.tables')
                     }
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleUserApi.update(newRec);
+                        return greyscaleUserApi.update(newRec, _realm);
                     } else {
-                        newRec.organizationId = _getOrganizationId();
-                        if (_isSuperAdmin()) {
-                            return greyscaleUserApi.inviteAdmin(newRec);
-                        } else if (_isAdmin()) {
-                            return greyscaleUserApi.inviteUser(newRec);
-                        }
+                        return greyscaleUserApi.inviteSuperAdmin(newRec);
                     }
                 })
                 .then(reloadTable)
@@ -181,7 +162,7 @@ angular.module('greyscale.tables')
         }
 
         function _resendActivation(user) {
-            greyscaleNotificationApi.resendUserInvite(user.id)
+            greyscaleNotificationApi.resendUserInvite(user.id, _realm)
                 .then(function () {
                     inform.add(i18n.translate(tns + 'RESEND_ACTIVATION_DONE'), {
                         type: 'success'
@@ -192,28 +173,8 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _editGroups(user) {
-            greyscaleModalsSrv.userGroups(user)
-                .then(function (selectedGroupIds) {
-                    user.usergroupId = selectedGroupIds;
-                    greyscaleUserApi.update(user);
-                });
-        }
-
         function reloadTable() {
             _table.tableParams.reload();
-        }
-
-        function _isSuperAdmin() {
-            return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
-        }
-
-        function _isAdmin() {
-            return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
-        }
-
-        function _getOrganizationId() {
-            return _table.dataFilter.organizationId;
         }
 
         function _getUsers() {
@@ -223,7 +184,7 @@ angular.module('greyscale.tables')
                 dicts.profile = profile;
 
                 var reqs = {
-                    users: greyscaleUserApi.list({}, 'public'),
+                    users: greyscaleUserApi.list({}, _realm),
                 };
 
                 return $q.all(reqs).then(function (promises) {
@@ -232,13 +193,6 @@ angular.module('greyscale.tables')
                 });
 
             }).catch(errorHandler);
-        }
-
-        function _addTitles(roles) {
-            angular.forEach(roles, function (role) {
-                role.title = i18n.translate('GLOBALS.ROLES.' + role.name.toUpperCase());
-            });
-            return roles;
         }
 
         function errorHandler(err, action) {
