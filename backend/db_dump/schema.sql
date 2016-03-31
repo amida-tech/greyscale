@@ -384,7 +384,7 @@ CREATE TABLE "IndexQuestionWeights" (
 ALTER TABLE "IndexQuestionWeights" OWNER TO indaba;
 
 --
--- Name: IndexSubindexWeights; Type: TABLE; Schema: public; Owner: rickards; Tablespace: 
+-- Name: IndexSubindexWeights; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
 --
 
 CREATE TABLE "IndexSubindexWeights" (
@@ -395,7 +395,7 @@ CREATE TABLE "IndexSubindexWeights" (
 );
 
 
-ALTER TABLE "IndexSubindexWeights" OWNER TO rickards;
+ALTER TABLE "IndexSubindexWeights" OWNER TO indaba;
 
 --
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
@@ -1385,7 +1385,7 @@ ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
 ALTER SEQUENCE "Visualizations_id_seq" OWNED BY "Visualizations".id;
 
 --
--- Name: ComparativeVisualizationProducts; Type: TABLE; Schema: public; Owner: rickards; Tablespace: 
+-- Name: ComparativeVisualizationProducts; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
 --
 
 CREATE TABLE "ComparativeVisualizationProducts" (
@@ -1395,7 +1395,7 @@ CREATE TABLE "ComparativeVisualizationProducts" (
 );
 
 
-ALTER TABLE "ComparativeVisualizationProducts" OWNER TO rickards;
+ALTER TABLE "ComparativeVisualizationProducts" OWNER TO indaba;
 
 --
 -- Name: ComparativeVisualizations; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
@@ -2724,7 +2724,7 @@ ALTER TABLE ONLY "AccessPermissions"
     ADD CONSTRAINT "AccessPermissoins_pkey" PRIMARY KEY (id);
 
 --
--- Name: ComparativeVisualizationProducts_pkey; Type: CONSTRAINT; Schema: public; Owner: rickards; Tablespace: 
+-- Name: ComparativeVisualizationProducts_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
 --
 
 ALTER TABLE ONLY "ComparativeVisualizationProducts"
@@ -2786,7 +2786,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
     ADD CONSTRAINT "IndexQuestionWeight_pkey" PRIMARY KEY ("indexId", "questionId");
 
 --
--- Name: IndexSubindexWeight_pkey; Type: CONSTRAINT; Schema: public; Owner: rickards; Tablespace: 
+-- Name: IndexSubindexWeight_pkey; Type: CONSTRAINT; Schema: public; Owner: indaba; Tablespace: 
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -3141,7 +3141,7 @@ ALTER TABLE ONLY "IndexQuestionWeights"
 
 
 --
--- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+-- Name: IndexSubindexWeights_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -3149,7 +3149,7 @@ ALTER TABLE ONLY "IndexSubindexWeights"
 
 
 --
--- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+-- Name: IndexSubindexWeights_subindexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
 --
 
 ALTER TABLE ONLY "IndexSubindexWeights"
@@ -3164,7 +3164,7 @@ ALTER TABLE ONLY "Indexes"
     ADD CONSTRAINT "Indexes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Products"(id);
 
 --
--- Name: ComparativeVisualizationProducts_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+-- Name: ComparativeVisualizationProducts_indexId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
 --
 
 ALTER TABLE ONLY "ComparativeVisualizationProducts"
@@ -3172,7 +3172,7 @@ ALTER TABLE ONLY "ComparativeVisualizationProducts"
 
 
 --
--- Name: ComparativeVisualizationProducts_productId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+-- Name: ComparativeVisualizationProducts_productId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
 --
 
 ALTER TABLE ONLY "ComparativeVisualizationProducts"
@@ -3180,7 +3180,7 @@ ALTER TABLE ONLY "ComparativeVisualizationProducts"
 
 
 --
--- Name: ComparativeVisualizationProducts_visualizationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: rickards
+-- Name: ComparativeVisualizationProducts_visualizationId_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indaba
 --
 
 ALTER TABLE ONLY "ComparativeVisualizationProducts"
