@@ -6,14 +6,15 @@ angular.module('greyscaleApp')
             restrict: 'E',
             templateUrl: 'views/directives/comparative-visualization.html',
             link: function (scope, element, attrs) {
+                scope.allData = [];
+                // loading existing viz
                 scope.savedVisualization = false;
                 scope.visualizationTitle = null;
+                // target selection
                 scope.targets = [];
                 scope.selectedTargets = [];
-                scope.setInitialTargets = false;
-                scope.allData = [];
 
-                // PRODUCT SELECTION
+                // DATASOURCE SELECTION
                 scope.datasources = {
                     products: [],
                     datasets: []
@@ -73,7 +74,10 @@ angular.module('greyscaleApp')
                                 var i;
                                 if (row.product) {
                                     for (i = 0; i < scope.datasources.products.length; i++) {
-                                        if (scope.datasources.products[i].product.id === row.product.id && scope.datasources.products[i].index.id === row.index.id) {
+                                        if (
+                                            scope.datasources.products[i].product.id === row.product.id &&
+                                            scope.datasources.products[i].index.id === row.index.id
+                                        ) {
                                             scope.datasources.products.splice(i, 1);
                                             break;
                                         }
@@ -98,6 +102,7 @@ angular.module('greyscaleApp')
                         return $q.when(scope.datasources.products.concat(scope.datasources.datasets));
                     }
                 };
+
                 scope.editProduct = function (productIndex) {
                     greyscaleModalsSrv.addProduct(productIndex, function () {
                         return $q.when(scope.allProducts).then(function (products) {
@@ -117,7 +122,10 @@ angular.module('greyscaleApp')
                         var added = false;
                         if (productIndex && productIndex.product) {
                             for (var i = 0; i < scope.datasources.products.length; i++) {
-                                if (scope.datasources.products[i].product.id === productIndex.product.id && scope.datasources.products[i].index.id === productIndex.index.id) {
+                                if (
+                                        scope.datasources.products[i].product.id === productIndex.product.id &&
+                                        scope.datasources.products[i].index.id === productIndex.index.id
+                                ) {
                                     scope.datasources.products[i].product = newProductIndex.product;
                                     scope.datasources.products[i].index = newProductIndex.index;
                                     added = true;
@@ -134,7 +142,6 @@ angular.module('greyscaleApp')
                     });
                 };
 
-                // IMPORTING DATASETS
                 scope.importDataset = function (dataset) {
                     greyscaleModalsSrv.importDataset(dataset, scope.visualizationId).then(function (dataset) {
                         // update existing dataset
@@ -178,11 +185,13 @@ angular.module('greyscaleApp')
                     });
                 };
 
-                // DATA AGGREGATION
+                // DATA AGGREGATION AND FILTERING
                 scope.aggregates = {};
                 scope.datasetsData = {};
 
                 scope.$watch('datasources', function (newValue, oldValue) {
+                    // don't refresh UI unless datasources have actually changed
+                    // (only these cols relevant)
                     var cols = ['indexId', 'productId', 'title', 'dataCol', 'id', 'title', 'uoaCol', 'uoaType', 'yearCol'];
                     newValue = [newValue.products, newValue.datasets].map(function (datum) {
                         return datum.map(function (product) {
@@ -225,8 +234,8 @@ angular.module('greyscaleApp')
                 }, true);
 
                 function _render() {
-                    console.log('_render called');
                     var data = _selectProductData(scope.datasources.products).concat(_selectDatasetData(scope.datasources.datasets));
+
                     // currently selected
                     var selected = new Set(_.pluck(scope.selectedTargets, 'id'));
                     // all targets
@@ -244,10 +253,13 @@ angular.module('greyscaleApp')
                         // sort by name
                         return target.name;
                     });
+                    // select prior currently selected
                     scope.selectedTargets = scope.targets.map(function (target) {
                         target.selected = selected.has(target.id);
                         return target;
                     });
+
+                    // initial load
                     if (scope.initialSelectedTargets !== null) {
                         selected = new Set(scope.initialSelectedTargets);
                         // isteven-multi-select requires us to set selection by modifying
@@ -264,6 +276,7 @@ angular.module('greyscaleApp')
                 }
 
                 function _filterAndRender() {
+                    // filter to selected targets
                     var selected = new Set();
                     scope.selectedTargets.forEach(function (target) {
                         selected.add(target.id);
@@ -276,6 +289,7 @@ angular.module('greyscaleApp')
                         return dataset;
                     });
 
+                    // render
                     data = _preprocessData(data);
                     _renderVisualization(data);
                     if (data.length === 0 || layout.targets.targets.length === 0) {
@@ -284,12 +298,6 @@ angular.module('greyscaleApp')
                 }
 
                 scope.$watch('selectedTargets', function() {
-                    /*console.log(_.pluck(scope.selectedTargets, 'id'));
-                    console.log(scope.initialSelectedTargets);
-                    if (!_.isEqual(_.pluck(scope.selectedTargets, 'id'), scope.initialSelectedTargets)) {
-                        console.log("CLEARING INITIAL");
-                        scope.initialSelectedTargets = null;
-                    }*/
                     _filterAndRender();
                     scope.saveVisualization();
                 }, true);
@@ -337,7 +345,8 @@ angular.module('greyscaleApp')
                 }
 
                 scope.saveVisualization = function () {
-                    return greyscaleComparativeVisualizationApi(Organization.id).update(scope.visualizationId, _getConfiguration());
+                    return greyscaleComparativeVisualizationApi(Organization.id)
+                        .update(scope.visualizationId, _getConfiguration());
                 };
 
                 function _loadConfiguration(vizData) {
@@ -354,32 +363,24 @@ angular.module('greyscaleApp')
                             return datum;
                         });
                     }));
-                    var datasetPromise = greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).list();
-                    $q.all([productPromise, datasetPromise]).then(function (result) {
-                        console.log("setting scope.datasources");
+                    var datasetPromise = greyscaleComparativeVisualizationApi(Organization.id)
+                        .datasets(scope.visualizationId).list();
+                    // simultaneous assignment to scope.datasources so watch expression only fires once
+                    // ensures targets set to initalSelectedTargets on initial load
+                    return $q.all([productPromise, datasetPromise]).then(function (result) {
                         scope.datasources = {
                             products: result[0],
                             datasets: result[1]
                         };
                         scope.productsTable.tableParams.reload();
                     });
-                    /*return $q.all(vizData.products.map(function (datum) {
-                    })).then(function (data) {
-                        scope.products = data;
-                        scope.productsTable.tableParams.reload();
-                        scope.datasets = [];
-                    }).then(function() {
-                        // imported datasets
-                        return greyscaleComparativeVisualizationApi(Organization.id).datasets(scope.visualizationId).list();
-                    }).then(function(data) {
-                        scope.datasets = data;
-                        scope.productsTable.tableParams.reload();
-                    });*/
                 }
 
                 function _loadVisualization(vizId) {
                     scope.visualizationId = vizId;
-                    return greyscaleComparativeVisualizationApi(Organization.id).get(vizId).then(_loadConfiguration);
+                    return greyscaleComparativeVisualizationApi(Organization.id)
+                        .get(vizId)
+                        .then(_loadConfiguration);
                 }
 
                 // VISUALIZATION
