@@ -1404,7 +1404,8 @@ ALTER TABLE "ComparativeVisualizationProducts" OWNER TO rickards;
 CREATE TABLE "ComparativeVisualizations" (
     id integer NOT NULL,
     title character varying,
-    "organizationId" integer NOT NULL
+    "organizationId" integer NOT NULL,
+    "uoaIds" integer[] NOT NULL DEFAULT '{}'::integer[]
 );
 
 
