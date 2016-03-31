@@ -11,15 +11,19 @@
     }
 }
 
-.translation-input i,
-.translation i {
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    height: 1em;
-    right: 2em;
-    cursor: pointer;
+.translation-input,
+.translation {
+    position: relative;
+    & .translation-icon {
+        position: absolute;
+        margin: auto;
+        top: 0;
+        bottom: 0;
+        height: 1em;
+        right: 15px;
+        cursor: pointer;
+        z-index: 10;
+    }
 }
 
 .translation-form {
@@ -30,9 +34,6 @@
 
 upload-form,
 .upload-form {
-    input[type="file"] {
-        height: initial;
-    }
     .progress {
         margin: 10px 0 0 0;
         .progress-bar {
@@ -56,9 +57,14 @@ upload-form,
 }
 
 .form-group .subtext {
-    max-height: 3.5em;
+//    max-height: 3.5em;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.field-description,
+.field-response span {
+    white-space: pre-wrap;
 }
 
 .input-group-addon {
@@ -67,6 +73,13 @@ upload-form,
         min-height: 12pt;
     }
     .radio {
+        margin: 0;
+    }
+}
+
+button .checkbox,
+button .checkbox-inline {
+    label {
         margin: 0;
     }
 }

@@ -1,4 +1,6 @@
 var _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Visualization = require('app/models/visualizations'),
     HttpError = require('app/error').HttpError,
     Query = require('app/util').Query,
@@ -9,6 +11,7 @@ var _ = require('underscore'),
 
 module.exports = {
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Visualization.select().where(
                 Visualization.organizationId.equals(req.params.organizationId)
@@ -21,6 +24,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -32,6 +36,14 @@ module.exports = {
             objToInsert.organizationId = req.params.organizationId;
             return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'visualizations',
+                entity: _.first(data).id,
+                info: 'Add new visualization'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -39,6 +51,7 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
@@ -51,6 +64,18 @@ module.exports = {
                 Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
             ));
         }).then(function () {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'visualizations',
+                entity: req.params.id,
+                entities: {
+                    organizationId: req.params.organizationId
+                },
+                quantity: 1,
+                info: 'Update visualization'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -58,6 +83,7 @@ module.exports = {
     },
 
     deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.delete().where(
@@ -66,6 +92,18 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'visualizations',
+                entity: req.params.id,
+                entities: {
+                    organizationId: req.params.organizationId
+                },
+                quantity: 1,
+                info: 'Delete visualization'
+            });
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -73,6 +111,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var result = yield thunkQuery(
                 Visualization.select().where(

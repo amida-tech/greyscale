@@ -53,7 +53,7 @@ angular.module('greyscaleApp')
             cols.push({
                 field: 'type',
                 title: tableTns + 'TYPE',
-                cellTemplate: '<select class="form-control" ng-model="row.type"><option value="question">Question</option><option value="subindex">Subindex</option></select>'
+                cellTemplate: '<select class="form-control" ng-model="row.type"><option value="question" translate=".QUESTION"></option><option value="subindex">Subindex</option></select>'
             });
             cols.push({
                 field: 'field',
@@ -86,7 +86,7 @@ angular.module('greyscaleApp')
             field: 'weight',
             title: tableTns + 'TYPE',
             cellTemplate: '<select class="form-control" ng-model="row.weight.type">' +
-                '<option value="value">Value</option>' +
+                '<option value="value" translate=".VALUE"></option>' +
                 '<option value="percentile">Percentile Rank</option>' +
                 '</select>'
         });

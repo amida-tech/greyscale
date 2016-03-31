@@ -11,7 +11,9 @@ var environments = {
       password: 'password',
       database: 'database',
       host: 'host',
-      port: 5432
+      port: 5432,
+      adminSchema: 'public',
+      sceletonSchema: 'sceleton'
     },
     mc: { // memcache
       host: 'localhost',

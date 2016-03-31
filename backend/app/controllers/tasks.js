@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -19,6 +21,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Task
@@ -40,6 +43,7 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var curStepAlias = 'curStep';
             var task = yield thunkQuery(
@@ -51,7 +55,7 @@ module.exports = {
                             'SELECT ' +
                             '"Discussions"."id" ' +
                             'FROM "Discussions" ' +
-                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                             'AND "Discussions"."isReturn" = true ' +
                             'AND "Discussions"."isResolve" = false ' +
                             'LIMIT 1' +
@@ -60,15 +64,27 @@ module.exports = {
                         'ELSE TRUE ' +
                     'END as flagged',
                     'CASE ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                        'WHEN "' + curStepAlias + '"."position" > "WorkflowSteps"."position" THEN \'completed\' ' +
+                        'WHEN ' +
+                            '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                            'OR ("ProductUOA"."isComplete" = TRUE) ' +
+                        'THEN \'completed\' ' +
+                        'WHEN (' +
+                            '"' + curStepAlias + '"."position" IS NULL ' +
+                            'AND ("WorkflowSteps"."position" = 0) ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'OR (' +
+                            '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                            'AND ("Products"."status" = 1)' +
+                        ')' +
+                        'THEN \'current\' ' +
+                        'ELSE \'waiting\'' +
                     'END as status '
                 )
                 .from(
                     Task
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
                     .leftJoin(WorkflowStep)
                     .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)
@@ -95,16 +111,29 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = Task.delete().where(Task.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Task.delete().where(Task.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Delete task'
+            });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Task
@@ -112,6 +141,14 @@ module.exports = {
                 .where(Task.id.equals(req.params.id))
             );
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'tasks',
+                entity: req.params.id,
+                info: 'Update task'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -119,6 +156,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
             var result = yield thunkQuery(
@@ -130,15 +168,24 @@ module.exports = {
             );
             return result;
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'tasks',
+                entity: _.first(data).id,
+                info: 'Add new task'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
         });
-    },
+    }
 
 };
 
 function* checkTaskData(req) {
+    var thunkQuery = req.thunkQuery;
     if (!req.params.id) {
         if (
             typeof req.body.uoaId === 'undefined' ||

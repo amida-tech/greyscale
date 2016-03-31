@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope) {
-        return function (headers) {
+    .service('greyscaleRestSrv', function (Restangular, greyscaleTokenSrv, $rootScope, greyscaleEnv, greyscaleRealmSrv) {
+        return function (headers, realm) {
             headers = headers || {};
 
             var aHeaders = {
@@ -22,11 +22,24 @@ angular.module('greyscale.core')
 
             return Restangular.withConfig(function (RestangularConfigurer) {
                 var token = greyscaleTokenSrv();
+                var _realm = realm || greyscaleRealmSrv();
+
                 if (token) {
                     angular.extend(aHeaders, {
                         token: token
                     });
                 }
+
+                if (_realm) {
+                    RestangularConfigurer.setBaseUrl(
+                        (greyscaleEnv.apiProtocol || 'http') + '://' +
+                        greyscaleEnv.apiHostname +
+                        (greyscaleEnv.apiPort !== undefined ? ':' + greyscaleEnv.apiPort : '') + '/' +
+                        _realm + '/' +
+                        greyscaleEnv.apiVersion
+                    );
+                }
+
                 RestangularConfigurer.setDefaultHeaders(aHeaders);
             });
         };

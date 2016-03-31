@@ -1,10 +1,18 @@
-var HttpError = require('app/error').HttpError,
-    moment = require('moment'),
+var
+    HttpError = require('app/error').HttpError,
+    moment    = require('moment'),
+    _         = require('underscore'),
+    ClientPG  = require('app/db_bootstrap'),
+    config    = require('config');
 
-    _ = require('underscore'),
-    ClientPG = require('app/db_bootstrap');
 
-exports.Query = function () {
+
+
+exports.Query = function (realm) {
+    if (typeof realm == 'undefined') {
+        realm = config.pgConnect.adminSchema;
+    }
+
     return function (queryObject, options, cb) {
         var client = new ClientPG();
 
@@ -12,42 +20,65 @@ exports.Query = function () {
             cb = options;
         }
 
-        var arlen = arguments.length;
+        var arlen = arguments.length; 
 
         client.connect(function (err) {
             if (err) {
                 return console.error('could not connect to postgres', err);
             }
-            //START
+
+            doQuery(queryObject, options, cb);
+        });
+
+        function doQuery(queryObject, options, cb){
             if (typeof queryObject === 'string') {
-                console.log(queryObject);
-                client.query(queryObject, options, function (err, result) {
+
+                var queryString =
+                    (typeof realm != 'undefined') ?
+                    ("SET search_path TO "+realm+"; " + queryObject)
+                    : queryObject;
+                console.log(queryString);
+
+                client.query(queryString, options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
+
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
+
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             } else {
+
                 if (arlen === 3) {
                     var optWhere = _.pick(options, queryObject.table.whereCol);
+
                     if (Object.keys(optWhere).length) {
                         var whereObj = {};
+
                         for (var property in optWhere) {
                             var condition;
+
                             if (optWhere[property].indexOf('>') === 0) {
+
                                 condition = queryObject.table[property].gt(optWhere[property].replace('>', '').trim());
+
                             } else if (optWhere[property].indexOf('<') === 0) {
+
                                 condition = queryObject.table[property].lt(optWhere[property].replace('<', '').trim());
+
                             } else if (moment(optWhere[property], 'YYYY-MM-DD', true).isValid()) {
+
                                 var startDate = new Date(optWhere[property]);
                                 var endDate = new Date(optWhere[property]);
                                 endDate.setDate(endDate.getDate() + 1);
                                 condition = queryObject.table[property]
                                     .gte(startDate.toISOString())
                                     .and(queryObject.table[property].lt(endDate.toISOString()));
+
                             } else {
+
                                 if (optWhere[property].indexOf('|') > 0) {
                                     // where field in ()
                                     condition = queryObject.table[property].in(optWhere[property].split('|'));
@@ -55,15 +86,17 @@ exports.Query = function () {
                                     // where field = value
                                     condition = queryObject.table[property].equals(optWhere[property]);
                                 }
-                            }
-                            Object.keys(whereObj).length ? (whereObj = whereObj.and(condition)) : (whereObj = condition);
 
+                            }
+
+                            Object.keys(whereObj).length ? (whereObj = whereObj.and(condition)) : (whereObj = condition);
                         }
                         queryObject.where(whereObj);
                     }
 
                     if (options.order) {
                         var sorted = options.order.split(',');
+
                         for (var i = 0; i < sorted.length; i++) {
                             var sort = sorted[i];
                             queryObject.order(queryObject.table[sort.replace('-', '').trim()][sort.indexOf('-') === 0 ? 'descending' : 'ascending']);
@@ -80,30 +113,46 @@ exports.Query = function () {
 
                 }
 
-                console.log(queryObject.toQuery());
+                var queryString = // TODO turn back original function
+                    (typeof realm == 'undefined')
+                    ? queryObject.toQuery().text
+                    : "SET search_path TO " + realm + "; " + queryObject.toQuery().text;
 
-                client.query(queryObject.toQuery(), function (err, result) {
+                var values = queryObject.toQuery().values;
+
+                var queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2, offset, s) {
+                    var item = prepareValue(values[p2-1]);
+                    return (typeof item == 'string') ? "'"+ item +"'" : item;
+                });
+
+                console.log(queryString);
+
+                client.query(queryString , function (err, result) {
+
                     client.end();
                     var cbfunc = (typeof cb === 'function');
+
                     if (err) {
                         return cbfunc ? cb(err) : err;
                     }
+
                     if (options.fields) {
                         var fields = (options.fields).split(',');
                         result.rows = _.map(result.rows, function (i) {
                             return _.pick(i, fields);
                         });
                     }
+
                     if (queryObject.table.hideCol) {
                         result.rows = _.map(result.rows, function (i) {
                             return _.omit(i, queryObject.table.hideCol);
                         });
                     }
+
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
-            // END
-        });
+        }
 
     };
 };
@@ -169,8 +218,70 @@ exports.getTranslateQuery = function (langId, model, condition) {
     }
 
     query = query.from(from);
+
     if (typeof condition !== 'undefined') {
         query = query.where(condition);
     }
+
     return query;
 };
+
+
+var prepareValue = function(val, seen) {
+    if (val instanceof Buffer) {
+        return val;
+    }
+    if(val instanceof Date) {
+        return dateToString(val);
+    }
+    if(Array.isArray(val)) {
+        return arrayString(val);
+    }
+    if(val === null || typeof val === 'undefined') {
+        return null;
+    }
+    if(typeof val === 'object') {
+        return prepareObject(val, seen);
+    }
+    return val.toString();
+};
+
+function prepareObject(val, seen) {
+    if(val.toPostgres && typeof val.toPostgres === 'function') {
+        seen = seen || [];
+        if (seen.indexOf(val) !== -1) {
+            throw new Error('circular reference detected while preparing "' + val + '" for query');
+        }
+        seen.push(val);
+
+        return prepareValue(val.toPostgres(prepareValue), seen);
+    }
+    return JSON.stringify(val);
+}
+
+function dateToString(date) {
+    function pad(number, digits) {
+        number = ""+number;
+        while(number.length < digits)
+            number = "0"+number;
+        return number;
+    }
+
+    var offset = -date.getTimezoneOffset();
+    var ret = pad(date.getFullYear(), 4) + '-' +
+        pad(date.getMonth() + 1, 2) + '-' +
+        pad(date.getDate(), 2) + 'T' +
+        pad(date.getHours(), 2) + ':' +
+        pad(date.getMinutes(), 2) + ':' +
+        pad(date.getSeconds(), 2) + '.' +
+        pad(date.getMilliseconds(), 3);
+
+    if(offset < 0) {
+        ret += "-";
+        offset *= -1;
+    }
+    else
+        ret += "+";
+
+    return ret + pad(Math.floor(offset/60), 2) + ":" + pad(offset%60, 2);
+}

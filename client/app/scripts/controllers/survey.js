@@ -4,8 +4,9 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('SurveyCtrl', function ($scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, $log, $location) {
+    .controller('SurveyCtrl', function (_, $scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
+        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi,
+        greyscaleEntityTypeApi, $log) {
 
         $scope.loading = true;
 
@@ -30,7 +31,10 @@ angular.module('greyscaleApp')
         var reqs = {
             survey: greyscaleSurveyApi.get($stateParams.surveyId),
             profile: greyscaleProfileSrv.getProfile(),
-            languages: greyscaleLanguageApi.list()
+            languages: greyscaleLanguageApi.list(),
+            essence: greyscaleEntityTypeApi.list({
+                name: 'Survey Answers'
+            })
         };
 
         if ($stateParams.taskId) {
@@ -43,6 +47,7 @@ angular.module('greyscaleApp')
                     task: resp.task,
                     userId: resp.profile.id,
                     languages: resp.languages,
+                    essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {}
                 };
                 $scope.model.title = resp.survey.title;
@@ -60,6 +65,7 @@ angular.module('greyscaleApp')
                         for (f = 0; f < fLen; f++) {
                             data.flags[flags[f]] = steps[s][flags[f]];
                         }
+                        data.task.step = steps[s];
                     }
                 }
                 $log.debug('step flags', data.flags);
@@ -69,4 +75,11 @@ angular.module('greyscaleApp')
                 $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);
                 $scope.loading = false;
             });
+
+        $scope.disableOnMove = function (msg) {
+            if (msg.isReturn) {
+                $scope.model.surveyData.disabledFields = true;
+            }
+        };
+
     });

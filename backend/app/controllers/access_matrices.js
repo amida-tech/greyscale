@@ -1,6 +1,8 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     config = require('config'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     AccessMatrix = require('app/models/access_matrices'),
     AccessPermission = require('app/models/access_permissions'),
     Right = require('app/models/rights'),
@@ -32,6 +34,14 @@ module.exports = {
             }
             return yield thunkQuery(AccessMatrix.insert(req.body).returning(AccessMatrix.id));
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'AccessMatrices',
+                entity: _.first(data).id,
+                info: 'Add new access matrice permission'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -55,6 +65,14 @@ module.exports = {
             if (err) {
                 return next(err);
             }
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'AccessPermissions',
+                entity: req.params.id,
+                info: 'Delete access permission'
+            });
             res.status(204).end();
         });
     },
@@ -79,6 +97,14 @@ module.exports = {
             return yield thunkQuery(AccessPermission.insert(req.body).returning(AccessPermission.id));
         }).then(function (data) {
             console.log(_.first(data));
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'AccessPermissions',
+                entity: _.first(data).id,
+                info: 'Insert access permission'
+            });
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);

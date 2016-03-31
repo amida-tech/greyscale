@@ -27,8 +27,7 @@ angular.module('greyscaleApp')
                                 $scope.url = greyscaleAttachmentApi.getLink(ticket);
                                 $timeout(function () {
                                     evt.currentTarget.click();
-                                    $scope.url = '';
-                                }, 1);
+                                });
                             });
                     }
                 };

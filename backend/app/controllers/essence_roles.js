@@ -16,6 +16,7 @@ var Query = require('app/util').Query,
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var q = EssenceRole.select(EssenceRole.star());
             var from = EssenceRole;
@@ -49,19 +50,26 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var q = EssenceRole.select().from(EssenceRole).where(EssenceRole.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data =  yield thunkQuery(
+                EssenceRole.select().from(EssenceRole).where(EssenceRole.id.equals(req.params.id))
+            );
             if (!_.first(data)) {
                 return next(new HttpError(404, 'Not found'));
             }
+            return data;
+        }).then(function(data){
             res.json(_.first(data));
+        }, function(err){
+            next(err);
         });
+
     },
 
     updateOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkData(req);
             return yield thunkQuery(EssenceRole.update(req.body).where(EssenceRole.id.equals(req.params.id)));
@@ -73,16 +81,21 @@ module.exports = {
     },
 
     delete: function (req, res, next) {
-        var q = EssenceRole.delete().where(EssenceRole.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+        co(function*(){
+            return yield thunkQuery(
+                EssenceRole.delete().where(EssenceRole.id.equals(req.params.id))
+            );
+        }).then(function() {
             res.status(204).end();
+        },function(err) {
+            next(err);
         });
+
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkData(req);
             return yield thunkQuery(EssenceRole.insert(req.body).returning(EssenceRole.id));
@@ -97,6 +110,7 @@ module.exports = {
 };
 
 function* checkData(req) {
+    var thunkQuery = req.thunkQuery;
     var existEssence = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(req.body.essenceId)));
     if (!_.first(existEssence)) {
         throw new HttpError(403, 'Essence with this id does not exist (' + req.body.essenceId + ')');

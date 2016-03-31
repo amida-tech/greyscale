@@ -1,5 +1,6 @@
 var _ = require('underscore'),
     config = require('config'),
+    common = require('app/queries/common'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Project = require('app/models/projects'),
@@ -9,6 +10,8 @@ var _ = require('underscore'),
     HttpError = require('app/error').HttpError,
     util = require('util'),
     async = require('async'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Query = require('app/util').Query,
     query = new Query(),
     co = require('co'),
@@ -19,21 +22,28 @@ var _ = require('underscore'),
 
 module.exports = {
 
-    selectOne: function (req, res, next) {
-        var q = Organization.select().from(Organization).where(Organization.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+    selectOne: function (req, res, next) { //TODO superadmin request
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Organization.select().from(Organization).where(Organization.id.equals(req.params.id))
+            );
+            if(!data.length) {
+                throw new HttpError(404, 'Not found');
             }
-            if (_.first(data)) {
-                res.json(_.first(data));
-            } else {
-                next(new HttpError(404, 'Not found'));
-            }
+            return data;
+        }).then(function(data){
+            res.json(_.first(data));
+        }, function(err){
+            next(err);
         });
+
     },
 
     selectProducts: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             return yield thunkQuery(
                 Product
@@ -53,20 +63,36 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
-            return yield thunkQuery(
-                Organization
-                .select(
-                    Organization.star(),
-                    '(SELECT ' +
-                        '"Projects"."id" ' +
-                    'FROM "Projects"' +
-                    'WHERE ' +
-                        '"Projects"."organizationId" = "Organizations"."id"' +
-                    'LIMIT 1) as "projectId"'
-                )
-                .from(Organization),
-                _.omit(req.query, 'offset', 'limit', 'order')
-            );
+            if (req.user.roleID == 1 && req.params.realm == config.pgConnect.adminSchema) {
+                var data = [];
+                for (var i in req.schemas) {
+                    var thunkQuery = thunkify(new Query(req.schemas[i]));
+                    var org = yield thunkQuery(Organization.select().where(Organization.realm.equals(req.schemas[i])));
+                    if (org.length) {
+                        data.push(org[0]);
+                    }
+                }
+                return data;
+
+            } else {
+                var thunkQuery = thunkify(new Query(req.params.realm));
+
+                var data = yield thunkQuery(
+                    Organization
+                        .select(
+                            Organization.star(),
+                            '(SELECT ' +
+                            '"Projects"."id" ' +
+                            'FROM "Projects"' +
+                            'WHERE ' +
+                            '"Projects"."organizationId" = "Organizations"."id"' +
+                            'LIMIT 1) as "projectId"'
+                        )
+                        .from(Organization),
+                    _.omit(req.query, 'offset', 'limit', 'order')
+                );
+            }
+            return data;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -76,6 +102,8 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
@@ -87,6 +115,14 @@ module.exports = {
                 );
             }
         }).then(function (data) {
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'organizations',
+                entity: req.params.id,
+                info: 'Update organization'
+            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -94,6 +130,8 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
         co(function* () {
             yield *checkOrgData(req);
             var org = yield thunkQuery(
@@ -103,15 +141,35 @@ module.exports = {
                 )
                 .returning(Organization.id)
             );
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'organizations',
+                entity: org[0].id,
+                info: 'Add organization'
+            });
+
+
+
             // TODO creates project in background, may be need to disable in future
-            yield thunkQuery(
+            var project = yield thunkQuery(
                 Project.insert(
                     {
                         organizationId: org[0].id,
                         codeName: 'Org_' + org[0].id + '_project'
                     }
                 )
+                .returning(Project.id)
             );
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'insert',
+                object: 'projects',
+                entity: project[0].id,
+                info: 'Add project to organization `'+org[0].id+'`'
+            });
             return org;
         }).then(function (data) {
             res.status(201).json(_.first(data));
@@ -125,6 +183,7 @@ module.exports = {
         // fields order
         // EMAIL,FIRST-NAME,LAST-NAME,COMPANY-ADMIN,STATUS,TIMEZONE,
         // LOCATION,CELL,PHONE,ADDRESS,LANG (E.G. EN),BIO,LEVEL-NOTIFY
+        var thunkQuery = req.thunkQuery;
 
         var csv = require('csv');
         var fs = require('fs');
@@ -222,6 +281,14 @@ module.exports = {
                                 var created = yield thunkQuery(
                                     User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
                                 );
+                                bologger.log({
+                                    req: req,
+                                    user: req.user.id,
+                                    action: 'insert',
+                                    object: 'users',
+                                    entity: created[0].id,
+                                    info: 'Add user (bulk import)'
+                                });
 
                                 //if (roleID == 2) {
                                 //    yield thunkQuery(
@@ -240,8 +307,8 @@ module.exports = {
                                     //}else{
                                         newUser.message = 'Added';
                                     //}
-                                    var essenceId = yield * getEssenceId('Users');
-                                    var note = yield * notifications.createNotification(
+                                    var essenceId = yield * common.getEssenceId(req, 'Users');
+                                    var note = yield * notifications.createNotification(req,
                                         {
                                             userFrom: req.user.id,
                                             userTo: newUser.id,
@@ -284,6 +351,8 @@ module.exports = {
 };
 
 function* checkOrgData(req){
+    var thunkQuery = req.thunkQuery;
+
     if (!req.params.id){ //create
         if (!req.body.name) {
             throw new HttpError(400, 'name field is required');
@@ -299,15 +368,3 @@ function* checkOrgData(req){
     }
 }
 
-function* getEssenceId(essenceName) {
-    query =
-        'SELECT '+
-        '"Essences"."id" '+
-        'FROM "Essences" '+
-        'WHERE "Essences"."name" = \''+essenceName+'\'';
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
-    }
-    return result[0].id;
-}

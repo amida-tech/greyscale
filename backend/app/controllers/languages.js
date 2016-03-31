@@ -13,52 +13,78 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
-        var q = Language.select().from(Language);
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Language.select().from(Language)
+            );
+        }).then(function(data){
             res.json(data);
+        }, function(err){
+            next(err);
         });
     },
 
     selectOne: function (req, res, next) {
-        var q = Language.select().from(Language).where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data =  yield thunkQuery(
+                Language.select().from(Language).where(Language.id.equals(req.params.id))
+            );
+            if (!data.length) {
+                throw new HttpError(404, 'Not found');
             }
+            return data;
+        }).then(function(data){
             res.json(_.first(data));
+        }, function(err){
+            next(err);
         });
+
     },
 
     delete: function (req, res, next) {
-        var q = Language.delete().where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Language.delete().where(Language.id.equals(req.params.id))
+            );
+        }).then(function(data){
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     },
 
     editOne: function (req, res, next) {
-        var q = Language.update(req.body).where(Language.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Language.update(req.body).where(Language.id.equals(req.params.id))
+            );
+        }).then(function(data){
             res.status(202).end();
+        }, function(err){
+            next(err);
         });
     },
 
     insertOne: function (req, res, next) {
-        var q = Language.insert(req.body).returning(Language.id);
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                Language.insert(req.body).returning(Language.id)
+            );
+        }).then(function(data){
             res.status(201).json(_.first(data));
+        }, function(err){
+            next(err);
         });
     }
 

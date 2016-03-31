@@ -13,7 +13,7 @@ angular.module('greyscaleApp')
                 elem.after(wrapper);
                 wrapper.prepend(elem);
 
-                var anIcon = angular.element('<i class="fa fa-trash text-danger" ng-click="del($index)"></i>');
+                var anIcon = angular.element('<i class="fa fa-trash translation-icon action action-danger" ng-click="del($index)"></i>');
 
                 $compile(anIcon)(scope);
                 wrapper.append(anIcon);

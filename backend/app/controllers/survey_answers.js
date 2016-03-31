@@ -1,5 +1,7 @@
 var
     _ = require('underscore'),
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
     SurveyAnswer = require('app/models/survey_answers'),
     AnswerAttachment = require('app/models/answer_attachments'),
@@ -10,6 +12,8 @@ var
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
+    Project = require('app/models/projects'),
+    Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
@@ -26,6 +30,7 @@ var
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 SurveyAnswer
@@ -34,7 +39,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -48,7 +53,82 @@ module.exports = {
 
     },
 
+    getByProdUoa: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var condition = _.pick(req.params,['productId','UOAid']);
+
+            if(req.user.roleID == 3) {
+                var user_tasks = yield thunkQuery(
+                    Task.select()
+                    .where(
+                        {
+                            uoaId     : req.params.UOAid,
+                            productId : req.params.productId,
+                            userId    : req.user.id
+                        }
+                    )
+                );
+                if(!user_tasks[0]){
+                    throw new HttpError(
+                        403,
+                        'You should be owner at least of 1 task for this product and subject'
+                    );
+                }
+            }
+
+            if(req.user.roleID == 2){
+                var org = yield thunkQuery(
+                    Product
+                    .select(Organization.star())
+                    .from(
+                        Product
+                        .leftJoin(Project)
+                        .on(Product.projectId.equals(Project.id))
+                        .leftJoin(Organization)
+                        .on(Project.organizationId.equals(Organization.id))
+                    )
+                    .where(Product.id.equals(req.params.productId))
+                );
+
+                if (!org[0]) {
+                    throw new HttpError(
+                        403,
+                        'Cannot find organization for this product'
+                    );
+                }
+
+                if (org[0].id != req.user.organizationId) {
+                    throw new HttpError(
+                        403,
+                        'You cannot see answers from other organizations'
+                    );
+                }
+            }
+
+            return yield thunkQuery(
+                SurveyAnswer
+                    .select(
+                        SurveyAnswer.star(),
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                            'FROM "AnswerAttachments" a ' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        ') as att) as attachments'
+                    )
+                    .from(SurveyAnswer)
+                    .where(condition)
+                , _.omit(req.query,['productId','UOAid'])
+            );
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     selectOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             var result = yield thunkQuery(
                 SurveyAnswer
@@ -57,7 +137,7 @@ module.exports = {
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype"' +
                             'FROM "AnswerAttachments" a ' +
-                            'WHERE a."answerId" = "SurveyAnswers"."id"' +
+                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(
@@ -75,31 +155,33 @@ module.exports = {
         }, function(err){
             next(err);
         });
-        //var q = SurveyAnswer.select().from(SurveyAnswer).where(SurveyAnswer.id.equals(req.params.id));
-        //query(q, function (err, data) {
-        //    if (err) {
-        //        return next(err);
-        //    }
-        //    if (_.first(data)) {
-        //        res.json(_.first(data));
-        //    } else {
-        //        return next(new HttpError(404, 'Not found'));
-        //    }
-        //
-        //});
+
     },
 
     delete: function (req, res, next) {
-        var q = SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            return yield thunkQuery(
+                SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'SurveyAnswers',
+                entity: req.params.id,
+                info: 'Delete survey answer'
+            });
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
     },
 
     update: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             if((typeof req.body.isResponse == 'undefined') || (typeof req.body.value == 'undefined')){
                 throw new HttpError(400, 'You should pass isResponse and value parameters');
@@ -119,8 +201,7 @@ module.exports = {
                     SurveyAnswer
                     .leftJoin(WorkflowStep)
                     .on(WorkflowStep.id.equals(SurveyAnswer.wfStepId))
-                    .leftJoin(Task)
-                    .on(Task.stepId.equals(WorkflowStep.id))
+
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(SurveyAnswer.productId)
@@ -128,6 +209,12 @@ module.exports = {
                     )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(WorkflowStep.as(curStepAlias).id.equals(ProductUOA.currentStepId))
+                    .leftJoin(Task)
+                    .on(
+                        Task.stepId.equals(WorkflowStep.as(curStepAlias).id)
+                        .and(Task.uoaId.equals(SurveyAnswer.UOAid))
+                        .and(Task.productId.equals(SurveyAnswer.productId))
+                    )
                 )
                 .where(SurveyAnswer.id.equals(req.params.id))
             ))[0];
@@ -136,18 +223,16 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (result.step.id != result.curStep.id) {
-                throw new HttpError(403, 'Step for this answer is not current');
-            }
-
             if (result.task.userId != req.user.id) {
-                console.log(result.task);
-                console.log(req.user.id);
-                throw new HttpError(403, 'Task for this answer assigned to another user');
+                throw new HttpError(
+                    403,
+                    'Task (id = '+ result.task.id +') on current workflow step assigned to another user ' +
+                    '(task user id = '+ result.task.userId +', user id = '+ req.user.id +')'
+                );
             }
 
-            if (!result.step.allowEdit) {
-                throw new HttpError(403, 'You do not have permission to edit this answer');
+            if (!result.curStep.allowEdit) {
+                throw new HttpError(403, 'You do not have permission to edit answers');
             }
 
             if (req.body.isResponse) {
@@ -160,14 +245,23 @@ module.exports = {
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
-        }).then(function (){
-            res.status(202).end();
+        }).then(function (data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'SurveyAnswers',
+                entity: req.params.id,
+                info: 'Update survey answer'
+            });
+            res.status(202).end('updated');
         }, function (err) {
             next(err);
         });
     },
 
     add: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if(!Array.isArray(req.body)){
                 req.body = [req.body];
@@ -195,18 +289,6 @@ module.exports = {
                 result.push(req.body[i]);
             }
 
-            //if (!req.query.autosave) {
-            //    try {
-            //        yield * moveWorkflow(req, dataObject.productId, dataObject.UOAid);
-            //    } catch (e) {
-            //        if (e instanceof HttpError) {
-            //            throw e;
-            //        } else {
-            //            throw new HttpError(403, 'Move workflow internal error');
-            //        }
-            //    }
-            //}
-
             return result;
         }).then(function (data) {
             res.json(data);
@@ -216,6 +298,7 @@ module.exports = {
     },
 
     productUOAmove: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             try{
                 yield * moveWorkflow(req, req.params.id, req.params.uoaid);
@@ -230,9 +313,27 @@ module.exports = {
     },
 
     delAttachment: function(req, res, next){
+        var thunkQuery = req.thunkQuery;
         co(function* (){
+            var attach = yield thunkQuery(
+                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
+            );
+            if (!attach[0]) {
+                throw new HttpError(404, 'Attachment not found');
+            }
+            if(attach[0].owner != req.user.id){
+                throw new HttpError(404, 'Only owner can delete attachment');
+            }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
         }).then(function(){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'delete',
+                object: 'answerattachments',
+                entity: req.params.id,
+                info: 'Delete answerattachment'
+            });
             res.status(204).end();
         }, function(err){
             next(err);
@@ -240,12 +341,13 @@ module.exports = {
     },
 
     getAttachment: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             try{
                 var id = yield mc.get(req.mcClient, req.params.ticket);
             }catch(e){
                 throw new HttpError(500, e);
-            };
+            }
 
             if(!id){
                 throw new HttpError(400, 'Token is not valid');
@@ -268,8 +370,9 @@ module.exports = {
         });
     },
     getTicket: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
-            
+
             var attachment = yield thunkQuery(
                 AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
             );
@@ -281,11 +384,11 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
+var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
-            };
+            }
 
         }).then(function(data){
             res.status(201).json({tiсket:data});
@@ -295,6 +398,7 @@ module.exports = {
     },
 
     linkAttach: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var attach = yield thunkQuery(
                 AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
@@ -324,6 +428,14 @@ module.exports = {
             );
 
         }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'answerattachments',
+                entity: data[0].id,
+                info: 'Update (link) answer attachment'
+            });
             res.status(202).json(data);
         }, function(err){
             next(err);
@@ -331,6 +443,7 @@ module.exports = {
     },
 
     attach: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* (){
             if (req.body.answerId) {
                 var answer = yield thunkQuery(
@@ -341,7 +454,7 @@ module.exports = {
                     throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
                 }
             }
-            
+
             if (req.files.file) {
                 var file = req.files.file;
 
@@ -372,8 +485,9 @@ module.exports = {
                     filename: file.originalname,
                     size: file.size,
                     mimetype: file.mimetype,
-                    body: filecontent
-                }
+                    body: filecontent,
+                    owner: req.user.id
+                };
 
                 if (req.body.answerId) {
                     record.answerId = req.body.answerId;
@@ -382,6 +496,14 @@ module.exports = {
                 var inserted = yield thunkQuery(
                     AnswerAttachment.insert(record).returning(AnswerAttachment.id)
                 );
+                bologger.log({
+                    req: req,
+                    user: req.user.id,
+                    action: 'insert',
+                    object: 'answerattachments',
+                    entity: inserted[0].id,
+                    info: 'Insert answer attachment'
+                });
 
                 return inserted[0];
 
@@ -400,7 +522,7 @@ module.exports = {
 };
 
 function *addAnswer (req, dataObject) {
-
+    var thunkQuery = req.thunkQuery;
     if (!Array.isArray(dataObject.optionId)) {
         dataObject.optionId = [dataObject.optionId];
     }
@@ -560,6 +682,14 @@ function *addAnswer (req, dataObject) {
                 .update(_.pick(dataObject, editFields))
                 .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'update',
+            object: 'SurveyAnswers',
+            entity: existsNullVer[0].id,
+            info: 'Update survey answer'
+        });
     } else {
         var answer = yield thunkQuery(
             SurveyAnswer
@@ -567,12 +697,21 @@ function *addAnswer (req, dataObject) {
                 .returning(SurveyAnswer.id)
         );
         answer = answer[0];
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'insert',
+            object: 'SurveyAnswers',
+            entity: answer.id,
+            info: 'Add new survey answer'
+        });
     }
 
     return answer;
 }
 
 function *moveWorkflow (req, productId, UOAid) {
+    var thunkQuery = req.thunkQuery;
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
@@ -637,62 +776,70 @@ function *moveWorkflow (req, productId, UOAid) {
             )
     );
 
-    //var _numberOfQuestions = yield thunkQuery(
-    //    'SELECT COUNT(*) ' +
-    //    'FROM "SurveyQuestions" ' +
-    //    'WHERE "surveyId" = ' + curStep.survey.id
-    //);
-    //
-    //var _numberOfVersioned = yield thunkQuery(
-    //    'SELECT COUNT(v."questionId") ' +
-    //    'FROM (' +
-    //        'SELECT "questionId", MAX("version") AS maxVersion ' +
-    //        'FROM "SurveyAnswers" ' +
-    //        'WHERE "UOAid" = ' + UOAid + ' ' +
-    //        'AND "wfStepId" = ' + curStep.id + ' ' +
-    //        'AND "productId" = ' + productId + ' ' +
-    //        'AND "version" IS NOT NULL ' +
-    //        'GROUP BY "questionId"' +
-    //    ') AS v ' +
-    //    'GROUP BY v.maxVersion');
 
-    //if ((req.user.roleID != 3) || (_numberOfVersioned.length == 1) && (_numberOfQuestions[0].count === _numberOfVersioned[0].count)) {
-        if(nextStep[0]){ // next step exists, set it to current
+    if(nextStep[0]){ // next step exists, set it to current
+        yield thunkQuery(
+            ProductUOA
+                .update({currentStepId: nextStep[0].id})
+                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+        );
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'update',
+            object: 'ProductUOA',
+            entities: {
+                productId: curStep.task.productId,
+                uoaId: curStep.task.uoaId,
+                currentStepId: nextStep[0].id
+            },
+            quantity: 1,
+            info: 'Update currentStep to `'+nextStep[0].id+'` for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+        });
+    }else{
+        // set productUOA status to complete
+        yield thunkQuery(
+            ProductUOA
+                .update({isComplete: true})
+                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+        );
+        bologger.log({
+            req: req,
+            user: req.user.id,
+            action: 'update',
+            object: 'ProductUOA',
+            entities: {
+                productId: curStep.task.productId,
+                uoaId: curStep.task.uoaId,
+                isComplete: true
+            },
+            quantity: 1,
+            info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+        });
+        var uncompleted = yield thunkQuery( // check for uncompleted
+            ProductUOA
+                .select()
+                .where(
+                    {
+                        productId: curStep.task.productId,
+                        isComplete: false
+                    }
+                )
+        );
+        if (!uncompleted.length) { // set product status to complete
             yield thunkQuery(
-                ProductUOA
-                    .update({currentStepId: nextStep[0].id})
-                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
             );
-        }else{
-            // set productUOA status to complete
-            yield thunkQuery(
-                ProductUOA
-                    .update({isComplete: true})
-                    .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
-            );
-            var uncompleted = yield thunkQuery( // check for uncompleted
-                ProductUOA
-                    .select()
-                    .where(
-                        {
-                            productId: curStep.task.productId,
-                            isComplete: false
-                        }
-                    )
-            );
-            if (!uncompleted.length) { // set product status to complete
-                yield thunkQuery(
-                    Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
-                );
-            }
+            bologger.log({
+                req: req,
+                user: req.user.id,
+                action: 'update',
+                object: 'Product',
+                entity: curStep.task.productId,
+                info: 'Set product status to complete'
+            });
         }
-        console.log(nextStep);
-    //} else {
-    //    throw new HttpError(
-    //        403,
-    //        'Some questions don\'t have answers ' +
-    //        '(questions = '+_numberOfQuestions[0].count+'' +
-    //        ', versioned = '+(_numberOfVersioned.length ? _numberOfVersioned[0].count : 0)+')' +
-    //        ', cannot move to another step');
-    //}
+    }
+    console.log(nextStep);
+
 }

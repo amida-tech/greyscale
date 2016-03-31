@@ -42,6 +42,9 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleTaskApi.myList().then(function (data) {
                 return _.filter(data, function (item) {
+                    if (~['current', 'completed'].indexOf(item.status)) {
+                        return false;
+                    }
                     var today = new Date();
                     var twoWeeks = new Date();
                     twoWeeks.setDate(twoWeeks.getDate() + 14);

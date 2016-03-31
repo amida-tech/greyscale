@@ -12,6 +12,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(Essence.select().from(Essence), _.omit(req.query, 'offset', 'limit', 'order'));
         }).then(function (data) {
@@ -23,7 +24,7 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-
+        var thunkQuery = req.thunkQuery;
         co(function* () {
 
             if (!req.body.tableName || !req.body.name || !req.body.fileName || !req.body.nameField) {

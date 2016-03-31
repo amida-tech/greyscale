@@ -33,31 +33,23 @@ angular.module('greyscaleApp')
         tasksTable.onReload = function () {
             var tasksData = tasksTable.dataShare.tasks || [];
 
+            $scope.model.count.uoas = _.size(_.groupBy(tasksData, 'uoaId'));
+
             $scope.model.count.flagged = _.filter(tasksData, 'flagged').length;
 
-            $scope.model.count.started = _.filter(tasksData, function (task) {
-                return task.status === 'current' &&
-                    new Date(task.lastVersionDate) > new Date(task.startDate);
-            }).length;
+            $scope.model.count.started = _.filter(tasksData, 'started').length;
 
-            $scope.model.count.onTime = _.filter(tasksData, function (task) {
-                return task.status === 'current' && new Date(task.endDate) > new Date() &&
-                    new Date(task.lastVersionDate) < new Date(task.startDate);
-            }).length;
+            $scope.model.count.onTime = _.filter(tasksData, 'onTime').length;
 
-            $scope.model.count.overdue = _.filter(tasksData, function (task) {
-                return task.status !== 'completed' && new Date(task.endDate) < new Date();
-            }).length;
+            //$scope.model.count.overdue = _.filter(tasksData, function (task) {
+            //    return task.status !== 'completed' && new Date(task.endDate) < new Date();
+            //}).length;
 
-            $scope.model.count.delayed = _.filter(tasksData, function (task) {
-                return task.status === 'current' &&
-                    new Date(task.lastVersionDate) < new Date(task.startDate);
-            }).length;
+            $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
         };
 
         _getData(productId)
             .then(function (data) {
-                $scope.model.uoas = data.uoas;
                 $scope.model.tasks = data.tasks;
             });
 
@@ -86,10 +78,8 @@ angular.module('greyscaleApp')
 
         function _getData(productId) {
             var reqs = {
-                uoas: greyscaleProductApi.product(productId).uoasList(),
                 tasks: greyscaleProductApi.product(productId).tasksList()
             };
-
             return $q.all(reqs);
         }
 

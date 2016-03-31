@@ -19,7 +19,7 @@ var Query = require('app/util').Query,
     sql = require('sql'),
     _ = require('underscore'),
     co = require('co'),
-    thunkify = require('thunkify'),
+    thunkify = require('thunkify');
     thunkQuery = thunkify(query);
 
 var Right = require('app/models/rights'),
@@ -34,29 +34,130 @@ var requestRights = 'ARRAY(' +
     ') AS rights';
 
 // Register strategy for Basic HTTP auth
+
+// List of orgs (with namespaces) stored both in public and 'client' schemas
+// Tokens stored only in 'client' schema
+
+
 passport.use(new BasicStrategy({
         passReqToCallback: true
     },
     function (req, email, password, done) {
-        query(
-            User.select([User.star(), Role.name.as('role')]).from(User.leftJoin(Role).on(User.roleID.equals(Role.id))).where([sql.functions.UPPER(User.email).equals(email.toUpperCase())]),
-            function (err, user) {
-                if (err) {
-                    return done(err);
+        //var thunkQuery = req.thunkQuery;
+        co(function* (){
+
+            var userInNamespace = [];
+            // admins records should exist only in public schema,
+            // at first change schema to public, after check turn it back
+            var admin = yield *checkIsAdmin(email);
+
+            if (admin) {
+                yield * checkUser(admin, password);
+                return admin;
+            } else {
+                if (req.params.realm == 'public') {
+
+                    var userArr = [];
+
+                    for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
+                        var user = yield * findUserInNamespace(req.schemas[i], email);
+                        console.log(user);
+                        if (user[0]) {
+                            userInNamespace.push({
+                                realm: req.schemas[i],
+                                orgName: user[0].orgName
+                            });
+                            user[0].realm = req.schemas[i];
+                            userArr.push(user[0]);
+                        }
+                    }
+
+                    if (!userInNamespace.length) {
+                        throw new HttpError(401, 101);
+                    }
+
+                    if (userInNamespace.length == 1) {
+                        user = userArr[0];
+                        yield * checkUser(user, password);
+                        // set namespace to user namespace and go to users.token
+                        req.params.realm = user.realm;
+                        return user;
+                    }
+
+                    throw new HttpError(300, userInNamespace);
+
+                } else { // situation after found user in several schemas and set one of them
+                    var user = yield * findUserInNamespace(req.params.realm, email);
+                    if (!user.length) {
+                        throw new HttpError(401, 101);
+                    }
+
+                    yield * checkUser(user[0], password);
+                    // allready in right namespace
+                    return user[0];
                 }
-                user = user[0];
-                if (!user) {
-                    return done(new HttpError(401, 101));
-                }
-                if (!User.validPassword(user.password, password)) {
-                    return done(new HttpError(401, 105));
-                }
-                if (!user.isActive) {
-                    return done(new HttpError(401, 'You have to activate your account'));
-                }
-                delete user.password;
-                return done(null, user);
-            });
+            }
+
+
+        }).then(function(user){
+            delete user.password;
+            done(null, user);
+        }, function(err){
+            done(err);
+        });
+
+        function *checkIsAdmin (email){
+
+            var user =  yield thunkQuery(
+                User.select().where(
+                    {
+                        roleID : 1,
+                        email : email
+                    }
+                )
+            );
+
+            if(user.length){
+                return user[0];
+            } else {
+                return false;
+            }
+
+        }
+
+        function *checkUser (user, password){
+            if (!User.validPassword(user.password, password)) {
+                throw new HttpError(401, 105);
+            }
+
+            if (!user.isActive) {
+                throw new HttpError(401, 'You have to activate your account')
+            }
+        }
+
+        function *findUserInNamespace (namespace, email){
+            var thunkQuery = thunkify(new Query(namespace));
+            return yield thunkQuery(
+                User
+                    .select(
+                        User.star(),
+                        Role.name.as('role'),
+                        Organization.name.as('orgName')
+                    )
+                    .from(
+                        User
+                            .leftJoin(Role)
+                            .on(User.roleID.equals(Role.id))
+                            .join(Organization)
+                            .on(User.organizationId.equals(Organization.id))
+                    )
+                    .where(
+                        sql.functions.UPPER(User.email).equals(email.toUpperCase())
+                    )
+            );
+
+        }
+
     }
 ));
 
@@ -66,45 +167,106 @@ passport.use(new TokenStrategy({
     },
     function (req, tokenBody, done) {
 
-        query(
-            Token
-                .select(
-                    Token.star(),
-                    User.star(),
-                    Role.name.as('role'),
-                    requestRights,
-                    Project.id.as('projectId')
-                )
-            .from(
-                Token
-                .leftJoin(User).on(User.id.equals(Token.userID))
-                .leftJoin(Role).on(User.roleID.equals(Role.id))
-                .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
-            )
-            .where(Token.body.equals(tokenBody)),
-            function (err, data) {
-                if (err) {
-                    return done(err);
-                }
-                if (!data.length) {
-                    req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
-                    return done(null, false);
-                }
+        co(function* (){
 
-                req.debug(util.format('Authentication OK for token: %s', tokenBody));
-                query(
-                    User.update({lastActive: new Date()}).where(User.id.equals(data[0].id)),
-                    function (err, updateData) {
-                        if (err) {
-                            return done(err);
-                        }
-                        return done(null, _.pick(data[0], User.sesInfo));
+            // we are looking for all tokens only in public schema
+            try{
+                var user = yield* findToken(req, tokenBody);
+            }catch(err){
+                throw new HttpError(500, 'Database error '+err);
+            }
+
+            console.log(user);
+
+            if (!user) {
+                req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
+                return false;
+            }
+
+            req.debug(util.format('Authentication OK for token: %s', tokenBody));
+
+            yield thunkQuery(
+                User.update(
+                    {
+                        lastActive: new Date()
                     }
+                )
+                .where(User.id.equals(user.id))
+            )
+
+            return _.pick(user, User.sesInfo);
+
+        }).then(function(result) {
+            done(null, result);
+        }, function(err) {
+            done(err);
+        });
+
+        function * findToken(req, tokenBody){
+
+            var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+
+            var clientThunkQuery = thunkify(new Query(req.params.realm));
+
+            var existToken = yield admThunkQuery( // select from public
+                Token
+                    .select()
+                    .where(
+                        Token.body.equals(tokenBody)
+                        //.and(Token.realm.equals(req.params.realm))
+                    )
+            );
+
+            if(!existToken[0]) {
+                return false;
+            }
+
+            if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
+                var data =  yield admThunkQuery(
+                    User
+                        .select(
+                            User.star(),
+                            Role.name.as('role')
+                        )
+                        .from(
+                            User
+                            .leftJoin(Role)
+                            .on(User.roleID.equals(Role.id))
+                        )
+                        .where(
+                            User.id.equals(existToken[0].userID)
+                        )
                 );
+            } else {
+                if (existToken[0].realm == req.params.realm) {
+                    var data =  yield clientThunkQuery(
+                        User
+                            .select(
+                                User.star(),
+                                Role.name.as('role'),
+                                requestRights,
+                                Project.id.as('projectId')
+                            )
+                            .from(
+                                User
+                                    .leftJoin(Role).on(User.roleID.equals(Role.id))
+                                    .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
+                                    .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
+                            )
+                            .where(
+                                User.id.equals(existToken[0].userID)
+                            )
+                    );
+                } else { // try to auth realm with token from other realm
+                    return false;
+                }
 
             }
-        );
+
+            return (data[0] ? data[0] : false);
+
+        }
+
     }
 ));
 
@@ -118,6 +280,9 @@ module.exports = {
                 passport.authenticate(strategy, {
                     session: false
                 }, function (err, user, info) {
+
+                    console.log(user);
+
                     if (user) {
                         req.user = user;
                     }
@@ -163,6 +328,7 @@ module.exports = {
 
     checkPermission: function (action) {
         return function (req, res, next) {
+            var thunkQuery = req.thunkQuery;
             co(function* () {
 
                 if (req.user.roleID === 1) {
@@ -231,6 +397,7 @@ module.exports = {
 
     checkRight: function (action) {
         return function (req, res, next) {
+            var thunkQuery = req.thunkQuery;
             if (!action) {
                 next(new HttpError(400, 'Bad action!'));
             }
