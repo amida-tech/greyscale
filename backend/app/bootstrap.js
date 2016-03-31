@@ -44,11 +44,12 @@ app.on('start', function () {
             //}catch(e){
             //    throw new HttpError(500, e);
             //}
-
-            try{
-                var schemas = yield mc.get(req.mcClient, 'schemas');
-            }catch(e){
-                throw new HttpError(500, e);
+            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                try{
+                    var schemas = yield mc.get(req.mcClient, 'schemas');
+                }catch(e){
+                    throw new HttpError(500, e);
+                }
             }
 
             if (schemas) {
@@ -67,10 +68,12 @@ app.on('start', function () {
                         req.schemas.push(schemas[i].nspname);
                     }
                 }
-                try{
-                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
-                }catch(e){
-                    throw new HttpError(500, e);
+                if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                    try{
+                        var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
+                    }catch(e){
+                        throw new HttpError(500, e);
+                    }
                 }
             }
 
