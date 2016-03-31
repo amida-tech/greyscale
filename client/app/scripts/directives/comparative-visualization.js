@@ -169,13 +169,14 @@ angular.module('greyscaleApp')
                             });
                         // new dataset
                         } else {
-                            dataset.cols = dataset.cols.map(function (col) {
+                            var datasetObj = _.clone(dataset);
+                            datasetObj.cols = datasetObj.cols.map(function (col) {
                                 return col.title;
                             });
 
                             greyscaleComparativeVisualizationApi(Organization.id)
                                 .datasets(scope.visualizationId)
-                                .add(dataset).then(function(resp) {
+                                .add(datasetObj).then(function(resp) {
                                     dataset.id = resp.id;
 
                                     scope.datasources.datasets.push(dataset);
@@ -287,6 +288,8 @@ angular.module('greyscaleApp')
                             return selected.has(target.id);
                         });
                         return dataset;
+                    }).filter(function (dataset) {
+                        return dataset.data.length > 0;
                     });
 
                     // render
@@ -345,8 +348,10 @@ angular.module('greyscaleApp')
                 }
 
                 scope.saveVisualization = function () {
-                    return greyscaleComparativeVisualizationApi(Organization.id)
-                        .update(scope.visualizationId, _getConfiguration());
+                    if (Organization.id && scope.visualizationId) {
+                        return greyscaleComparativeVisualizationApi(Organization.id)
+                            .update(scope.visualizationId, _getConfiguration());
+                    }
                 };
 
                 function _loadConfiguration(vizData) {

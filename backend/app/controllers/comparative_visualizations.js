@@ -58,9 +58,9 @@ module.exports = {
             // insert ComparativeVisualization
             var viz = {
                 title: req.body.title,
-                organizationId: req.params.organizationId,
-                uoaIds: req.body.targetIds
+                organizationId: req.params.organizationId
             };
+            if (typeof req.body.targetIds !== "undefined") viz.uoaIds = req.body.targetIds;
             var result = yield thunkQuery(ComparativeVisualization.insert(viz).returning(ComparativeVisualization.id));
             console.log("VIZID", result[0].id);
 
