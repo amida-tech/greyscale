@@ -31,6 +31,8 @@ var
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_products');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -256,7 +258,7 @@ module.exports = {
               'WHERE ( ' +
                   '("Tasks"."productId" = ' + parseInt(req.params.id) + ') ' +
               ')';
-        console.log(q);
+        debug(q);
 
 
       return yield thunkQuery(q);
@@ -1150,7 +1152,7 @@ function* parseNumericalAnswer(req, raw, questionType) {
         // TODO: sum or average based on user-specified choice
         parsed = parseFloat(selected[0].value);
     } else {
-        console.log("Non-numerical question of type %d", questionType);
+        debug("Non-numerical question of type %d", questionType);
         parsed = parseFloat(raw);
     }
     return parsed;

@@ -13,6 +13,8 @@ var Query = require('app/util').Query,
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_essence_roles');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -25,7 +27,7 @@ module.exports = {
                     Essence.select().where(Essence.id.equals(req.query.essenceId))
                 );
                 if (essence[0]) {
-                    console.log(essence[0]);
+                    debug(essence[0]);
                     try {
                         var Model = require('app/models/' + essence[0].fileName);
                     }catch(e){
@@ -100,7 +102,7 @@ module.exports = {
             yield * checkData(req);
             return yield thunkQuery(EssenceRole.insert(req.body).returning(EssenceRole.id));
         }).then(function (data) {
-            console.log(_.first(data));
+            debug(_.first(data));
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);

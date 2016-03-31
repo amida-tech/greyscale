@@ -5,6 +5,7 @@ var
     ClientPG  = require('app/db_bootstrap'),
     config    = require('config');
 
+var debug = require('debug')('debug_util');
 
 
 
@@ -20,7 +21,7 @@ exports.Query = function (realm) {
             cb = options;
         }
 
-        var arlen = arguments.length; 
+        var arlen = arguments.length;
 
         client.connect(function (err) {
             if (err) {
@@ -37,7 +38,7 @@ exports.Query = function (realm) {
                     (typeof realm != 'undefined') ?
                     ("SET search_path TO "+realm+"; " + queryObject)
                     : queryObject;
-                console.log(queryString);
+                debug(queryString);
 
                 client.query(queryString, options, function (err, result) {
                     client.end();
@@ -125,7 +126,7 @@ exports.Query = function (realm) {
                     return (typeof item == 'string') ? "'"+ item +"'" : item;
                 });
 
-                console.log(queryString);
+                debug(queryString);
 
                 client.query(queryString , function (err, result) {
 
@@ -177,7 +178,7 @@ exports.detectLanguage = function* (req) {
     var code = acceptLanguage.get(req.headers['accept-language']);
     var detectedLang = languages[code].id;
 
-    console.log('Detected language : ' + languages[code].name);
+    debug('Detected language : ' + languages[code].name);
     return languages[code].id;
 };
 

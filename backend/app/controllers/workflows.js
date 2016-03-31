@@ -15,6 +15,8 @@ var client = require('app/db_bootstrap'),
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_workflows');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -213,7 +215,7 @@ module.exports = {
                         }
                     );
                 }
-                console.log(insertGroupObjs);
+                debug(insertGroupObjs);
                 if (insertGroupObjs.length) {
                     yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
                     bologger.log({

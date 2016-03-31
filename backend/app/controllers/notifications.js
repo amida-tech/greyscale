@@ -19,6 +19,8 @@ var
     thunkQuery = thunkify(query),
     Emailer = require('lib/mailer');
 
+var debug = require('debug')('debug_notifications');
+
 var socketController = require('app/socket/socket-controller.server');
 
 var isInt = function(val){
@@ -131,11 +133,11 @@ function* createNotification (req, note, template) {
             var sendResult = yield * mailer.sendSync();
             err = sendResult.name === 'Error';
             if (err) {
-                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
                 note.result = sendResult.message;
             } else
             {
-                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                debug('EMAIL RESULT --->>> '+sendResult.response);
                 note.result = sendResult.response;
             }
             return note.result;
@@ -185,11 +187,11 @@ function* resendNotification (req, notificationId) {
             var sendResult = yield * mailer.sendSync();
             err = sendResult.name === 'Error';
             if (err) {
-                console.log('EMAIL RESULT ERROR --->>> '+sendResult.message);
+                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
                 note.result = sendResult.message;
             } else
             {
-                console.log('EMAIL RESULT --->>> '+sendResult.response);
+                debug('EMAIL RESULT --->>> '+sendResult.response);
                 note.result = sendResult.response;
             }
             return note.result;
@@ -668,7 +670,7 @@ function* getInviteNotification(req, userId) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
-        console.log('Does not find Invite notification for user id=`'+userId.toString()+'`');
+        debug('Does not find Invite notification for user id=`'+userId.toString()+'`');
     }
     return result[0];
 }

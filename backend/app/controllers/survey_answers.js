@@ -27,6 +27,8 @@ var
     mc = require('app/mc_helper'),
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_survey_answers');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -283,7 +285,7 @@ module.exports = {
                         req.body[i].message = 'internal error';
                         req.body[i].statusCode = 500;
                     }
-                    console.log(err);
+                    debug(err);
                 }
 
                 result.push(req.body[i]);
@@ -477,7 +479,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 try{
                     var filecontent = yield load;
                 } catch(e) {
-                    console.log(e);
+                    debug(e);
                     throw new HttpError(500, 'File upload error');
                 }
 
@@ -840,6 +842,6 @@ function *moveWorkflow (req, productId, UOAid) {
             });
         }
     }
-    console.log(nextStep);
+    debug(nextStep);
 
 }

@@ -15,6 +15,8 @@ var Query = require('app/util').Query,
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_access_matrices');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -96,7 +98,7 @@ module.exports = {
 
             return yield thunkQuery(AccessPermission.insert(req.body).returning(AccessPermission.id));
         }).then(function (data) {
-            console.log(_.first(data));
+            debug(_.first(data));
             bologger.log({
                 req: req,
                 user: req.user.id,

@@ -33,6 +33,8 @@ var requestRights = 'ARRAY(' +
     ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
     ') AS rights';
 
+var debug = require('debug')('debug_auth');
+
 // Register strategy for Basic HTTP auth
 
 // List of orgs (with namespaces) stored both in public and 'client' schemas
@@ -61,7 +63,7 @@ passport.use(new BasicStrategy({
 
                     for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
                         var user = yield * findUserInNamespace(req.schemas[i], email);
-                        console.log(user);
+                        debug(user);
                         if (user[0]) {
                             userInNamespace.push({
                                 realm: req.schemas[i],
@@ -176,7 +178,7 @@ passport.use(new TokenStrategy({
                 throw new HttpError(500, 'Database error '+err);
             }
 
-            console.log(user);
+            debug(user);
 
             if (!user) {
                 req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
@@ -192,7 +194,7 @@ passport.use(new TokenStrategy({
                     }
                 )
                 .where(User.id.equals(user.id))
-            )
+            );
 
             return _.pick(user, User.sesInfo);
 
@@ -281,7 +283,7 @@ module.exports = {
                     session: false
                 }, function (err, user, info) {
 
-                    console.log(user);
+                    debug(user);
 
                     if (user) {
                         req.user = user;
