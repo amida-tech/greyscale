@@ -3,6 +3,7 @@
 var io = require('socket.io');
 
 var debug = require('debug')('debug_socket-controller.server');
+debug.log = console.log.bind(console);
 
 var ioServer;
 

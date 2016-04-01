@@ -120,7 +120,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'tasks',
                 entity: req.params.id,
@@ -143,7 +143,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'tasks',
                 entity: req.params.id,
@@ -159,6 +159,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
+            req.body = _.extend(req.body, {userId: req.user.realmUserId}); // add from realmUserId instead of user id
             var result = yield thunkQuery(
                 Task
                 .insert(
@@ -170,7 +171,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'tasks',
                 entity: _.first(data).id,

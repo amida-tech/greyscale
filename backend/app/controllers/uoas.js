@@ -64,14 +64,14 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            req.body.creatorId = req.user.id;
-            req.body.ownerId = req.user.id;
+            req.body.creatorId = req.user.realmUserId; // add from realmUserId instead of user id
+            req.body.ownerId = req.user.realmUserId; // add from realmUserId instead of user id
             req.body.created = new Date();
             return yield thunkQuery(UnitOfAnalysis.insert(req.body).returning(UnitOfAnalysis.id));
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'UnitOfAnalysis',
                 entity: _.first(data).id,
@@ -92,7 +92,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'UnitOfAnalysis',
                 entity: req.params.id,
@@ -111,7 +111,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'UnitOfAnalysis',
                 entity: req.params.id,
@@ -216,8 +216,8 @@ module.exports = {
                             gadmId3        : intOrNull(parsed[i][14]),
                             gadmObjectId   : intOrNull(parsed[i][15]),
                             HASC           : parsed[i][16],
-                            creatorId      : req.user.id,
-                            ownerId        : req.user.id
+                            creatorId      : req.user.realmUserId, // add from realmUserId instead of user id
+                            ownerId        : req.user.realmUserId  // add from realmUserId instead of user id
                         };
 
                         newUoa.messages = [];
@@ -303,7 +303,7 @@ module.exports = {
                                         newUoa.messages.push('Added');
                                         bologger.log({
                                             req: req,
-                                            user: req.user.id,
+                                            user: req.user.realmUserId,
                                             action: 'insert',
                                             object: (!bologger.data.essence) ? 'UnitOfAnalysis' : null,
                                             entity: created[0].id,

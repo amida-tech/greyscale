@@ -13,6 +13,7 @@ var _ = require('underscore'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Query = require('app/util').Query,
+    pgEscape = require('pg-escape'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
@@ -116,13 +117,17 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var clientThunkQuery = req.thunkQuery;
+
+        if (req.params.realm == config.pgConnect.adminSchema) {
+            throw new HttpError(400, 'Incorrect realm');
+        }
 
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
             if(Object.keys(updateObj).length){
-                yield thunkQuery(
+                yield clientThunkQuery(
                     Organization
                     .update(updateObj)
                     .where(Organization.id.equals(req.params.id))
@@ -131,7 +136,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'organizations',
                 entity: req.params.id,
@@ -144,24 +149,37 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+
+        if (req.user.roleID != 1) {
+            throw new HttpError(403, 'Only super admin can create organizations');
+        }
+
         var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
         co(function* () {
             yield *checkOrgData(req);
-            yield adminThunkQuery("SELECT clone_schema('sceleton','"+req.body.realm.toString()+"')");
-            
-            var cliientThunkQuery = thunkify(new Query(req.body.realm.toString()));
 
-            var org = yield cliientThunkQuery(
+            yield adminThunkQuery(pgEscape(
+                "SELECT clone_schema('%s','%s', true)"
+                ,config.pgConnect.sceletonSchema
+                ,req.body.realm
+            ));
+
+            var clientThunkQuery = thunkify(new Query(req.body.realm));
+
+            req.thunkQuery = clientThunkQuery; // Do this because of bologger
+
+            var org = yield clientThunkQuery(
                 Organization
                 .insert(
                     _.pick(req.body, Organization.table._initialConfig.columns)
                 )
                 .returning(Organization.id)
             );
+
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'organizations',
                 entity: org[0].id,
@@ -169,7 +187,8 @@ module.exports = {
             });
 
             // TODO creates project in background, may be need to disable in future
-            var project = yield cliientThunkQuery(
+
+            var project = yield clientThunkQuery(
                 Project.insert(
                     {
                         organizationId: org[0].id,
@@ -180,7 +199,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'projects',
                 entity: project[0].id,
@@ -299,7 +318,7 @@ module.exports = {
                                 );
                                 bologger.log({
                                     req: req,
-                                    user: req.user.id,
+                                    user: req.user.realmUserId,
                                     action: 'insert',
                                     object: 'users',
                                     entity: created[0].id,
@@ -326,7 +345,7 @@ module.exports = {
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
                                     var note = yield * notifications.createNotification(req,
                                         {
-                                            userFrom: req.user.id,
+                                            userFrom: req.user.realmUserId,
                                             userTo: newUser.id,
                                             body: 'Invite',
                                             essenceId: essenceId,
@@ -369,34 +388,39 @@ module.exports = {
 function* checkOrgData(req){
     var cpg = config.pgConnect;
 
+    var clientThunkQuery = thunkify(new Query(req.params.realm));
     var adminThunkQuery = thunkify(new Query(cpg.adminSchema));
-    var cliientThunkQuery = thunkify(new Query(req.params.realm));
 
-    if (!req.params.id){ //create
+    if (!req.params.id) { //create
         if (!req.body.name || !req.body.realm) {
             throw new HttpError(400, 'name and realm fields are required');
         }
-    }else{
-        delete req.body.realm; // do not allow to edit realm
+
+        var schemas = yield thunkQuery(pgEscape( // better to select from db instead of memcache
+            "SELECT pg_catalog.pg_namespace.nspname " +
+            "FROM pg_catalog.pg_namespace " +
+            "INNER JOIN pg_catalog.pg_user " +
+            "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+            "AND (pg_catalog.pg_user.usename = '%s')" +
+            "WHERE pg_catalog.pg_namespace.nspname = '%s'"
+            ,cpg.user
+            ,req.body.realm
+        ));
+
+        if (schemas.length) {
+            throw new HttpError(400, 'Realm \'' + req.body.realm + '\' already exists');
+        }
+    } else {
+        delete req.body.realm; // do not allow to edit realm in organization
     }
 
-    var result = yield adminThunkQuery( 
-        "SELECT pg_catalog.pg_namespace.nspname " +
-        "FROM pg_catalog.pg_namespace " +
-        "INNER JOIN pg_catalog.pg_user " +
-        "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-        "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
-    );
-
-    var schemas = [];
-
-    for (var i in result) {
-        schemas.push(result[i].nspname);
-    }
-
-
-    if (schemas.indexOf(req.body.realm) != -1) {
-        throw new HttpError(400, 'Realm ' + req.body.realm + ' already exists');
+    if (req.body.adminUserId) {
+        var existUser = yield clientThunkQuery(
+            User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
+        );
+        if (!_.first(existUser)) {
+            throw new HttpError(403, 'User with this id does not exist');
+        }
     }
 
     // if (req.body.adminUserId) {

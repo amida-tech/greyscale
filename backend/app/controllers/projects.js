@@ -61,7 +61,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'projects',
                 entity: req.params.id,
@@ -90,7 +90,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'projects',
                 entity: req.params.id,
@@ -156,6 +156,7 @@ module.exports = {
             yield * checkProjectData(req);
             // patch for status
             req.body = _extend(req.body, {status: 1});
+            req.body = _.extend(req.body, {userAdminId: req.user.realmUserId}); // add from realmUserId instead of user id
             var result = yield thunkQuery(
                 Project
                 .insert(_.pick(req.body, Project.table._initialConfig.columns))
@@ -165,7 +166,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'projects',
                 entity: _.first(data).id,

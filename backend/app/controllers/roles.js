@@ -54,7 +54,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'roles',
                 entity: _.first(data).id,
@@ -76,7 +76,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'roles',
                 entity: req.params.id,

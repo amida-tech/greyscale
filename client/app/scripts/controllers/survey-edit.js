@@ -12,24 +12,23 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, greyscaleSurveyApi, greyscaleQuestionApi, greyscaleModalsSrv,
-        inform, $log, $stateParams, $state, $q, Organization, $timeout) {
+        inform, $log, $stateParams, $state, $q, Organization, $timeout, greyscaleUtilsSrv) {
 
         var surveyId = $stateParams.surveyId === 'new' ? null : $stateParams.surveyId;
         var projectId;
 
+        $scope.model = {
+            survey: {}
+        };
+        $state.ext.surveyName = 'New survey';
+
         Organization.$lock = true;
 
-        var _survey;
         if (surveyId) {
             Organization.$watch($scope, function () {
                 projectId = Organization.projectId;
                 _loadSurvey();
             });
-        } else {
-            $scope.model = {
-                survey: {}
-            };
-            $state.ext.surveyName = 'New survey';
         }
 
         function _loadSurvey() {
@@ -46,46 +45,41 @@ angular.module('greyscaleApp')
         }
 
         function _save() {
+            var _survey;
+
             _survey = $scope.model.survey;
             _survey.projectId = projectId;
-            var questions = _survey.questions;
-            _survey.questions = undefined;
-            (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey)).then(function (survey) {
-                if (!survey) {
-                    survey = _survey;
-                }
-                survey.questions = questions || [];
-                for (var j = survey.questions.length - 1; j >= 0; j--) {
-                    if (!survey.questions[j]) {
-                        survey.questions.splice(j, 1);
-                        continue;
+//            var questions = _survey.questions;
+//            _survey.questions = undefined;
+            (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
+/*
+                .then(function (survey) {
+                    if (!survey) {
+                        survey = _survey;
                     }
-                    survey.questions[j].surveyId = survey.id;
-                }
-                var questionsFunctions = [];
-                if (survey.questions) {
-                    for (var i = 0; i < survey.questions.length; i++) {
-                        questionsFunctions.push(_getQuestionFunction(survey.questions[i]));
+                    survey.questions = questions || [];
+                    for (var j = survey.questions.length - 1; j >= 0; j--) {
+                        if (!survey.questions[j]) {
+                            survey.questions.splice(j, 1);
+                            continue;
+                        }
+                        survey.questions[j].surveyId = survey.id;
                     }
-                }
-                return $q.all(questionsFunctions);
-            }).then(function () {
-                $state.go('projects.setup.surveys', {
-                    projectId: projectId
-                });
-            }).catch(function (err) {
-                if (!err) {
-                    return;
-                }
-                $log.debug(err);
-                var msg = 'Survey update error';
-                if (err.data && err.data.message) {
-                    msg += ': ' + err.data.message;
-                }
-                inform.add(msg, {
-                    type: 'danger'
-                });
-            });
+                    var questionsFunctions = [];
+                    if (survey.questions) {
+                        for (var i = 0; i < survey.questions.length; i++) {
+                            questionsFunctions.push(_getQuestionFunction(survey.questions[i]));
+                        }
+                    }
+                    return $q.all(questionsFunctions);
+                })
+*/
+                .then(function () {
+                    $state.go('projects.setup.surveys', {
+                        projectId: projectId
+                    });
+                })
+                .catch(greyscaleUtilsSrv.errorMsg);
         }
 
         $scope.save = function () {

@@ -154,7 +154,7 @@ angular.module('greyscale.core')
                 name: 'COMPLETED'
             }],
             adminSchema: 'public',
-            tokenTTLsec: 60
+            tokenTTLsec: 300
         };
 
         return {

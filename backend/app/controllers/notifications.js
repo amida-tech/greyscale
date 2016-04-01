@@ -20,6 +20,7 @@ var
     Emailer = require('lib/mailer');
 
 var debug = require('debug')('debug_notifications');
+debug.log = console.log.bind(console);
 
 var socketController = require('app/socket/socket-controller.server');
 
@@ -434,7 +435,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -458,7 +459,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'notifications',
                 entities: data,
@@ -493,7 +494,7 @@ module.exports = {
             if (data) {
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'delete',
                     object: 'notifications',
                     entities: data,
@@ -509,12 +510,12 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            req.body.userFrom = req.user.id; // ignore userFrom from body - use from req.user
+            req.body.userFrom = req.user.realmUserId; // ignore userFrom from body - use from req.user/ !! Use realmUserId instead of user id
             return yield * createNotification(req, req.body);
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'notifications',
                 entity: _.first(data).id,
@@ -549,7 +550,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -571,7 +572,7 @@ module.exports = {
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req,
                     {
-                        userFrom: req.user.id,
+                        userFrom: req.user.realmUserId,
                         userTo: user.id,
                         body: 'Invite',
                         essenceId: essenceId,
@@ -589,7 +590,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'insert',
                     object: 'notifications',
                     entity: note[0].id,
@@ -608,7 +609,7 @@ module.exports = {
             if (resend) {
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'update',
                     object: 'notifications',
                     entity: resend,
