@@ -344,7 +344,7 @@ module.exports = {
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
                                     var note = yield * notifications.createNotification(req,
                                         {
-                                            userFrom: req.user.id,
+                                            userFrom: req.user.realmUserId,
                                             userTo: newUser.id,
                                             body: 'Invite',
                                             essenceId: essenceId,
