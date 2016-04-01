@@ -14,6 +14,7 @@ var Query = require('app/util').Query,
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_essence_roles');
+debug.log = console.log.bind(console);
 
 module.exports = {
 

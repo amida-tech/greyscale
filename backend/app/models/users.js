@@ -7,6 +7,7 @@ var vl = require('validator'),
     util = require('util');
 
 var debug = require('debug')('debug_models_users');
+debug.log = console.log.bind(console);
 
 var sql = require('sql');
 
@@ -107,7 +108,7 @@ User.view = function(user){
     return _.pick(user, viewFields);
 };
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password', 'realmUserId'];
 User.whereCol = columns;
 
 module.exports = User;

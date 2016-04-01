@@ -72,7 +72,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'rolerights',
                 entities: data,
@@ -94,7 +94,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'rolerights',
                 entities: _.pick(req.params, ['roleID', 'rightID']),

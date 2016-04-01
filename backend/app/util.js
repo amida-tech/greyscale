@@ -6,6 +6,7 @@ var
     config    = require('config');
 
 var debug = require('debug')('debug_util');
+debug.log = console.log.bind(console);
 
 
 
