@@ -15,6 +15,7 @@
     },
     "COMMON": {
         "ADD": "Добавить",
+        "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
         "BACK": "",
@@ -29,6 +30,7 @@
         "DELETE": "Удалить",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
+        "GLOBALLY": "",
         "INFO": "Информация",
         "NEVER": "",
         "NO": "Нет",
@@ -66,6 +68,7 @@
     },
     "ERROR": {
         "ACCESS_RESTRICTED": "Доступ ограничен к",
+        "BAD_TOKEN": "",
         "STEP_SUBMIT": "",
         "TEST": "Тестовая ошибка"
     },
@@ -269,6 +272,8 @@
         "PROJECT_MANAGEMENT": "Проекты",
         "REGISTER": "Регистрация",
         "RESET": "Сброс",
+        "SUPERADMIN_SECTION": "",
+        "SUPERUSERS": "",
         "SUPPORT": "Поддержка",
         "SURVEY": "Опрос",
         "TABLE": "Таблица",

@@ -1,0 +1,5 @@
+<div ng-if="model.superusers">
+    <widget-table model="model.superusers" row-selector="showUserInfo"></widget-table>
+</div>
+
+<rd-loading ng-if="!model.superusers" class="compact"></rd-loading>

@@ -64,7 +64,8 @@ angular.module('greyscaleApp')
                                         var orderedData = params.sorting() ?
                                             $filter('orderBy')(data, params.orderBy()) : data;
                                         $defer.resolve(angular.isArray(orderedData) ?
-                                            orderedData.slice((params.page() - 1) * params.count(), params.page() * params.count()) : false);
+                                            orderedData.slice((params.page() - 1) * params.count(),
+                                                params.page() * params.count()) : false);
                                     }
                                     endLoading();
                                 })
@@ -124,9 +125,14 @@ angular.module('greyscaleApp')
                 model.$loading = undefined;
             });
 
-            if (typeof config.onReload === 'function') {
-                ngTableEventsChannel.onAfterReloadData(config.onReload, scope);
-            }
+            ngTableEventsChannel.onAfterReloadData(function () {
+                if (model.tableParams.data && model.tableParams.data.length === 0 && model.dataMap && model.dataMap.length > 0) {
+                    model.tableParams.pager.prev();
+                }
+                if (typeof config.onReload === 'function') {
+                    config.onReload();
+                }
+            }, scope);
 
             scope.$getRowClass = function (row) {
                 if (typeof model.rowClass === 'function') {

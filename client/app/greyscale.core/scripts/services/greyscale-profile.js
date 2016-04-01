@@ -4,50 +4,51 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleEntityTypeRoleApi,
-        greyscaleUtilsSrv, greyscaleGlobals, i18n, $log, $rootScope, greyscaleRealmSrv) {
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi,
+        greyscaleUtilsSrv, greyscaleGlobals, $log, $rootScope, greyscaleRealmSrv, $interval, greyscaleEnv) {
 
-        var _profile = null;
-        var _profilePromise = null;
-        var _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
+        var _tokenChecker,
+            _profile = null,
+            _profilePromise = null,
+            _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true),
+            _tokenTTL = (greyscaleEnv.tokenTTLsec || greyscaleGlobals.tokenTTLsec) * 1000;
 
         this.isSuperAdmin = _isSuperAdmin;
 
         this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
-            var self = this;
+            var res,
+                self = this,
+                token = greyscaleTokenSrv();
 
-            return greyscaleUserApi.isAuthenticated().then(function (isAuth) {
-                var res;
-
-                if (isAuth) {
-                    if (_profile && !force) {
-                        self._setAccessLevel();
-                        res = $q.resolve(_profile);
-                    } else {
-                        if (!_profilePromise || force) {
-                            _profilePromise = greyscaleUserApi.get()
-                                .then(function (profileData) {
-                                    _profile = profileData.plain();
-                                    return _profile;
-                                })
-                                .then(self._setAccessLevel)
-                                /*.then(self._setAssociate)*/
-                                .finally(function () {
-                                    _profilePromise = null;
-                                });
-                        }
-                        res = _profilePromise;
-                    }
+            if (token) {
+                if (_profile && !force) {
+                    self._setAccessLevel();
+                    res = $q.resolve(_profile);
                 } else {
-                    _profile = null;
-                    _profilePromise = null;
-                    res = $q.reject('not logged in');
+                    if (!_profilePromise || force) {
+                        _profilePromise = greyscaleUserApi.get(greyscaleRealmSrv.origin())
+                            .then(function (profileData) {
+                                _cancelTokenChecker();
+                                _tokenChecker = $interval(_checkToken, _tokenTTL);
+                                _profile = profileData.plain();
+                                return _profile;
+                            })
+                            .then(self._setAccessLevel)
+                            .finally(function () {
+                                _profilePromise = null;
+                            });
+                    }
+                    res = _profilePromise;
                 }
+            } else {
+                _profile = null;
+                _profilePromise = null;
+                res = $q.reject('not logged in');
+            }
 
-                return res;
-            });
+            return res;
         };
 
         this._setAccessLevel = function () {
@@ -84,11 +85,13 @@ angular.module('greyscale.core')
         };
 
         function _logout() {
+            _cancelTokenChecker();
             greyscaleTokenSrv(null);
-            greyscaleRealmSrv(null);
+            greyscaleRealmSrv.init(null);
             _profile = null;
             _profilePromise = null;
             _accessLevel = greyscaleUtilsSrv.getRoleMask(-1, true);
+
         }
 
         function _isSuperAdmin() {
@@ -125,5 +128,21 @@ angular.module('greyscale.core')
                 }
             });
             return hasAccess;
+        }
+
+        function _checkToken() {
+            greyscaleUserApi.isAuthenticated(greyscaleRealmSrv.origin())
+                .then(function (isAuth) {
+                    if (!isAuth) {
+                        greyscaleUtilsSrv.errorMsg('ERROR.BAD_TOKEN');
+                        $rootScope.$broadcast('logout');
+                    }
+                });
+        }
+
+        function _cancelTokenChecker() {
+            if (_tokenChecker) {
+                $interval.cancel(_tokenChecker);
+            }
         }
     });

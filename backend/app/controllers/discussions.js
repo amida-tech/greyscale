@@ -117,12 +117,12 @@ module.exports = {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
-            req.body = _.extend(req.body, {userFromId: req.user.id}); // add from user id
+            req.body = _.extend(req.body, {userFromId: req.user.realmUserId}); // add from realmUserId instead of user id
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'discussions',
                 entity: result[0].id,
@@ -160,7 +160,7 @@ module.exports = {
             req.body.isResolve = (isResolve);
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.id,
+                    userFrom: req.user.realmUserId,
                     userFromName: userFromName,
                     userTo: req.body.userId,
                     body: req.body.entry,
@@ -194,7 +194,7 @@ module.exports = {
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'discussions',
                 entity: result[0].id,
@@ -221,7 +221,7 @@ module.exports = {
             //
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.id,
+                    userFrom: req.user.realmUserId,
                     userFromName: userFromName,
                     userTo: entry.userId,
                     body: entry.entry,
@@ -254,7 +254,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'discussions',
                 entity: req.params.id,

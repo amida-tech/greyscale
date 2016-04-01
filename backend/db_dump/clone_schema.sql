@@ -121,11 +121,11 @@ BEGIN
  
     FOR column_, default_ IN
       SELECT column_name::text, 
-             REPLACE(column_default::text, source_schema, dest_schema) 
+             REPLACE(REPLACE(column_default::text, quote_ident(source_schema) || '.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
         FROM information_schema.COLUMNS 
        WHERE table_schema = dest_schema 
          AND TABLE_NAME = object 
-         AND column_default LIKE 'nextval(%' || quote_ident(source_schema) || '%::regclass)'
+         AND column_default LIKE 'nextval(%::regclass)'
     LOOP
       EXECUTE 'ALTER TABLE ' || buffer || ' ALTER COLUMN ' || column_ || ' SET DEFAULT ' || default_;
     END LOOP;
@@ -136,7 +136,7 @@ BEGIN
   FOR qry IN
     SELECT 'ALTER TABLE ' || quote_ident(dest_schema) || '.' || quote_ident(rn.relname) 
                           || ' ADD CONSTRAINT ' || quote_ident(ct.conname) || ' ' 
-                          || overlay(pg_get_constraintdef(ct.oid) placing 'REFERENCES '||dest_schema||'.' from position('REFERENCES' in pg_get_constraintdef(ct.oid)) for 11) || ';'
+                          || REPLACE(REPLACE(pg_get_constraintdef(ct.oid), quote_ident(source_schema) || '.', ''), 'REFERENCES ', 'REFERENCES ' || dest_schema || '.') || ';'
 
       FROM pg_constraint ct
       JOIN pg_class rn ON rn.oid = ct.conrelid

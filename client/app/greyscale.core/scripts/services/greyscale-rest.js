@@ -22,7 +22,7 @@ angular.module('greyscale.core')
 
             return Restangular.withConfig(function (RestangularConfigurer) {
                 var token = greyscaleTokenSrv();
-                var _realm = realm || greyscaleRealmSrv();
+                var _realm = realm || greyscaleRealmSrv.current();
 
                 if (token) {
                     angular.extend(aHeaders, {

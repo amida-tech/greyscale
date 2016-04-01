@@ -3,26 +3,47 @@
  */
 'use strict';
 angular.module('greyscale.core')
-    .factory('greyscaleRealmSrv', function ($cookieStore, $log) {
-        var _realm = null,
-            _default = 'public';
+    .factory('greyscaleRealmSrv', function ($cookieStore, greyscaleEnv, greyscaleGlobals, $log) {
+        var _realm,
+            _default = greyscaleEnv.adminSchema || greyscaleGlobals.adminSchema;
 
-        return function (val) {
+        _initRealm();
+
+        return {
+            current: function (val) {
+                return _value('current', val);
+            },
+            origin: function (val) {
+                return _value('origin', val);
+            },
+            init: _initRealm
+        };
+
+        function _initRealm(val) {
+            if (!_realm) {
+                _realm = {};
+            }
+            _value('origin', val);
+            _value('current', val);
+        }
+
+        function _value(name, val) {
+            var _valName = name + '_realm';
             if (typeof val !== 'undefined' && val !== _default) {
                 if (val) {
-                    $cookieStore.put('realm', val);
-                    $log.debug('set realm to', val);
+                    $cookieStore.put(_valName, val);
+                    $log.debug('set', _valName, val);
                 } else {
-                    $log.debug('removed realm', _realm);
-                    $cookieStore.remove('realm');
+                    $log.debug('removed', _valName, _realm[name]);
+                    $cookieStore.remove(_valName);
                 }
-                _realm = val || _default;
+                _realm[name] = val || _default;
             } else {
-                if (!_realm) {
-                    _realm = $cookieStore.get('realm') || _default;
-                    $log.debug('restored realm', _realm);
+                if (!_realm[name]) {
+                    _realm[name] = $cookieStore.get(_valName) || _default;
+                    $log.debug('restored', _valName, _realm[name]);
                 }
             }
-            return _realm;
-        };
+            return _realm[name];
+        }
     });

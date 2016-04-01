@@ -13,6 +13,7 @@ var _ = require('underscore'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Query = require('app/util').Query,
+    pgEscape = require('pg-escape'),
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
@@ -67,7 +68,21 @@ module.exports = {
                 var data = [];
                 for (var i in req.schemas) {
                     var thunkQuery = thunkify(new Query(req.schemas[i]));
-                    var org = yield thunkQuery(Organization.select().where(Organization.realm.equals(req.schemas[i])));
+                    var org = yield thunkQuery(
+                        Organization
+                            .select(
+                                Organization.star(),
+                                '(SELECT ' +
+                                '"Projects"."id" ' +
+                                'FROM "Projects"' +
+                                'WHERE ' +
+                                '"Projects"."organizationId" = "Organizations"."id"' +
+                                'LIMIT 1) as "projectId"'
+                            )
+                            .where(
+                                Organization.realm.equals(req.schemas[i])
+                            )
+                    );
                     if (org.length) {
                         data.push(org[0]);
                     }
@@ -102,13 +117,13 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var clientThunkQuery = req.thunkQuery;
 
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
             if(Object.keys(updateObj).length){
-                yield thunkQuery(
+                yield clientThunkQuery(
                     Organization
                     .update(updateObj)
                     .where(Organization.id.equals(req.params.id))
@@ -117,7 +132,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'organizations',
                 entity: req.params.id,
@@ -130,30 +145,45 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        if (req.user.roleID != 1) {
+            throw new HttpError(403, 'Only super admin can create organizations');
+        }
+
+        var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+
 
         co(function* () {
             yield *checkOrgData(req);
-            var org = yield thunkQuery(
+
+            yield adminThunkQuery(pgEscape(
+                "SELECT clone_schema('%s','%s', true)"
+                ,config.pgConnect.sceletonSchema
+                ,req.body.realm
+            ));
+
+            var clientThunkQuery = thunkify(new Query(req.body.realm));
+
+            req.thunkQuery = clientThunkQuery; // Do this because of bologger
+
+            var org = yield clientThunkQuery(
                 Organization
                 .insert(
                     _.pick(req.body, Organization.table._initialConfig.columns)
                 )
                 .returning(Organization.id)
             );
+
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'organizations',
                 entity: org[0].id,
                 info: 'Add organization'
             });
 
-
-
             // TODO creates project in background, may be need to disable in future
-            var project = yield thunkQuery(
+            var project = yield clientThunkQuery(
                 Project.insert(
                     {
                         organizationId: org[0].id,
@@ -164,7 +194,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'projects',
                 entity: project[0].id,
@@ -283,7 +313,7 @@ module.exports = {
                                 );
                                 bologger.log({
                                     req: req,
-                                    user: req.user.id,
+                                    user: req.user.realmUserId,
                                     action: 'insert',
                                     object: 'users',
                                     entity: created[0].id,
@@ -351,15 +381,38 @@ module.exports = {
 };
 
 function* checkOrgData(req){
-    var thunkQuery = req.thunkQuery;
+    var cpg = config.pgConnect;
 
-    if (!req.params.id){ //create
-        if (!req.body.name) {
-            throw new HttpError(400, 'name field is required');
+    var clientThunkQuery = thunkify(new Query(req.params.realm));
+    var adminThunkQuery = thunkify(new Query(cpg.adminSchema));
+
+
+
+    if (!req.params.id) { //create
+        if (!req.body.name || !req.body.realm) {
+            throw new HttpError(400, 'name and realm fields are required');
         }
+
+        var schemas = yield thunkQuery(pgEscape( // better to select from db instead of memcache
+            "SELECT pg_catalog.pg_namespace.nspname " +
+            "FROM pg_catalog.pg_namespace " +
+            "INNER JOIN pg_catalog.pg_user " +
+            "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+            "AND (pg_catalog.pg_user.usename = '%s')" +
+            "WHERE pg_catalog.pg_namespace.nspname = '%s'"
+            ,cpg.user
+            ,req.body.realm
+        ));
+
+        if (schemas.length) {
+            throw new HttpError(400, 'Realm \'' + req.body.realm + '\' already exists');
+        }
+    } else {
+        delete req.body.realm; // do not allow to edit realm in organization
     }
+
     if (req.body.adminUserId) {
-        var existUser = yield thunkQuery(
+        var existUser = yield clientThunkQuery(
             User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
         );
         if (!_.first(existUser)) {

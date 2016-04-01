@@ -15,6 +15,8 @@ var client = require('app/db_bootstrap'),
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_workflows');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -54,7 +56,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'workflows',
                 entity: req.params.id,
@@ -76,7 +78,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'workflows',
                 entity: req.params.id,
@@ -98,7 +100,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'workflows',
                 entity: _.first(data).id,
@@ -171,7 +173,7 @@ module.exports = {
                         );
                         bologger.log({
                             req: req,
-                            user: req.user.id,
+                            user: req.user.realmUserId,
                             action: 'update',
                             object: 'workflowsteps',
                             entity: req.body[i].id,
@@ -182,7 +184,7 @@ module.exports = {
                         );
                         bologger.log({
                             req: req,
-                            user: req.user.id,
+                            user: req.user.realmUserId,
                             action: 'update',
                             object: 'workflowstepgroups',
                             info: 'Delete all workflow step groups for step '+ req.body[i].id
@@ -197,7 +199,7 @@ module.exports = {
                     //insertArr.push(insertObj);
                     bologger.log({
                         req: req,
-                        user: req.user.id,
+                        user: req.user.realmUserId,
                         action: 'insert',
                         object: 'workflowsteps',
                         entity: req.body[i].id,
@@ -213,12 +215,12 @@ module.exports = {
                         }
                     );
                 }
-                console.log(insertGroupObjs);
+                debug(insertGroupObjs);
                 if (insertGroupObjs.length) {
                     yield thunkQuery(WorkflowStepGroup.insert(insertGroupObjs));
                     bologger.log({
                         req: req,
-                        user: req.user.id,
+                        user: req.user.realmUserId,
                         action: 'insert',
                         object: 'workflowstepgroups',
                         entities: insertGroupObjs,
@@ -234,7 +236,7 @@ module.exports = {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'delete',
                     object: 'workflowstepgroups',
                     entities: deleteIds,
@@ -244,7 +246,7 @@ module.exports = {
                 yield thunkQuery(WorkflowStep.delete().where(WorkflowStep.id.equals(deleteIds[i])));
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'delete',
                     object: 'workflowsteps',
                     entities: deleteIds,

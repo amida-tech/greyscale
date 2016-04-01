@@ -144,6 +144,38 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 }
             }
         })
+        .state('organizations', {
+            parent: 'home',
+            url: 'organizations',
+            data: {
+                name: 'NAV.ORGANIZATIONS',
+                icon: 'fa-university',
+                accessLevel: systemRoles.superAdmin.mask,
+                realm: 'public'
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/organizations.html',
+                    controller: 'OrganizationsCtrl'
+                }
+            }
+        })
+        .state('superusers', {
+            parent: 'home',
+            url: 'superusers',
+            data: {
+                name: 'NAV.SUPERUSERS',
+                icon: 'fa-user-secret',
+                accessLevel: systemRoles.superAdmin.mask,
+                realm: 'public'
+            },
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/superusers.html',
+                    controller: 'SuperusersCtrl'
+                }
+            }
+        })
         .state('access', {
             parent: 'home',
             url: 'access',
@@ -344,21 +376,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask | systemRoles.user.mask
             }
         })
-        .state('orgs', {
-            parent: 'home',
-            url: 'organizations',
-            views: {
-                'body@dashboard': {
-                    templateUrl: 'views/controllers/organizations.html',
-                    controller: 'OrganizationsCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.ORGANIZATIONS',
-                icon: 'fa-university',
-                accessLevel: systemRoles.superAdmin.mask
-            }
-        })
+        //.state('orgs', {
+        //    parent: 'home',
+        //    url: 'organizations',
+        //    views: {
+        //        'body@dashboard': {
+        //            templateUrl: 'views/controllers/organizations.html',
+        //            controller: 'OrganizationsCtrl'
+        //        }
+        //    },
+        //    data: {
+        //        name: 'NAV.ORGANIZATIONS',
+        //        icon: 'fa-university',
+        //        accessLevel: systemRoles.superAdmin.mask
+        //    }
+        //})
         .state('profile', {
             parent: 'home',
             url: 'profile',

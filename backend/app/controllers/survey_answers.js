@@ -27,6 +27,8 @@ var
     mc = require('app/mc_helper'),
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_survey_answers');
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -168,7 +170,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'SurveyAnswers',
                 entity: req.params.id,
@@ -248,7 +250,7 @@ module.exports = {
         }).then(function (data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'SurveyAnswers',
                 entity: req.params.id,
@@ -283,7 +285,7 @@ module.exports = {
                         req.body[i].message = 'internal error';
                         req.body[i].statusCode = 500;
                     }
-                    console.log(err);
+                    debug(err);
                 }
 
                 result.push(req.body[i]);
@@ -328,7 +330,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'answerattachments',
                 entity: req.params.id,
@@ -430,7 +432,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'answerattachments',
                 entity: data[0].id,
@@ -477,7 +479,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 try{
                     var filecontent = yield load;
                 } catch(e) {
-                    console.log(e);
+                    debug(e);
                     throw new HttpError(500, 'File upload error');
                 }
 
@@ -486,7 +488,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                     size: file.size,
                     mimetype: file.mimetype,
                     body: filecontent,
-                    owner: req.user.id
+                    owner: req.user.realmUserId
                 };
 
                 if (req.body.answerId) {
@@ -498,7 +500,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'insert',
                     object: 'answerattachments',
                     entity: inserted[0].id,
@@ -684,13 +686,14 @@ function *addAnswer (req, dataObject) {
         );
         bologger.log({
             req: req,
-            user: req.user.id,
+            user: req.user.realmUserId,
             action: 'update',
             object: 'SurveyAnswers',
             entity: existsNullVer[0].id,
             info: 'Update survey answer'
         });
     } else {
+        dataObject.userId = req.user.realmUserId; // add from realmUserId instead of user id
         var answer = yield thunkQuery(
             SurveyAnswer
                 .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
@@ -699,7 +702,7 @@ function *addAnswer (req, dataObject) {
         answer = answer[0];
         bologger.log({
             req: req,
-            user: req.user.id,
+            user: req.user.realmUserId,
             action: 'insert',
             object: 'SurveyAnswers',
             entity: answer.id,
@@ -785,7 +788,7 @@ function *moveWorkflow (req, productId, UOAid) {
         );
         bologger.log({
             req: req,
-            user: req.user.id,
+            user: req.user.realmUserId,
             action: 'update',
             object: 'ProductUOA',
             entities: {
@@ -805,7 +808,7 @@ function *moveWorkflow (req, productId, UOAid) {
         );
         bologger.log({
             req: req,
-            user: req.user.id,
+            user: req.user.realmUserId,
             action: 'update',
             object: 'ProductUOA',
             entities: {
@@ -832,7 +835,7 @@ function *moveWorkflow (req, productId, UOAid) {
             );
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'Product',
                 entity: curStep.task.productId,
@@ -840,6 +843,6 @@ function *moveWorkflow (req, productId, UOAid) {
             });
         }
     }
-    console.log(nextStep);
+    debug(nextStep);
 
 }

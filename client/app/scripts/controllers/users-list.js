@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('UsersListCtrl', function ($rootScope, $scope, greyscaleUsersTbl, greyscaleModalsSrv, Organization) {
+    .controller('UsersListCtrl', function ($rootScope, $scope, greyscaleUsersTbl, greyscaleModalsSrv, Organization, $log) {
 
         var _usersTable = greyscaleUsersTbl;
 
@@ -18,6 +18,7 @@ angular.module('greyscaleApp')
         };
 
         function _renderUsersTable() {
+            $log.debug('dddd aka rendering users table');
             _usersTable.dataFilter.organizationId = Organization.id;
             if ($scope.model.users.tableParams) {
                 $scope.model.users.tableParams.reload();

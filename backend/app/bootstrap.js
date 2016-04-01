@@ -20,6 +20,9 @@ var config = require('config'),
     mc = require('app/mc_helper'),
     co = require('co');
 
+var debug = require('debug')('debug_bootstrap');
+var error = require('debug')('error');
+
 app = require('express')();
 
 // Init mongoose connection and set event listeners
@@ -38,17 +41,13 @@ app.on('start', function () {
         var cpg = config.pgConnect;
         co(function*(){
 
-            // reset
-            //try{
-            //    var schemas = yield mc.set(req.mcClient, 'schemas', 'sdf', 1);
-            //}catch(e){
-            //    throw new HttpError(500, e);
-            //}
 
-            try{
-                var schemas = yield mc.get(req.mcClient, 'schemas');
-            }catch(e){
-                throw new HttpError(500, e);
+            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                try{
+                    var schemas = yield mc.get(req.mcClient, 'schemas');
+                }catch(e){
+                    throw new HttpError(500, e);
+                }
             }
 
             if (schemas) {
@@ -67,10 +66,12 @@ app.on('start', function () {
                         req.schemas.push(schemas[i].nspname);
                     }
                 }
-                try{
-                    var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
-                }catch(e){
-                    throw new HttpError(500, e);
+                if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                    try{
+                        var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
+                    }catch(e){
+                        throw new HttpError(500, e);
+                    }
                 }
             }
 
@@ -176,7 +177,7 @@ app.on('start', function () {
 
     // Setup error handlers
     app.use(function (err, req, res, next) {
-        console.log(err);
+        error(err);
         if (err) {
             switch (err.name) {
             case 'HttpError':
@@ -233,26 +234,26 @@ app.on('start', function () {
             //the admin database
             pg.connect(pgConString + '/postgres', function (err, client, done) {
                 if (err) {
-                    console.log(err);
+                    error(err);
                     return;
                 }
-                console.log('Attempting to create database.');
+                debug('Attempting to create database.');
                 // Create the DB if it is not there
                 client.query('CREATE DATABASE ' + pgDbName, function (err) {
                     if (err) {
-                        console.log(err);
+                        error(err);
                     }
                     client.end();
 
                     // Load the schema if it is not there
                     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
                         if (err) {
-                            console.log(err);
+                            error(err);
                             return;
                         }
                         client.query(sql, function (err) {
                             if (err) {
-                                console.log('Schema already initialized');
+                                error('Schema already initialized');
                             }
                             client.end();
                         });
@@ -264,8 +265,8 @@ app.on('start', function () {
             //database already exists so try to initialize the schema.
             client.query(sql, function (err) {
                 if (err) {
-                    console.log(err);
-                    console.log('Schema already initialized');
+                    error(err);
+                    debug('Schema already initialized');
                 }
                 client.end();
             });
@@ -291,13 +292,13 @@ app.on('start', function () {
     );
 
     mcClient.on('connect', function(){
-        console.log('mc connected');
+        debug('mc connected');
         startServer();
     });
 
     mcClient.on('error', function(e){
-        console.log('MEMCACHE ERROR');
-        console.log(e);
+        error('MEMCACHE ERROR');
+        debug(e);
     });
 
     mcClient.connect();

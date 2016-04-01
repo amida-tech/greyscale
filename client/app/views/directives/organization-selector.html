@@ -5,8 +5,9 @@
         <a><i class="fa fa-caret-down"></i></a>
         <select hidden-select
                 ng-model="model.organization"
-                ng-options="org as org.name for org in model.organizations track by org.id"
-                ng-change="organizationChanged(model.organization)">
+                ng-options="org as org.name for org in model.organizations track by org.realm + ':' + org.id"
+                ng-change="organizationChanged()">
+            <option value="" style="display:none"></option>
         </select>
     </span>
 </span>

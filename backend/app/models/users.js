@@ -6,6 +6,8 @@ var vl = require('validator'),
     _ = require('underscore'),
     util = require('util');
 
+var debug = require('debug')('debug_models_users');
+
 var sql = require('sql');
 
 var columns = [
@@ -82,8 +84,8 @@ User.hashPassword = function (password) {
 };
 
 User.validPassword = function (pas, checkpas) {
-    console.log(pas);
-    console.log(this.hashPassword(checkpas));
+    debug(pas);
+    debug(this.hashPassword(checkpas));
     return pas === this.hashPassword(checkpas);
 };
 
@@ -105,7 +107,7 @@ User.view = function(user){
     return _.pick(user, viewFields);
 };
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password', 'realmUserId'];
 User.whereCol = columns;
 
 module.exports = User;

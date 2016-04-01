@@ -95,9 +95,9 @@ angular.module('greyscale.tables')
             return _table.dataFilter.productId;
         }
 
-        function _getOrganizationId() {
-            return _table.dataFilter.organizationId;
-        }
+        //function _getOrganizationId() {
+        //    return _table.dataFilter.organizationId;
+        //}
 
         function _getData() {
 
@@ -111,11 +111,9 @@ angular.module('greyscale.tables')
         }
 
         function _getProductTasksData(product) {
-            var organizationId = _getOrganizationId();
+            //var organizationId = _getOrganizationId();
             var reqs = {
-                users: greyscaleUserApi.list({
-                    organizationId: organizationId
-                }),
+                users: greyscaleUserApi.list(),
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
                 tasks: greyscaleProductApi.product(product.id).tasksList(),
                 steps: greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList()

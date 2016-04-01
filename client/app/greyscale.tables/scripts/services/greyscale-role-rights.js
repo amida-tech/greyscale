@@ -120,7 +120,7 @@ angular.module('greyscale.tables')
                 return greyscaleRoleApi.listRights(role.id)
                     .then(_loadDicts);
             } else {
-                return $q.reject('no data');
+                return $q.when([]);
             }
         }
 

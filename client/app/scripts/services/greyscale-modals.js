@@ -165,14 +165,17 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _changePassword(user) {
+        function _changePassword(user, realm) {
             return $uibModal.open({
                 templateUrl: 'views/modals/change-password.html',
                 controller: 'ModalChangePasswordCtrl',
                 size: 'md',
                 windowClass: 'modal fade in',
                 resolve: {
-                    user: user
+                    user: user,
+                    data: {
+                        realm: realm
+                    }
                 }
             }).result;
         }

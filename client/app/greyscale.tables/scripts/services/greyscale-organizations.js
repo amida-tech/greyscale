@@ -17,6 +17,11 @@ angular.module('greyscale.tables')
             title: 'ID',
             dataReadOnly: 'both'
         }, {
+            field: 'realm',
+            show: true,
+            title: 'Realm',
+            dataReadOnly: 'edit'
+        }, {
             field: 'name',
             show: true,
             sortable: 'name',
@@ -25,18 +30,6 @@ angular.module('greyscale.tables')
             field: 'address',
             show: true,
             title: tns + 'ADDRESS'
-        }, {
-            field: 'adminUserId',
-            show: true,
-            sortable: 'adminUserId',
-            title: tns + 'ADMIN_USER',
-            dataFormat: 'option',
-            showFormField: _notNewRecord,
-            dataSet: {
-                keyField: 'id',
-                valField: 'email',
-                getData: getUsers
-            }
         }, {
             field: 'url',
             show: true,
@@ -61,10 +54,6 @@ angular.module('greyscale.tables')
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editRecord
-            }, {
-                icon: 'fa-trash',
-                tooltip: 'COMMON.DELETE',
-                handler: _delRecord
             }]
         }];
 
@@ -82,31 +71,6 @@ angular.module('greyscale.tables')
 
         };
 
-        function getUsers() {
-            if (_table.dataFilter.formRecord !== undefined && _table.dataFilter.formRecord.id) {
-                return _.filter(_dicts.users, {
-                    organizationId: _table.dataFilter.formRecord.id
-                });
-            } else {
-                return _dicts.users;
-            }
-        }
-
-        function _delRecord(organization) {
-            greyscaleModalsSrv.confirm({
-                message: tns + 'DELETE_CONFIRM',
-                organization: organization,
-                okType: 'danger',
-                okText: 'COMMON.DELETE'
-            }).then(function () {
-                greyscaleOrganizationApi.delete(organization.id)
-                    .then(reloadTable)
-                    .catch(function (err) {
-                        errorHandler(err, 'deleting');
-                    });
-            });
-        }
-
         function _editRecord(organization) {
             var action = 'adding';
             _table.dataFilter.formRecord = organization;
@@ -114,9 +78,9 @@ angular.module('greyscale.tables')
                 .then(function (newRec) {
                     if (newRec.id) {
                         action = 'editing';
-                        return greyscaleOrganizationApi.update(newRec);
+                        return greyscaleOrganizationApi.update(newRec, organization.realm);
                     } else {
-                        return greyscaleOrganizationApi.add(newRec);
+                        return greyscaleOrganizationApi.add(newRec, 'public');
                     }
                 })
                 .then(reloadTable)
@@ -128,14 +92,10 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _notNewRecord(record) {
-            return !!record.id;
-        }
-
         function getData() {
             var reqs = {
-                orgs: greyscaleOrganizationApi.list(),
-                users: greyscaleUserApi.list()
+                orgs: greyscaleOrganizationApi.list({}, 'public'),
+                users: greyscaleUserApi.list({}, 'public')
             };
 
             return $q.all(reqs)

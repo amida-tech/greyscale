@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
                 $scope.model = angular.extend($scope.model || {}, _model);
 
                 $scope.update = function () {
-                    greyscaleRealmSrv($scope.model.realm);
+                    greyscaleRealmSrv.init($scope.model.realm);
                 };
             }
         };
