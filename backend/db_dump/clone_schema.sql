@@ -121,7 +121,7 @@ BEGIN
  
     FOR column_, default_ IN
       SELECT column_name::text, 
-             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || schema || '.') 
+             REPLACE(REPLACE(column_default::text, 'public.', ''), 'nextval(''', 'nextval(''' || dest_schema || '.') 
         FROM information_schema.COLUMNS 
        WHERE table_schema = dest_schema 
          AND TABLE_NAME = object 
