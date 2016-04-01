@@ -41,12 +41,7 @@ app.on('start', function () {
         var cpg = config.pgConnect;
         co(function*(){
 
-            // reset
-            //try{
-            //    var schemas = yield mc.set(req.mcClient, 'schemas', 'sdf', 1);
-            //}catch(e){
-            //    throw new HttpError(500, e);
-            //}
+
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
                 try{
                     var schemas = yield mc.get(req.mcClient, 'schemas');

@@ -117,13 +117,13 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var clientThunkQuery = req.thunkQuery;
 
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
             if(Object.keys(updateObj).length){
-                yield thunkQuery(
+                yield clientThunkQuery(
                     Organization
                     .update(updateObj)
                     .where(Organization.id.equals(req.params.id))
@@ -412,7 +412,7 @@ function* checkOrgData(req){
     }
 
     if (req.body.adminUserId) {
-        var existUser = yield thunkQuery(
+        var existUser = yield clientThunkQuery(
             User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
         );
         if (!_.first(existUser)) {
