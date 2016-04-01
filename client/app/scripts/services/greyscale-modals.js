@@ -188,9 +188,7 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     index: index,
-                    type: function () {
-                        return type;
-                    },
+                    type: $q.when(type),
                     product: product
                 }
             }).result;
@@ -204,6 +202,32 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     visualization: visualization
+                }
+            }).result;
+        }
+
+        function _addProduct(productIndex, products) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/add-product.html',
+                controller: 'ModalAddProductCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    productIndex: productIndex,
+                    products: products
+                }
+            }).result;
+        }
+
+        function _importDataset(dataset, visualizationId) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/import-dataset.html',
+                controller: 'ModalImportDatasetCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    dataset: dataset,
+                    visualizationId: $q.when(visualizationId)
                 }
             }).result;
         }
@@ -234,6 +258,8 @@ angular.module('greyscaleApp')
             sendNotification: _sendNotification,
             changePassword: _changePassword,
             editIndex: _editIndex,
-            editVisualization: _editVisualization
+            editVisualization: _editVisualization,
+            addProduct: _addProduct,
+            importDataset: _importDataset
         };
     });

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http, $scope, $q, Organization, greyscaleVisualizationApi, greyscaleModalsSrv) {
+angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http, $scope, $q, Organization, greyscaleVisualizationApi, greyscaleModalsSrv, greyscaleComparativeVisualizationApi) {
     var tns = 'VISUALIZATIONS.';
 
     $scope.model = {};
@@ -19,7 +19,18 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
                 field: 'title',
                 title: tns + 'TITLE',
                 cellClass: 'text-center',
-                cellTemplate: '<a ng-href="#/visualizations/{{row.id}}">{{row.title}}</a>'
+                cellTemplate: '<span ng-switch on="row.type">' +
+                    '<a ng-href="#/visualizations/{{row.id}}" ng-switch-when="single">{{row.title}}</a>' +
+                    '<a ng-href="#/visualizations/comparative/{{row.id}}" ng-switch-when="comparative">{{row.title}}</a>' +
+                    '</span>'
+            }, {
+                field: 'type',
+                title: tns + 'TYPE',
+                cellClass: 'text-center',
+                cellTemplate: '<span ng-switch on="row.type">' +
+                    '<span ng-switch-when="single">Single Product</span>' +
+                    '<span ng-switch-when="comparative">Comparative</span>' +
+                    '</span>'
             }, {
                 dataFormat: 'action',
                 actions: [{
@@ -43,23 +54,34 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
 
     function _removeVisualization(visualization) {
         for (var i = 0; i < $scope.model.visualizations.length; i++) {
-            if ($scope.model.visualizations[i].id === visualization.id) {
+            if ($scope.model.visualizations[i].id === visualization.id && $scope.model.visualizations[i].type === visualization.type) {
                 $scope.model.visualizations.splice(i, 1);
                 break;
             }
         }
         $scope.model.visualizationsTable.tableParams.reload();
-        greyscaleVisualizationApi(Organization.id).del(visualization.id);
+        if (visualization.type === 'comparative') {
+            greyscaleComparativeVisualizationApi(Organization.id).del(visualization.id);
+        } else {
+            greyscaleVisualizationApi(Organization.id).del(visualization.id);
+        }
     }
 
     function _editVisualization(visualization) {
+        if (!visualization) { visualization = {}; }
+
         greyscaleModalsSrv.editVisualization(visualization)
             .then(function (visualization) {
+                var api = greyscaleVisualizationApi;
+                if (visualization.type === 'comparative') {
+                    api = greyscaleComparativeVisualizationApi;
+                }
+
                 if (visualization.id) {
-                    greyscaleVisualizationApi(Organization.id).update(visualization.id, visualization);
+                    api(Organization.id).update(visualization.id, visualization);
                     return visualization;
                 } else {
-                    return greyscaleVisualizationApi(Organization.id).add(visualization).then(function (resp) {
+                    return api(Organization.id).add(visualization).then(function (resp) {
                         visualization.id = resp.id;
                         return visualization;
                     });
@@ -67,7 +89,7 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
             }).then(function (visualization) {
                 var updated = false;
                 for (var i = 0; i < $scope.model.visualizations.length; i++) {
-                    if ($scope.model.visualizations[i].id === visualization.id) {
+                    if ($scope.model.visualizations[i].id === visualization.id && $scope.model.visualizations[i].type === visualization.type) {
                         $scope.model.visualizations.splice(i, 1);
                         break;
                     }
@@ -80,8 +102,20 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
     }
 
     function _loadData() {
+        // load standard visualizations
         return greyscaleVisualizationApi(Organization.id).list().then(function (visualizations) {
-            $scope.model.visualizations = visualizations;
+            $scope.model.visualizations = visualizations.map(function (viz) {
+                viz.type = 'single';
+                return viz;
+            });
+
+            // load comparative visualizations
+            return greyscaleComparativeVisualizationApi(Organization.id).list().then(function (visualizations) {
+                $scope.model.visualizations = $scope.model.visualizations.concat(visualizations.map(function (viz) {
+                    viz.type = 'comparative';
+                    return viz;
+                }));
+            });
         });
     }
 });

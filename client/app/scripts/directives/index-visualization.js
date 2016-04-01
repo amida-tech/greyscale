@@ -238,16 +238,16 @@ angular.module('greyscaleApp')
                     }
 
                     //remove UOAs without data for selected index
-                    var _plotData = plotData.filter(function (uoa) {
+                    plotData = plotData.filter(function (uoa) {
                         return typeof uoa[index.collection][index.id] === 'number';
                     });
 
                     if (scope.filterForm.visualizationType === 'graph') {
-                        renderBarGraph(_plotData, index);
+                        renderBarGraph(plotData, index);
                     } else if (scope.filterForm.visualizationType === 'map') {
-                        renderMap(_plotData, index);
+                        renderMap(plotData, index);
                     } else if (scope.filterForm.visualizationType === 'comparative') {
-                        renderComparative(_plotData, index);
+                        renderComparative(plotData, index);
                     }
                 }
 

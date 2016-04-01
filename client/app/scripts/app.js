@@ -509,6 +509,19 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 name: 'Visualization'
             }
         })
+        .state('comparative-visualization', {
+            parent: 'visualizations',
+            url: '/comparative/:visualizationId',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/comparative-visualization.html',
+                    controller: 'ComparativeVisualizationCtrl'
+                }
+            },
+            data: {
+                name: 'Comparative Visualization'
+            }
+        })
         .state('survey', {
             parent: 'home',
             url: 'survey/:surveyId/task/:taskId?',

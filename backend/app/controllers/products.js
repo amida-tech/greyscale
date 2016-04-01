@@ -392,7 +392,8 @@ module.exports = {
                         indexId: indexId,
                         questionId: questionId,
                         weight: req.body[i].questionWeights[questionId].weight,
-                        type: req.body[i].questionWeights[questionId].type
+                        type: req.body[i].questionWeights[questionId].type,
+                        aggregateType: req.body[i].questionWeights[questionId].aggregateType
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                     bologger.log({
@@ -557,7 +558,8 @@ module.exports = {
                         subindexId: subindexId,
                         questionId: questionId,
                         weight: req.body[i].weights[questionId].weight,
-                        type: req.body[i].weights[questionId].type
+                        type: req.body[i].weights[questionId].type,
+                        aggregateType: req.body[i].weights[questionId].aggregateType
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                     bologger.log({
@@ -988,7 +990,7 @@ function* dumpProduct(req, productId) {
           '  "UnitOfAnalysis"."ISO2", ' +
           "  format('{%s}', " +
           "    string_agg(format('\"%s\":%s', " +
-          '      "SurveyQuestions".id, ' +
+          '      "SurveyQuestions".id, ' + 
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
           '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
@@ -1076,10 +1078,14 @@ function* getSubindexes(req, productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
           '      "SubindexWeights"."questionId", ' +
           '      "SubindexWeights"."weight", ' +
-          '      "SubindexWeights"."type" ' +
+          '      "SubindexWeights"."type", ' +
+          '      CASE ' +
+          '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
+          '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
+          '      END ' +
           "    ), ',') " +
           '  ) AS "weights" ' +
           'FROM ' +
@@ -1108,10 +1114,14 @@ function* getIndexes(req, productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
         '      "IndexQuestionWeights"."questionId", ' +
         '      "IndexQuestionWeights"."weight", ' +
-        '      "IndexQuestionWeights"."type" ' +
+        '      "IndexQuestionWeights"."type", ' +
+        '      CASE ' +
+        '        WHEN "IndexQuestionWeights"."aggregateType" is null THEN \'null\' ' +
+        '        ELSE format(\'"%s"\', "IndexQuestionWeights"."aggregateType") ' +
+        '      END ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
@@ -1183,7 +1193,6 @@ function* parseNumericalAnswer(raw, questionType) {
     }
     return parsed;
 }
-
 function sum(arr) {
     return arr.reduce(function (s, v) { return s + v; });
 }
@@ -1191,6 +1200,7 @@ function sum(arr) {
 function avg(arr) {
     return sum(arr)/arr.length;
 }
+
 function filterData(data, questions, indexes, subindexes, allQuestions) {
     // only return questions for which at least one UOA has an answer
     var questionsPresent = new Set();
@@ -1312,15 +1322,12 @@ function calcTerm(weights, vals, minsMaxes) {
         var val = vals[id];
 
         if (val && val.constructor === Array) {
-            /*
             if (weight.aggregateType === "average") { // average
                 val = avg(val);
             } else { // sum
                 weight.aggregateType = 'sum';
                 val = sum(val);
-            }*/
-            weight.aggregateType = 'sum';
-            val = sum(val);
+            }
         }
 
         if (weight.type === 'value') { // raw value
@@ -1363,7 +1370,6 @@ function* aggregateIndexes(req, productId, allQuestions) {
         }
         return qs;
     }));
-    console.log(qMinsMaxes);
 
     // calculate subindexes
     for (var i = 0; i < data.length; i++) {

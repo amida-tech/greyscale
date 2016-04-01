@@ -353,6 +353,7 @@
                 "TITLE": "",
                 "VALUE": "",
                 "WEIGHTS": {
+                    "AGGREGATE_TYPE": "",
                     "FIELD": "",
                     "QUESTION": "",
                     "TYPE": "",
@@ -693,6 +694,7 @@
         "MODAL_TITLE": "",
         "MODAL_TITLE_CREATE": "",
         "TITLE": "",
+        "TYPE": "",
         "VISUALIZATIONS": ""
     },
     "WORKFLOW_STEPS": {
