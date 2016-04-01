@@ -104,20 +104,19 @@ module.exports = {
                 ComparativeVisualization.id.equals(req.params.id)
             ));
 
-            // drop existing ComparativeVisualizationProducts
-            yield thunkQuery(ComparativeVisualizationProduct.delete().where(
-                ComparativeVisualizationProduct.visualizationId.equals(req.params.id)
-            ));
+            // drop existing ComparativeVisualizationProducts and insert new ones
+            // do in one transaction to prevent pkey conflicts with ~simultaneous requests
+            var q = 'BEGIN; ';
+            q += 'DELETE FROM "ComparativeVisualizationProducts" ' +
+                    'WHERE "ComparativeVisualizationProducts"."visualizationId" = ' + req.params.id + '; ';
 
             // insert new ones
-            var products = req.body.products || [];
-            for (var i = 0; i < products.length; i++) {
-                yield thunkQuery(ComparativeVisualizationProduct.insert({
-                    visualizationId: req.params.id,
-                    productId: products[i].productId,
-                    indexId: products[i].indexId
-                }));
-            }
+            (req.body.products || []).forEach(function (product) {
+                q += 'INSERT INTO "ComparativeVisualizationProducts" ("visualizationId", "productId", "indexId")' +
+                    "VALUES ('" + req.params.id + "', '" + product.productId + "', '" + product.indexId + "'); ";
+            });
+            q += 'COMMIT; ';
+            yield thunkQuery(q);
         }).then(function () {
             res.status(202).end();
         }, function (err) {

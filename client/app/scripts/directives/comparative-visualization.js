@@ -13,6 +13,7 @@ angular.module('greyscaleApp')
                 // target selection
                 scope.targets = [];
                 scope.selectedTargets = [];
+                scope.initialSelectedTargets = null;
 
                 // DATASOURCE SELECTION
                 scope.datasources = {
@@ -70,7 +71,6 @@ angular.module('greyscaleApp')
                         }, {
                             icon: 'fa-trash',
                             handler: function (row) {
-                                // TODO delete datasets as well
                                 var i;
                                 if (row.product) {
                                     for (i = 0; i < scope.datasources.products.length; i++) {
@@ -205,7 +205,6 @@ angular.module('greyscaleApp')
                         });
                     });
                     if (!_.isEqual(newValue, oldValue)) {
-                        console.log(newValue, oldValue);
                         var promises = [];
                         // aggregate data for each product
                         scope.datasources.products.forEach(function (product) {
@@ -254,22 +253,26 @@ angular.module('greyscaleApp')
                         // sort by name
                         return target.name;
                     });
-                    // select prior currently selected
-                    scope.selectedTargets = scope.targets.map(function (target) {
-                        target.selected = selected.has(target.id);
-                        return target;
-                    });
 
-                    // initial load
-                    if (scope.initialSelectedTargets !== null) {
+                    if (scope.initialSelectedTargets !== null) { // initial load
                         selected = new Set(scope.initialSelectedTargets);
                         // isteven-multi-select requires us to set selection by modifying
                         // input model and setting 'selected'
-                        scope.selectedTargets = scope.targets.map(function (target) {
+                        scope.targets.map(function (target) {
                             target.selected = selected.has(target.id);
                             return target;
                         });
                         scope.initialSelectedTargets = null;
+                    } else if (data.length === 1 && Array.from(selected).length === 0) { // select all targets on adding first product
+                        scope.targets.map(function (target) {
+                            target.selected = true;
+                            return target;
+                        });
+                    } else { // select prior currently selected
+                        scope.targets.map(function (target) {
+                            target.selected = selected.has(target.id);
+                            return target;
+                        });
                     }
 
                     scope.allData = data;
@@ -357,7 +360,6 @@ angular.module('greyscaleApp')
                 function _loadConfiguration(vizData) {
                     scope.visualizationTitle = vizData.title;
                     scope.model.title = vizData.title;
-                    scope.initialSelectedTargets = vizData.targetIds;
 
                     var productPromise = $q.all(vizData.products.map(function (datum) {
                         // product
@@ -373,6 +375,11 @@ angular.module('greyscaleApp')
                     // simultaneous assignment to scope.datasources so watch expression only fires once
                     // ensures targets set to initalSelectedTargets on initial load
                     return $q.all([productPromise, datasetPromise]).then(function (result) {
+                        // only set initialSelectedTargets if there are datasets present (so we can
+                        // initialize targets to all targets when first dataset added)
+                        if (result[0].length > 0 || result[1].length > 0) {
+                            scope.initialSelectedTargets = vizData.targetIds;
+                        }
                         scope.datasources = {
                             products: result[0],
                             datasets: result[1]
