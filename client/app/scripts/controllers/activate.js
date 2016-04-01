@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ActivateCtrl', function ($scope, greyscaleUserApi, $state, $stateParams, inform, greyscaleRealmSrv, $log) {
+    .controller('ActivateCtrl', function ($scope, greyscaleUserApi, $state, $stateParams, inform, greyscaleRealmSrv) {
         var _realm = $stateParams.realm;
         greyscaleRealmSrv.init(_realm);
         greyscaleUserApi.checkActivationToken($stateParams.token)

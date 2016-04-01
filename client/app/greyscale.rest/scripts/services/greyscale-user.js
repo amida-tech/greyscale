@@ -69,7 +69,7 @@ angular.module('greyscale.rest')
         }
 
         function _activate(token, data) {
-            return Restangular.one('users').one('activate', token).customPOST(data);
+            return userAPI().one('activate', token).customPOST(data);
         }
 
         function _listUsers(params, realm) {
