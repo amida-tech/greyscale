@@ -63,7 +63,7 @@ passport.use(new BasicStrategy({
 
                     for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
                         var user = yield * findUserInNamespace(req.schemas[i], email);
-                        debug(user);
+                        debug('Not superuser try to login to public:', user);
                         if (user[0]) {
                             userInNamespace.push({
                                 realm: req.schemas[i],
@@ -178,7 +178,9 @@ passport.use(new TokenStrategy({
                 throw new HttpError(500, 'Database error '+err);
             }
 
-            debug(user);
+            debug('======= TokenStrategy =======');
+            debug('User: ', JSON.stringify(user));
+            debug ('realm: ', req.params.realm );
 
             if (!user) {
                 req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
@@ -195,6 +197,14 @@ passport.use(new TokenStrategy({
                 )
                 .where(User.id.equals(user.id))
             );
+
+            // add realmUserId to user
+            user.realmUserId = user.id;
+            if (user.roleID === 1 && req.params.realm !== 'public') {
+                // superuser
+                user.realmUserId = yield* getRealmAdminId(req, req.params.realm);
+            }
+            debug ('userId, realmUserId, realm)', user.id, user.realmUserId, req.params.realm );
 
             return _.pick(user, User.sesInfo);
 
@@ -269,6 +279,13 @@ passport.use(new TokenStrategy({
 
         }
 
+        function * getRealmAdminId(req, realm){
+            var clientThunkQuery = thunkify(new Query(realm));
+            var data =  yield clientThunkQuery(Organization.select(Organization.adminUserId).from(Organization).where(Organization.realm.equals(realm)));
+            return (data[0] ? data[0].adminUserId : null);
+
+        }
+
     }
 ));
 
@@ -283,7 +300,7 @@ module.exports = {
                     session: false
                 }, function (err, user, info) {
 
-                    debug(user);
+                    debug('Authenticate if Possible:',user);
 
                     if (user) {
                         req.user = user;

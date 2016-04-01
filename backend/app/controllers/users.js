@@ -285,7 +285,7 @@ module.exports = {
             var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.id,
+                    userFrom: req.user.realmUserId,
                     userTo: userId,
                     body: 'Invite',
                     essenceId: essenceId,
@@ -404,7 +404,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
@@ -481,7 +481,7 @@ module.exports = {
                 newUserId = userId[0].id;
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'insert',
                     object: 'users',
                     entity: newUserId,
@@ -493,7 +493,7 @@ module.exports = {
             var notifyLevel = 2; // ToDo: Default - need specify
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.id,
+                    userFrom: req.user.realmUserId,
                     userTo: newUserId,
                     body: 'Invite',
                     essenceId: essenceId,
@@ -551,7 +551,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: {
@@ -581,7 +581,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: {
@@ -615,7 +615,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: data,
@@ -666,7 +666,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: data,
@@ -717,7 +717,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'update',
                     object: 'users',
                     entity: req.params.id,
@@ -729,7 +729,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'userGroups',
                 entities: userGroups4delete,
@@ -751,7 +751,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.id,
+                    user: req.user.realmUserId,
                     action: 'insert',
                     object: 'userGroups',
                     entities: groupObjs,
@@ -777,7 +777,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'users',
                 entity: req.params.id,
@@ -863,7 +863,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'update',
                 object: 'users',
                 entity: req.user.id,
@@ -890,7 +890,7 @@ module.exports = {
                 var update = yield thunkQuery(User.update(userToSave).where(User.email.equals(req.body.email)).returning(User.resetPasswordToken));
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: user.id,
+                    user: user.realmUserId,
                     action: 'update',
                     object: 'users',
                     entity: user.id,
@@ -905,8 +905,8 @@ module.exports = {
                     var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
                     var note = yield * notifications.createNotification(req,
                         {
-                            userFrom: user.id,  // ToDo: userFrom???
-                            userTo: user.id,
+                            userFrom: user.realmUserId,  // ToDo: userFrom???
+                            userTo: user.realmUserId,
                             body: 'Indaba. Restore password',
                             essenceId: essenceId,
                             entityId: user.id,
@@ -1100,7 +1100,7 @@ function* insertOne(req, res, next) {
     var user = yield thunkQuery(User.insert(req.body).returning(User.id));
     bologger.log({
         req: req,
-        user: req.user.id,
+        user: req.user.realmUserId,
         action: 'insert',
         object: 'users',
         entity: _.first(user).id,
@@ -1114,8 +1114,8 @@ function* insertOne(req, res, next) {
         var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(req,
             {
-                userFrom: user.id,  // ToDo: userFrom???
-                userTo: user.id,
+                userFrom: user.realmUserId,  // ToDo: userFrom???
+                userTo: user.realmUserId,
                 body: 'Thank you for registering at Indaba',
                 essenceId: essenceId,
                 entityId: user.id,

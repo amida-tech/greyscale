@@ -38,7 +38,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'AccessMatrices',
                 entity: _.first(data).id,
@@ -69,7 +69,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'delete',
                 object: 'AccessPermissions',
                 entity: req.params.id,
@@ -101,7 +101,7 @@ module.exports = {
             debug(_.first(data));
             bologger.log({
                 req: req,
-                user: req.user.id,
+                user: req.user.realmUserId,
                 action: 'insert',
                 object: 'AccessPermissions',
                 entity: _.first(data).id,

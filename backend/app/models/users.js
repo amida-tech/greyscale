@@ -107,7 +107,7 @@ User.view = function(user){
     return _.pick(user, viewFields);
 };
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password'];
+User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password', 'realmUserId'];
 User.whereCol = columns;
 
 module.exports = User;
