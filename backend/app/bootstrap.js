@@ -22,6 +22,7 @@ var config = require('config'),
 
 var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
+debug.log = console.log.bind(console);
 
 app = require('express')();
 

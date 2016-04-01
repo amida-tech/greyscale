@@ -119,6 +119,10 @@ module.exports = {
     editOne: function (req, res, next) {
         var clientThunkQuery = req.thunkQuery;
 
+        if (req.params.realm == config.pgConnect.adminSchema) {
+            throw new HttpError(400, 'Incorrect realm');
+        }
+
         co(function* () {
             yield *checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
@@ -385,8 +389,6 @@ function* checkOrgData(req){
 
     var clientThunkQuery = thunkify(new Query(req.params.realm));
     var adminThunkQuery = thunkify(new Query(cpg.adminSchema));
-
-
 
     if (!req.params.id) { //create
         if (!req.body.name || !req.body.realm) {

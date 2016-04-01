@@ -32,6 +32,7 @@ var
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_products');
+debug.log = console.log.bind(console);
 
 module.exports = {
 

@@ -20,6 +20,7 @@ var
     Emailer = require('lib/mailer');
 
 var debug = require('debug')('debug_notifications');
+debug.log = console.log.bind(console);
 
 var socketController = require('app/socket/socket-controller.server');
 

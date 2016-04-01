@@ -34,6 +34,7 @@ var requestRights = 'ARRAY(' +
     ') AS rights';
 
 var debug = require('debug')('debug_auth');
+debug.log = console.log.bind(console);
 
 // Register strategy for Basic HTTP auth
 
@@ -269,7 +270,7 @@ passport.use(new TokenStrategy({
                                 User.id.equals(existToken[0].userID)
                             )
                     );
-                } else { // try to auth realm with token from other realm
+                } else { // try to auth with token from other realm
                     return false;
                 }
 

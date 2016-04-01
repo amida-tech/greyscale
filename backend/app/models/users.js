@@ -7,6 +7,7 @@ var vl = require('validator'),
     util = require('util');
 
 var debug = require('debug')('debug_models_users');
+debug.log = console.log.bind(console);
 
 var sql = require('sql');
 

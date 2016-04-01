@@ -28,6 +28,7 @@ var
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_survey_answers');
+debug.log = console.log.bind(console);
 
 module.exports = {
 

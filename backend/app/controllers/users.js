@@ -419,7 +419,12 @@ module.exports = {
     },
 
     selfOrganizationInvite: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+
+        if (req.params.realm == config.pgConnect.adminSchema) {
+            throw new HttpError(400, 'Incorrect realm');
+        }
+
+        var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
             if (req.body.roleID == 1) {
                 throw new HttpError(400, 'Superadmin user cannot be created');
@@ -437,30 +442,25 @@ module.exports = {
             }
             var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
             isExistUser = _.first(isExistUser);
+
             if (isExistUser && isExistUser.isActive) {
                 throw new HttpError(400, 'User with this email has already registered');
             }
 
-            var org;
-            if(req.user.roleID === 1){
-                org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.body.organizationId)));
-                org = _.first(org);
-                if (!org) {
-                    throw new HttpError(400, 'Organization with id = ' + req.body.organizationId + ' does not exist');
-                }
-            }else{
-                org = yield thunkQuery(Organization.select().where(Organization.adminUserId.equals(req.user.id)));
-                org = _.first(org);
-                if (!org) {
-                    throw new HttpError(400, 'You dont have any organizations');
-                }
+            var org = yield thunkQuery(
+                Organization.select().where(Organization.realm.equals(req.params.realm))
+            );
+
+            if(!org[0]){
+                throw new HttpError(404, 'Organization not found');
             }
+
+            var org = org[0];
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
-
 
             var newClient;
             var newUserId = isExistUser ? isExistUser.id : 0;
@@ -487,10 +487,13 @@ module.exports = {
                     entity: newUserId,
                     info: 'Add new user (org invite)'
                 });
+            }else {
+                newClient = isExistUser;
             }
 
             var essenceId = yield * getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify
+
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId,
