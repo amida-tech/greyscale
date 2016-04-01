@@ -16,6 +16,7 @@ var Query = require('app/util').Query,
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_access_matrices');
+debug.log = console.log.bind(console);
 
 module.exports = {
 

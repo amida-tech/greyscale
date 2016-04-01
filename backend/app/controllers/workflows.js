@@ -16,6 +16,7 @@ var client = require('app/db_bootstrap'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_workflows');
+debug.log = console.log.bind(console);
 
 module.exports = {
 

@@ -34,6 +34,7 @@ var requestRights = 'ARRAY(' +
     ') AS rights';
 
 var debug = require('debug')('debug_auth');
+debug.log = console.log.bind(console);
 
 // Register strategy for Basic HTTP auth
 
