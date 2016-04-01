@@ -51,7 +51,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('activate', {
             parent: 'main',
-            url: '/activate/:token',
+            url: '/activate/:realm/:token',
             views: {
                 'body@main': {
                     templateUrl: 'views/controllers/activation.html',

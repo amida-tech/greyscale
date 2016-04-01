@@ -65,7 +65,7 @@ angular.module('greyscale.rest')
         }
 
         function _checkActivationToken(token) {
-            return Restangular.one('users').one('activate', token).get();
+            return userAPI().one('activate', token).get();
         }
 
         function _activate(token, data) {
