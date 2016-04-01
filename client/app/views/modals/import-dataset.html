@@ -36,6 +36,7 @@
                 <label for="uoaType" class="col-sm-2 control-label">Target Type</label>
                 <div class="col-sm-9">
                     <select class="form-control" ng-model="model.dataset.uoaType" name="uoaType">
+                        <option value="">Select Target Type</option>
                         <option value="ISO">ISO code</option>
                         <option value="ISO2">ISO2 code</option>
                         <option value="name">Full Name</option>
@@ -66,5 +67,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-success" ng-click="save()" ng-disabled="!model.dataset.cols || model.dataset.uoaCol === null || model.dataset.uoaType === null || model.dataset.dataCol === null" translate="COMMON.SAVE"></button>
+    <button class="btn btn-success" ng-click="save()" ng-disabled="!model.dataset.cols || model.dataset.uoaCol == null || model.dataset.uoaType == null || model.dataset.dataCol == null" translate="COMMON.SAVE"></button>
 </div>
