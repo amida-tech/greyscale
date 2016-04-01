@@ -262,7 +262,7 @@ var organizations = require('app/controllers/organizations');
 
 router.route('/:realm/v0.2/organizations')
     .get(authenticate('token').always, organizations.select)
-    .post(authenticate('token').always, organizations.insertOne);
+    .post(authenticate('token').always, checkRight('organization_new'), organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne)

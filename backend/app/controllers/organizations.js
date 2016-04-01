@@ -144,11 +144,15 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
         co(function* () {
             yield *checkOrgData(req);
-            var org = yield thunkQuery(
+            yield adminThunkQuery("SELECT clone_schema('sceleton','"+req.body.realm.toString()+"')");
+            
+            var cliientThunkQuery = thunkify(new Query(req.body.realm.toString()));
+
+            var org = yield cliientThunkQuery(
                 Organization
                 .insert(
                     _.pick(req.body, Organization.table._initialConfig.columns)
@@ -164,10 +168,8 @@ module.exports = {
                 info: 'Add organization'
             });
 
-
-
             // TODO creates project in background, may be need to disable in future
-            var project = yield thunkQuery(
+            var project = yield cliientThunkQuery(
                 Project.insert(
                     {
                         organizationId: org[0].id,
@@ -365,20 +367,45 @@ module.exports = {
 };
 
 function* checkOrgData(req){
-    var thunkQuery = req.thunkQuery;
+    var cpg = config.pgConnect;
+
+    var adminThunkQuery = thunkify(new Query(cpg.adminSchema));
+    var cliientThunkQuery = thunkify(new Query(req.params.realm));
 
     if (!req.params.id){ //create
-        if (!req.body.name) {
-            throw new HttpError(400, 'name field is required');
+        if (!req.body.name || !req.body.realm) {
+            throw new HttpError(400, 'name and realm fields are required');
         }
+    }else{
+        delete req.body.realm; // do not allow to edit realm
     }
-    if (req.body.adminUserId) {
-        var existUser = yield thunkQuery(
-            User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
-        );
-        if (!_.first(existUser)) {
-            throw new HttpError(403, 'User with this id does not exist');
-        }
+
+    var result = yield adminThunkQuery( 
+        "SELECT pg_catalog.pg_namespace.nspname " +
+        "FROM pg_catalog.pg_namespace " +
+        "INNER JOIN pg_catalog.pg_user " +
+        "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
+        "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
+    );
+
+    var schemas = [];
+
+    for (var i in result) {
+        schemas.push(result[i].nspname);
     }
+
+
+    if (schemas.indexOf(req.body.realm) != -1) {
+        throw new HttpError(400, 'Realm ' + req.body.realm + ' already exists');
+    }
+
+    // if (req.body.adminUserId) {
+    //     var existUser = yield thunkQuery(
+    //         User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
+    //     );
+    //     if (!_.first(existUser)) {
+    //         throw new HttpError(403, 'User with this id does not exist');
+    //     }
+    // }
 }
 
