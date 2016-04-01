@@ -106,7 +106,7 @@ angular.module('greyscale.core')
             if (!_profile) {
                 return;
             }
-            var checkRoles = Array.from(arguments);
+            var checkRoles = Array.prototype.slice.call(arguments);
             var hasAccess = false;
             angular.forEach(checkRoles, function (role) {
                 if (hasAccess) {
