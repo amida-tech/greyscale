@@ -933,7 +933,9 @@ module.exports = {
                 }
                 // found just one
                 user = userArr[0];
+
                 // set the right schema
+                req.params.realm = curRealm;
                 var clientThunkQuery = thunkify(new Query(curRealm));
             } else { // certain realm
                 var clientThunkQuery = thunkify(new Query(req.params.realm));
@@ -983,6 +985,7 @@ module.exports = {
                     {
                         userFrom: user.id,  // ToDo: userFrom???
                         userTo: user.id,
+                        realm: req.params.realm,
                         body: 'Indaba. Restore password',
                         essenceId: essenceId,
                         entityId: user.id,
@@ -1020,7 +1023,8 @@ module.exports = {
         });
 
     },
-    resetPassword: function (req, res, next) { // TODO realm???
+    resetPassword: function (req, res, next) { 
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield thunkQuery(
                 User.select().where(
