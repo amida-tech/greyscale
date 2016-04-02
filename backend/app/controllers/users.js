@@ -28,6 +28,8 @@ var client = require('app/db_bootstrap'),
     UOA = require('app/models/uoas'),
     Notification = require('app/models/notifications'),
     Essence = require('app/models/essences'),
+    mc = require('app/mc_helper'),
+    sql = require('sql'),
     notifications = require('app/controllers/notifications');
 
 var Role = require('app/models/roles');
@@ -344,7 +346,7 @@ module.exports = {
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
-                //req: req, Does not use req if you want to use public namespace TODO realm?
+                req: req, 
                 user: _.first(updated).id,
                 action: 'update',
                 object: 'users',
@@ -879,52 +881,120 @@ module.exports = {
             next(err);
         });
     },
-    forgot: function (req, res, next) { //TODO realm??
+
+    forgot: function (req, res, next) {
         co(function* () {
-            var user = yield thunkQuery(User.select().where(User.email.equals(req.body.email)));
-            if (!_.first(user)) {
-                throw new HttpError(403, 'User with this email does not exist');
-            } else {
-                user = _.first(user);
-                var token = yield thunkrandomBytes(32);
-                token = token.toString('hex');
-                var userToSave = {};
-                userToSave.resetPasswordToken = token;
-                userToSave.resetPasswordExpires = Date.now() + 3600000;
+            
+            if (!req.body.email) {
+                throw new HttpError(400, 'Email field is required');
+            }
 
-                var update = yield thunkQuery(User.update(userToSave).where(User.email.equals(req.body.email)).returning(User.resetPasswordToken));
-                bologger.log({
-                    //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: user.realmUserId,
-                    action: 'update',
-                    object: 'users',
-                    entity: user.id,
-                    info: 'Password forgot'
-                });
+            var userArr = [];
 
-                if (!_.first(update)) {
-                    throw new HttpError(400, 'Cannot update user data');
-                } else {
-
-                    var essenceId = yield * getEssenceId(req, 'Users');
-                    var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-                    var note = yield * notifications.createNotification(req,
-                        {
-                            userFrom: user.realmUserId,  // ToDo: userFrom???
-                            userTo: user.realmUserId,
-                            body: 'Indaba. Restore password',
-                            essenceId: essenceId,
-                            entityId: user.id,
-                            notifyLevel: notifyLevel,
-                            name: user.firstName,
-                            surname: user.lastName,
-                            token: token,
-                            subject: 'Indaba. Restore password',
-                            config: config
-                        },
-                        'forgot'
+            if (req.params.realm == config.pgConnect.adminSchema) {
+                var userInRealm = [];
+                for (var i in req.schemas) { // search in all schemas
+                    var clientThunkQuery = thunkify(new Query(req.schemas[i]));
+                    var user = yield clientThunkQuery(
+                        User
+                        .select(
+                            User.star(),
+                            Role.name.as('role'),
+                            Organization.name.as('orgName')
+                        )
+                        .from(
+                            User
+                                .leftJoin(Role)
+                                .on(User.roleID.equals(Role.id))
+                                .join(Organization)
+                                .on(User.organizationId.equals(Organization.id))
+                        )
+                        .where(
+                            sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
+                        )
                     );
+
+                    if (user.length) {
+                        var curRealm = req.schemas[i];
+                        userInRealm.push({
+                            realm: req.schemas[i],
+                            orgName: user[0].orgName                                
+                        });
+                        userArr.push(user[0]);
+                    }
                 }
+                if (!userInRealm.length) {
+                    throw new HttpError(403, 'User with this email does not exist');
+                }
+
+                if (userInRealm.length > 1) {
+                    var result = [];
+                    throw new HttpError(300, userInRealm);
+                }
+                // found just one
+                user = userArr[0];
+                // set the right schema
+                var clientThunkQuery = thunkify(new Query(curRealm));
+            } else { // certain realm
+                var clientThunkQuery = thunkify(new Query(req.params.realm));
+
+                var user = yield clientThunkQuery(
+                    User.select().where(User.email.equals(req.body.email))
+                );
+
+                if (!user.length) {
+                    throw new HttpError(403, 'User with this email does not exist');
+                }
+                user = user[0];
+            }
+            
+            var token = yield thunkrandomBytes(32);
+            token = token.toString('hex');
+            var userToSave = {
+                resetPasswordToken : token,
+                resetPasswordExpires : Date.now() + 3600000
+            };
+
+            var update = yield clientThunkQuery(
+                User
+                    .update(userToSave)
+                    .where(User.email.equals(req.body.email))
+                    .returning(User.resetPasswordToken)
+            );
+
+            req.thunkQuery = clientThunkQuery;
+
+            bologger.log({
+                req: req,
+                user: user.realmUserId,
+                action: 'update',
+                object: 'users',
+                entity: user.id,
+                info: 'Password forgot'
+            });
+
+            if (!_.first(update)) {
+                throw new HttpError(400, 'Cannot update user data');
+            } else {
+
+                var essenceId = yield * getEssenceId(req, 'Users');
+                var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+                var note = yield * notifications.createNotification(req,
+                    {
+                        userFrom: user.id,  // ToDo: userFrom???
+                        userTo: user.id,
+                        body: 'Indaba. Restore password',
+                        essenceId: essenceId,
+                        entityId: user.id,
+                        notifyLevel: notifyLevel,
+                        name: user.firstName,
+                        surname: user.lastName,
+                        token: token,
+                        subject: 'Indaba. Restore password',
+                        config: config
+                    },
+                    'forgot'
+                );
             }
         }).then(function (data) {
             res.status(200).end();

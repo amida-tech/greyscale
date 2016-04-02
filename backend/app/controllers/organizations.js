@@ -167,6 +167,12 @@ module.exports = {
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
 
+            try{ // reset schemas cache
+                var schemas = yield mc.set(req.mcClient, 'schemas', null);
+            }catch(e){
+                throw new HttpError(500, e);
+            }
+
             req.thunkQuery = clientThunkQuery; // Do this because of bologger
 
             var org = yield clientThunkQuery(
