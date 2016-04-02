@@ -284,7 +284,7 @@ module.exports = {
 
             userId = isExistUser ? isExistUser.id : _.first(userId).id;
 
-            var essenceId = yield * getEssenceId(req, 'Users');
+            var essenceId = yield * common.getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(req,
                 {
@@ -313,7 +313,7 @@ module.exports = {
         });
     },
 
-    checkActivationToken: function (req, res, next) {  
+    checkActivationToken: function (req, res, next) {
         var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
             var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
@@ -347,7 +347,7 @@ module.exports = {
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
-                req: req, 
+                req: req,
                 user: _.first(updated).id,
                 action: 'update',
                 object: 'users',
@@ -885,7 +885,7 @@ module.exports = {
 
     forgot: function (req, res, next) {
         co(function* () {
-            
+
             if (!req.body.email) {
                 throw new HttpError(400, 'Email field is required');
             }
@@ -919,7 +919,7 @@ module.exports = {
                         var curRealm = req.schemas[i];
                         userInRealm.push({
                             realm: req.schemas[i],
-                            orgName: user[0].orgName                                
+                            orgName: user[0].orgName
                         });
                         userArr.push(user[0]);
                     }
@@ -950,7 +950,7 @@ module.exports = {
                 }
                 user = user[0];
             }
-            
+
             var token = yield thunkrandomBytes(32);
             token = token.toString('hex');
             var userToSave = {
@@ -1024,7 +1024,7 @@ module.exports = {
         });
 
     },
-    resetPassword: function (req, res, next) { 
+    resetPassword: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var user = yield thunkQuery(
