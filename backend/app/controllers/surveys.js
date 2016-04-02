@@ -325,14 +325,14 @@ function* checkSurveyData(req) {
     // else get projectId from req.user.projectId
 
     if (!req.params.id) { // create
-        if (req.user.roleID == 1) { // superadmin
-            var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-            if (!_.first(project)) {
-                throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
-            }
-        } else {
+        //if (req.user.roleID == 1) { // superadmin
+        //    var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
+        //    if (!_.first(project)) {
+        //        throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
+        //    }
+        //} else {
             req.body.projectId = req.user.projectId;
-        }
+        //}
 
         if (!req.body.title) {
             throw new HttpError(403, 'title field are required');

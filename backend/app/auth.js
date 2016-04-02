@@ -250,6 +250,25 @@ passport.use(new TokenStrategy({
                             User.id.equals(existToken[0].userID)
                         )
                 );
+                if (data[0]) { // user is ok
+                    // add projectId from realm
+                    if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
+                        var project =  yield clientThunkQuery(
+                            Project
+                                .select(
+                                Project.id.as('projectId')
+                            )
+                                .from(
+                                Project
+                                    .leftJoin(Organization).on(Project.organizationId.equals(Organization.id))
+                            )
+                        );
+                        if (project[0]) {
+                            data[0].projectId = project[0].projectId;
+                        }
+
+                    }
+                }
             } else {
                 if (existToken[0].realm == req.params.realm) {
                     var data =  yield clientThunkQuery(
