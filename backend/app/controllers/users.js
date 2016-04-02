@@ -2,6 +2,7 @@ var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     crypto = require('crypto'),
     config = require('config'),
+    common = require('app/queries/common'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     User = require('app/models/users'),
@@ -327,7 +328,7 @@ module.exports = {
         });
     },
 
-    activate: function (req, res, next) {  
+    activate: function (req, res, next) {
         var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
             var isExist = yield thunkQuery(User.select(User.star()).from(User).where(User.activationToken.equals(req.params.token)));
@@ -979,7 +980,7 @@ module.exports = {
                 throw new HttpError(400, 'Cannot update user data');
             } else {
 
-                var essenceId = yield * getEssenceId(req, 'Users');
+                var essenceId = yield * common.getEssenceId(req, 'Users');
                 var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
                 var note = yield * notifications.createNotification(req,
                     {
@@ -1189,7 +1190,7 @@ function* insertOne(req, res, next) {
     if (_.first(user)) {
         user = _.first(user);
 
-        var essenceId = yield * getEssenceId(req, 'Users');
+        var essenceId = yield * common.getEssenceId(req, 'Users');
         var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(req,
             {
@@ -1208,15 +1209,4 @@ function* insertOne(req, res, next) {
         );
     }
     return user;
-}
-
-function* getEssenceId(req, essenceName) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(
-        Essence.select().where(Essence.tableName.equals(essenceName))
-    );
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence `'+essenceName+'"');
-    }
-    return result[0].id;
 }
