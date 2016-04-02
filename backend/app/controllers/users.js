@@ -344,7 +344,7 @@ module.exports = {
             };
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
-                //req: req, Does not use req if you want to use public namespace TODO realm?
+                req: req,
                 user: _.first(updated).id,
                 action: 'update',
                 object: 'users',
