@@ -107,7 +107,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('reset', {
             parent: 'main',
-            url: '/reset/:token',
+            url: '/reset/:realm/:token',
             views: {
                 'body@main': {
                     templateUrl: 'views/controllers/login.html',

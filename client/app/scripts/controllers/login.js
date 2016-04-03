@@ -4,7 +4,13 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv) {
+    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv, greyscaleRealmSrv, $log) {
+        var _realm = $stateParams.realm;
+
+        if (_realm) {
+            greyscaleRealmSrv.init(_realm);
+        }
+
         $scope.model = {
             state: $state.current.name,
             token: $stateParams.token
