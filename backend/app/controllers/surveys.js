@@ -127,7 +127,8 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
-            var updateObj = _.pick(req.body, Survey.editCols);
+            var updateObj = req.body;
+            updateObj = _.pick(updateObj, Survey.editCols);
 
             if(Object.keys(updateObj).length){
                 yield thunkQuery(
@@ -144,7 +145,45 @@ module.exports = {
                     info: 'Update survey'
                 });
             }
-        }).then(function (data) {
+            // delete all SurveyQuestions and SurveyQuestionOptions
+            var questions = yield thunkQuery(
+                SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id))
+            );
+            if (questions.length) {
+                for (var i in questions) {
+                    yield thunkQuery(
+                        SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
+                    ); // delete options
+                    bologger.log({
+                        req: req,
+                        user: req.user.realmUserId,
+                        action: 'delete',
+                        object: 'SurveyQuestionOptions',
+                        entities: {questionId: questions[i].id},
+                        quantity: 1,
+                        info: 'Delete survey question options for question '+questions[i].id
+                    });
+
+                    yield thunkQuery(
+                        SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
+                    ); // delete question
+                    bologger.log({
+                        req: req,
+                        user: req.user.realmUserId,
+                        action: 'delete',
+                        object: 'SurveyQuestions',
+                        entity: questions[i].id,
+                        info: 'Delete survey question'
+                    });
+                }
+            }
+            // add SurveyQuestions and SurveyQuestionOptions
+            if (req.body.questions) {
+                for (var i in req.body.questions) {
+                    var question = yield* addQuestion(req, req.body.questions[i]);
+                }
+            }
+        }).then(function () {
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -361,6 +400,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
     }
 
     var surveyId = isCreate ? req.params.id : question.surveyId;
+    dataObj = _.extend(dataObj, {surveyId: surveyId});
 
     if (dataObj.type) {
         if (SurveyQuestion.types.indexOf(parseInt(dataObj.type)) === -1) {
