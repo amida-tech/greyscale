@@ -891,9 +891,11 @@ module.exports = {
             }
 
             var userArr = [];
+            req.schemas.push(config.pgConnect.adminSchema);
 
             if (req.params.realm == config.pgConnect.adminSchema) {
                 var userInRealm = [];
+
                 for (var i in req.schemas) { // search in all schemas
                     var clientThunkQuery = thunkify(new Query(req.schemas[i]));
                     var user = yield clientThunkQuery(
@@ -907,7 +909,7 @@ module.exports = {
                             User
                                 .leftJoin(Role)
                                 .on(User.roleID.equals(Role.id))
-                                .join(Organization)
+                                .leftJoin(Organization)
                                 .on(User.organizationId.equals(Organization.id))
                         )
                         .where(
@@ -1006,7 +1008,9 @@ module.exports = {
             next(err);
         });
     },
-    checkRestoreToken: function (req, res, next) { // TODO realm???
+    checkRestoreToken: function (req, res, next) { 
+        thunkQuery = thunkify(new Query(req.params.realm));
+
         co(function* (){
             var user = yield thunkQuery(
                 User.select().where(
