@@ -32,9 +32,11 @@ Indaba puts your stakeholder and expert network at your fingertips. It converts 
 
 ##Prerequisites
 ###Backend
-- Node.js (v0.11 - we recommend using [node version manager](https://github.com/creationix/nvm))
+- Node.js (v5 - we recommend using [node version manager](https://github.com/creationix/nvm))
 - PostgreSQL
-- pgAdmin
+- pgAdmin (optional)
+- memcached
+- nginx (for server deployment)
 
 ###Frontend
 - Ruby
