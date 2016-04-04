@@ -5,10 +5,13 @@ angular.module('greyscaleApp')
 
     $scope.model = {};
 
-    Organization.$watch('projectId', $scope, _renderProducts);
+    Organization.$watch('realm', $scope, _renderProducts);
 
     function _renderProducts() {
         var projectId = Organization.projectId;
+        if (!projectId) {
+            return;
+        }
         greyscaleProjectApi.productsList(projectId)
             .then(function(products){
                 $scope.model.products = products;
