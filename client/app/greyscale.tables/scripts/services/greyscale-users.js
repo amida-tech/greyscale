@@ -141,7 +141,7 @@ angular.module('greyscale.tables')
              } else {
              */
             return _.filter(dicts.roles, function (o) {
-                return o.id !== greyscaleGlobals.userRoles.superAdmin.id;
+                return o.id !== greyscaleGlobals.userRoles.superAdmin.id && o.id >= dicts.profile.roleID;
             });
             /*
              }
