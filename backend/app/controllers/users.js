@@ -801,35 +801,41 @@ module.exports = {
     selectSelf: function (req, res, next) {
         if (req.user.roleID == 1) { //admin
             var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+
+            var q = User
+                .select(
+                    User.star()
+                )
+                .from(
+                    User
+                )
+                .where(User.id.equals(req.user.id));
         } else {
             var thunkQuery = thunkify(new Query(req.params.realm));
-        }
 
-        co(function* (){
             var rightsReq =
                 'ARRAY(' +
-                    ' SELECT "Rights"."action" FROM "RolesRights" ' +
-                    ' LEFT JOIN "Rights"' +
-                    ' ON ("RolesRights"."rightID" = "Rights"."id")' +
-                    ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
+                ' SELECT "Rights"."action" FROM "RolesRights" ' +
+                ' LEFT JOIN "Rights"' +
+                ' ON ("RolesRights"."rightID" = "Rights"."id")' +
+                ' WHERE "RolesRights"."roleID" = "Users"."roleID"' +
                 ') AS rights';
             var groupReq =
                 'ARRAY(' +
-                    'SELECT "UserGroups"."groupId" ' +
-                    'FROM "UserGroups" ' +
-                    'WHERE "UserGroups"."userId" = "Users"."id"' +
+                'SELECT "UserGroups"."groupId" ' +
+                'FROM "UserGroups" ' +
+                'WHERE "UserGroups"."userId" = "Users"."id"' +
                 ') as "usergroupId"';
 
             var projectReq =
                 '(' +
-                    'SELECT "Projects"."id" ' +
-                    'FROM "Projects" ' +
-                    'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
-                    'LIMIT 1' +
+                'SELECT "Projects"."id" ' +
+                'FROM "Projects" ' +
+                'WHERE "Projects"."organizationId" = "Users"."organizationId" ' +
+                'LIMIT 1' +
                 ') as "projectId"';
 
-            return yield thunkQuery(
-                User
+            var q = User
                 .select(
                     User.star(),
                     rightsReq,
@@ -839,11 +845,16 @@ module.exports = {
                 )
                 .from(
                     User
-                    .leftJoin(Organization)
-                    .on(User.organizationId.equals(Organization.id))
+                        .leftJoin(Organization)
+                        .on(User.organizationId.equals(Organization.id))
                 )
-                .where(User.id.equals(req.user.id))
-            );
+                .where(User.id.equals(req.user.id));
+
+
+        }
+
+        co(function* (){
+            return yield thunkQuery(q);
         }).then(function (data) {
             res.json(User.view(data[0]));
         }, function (err) {

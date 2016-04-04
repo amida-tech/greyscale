@@ -232,6 +232,9 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
+            debug('Token realm = ' + existToken[0].realm);
+            debug('Admin schema = ' + config.pgConnect.adminSchema);
+
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
                     User
