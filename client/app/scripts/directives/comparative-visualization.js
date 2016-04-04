@@ -162,6 +162,8 @@ angular.module('greyscaleApp')
                                         if (dataset.id in scope.datasetsData) {
                                             delete scope.datasetsData[dataset.id];
                                         }
+
+                                        break;
                                     }
                                 }
 
@@ -345,7 +347,7 @@ angular.module('greyscaleApp')
                         products: products,
                         title: scope.visualizationTitle,
                         targetIds: scope.selectedTargets.map(function (target) {
-                            return target.id
+                            return target.id;
                         })
                     };
                 }
@@ -398,7 +400,7 @@ angular.module('greyscaleApp')
                 // VISUALIZATION
                 var layout = {
                     vPadding: 10,
-                    hPadding: 0,
+                    hPadding: 10,
                     targets: {
                         hPadding: 12.5,
                         vPadding: 12.5,
@@ -467,8 +469,17 @@ angular.module('greyscaleApp')
                             return target.val;
                         });
                     }));
+                    var start = _.min(vals);
+                    var end = _.max(vals);
+                    var scaleStart = start;
+                    var scaleEnd = end;
+                    // if only one value in data, center it in color scale
+                    if (start === end) {
+                        scaleStart = start - 1;
+                        scaleEnd = end + 1;
+                    }
                     var color = d3.scale.linear()
-                        .domain([_.min(vals), _.max(vals)])
+                        .domain([scaleStart, scaleEnd])
                         .range(layout.colors);
 
                     var svg = d3.select('svg');
@@ -556,13 +567,26 @@ angular.module('greyscaleApp')
                     var scale = svg.select('#scale')
                         .attr('transform', 'translate(' + vizWidth + ', ' + vOffset + ')');
                     vizWidth += l.colorWidth + l.innerPadding;
+
                     var pos = d3.scale.linear() // position encoder
                         .domain(color.domain())
                         .range([0, axisHeight]);
+                    // make sure domain ends displayed
+                    if (start === end) {
+                        var tickVals = [];
+                    } else {
+                        var tickVals = pos.ticks(5);
+                    }
+                    if (isFinite(start)) {
+                        tickVals.push(start);
+                    }
+                    if (isFinite(end)) {
+                        tickVals.push(end);
+                    }
                     var axis = d3.svg.axis()
                         .scale(pos)
                         .orient('right')
-                        .ticks(5);
+                        .tickValues(tickVals);
 
                     // colored scale
                     var gradient = svg.select('defs')
