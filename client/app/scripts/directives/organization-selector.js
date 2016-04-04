@@ -82,7 +82,7 @@ angular.module('greyscaleApp')
                             $scope.organizationChanged();
                         });
                     } else {
-                        $scope.model.organization = profile.organization;
+                        $scope.model.organization = profile.organization || {};
                         $scope.model.organization.projectId = profile.projectId;
                         $scope.organizationChanged();
                     }
