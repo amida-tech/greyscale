@@ -19,6 +19,9 @@ var client = require('app/db_bootstrap'),
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_uoas');
+debug.log = console.log.bind(console);
+
 module.exports = {
 
     selectOrigLanguage: function (req, res, next) {
@@ -163,7 +166,7 @@ module.exports = {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
-                        resolve(data);
+                        resolve(data.replace(new RegExp('\'','g'), '`'));
                     });
                 }else{
                     reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
@@ -195,133 +198,148 @@ module.exports = {
                 if (parsed.length < 1) {
                     return result;
                 }
-                for (var i=0;i<parsed.length;i++) {
-                    if (i !== 0) { // skip first string
-                        var newUoa = {
-                            parse_status   : 'skipped',
-                            name           : parsed[i][0],
-                            description    : parsed[i][1],
-                            shortName      : parsed[i][2],
-                            ISO            : parsed[i][3],
-                            ISO2           : parsed[i][4],
-                            nameISO        : parsed[i][5],
-                            uoaType        : intOrNull(parsed[i][6]), // default `Country` (id=1)
-                            visibility	   : intOrNull(parsed[i][7]), // 1 = public (default); 2 = private;
-                            status	       : intOrNull(parsed[i][8]), // 1 = active (default); 2 = inactive; 3 = deleted;
-                            langId         : intOrNull(parsed[i][9]), // default EN
-                            parentId	   : intOrNull(parsed[i][10]),
-                            gadmId0        : intOrNull(parsed[i][11]),
-                            gadmId1        : intOrNull(parsed[i][12]),
-                            gadmId2        : intOrNull(parsed[i][13]),
-                            gadmId3        : intOrNull(parsed[i][14]),
-                            gadmObjectId   : intOrNull(parsed[i][15]),
-                            HASC           : parsed[i][16],
-                            creatorId      : req.user.realmUserId, // add from realmUserId instead of user id
-                            ownerId        : req.user.realmUserId  // add from realmUserId instead of user id
-                        };
+            } catch(e) {
+                throw new HttpError(500, e);
+            }
+            for (var i=0;i<parsed.length;i++) {
+                if (i !== 0) { // skip first string
+                    var newUoa = {
+                        parse_status   : 'skipped',
+                        name           : parsed[i][0],
+                        description    : parsed[i][1],
+                        shortName      : parsed[i][2],
+                        ISO            : parsed[i][3],
+                        ISO2           : parsed[i][4],
+                        nameISO        : parsed[i][5],
+                        uoaType        : intOrNull(parsed[i][6]), // default `Country` (id=1)
+                        visibility	   : intOrNull(parsed[i][7]), // 1 = public (default); 2 = private;
+                        status	       : intOrNull(parsed[i][8]), // 1 = active (default); 2 = inactive; 3 = deleted;
+                        langId         : intOrNull(parsed[i][9]), // default EN
+                        parentId	   : intOrNull(parsed[i][10]),
+                        gadmId0        : intOrNull(parsed[i][11]),
+                        gadmId1        : intOrNull(parsed[i][12]),
+                        gadmId2        : intOrNull(parsed[i][13]),
+                        gadmId3        : intOrNull(parsed[i][14]),
+                        gadmObjectId   : intOrNull(parsed[i][15]),
+                        HASC           : parsed[i][16],
+                        creatorId      : req.user.realmUserId, // add from realmUserId instead of user id
+                        ownerId        : req.user.realmUserId  // add from realmUserId instead of user id
+                    };
 
-                        newUoa.messages = [];
-                        var valid = true;
-                        if (vl.isNull(newUoa.name)) {
-                            newUoa.messages.push('`Name` must not be empty');
+                    newUoa.messages = [];
+                    debug(newUoa);
+                    var valid = true;
+                    if (vl.isNull(newUoa.name)) {
+                        newUoa.messages.push('`Name` must not be empty');
+                    }else{
+                        var isExist = yield thunkQuery(UnitOfAnalysis.select().where(UnitOfAnalysis.name.equals(newUoa.name)));
+                        if (isExist[0]) {
+                            newUoa.messages.push('Already exists');
+                            valid = false;
                         }else{
-                            var isExist = yield thunkQuery(UnitOfAnalysis.select().where(UnitOfAnalysis.name.equals(newUoa.name)));
-                            if (isExist[0]) {
-                                newUoa.messages.push('Already exists');
-                                valid = false;
-                            }else{
-                                // Validate and Set DEFAULT
-                                // unitOfAnalysisType
-                                if (!newUoa.uoaType) {
-                                    // default `Country` (id=1)
-                                    ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.name.equals('Country')));
-                                    if (ret[0]) {
-                                        newUoa.uoaType = ret[0].id;
-                                    } else {
-                                        newUoa.messages.push('Target Type `Country` (default) does not exist in database');
-                                        valid = false;
-                                    }
+                            // Validate and Set DEFAULT
+                            // unitOfAnalysisType
+                            if (!newUoa.uoaType) {
+                                // default `Country` (id=1)
+                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.name.equals('Country')));
+                                if (ret[0]) {
+                                    newUoa.uoaType = ret[0].id;
                                 } else {
-                                    // check that specified type Unit of Analysis is exist
-                                    ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.uoaType)));
-                                    if (!ret[0]) {
-                                        newUoa.messages.push('Target Type with Id `'+newUoa.uoaType.toString()+'` does not exist in database');
-                                        valid = false;
-                                    }
-                                }
-                                // visibility
-                                if (!newUoa.visibility) {
-                                    // 1 = public (default); 2 = private;
-                                    newUoa.visibility = 1;
-                                } else {
-                                    // check that specified visibility value is correct
-                                    if ([1,2].indexOf(newUoa.visibility) === -1) {
-                                        newUoa.messages.push('Target Visibility `'+newUoa.visibility.toString()+'` does not correct (1 = public (default); 2 = private)');
-                                        valid = false;
-                                    }
-                                }
-                                // status
-                                if (!newUoa.status) {
-                                    // 1 = active (default); 2 = inactive; 3 = deleted;
-                                    newUoa.status = 1;
-                                } else {
-                                    // check that specified status value is correct
-                                    if ([1,2,3].indexOf(newUoa.status) === -1) {
-                                        newUoa.messages.push('Target Status `'+newUoa.status.toString()+'` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
-                                        valid = false;
-                                    }
-                                }
-                                // langId
-                                if (!newUoa.langId) {
-                                    // default EN
-                                    ret = yield thunkQuery(Language.select().where(Language.code.equals('en')));
-                                    if (ret[0]) {
-                                        newUoa.langId = ret[0].id;
-                                    } else {
-                                        newUoa.messages.push('Language `en` (default) does not exist in database');
-                                        valid = false;
-                                    }
-                                } else {
-                                    // check that specified Language Id is exist
-                                    ret = yield thunkQuery(Language.select().where(Language.id.equals(newUoa.langId)));
-                                    if (!ret[0]) {
-                                        newUoa.messages.push('Language with Id `'+newUoa.langId.toString()+'` does not exist in database');
-                                        valid = false;
-                                    }
-                                }
-                                // shortName
-                                if (vl.isNull(newUoa.shortName)) {
-                                    newUoa.messages.push('`shortName` must not be empty');
+                                    newUoa.messages.push('Target Type `Country` (default) does not exist in database');
                                     valid = false;
                                 }
-                                // If valid, then created
-                                if (valid) {
-                                    var created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
-                                    if (created[0]) {
-                                        newUoa.id = created[0].id;
-                                        newUoa.parse_status = 'Ok';
-                                        newUoa.messages.push('Added');
-                                        bologger.log({
-                                            req: req,
-                                            user: req.user.realmUserId,
-                                            action: 'insert',
-                                            object: (!bologger.data.essence) ? 'UnitOfAnalysis' : null,
-                                            entity: created[0].id,
-                                            info: 'Add new uoa (bulk import)'
-                                        });
-                                    }
+                            } else {
+                                // check that specified type Unit of Analysis is exist
+                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.uoaType)));
+                                if (!ret[0]) {
+                                    newUoa.messages.push('Target Type with Id `'+newUoa.uoaType.toString()+'` does not exist in database');
+                                    valid = false;
                                 }
                             }
+                            // visibility
+                            if (!newUoa.visibility) {
+                                // 1 = public (default); 2 = private;
+                                newUoa.visibility = 1;
+                            } else {
+                                // check that specified visibility value is correct
+                                if ([1,2].indexOf(newUoa.visibility) === -1) {
+                                    newUoa.messages.push('Target Visibility `'+newUoa.visibility.toString()+'` does not correct (1 = public (default); 2 = private)');
+                                    valid = false;
+                                }
+                            }
+                            // status
+                            if (!newUoa.status) {
+                                // 1 = active (default); 2 = inactive; 3 = deleted;
+                                newUoa.status = 1;
+                            } else {
+                                // check that specified status value is correct
+                                if ([1,2,3].indexOf(newUoa.status) === -1) {
+                                    newUoa.messages.push('Target Status `'+newUoa.status.toString()+'` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
+                                    valid = false;
+                                }
+                            }
+                            // langId
+                            if (!newUoa.langId) {
+                                // default EN
+                                ret = yield thunkQuery(Language.select().where(Language.code.equals('en')));
+                                if (ret[0]) {
+                                    newUoa.langId = ret[0].id;
+                                } else {
+                                    newUoa.messages.push('Language `en` (default) does not exist in database');
+                                    valid = false;
+                                }
+                            } else {
+                                // check that specified Language Id is exist
+                                ret = yield thunkQuery(Language.select().where(Language.id.equals(newUoa.langId)));
+                                if (!ret[0]) {
+                                    newUoa.messages.push('Language with Id `'+newUoa.langId.toString()+'` does not exist in database');
+                                    valid = false;
+                                }
+                            }
+                            // shortName
+                            if (vl.isNull(newUoa.shortName)) {
+                                newUoa.messages.push('`shortName` must not be empty');
+                                valid = false;
+                            }
+                            // ISO
+                            if (newUoa.ISO !== '' && (!vl.isAlpha(newUoa.ISO) || !vl.isLength(newUoa.ISO, {min:3, max:3}))) {
+                                newUoa.messages.push('`ISO` must not be 3 alpha symbols');
+                                valid = false;
+                            }
+                            // ISO2
+                            if (newUoa.ISO2 !== '' && (!vl.isAlpha(newUoa.ISO2) || !vl.isLength(newUoa.ISO2, {min:2, max:2}))) {
+                                newUoa.messages.push('`ISO2` must not be 2 alpha symbols');
+                                valid = false;
+                            }
+                            // If valid, then created
+                            if (valid) {
+                                try{
+                                    var created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
+                                }catch(e){
+                                    newUoa.messages.push(e);
+                                    valid = false;
+                                }
+                            }
+
+                            if (valid && created[0]) {
+                                newUoa.id = created[0].id;
+                                newUoa.parse_status = 'Ok';
+                                newUoa.messages.push('Added');
+                                bologger.log({
+                                    req: req,
+                                    user: req.user.realmUserId,
+                                    action: 'insert',
+                                    object: (!bologger.data.essence) ? 'UnitOfAnalysis' : null,
+                                    entity: created[0].id,
+                                    info: 'Add new uoa (bulk import)'
+                                });
+                            }
                         }
-
-                        result.push(newUoa);
                     }
+                    result.push(newUoa);
                 }
-                return result;
-
-            } catch(e) {
-                throw e;
             }
+            return result;
 
         }).then(function (data) {
             res.json(data);
