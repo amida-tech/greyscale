@@ -92,7 +92,7 @@ module.exports = {
             var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
                 ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
             ));
-            if (!viz) {
+            if (!_.first(viz)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
@@ -265,7 +265,7 @@ module.exports = {
             var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
                 ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
             ));
-            if (!viz) {
+            if (!_.first(viz)) {
                 throw new HttpError(400, 'No such visualization');
             }
 
@@ -278,7 +278,7 @@ module.exports = {
                     .and(ImportedDataset.id.equals(req.params.datasetId))
                 )
             );
-            if (!dataset) {
+            if (!_.first(dataset)) {
                 throw new HttpError(400, 'No such dataset');
             }
             dataset = dataset[0];
@@ -354,7 +354,7 @@ module.exports = {
             var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
                 ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
             ));
-            if (!viz) {
+            if (!_.first(viz)) {
                 throw new HttpError(400, 'No such visualization');
             }
 
@@ -394,7 +394,7 @@ module.exports = {
             var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
                 ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
             ));
-            if (!viz) {
+            if (!_.first(viz)) {
                 throw new HttpError(400, 'No such visualization');
             }
 
@@ -417,7 +417,7 @@ module.exports = {
             var viz = yield thunkQuery(ComparativeVisualization.select(ComparativeVisualization.organizationId).where(
                 ComparativeVisualization.id.equals(req.params.id).and(ComparativeVisualization.organizationId.equals(req.params.organizationId))
             ));
-            if (!viz) {
+            if (!_.first(viz)) {
                 throw new HttpError(400, 'No such visualization');
             }
 
