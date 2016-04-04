@@ -4,9 +4,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleUsersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
+    .factory('greyscaleUsersTbl',
+    function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
         greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, greyscaleNotificationApi, greyscaleGroupApi) {
-        var accessLevel;
+        //var accessLevel;
 
         var tns = 'USERS.';
 
@@ -89,9 +90,9 @@ angular.module('greyscale.tables')
             title: 'COMMON.SEND_MESSAGE',
             viewHide: true,
             cellTemplate: '<div class="text-center">' +
-                '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
-                '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
-                '   </a></div>',
+            '   <a ng-click="ext.sendMessageTo(row); $event.stopPropagation()" class="action">' +
+            '       <i ng-if="ext.anotherUser(row)" class="fa fa-envelope"></i>' +
+            '   </a></div>',
             dataHide: true,
             cellTemplateExtData: {
                 anotherUser: _isAnotherUser,
@@ -134,13 +135,17 @@ angular.module('greyscale.tables')
         };
 
         function _getRoles() {
-            if (_isSuperAdmin()) {
-                return dicts.roles;
-            } else {
-                return _.filter(dicts.roles, function (o) {
-                    return o.id >= dicts.profile.roleID;
-                });
-            }
+            /*
+             if (_isSuperAdmin()) {
+             return dicts.roles;
+             } else {
+             */
+            return _.filter(dicts.roles, function (o) {
+                return o.id !== greyscaleGlobals.userRoles.superAdmin.id;
+            });
+            /*
+             }
+             */
         }
 
         function _getGroups(user) {
@@ -188,11 +193,14 @@ angular.module('greyscale.tables')
                         return greyscaleUserApi.update(newRec);
                     } else {
                         newRec.organizationId = _getOrganizationId();
-                        if (_isSuperAdmin()) {
-                            return greyscaleUserApi.inviteAdmin(newRec);
-                        } else if (_isAdmin()) {
-                            return greyscaleUserApi.inviteUser(newRec);
-                        }
+                        return greyscaleUserApi.inviteUser(newRec);
+                        /*
+                         if (_isSuperAdmin()) {
+                         return greyscaleUserApi.inviteAdmin(newRec);
+                         } else if (_isAdmin()) {
+                         return greyscaleUserApi.inviteUser(newRec);
+                         }
+                         */
                     }
                 })
                 .then(reloadTable)
@@ -224,7 +232,7 @@ angular.module('greyscale.tables')
         function reloadTable() {
             _table.tableParams.reload();
         }
-
+        /*
         function _isSuperAdmin() {
             return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
         }
@@ -232,7 +240,7 @@ angular.module('greyscale.tables')
         function _isAdmin() {
             return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
         }
-
+        */
         function _getOrganizationId() {
             return _table.dataFilter.organizationId;
         }
@@ -249,7 +257,7 @@ angular.module('greyscale.tables')
 
                 dicts.profile = profile;
 
-                accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+                //accessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
                 //var listFilter = {
                 //    organizationId: organizationId

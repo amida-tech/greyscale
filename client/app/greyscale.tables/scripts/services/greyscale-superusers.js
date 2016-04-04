@@ -6,11 +6,10 @@
 angular.module('greyscale.tables')
     .factory('greyscaleSuperusersTbl', function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleGroupApi, greyscaleUtilsSrv,
         greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, i18n, greyscaleNotificationApi, inform) {
-        var accessLevel;
 
         var tns = 'USERS.';
 
-        var _realm = greyscaleGlobals.realm;
+        var _realm = greyscaleGlobals.adminSchema;
 
         var dicts = {};
 
