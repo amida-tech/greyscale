@@ -16,6 +16,7 @@ var client = require('app/db_bootstrap'),
     detectLanguage = require('app/util').detectLanguage,
     query = new Query(),
     thunkify = require('thunkify'),
+    sql = require('sql'),
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
@@ -211,7 +212,7 @@ module.exports = {
                         ISO            : parsed[i][3],
                         ISO2           : parsed[i][4],
                         nameISO        : parsed[i][5],
-                        uoaType        : intOrNull(parsed[i][6]), // default `Country` (id=1)
+                        unitOfAnalysisType : intOrNull(parsed[i][6]), // default `Country`
                         visibility	   : intOrNull(parsed[i][7]), // 1 = public (default); 2 = private;
                         status	       : intOrNull(parsed[i][8]), // 1 = active (default); 2 = inactive; 3 = deleted;
                         langId         : intOrNull(parsed[i][9]), // default EN
@@ -239,20 +240,20 @@ module.exports = {
                         }else{
                             // Validate and Set DEFAULT
                             // unitOfAnalysisType
-                            if (!newUoa.uoaType) {
-                                // default `Country` (id=1)
-                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.name.equals('Country')));
+                            if (!newUoa.unitOfAnalysisType) {
+                                // default `Country`
+                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(sql.functions.UPPER(UnitOfAnalysisType.name).equals('COUNTRY')));
                                 if (ret[0]) {
-                                    newUoa.uoaType = ret[0].id;
+                                    newUoa.unitOfAnalysisType = ret[0].id;
                                 } else {
                                     newUoa.messages.push('Target Type `Country` (default) does not exist in database');
                                     valid = false;
                                 }
                             } else {
                                 // check that specified type Unit of Analysis is exist
-                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.uoaType)));
+                                ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.unitOfAnalysisType)));
                                 if (!ret[0]) {
-                                    newUoa.messages.push('Target Type with Id `'+newUoa.uoaType.toString()+'` does not exist in database');
+                                    newUoa.messages.push('Target Type with Id `'+newUoa.unitOfAnalysisType.toString()+'` does not exist in database');
                                     valid = false;
                                 }
                             }
