@@ -1008,7 +1008,7 @@ module.exports = {
             next(err);
         });
     },
-    checkRestoreToken: function (req, res, next) { 
+    checkRestoreToken: function (req, res, next) {
         thunkQuery = thunkify(new Query(req.params.realm));
 
         co(function* (){
@@ -1021,6 +1021,7 @@ module.exports = {
             if (!_.first(user)) {
                 throw new HttpError(403, 'Token expired or does not exist');
             }
+            return user;
         }).then(function(user){
             res.json(User.view(_.first(user)));
         }, function(err){
