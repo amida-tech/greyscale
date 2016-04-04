@@ -192,7 +192,58 @@ module.exports = {
 
     },
 
-    //invite: function (req, res, next) { // TODO realm?
+    invite: function (req, res, next) {
+        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+        co(function* () {
+
+            if (req.params.realm != config.pgConnect.adminSchema) {
+                throw new HttpError(400, 'Incorrect realm');
+            }
+
+            if (req.user.roleID != 1) {
+                throw new HttpError(403, 'You cannot invite super admins');
+            }
+
+            if (!req.body.email || !req.body.firstName) {
+                throw new HttpError(400, 'Email and First name fields are required');
+            }
+
+            if (!vl.isEmail(req.body.email)) {
+                throw new HttpError(400, 101);
+            }
+            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
+            isExistUser = _.first(isExistUser);
+
+            if (isExistUser) {
+                throw new HttpError(400, 'User with this email has already registered');
+            }
+
+            var activationToken = crypto.randomBytes(32).toString('hex');
+            var pass = crypto.randomBytes(5).toString('hex');
+
+            var newClient = {
+                'firstName': req.body.firstName,
+                'lastName': req.body.lastName,
+                'email': req.body.email,
+                'roleID': 1, // super admin
+                'password': User.hashPassword(pass),
+                'isActive': true,
+                //'activationToken': activationToken,
+                'isAnonymous' : false
+            };
+
+            var user = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+            return user;
+
+        }).then(function (data) {
+            res.json(data[0]);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    //invite: function (req, res, next) {
     //    co(function* () {
     //        if (!req.body.email || !req.body.firstName || !req.body.lastName) {
     //            throw new HttpError(400, 'Email, First name and Last name fields are required');
@@ -428,21 +479,16 @@ module.exports = {
 
     selfOrganizationInvite: function (req, res, next) {
 
-        if (req.user.roleID == 1) {
-            if (req.body.roleID != 1 && (req.params.realm == config.pgConnect.adminSchema)) { // in public only super
-                throw new HttpError(400, 'Role does not exist');
-            }
-        } else {
-            if (req.params.realm == config.pgConnect.adminSchema) {
-                throw new HttpError(400, 'Incorrect realm');
-            }
-            if (req.body.roleID > 3) {
-                throw new HttpError(400, 'Role does not exist');
-            }
+        if (req.params.realm == config.pgConnect.adminSchema) {
+            throw new HttpError(400, 'Incorrect realm');
         }
 
         var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
+
+            if (req.body.roleID == 1) {
+                throw new HttpError(400, 'You cannot invite super admins');
+            }
 
             if (!req.body.email || !req.body.firstName) {
                 throw new HttpError(400, 'Email and First name fields are required');
