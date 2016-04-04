@@ -14,6 +14,8 @@ angular.module('greyscaleApp')
                     error: null
                 };
 
+                $scope.loginChange = initForm;
+
                 $scope.submitLogin = function () {
                     if ($scope.loginForm.$valid) {
                         greyscaleUserApi.login($scope.model.login, $scope.model.password)
@@ -31,6 +33,13 @@ angular.module('greyscaleApp')
                         $scope.model.error = 'LOGIN.CHECK_LOGIN_PASSWORD';
                     }
                 };
+
+                function initForm() {
+                    angular.extend($scope.model, {
+                        realms: [],
+                        error: null
+                    });
+                }
             }
         };
     });

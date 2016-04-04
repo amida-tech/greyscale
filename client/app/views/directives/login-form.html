@@ -6,7 +6,7 @@
 
                 <div class="col-sm-8">
                     <input type="text" class="form-control" name="login" id="login" ng-model="model.login"
-                           ng-required="true" ng-minlength="1">
+                           ng-required="true" ng-minlength="1" ng-change="loginChange()">
 
                     <div class="text-center" ng-messages="loginForm.login.$error" role="alert"
                          ng-if="loginForm.login.$dirty">

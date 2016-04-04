@@ -49,11 +49,12 @@ angular.module('greyscaleApp')
 
             _survey = $scope.model.survey;
             _survey.projectId = projectId;
-//            var questions = _survey.questions;
-//            _survey.questions = undefined;
+            var questions = _survey.questions;
+            _survey.questions = [];
+
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-/*
-                .then(function (survey) {
+
+            .then(function (survey) {
                     if (!survey) {
                         survey = _survey;
                     }
@@ -73,13 +74,20 @@ angular.module('greyscaleApp')
                     }
                     return $q.all(questionsFunctions);
                 })
-*/
                 .then(function () {
                     $state.go('projects.setup.surveys', {
                         projectId: projectId
                     });
                 })
-                .catch(greyscaleUtilsSrv.errorMsg);
+                .catch(function (err) {
+                    if (err) {
+                        var msg = 'Survey update error';
+                        if (err.data && err.data.message) {
+                            msg += ': ' + err.data.message;
+                        }
+                        greyscaleUtilsSrv.errorMsg(msg);
+                    }
+                });
         }
 
         $scope.save = function () {
