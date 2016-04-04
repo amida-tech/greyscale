@@ -109,7 +109,7 @@ angular.module('greyscale.rest')
         }
 
         function _inviteSuperAdmin(userData) {
-            return userAPI(greyscaleGlobals.realm).one('invite').customPOST(userData);
+            return userAPI(greyscaleGlobals.adminSchema).one('invite').customPOST(userData);
         }
 
         function _inviteAdmin(userData, realm) {

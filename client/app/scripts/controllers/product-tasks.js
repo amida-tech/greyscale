@@ -50,7 +50,12 @@ angular.module('greyscaleApp')
                 _getTaskTableData();
             });
 
-        Organization.$watch('projectId', $scope, function () {
+        Organization.$watch('realm', $scope, function () {
+
+            if (!Organization.projectId) {
+                return;
+            }
+
             $scope.model.projectId = Organization.projectId;
 
             _loadUsersData()
