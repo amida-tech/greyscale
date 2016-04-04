@@ -219,8 +219,6 @@ passport.use(new TokenStrategy({
 
             var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-            var clientThunkQuery = thunkify(new Query(req.params.realm));
-
             var existToken = yield admThunkQuery( // select from public
                 Token
                     .select()
@@ -253,6 +251,7 @@ passport.use(new TokenStrategy({
                 if (data[0]) { // user is ok
                     // add projectId from realm
                     if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
+                        var clientThunkQuery = thunkify(new Query(req.params.realm));
                         var project =  yield clientThunkQuery(
                             Project
                                 .select(
@@ -271,6 +270,7 @@ passport.use(new TokenStrategy({
                 }
             } else {
                 if (existToken[0].realm == req.params.realm) {
+                    var clientThunkQuery = thunkify(new Query(req.params.realm));
                     var data =  yield clientThunkQuery(
                         User
                             .select(
