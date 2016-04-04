@@ -552,7 +552,7 @@ module.exports = {
 
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.realmUserId,
+                    userFrom: newUserId,
                     userTo: newUserId,
                     body: 'Invite',
                     essenceId: essenceId,
