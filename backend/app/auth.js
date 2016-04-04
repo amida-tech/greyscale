@@ -204,6 +204,9 @@ passport.use(new TokenStrategy({
             if (user.roleID === 1 && req.params.realm !== 'public') {
                 // superuser
                 user.realmUserId = yield* getRealmAdminId(req, req.params.realm);
+                if (!user.realmUserId) {
+                    throw new HttpError(400, 'You can`t perform this action now. First, add organization`s admin')
+                }
             }
             debug ('userId, realmUserId, realm)', user.id, user.realmUserId, req.params.realm );
 
