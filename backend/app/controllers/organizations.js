@@ -19,6 +19,7 @@ var _ = require('underscore'),
     thunkify = require('thunkify'),
     Emailer = require('lib/mailer'),
     thunkQuery = thunkify(query),
+    mc = require('app/mc_helper'),
     notifications = require('app/controllers/notifications');
 
 module.exports = {
@@ -149,12 +150,12 @@ module.exports = {
     },
 
     insertOne: function (req, res, next) {
+
         if (req.user.roleID != 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }
 
         var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
-
 
         co(function* () {
             yield *checkOrgData(req);
@@ -166,6 +167,13 @@ module.exports = {
             ));
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
+
+            try{ // reset schemas cache
+                var schemas = yield mc.delete(req.mcClient, 'schemas');
+            }catch(e){
+                console.log(e);
+                throw new HttpError(500, e);
+            }
 
             req.thunkQuery = clientThunkQuery; // Do this because of bologger
 
@@ -187,6 +195,7 @@ module.exports = {
             });
 
             // TODO creates project in background, may be need to disable in future
+
             var project = yield clientThunkQuery(
                 Project.insert(
                     {
@@ -344,7 +353,7 @@ module.exports = {
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
                                     var note = yield * notifications.createNotification(req,
                                         {
-                                            userFrom: req.user.id,
+                                            userFrom: req.user.realmUserId,
                                             userTo: newUser.id,
                                             body: 'Invite',
                                             essenceId: essenceId,
@@ -421,5 +430,14 @@ function* checkOrgData(req){
             throw new HttpError(403, 'User with this id does not exist');
         }
     }
+
+    // if (req.body.adminUserId) {
+    //     var existUser = yield thunkQuery(
+    //         User.select(User.star()).from(User).where(User.id.equals(req.body.adminUserId))
+    //     );
+    //     if (!_.first(existUser)) {
+    //         throw new HttpError(403, 'User with this id does not exist');
+    //     }
+    // }
 }
 

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('dataForm', function ($state, greyscaleUserApi) {
+    .directive('resetForm', function ($state, $stateParams, greyscaleRealmSrv, greyscaleUserApi) {
 
         return {
             templateUrl: 'views/directives/reset-form.html',
@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
             scope: {
                 token: '=resetForm'
             },
-            controller: function ($scope) {
+            controller: function ($scope, $log) {
                 function errHandler(err) {
                     if (err.data && err.data.message) {
                         $scope.model.err = err.data.message;
@@ -26,6 +26,14 @@ angular.module('greyscaleApp')
                 };
 
                 if ($state.current.name === 'reset') {
+                    var _realm = $stateParams.realm;
+
+                    if (_realm) {
+                        greyscaleRealmSrv.init(_realm);
+                    }
+
+                    $log.debug('reset form', _realm);
+
                     greyscaleUserApi.resetToken($scope.token)
                         .then(function (user) {
                             $scope.model = {

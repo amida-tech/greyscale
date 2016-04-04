@@ -219,8 +219,6 @@ passport.use(new TokenStrategy({
 
             var admThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-            var clientThunkQuery = thunkify(new Query(req.params.realm));
-
             var existToken = yield admThunkQuery( // select from public
                 Token
                     .select()
@@ -233,6 +231,9 @@ passport.use(new TokenStrategy({
             if(!existToken[0]) {
                 return false;
             }
+
+            debug('Token realm = ' + existToken[0].realm);
+            debug('Admin schema = ' + config.pgConnect.adminSchema);
 
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
@@ -250,8 +251,29 @@ passport.use(new TokenStrategy({
                             User.id.equals(existToken[0].userID)
                         )
                 );
+                if (data[0]) { // user is ok
+                    // add projectId from realm
+                    if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
+                        var clientThunkQuery = thunkify(new Query(req.params.realm));
+                        var project =  yield clientThunkQuery(
+                            Project
+                                .select(
+                                Project.id.as('projectId')
+                            )
+                                .from(
+                                Project
+                                    .leftJoin(Organization).on(Project.organizationId.equals(Organization.id))
+                            )
+                        );
+                        if (project[0]) {
+                            data[0].projectId = project[0].projectId;
+                        }
+
+                    }
+                }
             } else {
                 if (existToken[0].realm == req.params.realm) {
+                    var clientThunkQuery = thunkify(new Query(req.params.realm));
                     var data =  yield clientThunkQuery(
                         User
                             .select(

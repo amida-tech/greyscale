@@ -65,11 +65,11 @@ angular.module('greyscale.rest')
         }
 
         function _checkActivationToken(token) {
-            return Restangular.one('users').one('activate', token).get();
+            return userAPI().one('activate', token).get();
         }
 
         function _activate(token, data) {
-            return Restangular.one('users').one('activate', token).customPOST(data);
+            return userAPI().one('activate', token).customPOST(data);
         }
 
         function _listUsers(params, realm) {
@@ -109,7 +109,7 @@ angular.module('greyscale.rest')
         }
 
         function _inviteSuperAdmin(userData) {
-            return userAPI(greyscaleGlobals.realm).one('invite').customPOST(userData);
+            return userAPI(greyscaleGlobals.adminSchema).one('invite').customPOST(userData);
         }
 
         function _inviteAdmin(userData, realm) {

@@ -262,7 +262,7 @@ var organizations = require('app/controllers/organizations');
 
 router.route('/:realm/v0.2/organizations')
     .get(authenticate('token').always, organizations.select)
-    .post(authenticate('token').always, organizations.insertOne);
+    .post(authenticate('token').always, checkRight('organization_new'), organizations.insertOne);
 
 router.route('/:realm/v0.2/organizations/:id')
     .get(authenticate('token').always, organizations.selectOne)
@@ -314,8 +314,8 @@ router.route('/:realm/v0.2/users/check_restore_token/:token')
 router.route('/:realm/v0.2/users/logout')
     .post(authenticate('token').always, /*checkRight('users_logout_self'),*/ users.logout);
 
-//router.route('/:realm/v0.2/users/invite')
-//    .post(authenticate('token').always, checkRight('users_invite'), users.invite);
+router.route('/:realm/v0.2/users/invite')
+    .post(authenticate('token').always, checkRight('users_invite'), users.invite);
 
 router.route('/:realm/v0.2/users/logout/:id')
     .post(authenticate('token').always, checkRight('users_logout'), users.logout);

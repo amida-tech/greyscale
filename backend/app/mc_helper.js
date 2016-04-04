@@ -34,7 +34,18 @@ expObj = {
                 resolve(result);
             });
         });
+    },
+    delete: function(client, key){
+        return new Promise(function(resolve, reject){
+            client.delete(key,function(error, result){
+                if (error) {
+                    reject(error);
+                }
+                resolve(result);
+            });
+        });
     }
+
 };
 
 module.exports = expObj;

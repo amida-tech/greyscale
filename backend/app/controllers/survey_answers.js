@@ -526,6 +526,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 
 function *addAnswer (req, dataObject) {
     var thunkQuery = req.thunkQuery;
+
     if (!Array.isArray(dataObject.optionId)) {
         dataObject.optionId = [dataObject.optionId];
     }
