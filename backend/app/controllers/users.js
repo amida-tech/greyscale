@@ -496,7 +496,7 @@ module.exports = {
                 newClient = isExistUser;
             }
 
-            var essenceId = yield * getEssenceId(req, 'Users');
+            var essenceId = yield * common.getEssenceId(req, 'Users');
             var notifyLevel = 2; // ToDo: Default - need specify
 
             var note = yield * notifications.createNotification(req,

@@ -19,6 +19,7 @@ var _ = require('underscore'),
     thunkify = require('thunkify'),
     Emailer = require('lib/mailer'),
     thunkQuery = thunkify(query),
+    mc = require('app/mc_helper'),
     notifications = require('app/controllers/notifications');
 
 module.exports = {
@@ -168,8 +169,9 @@ module.exports = {
             var clientThunkQuery = thunkify(new Query(req.body.realm));
 
             try{ // reset schemas cache
-                var schemas = yield mc.set(req.mcClient, 'schemas', null);
+                var schemas = yield mc.delete(req.mcClient, 'schemas');
             }catch(e){
+                console.log(e);
                 throw new HttpError(500, e);
             }
 
