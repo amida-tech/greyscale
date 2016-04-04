@@ -270,12 +270,15 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkQuestionData(req, req.body, false);
-            return yield thunkQuery(
-                SurveyQuestion
-                .update(_.pick(req.body, SurveyQuestion.editCols))
-                .where(SurveyQuestion.id.equals(req.params.id))
-            );
-        }).then(function (data) {
+            var updateObj = _.pick(req.body, SurveyQuestion.editCols);
+            if(Object.keys(updateObj).length) {
+                yield thunkQuery(
+                    SurveyQuestion
+                        .update(updateObj)
+                        .where(SurveyQuestion.id.equals(req.params.id))
+                );
+            }
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user.realmUserId,
