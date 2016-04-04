@@ -288,7 +288,7 @@ module.exports = {
             var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.realmUserId,
+                    userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
                     userTo: userId,
                     body: 'Invite',
                     essenceId: essenceId,
