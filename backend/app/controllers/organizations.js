@@ -22,6 +22,9 @@ var _ = require('underscore'),
     mc = require('app/mc_helper'),
     notifications = require('app/controllers/notifications');
 
+var debug = require('debug')('debug_organizations');
+debug.log = console.log.bind(console);
+
 module.exports = {
 
     selectOne: function (req, res, next) { //TODO superadmin request
@@ -168,11 +171,13 @@ module.exports = {
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
 
-            try{ // reset schemas cache
-                var schemas = yield mc.delete(req.mcClient, 'schemas');
-            }catch(e){
-                console.log(e);
-                throw new HttpError(500, e);
+            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                try{ // reset schemas cache
+                    var schemas = yield mc.delete(req.mcClient, 'schemas');
+                }catch(e){
+                    debug(JSON.stringify(e));
+                    throw new HttpError(500, e);
+                }
             }
 
             req.thunkQuery = clientThunkQuery; // Do this because of bologger
@@ -404,7 +409,7 @@ function* checkOrgData(req){
             throw new HttpError(400, 'name and realm fields are required');
         }
 
-        var schemas = yield thunkQuery(pgEscape( // better to select from db instead of memcache
+        var schemas = yield adminThunkQuery(pgEscape( // better to select from db instead of memcache
             "SELECT pg_catalog.pg_namespace.nspname " +
             "FROM pg_catalog.pg_namespace " +
             "INNER JOIN pg_catalog.pg_user " +
