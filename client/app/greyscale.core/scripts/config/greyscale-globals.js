@@ -154,7 +154,8 @@ angular.module('greyscale.core')
                 name: 'COMPLETED'
             }],
             adminSchema: 'public',
-            tokenTTLsec: 300
+            tokenTTLsec: 300,
+            setRolesId: _setRolesId
         };
 
         return {
@@ -167,8 +168,11 @@ angular.module('greyscale.core')
 
         function _setRolesId(roles) {
             if (roles && roles.length) {
-                for (var r = 0; r < roles.length; r++) {
-                    var role = roles[r];
+                var r, role,
+                    qty = roles.length;
+
+                for (r = 0; r < qty; r++) {
+                    role = roles[r];
                     for (var _role in self.userRoles) {
                         if (self.userRoles.hasOwnProperty(_role) && self.userRoles[_role].key === role.name) {
                             self.userRoles[_role].id = role.id;
