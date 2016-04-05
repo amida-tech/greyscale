@@ -234,6 +234,36 @@ module.exports = {
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
 
+            bologger.log({
+                //req: req, Does not use req if you want to use public namespace TODO realm?
+                user: req.user.id,
+                action: 'insert',
+                object: 'users',
+                entity: _.first(user).id,
+                info: 'Add new superuser (invite)'
+            });
+
+            var essenceId = yield * common.getEssenceId(req, 'Users');
+            var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
+                    userTo: _.first(user).id,
+                    body: 'Superadmin Invite',
+                    essenceId: essenceId,
+                    entityId: _.first(user).id,
+                    notifyLevel: notifyLevel,
+                    name: req.body.firstName,
+                    surname: req.body.lastName,
+                    login: req.body.email,
+                    password: pass,
+                    token: activationToken,
+                    subject: 'Indaba. Superadmin invite',
+                    config: config
+                },
+                'invite'
+            );
+
             return user;
 
         }).then(function (data) {

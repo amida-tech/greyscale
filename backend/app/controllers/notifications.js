@@ -92,6 +92,9 @@ function* createNotification (req, note, template) {
     note = yield * checkInsert(req, note);
     var note4insert = _.extend({}, note);
     template = (template || 'default');
+    if (!config.notificationTemplates[template]) {
+        template = 'default';
+    }
 
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
