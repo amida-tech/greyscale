@@ -63,20 +63,6 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 accessLevel: systemRoles.nobody.mask
             }
         })
-        .state('register', {
-            parent: 'main',
-            url: '/register',
-            views: {
-                'body@main': {
-                    templateUrl: 'views/controllers/register.html',
-                    controller: 'RegisterCtrl'
-                }
-            },
-            data: {
-                name: 'NAV.REGISTER',
-                accessLevel: systemRoles.any.mask
-            }
-        })
         .state('login', {
             parent: 'main',
             url: '/login?returnTo',
