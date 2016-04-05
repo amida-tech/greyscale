@@ -161,24 +161,28 @@ angular.module('greyscaleApp')
                 var _options = [];
                 if (clmn.dataFormat === 'option') {
                     if (clmn.dataSet.getData) {
-                        var data = clmn.dataSet.getData();
-                        for (var d = 0; d < data.length; d++) {
-                            _options.push(_resolveOption(clmn.dataSet, data[d]));
-                        }
-                        _setDefaultOption($scope.modalFormRec, clmn.field, _options);
-                        $scope.model.options = _options;
-
+                        setDatasetOptions(clmn.dataSet, clmn.dataSet.getData());
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function (data) {
-                            _setDefaultOption($scope.modalFormRec, clmn.field, data);
-                            $scope.model.options = data;
+                            setDatasetOptions(clmn.dataSet, data);
                         });
                     }
                 }
 
+                function setDatasetOptions(dataset, data) {
+                    var d,
+                        qty = data.length,
+                        _options = [];
+                    for (d = 0; d < qty; d++) {
+                        _options.push(_resolveOption(clmn.dataSet, data[d]));
+                    }
+                    _setDefaultOption($scope.modalFormRec, clmn.field, data);
+                    $scope.model.options = _options;
+                }
+
                 function _resolveOption(_set, option) {
                     var resolvedOption = {
-                        id: option[_set.keyField],
+                        id: option[_set.keyField]
                     };
                     if (_set.valField) {
                         resolvedOption.title = option[_set.valField];
