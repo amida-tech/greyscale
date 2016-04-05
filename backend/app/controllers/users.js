@@ -493,9 +493,11 @@ module.exports = {
             if (!req.body.email || !req.body.firstName) {
                 throw new HttpError(400, 'Email and First name fields are required');
             }
+
             if (!vl.isEmail(req.body.email)) {
                 throw new HttpError(400, 101);
             }
+
             var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
             isExistUser = _.first(isExistUser);
 
@@ -534,6 +536,7 @@ module.exports = {
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
+
                 newUserId = userId[0].id;
                 bologger.log({
                     req: req,
@@ -543,6 +546,16 @@ module.exports = {
                     entity: newUserId,
                     info: 'Add new user (org invite)'
                 });
+
+                if (req.body.roleID == 2) { // invite admin
+                    if (!org.adminUserId) {
+                        yield thunkQuery(
+                            Organization.update({adminUserId:newUserId}).where(Organization.id.equals(org.id))
+                        );
+                    }
+                }
+
+
             }else {
                 newClient = isExistUser;
             }
@@ -770,9 +783,11 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function*(){
             var updateObj = _.pick(req.body, User.whereCol);
+            console.log(updateObj.password);
             if(updateObj.password){
                 updateObj.password = User.hashPassword(updateObj.password);
             }
+            console.log(updateObj.password);
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
                     User.update(updateObj).where(User.id.equals(req.params.id))
