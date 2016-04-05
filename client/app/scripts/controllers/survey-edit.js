@@ -49,11 +49,12 @@ angular.module('greyscaleApp')
 
             _survey = $scope.model.survey;
             _survey.projectId = projectId;
+            /*
             var questions = _survey.questions;
             _survey.questions = [];
-
+            */
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-
+            /*
             .then(function (survey) {
                     if (!survey) {
                         survey = _survey;
@@ -74,6 +75,7 @@ angular.module('greyscaleApp')
                     }
                     return $q.all(questionsFunctions);
                 })
+                */
                 .then(function () {
                     $state.go('projects.setup.surveys', {
                         projectId: projectId
@@ -100,6 +102,7 @@ angular.module('greyscaleApp')
             });
         };
 
+        /*
         function _getQuestionFunction(question) {
             if (question.deleted) {
                 return greyscaleQuestionApi.delete(question);
@@ -109,6 +112,7 @@ angular.module('greyscaleApp')
                 return greyscaleQuestionApi.add(question);
             }
         }
+        */
 
         var firstSave = $scope.$on('form-changes-saved', function () {
             $scope.dataForm.$dirty = true;
