@@ -182,7 +182,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.ACCESS_MANAGEMENT',
                 icon: 'fa-compass',
-                accessLevel: systemRoles.superAdmin.mask
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
             },
             views: {
                 'body@dashboard': {
@@ -599,7 +599,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 var role = _.find(roles, {
                     id: roleId
                 });
-                $state.go(role.homeState || 'home');
+                $state.go(role && role.homeState || 'home');
             });
     });
 
