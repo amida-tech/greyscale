@@ -5,7 +5,7 @@ var Log = sql.define({
     columns: [
         'id',
         'created',
-        'user',
+        'userid',
         'action',
         'essence',
         'entity',
@@ -19,7 +19,7 @@ var Log = sql.define({
 Log.insertCols = [
     'id',
     'created',
-    'user',
+    'userid',
     'action',
     'essence',
     'entity',

@@ -66,7 +66,7 @@ module.exports = {
                 }).returning(Token.body));
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: req.user.id,
+                    user: req.user,
                     action: 'insert',
                     object: 'token',
                     entities: {
@@ -138,7 +138,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
-                user: req.user.id,
+                user: req.user,
                 action: 'delete',
                 object: 'token',
                 entities: {
@@ -236,7 +236,7 @@ module.exports = {
 
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
-                user: req.user.id,
+                user: req.user,
                 action: 'insert',
                 object: 'users',
                 entity: _.first(user).id,
@@ -310,7 +310,7 @@ module.exports = {
     //            userId = yield thunkQuery(User.insert(newClient).returning(User.id));
     //            bologger.log({
     //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
+    //                user: req.user,
     //                action: 'insert',
     //                object: 'users',
     //                entity: _.first(userId).id,
@@ -326,7 +326,7 @@ module.exports = {
     //            var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
     //            bologger.log({
     //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
+    //                user: req.user,
     //                action: 'insert',
     //                object: 'organizations',
     //                entity: _.first(organizationId).id,
@@ -344,7 +344,7 @@ module.exports = {
     //            );
     //            bologger.log({
     //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
+    //                user: req.user,
     //                action: 'insert',
     //                object: 'projects',
     //                entity: _.first(projectId).id,
@@ -358,7 +358,7 @@ module.exports = {
     //            }));
     //            bologger.log({
     //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
+    //                user: req.user,
     //                action: 'update',
     //                object: 'users',
     //                entity: _.first(userId).id,
@@ -432,7 +432,7 @@ module.exports = {
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
                 req: req,
-                user: _.first(updated).id,
+                user: _.first(updated),
                 action: 'update',
                 object: 'users',
                 entity: _.first(updated).id,
@@ -493,7 +493,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
@@ -570,7 +570,7 @@ module.exports = {
                 newUserId = userId[0].id;
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'users',
                     entity: newUserId,
@@ -653,7 +653,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: {
@@ -683,7 +683,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: {
@@ -717,7 +717,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: data,
@@ -768,7 +768,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: data,
@@ -824,7 +824,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'users',
                     entity: req.params.id,
@@ -836,7 +836,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'userGroups',
                 entities: userGroups4delete,
@@ -858,7 +858,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'userGroups',
                     entities: groupObjs,
@@ -884,7 +884,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'users',
                 entity: req.params.id,
@@ -981,7 +981,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'users',
                 entity: req.user.id,
@@ -1081,7 +1081,7 @@ module.exports = {
 
             bologger.log({
                 req: req,
-                user: user.realmUserId,
+                user: user,
                 action: 'update',
                 object: 'users',
                 entity: user.id,
@@ -1165,7 +1165,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
-                user: _.first(data).id,
+                user: _.first(data),
                 action: 'update',
                 object: 'users',
                 entity: _.first(data).id,
@@ -1295,7 +1295,7 @@ function* insertOne(req, res, next) {
     var user = yield thunkQuery(User.insert(req.body).returning(User.id));
     bologger.log({
         req: req,
-        user: req.user.realmUserId,
+        user: req.user,
         action: 'insert',
         object: 'users',
         entity: _.first(user).id,

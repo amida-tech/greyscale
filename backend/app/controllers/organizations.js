@@ -140,7 +140,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'organizations',
                 entity: req.params.id,
@@ -192,7 +192,7 @@ module.exports = {
 
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'organizations',
                 entity: org[0].id,
@@ -212,7 +212,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'projects',
                 entity: project[0].id,
@@ -331,7 +331,7 @@ module.exports = {
                                 );
                                 bologger.log({
                                     req: req,
-                                    user: req.user.realmUserId,
+                                    user: req.user,
                                     action: 'insert',
                                     object: 'users',
                                     entity: created[0].id,

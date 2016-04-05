@@ -438,7 +438,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -462,7 +462,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entities: data,
@@ -497,7 +497,7 @@ module.exports = {
             if (data) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'delete',
                     object: 'notifications',
                     entities: data,
@@ -518,7 +518,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'notifications',
                 entity: _.first(data).id,
@@ -553,7 +553,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -593,7 +593,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'notifications',
                     entity: note[0].id,
@@ -612,7 +612,7 @@ module.exports = {
             if (resend) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'notifications',
                     entity: resend,

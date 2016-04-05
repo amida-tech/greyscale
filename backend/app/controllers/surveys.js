@@ -86,7 +86,7 @@ module.exports = {
                     ); // delete options
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'SurveyQuestionOptions',
                         entities: {questionId: questions[i].id},
@@ -99,7 +99,7 @@ module.exports = {
                     ); // delete question
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'SurveyQuestions',
                         entity: questions[i].id,
@@ -111,7 +111,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'Surveys',
                 entity: req.params.id,
@@ -138,7 +138,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'surveys',
                     entity: req.params.id,
@@ -156,7 +156,7 @@ module.exports = {
                     ); // delete options
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'SurveyQuestionOptions',
                         entities: {questionId: questions[i].id},
@@ -169,7 +169,7 @@ module.exports = {
                     ); // delete question
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'SurveyQuestions',
                         entity: questions[i].id,
@@ -214,7 +214,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'surveys',
                 entity: data.id,
@@ -281,7 +281,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'SurveyQuestions',
                 entity: req.params.id,
@@ -303,7 +303,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'SurveyQuestions',
                 entity: req.params.id,
@@ -329,7 +329,7 @@ function* addQuestion (req, dataObj) {
     result = result[0];
     bologger.log({
         req: req,
-        user: req.user.realmUserId,
+        user: req.user,
         action: 'insert',
         object: 'SurveyQuestions',
         entity: result.id,
@@ -349,7 +349,7 @@ function* addQuestion (req, dataObj) {
         );
         bologger.log({
             req: req,
-            user: req.user.realmUserId,
+            user: req.user,
             action: 'insert',
             object: 'SurveyQuestionOptions',
             entities: result.options,

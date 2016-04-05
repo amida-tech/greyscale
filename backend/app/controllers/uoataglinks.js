@@ -106,7 +106,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'UnitOfAnalysisTagLink',
                 entity: _.first(data).id,
@@ -125,7 +125,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'UnitOfAnalysisTagLink',
                 entity: req.params.id,
