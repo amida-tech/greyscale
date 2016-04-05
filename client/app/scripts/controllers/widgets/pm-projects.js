@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
         if (!projectId) {
             return;
         }
-        greyscaleProjectApi.productsList(projectId)
+        greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
             .then(function(products){
                 $scope.model.products = products;
             });
