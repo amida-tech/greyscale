@@ -9,6 +9,6 @@ BEGIN
                           || ' ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" ' 
                           || 'FOREIGN KEY ("questionId") REFERENCES '|| quote_ident(current_schema) ||'."SurveyQuestions" ("id") ON DELETE CASCADE ON UPDATE CASCADE;';
   RAISE NOTICE '%', qry;
-  --EXECUTE qry;
+  EXECUTE qry;
 
 END $$;
