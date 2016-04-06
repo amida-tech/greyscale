@@ -141,8 +141,7 @@ module.exports = {
             var userFrom = yield * common.getUser(req, req.user.id);
             var userTo = yield * common.getUser(req, req.body.userId);
             // static blindRewiev
-            var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
-            var task = yield * common.getTask(req, taskId);
+            var task = yield * common.getTask(req, parseInt(req.body.taskId));
             var productId = task.productId;
             var uoaId = task.uoaId;
             var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);

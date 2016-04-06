@@ -1,7 +1,7 @@
 <p>
-Hello <%= name %> <%= surname %>! You have been invited to Indaba as Superadmin with password: `<%= password %>`
+Hello <%= name %> <%= surname %>! You have been invited to Indaba as Superadmin.
 </p>
 
 <p>
-Please <a href="<%= config.domain %>/#/login">login</a> and change password 
+Please, activate your account by follow this <a href="<%= config.domain %>/#/activate/<%= config.pgConnect.adminSchema %>/<%= token %>">link</a>
 </p>

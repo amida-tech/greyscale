@@ -598,7 +598,7 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
                 var role = _.find(roles, {
                     id: roleId
                 });
-                $state.go(role && role.homeState ? role.homeState : 'home');
+                $state.go((role && role.homeState) ? role.homeState : 'home');
             });
     });
 

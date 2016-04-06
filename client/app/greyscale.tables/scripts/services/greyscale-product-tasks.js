@@ -112,6 +112,11 @@ angular.module('greyscale.tables')
 
         function _getProductTasksData(product) {
             //var organizationId = _getOrganizationId();
+
+            if (!product.workflow) {
+                return $q.when([]);
+            }
+
             var reqs = {
                 users: greyscaleUserApi.list(),
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
