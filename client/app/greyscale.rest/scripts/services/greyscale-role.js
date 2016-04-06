@@ -23,7 +23,7 @@ angular.module('greyscale.rest')
         }
 
         function _rights(roleId) {
-            return _roles().one(roleId + '', 'rights');
+            return _roles().one('roles').one(roleId + '', 'rights');
         }
 
         function _postProc(resp) {
