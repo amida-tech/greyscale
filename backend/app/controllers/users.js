@@ -783,11 +783,10 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function*(){
             var updateObj = _.pick(req.body, User.whereCol);
-            console.log(updateObj.password);
+
             if(updateObj.password){
                 updateObj.password = User.hashPassword(updateObj.password);
             }
-            console.log(updateObj.password);
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
                     User.update(updateObj).where(User.id.equals(req.params.id))
