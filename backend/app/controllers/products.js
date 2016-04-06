@@ -167,7 +167,7 @@ module.exports = {
                         res.updated.push(req.body[i].id);
                         bologger.log({
                             req: req,
-                            user: req.user.realmUserId,
+                            user: req.user,
                             action: 'update',
                             object: 'tasks',
                             entity: req.body[i].id,
@@ -182,7 +182,7 @@ module.exports = {
                     res.inserted.push(req.body[i].id);
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'tasks',
                         entity: req.body[i].id,
@@ -326,7 +326,7 @@ module.exports = {
                     });
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'update',
                         object: 'indexes',
                         entity: req.body[i].id,
@@ -339,7 +339,7 @@ module.exports = {
                     });
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'IndexQuestionWeights',
                         entity: null,
@@ -355,7 +355,7 @@ module.exports = {
                     });
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'IndexSubindexWeights',
                         entity: null,
@@ -379,7 +379,7 @@ module.exports = {
                     res.inserted.push(indexId);
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'Indexes',
                         entity: indexId,
@@ -399,7 +399,7 @@ module.exports = {
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'IndexQuestionWeights',
                         entity: null,
@@ -422,7 +422,7 @@ module.exports = {
                     yield thunkQuery(IndexSubindexWeight.insert(weightObj));
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'IndexSubindexWeights',
                         entity: null,
@@ -507,7 +507,7 @@ module.exports = {
                     });
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'update',
                         object: 'Subindexes',
                         entity: req.body[i].id,
@@ -523,7 +523,7 @@ module.exports = {
                     res.updated.push(subindexId);
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'delete',
                         object: 'SubindexWeights',
                         entity: null,
@@ -544,7 +544,7 @@ module.exports = {
                     res.inserted.push(subindexId);
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'Subindexes',
                         entity: subindexId,
@@ -565,7 +565,7 @@ module.exports = {
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                     bologger.log({
                         req: req,
-                        user: req.user.realmUserId,
+                        user: req.user,
                         action: 'insert',
                         object: 'SubindexWeights',
                         entity: null,
@@ -694,7 +694,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'products',
                 entity: req.params.id,
@@ -718,7 +718,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'products',
                 entity: req.params.id,
@@ -742,7 +742,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'products',
                 entity: _.first(data).id,
@@ -787,7 +787,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'ProductUOA',
                 entity: null,
@@ -844,7 +844,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'ProductUOA',
                 entity: null,
@@ -872,7 +872,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'ProductUOA',
                 entity: null,

@@ -77,15 +77,21 @@ var User = sql.define({
 
 User.hashPassword = function (password) {
     var hash = crypto.createHash('sha256');
+    debug('pass='+password);
+    debug('hash='+hash);
     hash.update(util.format('%s+%s', config.auth.salt, password));
     var temp = hash.digest('hex');
     hash = crypto.createHash('sha256');
     hash.update(temp);
-    return hash.digest('hex');
+    var result = hash.digest('hex');
+    debug('final='+result);
+    return result;
 };
 
 User.validPassword = function (pas, checkpas) {
+    debug('VALIDATION');
     debug(pas);
+    debug(checkpas);
     debug(this.hashPassword(checkpas));
     return pas === this.hashPassword(checkpas);
 };
@@ -108,7 +114,12 @@ User.view = function(user){
     return _.pick(user, viewFields);
 };
 
-User.sesInfo = ['id', 'firstName', 'lastName', 'role', 'email', 'roleID', 'rights', 'organizationId', 'projectId', 'password', 'realmUserId'];
+User.sesInfo = [
+    'id', 'firstName', 'lastName', 'role', 'email',
+    'roleID', 'rights', 'organizationId',
+    'projectId', 'password', 'realmUserId'
+];
+
 User.whereCol = columns;
 
 module.exports = User;

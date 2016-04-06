@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, greyscaleRolesSrv, $log, inform,
+    .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, $log, inform,
         i18n, greyscaleRealmSrv) {
 
         return {

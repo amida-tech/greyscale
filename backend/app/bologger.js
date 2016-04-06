@@ -46,6 +46,9 @@ BoLogger.prototype.log = function (data) {
             data.entities = JSON.stringify(data.entities);
         }
         var thunkQuery = (data.req) ?  data.req.thunkQuery : global.thunkQuery;
+        if (data.user) {
+            data.userid = (data.user.roleID === 1) ? 0 - data.user.id : data.user.id; // if superuser - then user = -id
+        }
         this.extend(data);
         var id = yield thunkQuery(Log.insert(this.data).returning(Log.id));
         return data;

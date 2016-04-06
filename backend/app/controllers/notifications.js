@@ -92,6 +92,9 @@ function* createNotification (req, note, template) {
     note = yield * checkInsert(req, note);
     var note4insert = _.extend({}, note);
     template = (template || 'default');
+    if (!config.notificationTemplates[template]) {
+        template = 'default';
+    }
 
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
@@ -435,7 +438,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -459,7 +462,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entities: data,
@@ -494,7 +497,7 @@ module.exports = {
             if (data) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'delete',
                     object: 'notifications',
                     entities: data,
@@ -515,7 +518,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'notifications',
                 entity: _.first(data).id,
@@ -550,7 +553,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -590,7 +593,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'notifications',
                     entity: note[0].id,
@@ -609,7 +612,7 @@ module.exports = {
             if (resend) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'notifications',
                     entity: resend,

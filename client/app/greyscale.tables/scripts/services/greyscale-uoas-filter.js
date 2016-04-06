@@ -111,9 +111,7 @@ angular.module('greyscale.tables')
                 };
                 return greyscaleUoaApi.list(params);
             } else {
-                return greyscaleUoaApi.list({
-                    unitOfAnalysisType: 1 // countries
-                });
+                return greyscaleUoaApi.list();
                 //return $q.when([]);
             }
         }

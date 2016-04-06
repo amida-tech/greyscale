@@ -312,3 +312,24 @@ function dateToString(date) {
 
     return ret + pad(Math.floor(offset/60), 2) + ":" + pad(offset%60, 2);
 }
+
+function arrayString(val) {
+    var result = '{';
+    for (var i = 0 ; i < val.length; i++) {
+        if(i > 0) {
+            result = result + ',';
+        }
+        if(val[i] === null || typeof val[i] === 'undefined') {
+            result = result + 'NULL';
+        }
+        else if(Array.isArray(val[i])) {
+            result = result + arrayString(val[i]);
+        }
+        else
+        {
+            result = result + JSON.stringify(prepareValue(val[i]));
+        }
+    }
+    result = result + '}';
+    return result;
+}

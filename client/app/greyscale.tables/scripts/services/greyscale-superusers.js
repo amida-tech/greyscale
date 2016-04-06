@@ -183,7 +183,7 @@ angular.module('greyscale.tables')
                 dicts.profile = profile;
 
                 var reqs = {
-                    users: greyscaleUserApi.list({}, _realm),
+                    users: greyscaleUserApi.list({}, _realm)
                 };
 
                 return $q.all(reqs).then(function (promises) {

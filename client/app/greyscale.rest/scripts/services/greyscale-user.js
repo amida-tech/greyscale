@@ -4,8 +4,8 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, Restangular, greyscaleTokenSrv, greyscaleBase64Srv,
-        greyscaleRealmSrv, $log, greyscaleGlobals) {
+    .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, greyscaleTokenSrv, greyscaleBase64Srv,
+        greyscaleRealmSrv, greyscaleGlobals) {
 
         return {
             login: _login,
@@ -13,7 +13,6 @@ angular.module('greyscale.rest')
             isAuthenticated: _isAuthenticated,
             get: _self,
             list: _listUsers,
-            register: _register,
             inviteSuperAdmin: _inviteSuperAdmin,
             inviteAdmin: _inviteAdmin,
             inviteUser: _inviteUser,
@@ -60,10 +59,6 @@ angular.module('greyscale.rest')
             return orgAPI().customPUT(data);
         }
 
-        function _register(userData) {
-            return Restangular.one('users').customPOST(userData);
-        }
-
         function _checkActivationToken(token) {
             return userAPI().one('activate', token).get();
         }
@@ -98,14 +93,14 @@ angular.module('greyscale.rest')
                     })
                     .catch(function () {
                         greyscaleTokenSrv(null);
-                        return $q.resolve(false);
+                        return false;
                     });
             }
             return res;
         }
 
         function _logout() {
-            return userAPI().one('logout').post();
+            return userAPI(greyscaleRealmSrv.origin()).one('logout').post();
         }
 
         function _inviteSuperAdmin(userData) {

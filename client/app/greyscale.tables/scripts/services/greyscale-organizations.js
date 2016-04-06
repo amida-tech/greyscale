@@ -3,8 +3,8 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleOrganizationsTbl', function (_, $q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
-        greyscaleProfileSrv, greyscaleModalsSrv) {
+    .factory('greyscaleOrganizationsTbl', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
+        greyscaleProfileSrv, greyscaleModalsSrv, greyscaleRoleApi, greyscaleGlobals, $log) {
 
         var tns = 'ORGANIZATIONS.';
 
@@ -45,6 +45,18 @@ angular.module('greyscale.tables')
             title: tns + 'IS_ACTIVE',
             dataFormat: 'boolean',
             dataReadOnly: _getActivationMode
+        }, {
+            field: 'adminUserId',
+            show: false,
+            title: tns + 'ADMIN_USER',
+            dataFormat: 'option',
+            dataNoEmptyOption: true,
+            dataSet: {
+                dataPromise: _getAdmins,
+                keyField: 'id',
+                valField: 'email'
+            }
+
         }, {
             field: '',
             title: '',
@@ -122,6 +134,33 @@ angular.module('greyscale.tables')
 
         function _getActivationMode() {
             return greyscaleProfileSrv.isSuperAdmin() ? false : 'both';
+        }
+
+        function _getAdmins(rec) {
+            if (rec.realm) {
+                return greyscaleRoleApi.list({}, rec.realm)
+                    .then(function (roles) {
+                        var r,
+                            qty = roles.length,
+                            res;
+
+                        for (r = 0; r < qty && !res; r++) {
+                            if (roles[r].name === greyscaleGlobals.userRoles.admin.key) {
+                                res = roles[r].id;
+                            }
+                        }
+                        return res;
+                    })
+                    .then(function (adminRoleId) {
+                        var _params = {
+                            roleID: adminRoleId,
+                            field: ['id', 'email', 'firstName', 'lastName']
+                        };
+                        return greyscaleUserApi.list(_params, rec.realm);
+                    });
+            } else {
+                return $q.resolve([]);
+            }
         }
 
         return _table;

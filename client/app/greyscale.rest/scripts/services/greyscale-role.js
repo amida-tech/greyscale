@@ -5,22 +5,32 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleRoleApi', function (greyscaleRestSrv) {
-        var _roleRights = function (roleId) {
-            return greyscaleRestSrv().one('roles', roleId + '').one('rights');
-        };
-
         return {
-            list: function (params) {
-                return greyscaleRestSrv().one('roles').get(params);
-            },
+            list: _list,
             listRights: function (roleId) {
-                return _roleRights(roleId + '').get();
+                return _rights(roleId).get().then(_postProc);
             },
             addRight: function (roleId, rightId) {
-                return _roleRights(roleId + '').one(rightId + '').customPOST();
+                return _rights(roleId).one(rightId + '').customPOST();
             },
             delRight: function (roleId, rightId) {
-                return _roleRights(roleId + '').one(rightId + '').remove();
+                return _rights(roleId).one(rightId + '').remove();
             }
         };
+
+        function _roles(realm) {
+            return greyscaleRestSrv({}, realm);
+        }
+
+        function _rights(roleId) {
+            return _roles().one(roleId + '', 'rights');
+        }
+
+        function _postProc(resp) {
+            return (resp) ? resp.plain() : resp;
+        }
+
+        function _list(params, realm) {
+            return _roles(realm).one('roles').get(params).then(_postProc);
+        }
     });

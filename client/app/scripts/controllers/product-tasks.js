@@ -613,7 +613,6 @@ angular.module('greyscaleApp')
         function _loadTableData(data) {
             var product = data.product;
             var tasks = data.tasks;
-
             if (!product.workflow) {
                 return $q.when({});
             }

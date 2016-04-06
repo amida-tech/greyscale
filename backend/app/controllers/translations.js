@@ -67,7 +67,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'translations',
                 entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
@@ -92,7 +92,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'translations',
                 entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
@@ -152,7 +152,7 @@ module.exports = {
         }).then(function () {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'translations',
                 entities: {
