@@ -89,6 +89,10 @@ app.on('start', function () {
         });
     });
 
+    // multipart form-data
+    // keep above logger to avoid obscure crashes
+    app.use(multer());
+
     // Init logger
     app.use(logger.initialize());
 
@@ -100,9 +104,6 @@ app.on('start', function () {
 
     // Parse JSON requests using body-parser
     app.use(bodyParser.json());
-
-    // form-data
-    app.use(multer());
 
     // view engine
     app.engine('ejs', require('ejs-locals'));
