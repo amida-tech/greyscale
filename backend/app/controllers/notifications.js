@@ -130,27 +130,7 @@ function* createNotification (req, note, template) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
     if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-        co(function* () {
-            var mailer = new Emailer(emailOptions, note);
-            //Sync mail send
-            var err = false;
-            var sendResult = yield * mailer.sendSync();
-            err = sendResult.name === 'Error';
-            if (err) {
-                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
-                note.result = sendResult.message;
-            } else
-            {
-                debug('EMAIL RESULT --->>> '+sendResult.response);
-                note.result = sendResult.response;
-            }
-            return note.result;
-        }).then(function (result) {
-            co(function* () {
-                updateFields = {result: result};
-                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
-            });
-        });
+        sendEmail(emailOptions, note);
     }
 
     return noteInserted;
@@ -183,28 +163,7 @@ function* resendNotification (req, notificationId) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
     if (!config.email.disable) {  // email notification - does not use notifyLevel
-        // ToDo: exclude duplication
-        co(function* () {
-            var mailer = new Emailer(emailOptions, note);
-            //Sync mail send
-            var err = false;
-            var sendResult = yield * mailer.sendSync();
-            err = sendResult.name === 'Error';
-            if (err) {
-                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
-                note.result = sendResult.message;
-            } else
-            {
-                debug('EMAIL RESULT --->>> '+sendResult.response);
-                note.result = sendResult.response;
-            }
-            return note.result;
-        }).then(function (result) {
-            co(function* () {
-                updateFields = {result: result};
-                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
-            });
-        });
+        sendEmail(emailOptions, note);
     }
 
     return note;
@@ -695,3 +654,25 @@ function* renderFile(templateFile, data) {
     return res;
 }
 
+function sendEmail(emailOptions, note) {
+    co(function* () {
+        var mailer = new Emailer(emailOptions, note);
+        //Sync mail send
+        var err = false;
+        var sendResult = yield * mailer.sendSync();
+        err = sendResult.name === 'Error';
+        if (err) {
+            debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
+            note.result = sendResult.message;
+        } else
+        {
+            debug('EMAIL RESULT --->>> '+sendResult.response);
+            note.result = sendResult.response;
+        }
+        return note.result;
+    }).then(function (result) {
+        co(function* () {
+            var upd = yield thunkQuery(Notification.update({result: result}).where(Notification.id.equals(note.id)));
+        });
+    });
+}
