@@ -5,12 +5,12 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleProjectApi', function (greyscaleRestSrv) {
-        function api() {
-            return greyscaleRestSrv().one('projects');
+        function api(realm) {
+            return greyscaleRestSrv({}, realm).one('projects');
         }
 
-        function _productsApi(projectId) {
-            return api().one(projectId + '').one('products');
+        function _productsApi(projectId, realm) {
+            return api(realm).one(projectId + '').one('products');
         }
 
         function _surveysApi(projectId) {
@@ -37,8 +37,8 @@ angular.module('greyscale.rest')
             return api().one(id + '').remove();
         }
 
-        function _productsList(projectId, params) {
-            return _productsApi(projectId).get(params);
+        function _productsList(projectId, params, realm) {
+            return _productsApi(projectId, realm).get(params);
         }
 
         function _surveysList(projectId, params) {

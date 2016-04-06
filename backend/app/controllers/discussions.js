@@ -122,7 +122,7 @@ module.exports = {
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'discussions',
                 entity: result[0].id,
@@ -141,8 +141,7 @@ module.exports = {
             var userFrom = yield * common.getUser(req, req.user.id);
             var userTo = yield * common.getUser(req, req.body.userId);
             // static blindRewiev
-            var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task'); // ToDo: exclude unwanted query
-            var task = yield * common.getTask(req, taskId);
+            var task = yield * common.getTask(req, parseInt(req.body.taskId));
             var productId = task.productId;
             var uoaId = task.uoaId;
             var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
@@ -194,7 +193,7 @@ module.exports = {
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'discussions',
                 entity: result[0].id,
@@ -254,7 +253,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'discussions',
                 entity: req.params.id,

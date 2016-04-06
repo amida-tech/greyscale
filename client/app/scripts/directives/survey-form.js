@@ -284,6 +284,7 @@ angular.module('greyscaleApp')
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
+                                hasComments: field.hasComments,
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,

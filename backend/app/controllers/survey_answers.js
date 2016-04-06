@@ -171,7 +171,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'SurveyAnswers',
                 entity: req.params.id,
@@ -251,7 +251,7 @@ module.exports = {
         }).then(function (data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'SurveyAnswers',
                 entity: req.params.id,
@@ -331,7 +331,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'answerattachments',
                 entity: req.params.id,
@@ -433,7 +433,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'answerattachments',
                 entity: data[0].id,
@@ -501,7 +501,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'answerattachments',
                     entity: inserted[0].id,
@@ -688,7 +688,7 @@ function *addAnswer (req, dataObject) {
         );
         bologger.log({
             req: req,
-            user: req.user.realmUserId,
+            user: req.user,
             action: 'update',
             object: 'SurveyAnswers',
             entity: existsNullVer[0].id,
@@ -704,7 +704,7 @@ function *addAnswer (req, dataObject) {
         answer = answer[0];
         bologger.log({
             req: req,
-            user: req.user.realmUserId,
+            user: req.user,
             action: 'insert',
             object: 'SurveyAnswers',
             entity: answer.id,
@@ -790,7 +790,7 @@ function *moveWorkflow (req, productId, UOAid) {
         );
         bologger.log({
             req: req,
-            user: req.user.realmUserId,
+            user: req.user,
             action: 'update',
             object: 'ProductUOA',
             entities: {
@@ -810,7 +810,7 @@ function *moveWorkflow (req, productId, UOAid) {
         );
         bologger.log({
             req: req,
-            user: req.user.realmUserId,
+            user: req.user,
             action: 'update',
             object: 'ProductUOA',
             entities: {
@@ -837,7 +837,7 @@ function *moveWorkflow (req, productId, UOAid) {
             );
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'Product',
                 entity: curStep.task.productId,

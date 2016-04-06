@@ -30,6 +30,7 @@ angular.module('greyscaleApp')
                             cid: fields[i].cid,
                             isRequired: fields[i].required,
                             attachment: fields[i].attachment,
+                            hasComments: fields[i].hasComments,
                             type: typeIdx,
                             surveyId: scope.model.survey.id,
                             position: i + 1
@@ -140,6 +141,7 @@ angular.module('greyscaleApp')
                                 label: question.label,
                                 required: question.isRequired,
                                 attachment: question.attachment,
+                                hasComments: question.hasComments,
                                 field_options: {
                                     description: question.description,
                                     size: question.size && question.size > -1 ? sizes[question.size] : 'small',

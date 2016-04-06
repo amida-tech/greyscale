@@ -83,3 +83,12 @@ button .checkbox-inline {
         margin: 0;
     }
 }
+
+select:disabled,
+keygen:disabled,
+optgroup:disabled,
+option:disabled,
+select[disabled] > option,
+option.disabled {
+    color: $grey-medium-light;
+}

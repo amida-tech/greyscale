@@ -1,9 +1,7 @@
-<p>Hello <%= name %> <%= surname %>! One of your friends has just invited you to Indaba.</p>
-
 <p>
-	We also created for you <%= companyName %>. 
+Hello <%= name %> <%= surname %>! You have been invited to Indaba as Superadmin.
 </p>
 
 <p>
-Please activate your account by following this <a href="<%= config.domain %>/#activate/<%= token %>">link</a>
+Please, activate your account by follow this <a href="<%= config.domain %>/#/activate/<%= config.pgConnect.adminSchema %>/<%= token %>">link</a>
 </p>

@@ -92,6 +92,9 @@ function* createNotification (req, note, template) {
     note = yield * checkInsert(req, note);
     var note4insert = _.extend({}, note);
     template = (template || 'default');
+    if (!config.notificationTemplates[template]) {
+        template = 'default';
+    }
 
     note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
     note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
@@ -127,27 +130,7 @@ function* createNotification (req, note, template) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
     if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-        co(function* () {
-            var mailer = new Emailer(emailOptions, note);
-            //Sync mail send
-            var err = false;
-            var sendResult = yield * mailer.sendSync();
-            err = sendResult.name === 'Error';
-            if (err) {
-                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
-                note.result = sendResult.message;
-            } else
-            {
-                debug('EMAIL RESULT --->>> '+sendResult.response);
-                note.result = sendResult.response;
-            }
-            return note.result;
-        }).then(function (result) {
-            co(function* () {
-                updateFields = {result: result};
-                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
-            });
-        });
+        sendEmail(emailOptions, note);
     }
 
     return noteInserted;
@@ -180,28 +163,7 @@ function* resendNotification (req, notificationId) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
     if (!config.email.disable) {  // email notification - does not use notifyLevel
-        // ToDo: exclude duplication
-        co(function* () {
-            var mailer = new Emailer(emailOptions, note);
-            //Sync mail send
-            var err = false;
-            var sendResult = yield * mailer.sendSync();
-            err = sendResult.name === 'Error';
-            if (err) {
-                debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
-                note.result = sendResult.message;
-            } else
-            {
-                debug('EMAIL RESULT --->>> '+sendResult.response);
-                note.result = sendResult.response;
-            }
-            return note.result;
-        }).then(function (result) {
-            co(function* () {
-                updateFields = {result: result};
-                var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
-            });
-        });
+        sendEmail(emailOptions, note);
     }
 
     return note;
@@ -435,7 +397,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -459,7 +421,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entities: data,
@@ -494,7 +456,7 @@ module.exports = {
             if (data) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'delete',
                     object: 'notifications',
                     entities: data,
@@ -515,7 +477,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'notifications',
                 entity: _.first(data).id,
@@ -550,7 +512,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'notifications',
                 entity: req.params.notificationId,
@@ -564,17 +526,31 @@ module.exports = {
 
     resendUserInvite: function (req, res, next) {
         var resend = false;
+        var logUser = 'user';
         co(function* () {
-            var inviteNote = yield * getInviteNotification(req, req.params.userId);
+            var user = yield * common.getUser(req, req.params.userId);
+            var body = 'Invite';
+            var subject = 'Indaba. Organization membership';
+            var template = 'orgInvite';
+            var superUser = (user && user.roleID === 1);
+            if (superUser) {
+                body = 'Superadmin Invite';
+                subject ='Indaba. Superadmin invite';
+                template = 'invite';
+                logUser = 'superuser';
+            }
+            var inviteNote = yield * getInviteNotification(req, req.params.userId, body);
             if (!inviteNote) {
-                var user = yield * common.getUser(req, req.params.userId);
-                var org = yield * common.getOrganization(req, user.organizationId);
+                var org = null;
+                if (!superUser) {
+                    org = yield * common.getOrganization(req, user.organizationId);
+                }
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req,
                     {
                         userFrom: req.user.realmUserId,
                         userTo: user.id,
-                        body: 'Invite',
+                        body: body,
                         essenceId: essenceId,
                         entityId: user.id,
                         notifyLevel: user.notifyLevel,
@@ -583,18 +559,18 @@ module.exports = {
                         company: org,
                         inviter: req.user,
                         token: user.activationToken,
-                        subject: 'Indaba. Organization membership',
+                        subject: subject,
                         config: config
                     },
-                    'orgInvite'
+                    template
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'notifications',
                     entity: note[0].id,
-                    info: 'Create user invite notification'
+                    info: 'Create '+logUser+' invite notification'
                 });
                 if (user.notifyLevel < 2) {
                     resend = note[0].id;
@@ -609,11 +585,11 @@ module.exports = {
             if (resend) {
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'notifications',
                     entity: resend,
-                    info: 'Resend user invite notification'
+                    info: 'Resend '+logUser+' invite notification'
                 });
             }
             res.status(202).end();
@@ -654,7 +630,7 @@ function getHtml(templateName, data, templatePath) {
     return _.template(templateContent)(data);
 }
 
-function* getInviteNotification(req, userId) {
+function* getInviteNotification(req, userId, body) {
     // get EssenceId
     var essenceId = yield * common.getEssenceId(req, 'Users');
     query =
@@ -662,7 +638,7 @@ function* getInviteNotification(req, userId) {
             'max("Notifications"."id") as id '+
         'FROM "Notifications" '+
         'WHERE '+
-            '"Notifications"."body" = \'Invite\' AND '+
+            '"Notifications"."body" = \''+body+'\' AND '+
             '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
             '"Notifications"."entityId" = '+userId.toString() + ' '+
         'GROUP BY '+
@@ -692,3 +668,25 @@ function* renderFile(templateFile, data) {
     return res;
 }
 
+function sendEmail(emailOptions, note) {
+    co(function* () {
+        var mailer = new Emailer(emailOptions, note);
+        //Sync mail send
+        var err = false;
+        var sendResult = yield * mailer.sendSync();
+        err = sendResult.name === 'Error';
+        if (err) {
+            debug('EMAIL RESULT ERROR --->>> '+sendResult.message);
+            note.result = sendResult.message;
+        } else
+        {
+            debug('EMAIL RESULT --->>> '+sendResult.response);
+            note.result = sendResult.response;
+        }
+        return note.result;
+    }).then(function (result) {
+        co(function* () {
+            var upd = yield thunkQuery(Notification.update({result: result}).where(Notification.id.equals(note.id)));
+        });
+    });
+}

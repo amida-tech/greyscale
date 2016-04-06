@@ -30,7 +30,8 @@ angular.module('greyscaleApp')
                     var colon = !clmn.title || clmn.title === '' ? '' : ':';
 
                     if (!_embedded) {
-                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label">{{\'' + clmn.title + '\'|translate}}' + colon + '</label>');
+                        elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label" ng-class="{required:modalFormField.dataRequired}">' +
+                            '{{\'' + clmn.title + '\'|translate}}' + colon + '</label>');
                         field += '<div class="col-sm-9';
                     }
 

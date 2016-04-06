@@ -66,7 +66,7 @@ module.exports = {
                 }).returning(Token.body));
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
-                    user: req.user.id,
+                    user: req.user,
                     action: 'insert',
                     object: 'token',
                     entities: {
@@ -138,7 +138,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
-                user: req.user.id,
+                user: req.user,
                 action: 'delete',
                 object: 'token',
                 entities: {
@@ -227,12 +227,42 @@ module.exports = {
                 'email': req.body.email,
                 'roleID': 1, // super admin
                 'password': User.hashPassword(pass),
-                'isActive': true,
-                //'activationToken': activationToken,
+                'isActive': false,
+                'activationToken': activationToken,
                 'isAnonymous' : false
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
+
+            bologger.log({
+                //req: req, Does not use req if you want to use public namespace TODO realm?
+                user: req.user,
+                action: 'insert',
+                object: 'users',
+                entity: _.first(user).id,
+                info: 'Add new superuser (invite)'
+            });
+
+            var essenceId = yield * common.getEssenceId(req, 'Users');
+            var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
+                    userTo: _.first(user).id,
+                    body: 'Superadmin Invite',
+                    essenceId: essenceId,
+                    entityId: _.first(user).id,
+                    notifyLevel: notifyLevel,
+                    name: req.body.firstName,
+                    surname: req.body.lastName,
+                    login: req.body.email,
+                    password: pass,
+                    token: activationToken,
+                    subject: 'Indaba. Superadmin invite',
+                    config: config
+                },
+                'invite'
+            );
 
             return user;
 
@@ -242,130 +272,6 @@ module.exports = {
             next(err);
         });
     },
-
-    //invite: function (req, res, next) {
-    //    co(function* () {
-    //        if (!req.body.email || !req.body.firstName || !req.body.lastName) {
-    //            throw new HttpError(400, 'Email, First name and Last name fields are required');
-    //        }
-    //        if (!vl.isEmail(req.body.email)) {
-    //            throw new HttpError(400, 101);
-    //        }
-    //        var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
-    //        isExistUser = _.first(isExistUser);
-    //        if (isExistUser && isExistUser.isActive) {
-    //            throw new HttpError(400, 'User with this email has already registered');
-    //        }
-    //
-    //        var OrgNameTemp = 'Your new organization';
-    //        var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
-    //        var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
-    //        var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
-    //        var pass = crypto.randomBytes(5).toString('hex');
-    //
-    //        var userId;
-    //
-    //        if (!isExistUser) {
-    //
-    //            var newClient = {
-    //                'firstName': req.body.firstName,
-    //                'lastName': req.body.lastName,
-    //                'email': req.body.email,
-    //                'roleID': 2, //client
-    //                'password': User.hashPassword(pass),
-    //                'isActive': false,
-    //                'activationToken': activationToken
-    //            };
-    //
-    //            userId = yield thunkQuery(User.insert(newClient).returning(User.id));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
-    //                action: 'insert',
-    //                object: 'users',
-    //                entity: _.first(userId).id,
-    //                info: 'Add new user (invite)'
-    //            });
-    //
-    //            var newOrganization = {
-    //                'name': OrgNameTemp,
-    //                'adminUserId': _.first(userId).id,
-    //                'isActive': false
-    //            };
-    //
-    //            var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
-    //                action: 'insert',
-    //                object: 'organizations',
-    //                entity: _.first(organizationId).id,
-    //                info: 'Add new organization (invite)'
-    //            });
-    //
-    //            // TODO creates project in background, may be need to disable in future
-    //            var projectId = yield thunkQuery(
-    //                Project.insert(
-    //                    {
-    //                        organizationId: organizationId[0].id,
-    //                        codeName: 'Org_' + organizationId[0].id + '_project'
-    //                    }
-    //                )
-    //            );
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
-    //                action: 'insert',
-    //                object: 'projects',
-    //                entity: _.first(projectId).id,
-    //                info: 'Add new project (invite)'
-    //            });
-    //
-    //            yield thunkQuery(User.update({
-    //                organizationId: _.first(organizationId).id
-    //            }).where({
-    //                id: _.first(userId).id
-    //            }));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user.id,
-    //                action: 'update',
-    //                object: 'users',
-    //                entity: _.first(userId).id,
-    //                info: 'Update user (invite)'
-    //            });
-    //        }
-    //
-    //        userId = isExistUser ? isExistUser.id : _.first(userId).id;
-    //
-    //        var essenceId = yield * common.getEssenceId(req, 'Users');
-    //        var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-    //        var note = yield * notifications.createNotification(req,
-    //            {
-    //                userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
-    //                userTo: userId,
-    //                body: 'Invite',
-    //                essenceId: essenceId,
-    //                entityId: userId,
-    //                notifyLevel: notifyLevel,
-    //                name: firstName,
-    //                surname: lastName,
-    //                companyName: OrgNameTemp,
-    //                login: req.body.email,
-    //                password: pass,
-    //                token: activationToken,
-    //                subject: 'Indaba. Invite',
-    //                config: config
-    //            },
-    //            'invite'
-    //        );
-    //
-    //    }).then(function (data) {
-    //        res.status(200).end();
-    //    }, function (err) {
-    //        next(err);
-    //    });
-    //},
 
     checkActivationToken: function (req, res, next) {
         var thunkQuery = thunkify(new Query(req.params.realm));
@@ -402,7 +308,7 @@ module.exports = {
             var updated = yield thunkQuery(User.update(data).where(User.activationToken.equals(req.params.token)).returning(User.id));
             bologger.log({
                 req: req,
-                user: _.first(updated).id,
+                user: _.first(updated),
                 action: 'update',
                 object: 'users',
                 entity: _.first(updated).id,
@@ -463,7 +369,7 @@ module.exports = {
             }
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'organizations',
                 entity: _.first(updated).id,
@@ -540,7 +446,7 @@ module.exports = {
                 newUserId = userId[0].id;
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'users',
                     entity: newUserId,
@@ -623,7 +529,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: {
@@ -653,7 +559,7 @@ module.exports = {
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: {
@@ -687,7 +593,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'UserUOA',
                 entities: data,
@@ -738,7 +644,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'insert',
                 object: 'UserUOA',
                 entities: data,
@@ -793,7 +699,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'update',
                     object: 'users',
                     entity: req.params.id,
@@ -805,7 +711,7 @@ module.exports = {
             );
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'userGroups',
                 entities: userGroups4delete,
@@ -827,7 +733,7 @@ module.exports = {
                 );
                 bologger.log({
                     req: req,
-                    user: req.user.realmUserId,
+                    user: req.user,
                     action: 'insert',
                     object: 'userGroups',
                     entities: groupObjs,
@@ -847,13 +753,22 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* (){
+            var adminUser = yield thunkQuery(Organization.
+                select(Organization.adminUserId)
+                .from(Organization)
+                .where(Organization.realm.equals(req.params.realm))
+            );
+            if (_.first(adminUser) && _.first(adminUser).adminUserId === parseInt(req.params.id)) {
+                throw new HttpError(400, 'It does not possible delete organization`s admin');
+            }
+
             return yield thunkQuery(
                 User.delete().where(User.id.equals(req.params.id))
             );
         }).then(function(data){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'delete',
                 object: 'users',
                 entity: req.params.id,
@@ -950,7 +865,7 @@ module.exports = {
         }).then(function(){
             bologger.log({
                 req: req,
-                user: req.user.realmUserId,
+                user: req.user,
                 action: 'update',
                 object: 'users',
                 entity: req.user.id,
@@ -1050,7 +965,7 @@ module.exports = {
 
             bologger.log({
                 req: req,
-                user: user.realmUserId,
+                user: user,
                 action: 'update',
                 object: 'users',
                 entity: user.id,
@@ -1134,7 +1049,7 @@ module.exports = {
         }).then(function (data) {
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
-                user: _.first(data).id,
+                user: _.first(data),
                 action: 'update',
                 object: 'users',
                 entity: _.first(data).id,
@@ -1264,7 +1179,7 @@ function* insertOne(req, res, next) {
     var user = yield thunkQuery(User.insert(req.body).returning(User.id));
     bologger.log({
         req: req,
-        user: req.user.realmUserId,
+        user: req.user,
         action: 'insert',
         object: 'users',
         entity: _.first(user).id,
