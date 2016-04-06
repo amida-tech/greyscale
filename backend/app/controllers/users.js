@@ -227,8 +227,8 @@ module.exports = {
                 'email': req.body.email,
                 'roleID': 1, // super admin
                 'password': User.hashPassword(pass),
-                'isActive': true,
-                //'activationToken': activationToken,
+                'isActive': false,
+                'activationToken': activationToken,
                 'isAnonymous' : false
             };
 
@@ -272,130 +272,6 @@ module.exports = {
             next(err);
         });
     },
-
-    //invite: function (req, res, next) {
-    //    co(function* () {
-    //        if (!req.body.email || !req.body.firstName || !req.body.lastName) {
-    //            throw new HttpError(400, 'Email, First name and Last name fields are required');
-    //        }
-    //        if (!vl.isEmail(req.body.email)) {
-    //            throw new HttpError(400, 101);
-    //        }
-    //        var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
-    //        isExistUser = _.first(isExistUser);
-    //        if (isExistUser && isExistUser.isActive) {
-    //            throw new HttpError(400, 'User with this email has already registered');
-    //        }
-    //
-    //        var OrgNameTemp = 'Your new organization';
-    //        var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
-    //        var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
-    //        var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
-    //        var pass = crypto.randomBytes(5).toString('hex');
-    //
-    //        var userId;
-    //
-    //        if (!isExistUser) {
-    //
-    //            var newClient = {
-    //                'firstName': req.body.firstName,
-    //                'lastName': req.body.lastName,
-    //                'email': req.body.email,
-    //                'roleID': 2, //client
-    //                'password': User.hashPassword(pass),
-    //                'isActive': false,
-    //                'activationToken': activationToken
-    //            };
-    //
-    //            userId = yield thunkQuery(User.insert(newClient).returning(User.id));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user,
-    //                action: 'insert',
-    //                object: 'users',
-    //                entity: _.first(userId).id,
-    //                info: 'Add new user (invite)'
-    //            });
-    //
-    //            var newOrganization = {
-    //                'name': OrgNameTemp,
-    //                'adminUserId': _.first(userId).id,
-    //                'isActive': false
-    //            };
-    //
-    //            var organizationId = yield thunkQuery(Organization.insert(newOrganization).returning(Organization.id));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user,
-    //                action: 'insert',
-    //                object: 'organizations',
-    //                entity: _.first(organizationId).id,
-    //                info: 'Add new organization (invite)'
-    //            });
-    //
-    //            // TODO creates project in background, may be need to disable in future
-    //            var projectId = yield thunkQuery(
-    //                Project.insert(
-    //                    {
-    //                        organizationId: organizationId[0].id,
-    //                        codeName: 'Org_' + organizationId[0].id + '_project'
-    //                    }
-    //                )
-    //            );
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user,
-    //                action: 'insert',
-    //                object: 'projects',
-    //                entity: _.first(projectId).id,
-    //                info: 'Add new project (invite)'
-    //            });
-    //
-    //            yield thunkQuery(User.update({
-    //                organizationId: _.first(organizationId).id
-    //            }).where({
-    //                id: _.first(userId).id
-    //            }));
-    //            bologger.log({
-    //                //req: req, Does not use req if you want to use public namespace TODO realm?
-    //                user: req.user,
-    //                action: 'update',
-    //                object: 'users',
-    //                entity: _.first(userId).id,
-    //                info: 'Update user (invite)'
-    //            });
-    //        }
-    //
-    //        userId = isExistUser ? isExistUser.id : _.first(userId).id;
-    //
-    //        var essenceId = yield * common.getEssenceId(req, 'Users');
-    //        var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
-    //        var note = yield * notifications.createNotification(req,
-    //            {
-    //                userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
-    //                userTo: userId,
-    //                body: 'Invite',
-    //                essenceId: essenceId,
-    //                entityId: userId,
-    //                notifyLevel: notifyLevel,
-    //                name: firstName,
-    //                surname: lastName,
-    //                companyName: OrgNameTemp,
-    //                login: req.body.email,
-    //                password: pass,
-    //                token: activationToken,
-    //                subject: 'Indaba. Invite',
-    //                config: config
-    //            },
-    //            'invite'
-    //        );
-    //
-    //    }).then(function (data) {
-    //        res.status(200).end();
-    //    }, function (err) {
-    //        next(err);
-    //    });
-    //},
 
     checkActivationToken: function (req, res, next) {
         var thunkQuery = thunkify(new Query(req.params.realm));
