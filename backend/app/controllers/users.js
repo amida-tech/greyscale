@@ -1150,6 +1150,11 @@ module.exports = {
 
 function* insertOne(req, res, next) {
     var thunkQuery = req.thunkQuery;
+
+    if (!req.body.email || !req.body.roleID || !req.body.password || !req.body.firstName) {
+        throw new HttpError(400, 'Email, password, role id and firstname fields are required');
+    }
+
     // validate email
     if (!vl.isEmail(req.body.email)) {
         throw new HttpError(400, 101);
@@ -1193,8 +1198,8 @@ function* insertOne(req, res, next) {
         var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(req,
             {
-                userFrom: user.realmUserId,  // ToDo: userFrom???
-                userTo: user.realmUserId,
+                userFrom: req.user.realmUserId,
+                userTo: user.id,
                 body: 'Thank you for registering at Indaba',
                 essenceId: essenceId,
                 entityId: user.id,
