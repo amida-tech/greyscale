@@ -168,7 +168,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.ACCESS_MANAGEMENT',
                 icon: 'fa-compass',
-                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+                accessLevel: systemRoles.superAdmin.mask
             },
             views: {
                 'body@dashboard': {
