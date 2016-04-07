@@ -234,8 +234,8 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            debug('Token realm = ' + existToken[0].realm);
-            debug('Admin schema = ' + config.pgConnect.adminSchema);
+            //debug('Token realm = ' + existToken[0].realm);
+            //debug('Admin schema = ' + config.pgConnect.adminSchema);
 
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
@@ -325,7 +325,7 @@ module.exports = {
                     session: false
                 }, function (err, user, info) {
 
-                    debug('Authenticate if Possible:',user);
+                    //debug('Authenticate if possible:', JSON.stringify(user));
 
                     if (user) {
                         req.user = user;
