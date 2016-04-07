@@ -153,6 +153,16 @@ angular.module('greyscale.core')
                 value: 'completed',
                 name: 'COMPLETED'
             }],
+            notifyLevels: [{
+                value: 0,
+                name: 'OFF'
+            }, {
+                value: 1,
+                name: 'INTERNAL'
+            }, {
+                value: 2,
+                name: 'INTERNAL_AND_EMAILS'
+            }],
             adminSchema: 'public',
             tokenTTLsec: 300,
             setRolesId: _setRolesId

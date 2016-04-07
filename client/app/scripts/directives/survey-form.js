@@ -284,15 +284,17 @@ angular.module('greyscaleApp')
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
-                                hasComments: field.hasComments || true, //todo: remove true
+                                hasComments: field.hasComments,
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
                                 answerId: null,
                                 prevAnswers: [],
                                 responses: null,
+                                response: '',
                                 langId: scope.model.lang,
-                                essenceId: scope.surveyData.essenceId
+                                essenceId: scope.surveyData.essenceId,
+                                comment: ''
                             });
 
                             if (fld.canAttach) {
@@ -374,7 +376,7 @@ angular.module('greyscaleApp')
             scope.lock();
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
-                    var v, answer, qId,
+                    var v, answer, qId, response,
                         qty = _answers.length;
 
                     recentAnswers = {};
@@ -396,20 +398,19 @@ angular.module('greyscaleApp')
                             responses[qId].push(_answers[v]);
                         } else if (_answers[v].version) {
                             surveyAnswers[qId].push(_answers[v]);
-                        }
+                            answer = recentAnswers[qId];
 
-                        answer = recentAnswers[qId];
+                            if (!answer ||
+                                _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
+                                answer.version < _answers[v].version
+                            ) {
+                                if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
+                                    recentAnswers[qId] = _answers[v];
+                                }
 
-                        if (!answer ||
-                            _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
-                            answer.version < _answers[v].version
-                        ) {
-                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
-                                recentAnswers[qId] = _answers[v];
-                            }
-
-                            if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
-                                scope.savedAt = recentAnswers[qId].created;
+                                if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
+                                    scope.savedAt = recentAnswers[qId].created;
+                                }
                             }
                         }
                     }
@@ -420,7 +421,7 @@ angular.module('greyscaleApp')
         }
 
         function loadRecursive(fields, answers, responses) {
-            var f, fld, answer, o, oQty, response,
+            var f, fld, answer, o, oQty, response, rr,
                 fQty = fields.length;
 
             if (!answers) {
@@ -434,6 +435,10 @@ angular.module('greyscaleApp')
                     response = responses[fld.cid];
                     if (response) {
                         fld.responses = response;
+                        rr = response[response.length - 1];
+                        if (rr && rr.userId === currentUserId && rr.wfStepId === currentStepId) {
+                            fld.response = rr.comments;
+                        }
                     }
                 }
                 if (surveyAnswers[fld.cid]) {
@@ -453,7 +458,7 @@ angular.module('greyscaleApp')
                     }
 
                     if (fld.hasComments) {
-                        fld.comments = answer.comments || '';
+                        fld.comment = answer.comments || '';
                     }
 
                     switch (fld.type) {
@@ -549,7 +554,6 @@ angular.module('greyscaleApp')
             if (!isReadonly) {
                 scope.lock();
                 answers = preSaveFields(scope.fields);
-                $log.debug('saving fields', scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
@@ -634,11 +638,12 @@ angular.module('greyscaleApp')
                         answer.value = fld.answer;
                     }
 
-                    answer.comments = fld.comments;
-
                     if (provideResponses) {
                         answer.isResponse = true;
+                        answer.comments = fld.response;
                         answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
+                    } else {
+                        answer.comments = fld.comment;
                     }
 
                     if (fld.canAttach) {

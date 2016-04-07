@@ -18,14 +18,15 @@ angular.module('greyscale.core')
         this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
-            var res,
+            var res = $q.defer(),
                 self = this,
                 token = greyscaleTokenSrv();
 
             if (token) {
                 if (_profile && !force) {
-                    self._setAccessLevel();
-                    res = $q.resolve(_profile);
+                    self._setAccessLevel().then(function(){
+                        res.resolve(_profile);
+                    });
                 } else {
                     if (!_profilePromise || force) {
                         _profilePromise = greyscaleUserApi.get(greyscaleRealmSrv.origin())
@@ -36,19 +37,21 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
+                            .then(function(){
+                                res.resolve(_profile);
+                            })
                             .finally(function () {
                                 _profilePromise = null;
                             });
                     }
-                    res = _profilePromise;
                 }
             } else {
                 _profile = null;
                 _profilePromise = null;
-                res = $q.reject('not logged in');
+                res.reject('not logged in');
             }
 
-            return res;
+            return res.promise;
         };
 
         this._setAccessLevel = function () {

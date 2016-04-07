@@ -65,7 +65,7 @@ angular.module('greyscaleApp')
                     if (_isSuperAdmin()) {
                         $scope.$on('organization_update', getOrganizations);
 
-                        getOrganizations().then(function (){
+                        getOrganizations().then(function () {
                             var organizationId = parseInt($cookies.get('orgId'));
 
                             var organization = _.find($scope.model.organizations, {
@@ -108,7 +108,7 @@ angular.module('greyscaleApp')
                 }
 
                 function getOrganizations() {
-                    return greyscaleOrganizationApi.list({}, 'public').then(function(organizations){
+                    return greyscaleOrganizationApi.list({}, 'public').then(function (organizations) {
                         $scope.model.list = true;
                         $scope.model.organizations = _.sortBy(organizations, 'name');
                     });

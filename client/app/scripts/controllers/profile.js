@@ -86,6 +86,16 @@ angular.module('greyscaleApp')
                 field: 'bio',
                 title: tns + 'BIO',
                 dataFormat: 'textarea'
+            }, {
+                field: 'notifyLevel',
+                title: tns + 'NOTIFY_LEVEL',
+                dataFormat: 'option',
+                dataNoEmptyOption: true,
+                dataSet: {
+                    getData: _getNotifyLevels,
+                    keyField: 'value',
+                    valField: 'name'
+                }
             }]
         };
 
@@ -174,6 +184,10 @@ angular.module('greyscaleApp')
                     });
                 });
         };
+
+        function _getNotifyLevels () {
+            return greyscaleGlobals.notifyLevels;
+        }
 
         function _changePasswordValidationError(data) {
             if (data.password) {

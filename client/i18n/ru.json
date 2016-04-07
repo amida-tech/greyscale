@@ -146,6 +146,11 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "NOTIFYLEVELS": {
+            "INTERNAL": "",
+            "INTERNAL_AND_EMAILS": "",
+            "OFF": ""
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "Отменен",
             "COMPLETED": "Завершен",
@@ -488,6 +493,7 @@
         "LOCATION": "",
         "MOBILE": "",
         "NEW_PASSWORD": "",
+        "NOTIFY_LEVEL": "",
         "NOT_ACTIVATED": "",
         "NOT_VERIFIED": "",
         "ORGANIZATION": "",
@@ -663,6 +669,7 @@
         "LAST_ACTIVE": "Последняя активность",
         "LAST_NAME": "Фамилия",
         "NEW_PASSWORD": "",
+        "NOTIFY_LEVEL": "",
         "NOT_LOGGED": "Не входил",
         "NO_GROUPS": "",
         "ORGANIZATION": "Организация",

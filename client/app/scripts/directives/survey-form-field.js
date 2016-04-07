@@ -16,8 +16,7 @@ angular.module('greyscaleApp')
                 scope.showVersion = function (field) {
                     greyscaleModalsSrv.showVersion({
                         field: field
-                    }).then(function (model) {
-                    });
+                    }).then(function (model) {});
                 };
 
                 if (scope.field) {
@@ -207,7 +206,7 @@ angular.module('greyscaleApp')
                             //TODO here is pervious responses
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
-                                '<div class="field-response" gs-version-edit' + translation + '><span>' +
+                                '<div class="field-response" gs-version-edit' + ((flags.allowTranslate) ? ' translation="comments" ' : '') + '><span>' +
                                 '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
                                 '{{resp.comments}}</span></div></div></div>';
                         }
@@ -215,14 +214,16 @@ angular.module('greyscaleApp')
                         if (flags.provideResponses || scope.field.hasComments) {
                             body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
                             body += '<div class="field-comment">';
+
                             if (scope.field.hasComments) {
                                 body += '<div class="required" translate="SURVEYS.ANSWER_COMMENT"></div>' +
-                                    '<textarea class="form-control" required="required" placeholder="{{\'SURVEYS.ANSWER_COMMENT\' | translate}}" ng-model="field.comments"' +
-                                    translation + ' ng-readonly="field.flags.readonly || isDisabled"></textarea>'
+                                    '<textarea class="form-control" required="required" placeholder="{{\'SURVEYS.ANSWER_COMMENT\' | translate}}" ng-model="field.comment"' +
+                                    ((flags.allowTranslate) ? ' translation="comments" ' : '') + ' ng-readonly="field.flags.readonly || isDisabled"></textarea>';
                             }
+
                             if (flags.provideResponses) {
                                 body += '<div translate="SURVEYS.REVIEVER_COMMENT"></div>' +
-                                    '<textarea placeholder="Comment" ng-model="field.comments"></textarea>' +
+                                    '<textarea placeholder="Comment" ng-model="field.response"></textarea>' +
                                     '<div class="field-comment-radio">' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
                                     ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
