@@ -36,7 +36,8 @@ var columns = [
     'notifyLevel',
     'lastActive',
     'affiliation',
-    'isAnonymous'
+    'isAnonymous',
+    'langId'
 ];
 
 var viewFields = [
