@@ -398,19 +398,20 @@ angular.module('greyscaleApp')
                             responses[qId].push(_answers[v]);
                         } else if (_answers[v].version) {
                             surveyAnswers[qId].push(_answers[v]);
-                            answer = recentAnswers[qId];
+                        }
 
-                            if (!answer ||
-                                _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
-                                answer.version < _answers[v].version
-                            ) {
-                                if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
-                                    recentAnswers[qId] = _answers[v];
-                                }
+                        answer = recentAnswers[qId];
 
-                                if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
-                                    scope.savedAt = recentAnswers[qId].created;
-                                }
+                        if (!answer ||
+                            _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
+                            answer.version < _answers[v].version
+                        ) {
+                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
+                                recentAnswers[qId] = _answers[v];
+                            }
+
+                            if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
+                                scope.savedAt = recentAnswers[qId].created;
                             }
                         }
                     }
@@ -422,7 +423,7 @@ angular.module('greyscaleApp')
 
         function loadRecursive(fields, answers, responses) {
             var f, fld, answer, o, oQty, response, rr,
-                fQty = fields.length;
+                fQty = (fields) ? fields.length : 0;
 
             if (!answers) {
                 return;
@@ -578,7 +579,7 @@ angular.module('greyscaleApp')
 
         function preSaveFields(fields) {
             var f, fld, answer,
-                qty = fields.length,
+                qty = fields ? fields.length : 0,
                 _answers = [];
 
             for (f = 0; f < qty; f++) {
