@@ -179,9 +179,18 @@ passport.use(new TokenStrategy({
                 throw new HttpError(500, 'Database error '+err);
             }
 
-            debug('======= TokenStrategy =======');
-            debug('User: ', JSON.stringify(user));
-            debug ('realm: ', req.params.realm );
+            // add realmUserId to user
+            user.realmUserId = user.id;
+            if (user.roleID === 1 && req.params.realm !== 'public') {
+                // superuser
+                user.realmUserId = yield* getRealmAdminId(req, req.params.realm);
+                //if (!user.realmUserId) {
+                //    throw new HttpError(400, 'You can`t perform this action now. First, add organization`s admin')
+                //}
+            }
+			
+            debug('======= TokenStrategy ======= Realm:', req.params.realm, ' User:', JSON.stringify(user));
+            //debug ('userId: ', user.id, ' realmUserId:', user.realmUserId, ' realm: ', req.params.realm);
 
             if (!user) {
                 req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
@@ -200,17 +209,6 @@ passport.use(new TokenStrategy({
                 )
                 .where(User.id.equals(user.id))
             );
-
-            // add realmUserId to user
-            user.realmUserId = user.id;
-            if (user.roleID === 1 && req.params.realm !== 'public') {
-                // superuser
-                user.realmUserId = yield* getRealmAdminId(req, req.params.realm);
-                //if (!user.realmUserId) {
-                //    throw new HttpError(400, 'You can`t perform this action now. First, add organization`s admin')
-                //}
-            }
-            debug ('userId, realmUserId, realm)', user.id, user.realmUserId, req.params.realm );
 
             return _.pick(user, User.sesInfo);
 
@@ -237,8 +235,8 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            debug('Token realm = ' + existToken[0].realm);
-            debug('Admin schema = ' + config.pgConnect.adminSchema);
+            //debug('Token realm = ' + existToken[0].realm);
+            //debug('Admin schema = ' + config.pgConnect.adminSchema);
 
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
@@ -328,7 +326,7 @@ module.exports = {
                     session: false
                 }, function (err, user, info) {
 
-                    debug('Authenticate if Possible:',user);
+                    //debug('Authenticate if possible:', JSON.stringify(user));
 
                     if (user) {
                         req.user = user;
