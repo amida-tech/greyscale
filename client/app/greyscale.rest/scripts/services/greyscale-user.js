@@ -73,8 +73,8 @@ angular.module('greyscale.rest')
 
         function _login(user, passwd) {
             return greyscaleRestSrv({
-                'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
-            })
+                    'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
+                })
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
