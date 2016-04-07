@@ -3,6 +3,7 @@ var _ = require('underscore'),
     common = require('app/services/common'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
+    Language = require('app/models/languages'),
     Project = require('app/models/projects'),
     Product = require('app/models/products'),
     crypto = require('crypto'),
@@ -243,7 +244,7 @@ module.exports = {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
-                        resolve(data);
+                        resolve(data.replace(new RegExp('[\'\"]','g'), '`'));
                     });
                 }else{
                     reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
@@ -285,76 +286,104 @@ module.exports = {
                     level = (isNaN(level) || level < 0 || level >  2) ? 0 : level;
                     return level;
                 };
+                var getStr = function (val){
+                    return (_.isString(val)) ? val.trim() : val;
+                };
+                var booleanValue = function (val){
+                    var result = false;
+                    if (_.isString(val) && (val.trim().toUpperCase() === 'YES' || val.trim().toUpperCase() === 'TRUE')) {
+                        result = true;
+                    } else if (_.isBoolean(val)){
+                        result = val;
+                    } else if (parseInt(val) === 1) {
+                        result = true;
+                    }
+                    return result;
+                };
 
                 for (var i in parsed) {
-                    if (i != 0) { // skip first string
+                    if (parsed[i][0].substr(0,2) !== '//') { // skip comment string
                         var pass = crypto.randomBytes(5).toString('hex');
                         var roleID = (req.user.roleID === 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
+                        var notify = booleanValue(parsed[i][12]);
 
                         var existError = false;
 
-                        //if (roleID === 2 && org[0].adminUserId) { // admin already exists
-                        //    existError = true;
-                        //    roleID = 3;
-                        //}
-
                         var newUser = {
                             parse_status   : 'skipped',
-                            email          : parsed[i][0],
-                            firstName      : parsed[i][1],
-                            lastName       : parsed[i][2],
+                            email          : getStr(parsed[i][0]),
+                            firstName      : getStr(parsed[i][1]),
+                            lastName       : getStr(parsed[i][2]),
                             roleID         : roleID,
-                            isActive       : false, //(parsed[i][4]) cannot activate until email confirmation
-                            timezone       : parsed[i][5],
-                            location       : parsed[i][6],
-                            mobile         : parsed[i][7],
-                            phone          : parsed[i][8],
-                            address        : parsed[i][9],
-                            lang           : parsed[i][10],
-                            bio            : parsed[i][11],
-                            notifyLevel    : prepareLevel(parsed[i][12]),
+                            isActive       : booleanValue(parsed[i][4]),
+                            timezone       : getStr(parsed[i][5]),
+                            location       : getStr(parsed[i][6]),
+                            mobile         : getStr(parsed[i][7]),
+                            phone          : getStr(parsed[i][8]),
+                            address        : getStr(parsed[i][9]),
+                            lang           : getStr(parsed[i][10]),
+                            bio            : getStr(parsed[i][11]),
+                            notifyLevel    : 2, // default = 2
                             organizationId : org[0].id
                         };
 
+                        newUser.messages = [];
+                        var valid = true;
                         if (!vl.isEmail(newUser.email)) {
-                            newUser.message = 'Email is not valid';
+                            newUser.messages.push('Email is not valid');
                         }else{
                             var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
                             if (isExist[0]) {
-                                newUser.message = 'Already exists';
+                                newUser.messages.push('Already exists');
+                                valid = false;
                             }else{
-
-                                newUser.password = User.hashPassword(pass);
-                                newUser.activationToken = crypto.randomBytes(32).toString('hex');
-                                var created = yield thunkQuery(
-                                    User.insert(_.pick(newUser, User.whereCol)).returning(User.id)
-                                );
-                                bologger.log({
-                                    req: req,
-                                    user: req.user,
-                                    action: 'insert',
-                                    object: 'users',
-                                    entity: created[0].id,
-                                    info: 'Add user (bulk import)'
-                                });
-
-                                //if (roleID == 2) {
-                                //    yield thunkQuery(
-                                //        Organization
-                                //        .update({adminUserId: created[0].id})
-                                //        .where(Organization.id.equals(org[0].id))
-                                //    );
-                                //    org[0].adminUserId = created[0].id;
-                                //}
-
-                                if (created[0]) {
+                                // Validate and Set DEFAULT
+                                // langId
+                                if (!newUser.lang) {
+                                    // default EN
+                                    ret = yield thunkQuery(Language.select().where(Language.code.equals('en')));
+                                    if (ret[0]) {
+                                        newUser.langId = ret[0].id;
+                                        newUser.lang = 'en';
+                                    } else {
+                                        newUser.messages.push('Language `en` (default) does not exist in database');
+                                        valid = false;
+                                    }
+                                } else {
+                                    // check that specified Language is exist
+                                    ret = yield thunkQuery(Language.select().where(Language.code.equals(newUser.lang)));
+                                    if (ret[0]) {
+                                        newUser.langId = ret[0].id;
+                                    } else {
+                                        newUser.messages.push('Language `'+newUser.lang+'` does not exist in database');
+                                        valid = false;
+                                    }
+                                }
+                                // choose invite template
+                                var inviteTemplate = (newUser.isActive) ? 'orgInvite' : 'orgInvitePwd';
+                                // If valid, then created
+                                if (valid) {
+                                    newUser.password = User.hashPassword(pass);
+                                    newUser.activationToken = crypto.randomBytes(32).toString('hex');
+                                    try{
+                                        var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
+                                    }catch(e){
+                                        newUser.messages.push(e);
+                                        valid = false;
+                                    }
+                                }
+                                if (valid && created[0]) {
+                                    bologger.log({
+                                        req: req,
+                                        user: req.user,
+                                        action: 'insert',
+                                        object: 'users',
+                                        entity: created[0].id,
+                                        info: 'Add user (bulk import)'
+                                    });
                                     newUser.id = created[0].id;
                                     newUser.parse_status = 'Ok';
-                                    //if (existError) {
-                                    //    newUser.message = 'Admin for this company already exists, added as user';
-                                    //}else{
-                                        newUser.message = 'Added';
-                                    //}
+                                    newUser.message = 'Added';
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
                                     var note = yield * notifications.createNotification(req,
                                         {
@@ -363,21 +392,19 @@ module.exports = {
                                             body: 'Invite',
                                             essenceId: essenceId,
                                             entityId: newUser.id,
-                                            notifyLevel: newUser.notifyLevel,
+                                            notifyLevel: (notify ? 2 : 0),
                                             name: newUser.firstName,
                                             surname: newUser.lastName,
                                             company: org[0],
                                             inviter: req.user,
                                             token: newUser.activationToken,
+                                            password: pass,
                                             subject: 'Indaba. Organization membership',
                                             config: config
                                         },
-                                        'orgInvite'
+                                        inviteTemplate
                                     );
-
-
                                 }
-
                             }
                         }
 
