@@ -73,8 +73,8 @@ angular.module('greyscale.rest')
 
         function _login(user, passwd) {
             return greyscaleRestSrv({
-                    'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
-                })
+                'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
+            })
                 .one('users', 'token').get()
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
@@ -100,7 +100,10 @@ angular.module('greyscale.rest')
         }
 
         function _logout() {
-            return userAPI(greyscaleRealmSrv.origin()).one('logout').post();
+            return userAPI(greyscaleRealmSrv.origin()).one('logout').post()
+                .catch(function () {
+                    return false;
+                });
         }
 
         function _inviteSuperAdmin(userData) {

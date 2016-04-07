@@ -284,7 +284,7 @@ angular.module('greyscaleApp')
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
-                                hasComments: field.hasComments,
+                                hasComments: field.hasComments || true, //todo: remove true
                                 ngModel: {},
                                 flags: scope.surveyData.flags,
                                 answer: null,
@@ -447,8 +447,13 @@ angular.module('greyscaleApp')
                 if (answer) {
                     fld.answerId = answer.id;
                     fld.langId = answer.langId || fld.langId;
+
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
+                    }
+
+                    if (fld.hasComments) {
+                        fld.comments = answer.comments || '';
                     }
 
                     switch (fld.type) {
@@ -544,6 +549,7 @@ angular.module('greyscaleApp')
             if (!isReadonly) {
                 scope.lock();
                 answers = preSaveFields(scope.fields);
+                $log.debug('saving fields', scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
@@ -628,9 +634,10 @@ angular.module('greyscaleApp')
                         answer.value = fld.answer;
                     }
 
+                    answer.comments = fld.comments;
+
                     if (provideResponses) {
                         answer.isResponse = true;
-                        answer.comments = fld.comments;
                         answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
                     }
 

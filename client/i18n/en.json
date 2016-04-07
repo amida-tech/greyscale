@@ -553,6 +553,7 @@
     "SURVEYS": {
         "ABOVE": "above",
         "AGREE": "Agree",
+        "ANSWER_COMMENT": "Answer comment",
         "ATTACHMENTS": "Attachments",
         "BELOW": "below",
         "CONTENT": "Content",

@@ -18,8 +18,7 @@
                 <label for="last_name" class="col-sm-4 control-label" translate=".LAST_NAME"></label>
 
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" name="last_name" id="last_name" ng-model="model.lastName"
-                           ng-required="true" ng-minlength="1" required>
+                    <input type="text" class="form-control" name="last_name" id="last_name" ng-model="model.lastName" ng-minlength="1">
 
                     <div class="text-center" ng-messages="activationForm.name.$error" role="alert"
                          ng-if="activationForm.name.$dirty">

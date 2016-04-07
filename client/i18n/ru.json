@@ -553,6 +553,7 @@
     "SURVEYS": {
         "ABOVE": "",
         "AGREE": "Согласовано",
+        "ANSWER_COMMENT": "",
         "ATTACHMENTS": "",
         "BELOW": "",
         "CONTENT": "Содержание",
