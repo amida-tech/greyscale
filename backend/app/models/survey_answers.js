@@ -16,7 +16,8 @@ var columns = [
     'isAgree',
     'comments',
     'langId',
-    'attachments'
+    'attachments',
+    'answerComment'
 
 ];
 
@@ -31,7 +32,8 @@ SurveyAnswer.editCols = [
     'isResponse',
     'isAgree',
     'comments',
-    'attachments'
+    'attachments',
+    'answerComment'
 ];
 
 SurveyAnswer.translate = [

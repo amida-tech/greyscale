@@ -20,7 +20,8 @@ var columns = [
     'qid',
     'links',
     'attachment',
-    'optionNumbering'
+    'optionNumbering',
+    'hasComments'
 ];
 
 var SurveyQuestion = sql.define({
@@ -50,7 +51,7 @@ SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
     'skip', 'size', 'minLength', 'maxLength',
     'isWordmml', 'incOtherOpt', 'units', 'intOnly', 'value', 'qid',
-    'links', 'attachment', 'optionNumbering'
+    'links', 'attachment', 'optionNumbering', 'hasComments'
 ];
 
 SurveyQuestion.translate = [
