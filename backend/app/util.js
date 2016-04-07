@@ -229,7 +229,7 @@ exports.getTranslateQuery = function (langId, model, condition) {
 };
 
 var prepareValue = function(val, seen) {
-    debug(val);
+    //debug(val);
 
     if (val instanceof Buffer) {
         return val;
