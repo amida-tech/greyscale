@@ -19,11 +19,11 @@ angular.module('greyscale.rest')
         };
 
         function _roles(realm) {
-            return greyscaleRestSrv({}, realm);
+            return greyscaleRestSrv({}, realm).one('roles');
         }
 
         function _rights(roleId) {
-            return _roles().one('roles').one(roleId + '', 'rights');
+            return _roles().one(roleId + '', 'rights');
         }
 
         function _postProc(resp) {
@@ -31,6 +31,6 @@ angular.module('greyscale.rest')
         }
 
         function _list(params, realm) {
-            return _roles(realm).one('roles').get(params).then(_postProc);
+            return _roles(realm).get(params).then(_postProc);
         }
     });
