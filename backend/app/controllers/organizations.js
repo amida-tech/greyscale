@@ -1,6 +1,6 @@
 var _ = require('underscore'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     User = require('app/models/users'),
     Organization = require('app/models/organizations'),
     Project = require('app/models/projects'),

@@ -1,7 +1,7 @@
 var
     _ = require('underscore'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     logger = require('app/logger'),
     vl = require('validator'),
     Essence = require('app/models/essences'),

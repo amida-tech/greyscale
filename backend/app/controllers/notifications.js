@@ -3,7 +3,7 @@ var
     ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     auth = require('app/auth'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
