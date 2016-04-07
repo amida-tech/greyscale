@@ -190,7 +190,8 @@ passport.use(new TokenStrategy({
 
             req.debug(util.format('Authentication OK for token: %s', tokenBody));
 
-            yield thunkQuery(
+			var clientThunkQuery = thunkify(new Query(req.params.realm));
+			yield clientThunkQuery(
                 User.update(
                     {
                         lastActive: new Date()

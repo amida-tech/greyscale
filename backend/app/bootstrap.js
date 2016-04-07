@@ -33,6 +33,7 @@ app.on('start', function () {
 
     // MEMCHACHE
     app.use(function(req,res,next){
+		debug('Request URL:', req.url);
         req.mcClient = mcClient;
         next();
     });
