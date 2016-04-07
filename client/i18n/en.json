@@ -146,6 +146,11 @@
         "WRONG_DATE_FORMAT": "Wrong date format."
     },
     "GLOBALS": {
+        "NOTIFYLEVELS": {
+            "INTERNAL": "Internal Notifications Only",
+            "INTERNAL_AND_EMAILS": "Internal Notifications And Emails",
+            "OFF": "Off"
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
@@ -488,6 +493,7 @@
         "LOCATION": "Location",
         "MOBILE": "Mobile",
         "NEW_PASSWORD": "New Password",
+        "NOTIFY_LEVEL": "Notify Level",
         "NOT_ACTIVATED": "Not Activated",
         "NOT_VERIFIED": "not verified",
         "ORGANIZATION": "Organization",
@@ -663,6 +669,7 @@
         "LAST_ACTIVE": "Last Active",
         "LAST_NAME": "Last name",
         "NEW_PASSWORD": "New Password",
+        "NOTIFY_LEVEL": "Notify Level",
         "NOT_LOGGED": "Not Logged",
         "NO_GROUPS": "No Groups",
         "ORGANIZATION": "Organization",

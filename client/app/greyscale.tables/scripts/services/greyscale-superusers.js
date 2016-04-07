@@ -78,6 +78,19 @@ angular.module('greyscale.tables')
                 sendMessageTo: _sendMessageTo
             }
         }, {
+            field: 'notifyLevel',
+            title: tns + 'NOTIFY_LEVEL',
+            dataFormat: 'option',
+            cellTemplate: '<div class="text-center">' +
+            '       {{cell}}' +
+            '   </div>',
+            dataNoEmptyOption: true,
+            dataSet: {
+                getData: _getNotifyLevels,
+                keyField: 'value',
+                valField: 'name'
+            }
+        }, {
             field: '',
             title: '',
             show: true,
@@ -174,6 +187,10 @@ angular.module('greyscale.tables')
 
         function reloadTable() {
             _table.tableParams.reload();
+        }
+
+        function _getNotifyLevels () {
+            return greyscaleGlobals.notifyLevels;
         }
 
         function _getUsers() {
