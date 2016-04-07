@@ -59,12 +59,12 @@ passport.use(new BasicStrategy({
                 return admin;
             } else {
                 if (req.params.realm == 'public') {
-
+                    debug('Not superuser try to login to public:', user);
                     var userArr = [];
 
                     for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
                         var user = yield * findUserInNamespace(req.schemas[i], email);
-                        debug('Not superuser try to login to public:', user);
+
                         if (user[0]) {
                             userInNamespace.push({
                                 realm: req.schemas[i],
