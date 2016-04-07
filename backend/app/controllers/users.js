@@ -885,55 +885,73 @@ module.exports = {
             }
 
             var userArr = [];
-            req.schemas.push(config.pgConnect.adminSchema);
+            //req.schemas.push(config.pgConnect.adminSchema);
 
             if (req.params.realm == config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
-                for (var i in req.schemas) { // search in all schemas
-                    var clientThunkQuery = thunkify(new Query(req.schemas[i]));
-                    var user = yield clientThunkQuery(
-                        User
-                        .select(
-                            User.star(),
-                            Role.name.as('role'),
-                            Organization.name.as('orgName')
-                        )
-                        .from(
-                            User
-                                .leftJoin(Role)
-                                .on(User.roleID.equals(Role.id))
-                                .leftJoin(Organization)
-                                .on(User.organizationId.equals(Organization.id))
-                        )
+                // search in public at first (super admin forgot password)
+
+                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+                var user = yield clientThunkQuery(
+                    User
+                        .select()
+                        .from(User)
                         .where(
                             sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
                         )
-                    );
+                );
 
-                    if (user.length) {
-                        var curRealm = req.schemas[i];
-                        userInRealm.push({
-                            realm: req.schemas[i],
-                            orgName: user[0].orgName
-                        });
-                        userArr.push(user[0]);
+                if (user.length) {
+                    user = user[0];
+                } else {
+                    for (var i in req.schemas) { // search in all schemas
+                        var clientThunkQuery = thunkify(new Query(req.schemas[i]));
+                        var user = yield clientThunkQuery(
+                            User
+                                .select(
+                                    User.star(),
+                                    Role.name.as('role'),
+                                    Organization.name.as('orgName')
+                                )
+                                .from(
+                                    User
+                                        .leftJoin(Role)
+                                        .on(User.roleID.equals(Role.id))
+                                        .leftJoin(Organization)
+                                        .on(User.organizationId.equals(Organization.id))
+                                )
+                                .where(
+                                    sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
+                                )
+                        );
+
+                        if (user.length) {
+                            var curRealm = req.schemas[i];
+                            userInRealm.push({
+                                realm: req.schemas[i],
+                                orgName: user[0].orgName
+                            });
+                            userArr.push(user[0]);
+                        }
                     }
-                }
-                if (!userInRealm.length) {
-                    throw new HttpError(403, 'User with this email does not exist');
+                    if (!userInRealm.length) {
+                        throw new HttpError(403, 'User with this email does not exist');
+                    }
+
+                    if (userInRealm.length > 1) {
+                        var result = [];
+                        throw new HttpError(300, userInRealm);
+                    }
+
+                    // found just one
+                    user = userArr[0];
+                    // set the right schema
+                    req.params.realm = curRealm;
+                    var clientThunkQuery = thunkify(new Query(curRealm));
                 }
 
-                if (userInRealm.length > 1) {
-                    var result = [];
-                    throw new HttpError(300, userInRealm);
-                }
-                // found just one
-                user = userArr[0];
 
-                // set the right schema
-                req.params.realm = curRealm;
-                var clientThunkQuery = thunkify(new Query(curRealm));
             } else { // certain realm
                 var clientThunkQuery = thunkify(new Query(req.params.realm));
 
