@@ -1,8 +1,7 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleProjectSurveysTbl', function ($q, greyscaleSurveyApi,
-        greyscaleProjectApi, greyscaleModalsSrv,
-        $rootScope, greyscaleUtilsSrv, inform, $log, $location, $state) {
+    .factory('greyscaleProjectSurveysTbl', function ($q, $state, greyscaleSurveyApi, greyscaleProjectApi,
+        greyscaleModalsSrv, greyscaleUtilsSrv) {
 
         var tns = 'SURVEYS.';
 
@@ -76,11 +75,6 @@ angular.module('greyscale.tables')
             _table.tableParams.reload();
         }
 
-        function _errHandler(err, operation) {
-            var msg = _table.formTitle + ' ' + operation + ' error';
-            greyscaleUtilsSrv.errorMsg(err, msg);
-        }
-
         function _editSurvey(_survey) {
             $state.go('projects.setup.surveys.edit', {
                 surveyId: _survey ? _survey.id : 'new',
@@ -96,14 +90,12 @@ angular.module('greyscale.tables')
                 okText: 'COMMON.DELETE'
             }).then(function () {
                 greyscaleSurveyApi.delete(_survey).then(_reload).catch(function (err) {
-                    inform.add('Survey delete error: ' + err);
+                    greyscaleUtilsSrv.errorMsg(err, 'Survey delete error');
                 });
             });
         }
 
         function _viewSurvey(_survey) {
-            //window.location = $location.protocol() + '://' + $location.host() + ':' + $location.port() +
-            //    '/interviewRenderer/?sureveyId=' + _survey.id;
             $state.go('survey', {
                 surveyId: _survey.id
             });

@@ -6,7 +6,7 @@
 angular.module('greyscaleApp')
     .controller('SurveyCtrl', function (_, $scope, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi,
-        greyscaleEntityTypeApi, $log) {
+        greyscaleEntityTypeApi) {
 
         $scope.loading = true;
 
@@ -68,7 +68,6 @@ angular.module('greyscaleApp')
                         data.task.step = steps[s];
                     }
                 }
-                $log.debug('step flags', data.flags);
             })
             .finally(function () {
                 $scope.model.surveyData = data;

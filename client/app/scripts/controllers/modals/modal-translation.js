@@ -52,7 +52,6 @@ angular.module('greyscaleApp')
                     q = res.trns.length;
 
                 _origin.value = translation.value[translation.index].data;
-                $log.debug('length is ', translation.value.length);
 
                 for (i = 0; i < q; i++) {
                     _jsonArr = angular.fromJson(res.trns[i].value);
