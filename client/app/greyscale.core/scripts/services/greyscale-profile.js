@@ -18,15 +18,13 @@ angular.module('greyscale.core')
         this.isAdmin = _isAdmin;
 
         this.getProfile = function (force) {
-            var res = $q.defer(),
+            var res = $q.reject('not logged in'),
                 self = this,
                 token = greyscaleTokenSrv();
 
             if (token) {
                 if (_profile && !force) {
-                    self._setAccessLevel().then(function(){
-                        res.resolve(_profile);
-                    });
+                    res = self._setAccessLevel();
                 } else {
                     if (!_profilePromise || force) {
                         _profilePromise = greyscaleUserApi.get(greyscaleRealmSrv.origin())
@@ -37,35 +35,38 @@ angular.module('greyscale.core')
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
-                            .then(function(){
-                                res.resolve(_profile);
-                            })
                             .finally(function () {
                                 _profilePromise = null;
                             });
                     }
+                    res = _profilePromise;
                 }
             } else {
                 _profile = null;
                 _profilePromise = null;
-                res.reject('not logged in');
             }
 
-            return res.promise;
+            return res;
         };
 
-        this._setAccessLevel = function () {
-            if (_profile) {
-                return greyscaleRoleApi.list({}, greyscaleRealmSrv.origin())
+        this._setAccessLevel = function (profile) {
+            var res = $q.reject('no user data loaded');
+
+            if (typeof profile === 'undefined') {
+                profile = _profile;
+            }
+
+            if (profile) {
+                res = greyscaleRoleApi.list({}, greyscaleRealmSrv.origin())
                     .then(function (roles) {
                         greyscaleGlobals.setRolesId(roles);
-                        _accessLevel = greyscaleUtilsSrv.getRoleMask(_profile.roleID, true);
+                        _accessLevel = greyscaleUtilsSrv.getRoleMask(profile.roleID, true);
                         $rootScope.checkAccessRole = _checkAccessRole;
-                        return _profile;
+                        return profile;
                     });
-            } else {
-                return $q.reject('no user data loaded');
             }
+
+            return res;
         };
 
         this.getAccessLevelMask = function () {
