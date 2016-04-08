@@ -172,13 +172,17 @@ angular.module('greyscaleApp')
                     if ($scope.surveyData) {
                         flags = $scope.surveyData.flags;
                     }
-                    _locked = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses || flags.readonly ; //is readonly
-                    _locked = _locked && (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
+                    _locked = isReadonlyFlags(flags) &&
+                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
 
                     return _locked;
                 };
             }
         };
+
+        function isReadonlyFlags(flags) {
+            return !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses || flags.readonly;
+        }
 
         function initLanguage(scope) {
             var _data = scope.surveyData.languages;
@@ -231,12 +235,11 @@ angular.module('greyscaleApp')
                 });
             }
 
-            flags = scope.surveyData.flags;
             currentUserId = scope.surveyData.userId;
             currentStepId = task.stepId;
             provideResponses = scope.surveyData.flags.provideResponses;
 
-            isReadonly = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses;
+            isReadonly = isReadonlyFlags(scope.surveyData.flags);
 
             scope.model.formReadonly = isReadonly;
             scope.model.translated = !flags.allowTranslate;
