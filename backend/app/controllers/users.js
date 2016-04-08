@@ -229,7 +229,8 @@ module.exports = {
                 'password': User.hashPassword(pass),
                 'isActive': false,
                 'activationToken': activationToken,
-                'isAnonymous' : false
+                'isAnonymous' : false,
+                'notifyLevel' : req.body.notifyLevel
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -244,7 +245,6 @@ module.exports = {
             });
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
-            var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
@@ -252,7 +252,7 @@ module.exports = {
                     body: 'Superadmin Invite',
                     essenceId: essenceId,
                     entityId: _.first(user).id,
-                    notifyLevel: notifyLevel,
+                    notifyLevel: req.body.notifyLevel,
                     name: req.body.firstName,
                     surname: req.body.lastName,
                     login: req.body.email,
@@ -438,7 +438,8 @@ module.exports = {
                     'isActive': false,
                     'activationToken': activationToken,
                     'organizationId': org.id,
-                    'isAnonymous' : req.body.isAnonymous ? true : false
+                    'isAnonymous' : req.body.isAnonymous ? true : false,
+                    'notifyLevel' : req.body.notifyLevel
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -461,32 +462,31 @@ module.exports = {
                     }
                 }
 
+                var essenceId = yield * common.getEssenceId(req, 'Users');
+
+                var note = yield * notifications.createNotification(req,
+                    {
+                        userFrom: newUserId,
+                        userTo: newUserId,
+                        body: 'Invite',
+                        essenceId: essenceId,
+                        entityId: newUserId,
+                        notifyLevel: req.body.notifyLevel,
+                        name: firstName,
+                        surname: lastName,
+                        company: org,
+                        inviter: req.user,
+                        token: activationToken,
+                        subject: 'Indaba. Organization membership',
+                        config: config
+                    },
+                    'orgInvite'
+                );
 
             }else {
                 newClient = isExistUser;
             }
 
-            var essenceId = yield * common.getEssenceId(req, 'Users');
-            var notifyLevel = 2; // ToDo: Default - need specify
-
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: newUserId,
-                    userTo: newUserId,
-                    body: 'Invite',
-                    essenceId: essenceId,
-                    entityId: newUserId,
-                    notifyLevel: notifyLevel,
-                    name: firstName,
-                    surname: lastName,
-                    company: org,
-                    inviter: req.user,
-                    token: activationToken,
-                    subject: 'Indaba. Organization membership',
-                    config: config
-                },
-                'orgInvite'
-            );
 
             return newClient;
 
@@ -989,7 +989,7 @@ module.exports = {
             } else {
 
                 var essenceId = yield * common.getEssenceId(req, 'Users');
-                var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+                var notifyLevel = 2; // always send eMail
                 var note = yield * notifications.createNotification(req,
                     {
                         userFrom: user.id,  // ToDo: userFrom???
@@ -1207,7 +1207,6 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
-        var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(req,
             {
                 userFrom: req.user.realmUserId,
@@ -1215,7 +1214,7 @@ function* insertOne(req, res, next) {
                 body: 'Thank you for registering at Indaba',
                 essenceId: essenceId,
                 entityId: user.id,
-                notifyLevel: notifyLevel,
+                notifyLevel: req.body.notifyLevel,
                 name: req.body.firstName,
                 surname: req.body.lastName,
                 subject: 'Thank you for registering at Indaba',
