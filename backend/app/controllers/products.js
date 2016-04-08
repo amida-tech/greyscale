@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     config = require('config'),
+    crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     csv = require('express-csv'),
@@ -27,6 +28,7 @@ var
     Query = require('app/util').Query,
     getTranslateQuery = require('app/util').getTranslateQuery,
     query = new Query(),
+    mc = require('app/mc_helper'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
@@ -204,7 +206,18 @@ module.exports = {
       var thunkQuery = req.thunkQuery;
 
       co(function* (){
-      var q =
+
+          try{
+              var id = yield mc.get(req.mcClient, req.params.ticket);
+          }catch(e){
+              throw new HttpError(500, e);
+          }
+
+          if(!id){
+              throw new HttpError(400, 'Ticket is not valid');
+          }
+
+          var q =
               'SELECT ' +
               '"Tasks"."id" as "taskId", ' +
               '"UnitOfAnalysis"."name" as "uoaName", ' +
@@ -257,7 +270,7 @@ module.exports = {
               'AND ("SurveyAnswers"."version" = "sa"."max") ' +
               ') ' +
               'WHERE ( ' +
-                  '("Tasks"."productId" = ' + parseInt(req.params.id) + ') ' +
+                  '("Tasks"."productId" = ' + parseInt(id) + ') ' +
               ')';
         debug(q);
 
@@ -273,6 +286,39 @@ module.exports = {
       next(err);
     });
   },
+
+
+    getTicket: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* (){
+
+            var product = yield thunkQuery(
+                Product.select().where(Product.id.equals(req.params.id))
+            );
+
+            if (!product[0]) {
+                throw new HttpError(404, 'Product not found');
+            }
+
+            var ticket = crypto.randomBytes(10).toString('hex');
+
+            try{
+                var r = yield mc.set(req.mcClient, ticket, product[0].id);
+                return ticket;
+            }catch(e){
+                throw new HttpError(500, e);
+            }
+
+        }).then(function(data){
+            res.status(201).json(
+                {
+                    ticket : data
+                }
+            );
+        }, function(err){
+            next(err);
+        });
+    },
 
     indexes: function (req, res, next) {
         var thunkQuery = req.thunkQuery;

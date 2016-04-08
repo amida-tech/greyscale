@@ -387,7 +387,7 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
+                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
