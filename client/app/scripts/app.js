@@ -26,8 +26,7 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable',
-    'ngFileSaver'
+    'ui.sortable'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
