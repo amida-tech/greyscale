@@ -57,7 +57,7 @@ var getUser = function* (req, userId) {
 };
 exports.getUser = getUser;
 
-var getEssenceId = function* (req, essenceName) {
+var getEssenceId = function* (req, essenceName) { // ToDo: use memcache
     var thunkQuery = (req) ?  req.thunkQuery : global.thunkQuery;
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
