@@ -98,3 +98,19 @@ var getEssence = function* (req, essenceId) {
 };
 exports.getEssence = getEssence;
 
+
+var isExistsUserInRealm = function* (req, realm, email) {
+    var thunkQuery = thunkify(new Query(realm));
+
+    var result = yield thunkQuery(
+        User
+            .select()
+            .from(User)
+            .where(
+                sql.functions.UPPER(User.email).equals(email.toUpperCase())
+            )
+    );
+
+    return result[0] ? result[0] : false;
+};
+exports.isExistsUserInRealm = isExistsUserInRealm;

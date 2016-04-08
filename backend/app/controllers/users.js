@@ -183,7 +183,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield insertOne(req, res, next);
+            return yield *insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(User.view(_.first(data)));
         }, function (err) {
@@ -706,41 +706,44 @@ module.exports = {
                     info: 'Update user'
                 });
             }
-            var userGroups4delete = yield thunkQuery(
-                UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
-            );
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'delete',
-                object: 'userGroups',
-                entities: userGroups4delete,
-                quantity: userGroups4delete.length,
-                info: 'Delete user`s groups'
-            });
-            var groupObjs = [];
-            for (var i in req.body.usergroupId) {
-                groupObjs.push(
-                    {
-                        groupId : req.body.usergroupId[i],
-                        userId  : req.params.id
-                    }
-                );
-            }
-            if (groupObjs.length) {
-                yield thunkQuery(
-                    UserGroup.insert(groupObjs)
+            if (req.params.realm != config.pgConnect.adminSchema) {
+                var userGroups4delete = yield thunkQuery(
+                    UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
                 bologger.log({
                     req: req,
                     user: req.user,
-                    action: 'insert',
+                    action: 'delete',
                     object: 'userGroups',
-                    entities: groupObjs,
-                    quantity: groupObjs.length,
-                    info: 'Add new groups for user'
+                    entities: userGroups4delete,
+                    quantity: userGroups4delete.length,
+                    info: 'Delete user`s groups'
                 });
+                var groupObjs = [];
+                for (var i in req.body.usergroupId) {
+                    groupObjs.push(
+                        {
+                            groupId : req.body.usergroupId[i],
+                            userId  : req.params.id
+                        }
+                    );
+                }
+                if (groupObjs.length) {
+                    yield thunkQuery(
+                        UserGroup.insert(groupObjs)
+                    );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'userGroups',
+                        entities: groupObjs,
+                        quantity: groupObjs.length,
+                        info: 'Add new groups for user'
+                    });
+                }
             }
+
         }).then(function(){
             res.status(202).end();
         }, function(err){
@@ -891,16 +894,7 @@ module.exports = {
                 var userInRealm = [];
 
                 // search in public at first (super admin forgot password)
-
-                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
-                var user = yield clientThunkQuery(
-                    User
-                        .select()
-                        .from(User)
-                        .where(
-                            sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
-                        )
-                );
+                var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
 
                 if (user.length) {
                     user = user[0];
