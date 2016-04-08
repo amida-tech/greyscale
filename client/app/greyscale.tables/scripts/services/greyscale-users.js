@@ -6,8 +6,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleUsersTbl',
         function (_, $q, greyscaleModalsSrv, greyscaleUserApi, greyscaleUtilsSrv, inform, i18n,
-            greyscaleProfileSrv, greyscaleGlobals, greyscaleRoleApi, greyscaleNotificationApi, greyscaleGroupApi) {
-            //var accessLevel;
+            greyscaleProfileSrv, greyscaleGlobals, greyscaleRolesSrv, greyscaleNotificationApi, greyscaleGroupApi) {
 
             var tns = 'USERS.';
 
@@ -148,17 +147,7 @@ angular.module('greyscale.tables')
             };
 
             function _getRoles() {
-                /*
-                 if (_isSuperAdmin()) {
-                 return dicts.roles;
-                 } else {
-                 */
-                return _.filter(dicts.roles, function (o) {
-                    return o.id !== greyscaleGlobals.userRoles.superAdmin.id && o.id >= dicts.profile.roleID;
-                });
-                /*
-                 }
-                 */
+                return dicts.roles;
             }
 
             function _getNotifyLevels() {
@@ -249,15 +238,7 @@ angular.module('greyscale.tables')
             function reloadTable() {
                 _table.tableParams.reload();
             }
-            /*
-            function _isSuperAdmin() {
-                return ((accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
-            }
 
-            function _isAdmin() {
-                return ((accessLevel & greyscaleGlobals.userRoles.admin.mask) !== 0);
-            }
-            */
             function _getOrganizationId() {
                 return _table.dataFilter.organizationId;
             }
@@ -271,25 +252,19 @@ angular.module('greyscale.tables')
                 }
 
                 return greyscaleProfileSrv.getProfile().then(function (profile) {
-
-                    dicts.profile = profile;
-
-                    //accessLevel = greyscaleProfileSrv.getAccessLevelMask();
-
-                    //var listFilter = {
-                    //    organizationId: organizationId
-                    //};
-
                     var reqs = {
-                        roles: greyscaleRoleApi.list({
-                            isSystem: true
-                        }),
+                        roles: greyscaleRolesSrv(),
                         users: greyscaleUserApi.list(),
                         groups: greyscaleGroupApi.list(organizationId)
                     };
 
+                    dicts.profile = profile;
                     return $q.all(reqs).then(function (promises) {
-                        dicts.roles = _addTitles(promises.roles);
+                        var _roles = _.filter(promises.roles, function (o) {
+                            return o.isSystem && o.id !== greyscaleGlobals.userRoles.superAdmin.id && o.id >= dicts.profile.roleID;
+                        });
+
+                        dicts.roles = _addTitles(_roles);
                         dicts.groups = promises.groups;
                         greyscaleUtilsSrv.prepareFields(promises.users, _fields);
                         return promises.users;

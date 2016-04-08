@@ -5,7 +5,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRolesSrv', function ($q, greyscaleRoleApi, greyscaleGlobals) {
+    .service('greyscaleRolesSrv', function ($q, greyscaleRoleApi, greyscaleRealmSrv) {
         var _roles = {},
             _rolesPromise = {};
 
@@ -15,7 +15,7 @@ angular.module('greyscale.core')
             var res = $q.resolve([]);
 
             if (typeof realm === 'undefined') {
-                realm = greyscaleGlobals.adminSchema;
+                realm = greyscaleRealmSrv.current();
             }
 
             if (_roles[realm] && !force) {
