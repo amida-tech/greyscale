@@ -172,8 +172,8 @@ angular.module('greyscaleApp')
                     if ($scope.surveyData) {
                         flags = $scope.surveyData.flags;
                     }
-                    _locked = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses; //is readonly
-                    _locked = _locked && !$scope.model.translated;
+                    _locked = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses || flags.readonly ; //is readonly
+                    _locked = _locked && (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
 
                     return _locked;
                 };
@@ -566,7 +566,7 @@ angular.module('greyscaleApp')
                             canMove = (resp[r].statusCode === 200);
                         }
                         scope.savedAt = new Date();
-                        return canMove;
+                        return canMove || isAuto;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
