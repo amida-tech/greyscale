@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleRoleApi,
+    .service('greyscaleProfileSrv', function ($q, greyscaleTokenSrv, greyscaleUserApi, greyscaleRolesSrv,
         greyscaleUtilsSrv, greyscaleGlobals, $log, $rootScope, greyscaleRealmSrv, $interval, greyscaleEnv) {
 
         var _tokenChecker,
@@ -57,7 +57,7 @@ angular.module('greyscale.core')
             }
 
             if (profile) {
-                res = greyscaleRoleApi.list({}, greyscaleRealmSrv.origin())
+                res = greyscaleRolesSrv(greyscaleRealmSrv.origin())
                     .then(function (roles) {
                         greyscaleGlobals.setRolesId(roles);
                         _accessLevel = greyscaleUtilsSrv.getRoleMask(profile.roleID, true);

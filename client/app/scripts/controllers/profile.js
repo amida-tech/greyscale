@@ -185,7 +185,7 @@ angular.module('greyscaleApp')
                 });
         };
 
-        function _getNotifyLevels () {
+        function _getNotifyLevels() {
             return greyscaleGlobals.notifyLevels;
         }
 

@@ -5,28 +5,34 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleRolesSrv', function ($q, greyscaleRoleApi) {
-        var _roles = null;
-        var _rolesPromise = null;
-        this.getRoles = function (force) {
-            var res;
+    .service('greyscaleRolesSrv', function ($q, greyscaleRoleApi, greyscaleGlobals) {
+        var _roles = {},
+            _rolesPromise = {};
 
-            force = !!force;
-            if (!_roles || force) {
-                if (!_rolesPromise) {
-                    _rolesPromise = greyscaleRoleApi.list()
-                        .then(function (data) {
-                            _roles = data;
-                            return _roles;
+        return _rolesList;
+
+        function _rolesList(realm, force) {
+            var res = $q.resolve([]);
+
+            if (typeof realm === 'undefined') {
+                realm = greyscaleGlobals.adminSchema;
+            }
+
+            if (_roles[realm] && !force) {
+                res = $q.resolve(_roles[realm]);
+            } else {
+                if (!_rolesPromise[realm] || force) {
+                    _rolesPromise[realm] = greyscaleRoleApi.list({}, realm)
+                        .then(function (list) {
+                            _roles[realm] = list;
+                            return _roles[realm];
                         })
                         .finally(function () {
-                            _rolesPromise = null;
+                            _rolesPromise[realm] = null;
                         });
                 }
-                res = _rolesPromise;
-            } else {
-                res = $q.resolve(_roles);
+                res = _rolesPromise[realm];
             }
             return res;
-        };
+        }
     });

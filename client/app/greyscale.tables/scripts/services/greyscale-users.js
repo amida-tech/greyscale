@@ -103,8 +103,8 @@ angular.module('greyscale.tables')
                 title: tns + 'NOTIFY_LEVEL',
                 dataFormat: 'option',
                 cellTemplate: '<div class="text-center">' +
-                '       {{cell}}' +
-                '   </div>',
+                    '       {{cell}}' +
+                    '   </div>',
                 dataNoEmptyOption: true,
                 dataSet: {
                     getData: _getNotifyLevels,
@@ -161,7 +161,7 @@ angular.module('greyscale.tables')
                  */
             }
 
-            function _getNotifyLevels () {
+            function _getNotifyLevels() {
                 return greyscaleGlobals.notifyLevels;
             }
 

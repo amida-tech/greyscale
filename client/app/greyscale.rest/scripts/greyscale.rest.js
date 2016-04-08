@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
-    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRoleApiProvider) {
+    .config(function (greyscaleEnv, RestangularProvider, greyscaleGlobalsProvider, greyscaleRolesSrvProvider) {
 
         var realm = 'public';
 
@@ -20,6 +20,6 @@ angular.module('greyscale.rest', ['restangular', 'greyscale.core'])
             cache: false,
             withCredentials: false
         });
-        var greyscaleRoleApi = greyscaleRoleApiProvider.$get();
-        greyscaleRoleApi.list().then(greyscaleGlobalsProvider.initRoles);
+        var greyscaleRolesSrv = greyscaleRolesSrvProvider.$get();
+        greyscaleRolesSrv().then(greyscaleGlobalsProvider.initRoles);
     });
