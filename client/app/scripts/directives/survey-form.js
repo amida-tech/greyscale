@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
         var currentUserId, currentStepId;
         var provideResponses = false;
         var surveyAnswers = [];
-        var flags;
+        var flags = {};
 
         return {
             restrict: 'E',
@@ -167,11 +167,6 @@ angular.module('greyscaleApp')
 
                 $scope.isLocked = function () {
                     var _locked;
-                    var flags = {};
-
-                    if ($scope.surveyData) {
-                        flags = $scope.surveyData.flags;
-                    }
                     _locked = isReadonlyFlags(flags) &&
                         (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
 
@@ -180,8 +175,8 @@ angular.module('greyscaleApp')
             }
         };
 
-        function isReadonlyFlags(flags) {
-            return !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses || flags.readonly;
+        function isReadonlyFlags(_flags) {
+            return !_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses || _flags.readonly;
         }
 
         function initLanguage(scope) {
@@ -235,11 +230,12 @@ angular.module('greyscaleApp')
                 });
             }
 
+            flags = scope.surveyData.flags;
             currentUserId = scope.surveyData.userId;
             currentStepId = task.stepId;
-            provideResponses = scope.surveyData.flags.provideResponses;
+            provideResponses = flags.provideResponses;
 
-            isReadonly = isReadonlyFlags(scope.surveyData.flags);
+            isReadonly = isReadonlyFlags(flags);
 
             scope.model.formReadonly = isReadonly;
             scope.model.translated = !flags.allowTranslate;
@@ -289,7 +285,7 @@ angular.module('greyscaleApp')
                                 canAttach: field.attachment,
                                 hasComments: field.hasComments,
                                 ngModel: {},
-                                flags: scope.surveyData.flags,
+                                flags: flags,
                                 answer: null,
                                 answerId: null,
                                 prevAnswers: [],
@@ -379,7 +375,7 @@ angular.module('greyscaleApp')
             scope.lock();
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
-                    var v, answer, qId, response,
+                    var v, answer, qId,
                         qty = _answers.length;
 
                     recentAnswers = {};
