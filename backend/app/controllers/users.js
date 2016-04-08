@@ -389,27 +389,28 @@ module.exports = {
             throw new HttpError(400, 'Incorrect realm');
         }
 
-        var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
 
             if (req.body.roleID == 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
 
-            if (!req.body.email || !req.body.firstName) {
-                throw new HttpError(400, 'Email and First name fields are required');
+            if (!req.body.email || !req.body.firstName || !req.body.roleID) {
+                throw new HttpError(400, 'Role id, Email and First name fields are required');
             }
 
             if (!vl.isEmail(req.body.email)) {
                 throw new HttpError(400, 101);
             }
 
-            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
-            isExistUser = _.first(isExistUser);
+            var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+            var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
-            if (isExistUser && isExistUser.isActive) {
+            if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
                 throw new HttpError(400, 'User with this email has already registered');
             }
+
+            var thunkQuery = thunkify(new Query(req.params.realm));
 
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
@@ -1177,10 +1178,11 @@ function* insertOne(req, res, next) {
         throw new HttpError(400, 102);
     }
 
-    // validate email for unique
-    var email = yield thunkQuery(User.select().where(User.email.equals(req.body.email)));
-    if (_.first(email)) {
-        throw new HttpError(403, 103);
+    var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+    var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+
+    if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
+        throw new HttpError(403, 'User with this email has already registered');
     }
 
     // hash user password
