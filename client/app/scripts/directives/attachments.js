@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('attachments', function ($log) {
+    .directive('attachments', function () {
         return {
             restrict: 'AE',
             scope: {
@@ -50,7 +50,6 @@ angular.module('greyscaleApp')
 
                 uploader.onCompleteItem = function (item, data) {
                     if (!item.isError) {
-                        $log.debug('completed', item, data);
                         $scope.model.push({
                             id: data.id,
                             filename: item.file.name,

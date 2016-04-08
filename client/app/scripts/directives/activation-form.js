@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('activateForm', function ($state, greyscaleUserApi, $log, inform) {
+    .directive('activateForm', function ($state, greyscaleUserApi, greyscaleUtilsSrv) {
         return {
             templateUrl: 'views/directives/activation-form.html',
             restrict: 'AE',
@@ -27,11 +27,7 @@ angular.module('greyscaleApp')
                         .then(function () {
                             $state.go('profile');
                         })
-                        .catch(function (err) {
-                            inform.add(err.data.message, {
-                                type: 'danger'
-                            });
-                        });
+                        .catch(greyscaleUtilsSrv.errorMsg);
                 };
             }
         };

@@ -59,12 +59,12 @@ passport.use(new BasicStrategy({
                 return admin;
             } else {
                 if (req.params.realm == 'public') {
-
+                    debug('Not superuser try to login to public:', user);
                     var userArr = [];
 
                     for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
                         var user = yield * findUserInNamespace(req.schemas[i], email);
-                        debug('Not superuser try to login to public:', user);
+
                         if (user[0]) {
                             userInNamespace.push({
                                 realm: req.schemas[i],
@@ -179,26 +179,6 @@ passport.use(new TokenStrategy({
                 throw new HttpError(500, 'Database error '+err);
             }
 
-            debug('======= TokenStrategy =======');
-            debug('User: ', JSON.stringify(user));
-            debug ('realm: ', req.params.realm );
-
-            if (!user) {
-                req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
-                return false;
-            }
-
-            req.debug(util.format('Authentication OK for token: %s', tokenBody));
-
-            yield thunkQuery(
-                User.update(
-                    {
-                        lastActive: new Date()
-                    }
-                )
-                .where(User.id.equals(user.id))
-            );
-
             // add realmUserId to user
             user.realmUserId = user.id;
             if (user.roleID === 1 && req.params.realm !== 'public') {
@@ -208,7 +188,27 @@ passport.use(new TokenStrategy({
                 //    throw new HttpError(400, 'You can`t perform this action now. First, add organization`s admin')
                 //}
             }
-            debug ('userId, realmUserId, realm)', user.id, user.realmUserId, req.params.realm );
+			
+            debug('======= TokenStrategy ======= Realm:', req.params.realm, ' User:', JSON.stringify(user));
+            //debug ('userId: ', user.id, ' realmUserId:', user.realmUserId, ' realm: ', req.params.realm);
+
+            if (!user) {
+                req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
+                return false;
+            }
+
+            req.debug(util.format('Authentication OK for token: %s', tokenBody));
+
+			var clientThunkQuery = thunkify(new Query(req.params.realm));
+
+            yield clientThunkQuery(
+                User.update(
+                    {
+                        lastActive: new Date()
+                    }
+                )
+                .where(User.id.equals(user.id))
+            );
 
             return _.pick(user, User.sesInfo);
 
@@ -235,8 +235,8 @@ passport.use(new TokenStrategy({
                 return false;
             }
 
-            debug('Token realm = ' + existToken[0].realm);
-            debug('Admin schema = ' + config.pgConnect.adminSchema);
+            //debug('Token realm = ' + existToken[0].realm);
+            //debug('Admin schema = ' + config.pgConnect.adminSchema);
 
             if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
                 var data =  yield admThunkQuery(
@@ -326,7 +326,7 @@ module.exports = {
                     session: false
                 }, function (err, user, info) {
 
-                    debug('Authenticate if Possible:',user);
+                    //debug('Authenticate if possible:', JSON.stringify(user));
 
                     if (user) {
                         req.user = user;

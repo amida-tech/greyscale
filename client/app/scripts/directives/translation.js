@@ -7,24 +7,32 @@ angular.module('greyscaleApp')
         return {
             restrict: 'A',
             controller: function ($scope) {
-                $scope.toggleTranslation = function () {
-                    var
-                        _field = $scope.field,
+                $scope.toggleTranslation = function (_fieldName) {
+                    var _field = $scope.field,
                         _answer = _field.answer,
                         _resp = $scope.resp,
                         _index = $scope.$index,
                         _translation = {
                             essenceId: _field.essenceId
                         },
-                        _data = {};
+                        _data = {},
+                        _commentInput = 'paragraph';
 
                     if (_resp) {
                         _data = {
                             entityId: _resp.id,
                             langId: _resp.langId,
-                            type: 'paragraph',
+                            type: _commentInput,
                             field: 'comments',
                             value: _resp.comments
+                        };
+                    } else if (_fieldName === 'comments') {
+                        _data = {
+                            entityId: _field.answerId,
+                            langId: _field.langId,
+                            type: _commentInput,
+                            field: 'comments',
+                            value: _field.comment
                         };
                     } else {
                         _data = {
@@ -58,13 +66,15 @@ angular.module('greyscaleApp')
                     }
                 };
             },
-            link: function (scope, elem) {
+            link: function (scope, elem, attrs) {
+                var _field = attrs.translation || 'value';
+
                 var wrapper = angular.element('<div class="translation clearfix"/></div>');
 
                 elem.after(wrapper);
                 wrapper.prepend(elem);
 
-                var anIcon = angular.element('<i class="fa fa-language translation-icon action action-primary" ng-click="toggleTranslation()"></i>');
+                var anIcon = angular.element('<i class="fa fa-language translation-icon action action-primary" ng-click="toggleTranslation(\'' + _field + '\')"></i>');
 
                 $compile(anIcon)(scope);
                 wrapper.append(anIcon);

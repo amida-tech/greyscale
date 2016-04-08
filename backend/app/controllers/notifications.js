@@ -3,7 +3,7 @@ var
     ejs = require('ejs'),
     fs = require('fs'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     auth = require('app/auth'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -526,17 +526,31 @@ module.exports = {
 
     resendUserInvite: function (req, res, next) {
         var resend = false;
+        var logUser = 'user';
         co(function* () {
-            var inviteNote = yield * getInviteNotification(req, req.params.userId);
+            var user = yield * common.getUser(req, req.params.userId);
+            var body = 'Invite';
+            var subject = 'Indaba. Organization membership';
+            var template = 'orgInvite';
+            var superUser = (user && user.roleID === 1);
+            if (superUser) {
+                body = 'Superadmin Invite';
+                subject ='Indaba. Superadmin invite';
+                template = 'invite';
+                logUser = 'superuser';
+            }
+            var inviteNote = yield * getInviteNotification(req, req.params.userId, body);
             if (!inviteNote) {
-                var user = yield * common.getUser(req, req.params.userId);
-                var org = yield * common.getOrganization(req, user.organizationId);
+                var org = null;
+                if (!superUser) {
+                    org = yield * common.getOrganization(req, user.organizationId);
+                }
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var note = yield * createNotification(req,
                     {
                         userFrom: req.user.realmUserId,
                         userTo: user.id,
-                        body: 'Invite',
+                        body: body,
                         essenceId: essenceId,
                         entityId: user.id,
                         notifyLevel: user.notifyLevel,
@@ -545,10 +559,10 @@ module.exports = {
                         company: org,
                         inviter: req.user,
                         token: user.activationToken,
-                        subject: 'Indaba. Organization membership',
+                        subject: subject,
                         config: config
                     },
-                    'orgInvite'
+                    template
                 );
                 bologger.log({
                     req: req,
@@ -556,7 +570,7 @@ module.exports = {
                     action: 'insert',
                     object: 'notifications',
                     entity: note[0].id,
-                    info: 'Create user invite notification'
+                    info: 'Create '+logUser+' invite notification'
                 });
                 if (user.notifyLevel < 2) {
                     resend = note[0].id;
@@ -575,7 +589,7 @@ module.exports = {
                     action: 'update',
                     object: 'notifications',
                     entity: resend,
-                    info: 'Resend user invite notification'
+                    info: 'Resend '+logUser+' invite notification'
                 });
             }
             res.status(202).end();
@@ -616,7 +630,7 @@ function getHtml(templateName, data, templatePath) {
     return _.template(templateContent)(data);
 }
 
-function* getInviteNotification(req, userId) {
+function* getInviteNotification(req, userId, body) {
     // get EssenceId
     var essenceId = yield * common.getEssenceId(req, 'Users');
     query =
@@ -624,7 +638,7 @@ function* getInviteNotification(req, userId) {
             'max("Notifications"."id") as id '+
         'FROM "Notifications" '+
         'WHERE '+
-            '"Notifications"."body" = \'Invite\' AND '+
+            '"Notifications"."body" = \''+body+'\' AND '+
             '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
             '"Notifications"."entityId" = '+userId.toString() + ' '+
         'GROUP BY '+

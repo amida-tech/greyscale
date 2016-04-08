@@ -146,6 +146,11 @@
         "WRONG_DATE_FORMAT": ""
     },
     "GLOBALS": {
+        "NOTIFYLEVELS": {
+            "INTERNAL": "",
+            "INTERNAL_AND_EMAILS": "",
+            "OFF": ""
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "",
             "COMPLETED": "",
@@ -489,6 +494,7 @@
         "LOCATION": "",
         "MOBILE": "",
         "NEW_PASSWORD": "",
+        "NOTIFY_LEVEL": "",
         "NOT_ACTIVATED": "",
         "NOT_VERIFIED": "",
         "ORGANIZATION": "",
@@ -554,6 +560,7 @@
     "SURVEYS": {
         "ABOVE": "",
         "AGREE": "",
+        "ANSWER_COMMENT": "",
         "ATTACHMENTS": "",
         "BELOW": "",
         "CONTENT": "",
@@ -663,6 +670,7 @@
         "LAST_ACTIVE": "",
         "LAST_NAME": "",
         "NEW_PASSWORD": "",
+        "NOTIFY_LEVEL": "",
         "NOT_LOGGED": "",
         "NO_GROUPS": "",
         "ORGANIZATION": "",

@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
         var currentUserId, currentStepId;
         var provideResponses = false;
         var surveyAnswers = [];
-        var flags;
+        var flags = {};
 
         return {
             restrict: 'E',
@@ -109,7 +109,7 @@ angular.module('greyscaleApp')
                             }
 
                             var resolve = resolveList[0];
-                            $log.debug(resolve);
+
                             return {
                                 taskId: taskId,
                                 userId: resolve.userId,
@@ -167,18 +167,17 @@ angular.module('greyscaleApp')
 
                 $scope.isLocked = function () {
                     var _locked;
-                    var flags = {};
-
-                    if ($scope.surveyData) {
-                        flags = $scope.surveyData.flags;
-                    }
-                    _locked = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses; //is readonly
-                    _locked = _locked && !$scope.model.translated;
+                    _locked = isReadonlyFlags(flags) &&
+                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
 
                     return _locked;
                 };
             }
         };
+
+        function isReadonlyFlags(_flags) {
+            return !_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses || _flags.readonly;
+        }
 
         function initLanguage(scope) {
             var _data = scope.surveyData.languages;
@@ -234,9 +233,9 @@ angular.module('greyscaleApp')
             flags = scope.surveyData.flags;
             currentUserId = scope.surveyData.userId;
             currentStepId = task.stepId;
-            provideResponses = scope.surveyData.flags.provideResponses;
+            provideResponses = flags.provideResponses;
 
-            isReadonly = !flags.allowEdit && !flags.writeToAnswers && !flags.provideResponses;
+            isReadonly = isReadonlyFlags(flags);
 
             scope.model.formReadonly = isReadonly;
             scope.model.translated = !flags.allowTranslate;
@@ -284,14 +283,17 @@ angular.module('greyscaleApp')
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
+                                hasComments: field.hasComments,
                                 ngModel: {},
-                                flags: scope.surveyData.flags,
+                                flags: flags,
                                 answer: null,
                                 answerId: null,
                                 prevAnswers: [],
                                 responses: null,
+                                response: '',
                                 langId: scope.model.lang,
-                                essenceId: scope.surveyData.essenceId
+                                essenceId: scope.surveyData.essenceId,
+                                comment: ''
                             });
 
                             if (fld.canAttach) {
@@ -419,8 +421,8 @@ angular.module('greyscaleApp')
         }
 
         function loadRecursive(fields, answers, responses) {
-            var f, fld, answer, o, oQty, response,
-                fQty = fields.length;
+            var f, fld, answer, o, oQty, response, rr,
+                fQty = (fields) ? fields.length : 0;
 
             if (!answers) {
                 return;
@@ -433,6 +435,10 @@ angular.module('greyscaleApp')
                     response = responses[fld.cid];
                     if (response) {
                         fld.responses = response;
+                        rr = response[response.length - 1];
+                        if (rr && rr.userId === currentUserId && rr.wfStepId === currentStepId) {
+                            fld.response = rr.comments;
+                        }
                     }
                 }
                 if (surveyAnswers[fld.cid]) {
@@ -446,8 +452,13 @@ angular.module('greyscaleApp')
                 if (answer) {
                     fld.answerId = answer.id;
                     fld.langId = answer.langId || fld.langId;
+
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
+                    }
+
+                    if (fld.hasComments) {
+                        fld.comment = answer.comments || '';
                     }
 
                     switch (fld.type) {
@@ -554,7 +565,7 @@ angular.module('greyscaleApp')
                             canMove = (resp[r].statusCode === 200);
                         }
                         scope.savedAt = new Date();
-                        return canMove;
+                        return canMove || isAuto;
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err);
@@ -567,7 +578,7 @@ angular.module('greyscaleApp')
 
         function preSaveFields(fields) {
             var f, fld, answer,
-                qty = fields.length,
+                qty = fields ? fields.length : 0,
                 _answers = [];
 
             for (f = 0; f < qty; f++) {
@@ -629,8 +640,10 @@ angular.module('greyscaleApp')
 
                     if (provideResponses) {
                         answer.isResponse = true;
-                        answer.comments = fld.comments;
+                        answer.comments = fld.response;
                         answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
+                    } else {
+                        answer.comments = fld.comment;
                     }
 
                     if (fld.canAttach) {

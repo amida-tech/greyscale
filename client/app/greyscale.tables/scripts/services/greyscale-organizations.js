@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleOrganizationsTbl', function ($q, greyscaleUtilsSrv, greyscaleOrganizationApi, greyscaleUserApi,
-        greyscaleProfileSrv, greyscaleModalsSrv, greyscaleRoleApi, greyscaleGlobals, $log) {
+        greyscaleProfileSrv, greyscaleModalsSrv, greyscaleRolesSrv, greyscaleGlobals, $rootScope) {
 
         var tns = 'ORGANIZATIONS.';
 
@@ -80,7 +80,6 @@ angular.module('greyscale.tables')
             add: {
                 handler: _editRecord
             }
-
         };
 
         function _editRecord(organization) {
@@ -120,6 +119,7 @@ angular.module('greyscale.tables')
         }
 
         function reloadTable() {
+            $rootScope.$broadcast('organization_update');
             _table.tableParams.reload();
         }
 
@@ -138,7 +138,7 @@ angular.module('greyscale.tables')
 
         function _getAdmins(rec) {
             if (rec.realm) {
-                return greyscaleRoleApi.list({}, rec.realm)
+                return greyscaleRolesSrv(rec.realm)
                     .then(function (roles) {
                         var r,
                             qty = roles.length,

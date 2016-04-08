@@ -57,7 +57,7 @@ var getUser = function* (req, userId) {
 };
 exports.getUser = getUser;
 
-var getEssenceId = function* (req, essenceName) {
+var getEssenceId = function* (req, essenceName) { // ToDo: use memcache
     var thunkQuery = (req) ?  req.thunkQuery : global.thunkQuery;
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
@@ -98,3 +98,19 @@ var getEssence = function* (req, essenceId) {
 };
 exports.getEssence = getEssence;
 
+
+var isExistsUserInRealm = function* (req, realm, email) {
+    var thunkQuery = thunkify(new Query(realm));
+
+    var result = yield thunkQuery(
+        User
+            .select()
+            .from(User)
+            .where(
+                sql.functions.UPPER(User.email).equals(email.toUpperCase())
+            )
+    );
+
+    return result[0] ? result[0] : false;
+};
+exports.isExistsUserInRealm = isExistsUserInRealm;

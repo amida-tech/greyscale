@@ -59,9 +59,14 @@ var environments = {
         emailBody: './views/emails/discussion.html'
       },
       orgInvite: {
-        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership<% } %>',
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership activation<% } %>',
         notificationBody: './views/notifications/org_invite.html',
         emailBody: './views/emails/org_invite.html'
+      },
+      orgInvitePwd: {
+        subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Organization membership login<% } %>',
+        notificationBody: './views/notifications/org_invite_pwd.html',
+        emailBody: './views/emails/org_invite_pwd.html'
       },
       invite: {
         subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Indaba. Invite<% } %>',

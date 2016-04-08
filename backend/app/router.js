@@ -240,8 +240,11 @@ router.route('/:realm/v0.2/products/:id/subindexes')
     .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
     .put(authenticate('token').always, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
 
-router.route('/:realm/v0.2/products/:id/export.csv')
+router.route('/:realm/v0.2/products/:ticket/export.csv')
     .get(/*authenticate('token').always,*/ products.export);
+
+router.route('/:realm/v0.2/products/:id/export_ticket')
+    .get(/*authenticate('token').always,*/ products.getTicket);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)

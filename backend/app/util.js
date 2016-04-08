@@ -4,6 +4,7 @@ var
     _         = require('underscore'),
     ClientPG  = require('app/db_bootstrap'),
     config    = require('config');
+    pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
@@ -115,7 +116,7 @@ exports.Query = function (realm) {
 
                 }
 
-                var queryString = // TODO turn back original function
+                var queryString =
                     (typeof realm == 'undefined')
                     ? queryObject.toQuery().text
                     : "SET search_path TO " + realm + "; " + queryObject.toQuery().text;
@@ -123,8 +124,7 @@ exports.Query = function (realm) {
                 var values = queryObject.toQuery().values;
 
                 var queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2, offset, s) {
-                    var item = prepareValue(values[p2-1]);
-                    return (typeof item == 'string') ? "'"+ item +"'" : item;
+                    return prepareValue(values[p2-1]);
                 });
 
                 debug(queryString);
@@ -228,47 +228,26 @@ exports.getTranslateQuery = function (langId, model, condition) {
     return query;
 };
 
-exports.escapeString = function (str) {
-    return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
-        switch (char) {
-            case "\0":
-                return "\\0";
-            case "\x08":
-                return "\\b";
-            case "\x09":
-                return "\\t";
-            case "\x1a":
-                return "\\z";
-            case "\n":
-                return "\\n";
-            case "\r":
-                return "\\r";
-            case "\"":
-            case "'":
-            case "\\":
-            case "%":
-                return "\\"+char; // prepends a backslash to backslash, percent,
-                                  // and double/single quotes
-        }
-    });
-}
-
-
 var prepareValue = function(val, seen) {
+    //debug(val);
+
     if (val instanceof Buffer) {
         return val;
     }
     if(val instanceof Date) {
-        return dateToString(val);
+        return pgEscape.literal(dateToString(val));
     }
     if(Array.isArray(val)) {
-        return arrayString(val);
+        return "'"+arrayString(val)+"'";
     }
     if(val === null || typeof val === 'undefined') {
         return null;
     }
     if(typeof val === 'object') {
         return prepareObject(val, seen);
+    }
+    if(typeof val === 'string'){
+        return pgEscape.literal(val.toString());
     }
     return val.toString();
 };

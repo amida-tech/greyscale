@@ -167,7 +167,7 @@ module.exports = {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
-                        resolve(data.replace(new RegExp('\'','g'), '`'));
+                        resolve(data.replace(new RegExp('[\'\"]','g'), '`'));
                     });
                 }else{
                     reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));

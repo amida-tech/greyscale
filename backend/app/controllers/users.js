@@ -2,7 +2,7 @@ var client = require('app/db_bootstrap'),
     _ = require('underscore'),
     crypto = require('crypto'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     User = require('app/models/users'),
@@ -183,7 +183,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield insertOne(req, res, next);
+            return yield *insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(User.view(_.first(data)));
         }, function (err) {
@@ -229,7 +229,8 @@ module.exports = {
                 'password': User.hashPassword(pass),
                 'isActive': false,
                 'activationToken': activationToken,
-                'isAnonymous' : false
+                'isAnonymous' : false,
+                'notifyLevel' : req.body.notifyLevel
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -244,7 +245,6 @@ module.exports = {
             });
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
-            var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
@@ -252,7 +252,7 @@ module.exports = {
                     body: 'Superadmin Invite',
                     essenceId: essenceId,
                     entityId: _.first(user).id,
-                    notifyLevel: notifyLevel,
+                    notifyLevel: req.body.notifyLevel,
                     name: req.body.firstName,
                     surname: req.body.lastName,
                     login: req.body.email,
@@ -389,27 +389,28 @@ module.exports = {
             throw new HttpError(400, 'Incorrect realm');
         }
 
-        var thunkQuery = thunkify(new Query(req.params.realm));
         co(function* () {
 
             if (req.body.roleID == 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
 
-            if (!req.body.email || !req.body.firstName) {
-                throw new HttpError(400, 'Email and First name fields are required');
+            if (!req.body.email || !req.body.firstName || !req.body.roleID) {
+                throw new HttpError(400, 'Role id, Email and First name fields are required');
             }
 
             if (!vl.isEmail(req.body.email)) {
                 throw new HttpError(400, 101);
             }
 
-            var isExistUser = yield thunkQuery(User.select(User.star()).where(User.email.equals(req.body.email)));
-            isExistUser = _.first(isExistUser);
+            var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+            var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
-            if (isExistUser && isExistUser.isActive) {
+            if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
                 throw new HttpError(400, 'User with this email has already registered');
             }
+
+            var thunkQuery = thunkify(new Query(req.params.realm));
 
             var org = yield thunkQuery(
                 Organization.select().where(Organization.realm.equals(req.params.realm))
@@ -438,7 +439,8 @@ module.exports = {
                     'isActive': false,
                     'activationToken': activationToken,
                     'organizationId': org.id,
-                    'isAnonymous' : req.body.isAnonymous ? true : false
+                    'isAnonymous' : req.body.isAnonymous ? true : false,
+                    'notifyLevel' : req.body.notifyLevel
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -461,32 +463,31 @@ module.exports = {
                     }
                 }
 
+                var essenceId = yield * common.getEssenceId(req, 'Users');
+
+                var note = yield * notifications.createNotification(req,
+                    {
+                        userFrom: newUserId,
+                        userTo: newUserId,
+                        body: 'Invite',
+                        essenceId: essenceId,
+                        entityId: newUserId,
+                        notifyLevel: req.body.notifyLevel,
+                        name: firstName,
+                        surname: lastName,
+                        company: org,
+                        inviter: req.user,
+                        token: activationToken,
+                        subject: 'Indaba. Organization membership',
+                        config: config
+                    },
+                    'orgInvite'
+                );
 
             }else {
                 newClient = isExistUser;
             }
 
-            var essenceId = yield * common.getEssenceId(req, 'Users');
-            var notifyLevel = 2; // ToDo: Default - need specify
-
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: newUserId,
-                    userTo: newUserId,
-                    body: 'Invite',
-                    essenceId: essenceId,
-                    entityId: newUserId,
-                    notifyLevel: notifyLevel,
-                    name: firstName,
-                    surname: lastName,
-                    company: org,
-                    inviter: req.user,
-                    token: activationToken,
-                    subject: 'Indaba. Organization membership',
-                    config: config
-                },
-                'orgInvite'
-            );
 
             return newClient;
 
@@ -689,11 +690,10 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function*(){
             var updateObj = _.pick(req.body, User.whereCol);
-            console.log(updateObj.password);
+
             if(updateObj.password){
                 updateObj.password = User.hashPassword(updateObj.password);
             }
-            console.log(updateObj.password);
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
                     User.update(updateObj).where(User.id.equals(req.params.id))
@@ -707,41 +707,44 @@ module.exports = {
                     info: 'Update user'
                 });
             }
-            var userGroups4delete = yield thunkQuery(
-                UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
-            );
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'delete',
-                object: 'userGroups',
-                entities: userGroups4delete,
-                quantity: userGroups4delete.length,
-                info: 'Delete user`s groups'
-            });
-            var groupObjs = [];
-            for (var i in req.body.usergroupId) {
-                groupObjs.push(
-                    {
-                        groupId : req.body.usergroupId[i],
-                        userId  : req.params.id
-                    }
-                );
-            }
-            if (groupObjs.length) {
-                yield thunkQuery(
-                    UserGroup.insert(groupObjs)
+            if (req.params.realm != config.pgConnect.adminSchema) {
+                var userGroups4delete = yield thunkQuery(
+                    UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
                 bologger.log({
                     req: req,
                     user: req.user,
-                    action: 'insert',
+                    action: 'delete',
                     object: 'userGroups',
-                    entities: groupObjs,
-                    quantity: groupObjs.length,
-                    info: 'Add new groups for user'
+                    entities: userGroups4delete,
+                    quantity: userGroups4delete.length,
+                    info: 'Delete user`s groups'
                 });
+                var groupObjs = [];
+                for (var i in req.body.usergroupId) {
+                    groupObjs.push(
+                        {
+                            groupId : req.body.usergroupId[i],
+                            userId  : req.params.id
+                        }
+                    );
+                }
+                if (groupObjs.length) {
+                    yield thunkQuery(
+                        UserGroup.insert(groupObjs)
+                    );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'insert',
+                        object: 'userGroups',
+                        entities: groupObjs,
+                        quantity: groupObjs.length,
+                        info: 'Add new groups for user'
+                    });
+                }
             }
+
         }).then(function(){
             res.status(202).end();
         }, function(err){
@@ -886,55 +889,64 @@ module.exports = {
             }
 
             var userArr = [];
-            req.schemas.push(config.pgConnect.adminSchema);
+            //req.schemas.push(config.pgConnect.adminSchema);
 
             if (req.params.realm == config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
-                for (var i in req.schemas) { // search in all schemas
-                    var clientThunkQuery = thunkify(new Query(req.schemas[i]));
-                    var user = yield clientThunkQuery(
-                        User
-                        .select(
-                            User.star(),
-                            Role.name.as('role'),
-                            Organization.name.as('orgName')
-                        )
-                        .from(
+                // search in public at first (super admin forgot password)
+                var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+
+                if (user.length) {
+                    user = user[0];
+                } else {
+                    for (var i in req.schemas) { // search in all schemas
+                        var clientThunkQuery = thunkify(new Query(req.schemas[i]));
+                        var user = yield clientThunkQuery(
                             User
-                                .leftJoin(Role)
-                                .on(User.roleID.equals(Role.id))
-                                .leftJoin(Organization)
-                                .on(User.organizationId.equals(Organization.id))
-                        )
-                        .where(
-                            sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
-                        )
-                    );
+                                .select(
+                                    User.star(),
+                                    Role.name.as('role'),
+                                    Organization.name.as('orgName')
+                                )
+                                .from(
+                                    User
+                                        .leftJoin(Role)
+                                        .on(User.roleID.equals(Role.id))
+                                        .leftJoin(Organization)
+                                        .on(User.organizationId.equals(Organization.id))
+                                )
+                                .where(
+                                    sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
+                                )
+                        );
 
-                    if (user.length) {
-                        var curRealm = req.schemas[i];
-                        userInRealm.push({
-                            realm: req.schemas[i],
-                            orgName: user[0].orgName
-                        });
-                        userArr.push(user[0]);
+                        if (user.length) {
+                            var curRealm = req.schemas[i];
+                            userInRealm.push({
+                                realm: req.schemas[i],
+                                orgName: user[0].orgName
+                            });
+                            userArr.push(user[0]);
+                        }
                     }
-                }
-                if (!userInRealm.length) {
-                    throw new HttpError(403, 'User with this email does not exist');
+                    if (!userInRealm.length) {
+                        throw new HttpError(403, 'User with this email does not exist');
+                    }
+
+                    if (userInRealm.length > 1) {
+                        var result = [];
+                        throw new HttpError(300, userInRealm);
+                    }
+
+                    // found just one
+                    user = userArr[0];
+                    // set the right schema
+                    req.params.realm = curRealm;
+                    var clientThunkQuery = thunkify(new Query(curRealm));
                 }
 
-                if (userInRealm.length > 1) {
-                    var result = [];
-                    throw new HttpError(300, userInRealm);
-                }
-                // found just one
-                user = userArr[0];
 
-                // set the right schema
-                req.params.realm = curRealm;
-                var clientThunkQuery = thunkify(new Query(curRealm));
             } else { // certain realm
                 var clientThunkQuery = thunkify(new Query(req.params.realm));
 
@@ -978,7 +990,7 @@ module.exports = {
             } else {
 
                 var essenceId = yield * common.getEssenceId(req, 'Users');
-                var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
+                var notifyLevel = 2; // always send eMail
                 var note = yield * notifications.createNotification(req,
                     {
                         userFrom: user.id,  // ToDo: userFrom???
@@ -1151,6 +1163,11 @@ module.exports = {
 
 function* insertOne(req, res, next) {
     var thunkQuery = req.thunkQuery;
+
+    if (!req.body.email || !req.body.roleID || !req.body.password || !req.body.firstName) {
+        throw new HttpError(400, 'Email, password, role id and firstname fields are required');
+    }
+
     // validate email
     if (!vl.isEmail(req.body.email)) {
         throw new HttpError(400, 101);
@@ -1161,10 +1178,11 @@ function* insertOne(req, res, next) {
         throw new HttpError(400, 102);
     }
 
-    // validate email for unique
-    var email = yield thunkQuery(User.select().where(User.email.equals(req.body.email)));
-    if (_.first(email)) {
-        throw new HttpError(403, 103);
+    var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+    var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+
+    if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
+        throw new HttpError(403, 'User with this email has already registered');
     }
 
     // hash user password
@@ -1191,15 +1209,14 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
-        var notifyLevel = 2; // ToDo: Default - need specify notifyLevel in frontend
         var note = yield * notifications.createNotification(req,
             {
-                userFrom: user.realmUserId,  // ToDo: userFrom???
-                userTo: user.realmUserId,
+                userFrom: req.user.realmUserId,
+                userTo: user.id,
                 body: 'Thank you for registering at Indaba',
                 essenceId: essenceId,
                 entityId: user.id,
-                notifyLevel: notifyLevel,
+                notifyLevel: req.body.notifyLevel,
                 name: req.body.firstName,
                 surname: req.body.lastName,
                 subject: 'Thank you for registering at Indaba',

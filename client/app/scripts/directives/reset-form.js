@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
             scope: {
                 token: '=resetForm'
             },
-            controller: function ($scope, $log) {
+            controller: function ($scope) {
                 function errHandler(err) {
                     if (err.data && err.data.message) {
                         $scope.model.err = err.data.message;
@@ -31,8 +31,6 @@ angular.module('greyscaleApp')
                     if (_realm) {
                         greyscaleRealmSrv.init(_realm);
                     }
-
-                    $log.debug('reset form', _realm);
 
                     greyscaleUserApi.resetToken($scope.token)
                         .then(function (user) {

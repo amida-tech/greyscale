@@ -36,7 +36,8 @@ var columns = [
     'notifyLevel',
     'lastActive',
     'affiliation',
-    'isAnonymous'
+    'isAnonymous',
+    'langId'
 ];
 
 var viewFields = [
@@ -77,22 +78,15 @@ var User = sql.define({
 
 User.hashPassword = function (password) {
     var hash = crypto.createHash('sha256');
-    debug('pass='+password);
-    debug('hash='+hash);
     hash.update(util.format('%s+%s', config.auth.salt, password));
     var temp = hash.digest('hex');
     hash = crypto.createHash('sha256');
     hash.update(temp);
     var result = hash.digest('hex');
-    debug('final='+result);
     return result;
 };
 
 User.validPassword = function (pas, checkpas) {
-    debug('VALIDATION');
-    debug(pas);
-    debug(checkpas);
-    debug(this.hashPassword(checkpas));
     return pas === this.hashPassword(checkpas);
 };
 

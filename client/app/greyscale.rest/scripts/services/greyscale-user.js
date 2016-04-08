@@ -100,7 +100,10 @@ angular.module('greyscale.rest')
         }
 
         function _logout() {
-            return userAPI(greyscaleRealmSrv.origin()).one('logout').post();
+            return userAPI(greyscaleRealmSrv.origin()).one('logout').post()
+                .catch(function () {
+                    return false;
+                });
         }
 
         function _inviteSuperAdmin(userData) {

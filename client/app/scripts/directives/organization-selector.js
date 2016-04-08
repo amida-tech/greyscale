@@ -63,11 +63,9 @@ angular.module('greyscaleApp')
                     _userAccessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
                     if (_isSuperAdmin()) {
-                        greyscaleOrganizationApi.list({}, 'public').then(function (organizations) {
-                            $scope.model.list = true;
+                        $scope.$on('organization_update', getOrganizations);
 
-                            $scope.model.organizations = _.sortBy(organizations, 'name');
-
+                        getOrganizations().then(function () {
                             var organizationId = parseInt($cookies.get('orgId'));
 
                             var organization = _.find($scope.model.organizations, {
@@ -109,6 +107,12 @@ angular.module('greyscaleApp')
                     return ((_userAccessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
                 }
 
+                function getOrganizations() {
+                    return greyscaleOrganizationApi.list({}, 'public').then(function (organizations) {
+                        $scope.model.list = true;
+                        $scope.model.organizations = _.sortBy(organizations, 'name');
+                    });
+                }
             }
         };
     });

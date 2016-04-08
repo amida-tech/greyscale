@@ -5,8 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTagLinksTbl', function (_, $q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi,
-        greyscaleUoaTagLinkApi, $log) {
+        greyscaleUoaApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi, greyscaleUoaTagLinkApi) {
 
         var tns = 'UOAS.';
 
@@ -110,24 +109,21 @@ angular.module('greyscale.tables')
         }
 
         function _getData() {
-            $log.debug('UoaTagLink query: ', _table.query);
-            return greyscaleProfileSrv.getProfile().then(function (profile) {
-                var req = {
-                    uoaTagLinks: greyscaleUoaTagLinkApi.list(_table.query),
-                    uoas: greyscaleUoaApi.list(),
-                    uoaTags: greyscaleUoaTagApi.list(),
-                    uoaClassTypes: greyscaleUoaClassTypeApi.list()
-                };
-                return $q.all(req).then(function (promises) {
-                    for (var p = 0; p < promises.uoaTagLinks.length; p++) {
-                        greyscaleUtilsSrv.prepareFields(promises.uoaTagLinks, resDescr);
-                    }
-                    dicts.uoas = promises.uoas;
-                    dicts.uoaTags = promises.uoaTags;
-                    dicts.uoaClassTypes = promises.uoaClassTypes;
+            var req = {
+                uoaTagLinks: greyscaleUoaTagLinkApi.list(_table.query),
+                uoas: greyscaleUoaApi.list(),
+                uoaTags: greyscaleUoaTagApi.list(),
+                uoaClassTypes: greyscaleUoaClassTypeApi.list()
+            };
+            return $q.all(req).then(function (promises) {
+                for (var p = 0; p < promises.uoaTagLinks.length; p++) {
+                    greyscaleUtilsSrv.prepareFields(promises.uoaTagLinks, resDescr);
+                }
+                dicts.uoas = promises.uoas;
+                dicts.uoaTags = promises.uoaTags;
+                dicts.uoaClassTypes = promises.uoaClassTypes;
 
-                    return promises.uoaTagLinks;
-                });
+                return promises.uoaTagLinks;
             });
         }
 

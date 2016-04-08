@@ -16,6 +16,7 @@ var client = require('app/db_bootstrap'),
 module.exports = {
 
     select: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Translations
@@ -32,6 +33,7 @@ module.exports = {
     },
 
     selectByParams: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             return yield thunkQuery(
                 Translations
@@ -49,22 +51,23 @@ module.exports = {
     },
 
     editOne: function (req, res, next) {
-        var q = Translations.update({
-            'value': req.body.value
-        }).where(
-            _.pick(
-                req.params, [
-                    'essenceId',
-                    'entityId',
-                    'langId',
-                    'field'
-                ]
-            )
-        );
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Translations.update({
+                    'value': req.body.value
+                }).where(
+                    _.pick(
+                        req.params, [
+                            'essenceId',
+                            'entityId',
+                            'langId',
+                            'field'
+                        ]
+                    )
+                )
+            );
             bologger.log({
                 req: req,
                 user: req.user,
@@ -73,23 +76,29 @@ module.exports = {
                 entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
                 info: 'Update translation'
             });
+            return data;
+        }).then(function(data){
             res.status(202).end();
+        }, function(err){
+            next(err);
         });
+
     },
 
     delete: function (req, res, next) {
-        var q = Translations.delete().where(_.pick(
-            req.params, [
-                'essenceId',
-                'entityId',
-                'langId',
-                'field'
-            ]
-        ));
-        query(q, function (err, data) {
-            if (err) {
-                return next(err);
-            }
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            var data = yield thunkQuery(
+                Translations.delete().where(_.pick(
+                    req.params, [
+                        'essenceId',
+                        'entityId',
+                        'langId',
+                        'field'
+                    ]
+                ))
+            );
             bologger.log({
                 req: req,
                 user: req.user,
@@ -98,12 +107,17 @@ module.exports = {
                 entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
                 info: 'Delete translation'
             });
+            return data;
+        }).then(function(data){
             res.status(204).end();
+        }, function(err){
+            next(err);
         });
+
     },
 
     insertOne: function (req, res, next) {
-
+        var thunkQuery = req.thunkQuery;
         co(function* () {
             if (!req.body.essenceId || !req.body.entityId || !req.body.field || !req.body.langId || !req.body.value) {
                 throw new HttpError(400, '"essenceId", "entityId", "field", "langId", "value" fields are required');

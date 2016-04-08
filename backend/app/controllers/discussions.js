@@ -2,7 +2,7 @@ var
     _ = require('underscore'),
     auth = require('app/auth'),
     config = require('config'),
-    common = require('app/queries/common'),
+    common = require('app/services/common'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Product = require('app/models/products'),

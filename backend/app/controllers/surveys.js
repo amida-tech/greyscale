@@ -14,6 +14,9 @@ var
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
+var debug = require('debug')('debug_surveys');
+debug.log = console.log.bind(console);
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -127,13 +130,13 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
-            var updateObj = req.body;
-            updateObj = _.pick(updateObj, Survey.editCols);
+            var updateSurvey = req.body;
+            updateSurvey = _.pick(updateSurvey, Survey.editCols);
 
-            if(Object.keys(updateObj).length){
+            if(Object.keys(updateSurvey).length){
                 yield thunkQuery(
                     Survey
-                        .update(updateObj)
+                        .update(updateSurvey)
                         .where(Survey.id.equals(req.params.id))
                 );
                 bologger.log({
@@ -145,46 +148,212 @@ module.exports = {
                     info: 'Update survey'
                 });
             }
-            // delete all SurveyQuestions and SurveyQuestionOptions
-            var questions = yield thunkQuery(
+
+            var passedIds = [];
+            var updatedIds = [];
+            var insertIds = [];
+
+            updateSurvey = req.body;
+            var dbQuestions = yield thunkQuery(
                 SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id))
             );
-            if (questions.length) {
-                for (var i in questions) {
-                    yield thunkQuery(
-                        SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(questions[i].id))
-                    ); // delete options
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'delete',
-                        object: 'SurveyQuestionOptions',
-                        entities: {questionId: questions[i].id},
-                        quantity: 1,
-                        info: 'Delete survey question options for question '+questions[i].id
-                    });
+            var relIds = dbQuestions.map(function (value) {return value.id;});
 
-                    yield thunkQuery(
-                        SurveyQuestion.delete().where(SurveyQuestion.id.equals(questions[i].id))
-                    ); // delete question
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'delete',
-                        object: 'SurveyQuestions',
-                        entity: questions[i].id,
-                        info: 'Delete survey question'
-                    });
+            var statusOverall = 202;
+            var errorMessages = [];
+
+            for (var i in updateSurvey.questions) {
+                if (!updateSurvey.questions[i].deleted) { // if not deleted
+                    var updateObj = _.pick(updateSurvey.questions[i], SurveyQuestion.editCols);
+                    if (updateSurvey.questions[i].id) { // need update
+                        passedIds.push(updateSurvey.questions[i].id);
+                        if (Object.keys(updateObj).length && relIds.indexOf(updateSurvey.questions[i].id) !== -1 && !updateSurvey.questions[i].deleted) { // have data to update,  exists and not deleted
+
+                            try{
+                                yield thunkQuery(
+                                    SurveyQuestion
+                                        .update(updateObj)
+                                        .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
+                                );
+                                updateSurvey.questions[i].status = 'Ok';
+                                updateSurvey.questions[i].message = 'Updated';
+                                updateSurvey.questions[i].statusCode = 200;
+                            }catch(err){
+                                updateSurvey.questions[i].status = 'Fail';
+                                if (err instanceof HttpError) {
+                                    updateSurvey.questions[i].message = err.message.message;
+                                    updateSurvey.questions[i].statusCode = err.status;
+                                    errorMessages.push(err.message.message);
+                                } else {
+                                    updateSurvey.questions[i].message = err.message;
+                                    updateSurvey.questions[i].statusCode = 500;
+                                }
+                                errorMessages.push({
+                                    questionId: updateSurvey.questions[i].id,
+                                    action: 'update question',
+                                    message: updateSurvey.questions[i].message,
+                                    code: updateSurvey.questions[i].statusCode
+                                });
+                                debug('=== error ===');
+                                debug(err);
+                            }
+                            statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+
+                            updatedIds.push(updateSurvey.questions[i].id);
+                            if (updateSurvey.questions[i].status === 'Ok') {
+                                bologger.log({
+                                    req: req,
+                                    user: req.user,
+                                    action: 'update',
+                                    object: 'SurveyQuestions',
+                                    entity: updateSurvey.questions[i].id,
+                                    info: 'Update survey question'
+                                });
+                            }
+                            yield thunkQuery(
+                                SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id))
+                            );
+                            bologger.log({
+                                req: req,
+                                user: req.user,
+                                action: 'delete',
+                                object: 'SurveyQuestionOptions',
+                                entities: {questionId: updateSurvey.questions[i].id},
+                                quantity: 1,
+                                info: 'Delete survey question options for question '+updateSurvey.questions[i].id
+                            });
+                        }
+                    } else {
+                        var insertObj = _.pick(updateSurvey.questions[i], SurveyQuestion.table._initialConfig.columns);
+                        insertObj.surveyId = req.params.id;
+
+                        try{
+                            var insertId = yield thunkQuery(SurveyQuestion.insert(insertObj).returning(SurveyQuestion.id));
+                            updateSurvey.questions[i].status = 'Ok';
+                            updateSurvey.questions[i].message = 'Added';
+                            updateSurvey.questions[i].statusCode = 200;
+                        }catch(err){
+                            updateSurvey.questions[i].status = 'Fail';
+                            if (err instanceof HttpError) {
+                                updateSurvey.questions[i].message = err.message.message;
+                                updateSurvey.questions[i].statusCode = err.status;
+                            } else {
+                                updateSurvey.questions[i].message = err.message;
+                                updateSurvey.questions[i].statusCode = 500;
+                            }
+                            errorMessages.push({
+                                questionId: null,
+                                action: 'add question',
+                                message: updateSurvey.questions[i].message,
+                                code: updateSurvey.questions[i].statusCode
+                            });
+                            debug('=== error ===');
+                            debug(err);
+                        }
+                        statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+
+                        insertIds.push(insertId[0].id);
+                        updateSurvey.questions[i].id = insertId[0].id;
+                        if (updateSurvey.questions[i].status === 'Ok') {
+                            bologger.log({
+                                req: req,
+                                user: req.user,
+                                action: 'insert',
+                                object: 'SurveyQuestions',
+                                entity: updateSurvey.questions[i].id,
+                                info: 'Insert survey question'
+                            });
+                        }
+                    }
+                    if (updateSurvey.questions[i].options && updateSurvey.questions[i].options.length) {
+                        var options = [];
+                        for (var optionIndex in updateSurvey.questions[i].options) {
+                            options.push(updateSurvey.questions[i].options[optionIndex]);
+                            options[options.length-1].questionId = updateSurvey.questions[i].id;
+                        }
+                        try{
+                            yield thunkQuery(SurveyQuestionOption.insert(options));
+                            updateSurvey.questions[i].statusOptions = 'Ok';
+                            updateSurvey.questions[i].messageOptions = 'Added';
+                            updateSurvey.questions[i].statusCodeOptions = 200;
+                        }catch(err){
+                            updateSurvey.questions[i].statusOptions = 'Fail';
+                            if (err instanceof HttpError) {
+                                updateSurvey.questions[i].messageOptions = err.message.message;
+                                updateSurvey.questions[i].statusCodeOptions = err.status;
+                            } else {
+                                updateSurvey.questions[i].messageOptions = err.message;
+                                updateSurvey.questions[i].statusCodeOptions = 500;
+                            }
+                            errorMessages.push({
+                                questionId: updateSurvey.questions[i].id,
+                                action: 'add question options',
+                                message: updateSurvey.questions[i].message,
+                                code: updateSurvey.questions[i].statusCode
+                            });
+                            debug('=== error ===');
+                            debug(err);
+                        }
+                        statusOverall=(updateSurvey.questions[i].statusOptions === 'Ok') ? statusOverall : 400;
+                        if (updateSurvey.questions[i].statusOptions === 'Ok') {
+                            bologger.log({
+                                req: req,
+                                user: req.user,
+                                action: 'insert',
+                                object: 'SurveyQuestionOptions',
+                                entities: updateSurvey.questions[i].options,
+                                quantity: updateSurvey.questions[i].options.length,
+                                info: 'Insert survey question options'
+                            });
+                        }
+                    }
+                }
+                else { // delete question
+                    try{
+                        yield thunkQuery(SurveyQuestion.delete().where(SurveyQuestion.id.equals(updateSurvey.questions[i].id)));
+                        updateSurvey.questions[i].status = 'Ok';
+                        updateSurvey.questions[i].message = 'Deleted';
+                        updateSurvey.questions[i].statusCode = 200;
+                    }catch(err){
+                        updateSurvey.questions[i].status = 'Fail';
+                        if (err instanceof HttpError) {
+                            updateSurvey.questions[i].message = err.message.message;
+                            updateSurvey.questions[i].statusCode = err.status;
+                        } else {
+                            updateSurvey.questions[i].message = err.message;
+                            updateSurvey.questions[i].statusCode = 500;
+                        }
+                        errorMessages.push({
+                            questionId: updateSurvey.questions[i].id,
+                            action: 'delete question',
+                            message: updateSurvey.questions[i].message,
+                            code: updateSurvey.questions[i].statusCode
+                        });
+                        debug('=== error ===');
+                        debug(err);
+                    }
+                    statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+                    if (updateSurvey.questions[i].status=== 'Ok') {
+                        bologger.log({
+                            req: req,
+                            user: req.user,
+                            action: 'delete',
+                            object: 'SurveyQuestions',
+                            entity: updateSurvey.questions[i].id,
+                            info: 'Delete survey question'
+                        });
+                    }
                 }
             }
-            // add SurveyQuestions and SurveyQuestionOptions
-            if (req.body.questions) {
-                for (var i in req.body.questions) {
-                    var question = yield* addQuestion(req, req.body.questions[i]);
-                }
-            }
-        }).then(function () {
-            res.status(202).end();
+
+            return {
+                status: statusOverall,
+                errors: errorMessages,
+                questions: updateSurvey.questions
+            };
+
+        }).then(function (data) {
+            res.status(data.status).json(data);
         }, function (err) {
             next(err);
         });

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv, greyscaleRealmSrv, $log) {
+    .controller('LoginCtrl', function ($scope, $state, $stateParams, greyscaleProfileSrv, greyscaleRealmSrv) {
         var _realm = $stateParams.realm;
 
         if (_realm) {

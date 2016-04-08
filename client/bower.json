@@ -27,7 +27,6 @@
     "angular-file-upload": "~2.2.0",
     "angular-ui-sortable": "~0.13.4",
     "minigrid": "~2.2.0",
-    "angular-file-saver": "^1.1.0",
     "socket.io-client": "^1.4.5",
     "d3-tip": "^0.6.7"
   },
