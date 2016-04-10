@@ -28,10 +28,12 @@ var
     Query = require('app/util').Query,
     getTranslateQuery = require('app/util').getTranslateQuery,
     query = new Query(),
+    sql = require('sql'),
     mc = require('app/mc_helper'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
-    thunkQuery = thunkify(query);
+    thunkQuery = thunkify(query),
+    pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_products');
 debug.log = console.log.bind(console);
@@ -84,11 +86,11 @@ module.exports = {
                         'ELSE TRUE ' +
                     'END as flagged',
                     'CASE ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                        'WHEN ("' + curStepAlias + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
-                        'WHEN "' + curStepAlias + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                        'WHEN "' + curStepAlias + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                        'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
+                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
                     'END as status ',
                     WorkflowStep.position,
                     '(' +
@@ -270,7 +272,7 @@ module.exports = {
               'AND ("SurveyAnswers"."version" = "sa"."max") ' +
               ') ' +
               'WHERE ( ' +
-                  '("Tasks"."productId" = ' + parseInt(id) + ') ' +
+                  pgEscape('("Tasks"."productId" = %s) ', id) +
               ')';
         debug(q);
 
@@ -958,6 +960,7 @@ function* updateCurrentStepId(req) {
     var thunkQuery = req.thunkQuery;
     var result;
     // get min step position for specified productId
+/*
     var minStepPositionQuery =
         'SELECT '+
         'min("WorkflowSteps"."position") as "minPosition", '+
@@ -966,9 +969,18 @@ function* updateCurrentStepId(req) {
         '"WorkflowSteps" '+
         'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
         'WHERE '+
-        '"Workflows"."productId" = '+req.params.id+' '+
+        pgEscape('"Workflows"."productId" = %s ', req.params.id)+
         'group by "Workflows"."productId"';
-
+*/
+    var minStepPositionQuery = WorkflowStep
+        .select(
+        sql.functions.MIN(WorkflowStep.position).as('minPosition'),
+        Workflow.productId
+        )
+        .from(WorkflowStep)
+        .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        .where(Workflow.productId.equals(req.params.id))
+        .group(Workflow.productId);
 
     result = yield thunkQuery(minStepPositionQuery);
     if (!_.first(result)) {
@@ -977,6 +989,7 @@ function* updateCurrentStepId(req) {
     var minStepPosition = result[0].minPosition;
 
     // get step ID with min step position for specified productId
+/*
     var stepIdMinPositionQuery =
         'SELECT '+
         '"WorkflowSteps"."id" '+
@@ -984,8 +997,15 @@ function* updateCurrentStepId(req) {
         '"WorkflowSteps" '+
         'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
         'WHERE '+
-        '"Workflows"."productId" = '+req.params.id+' AND '+
-        '"WorkflowSteps"."position" = '+minStepPosition;
+        pgEscape('"Workflows"."productId" = %s AND ', req.params.id)+
+        pgEscape('"WorkflowSteps"."position" = %s',  minStepPosition);
+*/
+    var stepIdMinPositionQuery = WorkflowStep
+        .select(WorkflowStep.id)
+        .from(WorkflowStep)
+        .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        .where(Workflow.productId.equals(req.params.id))
+        .and(WorkflowStep.position.equals(minStepPosition));
 
     result = yield thunkQuery(stepIdMinPositionQuery);
     if (!_.first(result)) {
@@ -998,10 +1018,17 @@ function* updateCurrentStepId(req) {
     );
 
     // update all currentStepId with min position step ID for specified productId
+/*
     var updateProductUOAQuery =
         'UPDATE "ProductUOA" '+
         'SET "currentStepId" = ' +stepIdMinPosition+ ' '+
         'WHERE "productId"= '+req.params.id+ ' AND "currentStepId" is NULL';
+*/
+    var updateProductUOAQuery = ProductUOA
+        .update({currentStepId: stepIdMinPosition})
+        .where(ProductUOA.productId.equals(req.params.id))
+        .and(ProductUOA.currentStepId.isNull());
+
     result = yield thunkQuery(updateProductUOAQuery);
 
 }
@@ -1036,7 +1063,7 @@ function* dumpProduct(req, productId) {
           '  FROM ' +
           '    "SurveyAnswers" ' +
           '  WHERE ' +
-          '    ("SurveyAnswers"."productId" = ' + productId + ')' +
+          pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
           '  GROUP BY ' +
           '    "SurveyAnswers"."questionId", ' +
           '    "SurveyAnswers"."UOAid" ' +
@@ -1050,7 +1077,7 @@ function* dumpProduct(req, productId) {
           '  FROM ' +
           '    "SurveyAnswers" ' +
           '  WHERE ' +
-          '    ("SurveyAnswers"."productId" = ' + productId + ')' +
+          pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
           '  GROUP BY ' +
           '    "SurveyAnswers"."questionId", ' +
           '    "SurveyAnswers"."UOAid", ' +
@@ -1065,12 +1092,12 @@ function* dumpProduct(req, productId) {
           '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
           '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
           '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
-          '  AND ("SurveyAnswers"."productId" = ' + productId + ')' +
+          pgEscape('  AND ("SurveyAnswers"."productId" = %s)', productId) +
           ') ' +
           'LEFT JOIN ' +
           '  "UnitOfAnalysis" ON ("UnitOfAnalysis"."id" = "SurveyAnswers"."UOAid") ' +
           'WHERE ' +
-          '  ("Products"."id" = ' + productId + ')' +
+          pgEscape('  ("Products"."id" = %s)', productId) +
           'GROUP BY ' +
           '  "SurveyAnswers"."UOAid", ' +
           '  "UnitOfAnalysis"."ISO2", ' +
@@ -1119,7 +1146,7 @@ function* getSubindexes(req, productId) {
           'LEFT JOIN ' +
           '  "SubindexWeights" ON "SubindexWeights"."subindexId" = "Subindexes"."id" ' +
           'WHERE ' +
-          '  ("Subindexes"."productId" = ' + productId + ') ' +
+          pgEscape('  ("Subindexes"."productId" = %s) ', productId) +
           'GROUP BY ' +
           '  "Subindexes"."id", ' +
           '  "Subindexes"."title", ' +
@@ -1160,7 +1187,7 @@ function* getIndexes(req, productId) {
         'LEFT JOIN ' +
         '  "IndexSubindexWeights" ON "IndexSubindexWeights"."indexId" = "Indexes"."id" ' +
         'WHERE ' +
-        '  ("Indexes"."productId" = ' + productId + ') ' +
+        pgEscape('  ("Indexes"."productId" = %s) ', productId) +
         'GROUP BY ' +
         '  "Indexes"."id", ' +
         '  "Indexes"."title", ' +
@@ -1221,7 +1248,7 @@ function* aggregateIndexes(req, productId) {
         'LEFT JOIN ' +
         '  "Products" ON "Products"."surveyId" = "SurveyQuestions"."surveyId" ' +
         'WHERE ' +
-        '  ("Products"."id" = ' + productId + ') ' +
+        pgEscape('  ("Products"."id" = %s) ', productId) +
         '; ';
     var questions = yield thunkQuery(q);
 
