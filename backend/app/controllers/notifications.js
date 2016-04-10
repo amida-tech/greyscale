@@ -17,7 +17,8 @@ var
     Query = require('app/util').Query,
     query = new Query(),
     thunkQuery = thunkify(query),
-    Emailer = require('lib/mailer');
+    Emailer = require('lib/mailer'),
+    pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_notifications');
 debug.log = console.log.bind(console);
@@ -32,7 +33,7 @@ var setWhereInt = function(selectQuery, val, model, key){
     var where = (selectQuery === '') ? ' WHERE ' : ' AND ';
     if(val) {
         if ( isInt(val)) {
-            selectQuery = selectQuery +where+'"'+model+'"."'+key+'" = '+val;
+            selectQuery = selectQuery +pgEscape('%s "%I"."%I" = %s', where, model, key, val);
         }
     }
     return selectQuery;
@@ -41,7 +42,7 @@ var setWhereInt = function(selectQuery, val, model, key){
 var whereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
-            selectQuery = selectQuery.where(model[key].equals(parseInt(val)));
+            selectQuery = selectQuery.where(model[key].equals(val));
         }
     }
     return selectQuery;
@@ -51,10 +52,10 @@ var setWhereBool = function(selectQuery, val, model, key){
     var where = (selectQuery === '') ? ' WHERE ' : ' AND ';
     if(typeof val !== 'undefined') {
         if (val === 'false' || val === 'true'){
-            selectQuery = selectQuery +where+'"'+model+'"."'+key+'" = '+val;
+            selectQuery = selectQuery +pgEscape('%s "%I"."%I" = %s', where, model, key, val);
         }
         else if (typeof val === 'boolean') {
-            selectQuery = selectQuery +where+'"'+model+'"."'+key+'" = '+val.toString();
+            selectQuery = selectQuery +pgEscape('%s "%I"."%I" = %s', where, model, key, val);
         }
     }
     return selectQuery;
@@ -183,7 +184,7 @@ module.exports = {
             var selectWhere = 'WHERE 1=1 ';
             if (!req.query.userFrom && !req.query.userTo) {
                 userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
-                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
             } else if (req.query.userFrom && !req.query.userTo) {
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
@@ -194,44 +195,29 @@ module.exports = {
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
             } else {
-                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
             }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
-            var withNotes = 'WITH notes as (SELECT "Notifications".* FROM "Notifications" '+selectWhere+')';
-/*
-            var withDiscid = 'discid as ( SELECT "Discussions"."id" FROM "Notifications" INNER JOIN "Discussions" ON "Notifications"."entityId" = "Discussions"."id" '+
-            selectWhere + ' AND "Notifications"."essenceId" = '+essenceId.toString() + ' ) ';
-*/
-            var withUFrom = 'uFrom as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userFrom" '+selectWhere+ ' ) ';
-            var withUTo = 'uTo as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userTo" '+selectWhere+ ' ) ';
-/*
-            //-- discussions with stepId, stepName, role
-            var withDiscuss = 'discuss as (SELECT '+
-                '"Discussions".id , '+
-                '"Discussions"."taskId" as taskid, '+
-                '"Tasks"."stepId" as stepid, '+
-                '"WorkflowSteps"."title" as stepname, '+
-                '"WorkflowSteps"."role" as role '+
-                'FROM "Discussions" '+
-                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
-                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-                'WHERE "Discussions"."id" IN (SELECT * FROM discid) )';
-*/
+            var withNotes = pgEscape('WITH notes as (SELECT "Notifications".* FROM "Notifications" %s)', selectWhere);
+            var withUFrom = pgEscape('uFrom as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userFrom" %s ) ', selectWhere);
+            var withUTo = pgEscape('uTo as (SELECT DISTINCT "Users".* FROM "Notifications" INNER JOIN "Users" ON "Users"."id" =  "Notifications"."userTo" %s ) ', selectWhere);
+
             var mainSelectCase =
             'SELECT '+
             'CAST( '+
                 'CASE '+
-            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userFromName" IS NOT NULL) THEN notes."userFromName" '+
-            'WHEN ( uFrom."isAnonymous" AND '+isNotAdmin.toString()+' AND uFrom."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            pgEscape('WHEN (notes."essenceId" = %s AND notes."userFromName" IS NOT NULL) THEN notes."userFromName" ', essenceId)+
+            pgEscape('WHEN ( uFrom."isAnonymous" AND %s AND uFrom."id" <> %s) THEN \'Anonymous\' ', isNotAdmin, currentUserId)+
             'ELSE CONCAT(uFrom."firstName", \' \', uFrom."lastName") '+
             'END as varchar) AS "userFromName", '+
             'CAST( '+
                 'CASE '+
-            'WHEN (notes."essenceId" = '+essenceId.toString()+' AND notes."userToName" IS NOT NULL) THEN notes."userToName" '+
-            'WHEN ( uTo."isAnonymous" AND '+isNotAdmin.toString()+' AND uTo."id" <> '+parseInt(currentUserId).toString()+') THEN \'Anonymous\' '+
+            pgEscape('WHEN (notes."essenceId" = %s AND notes."userToName" IS NOT NULL) THEN notes."userToName" ', essenceId)+
+            pgEscape('WHEN ( uTo."isAnonymous" AND %s AND uTo."id" <> %s) THEN \'Anonymous\' ', isNotAdmin, currentUserId)+
             'ELSE CONCAT(uTo."firstName", \' \', uTo."lastName") '+
             'END as varchar) AS "userToName", ';
+
             var mainSelectRest =
                 'notes."id", '+
                 'notes."userFrom", '+
@@ -277,7 +263,7 @@ module.exports = {
             var selectWhere = 'WHERE 1=1 ';
             if (!req.query.userFrom && !req.query.userTo) {
                 userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
-                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
             } else if (req.query.userFrom && !req.query.userTo) {
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
@@ -288,7 +274,7 @@ module.exports = {
                 selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
                 selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
             } else {
-                selectWhere = selectWhere + 'AND ("Notifications"."userFrom" = '+ userId.toString() + ' OR "Notifications"."userTo" = '+ userId.toString() + ') ';
+                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s) ', userId, userId);
             }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 
@@ -305,7 +291,7 @@ module.exports = {
                 'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
                 'FROM "Notifications"  '+
                 'INNER JOIN "Users" ON "Notifications"."userFrom" = "Users"."id" '+
-                selectWhere+ ' '+
+                pgEscape.string(selectWhere)+ ' '+
                 'GROUP BY "Notifications"."userFrom", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
                 ') ';
             var withTo =
@@ -321,7 +307,7 @@ module.exports = {
                 'sum(CAST(CASE WHEN "Notifications"."read" THEN 0 ELSE 1 END as INT)) as unread '+
                 'FROM "Notifications"  '+
                 'INNER JOIN "Users" ON "Notifications"."userTo" = "Users"."id" '+
-                selectWhere+ ' '+
+                pgEscape.string(selectWhere)+ ' '+
                 'GROUP BY "Notifications"."userTo", "Notifications"."entityId", "Notifications"."essenceId", "Users"."firstName", "Users"."lastName", "Users"."isAnonymous" '+
                 ') ';
             var withPivot =
@@ -329,9 +315,9 @@ module.exports = {
                 'v1."user" as userid, '+
                 'v1."entityid" as entityid, '+
                 'v1."essenceid" as essenceid, '+
-                'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
+                pgEscape('CAST( CASE WHEN "v1"."isanonymous" and %s AND ("v1"."user" <> %s) ', isNotAdmin, userId)+
                 'THEN \'Anonymous\' ELSE "v1"."firstname" END as varchar) AS "firstName", '+
-                'CAST( CASE WHEN "v1"."isanonymous" and '+isNotAdmin.toString()+' AND ("v1"."user" <> '+parseInt(userId).toString()+') '+
+                pgEscape('CAST( CASE WHEN "v1"."isanonymous" and %s AND ("v1"."user" <> %s) ', isNotAdmin, userId)+
                 'THEN \'\' ELSE "v1"."lastname" END as varchar) AS "lastName", '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'from\' THEN v1."count" ELSE 0 END as INT)) as countFrom, '+
                 'sum(CAST(CASE WHEN "v1"."varchar" = \'to\' THEN v1."count" ELSE 0 END as INT)) as countTo, '+
@@ -638,9 +624,9 @@ function* getInviteNotification(req, userId, body) {
             'max("Notifications"."id") as id '+
         'FROM "Notifications" '+
         'WHERE '+
-            '"Notifications"."body" = \''+body+'\' AND '+
-            '"Notifications"."essenceId" = '+essenceId.toString()+ ' AND '+
-            '"Notifications"."entityId" = '+userId.toString() + ' '+
+            pgEscape('"Notifications"."body" = %L AND ', body)+
+            pgEscape('"Notifications"."essenceId" = %s AND ', essenceId)+
+            pgEscape('"Notifications"."entityId" = %s ',userId)+
         'GROUP BY '+
             '"Notifications"."essenceId", '+
             '"Notifications"."entityId"';

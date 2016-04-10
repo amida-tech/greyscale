@@ -24,7 +24,8 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
-    thunkQuery = thunkify(query);
+    thunkQuery = thunkify(query),
+    pgEscape = require('pg-escape');
 
 var isInt = function(val){
     return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
@@ -33,7 +34,7 @@ var isInt = function(val){
 var setWhereInt = function(selectQuery, val, model, key){
     if(val) {
         if ( isInt(val)) {
-            selectQuery = selectQuery +' AND "'+model+'"."'+key+'" = '+val;
+            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
         }
     }
     return selectQuery;
@@ -412,7 +413,7 @@ function* checkUserId(req, user, userId, taskId, currentStep, tag ) {
         query =
             'SELECT "Discussions".id ' +
             'FROM "Discussions" ' +
-            'WHERE "Discussions"."returnTaskId" = ' + taskId.toString() +
+            pgEscape('WHERE "Discussions"."returnTaskId" = %s', taskId) +
             ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
         result = yield thunkQuery(query);
         if (!_.first(result)) {
@@ -438,12 +439,12 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             '"WorkflowSteps"."title" as stepname, '+
             '"WorkflowSteps"."role" as role, '+
             'CAST( CASE WHEN '+
-                '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
-                '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                 'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
             'CAST( CASE WHEN '+
-                '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
-                '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                 'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
             '"Tasks"."uoaId" as uoaid '+
@@ -452,10 +453,10 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
         'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
         'WHERE ' +
-            '"Tasks"."productId" = ' + productId + ' AND ' +
-            '"Tasks"."uoaId" = ' + uoaId +' ';
+            pgEscape('"Tasks"."productId" = %s AND ', productId) +
+            pgEscape('"Tasks"."uoaId" = %s ', uoaId);
     if (tag === 'return'){
-        query = query + 'AND "WorkflowSteps"."position" < '+currentStep.position.toString();
+        query = query + pgEscape('AND "WorkflowSteps"."position" < %s',currentStep.position);
     } else if (tag == 'resolve') {
         query =
             'SELECT '+
@@ -466,12 +467,12 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 '"WorkflowSteps"."title" as stepname, '+
                 '"WorkflowSteps"."role" as role, '+
                 'CAST( CASE WHEN '+
-                    '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
-                    '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                     'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN '+
-                    '("WorkflowSteps"."id" <> '+currentStep.id.toString()+ ' AND '+currentStep.blindReview+') OR '+
-                    '( "Users"."isAnonymous" AND '+isNotAdmin.toString()+' AND "Users"."id" <> '+parseInt(userId).toString()+') '+
+                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                     'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
             '"Tasks"."uoaId" as uoaid, '+
@@ -480,7 +481,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
             'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
-            'WHERE "Discussions"."returnTaskId" = ' + taskId.toString() + ' '+
+            pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
                 'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
     }
     var thunkQuery = req.thunkQuery;
@@ -582,9 +583,9 @@ function* checkNextEntry(req, id, checkOnly) {
         'FROM "Discussions" '+
         'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE '+
-            '"Tasks"."uoaId" = '+uoaId.toString()+' AND '+
-            '"Tasks"."productId" = '+productId.toString()+' AND '+
-            '"Discussions".order > '+entry.order.toString();
+            pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
+            pgEscape('"Tasks"."productId" = %s AND ', productId)+
+            pgEscape('"Discussions".order > %s', entry.order);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (_.first(result)) {
@@ -610,9 +611,9 @@ function* getNextOrder(req, taskId, questionId) {
         '"Discussions" '+
         'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE  '+
-        '"Tasks"."uoaId" = '+uoaId.toString()+
-        ' AND "Tasks"."productId" = '+productId.toString()+
-        ' AND "Discussions"."questionId" = '+questionId.toString()+' '+
+        pgEscape('"Tasks"."uoaId" = %s', uoaId)+
+        pgEscape(' AND "Tasks"."productId" = %s', productId)+
+        pgEscape(' AND "Discussions"."questionId" = %s ', questionId)+
         'GROUP BY '+
         '"Discussions"."questionId", '+
         '"Tasks"."uoaId", '+
@@ -637,7 +638,7 @@ function* checkForReturnAndResolve(req, user, taskId, userId, tag) {
             '"ProductUOA"."productId" = "Tasks"."productId" AND '+
             '"ProductUOA"."UOAid" = "Tasks"."uoaId" '+
         'WHERE '+
-            '"Tasks"."id" = '+taskId;
+            pgEscape('"Tasks"."id" = %s',  taskId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
@@ -665,7 +666,7 @@ function* getCurrentStep(req, taskId) {
         '"WorkflowSteps".* '+
         'FROM "Tasks" '+
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-        'WHERE "Tasks"."id" = '+taskId.toString();
+        pgEscape('WHERE "Tasks"."id" = %s',  taskId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
@@ -715,8 +716,8 @@ function* checkUpdateProductUOAStep(req, object) {
         'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE '+
         '"Discussions"."isResolve" <> "Discussions"."isReturn" AND '+
-        '"Tasks"."uoaId" = '+object.uoaId.toString()+' AND '+
-        '"Tasks"."productId" = '+object.productId.toString();
+        pgEscape('"Tasks"."uoaId" = %s AND ', object.uoaId)+
+        pgEscape('"Tasks"."productId" = %s', object.productId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
@@ -780,9 +781,9 @@ function* getUserToStep(req, productId, uoaId, userId) {
         'FROM "Tasks" '+
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
         'WHERE '+
-        '"Tasks"."productId" = '+productId.toString() + ' AND '+
-        '"Tasks"."uoaId" = '+uoaId.toString() + ' AND '+
-        '"Tasks"."userId" = '+userId.toString();
+        pgEscape('"Tasks"."productId" = %s AND ', productId)+
+        pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
+        pgEscape('"Tasks"."userId" = %s', userId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
