@@ -526,3 +526,11 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
     .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
 
 module.exports = router;
+
+//----------------------------------------------------------------------------------------------------------------------
+//    LOGS
+//----------------------------------------------------------------------------------------------------------------------
+var logs = require('app/controllers/logs');
+
+router.route('/:realm/v0.2/logs')
+    .get(authenticate('token').always, logs.select);

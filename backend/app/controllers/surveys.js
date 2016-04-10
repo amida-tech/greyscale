@@ -210,18 +210,20 @@ module.exports = {
                                     info: 'Update survey question'
                                 });
                             }
-                            yield thunkQuery(
-                                SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id))
+                            var deletedQuestionOptions = yield thunkQuery(
+                                SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)).returning(SurveyQuestionOption.id)
                             );
-                            bologger.log({
-                                req: req,
-                                user: req.user,
-                                action: 'delete',
-                                object: 'SurveyQuestionOptions',
-                                entities: {questionId: updateSurvey.questions[i].id},
-                                quantity: 1,
-                                info: 'Delete survey question options for question '+updateSurvey.questions[i].id
-                            });
+                            if (deletedQuestionOptions && deletedQuestionOptions.length){
+                                bologger.log({
+                                    req: req,
+                                    user: req.user,
+                                    action: 'delete',
+                                    object: 'SurveyQuestionOptions',
+                                    entities: deletedQuestionOptions,
+                                    quantity: deletedQuestionOptions.length,
+                                    info: 'Delete survey question options for question '+updateSurvey.questions[i].id
+                                });
+                            }
                         }
                     } else {
                         var insertObj = _.pick(updateSurvey.questions[i], SurveyQuestion.table._initialConfig.columns);
