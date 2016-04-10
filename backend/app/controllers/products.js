@@ -977,8 +977,9 @@ function* updateCurrentStepId(req) {
         sql.functions.MIN(WorkflowStep.position).as('minPosition'),
         Workflow.productId
         )
-        .from(WorkflowStep)
-        .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        .from(WorkflowStep
+            .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        )
         .where(Workflow.productId.equals(req.params.id))
         .group(Workflow.productId);
 
@@ -1002,8 +1003,9 @@ function* updateCurrentStepId(req) {
 */
     var stepIdMinPositionQuery = WorkflowStep
         .select(WorkflowStep.id)
-        .from(WorkflowStep)
-        .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        .from(WorkflowStep
+            .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+        )
         .where(Workflow.productId.equals(req.params.id))
         .and(WorkflowStep.position.equals(minStepPosition));
 
