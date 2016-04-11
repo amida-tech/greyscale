@@ -909,17 +909,15 @@ module.exports = {
             }
 
             var userArr = [];
-            //req.schemas.push(config.pgConnect.adminSchema);
 
             if (req.params.realm == config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
                 // search in public at first (super admin forgot password)
                 var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-                if (user.length) {
-                    user = user[0];
-                } else {
+                if (!user) {
                     for (var i in req.schemas) { // search in all schemas
                         var clientThunkQuery = thunkify(new Query(req.schemas[i]));
                         var user = yield clientThunkQuery(
