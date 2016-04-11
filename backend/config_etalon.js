@@ -7,9 +7,9 @@ var environments = {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user:  process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'Jacob',
-      password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'indaba',
-      database: process.env.INDABA_PG_DB || 'indaba',
+      user:  process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
+      password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
+      database: process.env.INDABA_PG_DB || 'database',
       host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
       port: 5432,
       adminSchema: 'public',
