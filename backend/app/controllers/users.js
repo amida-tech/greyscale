@@ -1069,8 +1069,11 @@ module.exports = {
                 throw new HttpError(403, 'Token expired or does not exist');
             }
 
+            //new salt for old user if password changed
+            var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
             var data = {
-                'password': User.hashPassword(_.first(user).salt, req.body.password),
+                'salt': salt,
+                'password': User.hashPassword(salt, req.body.password),
                 'resetPasswordToken': null,
                 'resetPasswordExpires': null
             };
