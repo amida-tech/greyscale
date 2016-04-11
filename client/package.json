@@ -43,7 +43,8 @@
     "karma-chrome-launcher": "^0.2.2",
     "karma-jasmine": "^0.3.7",
     "karma-spec-reporter": "0.0.23",
-    "time-grunt": "^1.0.0"
+    "time-grunt": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1"
   },
   "engines": {
     "node": "~5.0.0"

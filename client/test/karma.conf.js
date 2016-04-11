@@ -44,7 +44,6 @@ module.exports = function(config) {
       'bower_components/lodash/lodash.js',
       'bower_components/restangular/dist/restangular.js',
       'bower_components/lodash-angular-wrapper/lodash-angular-wrapper.js',
-      'bower_components/angular-messages/angular-messages.js',
       'bower_components/angular-inform/dist/angular-inform.js',
       'bower_components/ng-table/dist/ng-table.min.js',
       'bower_components/plotly.js/dist/plotly.min.js',
