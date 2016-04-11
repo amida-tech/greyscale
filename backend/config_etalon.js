@@ -7,17 +7,17 @@ var environments = {
       expiresAfterSeconds: 360000 * 24 // 24 hour
     },
     pgConnect: {
-      user: 'db_user',
-      password: 'password',
-      database: 'database',
-      host: 'host',
+      user:  process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'Jacob',
+      password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'indaba',
+      database: process.env.INDABA_PG_DB || 'indaba',
+      host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
       port: 5432,
       adminSchema: 'public',
       sceletonSchema: 'sceleton'
     },
     mc: { // memcache
-      host: 'localhost',
-      port: 11211,
+      host: process.env.INDABA_MC_HOSTNAME || 'localhost',
+      port: process.env.INDABA_MC_PORT || 11211,
       lifetime: 300 // seconds
     },
     max_upload_filesize: 10*1024*1024, // 10 MB
@@ -25,7 +25,7 @@ var environments = {
     adminRole: 'admin',
     clientRole: 'client',
     auth: {
-      salt: 'saltForHash'
+      salt: process.env.AUTH_SALT || 'saltForHash'
     },
     allowedDomains: '*', // for CORS
     email: {

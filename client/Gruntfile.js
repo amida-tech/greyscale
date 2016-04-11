@@ -35,11 +35,9 @@ module.exports = function (grunt) {
     };
 
     if (process.platform === 'darwin') {
-        try {
             dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
             dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
             dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
-        } catch (error) {}
     }
 
     var i18nConfig = {
@@ -649,7 +647,7 @@ module.exports = function (grunt) {
                         enableDebugLog: true
                     }
                 }
-            }             
+            }
         },
 
         dock: {
@@ -666,7 +664,9 @@ module.exports = function (grunt) {
                     'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
-                            build: { /* extra options to docker build   */ },
+                            build: {
+                                q: true
+                            },
                             create: { /* extra options to docker create  */ },
                             start: { /* extra options to docker start   */ },
                             stop: { /* extra options to docker stop   */ },
@@ -687,7 +687,7 @@ module.exports = function (grunt) {
 
                         ca: dockerConfig.ca,
                         cert: dockerConfig.cert,
-                        key: dockerConfig.pem
+                        key: dockerConfig.key
                     }
                 }
             }
