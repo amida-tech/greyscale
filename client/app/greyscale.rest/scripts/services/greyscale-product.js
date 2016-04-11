@@ -130,9 +130,9 @@ angular.module('greyscale.rest')
         }
 
         function _getTicket(productId) {
-            return function() {
+            return function () {
                 return api().one(productId + '').one('export_ticket').get().then(_plainResp);
-            }
+            };
         }
 
         function _getDownloadDataLink(ticket) {
