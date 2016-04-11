@@ -2,7 +2,7 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, greyscaleUtilsSrv, greyscaleTokenSrv, greyscaleTaskApi, Organization, greyscaleModalsSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, $timeout, greyscaleUtilsSrv, greyscaleTokenSrv, greyscaleTaskApi, Organization, greyscaleModalsSrv) {
 
         var productId = $stateParams.productId;
 
@@ -56,6 +56,20 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
+        $scope.download = function(e){
+            if (!$scope.model.downloadHref) {
+                e.preventDefault();
+                e.stopPropagation();
+                greyscaleProductApi.product(productId).getTicket()
+                .then(function (ticket) {
+                    $scope.model.downloadHref = greyscaleProductApi.getDownloadDataLink(ticket);
+                    $timeout(function () {
+                        e.currentTarget.click();
+                    });
+                });
+            }
+        };
 
         function _moveNextStep(task) {
             console.log('task before', task);

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleProductApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleProductApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
         function api() {
             return greyscaleRestSrv().one('products');
         }
@@ -125,6 +125,20 @@ angular.module('greyscale.rest')
             };
         }
 
+        function _plainResp(resp) {
+            return resp.plain();
+        }
+
+        function _getTicket(productId) {
+            return function() {
+                return api().one(productId + '').one('export_ticket').get().then(_plainResp);
+            }
+        }
+
+        function _getDownloadDataLink(ticket) {
+            return greyscaleUtilsSrv.getApiBase() + '/products/' + ticket.ticket + '/export.csv';
+        }
+
         var _productApi = function (productId) {
             return {
                 uoasList: _uoasList(productId),
@@ -138,7 +152,8 @@ angular.module('greyscale.rest')
                 indexesList: _indexesList(productId),
                 indexesListUpdate: _indexesListUpdate(productId),
                 subindexesList: _subindexesList(productId),
-                subindexesListUpdate: _subindexesListUpdate(productId)
+                subindexesListUpdate: _subindexesListUpdate(productId),
+                getTicket: _getTicket(productId)
             };
         };
 
@@ -148,6 +163,7 @@ angular.module('greyscale.rest')
             add: _add,
             update: _upd,
             delete: _del,
-            product: _productApi
+            product: _productApi,
+            getDownloadDataLink: _getDownloadDataLink
         };
     });

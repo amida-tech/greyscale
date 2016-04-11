@@ -15,9 +15,6 @@ angular.module('greyscaleApp')
         greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
             .then(function(products){
                 $scope.model.products = products;
-            })
-            .catch(function(){
-                console.log('ddddd');
             });
     }
 });

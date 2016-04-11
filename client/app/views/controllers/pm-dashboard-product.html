@@ -38,7 +38,11 @@
 
     </div>
     <div class="col-md-2 text-right">
-        <a ng-href="{{model.exportHref}}" class="btn btn-primary"><i class="fa fa-download"></i> <span translate=".DOWNLOAD_DATA"></span></a>
+        <a ng-href="{{model.downloadHref}}"
+           ng-click="download($event)"
+           target="_self"
+           download="export.csv"
+           class="btn btn-primary"><i class="fa fa-download"></i> <span translate=".DOWNLOAD_DATA"></span></a>
     </div>
 </div>
 
