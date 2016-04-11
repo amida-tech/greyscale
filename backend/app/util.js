@@ -33,6 +33,14 @@ exports.Query = function (realm) {
             doQuery(queryObject, options, cb);
         });
 
+
+        function doFields(rows, fieldsArray){
+            rows = _.map(rows, function (i) {
+                return _.pick(i, fieldsArray);
+            });
+            return rows;
+        }
+
         function doQuery(queryObject, options, cb){
             if (typeof queryObject === 'string') {
 
@@ -45,6 +53,10 @@ exports.Query = function (realm) {
                 client.query(queryString, options, function (err, result) {
                     client.end();
                     var cbfunc = (typeof cb === 'function');
+
+                    if (options.fields) {
+                        result.rows = doFields(result.rows, (options.fields).split(','));
+                    }
 
                     if (err) {
                         return cbfunc ? cb(err) : err;
@@ -139,10 +151,7 @@ exports.Query = function (realm) {
                     }
 
                     if (options.fields) {
-                        var fields = (options.fields).split(',');
-                        result.rows = _.map(result.rows, function (i) {
-                            return _.pick(i, fields);
-                        });
+                        result.rows = doFields(result.rows, (options.fields).split(','));
                     }
 
                     if (queryObject.table.hideCol) {
