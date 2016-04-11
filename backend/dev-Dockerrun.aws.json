@@ -1,13 +1,33 @@
 {
-  "AWSEBDockerrunVersion": "1",
-  "Image": {
-    "Name": "amidatech/greyscale-backend:dev",
-    "Update": "true"
-  },
-  "Ports": [
-    {
-      "ContainerPort": "3005"
-    }
-  ],
-  "Logging": "/var/log/nginx"
+    "AWSEBDockerrunVersion": "2",
+    "containerDefinitions": [
+        {
+            "name": "indaba-backend",
+            "image": "amidatech/greyscale-backend:dev",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 3005,
+                    "containerPort": 3005
+                }
+            ],
+            "mountPoints": [
+                {
+                    "sourceVolume": "awseb-logs-nginx-proxy",
+                    "containerPath": "/var/log/nginx"
+                }
+            ]
+        },
+        {
+            "name": "memcached",
+            "image": "memcached:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 11211,
+                    "containerPort": 11211
+                }
+            ]
+        }
+    ]
 }

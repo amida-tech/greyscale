@@ -1,4 +1,4 @@
-FROM node:0.12.9-onbuild
+FROM node:5.10.1-onbuild
 
 COPY config_etalon.js /usr/src/app/config.js
 
