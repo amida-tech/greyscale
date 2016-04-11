@@ -1082,7 +1082,7 @@ module.exports = {
 
         }).then(function (data) {
             bologger.log({
-                //req: req, Does not use req if you want to use public namespace TODO realm?
+                req: req,
                 user: _.first(data),
                 action: 'update',
                 object: 'users',

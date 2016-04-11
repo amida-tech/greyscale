@@ -1,0 +1,28 @@
+@import "variables";
+// override bootstrap variables
+@import "bootstrap/variables";
+@import "fontawesome/variables";
+/* VENDOR - Default fall-backs and external files.
+========================================================================== */
+// bower:scss
+@import "font-awesome/scss/font-awesome.scss";
+@import "bootstrap-sass-official/assets/stylesheets/_bootstrap.scss";
+// endbower
+
+@import "general";
+@import "forms";
+@import "panels";
+@import "sidebar";
+@import "viz";
+@import "widget";
+@import "breadcrumbs";
+@import "tables";
+@import "language-selector";
+@import "buttons";
+@import "inputs";
+@import "cards";
+@import "layout";
+@import "hidden-select";
+@import "user-notifications";
+@import "printing";
+@import "attachments";

@@ -60,7 +60,6 @@
         surveyId = parseInt(getParameterByName('surveyId'));
         taskId = parseInt(getParameterByName('taskId'));
 
-        token = getCookie('token').split('%22').join('');
         $.fetch(getBaseUrl() + 'surveys/' + surveyId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
             survey = request.response;
             $('#title').innerHTML = survey.title;
@@ -744,17 +743,20 @@
     //Load
     function load() {
         if (!dataFields) return;
-        getUser();
-    }
-    function getUser() {
-        var url = getBaseUrl() + 'users/self';
-        $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-            userId = request.response.id;
+        getUser().then(function (user) {
+            userId = user.id;
             getSavedAnswers();
         }).catch(function (error) {
             checkSavedAnswers();
             console.error(error);
         });
+    }
+    function getUser() {
+        var url = getBaseUrl() + 'users/self';
+        return $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } })
+            .then(function(req) {
+                return req.response;
+            });
     }
     function getSavedAnswers() {
         var url = getBaseUrl() + 'survey_answers?surveyId=' + surveyId + '&productId=' + taskInfo.productId + '&UOAid=' + taskInfo.uoaId + '&wfStepId=' + taskInfo.stepId + '&userId=' + userId;
@@ -998,5 +1000,27 @@
     }
     //End Save
 
-    $.ready().then(readySurvey);
+
+    function renderTasks() {
+        var fields = 'id,flagged'
+        $.fetch(getBaseUrl() + 'users/self/tasks', {
+            method: 'GET',
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        });
+    }
+
+    $.ready().then(function(){
+        var page = window.location.pathname.split('/')[2];
+        token = getCookie('token').split('%22').join('');
+        switch (page) {
+            case 'interviewRenderer':
+                readySurvey();
+                break;
+
+            case 'dashboard':
+                renderTasks();
+                break;
+        }
+    });
 })();
