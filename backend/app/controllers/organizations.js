@@ -363,7 +363,8 @@ module.exports = {
                                 var inviteTemplate = (newUser.isActive) ? 'orgInvite' : 'orgInvitePwd';
                                 // If valid, then created
                                 if (valid) {
-                                    newUser.password = User.hashPassword(pass);
+                                    newUser.salt = crypto.randomBytes(16).toString('hex');
+                                    newUser.password = User.hashPassword(newUser.salt, pass);
                                     newUser.activationToken = crypto.randomBytes(32).toString('hex');
                                     try{
                                         var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));

@@ -219,6 +219,7 @@ module.exports = {
             }
 
             var activationToken = crypto.randomBytes(32).toString('hex');
+            var salt = crypto.randomBytes(16).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
 
             var newClient = {
@@ -226,7 +227,8 @@ module.exports = {
                 'lastName': req.body.lastName,
                 'email': req.body.email,
                 'roleID': 1, // super admin
-                'password': User.hashPassword(pass),
+                'salt': salt,
+                'password': User.hashPassword(salt, pass),
                 'isActive': false,
                 'activationToken': activationToken,
                 'isAnonymous' : false,
@@ -301,7 +303,7 @@ module.exports = {
             var data = {
                 activationToken: null,
                 isActive: true,
-                password: User.hashPassword(req.body.password),
+                password: User.hashPassword(_.first(isExist).salt, req.body.password),
                 firstName: req.body.firstName,
                 lastName: req.body.lastName
             };
@@ -425,6 +427,7 @@ module.exports = {
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
             var activationToken = isExistUser ? isExistUser.activationToken : crypto.randomBytes(32).toString('hex');
+            var salt = crypto.randomBytes(16).toString('hex');
             var pass = crypto.randomBytes(5).toString('hex');
 
             var newClient;
@@ -435,7 +438,8 @@ module.exports = {
                     'lastName': req.body.lastName,
                     'email': req.body.email,
                     'roleID': req.body.roleID, //user
-                    'password': User.hashPassword(pass),
+                    'salt': salt,
+                    'password': User.hashPassword(salt, pass),
                     'isActive': false,
                     'activationToken': activationToken,
                     'organizationId': org.id,
@@ -690,9 +694,16 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function*(){
             var updateObj = _.pick(req.body, User.whereCol);
+            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.params.id)));
+            if (!_.first(user)) {
+                throw new HttpError(404, 'Not found');
+            }
 
             if(updateObj.password){
-                updateObj.password = User.hashPassword(updateObj.password);
+                //new salt for old user if password changed
+                var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
+                updateObj.salt = salt;
+                updateObj.password = User.hashPassword(salt, updateObj.password);
             }
             if (Object.keys(updateObj).length) {
                 yield thunkQuery(
@@ -850,15 +861,24 @@ module.exports = {
     },
 
     updateSelf: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
+        if (req.user.roleID !== 1) { // if user is not superuser
+            thunkQuery = req.thunkQuery;
+        }
         co(function* () {
+            var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.user.id)));
+            if (!_.first(user)) {
+                throw new HttpError(404, 'Not found');
+            }
             var updateObj;
             if(req.body.password){
-                if (!User.validPassword(req.user.password, req.body.currentPassword)) {
+                if (!User.validPassword(req.user.password, _.first(user).salt, req.body.currentPassword)) {
                     throw new HttpError(400, 'Wrong current password');
                 }
+                //new salt for old user if password changed
+                var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
                 updateObj = {
-                    password: User.hashPassword(req.body.password)
+                    salt: salt,
+                    password: User.hashPassword(salt, req.body.password)
                 };
             } else {
                 updateObj = _.pick(req.body, User.editCols);
@@ -1050,7 +1070,7 @@ module.exports = {
             }
 
             var data = {
-                'password': User.hashPassword(req.body.password),
+                'password': User.hashPassword(_.first(user).salt, req.body.password),
                 'resetPasswordToken': null,
                 'resetPasswordExpires': null
             };
@@ -1186,7 +1206,8 @@ function* insertOne(req, res, next) {
     }
 
     // hash user password
-    req.body.password = User.hashPassword(req.body.password);
+    var salt = crypto.randomBytes(16).toString('hex');
+    req.body.password = User.hashPassword(salt, req.body.password);
 
     //check user role
     if (req.body.roleID === 1 /* || req.body.roleID == 2 */ ) { // new user is admin or client
@@ -1195,7 +1216,7 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(req.body).returning(User.id));
+    var user = yield thunkQuery(User.insert(_.extend(req.body, {salt: salt})).returning(User.id));
     bologger.log({
         req: req,
         user: req.user,

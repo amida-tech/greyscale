@@ -16,6 +16,7 @@ var columns = [
     'firstName',
     'email',
     'lastName',
+    'salt',
     'password',
     'roleID',
     'cell',
@@ -76,18 +77,21 @@ var User = sql.define({
     columns: columns
 });
 
-User.hashPassword = function (password) {
+User.hashPassword = function (salt, password) {
     var hash = crypto.createHash('sha256');
-    hash.update(util.format('%s+%s', config.auth.salt, password));
+    if (salt){
+        hash.update(util.format('%s+%s+%s', config.auth.salt, salt, password));
+    } else {
+        hash.update(util.format('%s+%s', config.auth.salt, password));
+    }
     var temp = hash.digest('hex');
     hash = crypto.createHash('sha256');
     hash.update(temp);
-    var result = hash.digest('hex');
-    return result;
+    return hash.digest('hex');
 };
 
-User.validPassword = function (pas, checkpas) {
-    return pas === this.hashPassword(checkpas);
+User.validPassword = function (pas, salt, checkpas) {
+    return pas === this.hashPassword(salt, checkpas);
 };
 
 User.editCols = [
@@ -111,7 +115,7 @@ User.view = function(user){
 User.sesInfo = [
     'id', 'firstName', 'lastName', 'role', 'email',
     'roleID', 'rights', 'organizationId',
-    'projectId', 'password', 'realmUserId'
+    'projectId', 'password', 'salt', 'realmUserId'
 ];
 
 User.whereCol = columns;

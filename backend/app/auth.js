@@ -104,6 +104,7 @@ passport.use(new BasicStrategy({
 
         }).then(function(user){
             delete user.password;
+            delete user.salt;
             done(null, user);
         }, function(err){
             done(err);
@@ -129,7 +130,7 @@ passport.use(new BasicStrategy({
         }
 
         function *checkUser (user, password){
-            if (!User.validPassword(user.password, password)) {
+            if (!User.validPassword(user.password, user.salt, password)) {
                 throw new HttpError(401, 105);
             }
 
@@ -188,7 +189,7 @@ passport.use(new TokenStrategy({
                 //    throw new HttpError(400, 'You can`t perform this action now. First, add organization`s admin')
                 //}
             }
-			
+
             debug('======= TokenStrategy ======= Realm:', req.params.realm, ' User:', JSON.stringify(user));
             //debug ('userId: ', user.id, ' realmUserId:', user.realmUserId, ' realm: ', req.params.realm);
 
