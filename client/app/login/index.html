@@ -1,0 +1,134 @@
+﻿<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="../bower_components/angular-inform/dist/angular-inform.css"/>
+    <link rel="stylesheet" href="styles/login.css">
+    <meta name="msapplication-square70x70logo" content="/images/icons/windows-tile-70x70.png">
+    <meta name="msapplication-square150x150logo" content="/images/icons/windows-tile-150x150.png">
+    <meta name="msapplication-wide310x150logo" content="/images/icons/windows-tile-310x150.png">
+    <meta name="msapplication-square310x310logo" content="/images/icons/windows-tile-310x310.png">
+    <meta name="msapplication-TileImage" content="/images/icons/windows-tile-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/images/icons/apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/icons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/icons/apple-touch-icon-76x76.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="196x196" href="/images/icons/favicon-196x196.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/images/icons/favicon-128x128.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/favicon-16x16.png">
+</head>
+<body>
+<!--[if lte IE 8]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+<div inform="" class="inform-fixed inform-shadow"></div>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+                <div class="panel panel-body">
+                    <div language-selector class="pull-right" style="margin-top: 16px">
+                                <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)"><span
+                                    class="locale ng-binding">en</span> <span class="fa fa-caret-down"></span></span>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li class="link">
+                                <a href="" click="changeLanguage(lang.locale)" title="English">
+                                    <span class="locale ng-binding">en</span> English
+                                </a>
+                            </li>
+                            <li class="link">
+                                <a href="" click="changeLanguage(lang.locale)" title="Russian">
+                                    <span class="locale">ru</span> Русский
+                                </a>
+                            </li>
+                            <li class="link ng-scope" ng-repeat="lang in languages">
+                                <a href="" click="changeLanguage(lang.locale)" title="Spanish">
+                                    <span class="locale ng-binding">es</span> Español
+                                </a>
+                            </li>
+                            <li class="link ng-scope" ng-repeat="lang in languages">
+                                <a href="" click="changeLanguage(lang.locale)" title="French"
+                                   class="ng-binding"><span class="locale ng-binding">fr</span> Le français</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="logo"></div>
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <form name="loginForm" class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="login" class="col-sm-4 control-label"
+                                           translate="LOGIN.EMAIL">E-mail</label>
+
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="login" id="login"
+                                               ng-model="model.login"
+                                               ng-required="true" ng-minlength="1" ng-change="loginChange()">
+
+                                        <div class="text-center" ng-messages="loginForm.login.$error"
+                                             role="alert"
+                                             ng-if="loginForm.login.$dirty">
+                                    <span ng-message="required, minlength" class="help-block"><span
+                                        translate="LOGIN.LOGIN_REQUIRED"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password" class="col-sm-4 control-label"
+                                           translate="LOGIN.PASSWORD"></label>
+
+                                    <div class="col-sm-8">
+                                        <input type="password" class="form-control" name="password"
+                                               id="password"
+                                               ng-model="model.password"
+                                               ng-required="true" ng-minlength="1">
+
+                                        <div class="text-center" ng-messages="loginForm.password.$error"
+                                             role="alert"
+                                             ng-if="loginForm.password.$dirty">
+                                    <span ng-message="required, minlength" class="help-block"><span
+                                        translate="LOGIN.PASSWORD_REQUIRED"></span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <realm-select></realm-select>
+                                <div class="form-group form-inline">
+                                    <div class="col-sm-3 col-sm-offset-2">
+                                        <button id="main-login-btn" type="submit" class="btn btn-primary"
+                                                ng-click="submitLogin()"
+                                                ng-disabled="loginForm.$invalid" translate="LOGIN.SIGN_IN">
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <button id="restore-btn" class="btn btn-default" ui-sref="forgot">
+                                            {{'LOGIN.FORGOT_PASSWORD'|translate}}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div ng-if="model.error" class="text-center text-danger"><i
+                                    class="fa fa-exclamation-circle"></i>
+                                    {{model.error|translate}}
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer navbar-bottom">
+        <div>
+            <a href="http://amida-tech.com">&copy; Amida Technology Solutions 2016</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
