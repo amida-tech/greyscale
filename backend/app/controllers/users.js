@@ -43,7 +43,7 @@ var Query = require('app/util').Query,
 
 module.exports = {
     token: function (req, res, next) {
-        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema)); 
+        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
             var needNewToken = false;
             var data = yield thunkQuery(Token.select().where({
@@ -1082,7 +1082,7 @@ module.exports = {
 
         }).then(function (data) {
             bologger.log({
-                //req: req, Does not use req if you want to use public namespace TODO realm?
+                req: req,
                 user: _.first(data),
                 action: 'update',
                 object: 'users',

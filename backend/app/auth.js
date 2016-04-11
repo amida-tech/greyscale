@@ -62,7 +62,7 @@ passport.use(new BasicStrategy({
                     debug('Not superuser try to login to public:', user);
                     var userArr = [];
 
-                    for (var i in req.schemas) { // TODO STORE salt for each client somewhere ???
+                    for (var i in req.schemas) {
                         var user = yield * findUserInNamespace(req.schemas[i], email);
 
                         if (user[0]) {
