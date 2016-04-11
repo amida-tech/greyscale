@@ -43,7 +43,7 @@ var Query = require('app/util').Query,
 
 module.exports = {
     token: function (req, res, next) {
-
+        var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema)); 
         co(function* () {
             var needNewToken = false;
             var data = yield thunkQuery(Token.select().where({
