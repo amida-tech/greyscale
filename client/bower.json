@@ -14,7 +14,6 @@
     "restangular": "~1.5.1",
     "lodash": "^3.10.1",
     "lodash-angular-wrapper": "*",
-    "angular-messages": "~1.4.7",
     "angular-inform": "~0.0.18",
     "ng-table": "~0.8.3",
     "plotly.js": "~1.4.1",

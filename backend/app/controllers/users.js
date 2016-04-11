@@ -909,17 +909,15 @@ module.exports = {
             }
 
             var userArr = [];
-            //req.schemas.push(config.pgConnect.adminSchema);
 
             if (req.params.realm == config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
                 // search in public at first (super admin forgot password)
                 var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-                if (user.length) {
-                    user = user[0];
-                } else {
+                if (!user) {
                     for (var i in req.schemas) { // search in all schemas
                         var clientThunkQuery = thunkify(new Query(req.schemas[i]));
                         var user = yield clientThunkQuery(
@@ -1069,8 +1067,11 @@ module.exports = {
                 throw new HttpError(403, 'Token expired or does not exist');
             }
 
+            //new salt for old user if password changed
+            var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
             var data = {
-                'password': User.hashPassword(_.first(user).salt, req.body.password),
+                'salt': salt,
+                'password': User.hashPassword(salt, req.body.password),
                 'resetPasswordToken': null,
                 'resetPasswordExpires': null
             };
