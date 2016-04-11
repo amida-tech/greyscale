@@ -80,7 +80,8 @@ angular
                             size: 18,
                             color: '#7f7f7f'
                         }
-                    }
+                    },
+                    width: $('#viz').width() - 20
                 };
 
                 function generateData(data, xVal, yVal) {
