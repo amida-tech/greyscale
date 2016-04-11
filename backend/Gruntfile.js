@@ -183,7 +183,7 @@ module.exports = function (grunt) {
             },
             dev: {
                 options: {
-                    environmentName: 'indaba-backend-dev',
+                    environmentName: 'indaba-backend-memcached-dev',
                 }
             },
             stage: {
