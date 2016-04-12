@@ -11,12 +11,6 @@
                     "hostPort": 3005,
                     "containerPort": 3005
                 }
-            ],
-            "mountPoints": [
-                {
-                    "sourceVolume": "awseb-logs-nginx-proxy",
-                    "containerPath": "/var/log/nginx"
-                }
             ]
         },
         {
