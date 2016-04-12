@@ -39,13 +39,52 @@ module.exports = function (grunt) {
             dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
             dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
             dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
-        } catch (error) {}
+        } catch (error) {
+        }
     }
 
     var i18nConfig = {
         i18nDir: 'i18n',
         l10nDir: 'l10n',
         supportedLocales: ['en', 'ru', 'es', 'fr']
+    };
+
+    var constConfig = {
+        env: {
+            name: 'env',
+            supportedLocales: i18nConfig.supportedLocales,
+            apiProtocol: process.env.SERVICE_PROTOCOL,
+            apiHostname: process.env.SERVICE_HOST,
+            apiPort: process.env.SERVICE_PORT,
+            apiVersion: process.env.SERVICE_VER,
+            adminSchema: process.env.SERVICE_SCHEMA,
+            tokenTTLsec: process.env.SERVICE_TOKEN_TTL,
+            enableDebugLog: false
+        },
+        dev: {
+            name: 'dev',
+            supportedLocales: i18nConfig.supportedLocales,
+            apiProtocol: 'http',
+            apiHostname: 'indaba.ntrlab.ru',
+            apiPort: '83',
+            apiVersion: 'v0.2',
+            defaultUser: 'su@mail.net',
+            defaultPassword: 'testuser',
+            adminSchema: 'public',
+            tokenTTLsec: 300,
+            enableDebugLog: true
+        },
+        local: {
+            name: 'local',
+            supportedLocales: i18nConfig.supportedLocales,
+            apiProtocol: 'http',
+            apiHostname: 'localhost',
+            apiPort: '3005',
+            apiVersion: 'v0.2',
+            adminSchema: 'public',
+            tokenTTLsec: 300,
+            enableDebugLog: true
+        }
     };
 
     // Define the configuration for all the tasks
@@ -504,6 +543,16 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.app %>',
                     src: 'interviewRenderer/*',
                     dest: '<%= yeoman.dist %>/'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'login/*',
+                    dest: '<%= yeoman.dist %>/'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'forgot/*',
+                    dest: '<%= yeoman.dist %>/'
                 }]
             },
             styles: {
@@ -561,7 +610,7 @@ module.exports = function (grunt) {
                 deps: false,
                 dest: '<%= yeoman.app %>/greyscale.core/scripts/config/greyscale-env.js',
                 serializerOptions: {
-                    indent: '\t',
+                    indent: ' ',
                     // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                     no_trailing_comma: true
                 }
@@ -570,50 +619,19 @@ module.exports = function (grunt) {
             local: {
                 options: {},
                 constants: {
-                    greyscaleEnv: {
-                        supportedLocales: ['en', 'ru'],
-                        name: 'local',
-                        apiProtocol: 'http',
-                        apiHostname: 'localhost',
-                        apiPort: '3005',
-                        apiVersion: 'v0.2',
-                        adminSchema: 'public',
-                        tokenTTLsec: 300,
-                        enableDebugLog: true
-                    }
+                    greyscaleEnv: constConfig.local
                 }
             },
             env: {
                 options: {},
                 constants: {
-                    greyscaleEnv: {
-                        name: 'env',
-                        apiProtocol: process.env.SERVICE_PROTOCOL,
-                        apiHostname: process.env.SERVICE_HOST,
-                        apiPort: process.env.SERVICE_PORT,
-                        apiVersion: process.env.SERVICE_VER,
-                        adminSchema: process.env.SERVICE_SCHEMA,
-                        tokenTTLsec: process.env.SERVICE_TOKEN_TTL,
-                        enableDebugLog: false
-                    }
+                    greyscaleEnv: constConfig.env
                 }
             },
             dev: {
                 options: {},
                 constants: {
-                    greyscaleEnv: {
-                        supportedLocales: ['en', 'ru', 'es', 'fr'],
-                        name: 'dev',
-                        apiProtocol: 'http',
-                        apiHostname: 'indaba.ntrlab.ru',
-                        apiPort: '83',
-                        apiVersion: 'v0.2',
-                        defaultUser: 'su@mail.net',
-                        defaultPassword: 'testuser',
-                        adminSchema: 'public',
-                        tokenTTLsec: 300,
-                        enableDebugLog: true
-                    }
+                    greyscaleEnv: constConfig.dev
                 }
             }
         },
@@ -632,14 +650,14 @@ module.exports = function (grunt) {
                     'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
-                            build: { /* extra options to docker build   */ },
-                            create: { /* extra options to docker create  */ },
-                            start: { /* extra options to docker start   */ },
-                            stop: { /* extra options to docker stop   */ },
-                            kill: { /* extra options to docker kill    */ },
-                            logs: { /* extra options to docker logs    */ },
-                            pause: { /* extra options to docker pause   */ },
-                            unpause: { /* extra options to docker unpause */ }
+                            build: {/* extra options to docker build   */},
+                            create: {/* extra options to docker create  */},
+                            start: {/* extra options to docker start   */},
+                            stop: {/* extra options to docker stop   */},
+                            kill: {/* extra options to docker kill    */},
+                            logs: {/* extra options to docker logs    */},
+                            pause: {/* extra options to docker pause   */},
+                            unpause: {/* extra options to docker unpause */}
                         }
                     }
                 }
@@ -762,11 +780,13 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildDev', [
         'ngconstant:dev',
+        'vanillaConfig:dev',
         'build'
     ]);
 
     grunt.registerTask('buildLocal', [
         'ngconstant:local',
+        'vanillaConfig:local',
         'build'
     ]);
 
@@ -784,6 +804,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildEnv', [
         'ngconstant:env',
+        'vanillaConfig:env',
         'build'
     ]);
 
@@ -932,4 +953,10 @@ module.exports = function (grunt) {
                 return ordered;
             }
         });
+
+    grunt.registerTask('vanillaConfig', 'generating config.js for vanilla JS', function (type) {
+        var file = appConfig.app + '/m/config.js';
+        var _content = '(function(){\'use strict\'; window.greyscaleEnv = ' + JSON.stringify(constConfig[type], null, 4) + ';\n})();';
+        grunt.file.write(file, _content, this.async);
+    });
 };

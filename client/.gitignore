@@ -8,3 +8,4 @@
 /app/greyscale.core/scripts/config/greyscale-env.js
 Dockerrun.aws.json
 latest-client.zip
+config.js
