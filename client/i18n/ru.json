@@ -609,6 +609,11 @@
         },
         "TITLE": "Переводы"
     },
+    "UI_TYPE": {
+        "FULL": "",
+        "LIGHT": "",
+        "TITLE": ""
+    },
     "UOAS": {
         "CREATED": "Создан",
         "DELETE_CONFIRM": "Подтвердите удаление субъекта <b>{{uoa.name}}</b>",

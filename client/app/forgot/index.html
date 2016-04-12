@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -25,7 +25,7 @@
         }, false);
     </script>
 
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="forgot.css">
     <meta name="msapplication-square70x70logo" content="/images/icons/windows-tile-70x70.png">
     <meta name="msapplication-square150x150logo" content="/images/icons/windows-tile-150x150.png">
     <meta name="msapplication-wide310x150logo" content="/images/icons/windows-tile-310x150.png">
@@ -54,7 +54,7 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <div class="panel panel-body">
-                    <div language-selector class="pull-right" style="margin-top: 16px">
+                    <div id="language-selector" class="pull-right" style="margin-top: 16px">
                                 <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)"><span
                                     class="locale ng-binding">en</span> <span class="fa fa-caret-down"></span></span>
                         <ul class="dropdown-menu dropdown-menu-right">
@@ -80,84 +80,57 @@
                         </ul>
                     </div>
                     <div class="logo"></div>
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="version" class="col-sm-4 control-label"
-                                           data-translate="UI_TYPE.TITLE">Version</label>
+                    <div class="form-horizontal">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form name="loginForm" class="form-horizontal">
+                                    <div class="form-group">
+                                        <label for="login" class="col-sm-4 control-label" data-translate="LOGIN.EMAIL">E-mail</label>
 
-                                    <div class="col-sm-8">
-                                        <select id="version" class="form-control">
-                                            <option value="light" data-translate="UI_TYPE.LIGHT">Light</option>
-                                            <option value="full" selected="selected"
-                                                    data-translate="UI_TYPE.FULL">Full</option>
-                                        </select>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="login" id="login"
+                                                   required="required" minlength="1">
+
+                                            <div id="login-err-wrapper" class="text-center hidden" role="alert">
+                                                <span class="help-block"><span
+                                                    data-translate="LOGIN.LOGIN_REQUIRED"></span>
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="form-group hidden">
+                                        <label for="org" class="col-sm-4 control-label"
+                                               data-translate="COMMON.ORGANIZATION"></label>
+
+                                        <div class="col-sm-8">
+                                            <select id="org" required="required" name="org" class="form-control"></select>
+
+                                            <div id="org-err-wrapper" class="text-center hidden" role="alert">
+                                                <span class="help-block"><span
+                                                    data-translate="LOGIN.ORGANIZATION_REQUIRED"></span></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="success-wrapper" class="form-group hidden">
+                                        <div class="col-sm-12">
+                                            <p class="form-control-static" id="success-msg"></p>
+
+                                            <p class="pull-right" data-translate="LOGIN.GO_LOGIN"
+                                               data-translate-values="{href:'/login'}"></p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-inline" ng-hide="model.success">
+                                        <div class="col-sm-12 text-right">
+                                            <button id="main-login-btn" type="submit" class="btn btn-primary" data-translate="COMMON.REMIND">
+                                                Remind
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="err-wrapper" class="text-center text-danger hidden"><i
+                                        class="fa fa-exclamation-circle"></i>
+                                    </div>
+                                </form>
                             </div>
-                            <form name="loginForm" class="form-horizontal">
-                                <div class="form-group">
-                                    <label for="login" class="col-sm-4 control-label"
-                                           data-translate="LOGIN.EMAIL">E-mail</label>
-
-                                    <div class="col-sm-8">
-                                        <input type="text" class="form-control" name="login" id="login"
-                                               required="required" minlength="1" ng-change="loginChange()">
-
-                                        <div id="login-err-wrapper" class="text-center" role="alert">
-                                            <span class="help-block hidden">
-                                                <span data-translate="LOGIN.LOGIN_REQUIRED"></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="password" class="col-sm-4 control-label"
-                                           data-translate="LOGIN.PASSWORD">Password</label>
-
-                                    <div class="col-sm-8">
-                                        <input type="password" class="form-control" name="password"
-                                               id="password" required="required" minlength="1">
-
-                                        <div id="pass-err-wrapper" class="text-center hidden" role="alert">
-                                            <span class="help-block">
-                                                <span data-translate="LOGIN.PASSWORD_REQUIRED"></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label for="org" class="col-sm-4 control-label" data-translate="COMMON.ORGANIZATION"></label>
-
-                                    <div class="col-sm-8">
-                                        <select id="org" required="required" name="org" class="form-control"
-                                                ng-options="org.realm as org.orgName for org in model.realms" ng-change="update()"
-                                                ng-model="model.realm"></select>
-
-                                        <div class="text-center" ng-messages="loginForm.org.$error" role="alert"
-                                             ng-if="loginForm.org.$dirty">
-                                            <span ng-message="required, minlength" class="help-block"><span translate="LOGIN.ORGANIZATION_REQUIRED"></span></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group form-inline">
-                                    <div class="col-sm-3 col-sm-offset-2">
-                                        <button id="main-login-btn" type="submit" class="btn btn-primary"
-                                                data-translate="LOGIN.SIGN_IN">Login
-                                        </button>
-                                    </div>
-                                    <div class="col-sm-5">
-                                        <a id="restore-btn" class="btn btn-default" href="/forgot">
-                                            {{'LOGIN.FORGOT_PASSWORD'|data-translate}}
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="text-center text-danger hidden"><i
-                                    class="fa fa-exclamation-circle"></i>
-                                    {{model.error|data-translate}}
-                                </div>
-                            </form>
                         </div>
                     </div>
                 </div>
