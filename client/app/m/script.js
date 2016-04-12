@@ -751,11 +751,17 @@
             console.error(error);
         });
     }
+
+    var user;
     function getUser() {
-        var url = getBaseUrl() + 'users/self';
+        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName';
+        if (user) {
+            return Promise.resolve(user);
+        }
         return $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } })
             .then(function(req) {
-                return req.response;
+                user = req.response;
+                return user;
             });
     }
     function getSavedAnswers() {
@@ -984,7 +990,7 @@
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
         save(false, function () {
-            document.location.href = "/";
+            document.location.href = "/m/dashboard/";
         });
     }
     function submitCheck() {
@@ -1002,25 +1008,89 @@
 
 
     function renderTasks() {
-        var fields = 'id,flagged'
-        $.fetch(getBaseUrl() + 'users/self/tasks', {
+        var fields = 'id,startDate,endDate,status,flagged,step,survey,uoa';
+        $.fetch(getBaseUrl() + 'users/self/tasks?fields=' + fields, {
             method: 'GET',
             responseType: 'json',
             headers: { token: token, 'Content-type': 'application/json' }
+        }).then(function(req){
+            var tasks = req.response;
+            console.log(tasks);
+            var activeTasks = filter(tasks, function(task){
+               return task.status === 'current';
+            });
+            var container = $('#active-tasks');
+            filter(activeTasks, function(task){
+                task.startDateFormatted = moment(task.startDate).format('L');
+                task.endDateFormatted = moment(task.endDate).format('L');
+                var taskEl = document.createElement('div');
+                container.appendChild(taskEl);
+                taskEl.outerHTML = renderTemplate('task-template', task);
+            });
+            if (!activeTasks.length) {
+                $('#no-active-tasks')._.style({display:'block'});
+            }
         });
     }
 
+    function renderTemplate(id, data) {
+        var template = $('#' + id).innerHTML;
+        return fillTemplate(template, data);
+    }
+
+    function fillTemplate(template, data, field) {
+        field = field ? field + '.' : '';
+        for (var name in data) {
+            if (!data.hasOwnProperty(name)) {
+                continue;
+            }
+            var val = data[name];
+            if (Object.prototype.toString.call(val) === '[object Object]') {
+                template = fillTemplate(template, val, field + name);
+            } else {
+                console.log(field + name, val);
+                template = template.split('{{' + field + name + '}}').join(val);
+            }
+        }
+        return field ? template : template.replace(/\{\{(.*?)\}\}/g, '');
+    }
+
+    function filter(collection, condition) {
+        var filtered = [];
+        var l = collection.length;
+        for (var i=0; i<l; i++) {
+            var item = collection[i];
+            if (condition(item)) {
+                filtered.push(item);
+            }
+        }
+        return filtered;
+    }
+
     $.ready().then(function(){
-        var page = window.location.pathname.split('/')[2];
         token = getCookie('token').split('%22').join('');
+
+        renderUserBlock();
+
+        var page = window.location.pathname.split('/')[2];
         switch (page) {
             case 'interviewRenderer':
                 readySurvey();
                 break;
 
-            case 'dashboard':
+            case '':
                 renderTasks();
                 break;
         }
     });
+
+    function renderUserBlock() {
+        var userBlockTemplate = '{{firstName}} {{lastName}} <a href="/login/logout">Logout</a>';
+        getUser().then(function(){
+            var userBlock = $('#user-block');
+            userBlock.innerHTML = fillTemplate(userBlockTemplate, user);
+            userBlock._.style({display:''});
+        });
+    }
+
 })();

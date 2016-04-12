@@ -263,3 +263,31 @@ input.address-val {
     color: green;
 }
 
+#user-block {
+    float: right;
+}
+
+#active-tasks {
+    clear: both;
+}
+.task {
+    float: left;
+    width: 200px;
+    padding: 15px;
+    border: 1px solid #eee;
+    font-size: 1.2em;
+}
+a  {
+    color: #7abc55;
+}
+a:hover {
+    color: #159045;
+}
+.logo-home {
+    float: left;
+    width: 35px;
+}
+.logo-home img {
+    height: 27px;
+    width: 27px;
+}
