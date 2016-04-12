@@ -1011,24 +1011,28 @@
 
 
     function renderTasks() {
-        var fields = 'id,startDate,endDate,status,flagged,step,survey,uoa';
+        var fields = 'id,startDate,endDate,status,flagged,step,survey';
+        var container = $('#active-tasks');
+        container.innerHTML = 'Loading...';
         $.fetch(getBaseUrl() + 'users/self/tasks?fields=' + fields, {
             method: 'GET',
             responseType: 'json',
             headers: { token: token, 'Content-type': 'application/json' }
         }).then(function(req){
             var tasks = req.response;
-            var container = $('#active-tasks');
-            walk(tasks, function(task){
+            container.innerHTML = null;
+            var currentTasks = walk(tasks, function(task){
+                if (task.status !== 'current') {
+                    return false;
+                }
                 task.startDateFormatted = moment(task.startDate).format('L');
                 task.endDateFormatted = moment(task.endDate).format('L');
                 task.showFlag = task.flagged ? 'yes' : 'no';
-                task.statusFormatted = task.status;
                 var taskEl = document.createElement('div');
                 container.appendChild(taskEl);
                 taskEl.outerHTML = renderTemplate('task-template', task);
             });
-            if (!tasks.length) {
+            if (!currentTasks.length) {
                 $('#no-active-tasks')._.style({display:'block'});
             }
         });
@@ -1061,7 +1065,7 @@
         for (var i=0; i<l; i++) {
             var item = collection[i];
             var filter = !condition || condition(item);
-            if (filter) {
+            if (filter !== false) {
                 filtered.push(item);
             }
         }
