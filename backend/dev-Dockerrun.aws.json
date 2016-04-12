@@ -11,6 +11,18 @@
                     "hostPort": 3005,
                     "containerPort": 3005
                 }
+            ],
+            "environment": [
+              {
+                  "name": "INDABA_PG_DB",
+                  "value": "indaba"
+              }, {
+                  "name": "AUTH_SALT",
+                  "value": "nMsDo)_1fh"
+              }
+            ],
+            "links": [
+                "memcached"
             ]
         },
         {

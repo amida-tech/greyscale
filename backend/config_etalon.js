@@ -16,8 +16,8 @@ var environments = {
       sceletonSchema: 'sceleton'
     },
     mc: { // memcache
-      host: process.env.INDABA_MC_HOSTNAME || 'localhost',
-      port: process.env.INDABA_MC_PORT || 11211,
+      host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
+      port: 11211,
       lifetime: 300 // seconds
     },
     max_upload_filesize: 10*1024*1024, // 10 MB
