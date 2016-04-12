@@ -141,7 +141,7 @@ module.exports = {
             var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
             var userTo = yield * common.getUser(req, req.body.userId);
-            // static blindRewiev
+            // static blindReview
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
             var productId = task.productId;
             var uoaId = task.uoaId;
@@ -204,7 +204,7 @@ module.exports = {
             var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
             var userTo = yield * common.getUser(req, entry.userId);
-            // static blindRewiev
+            // static blindReview
             var task = yield * common.getTask(req, entry.taskId);
             var productId = task.productId;
             var uoaId = task.uoaId;
@@ -429,6 +429,7 @@ function* checkUserId(req, user, userId, taskId, currentStep, tag ) {
 function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
     var isNotAdmin = !auth.checkAdmin(user);
     var userId = user.id;
+    var blindReview = (!!currentStep.blindReview);
     // available all users for this survey
     var query =
         'SELECT ' +
@@ -439,11 +440,11 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             '"WorkflowSteps"."title" as stepname, '+
             '"WorkflowSteps"."role" as role, '+
             'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
                 pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                 'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
             'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
                 pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                 'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
@@ -467,11 +468,11 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 '"WorkflowSteps"."title" as stepname, '+
                 '"WorkflowSteps"."role" as role, '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
                     pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                     'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, currentStep.blindReview)+
+                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
                     pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
                     'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
             '"Tasks"."productId" as productid, '+
