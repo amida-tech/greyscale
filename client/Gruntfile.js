@@ -553,6 +553,11 @@ module.exports = function (grunt) {
                     cwd: '<%= yeoman.app %>',
                     src: 'forgot/*',
                     dest: '<%= yeoman.dist %>/'
+                }, {
+                    expand: true,
+                    cwd: '<%= yeoman.app %>',
+                    src: 'm/*',
+                    dest: '<%= yeoman.dist %>/'
                 }]
             },
             styles: {
