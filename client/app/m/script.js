@@ -1022,15 +1022,16 @@
             var tasks = req.response;
             container.innerHTML = null;
             var currentTasks = walk(tasks, function(task){
-                if (task.status !== 'current') {
+                if (task.status === 'current' && task.step.writeToAnswers === true) {
+                    task.startDateFormatted = moment(task.startDate).format('L');
+                    task.endDateFormatted = moment(task.endDate).format('L');
+                    task.showFlag = task.flagged ? 'yes' : 'no';
+                    var taskEl = document.createElement('div');
+                    container.appendChild(taskEl);
+                    taskEl.outerHTML = renderTemplate('task-template', task);
+                } else {
                     return false;
                 }
-                task.startDateFormatted = moment(task.startDate).format('L');
-                task.endDateFormatted = moment(task.endDate).format('L');
-                task.showFlag = task.flagged ? 'yes' : 'no';
-                var taskEl = document.createElement('div');
-                container.appendChild(taskEl);
-                taskEl.outerHTML = renderTemplate('task-template', task);
             });
             if (!currentTasks.length) {
                 $('#no-active-tasks')._.style({display:'block'});
