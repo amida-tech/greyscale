@@ -25,7 +25,10 @@
     var surveyId;
     var taskId;
     var taskInfo;
-    var constUrl = 'http://indaba.ntrlab.ru:83/:realm/v0.2/';
+    var constUrl = window.greyscaleEnv.apiProtocol + '://' +
+        window.greyscaleEnv.apiHostname +
+        (window.greyscaleEnv.apiPort ? ':' + window.greyscaleEnv.apiPort : '') +
+        '/:realm/' + window.greyscaleEnv.apiVersion + '/';
     var dataFields;
     var currentParent;
     var content;
@@ -1015,19 +1018,17 @@
             headers: { token: token, 'Content-type': 'application/json' }
         }).then(function(req){
             var tasks = req.response;
-            console.log(tasks);
-            var activeTasks = filter(tasks, function(task){
-               return task.status === 'current';
-            });
             var container = $('#active-tasks');
-            filter(activeTasks, function(task){
+            walk(tasks, function(task){
                 task.startDateFormatted = moment(task.startDate).format('L');
                 task.endDateFormatted = moment(task.endDate).format('L');
+                task.showFlag = task.flagged ? 'yes' : 'no';
+                task.statusFormatted = task.status;
                 var taskEl = document.createElement('div');
                 container.appendChild(taskEl);
                 taskEl.outerHTML = renderTemplate('task-template', task);
             });
-            if (!activeTasks.length) {
+            if (!tasks.length) {
                 $('#no-active-tasks')._.style({display:'block'});
             }
         });
@@ -1048,19 +1049,19 @@
             if (Object.prototype.toString.call(val) === '[object Object]') {
                 template = fillTemplate(template, val, field + name);
             } else {
-                console.log(field + name, val);
                 template = template.split('{{' + field + name + '}}').join(val);
             }
         }
         return field ? template : template.replace(/\{\{(.*?)\}\}/g, '');
     }
 
-    function filter(collection, condition) {
+    function walk(collection, condition) {
         var filtered = [];
         var l = collection.length;
         for (var i=0; i<l; i++) {
             var item = collection[i];
-            if (condition(item)) {
+            var filter = !condition || condition(item);
+            if (filter) {
                 filtered.push(item);
             }
         }

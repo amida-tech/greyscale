@@ -267,15 +267,22 @@ input.address-val {
     float: right;
 }
 
-#active-tasks {
+#active-tasks:after {
+    content: '';
     clear: both;
+    display: block;
 }
 .task {
     float: left;
     width: 200px;
-    padding: 15px;
+    padding: 0 15px;
     border: 1px solid #eee;
     font-size: 1.2em;
+    margin: 5px;
+}
+.task .flagged {
+    float: right;
+    color: red;
 }
 a  {
     color: #7abc55;
@@ -283,6 +290,13 @@ a  {
 a:hover {
     color: #159045;
 }
+.show-no {
+    display: none;
+}
+.show-yes {
+    display: block;
+}
+
 .logo-home {
     float: left;
     width: 35px;

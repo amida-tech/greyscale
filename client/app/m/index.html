@@ -7,6 +7,7 @@
     <script type="text/javascript" src="bliss.js"></script>
     <script type="text/javascript" src="moment.min.js"></script>
     <script type="text/javascript" src="pikaday.js"></script>
+    <script type="text/javascript" src="config.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <title id="page-title"></title>
 </head>
@@ -21,9 +22,12 @@
 
     <script type="text/template" id="task-template">
         <div class="task">
+            <div class="flagged show-{{showFlag}}">Flagged</div>
             <p>{{step.title}}</p>
             <p><a href="/m/interviewRenderer/?surveyId={{survey.id}}&taskId={{id}}">{{survey.title}}</a></p>
             <p>{{startDateFormatted}} - {{endDateFormatted}}</p>
+
+            <p>{{statusFormatted}}</p>
         </div>
     </script>
 </body>

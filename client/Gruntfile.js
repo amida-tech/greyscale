@@ -39,8 +39,7 @@ module.exports = function (grunt) {
             dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
             dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
             dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
-        } catch (error) {
-        }
+        } catch (error) {}
     }
 
     var i18nConfig = {
@@ -655,14 +654,14 @@ module.exports = function (grunt) {
                     'amidatech/greyscale-client': { // Name to use for Docker
                         dockerfile: './',
                         options: {
-                            build: {/* extra options to docker build   */},
-                            create: {/* extra options to docker create  */},
-                            start: {/* extra options to docker start   */},
-                            stop: {/* extra options to docker stop   */},
-                            kill: {/* extra options to docker kill    */},
-                            logs: {/* extra options to docker logs    */},
-                            pause: {/* extra options to docker pause   */},
-                            unpause: {/* extra options to docker unpause */}
+                            build: { /* extra options to docker build   */ },
+                            create: { /* extra options to docker create  */ },
+                            start: { /* extra options to docker start   */ },
+                            stop: { /* extra options to docker stop   */ },
+                            kill: { /* extra options to docker kill    */ },
+                            logs: { /* extra options to docker logs    */ },
+                            pause: { /* extra options to docker pause   */ },
+                            unpause: { /* extra options to docker unpause */ }
                         }
                     }
                 }
@@ -772,7 +771,7 @@ module.exports = function (grunt) {
         'postcss',
         'ngtemplates',
         'concat',
-//        'uglify',
+        //        'uglify',
         'ngAnnotate',
         'i18n',
         'copy:l10n',
