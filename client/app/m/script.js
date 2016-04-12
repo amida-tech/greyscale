@@ -70,6 +70,7 @@
 
             $.fetch(getBaseUrl() + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
                 taskInfo = request.response;
+                resolvingMode();
                 load();
             }).catch(function (error) {
                 console.error(error);
@@ -79,6 +80,24 @@
             console.error(error);
             console.log(error.stack)
         });
+    }
+
+    function resolvingMode() {
+        if (taskInfo.flagged) {
+            $('#resolve-entry')._.style({display:''});
+            var params = 'taskId=' + taskInfo.id;
+            $.fetch(getBaseUrl() + 'discussions/entryscope?' + params, { method: 'GET', responseType: 'json', headers: { token: token } })
+            .then(function (req) {
+                var resolve = req.response.resolveList;
+                if (resolve[0]) {
+                    taskInfo.resolve = resolve[0];
+                }
+            });
+        }
+    }
+
+    function getResolvingEntry() {
+        return $('#resolve-entry textarea').value;
     }
 
     //Generate Survey
@@ -757,7 +776,7 @@
 
     var user;
     function getUser() {
-        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName';
+        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName,project';
         if (user) {
             return Promise.resolve(user);
         }
@@ -940,8 +959,8 @@
     //End Values
 
     //Save
-    function save(draft, callback) {
-        if (!hasChanges) {
+    function    save(draft, callback) {
+        if (draft && !hasChanges) {
             if (callback) callback();
             return;
         }
@@ -982,7 +1001,10 @@
         }).then(function () {
             console.log('saved to server');
             hasChanges = false;
-            if (callback) callback();
+            moveTask(draft).then(function(){
+                if (callback) callback();
+            });
+
         }).catch(function (error) {
             console.error(error);
             if (callback) callback();
@@ -992,10 +1014,55 @@
     function submitSurvey() {
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
+        if (!resolveModeCheck()) {
+            $('#resolve-entry textarea').className += 'invalid';
+            return;
+        }
         save(false, function () {
-            document.location.href = "/m/dashboard/";
+            resolveTask().then(function(){
+                document.location.href = "/m/";
+            });
         });
     }
+
+    function moveTask(skip) {
+        if (skip) {
+            return Promise.resolve();
+        }
+        return $.fetch(getBaseUrl() + 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId, {
+            method: 'GET',
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        });
+    }
+
+    function resolveTask() {
+        if (!taskInfo.flagged) {
+            return Promise.resolve();
+        }
+        var notify = {
+            taskId: taskInfo.id,
+            userId: taskInfo.resolve.userId,
+            isResolve: true,
+            entry: getResolvingEntry(),
+            questionId: taskInfo.resolve.questionId
+        };
+        return $.fetch(getBaseUrl() + 'discussions', {
+            method: 'POST',
+            data: JSON.stringify(notify),
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        });
+    }
+
+    function resolveModeCheck() {
+        if (!taskInfo.flagged) {
+            return true;
+        }
+        var entry = getResolvingEntry();
+        return entry && entry !== '';
+    }
+
     function submitCheck() {
         $('#submit').disabled = false;
         $('#submit2').disabled = false;
