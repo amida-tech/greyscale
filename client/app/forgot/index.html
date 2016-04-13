@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+
+    <script type="text/javascript">
+        function setLowBand(isLow) {
+            var d = new Date();
+            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
+            var expires = "expires=" + (isLow) ? d.toGMTString() : -1;
+            document.cookie = 'low_band=1;path=/;' + expires;
+        }
+
+        setLowBand(false);
+
+        var slowLoad = window.setTimeout(function () {
+            setLowBand(true);
+        }, 2500);
+
+        window.addEventListener('load', function () {
+            window.clearTimeout(slowLoad);
+        }, false);
+    </script>
+
+    <link rel="stylesheet" href="forgot.css">
+    <meta name="msapplication-square70x70logo" content="/images/icons/windows-tile-70x70.png">
+    <meta name="msapplication-square150x150logo" content="/images/icons/windows-tile-150x150.png">
+    <meta name="msapplication-wide310x150logo" content="/images/icons/windows-tile-310x150.png">
+    <meta name="msapplication-square310x310logo" content="/images/icons/windows-tile-310x310.png">
+    <meta name="msapplication-TileImage" content="/images/icons/windows-tile-144x144.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/images/icons/apple-touch-icon-167x167.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/images/icons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/images/icons/apple-touch-icon-76x76.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="196x196" href="/images/icons/favicon-196x196.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/images/icons/favicon-128x128.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/favicon-16x16.png">
+</head>
+<body>
+<!--[if lte IE 8]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+<div inform="" class="inform-fixed inform-shadow"></div>
+<div class="body-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
+                <div class="panel panel-body">
+                    <div id="language-selector" class="pull-right" style="margin-top: 16px">
+                        <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)">
+                             <span class="locale">en</span>
+                             <span class="fa fa-caret-down"></span>
+                        </span>
+                    </div>
+                    <div class="logo"></div>
+                    <div class="form-horizontal">
+                        <div class="panel panel-default">
+                            <div class="panel-body">
+                                <form name="loginForm" class="form-horizontal">
+                                    <div class="form-group">
+                                        <label for="login" class="col-sm-4 control-label" data-translate="LOGIN.EMAIL">E-mail</label>
+
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control" name="login" id="login"
+                                                   required="required" minlength="1">
+                                        </div>
+                                    </div>
+                                    <div id="realm-wrp" class="form-group hidden">
+                                        <label for="org" class="col-sm-4 control-label"
+                                               data-translate="COMMON.ORGANIZATION">Organization</label>
+
+                                        <div class="col-sm-8">
+                                            <select id="org" required="required" name="org" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                    <div id="success-wrp" class="form-group hidden">
+                                        <div class="col-sm-12">
+                                            <p class="form-control-static" id="success-msg">Instructions was sent to
+                                                your e-mail...</p>
+
+                                            <p class="pull-right" data-translate="LOGIN.GO_LOGIN"
+                                               data-translate-values="{href:'/login'}">Go to <a href="/login">login</a>
+                                                page.</p>
+                                        </div>
+                                    </div>
+                                    <div class="form-group form-inline" id="btn-wrp">
+                                        <div class="col-sm-12 text-right">
+                                            <button id="remind-btn" type="submit" class="btn btn-primary"
+                                                    data-translate="COMMON.REMIND">
+                                                Remind
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="err-wrp" class="text-center text-danger hidden"></div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer navbar-bottom">
+        <div>
+            <a href="http://amida-tech.com">&copy; Amida Technology Solutions 2016</a>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/m/bliss.min.js"></script>
+<script type="text/javascript" src="/m/translate.js"></script>
+<script type="text/javascript" src="/m/common.js"></script>
+<script type="text/javascript" src="script.js"></script>
+</body>
+</html>

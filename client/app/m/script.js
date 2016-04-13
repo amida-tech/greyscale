@@ -70,6 +70,7 @@
 
             $.fetch(getBaseUrl() + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
                 taskInfo = request.response;
+                resolvingMode();
                 load();
             }).catch(function (error) {
                 console.error(error);
@@ -79,6 +80,24 @@
             console.error(error);
             console.log(error.stack)
         });
+    }
+
+    function resolvingMode() {
+        if (taskInfo.flagged) {
+            $('#resolve-entry')._.style({display:''});
+            var params = 'taskId=' + taskInfo.id;
+            $.fetch(getBaseUrl() + 'discussions/entryscope?' + params, { method: 'GET', responseType: 'json', headers: { token: token } })
+            .then(function (req) {
+                var resolve = req.response.resolveList;
+                if (resolve[0]) {
+                    taskInfo.resolve = resolve[0];
+                }
+            });
+        }
+    }
+
+    function getResolvingEntry() {
+        return $('#resolve-entry textarea').value;
     }
 
     //Generate Survey
@@ -118,7 +137,8 @@
                     include_blank_option: question.incOtherOpt,
                     units: question.units,
                     integer_only: question.intOnly
-                }
+                },
+                hasAttachments: question.attachment
             };
             dataFields.push(field);
             if (!question.options) continue;
@@ -218,7 +238,9 @@
             default:
                 return;
         }
-        //fieldAddAttachments(data);
+        if (data.hasAttachments) {
+            fieldAddAttachments(field);
+        }
         validationRule(data);
     }
     function fieldSectionStart(data) {
@@ -419,56 +441,129 @@
             format: 'YYYY/MM/DD'
         });
     }
-    function fieldAddAttachments(data) {
-        if (data.attachment) return;
-        if (data.field_type !== 'text') return;
-
-        var last;
-        var field = getField(data.cid);
-        var groupDiv = $.create('div');
-        $.inside(groupDiv, field);
+    function fieldAddAttachments(field, attachments) {
+        //if (!data.hasAttachments) return;
+        //if (data.field_type !== 'text') return;
+console.dir(field);
+        //var field = getField(data.cid);
+        if (!field.attachmentsGroupDiv) {
+            field.attachmentsGroupDiv = $.create('div');
+            $.inside(field.attachmentsGroupDiv, field);
+        }
 
         function createInput() {
             var div = $.create('div');
-            $.inside(div, groupDiv);
+            $.inside(div, field.attachmentsGroupDiv);
             var input = $.create('input', {
                 type: 'file',
-                name: data.cid
+                name: field.id
             });
             $.inside(input, div);
 
-            last = input;
+            field.attachmentsLastInput = input;
             input._.events({
                 'change': function () { fileChange(input); },
             });
         }
 
-        function fileChange(input) {
-            setChangeFlag();
-            if (input !== last) return;
+        function prependFileItem(fileInfo) {
+            var div = $.create('div');
+            $.start(div, field.attachmentsGroupDiv);
+            var fileItem = $.create('div', {
+                contents: fileInfo.filename,
+                className: 'file-item'
+            });
+            $.inside(fileItem, div);
+
             var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
             del._.events({
                 'click': function () {
-                    input._.unbind();
-                    input.parentNode._.remove();
-                    setChangeFlag();
+                    fileItem._.unbind();
+                    fileItem.parentNode._.remove();
+                    deleteAttachment(fileInfo);
                 }
             });
-            del._.after(input)
-            createInput();
+            $.inside(del, fileItem);
         }
 
-        createInput();
+        function fileChange(input) {
+            //setChangeFlag();
+            //if (input !== field.attachmentsLastInput) return;
+            //var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+            //del._.events({
+            //    'click': function () {
+            //        input._.unbind();
+            //        input.parentNode._.remove();
+            //        setChangeFlag();
+            //    }
+            //});
+            //createInput();
+            console.dir(input);
+            sendAttachment(input.files[0], field.answerId);
+        }
 
-        var send = $.create('button', { contents: ['send'], type: 'button' });
-        $.inside(send, field);
-        send._.events({
-            'click': function () {
-                alert(1);
+        if (!attachments) {
+            createInput();
+        } else if (attachments.length) {
+            for (var ai = attachments.length - 1; ai >= 0; ai--) {
+                prependFileItem(attachments[ai]);
             }
-        });
+        }
+
+        //var send = $.create('button', { contents: ['send'], type: 'button' });
+        //$.inside(send, field);
+        //send._.events({
+        //    'click': function () {
+        //        alert(1);
+        //    }
+        //});
     }
     //End Generate Survey
+
+    function deleteAttachment(fileInfo) {
+        return $.fetch(getBaseUrl() + 'attachments/' + fileInfo.id, {
+            method: 'DELETE',
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        }).then(function () {
+            console.log('attachment deleted');
+        }).catch(function (error) {
+            console.error(error);
+        });
+    }
+
+    function sendAttachment(file, answerId) {
+        var formData = new FormData();
+        formData.append('answerId', answerId);
+        formData.append('file', file, file.name);
+
+        var xhr = new XMLHttpRequest();
+
+        // обработчик для закачки
+        //xhr.upload.onprogress = function(event) {
+        //    log(event.loaded + ' / ' + event.total);
+        //}
+
+        // обработчики успеха и ошибки
+        // если status == 200, то это успех, иначе ошибка
+        //xhr.onload = xhr.onerror = function() {
+        //    if (this.status == 200) {
+        //        log("success");
+        //    } else {
+        //        log("error " + this.status);
+        //    }
+        //};
+
+        xhr.open('POST', getBaseUrl() + 'attachments', true);
+        xhr.setRequestHeader('token', token);
+        xhr.send(formData);
+    }
+
+    function upload(url, file) {
+
+
+
+    }
 
     //Validation
     function validateAll(data) {
@@ -757,7 +852,7 @@
 
     var user;
     function getUser() {
-        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName';
+        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName,project';
         if (user) {
             return Promise.resolve(user);
         }
@@ -779,7 +874,13 @@
                 var answer = request.response[i];
                 if (!savedAnswers) savedAnswers = [];
                 if (answer.version !== null) continue;
-                savedAnswers.push({ id: answer.questionId, optionId: answer.optionId, value: answer.value });
+                savedAnswers.push({
+                    answerId: answer.id,
+                    id: answer.questionId,
+                    optionId: answer.optionId,
+                    value: answer.value,
+                    attachments: answer.attachments
+                });
             }
             checkSavedAnswers(savedAnswers);
         }).catch(function (error) {
@@ -919,6 +1020,10 @@
                 default:
                     return;
             }
+            if (answer.attachments) {
+                fieldAddAttachments(fields[i], answer.attachments);
+            }
+            fields[i].answerId = answer.answerId;
         }
     }
     function setAnswerBullet(field, value) {
@@ -940,8 +1045,8 @@
     //End Values
 
     //Save
-    function save(draft, callback) {
-        if (!hasChanges) {
+    function    save(draft, callback) {
+        if (draft && !hasChanges) {
             if (callback) callback();
             return;
         }
@@ -982,7 +1087,10 @@
         }).then(function () {
             console.log('saved to server');
             hasChanges = false;
-            if (callback) callback();
+            moveTask(draft).then(function(){
+                if (callback) callback();
+            });
+
         }).catch(function (error) {
             console.error(error);
             if (callback) callback();
@@ -992,10 +1100,55 @@
     function submitSurvey() {
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
+        if (!resolveModeCheck()) {
+            $('#resolve-entry textarea').className += 'invalid';
+            return;
+        }
         save(false, function () {
-            document.location.href = "/m/dashboard/";
+            resolveTask().then(function(){
+                document.location.href = "/m/";
+            });
         });
     }
+
+    function moveTask(skip) {
+        if (skip) {
+            return Promise.resolve();
+        }
+        return $.fetch(getBaseUrl() + 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId, {
+            method: 'GET',
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        });
+    }
+
+    function resolveTask() {
+        if (!taskInfo.flagged) {
+            return Promise.resolve();
+        }
+        var notify = {
+            taskId: taskInfo.id,
+            userId: taskInfo.resolve.userId,
+            isResolve: true,
+            entry: getResolvingEntry(),
+            questionId: taskInfo.resolve.questionId
+        };
+        return $.fetch(getBaseUrl() + 'discussions', {
+            method: 'POST',
+            data: JSON.stringify(notify),
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' }
+        });
+    }
+
+    function resolveModeCheck() {
+        if (!taskInfo.flagged) {
+            return true;
+        }
+        var entry = getResolvingEntry();
+        return entry && entry !== '';
+    }
+
     function submitCheck() {
         $('#submit').disabled = false;
         $('#submit2').disabled = false;
@@ -1022,15 +1175,16 @@
             var tasks = req.response;
             container.innerHTML = null;
             var currentTasks = walk(tasks, function(task){
-                if (task.status !== 'current') {
+                if (task.status === 'current' && task.step.writeToAnswers === true) {
+                    task.startDateFormatted = moment(task.startDate).format('L');
+                    task.endDateFormatted = moment(task.endDate).format('L');
+                    task.showFlag = task.flagged ? 'yes' : 'no';
+                    var taskEl = document.createElement('div');
+                    container.appendChild(taskEl);
+                    taskEl.outerHTML = renderTemplate('task-template', task);
+                } else {
                     return false;
                 }
-                task.startDateFormatted = moment(task.startDate).format('L');
-                task.endDateFormatted = moment(task.endDate).format('L');
-                task.showFlag = task.flagged ? 'yes' : 'no';
-                var taskEl = document.createElement('div');
-                container.appendChild(taskEl);
-                taskEl.outerHTML = renderTemplate('task-template', task);
             });
             if (!currentTasks.length) {
                 $('#no-active-tasks')._.style({display:'block'});

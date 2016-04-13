@@ -609,6 +609,11 @@
         },
         "TITLE": ""
     },
+    "UI_TYPE": {
+        "FULL": "",
+        "LIGHT": "",
+        "TITLE": ""
+    },
     "UOAS": {
         "CREATED": "",
         "DELETE_CONFIRM": "",

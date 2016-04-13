@@ -5,6 +5,26 @@
     <title></title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
+
+    <script type="text/javascript">
+        setLowBand(false);
+
+        var slowLoad = window.setTimeout(function () {
+            setLowBand(true);
+        }, 2500);
+
+        function setLowBand(isLow) {
+            var d = new Date();
+            d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((isLow) ? 1 : -1)));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = 'low_band=1;path=/;' + expires;
+        }
+
+        window.addEventListener('load', function () {
+            window.clearTimeout(slowLoad);
+        }, false);
+    </script>
+
     <link rel="stylesheet" href="login.css">
     <meta name="msapplication-square70x70logo" content="/images/icons/windows-tile-70x70.png">
     <meta name="msapplication-square150x150logo" content="/images/icons/windows-tile-150x150.png">
@@ -34,88 +54,71 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <div class="panel panel-body">
-                    <div language-selector class="pull-right" style="margin-top: 16px">
-                                <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)"><span
-                                    class="locale ng-binding">en</span> <span class="fa fa-caret-down"></span></span>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="English">
-                                    <span class="locale ng-binding">en</span> English
-                                </a>
-                            </li>
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="Russian">
-                                    <span class="locale">ru</span> Русский
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="Spanish">
-                                    <span class="locale ng-binding">es</span> Español
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="French"
-                                   class="ng-binding"><span class="locale ng-binding">fr</span> Le français</a>
-                            </li>
-                        </ul>
+                    <div id="language-selector" class="pull-right" style="margin-top: 16px">
+                        <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)">
+                            <span class="locale ng-binding">en</span>
+                            <span class="fa fa-caret-down"></span>
+                        </span>
                     </div>
                     <div class="logo"></div>
                     <div class="panel panel-default">
                         <div class="panel-body">
+                            <div class="form-horizontal">
+                                <div class="form-group">
+                                    <label for="version" class="col-sm-4 control-label"
+                                           data-translate="UI_TYPE.TITLE">Version</label>
+
+                                    <div class="col-sm-8">
+                                        <select id="version" class="form-control" required="required">
+                                            <option value="light" data-translate="UI_TYPE.LIGHT">Light</option>
+                                            <option value="full" selected="selected"
+                                                    data-translate="UI_TYPE.FULL">Full
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <form name="loginForm" class="form-horizontal">
                                 <div class="form-group">
                                     <label for="login" class="col-sm-4 control-label"
-                                           translate="LOGIN.EMAIL">E-mail</label>
+                                           data-translate="LOGIN.EMAIL">E-mail</label>
 
                                     <div class="col-sm-8">
                                         <input type="text" class="form-control" name="login" id="login"
-                                               ng-model="model.login"
-                                               ng-required="true" ng-minlength="1" ng-change="loginChange()">
-
-                                        <div class="text-center" ng-messages="loginForm.login.$error"
-                                             role="alert"
-                                             ng-if="loginForm.login.$dirty">
-                                    <span ng-message="required, minlength" class="help-block"><span
-                                        translate="LOGIN.LOGIN_REQUIRED"></span></span>
-                                        </div>
+                                               required="required" minlength="1" ng-change="loginChange()">
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="password" class="col-sm-4 control-label"
-                                           translate="LOGIN.PASSWORD"></label>
+                                    <label for="pass" class="col-sm-4 control-label"
+                                           data-translate="LOGIN.PASSWORD">Password</label>
 
                                     <div class="col-sm-8">
                                         <input type="password" class="form-control" name="password"
-                                               id="password"
-                                               ng-model="model.password"
-                                               ng-required="true" ng-minlength="1">
-
-                                        <div class="text-center" ng-messages="loginForm.password.$error"
-                                             role="alert"
-                                             ng-if="loginForm.password.$dirty">
-                                    <span ng-message="required, minlength" class="help-block"><span
-                                        translate="LOGIN.PASSWORD_REQUIRED"></span></span>
-                                        </div>
+                                               id="pass" required="required" minlength="1">
                                     </div>
                                 </div>
-                                <realm-select></realm-select>
+                                <div  id="realm-wrp" class="form-group hidden">
+                                    <label for="org" class="col-sm-4 control-label"
+                                           data-translate="COMMON.ORGANIZATION">Organization</label>
+
+                                    <div class="col-sm-8">
+                                        <select id="org" required="required" name="org" class="form-control"></select>
+                                    </div>
+                                </div>
                                 <div class="form-group form-inline">
                                     <div class="col-sm-3 col-sm-offset-2">
-                                        <button id="main-login-btn" type="submit" class="btn btn-primary"
-                                                ng-click="submitLogin()"
-                                                ng-disabled="loginForm.$invalid" translate="LOGIN.SIGN_IN">
+                                        <button id="login-btn" type="submit" class="btn btn-primary"
+                                                data-translate="LOGIN.SIGN_IN">Login
                                         </button>
                                     </div>
                                     <div class="col-sm-5">
-                                        <button id="restore-btn" class="btn btn-default" ui-sref="forgot">
-                                            {{'LOGIN.FORGOT_PASSWORD'|translate}}
-                                        </button>
+                                        <a id="restore-btn" class="btn btn-default" href="/forgot"
+                                           data-translate="LOGIN.FORGOT_PASSWORD">
+                                            Forgot password...
+                                        </a>
                                     </div>
                                 </div>
-                                <div ng-if="model.error" class="text-center text-danger"><i
-                                    class="fa fa-exclamation-circle"></i>
-                                    {{model.error|translate}}
-                                </div>
+                                <div id="err-wrp" class="text-center text-danger hidden"></div>
                             </form>
                         </div>
                     </div>
@@ -129,8 +132,10 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/m/bliss.js"></script>
+<script type="text/javascript" src="/m/bliss.min.js"></script>
 <script type="text/javascript" src="/m/translate.js"></script>
+<script type="text/javascript" src="/m/common.js"></script>
+<script type="text/javascript" src="base64.js"></script>
 <script type="text/javascript" src="script.js"></script>
 </body>
 </html>

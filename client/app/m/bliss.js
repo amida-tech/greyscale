@@ -153,55 +153,54 @@ extend($, {
 
 	// Helper for defining OOP-like “classes”
 	Class: function(o) {
-		var init = $.noop;
+		var special = ["constructor", "extends", "abstract", "static"].concat(Object.keys($.classProps));
+		var init = o.hasOwnProperty("constructor")? o.constructor : $.noop;
 
-		if (o.hasOwnProperty("constructor")) {
-			init = o.constructor;
-			delete o.constructor;
-		}
-
-		var abstract = o.abstract;
-		delete o.abstract;
-
-		var ret = function() {
-			if (abstract && this.constructor === ret) {
+		var Class = function() {
+			if (o.abstract && this.constructor === Class) {
 				throw new Error("Abstract classes cannot be directly instantiated.");
 			}
 
-			if (this.constructor.super && this.constructor.super != ret) {
-				// FIXME This should never happen, but for some reason it does if ret.super is null
-				// Debugging revealed that somehow this.constructor !== ret, wtf. Must look more into this
-				this.constructor.super.apply(this, arguments);
-			}
+			Class.super && Class.super.apply(this, arguments);
 
-			return init.apply(this, arguments);
+			init.apply(this, arguments);
 		};
 
-		ret.super = o.extends || null;
-		delete o.extends;
+		Class.super = o.extends || null;
 
-		ret.prototype = $.extend(Object.create(ret.super? ret.super.prototype : Object), {
-			constructor: ret
+		Class.prototype = $.extend(Object.create(Class.super? Class.super.prototype : Object), {
+			constructor: Class
 		});
 
-		$.extend(ret, o.static);
-		delete o.static;
+		var specialFilter = function(property) {
+			return this.hasOwnProperty(property) && special.indexOf(property) === -1;
+		};
 
-		for (var property in o) {
-			if (property in $.classProps) {
-				$.classProps[property].call(ret, ret.prototype, o[property]);
-				delete o[property];
+		// Static methods
+		if (o.static) {
+			$.extend(Class, o.static, specialFilter);
+
+			for (var property in $.classProps) {
+				if (property in o.static) {
+					$.classProps[property](Class, o.static[property]);
+				}
 			}
 		}
 
-		// Anything that remains is an instance method/property or ret.prototype.constructor
-		$.extend(ret.prototype, o);
+		// Instance methods
+		$.extend(Class.prototype, o, specialFilter);
+
+		for (var property in $.classProps) {
+			if (property in o) {
+				$.classProps[property](Class.prototype, o[property]);
+			}
+		}
 
 		// For easier calling of super methods
 		// This doesn't save us from having to use .call(this) though
-		ret.prototype.super = ret.super? ret.super.prototype : null;
+		Class.prototype.super = Class.super? Class.super.prototype : null;
 
-		return ret;
+		return Class;
 	},
 
 	// Properties with special handling in classes
@@ -220,6 +219,15 @@ extend($, {
 					});
 
 					return value;
+				},
+				set: function(value) {
+					// Blind write: skip running the getter
+					Object.defineProperty(this, property, {
+						value: value,
+						configurable: true,
+						enumerable: true,
+						writable: true
+					});
 				},
 				configurable: true,
 				enumerable: true
@@ -337,14 +345,22 @@ extend($, {
 					resolve(env.xhr);
 				}
 				else {
-					reject(Error(env.xhr.statusText));
+					reject($.extend(Error(env.xhr.statusText), {
+						get status() { return this.xhr.status; },
+						xhr: env.xhr
+					}));
 				}
 
 			};
 
 			env.xhr.onerror = function() {
 				document.body.removeAttribute('data-loading');
-				reject(Error("Network Error"));
+				reject($.extend(Error("Network Error"), {xhr: env.xhr}));
+			};
+
+			env.xhr.ontimeout = function() {
+			    document.body.removeAttribute('data-loading');
+			    reject($.extend(Error("Network Timeout"), {xhr: env.xhr}));
 			};
 
 			env.xhr.send(env.method === 'GET'? null : env.data);
@@ -354,21 +370,22 @@ extend($, {
 	value: function(obj) {
 		var hasRoot = $.type(obj) !== "string";
 
-		return $$(arguments).slice(+hasRoot).reduce(function(obj, property) {
+		return $.$(arguments).slice(+hasRoot).reduce(function(obj, property) {
 	        return obj && obj[property];
 	    }, hasRoot? obj : self);
 	}
 });
 
 $.Hooks = new $.Class({
-	add: function (name, callback) {
+	add: function (name, callback, first) {
 		this[name] = this[name] || [];
-		this[name].push(callback);
+		this[name][first? "unshift" : "push"](callback);
 	},
 
 	run: function (name, env) {
-		(this[name] || []).forEach(function(callback) {
-			callback(env);
+		this[name] = this[name] || [];
+		this[name].forEach(function(callback) {
+			callback.call(env && env.context? env.context : env, env);
 		});
 	}
 });
@@ -526,7 +543,7 @@ $.setProps = {
 		}
 		else if (arguments.length > 1 && $.type(val) === "string") {
 			var callback = arguments[1], capture = arguments[2];
-			
+
 			val.split(/\s+/).forEach(function (event) {
 				this.addEventListener(event, callback, capture);
 			}, this);

@@ -609,6 +609,11 @@
         },
         "TITLE": "Translations"
     },
+    "UI_TYPE": {
+        "FULL": "Full",
+        "LIGHT": "Light",
+        "TITLE": "Version"
+    },
     "UOAS": {
         "CREATED": "Created",
         "DELETE_CONFIRM": "Please confirm deleting of Subject <b>{{uoa.name}}</b>",

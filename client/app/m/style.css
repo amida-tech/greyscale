@@ -283,6 +283,7 @@ input.address-val {
 .task .flagged {
     float: right;
     color: red;
+    margin-top: 15px;
 }
 a  {
     color: #7abc55;
@@ -304,4 +305,8 @@ a:hover {
 .logo-home img {
     height: 27px;
     width: 27px;
+}
+textarea.invalid {
+    border-color: red;
+
 }
