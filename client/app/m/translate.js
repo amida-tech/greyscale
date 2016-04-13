@@ -1,9 +1,10 @@
 (function () {
     'use strict';
-    $.ready().then(function(){
-        $.include(window.greyscaleEnv, '/m/config.js').then(function () {
-            console.log(window.greyscaleEnv);
+    $.ready()
+        .then(function() {
+            return $.include(window.greyscaleEnv, '/m/config.js');
+        })
+        .then(function () {
+            /* config loaded. can init */
         });
-    });
-
 })();

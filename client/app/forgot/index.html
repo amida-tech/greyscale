@@ -90,44 +90,32 @@
                                         <div class="col-sm-8">
                                             <input type="text" class="form-control" name="login" id="login"
                                                    required="required" minlength="1">
-
-                                            <div id="login-err-wrapper" class="text-center hidden" role="alert">
-                                                <span class="help-block"><span
-                                                    data-translate="LOGIN.LOGIN_REQUIRED"></span>
-                                                </span>
-                                            </div>
                                         </div>
                                     </div>
-                                    <div class="form-group hidden">
+                                    <div id="realm-wrapper" class="form-group hidden">
                                         <label for="org" class="col-sm-4 control-label"
-                                               data-translate="COMMON.ORGANIZATION"></label>
+                                               data-translate="COMMON.ORGANIZATION">Organization</label>
 
                                         <div class="col-sm-8">
                                             <select id="org" required="required" name="org" class="form-control"></select>
-
-                                            <div id="org-err-wrapper" class="text-center hidden" role="alert">
-                                                <span class="help-block"><span
-                                                    data-translate="LOGIN.ORGANIZATION_REQUIRED"></span></span>
-                                            </div>
                                         </div>
                                     </div>
-                                    <div id="success-wrapper" class="form-group hidden">
+                                    <div id="success-wrp" class="form-group hidden">
                                         <div class="col-sm-12">
-                                            <p class="form-control-static" id="success-msg"></p>
+                                            <p class="form-control-static" id="success-msg">Instructions was sent to your e-mail...</p>
 
                                             <p class="pull-right" data-translate="LOGIN.GO_LOGIN"
-                                               data-translate-values="{href:'/login'}"></p>
+                                               data-translate-values="{href:'/login'}">Go to <a href="/login">login</a> page.</p>
                                         </div>
                                     </div>
-                                    <div class="form-group form-inline" ng-hide="model.success">
+                                    <div class="form-group form-inline" id="btn-wrp">
                                         <div class="col-sm-12 text-right">
                                             <button id="main-login-btn" type="submit" class="btn btn-primary" data-translate="COMMON.REMIND">
                                                 Remind
                                             </button>
                                         </div>
                                     </div>
-                                    <div id="err-wrapper" class="text-center text-danger hidden"><i
-                                        class="fa fa-exclamation-circle"></i>
+                                    <div id="err-wrapper" class="text-center text-danger hidden">
                                     </div>
                                 </form>
                             </div>
@@ -145,6 +133,7 @@
 </div>
 <script type="text/javascript" src="/m/bliss.js"></script>
 <script type="text/javascript" src="/m/translate.js"></script>
+<script type="text/javascript" src="/m/common.js"></script>
 <script type="text/javascript" src="script.js"></script>
 </body>
 </html>
