@@ -55,29 +55,10 @@
             <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <div class="panel panel-body">
                     <div id="language-selector" class="pull-right" style="margin-top: 16px">
-                                <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)"><span
-                                    class="locale ng-binding">en</span> <span class="fa fa-caret-down"></span></span>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="English">
-                                    <span class="locale ng-binding">en</span> English
-                                </a>
-                            </li>
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="Russian">
-                                    <span class="locale">ru</span> Русский
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="Spanish">
-                                    <span class="locale ng-binding">es</span> Español
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="French"
-                                   class="ng-binding"><span class="locale ng-binding">fr</span> Le français</a>
-                            </li>
-                        </ul>
+                        <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)">
+                             <span class="locale">en</span>
+                             <span class="fa fa-caret-down"></span>
+                        </span>
                     </div>
                     <div class="logo"></div>
                     <div class="form-horizontal">
@@ -92,7 +73,7 @@
                                                    required="required" minlength="1">
                                         </div>
                                     </div>
-                                    <div id="realm-wrapper" class="form-group hidden">
+                                    <div id="realm-wrp" class="form-group hidden">
                                         <label for="org" class="col-sm-4 control-label"
                                                data-translate="COMMON.ORGANIZATION">Organization</label>
 
@@ -102,21 +83,23 @@
                                     </div>
                                     <div id="success-wrp" class="form-group hidden">
                                         <div class="col-sm-12">
-                                            <p class="form-control-static" id="success-msg">Instructions was sent to your e-mail...</p>
+                                            <p class="form-control-static" id="success-msg">Instructions was sent to
+                                                your e-mail...</p>
 
                                             <p class="pull-right" data-translate="LOGIN.GO_LOGIN"
-                                               data-translate-values="{href:'/login'}">Go to <a href="/login">login</a> page.</p>
+                                               data-translate-values="{href:'/login'}">Go to <a href="/login">login</a>
+                                                page.</p>
                                         </div>
                                     </div>
                                     <div class="form-group form-inline" id="btn-wrp">
                                         <div class="col-sm-12 text-right">
-                                            <button id="main-login-btn" type="submit" class="btn btn-primary" data-translate="COMMON.REMIND">
+                                            <button id="remind-btn" type="submit" class="btn btn-primary"
+                                                    data-translate="COMMON.REMIND">
                                                 Remind
                                             </button>
                                         </div>
                                     </div>
-                                    <div id="err-wrapper" class="text-center text-danger hidden">
-                                    </div>
+                                    <div id="err-wrp" class="text-center text-danger hidden"></div>
                                 </form>
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 /**
  * Created by igi on 12.04.16.
  */
-(function (param) {
+(function () {
     'use strict';
 
     var _urls = {
@@ -10,16 +10,22 @@
         remind: '/users/forgot'
     };
 
+    $.ready().then(function (){
+        $('#org')._.events({'change': _setRealm});
+    });
+
     window.gsUtils = {
-        getApiUrl: getApiUrl,
-        getBaseUrl: getBaseUrl,
-        setCookie: setCookie,
-        getCookie: getCookie
+        getApiUrl: _getApiUrl,
+        getBaseUrl: _getBaseUrl,
+        setCookie: _setCookie,
+        getCookie: _getCookie,
+        showRealmSelector: _showOrgs,
+        showErr: _showErr
     };
 
-    function getBaseUrl() {
+    function _getBaseUrl() {
         if (window.greyscaleEnv) {
-            var _realm = getCookie('current_realm') || greyscaleEnv.adminSchema;
+            var _realm = _getCookie('current_realm') || greyscaleEnv.adminSchema;
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [_realm, greyscaleEnv.apiVersion].join('/');
             return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
@@ -28,18 +34,18 @@
         }
     }
 
-    function getApiUrl(apiName) {
-        return getBaseUrl() + _urls[apiName];
+    function _getApiUrl(apiName) {
+        return _getBaseUrl() + _urls[apiName];
     }
 
-    function setCookie(cname, cvalue, exdays) {
+    function _setCookie(cname, cvalue, exdays) {
         var d = new Date();
         d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
         var expires = "expires=" + d.toGMTString();
         document.cookie = cname + "=" + cvalue + ";path=/;" + expires;
     }
 
-    function getCookie(cname) {
+    function _getCookie(cname) {
         var name = cname + "=";
         var ca = document.cookie.split(';');
         for (var i = 0; i < ca.length; i++) {
@@ -51,95 +57,41 @@
         return "";
     }
 
-    Bliss.fetch =
-        /*
-         * Fetch API inspired XHR wrapper. Returns promise.
-         */
-        function (url, o) {
-            if (!url) {
-                throw new TypeError("URL parameter is mandatory and cannot be " + url);
-            }
+    function _showOrgs(orgs) {
+        var o, option,
+            qty = orgs.length,
+            _select = $('#org');
 
-            // Set defaults & fixup arguments
-            var env = $.extend({
-                url: new URL(url, location),
-                data: "",
-                method: "GET",
-                headers: {},
-                xhr: new XMLHttpRequest()
-            }, o);
+        $$('#org option').forEach(function (_opt) {
+            _opt.remove();
+        });
 
-            env.method = env.method.toUpperCase();
-
-            $.hooks.run("fetch-args", env);
-
-            // Start sending the request
-
-            if (env.method === "GET" && env.data) {
-                env.url.search += env.data;
-            }
-
-            document.body.setAttribute('data-loading', env.url);
-
-            env.xhr.open(env.method, env.url.href, env.async !== false, env.user, env.password);
-
-            for (var property in o) {
-                if (property in env.xhr) {
-                    try {
-                        env.xhr[property] = o[property];
-                    }
-                    catch (e) {
-                        self.console && console.error(e);
-                    }
-                }
-            }
-
-            if (env.method !== 'GET' && !env.headers['Content-type'] && !env.headers['Content-Type']) {
-                env.xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            }
-
-            for (var header in env.headers) {
-                env.xhr.setRequestHeader(header, env.headers[header]);
-            }
-
-            return new Promise(function (resolve, reject) {
-                env.xhr.onload = function () {
-                    document.body.removeAttribute('data-loading');
-
-                    if (env.xhr.status === 0 || env.xhr.status >= 200 && env.xhr.status < 300 || env.xhr.status === 304) {
-                        // Success!
-                        resolve(env.xhr);
-                    }
-                    else {
-                        var err = new Error(env.xhr.statusText);
-                        $.extend(err, {
-                            xhr: env.xhr,
-                            get data() {
-                                return this.xhr.response;
-                            },
-                            get status() {
-                                return this.xhr.status;
-                            },
-                            get statusText() {
-                                return this.xhr.statusText
-                            }
-                        });
-                        reject(err);
-                    }
-
-                };
-
-                env.xhr.onerror = function () {
-                    document.body.removeAttribute('data-loading');
-                    reject($.extend(Error("Network Error"), {xhr: env.xhr}));
-                };
-
-                env.xhr.ontimeout = function () {
-                    document.body.removeAttribute('data-loading');
-                    reject($.extend(Error("Network Timeout"), {xhr: env.xhr}));
-                };
-
-                env.xhr.send(env.method === 'GET' ? null : env.data);
+        option = $.create('option', {text: '', value: null, selected: true, disabled: 'disabled', hidden: 'hidden'});
+        $.inside(option, _select);
+        for (o = 0; o < qty; o++) {
+            option = $.create('option', {
+                text: orgs[o].orgName,
+                value: orgs[o].realm
             });
-        };
+            $.inside(option, _select);
+        }
+
+        $('#realm-wrp').classList.remove('hidden');
+    }
+
+    function _showErr(err) {
+        console.log(err.xhr);
+
+        var _elem = $('#err-wrp'),
+            _msg = (err.xhr.response && err.xhr.response.message) ? err.xhr.response.message : err.xhr.statusText;
+        _elem.innerHTML = '<i class="fa fa-exclamation-circle"> ' + _msg + '</i>';
+        _elem.classList.remove('hidden');
+    }
+
+    function _setRealm() {
+        var _select = $('#org');
+        if (_select && _select.value) {
+            gsUtils.setCookie('current_realm', _select.value, 1);
+        }
+    }
 })();
