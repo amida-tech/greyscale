@@ -4,6 +4,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var homeDir = process.env.HOME;
 
+
 var sql = 'test/testdb.sql';
 
 module.exports = function (grunt) {
@@ -26,6 +27,8 @@ module.exports = function (grunt) {
     }
 
     // Define the configuration for all the tasks
+
+
     grunt.initConfig({
 
         env: {
@@ -43,7 +46,7 @@ module.exports = function (grunt) {
                     node_env: 'test',
                     // jscs:enable
                     script: 'app.js',
-                    port: 3005
+                    port: 3006
                 }
             }
         },
@@ -55,7 +58,7 @@ module.exports = function (grunt) {
                     timeout: '10000'
                 },
                 src: [
-                    'test/**/*.js'
+                    'test/**/*.spec.js'
                 ]
             }
         },
@@ -203,12 +206,14 @@ module.exports = function (grunt) {
     // Postgres helper tasks for testing
     grunt.registerTask('createDatabase', function () {
         var done = this.async();
-        exec('createdb indabatest', function (err) {
+        var cpg = require('./config').pgConnect;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W';
+        exec('createdb ' + connectStringPg + ' ' + cpg.database, function (err) {
             if (err !== null) {
                 console.log('exec error: ' + err);
                 return done();
             }
-            exec('psql -d indabatest -f ' + sql, function (err) {
+            exec('psql ' + connectStringPg + ' -d ' + cpg.database + ' -f ' + sql, function (err) {
                 if (err !== null) {
                     console.log('exec error: ' + err);
                 }
@@ -219,7 +224,33 @@ module.exports = function (grunt) {
 
     grunt.registerTask('dropDatabase', function () {
         var done = this.async();
-        exec('dropdb indabatest', function (err) {
+        var cpg = require('./config').pgConnect;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ';
+        exec('dropdb ' + connectStringPg + ' ' + cpg.database, function (err) {
+            if (err !== null) {
+                console.log('exec error: ' + err);
+            }
+            done();
+        });
+    });
+
+    grunt.registerTask('bckpDb', function () {
+        var done = this.async();
+        var cpg = require('./config').pgConnect;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + cpg.database;
+        var filename = sql;
+        console.log(connectStringPg);
+        exec('pg_dump ' + connectStringPg + ' > ' + filename, function (err) {
+            if (err !== null) {
+                console.log('exec error: ' + err);
+            }
+            done();
+        });
+    });
+
+    grunt.registerTask('runTestServer', function () {
+        var done = this.async();
+        exec('DEBUG=* node --harmony app.js', function (err) {
             if (err !== null) {
                 console.log('exec error: ' + err);
             }
@@ -260,9 +291,11 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', [
         'env:test',
+        //'bckpDb',
         'dropDatabase',
         'createDatabase',
-        'express:test',
+        //'runTestServer',
+        //'express:test',
         'mochaTest'
     ]);
 

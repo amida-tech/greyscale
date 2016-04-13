@@ -13,7 +13,7 @@ describe('Countries Controller:', function () {
     it('get a token', function (done) {
         api
             .get('/users/token')
-            .set('Authorization', 'Basic ' + new Buffer('no@mail.net:testuser').toString('base64'))
+            .set('Authorization', 'Basic ' + new Buffer('su@mail.net:testuser').toString('base64'))
             .expect(200)
             .end(function (err, res) {
                 if (err) {
