@@ -7,18 +7,18 @@
     <meta name="viewport" content="width=device-width">
 
     <script type="text/javascript">
-        function setLowBand(isLow) {
-            var d = new Date();
-            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
-            var expires = "expires=" + (isLow) ? d.toGMTString() : -1;
-            document.cookie = 'low_band=1;path=/;' + expires;
-        }
-
         setLowBand(false);
 
         var slowLoad = window.setTimeout(function () {
             setLowBand(true);
         }, 2500);
+
+        function setLowBand(isLow) {
+            var d = new Date();
+            d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((isLow) ? 1 : -1)));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = 'low_band=1;path=/;' + expires;
+        }
 
         window.addEventListener('load', function () {
             window.clearTimeout(slowLoad);
@@ -54,30 +54,11 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <div class="panel panel-body">
-                    <div language-selector class="pull-right" style="margin-top: 16px">
-                                <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)"><span
-                                    class="locale ng-binding">en</span> <span class="fa fa-caret-down"></span></span>
-                        <ul class="dropdown-menu dropdown-menu-right">
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="English">
-                                    <span class="locale ng-binding">en</span> English
-                                </a>
-                            </li>
-                            <li class="link">
-                                <a href="" click="changeLanguage(lang.locale)" title="Russian">
-                                    <span class="locale">ru</span> Русский
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="Spanish">
-                                    <span class="locale ng-binding">es</span> Español
-                                </a>
-                            </li>
-                            <li class="link ng-scope" ng-repeat="lang in languages">
-                                <a href="" click="changeLanguage(lang.locale)" title="French"
-                                   class="ng-binding"><span class="locale ng-binding">fr</span> Le français</a>
-                            </li>
-                        </ul>
+                    <div id="language-selector" class="pull-right" style="margin-top: 16px">
+                        <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)">
+                            <span class="locale ng-binding">en</span>
+                            <span class="fa fa-caret-down"></span>
+                        </span>
                     </div>
                     <div class="logo"></div>
                     <div class="panel panel-default">
@@ -88,10 +69,11 @@
                                            data-translate="UI_TYPE.TITLE">Version</label>
 
                                     <div class="col-sm-8">
-                                        <select id="version" class="form-control">
+                                        <select id="version" class="form-control" required="required">
                                             <option value="light" data-translate="UI_TYPE.LIGHT">Light</option>
                                             <option value="full" selected="selected"
-                                                    data-translate="UI_TYPE.FULL">Full</option>
+                                                    data-translate="UI_TYPE.FULL">Full
+                                            </option>
                                         </select>
                                     </div>
                                 </div>
@@ -104,59 +86,39 @@
                                     <div class="col-sm-8">
                                         <input type="text" class="form-control" name="login" id="login"
                                                required="required" minlength="1" ng-change="loginChange()">
-
-                                        <div id="login-err-wrapper" class="text-center" role="alert">
-                                            <span class="help-block hidden">
-                                                <span data-translate="LOGIN.LOGIN_REQUIRED"></span>
-                                            </span>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="password" class="col-sm-4 control-label"
+                                    <label for="pass" class="col-sm-4 control-label"
                                            data-translate="LOGIN.PASSWORD">Password</label>
 
                                     <div class="col-sm-8">
                                         <input type="password" class="form-control" name="password"
-                                               id="password" required="required" minlength="1">
-
-                                        <div id="pass-err-wrapper" class="text-center hidden" role="alert">
-                                            <span class="help-block">
-                                                <span data-translate="LOGIN.PASSWORD_REQUIRED"></span>
-                                            </span>
-                                        </div>
+                                               id="pass" required="required" minlength="1">
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="org" class="col-sm-4 control-label" data-translate="COMMON.ORGANIZATION"></label>
+                                <div  id="realm-wrp" class="form-group hidden">
+                                    <label for="org" class="col-sm-4 control-label"
+                                           data-translate="COMMON.ORGANIZATION">Organization</label>
 
                                     <div class="col-sm-8">
-                                        <select id="org" required="required" name="org" class="form-control"
-                                                ng-options="org.realm as org.orgName for org in model.realms" ng-change="update()"
-                                                ng-model="model.realm"></select>
-
-                                        <div class="text-center" ng-messages="loginForm.org.$error" role="alert"
-                                             ng-if="loginForm.org.$dirty">
-                                            <span ng-message="required, minlength" class="help-block"><span translate="LOGIN.ORGANIZATION_REQUIRED"></span></span>
-                                        </div>
+                                        <select id="org" required="required" name="org" class="form-control"></select>
                                     </div>
                                 </div>
                                 <div class="form-group form-inline">
                                     <div class="col-sm-3 col-sm-offset-2">
-                                        <button id="main-login-btn" type="submit" class="btn btn-primary"
+                                        <button id="login-btn" type="submit" class="btn btn-primary"
                                                 data-translate="LOGIN.SIGN_IN">Login
                                         </button>
                                     </div>
                                     <div class="col-sm-5">
-                                        <a id="restore-btn" class="btn btn-default" href="/forgot">
-                                            {{'LOGIN.FORGOT_PASSWORD'|data-translate}}
+                                        <a id="restore-btn" class="btn btn-default" href="/forgot"
+                                           data-translate="LOGIN.FORGOT_PASSWORD">
+                                            Forgot password...
                                         </a>
                                     </div>
                                 </div>
-                                <div class="text-center text-danger hidden"><i
-                                    class="fa fa-exclamation-circle"></i>
-                                    {{model.error|data-translate}}
-                                </div>
+                                <div id="err-wrp" class="text-center text-danger hidden"></div>
                             </form>
                         </div>
                     </div>
@@ -170,9 +132,10 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="/m/bliss.js"></script>
+<script type="text/javascript" src="/m/bliss.min.js"></script>
 <script type="text/javascript" src="/m/translate.js"></script>
 <script type="text/javascript" src="/m/common.js"></script>
+<script type="text/javascript" src="base64.js"></script>
 <script type="text/javascript" src="script.js"></script>
 </body>
 </html>

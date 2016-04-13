@@ -10,7 +10,7 @@
         remind: '/users/forgot'
     };
 
-    $.ready().then(function (){
+    $.ready().then(function () {
         $('#org')._.events({'change': _setRealm});
     });
 
@@ -25,7 +25,7 @@
 
     function _getBaseUrl() {
         if (window.greyscaleEnv) {
-            var _realm = _getCookie('current_realm') || greyscaleEnv.adminSchema;
+            var _realm = _getCookie('current_realm').split('"').join('') || greyscaleEnv.adminSchema;
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [_realm, greyscaleEnv.apiVersion].join('/');
             return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
@@ -80,10 +80,11 @@
     }
 
     function _showErr(err) {
-        console.log(err.xhr);
-
         var _elem = $('#err-wrp'),
+            _msg = err;
+        if (err && err.xhr) {
             _msg = (err.xhr.response && err.xhr.response.message) ? err.xhr.response.message : err.xhr.statusText;
+        }
         _elem.innerHTML = '<i class="fa fa-exclamation-circle"> ' + _msg + '</i>';
         _elem.classList.remove('hidden');
     }
@@ -91,7 +92,7 @@
     function _setRealm() {
         var _select = $('#org');
         if (_select && _select.value) {
-            gsUtils.setCookie('current_realm', _select.value, 1);
+            gsUtils.setCookie('current_realm', JSON.stringify(_select.value), 1);
         }
     }
 })();

@@ -6,6 +6,7 @@
 
     var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 
+    window.Base64 = window.Base64 || {};
     window.Base64.decode = _decode;
     window.Base64.encode = _encode;
 
