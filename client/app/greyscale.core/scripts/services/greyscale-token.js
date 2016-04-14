@@ -4,19 +4,19 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .factory('greyscaleTokenSrv', function ($cookieStore) {
+    .factory('greyscaleTokenSrv', function ($cookies) {
         var _token = null;
         return function (val) {
             if (typeof val !== 'undefined') {
                 _token = val;
                 if (val) {
-                    $cookieStore.put('token', val);
+                    $cookies.put('token', val);
                 } else {
-                    $cookieStore.remove('token');
+                    $cookies.remove('token');
                 }
             } else {
                 if (!_token) {
-                    _token = $cookieStore.get('token');
+                    _token = $cookies.get('token');
                 }
             }
             return _token;

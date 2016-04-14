@@ -3,7 +3,6 @@
  */
 (function () {
     'use strict';
-    var baseUrl = '';
 
     $.ready()
         .then(function () {
@@ -37,15 +36,15 @@
                     'Authorization': 'Basic ' + Base64.encode(_data.user + ':' + _data.pass)
                 }
             },
-            url = gsUtils.getApiUrl('login');
+            url = Greyscale.getApiUrl('login');
 
         $.fetch(url, params)
             .then(function (xhr) {
                 if (xhr.response.realm !== greyscaleEnv.adminSchema) {
-                    gsUtils.setCookie('origin_realm', JSON.stringify(xhr.response.realm));
-                    gsUtils.setCookie('current_realm', JSON.stringify(xhr.response.realm));
+                    Greyscale.setCookie('origin_realm', xhr.response.realm);
+                    Greyscale.setCookie('current_realm', xhr.response.realm);
                 }
-                gsUtils.setCookie('token',JSON.stringify(xhr.response.token));
+                Greyscale.setCookie('token', xhr.response.token);
                 window.location.href = '/';
                 return true;
             })
@@ -54,9 +53,9 @@
                     var _xhr = err.xhr,
                         _resp = (_xhr) ? _xhr.response : null;
                     if (_resp && _resp.e === 300) {
-                        gsUtils.showRealmSelector(_resp.message);
+                        Greyscale.showRealmSelector(_resp.message);
                     } else {
-                        gsUtils.showErr(err);
+                        Greyscale.showErr(err);
                     }
                 }
                 return true;

@@ -36,7 +36,7 @@
     var hasChanges = false;
 
     function getBaseUrl() {
-        var realm = getCookie('current_realm').split('%22').join('');
+        var realm = getCookie('current_realm');
         return constUrl.split(':realm').join(realm);
     }
 
@@ -1227,7 +1227,7 @@ console.dir(field);
     }
 
     $.ready().then(function(){
-        token = getCookie('token').split('%22').join('');
+        token = getCookie('token');
 
         renderUserBlock();
 

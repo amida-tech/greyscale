@@ -12,7 +12,7 @@
         if (greyscaleEnv.defaultUser) {
             $('#login').value = greyscaleEnv.defaultUser;
         }
-        gsUtils.setCookie('current_realm', 'public', -1);
+        Greyscale.setCookie('current_realm', 'public', -1);
         $('#remind-btn')._.events({click: remind});
     }
 
@@ -30,7 +30,7 @@
                 headers: {'Content-type': 'application/json'},
                 data: JSON.stringify(_data)
             },
-            url = gsUtils.getApiUrl('remind');
+            url = Greyscale.getApiUrl('remind');
 
         $.fetch(url, remindOpt)
             .then(function () {
@@ -42,9 +42,9 @@
                 var _xhr =err.xhr,
                     _resp = (_xhr)?_xhr.response:null;
                 if (_resp && _resp.e === 300) {
-                    gsUtils.showRealmSelector(_resp.message);
+                    Greyscale.showRealmSelector(_resp.message);
                 } else {
-                    gsUtils.showErr(err);
+                    Greyscale.showErr(err);
                 }
             });
     }
