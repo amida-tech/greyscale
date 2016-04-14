@@ -1,11 +1,6 @@
 ﻿<!doctype html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-
     <script type="text/javascript">
         setLowBand(false);
 
@@ -17,14 +12,17 @@
             var d = new Date();
             d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((isLow) ? 1 : -1)));
             var expires = "expires=" + d.toGMTString();
-            document.cookie = 'low_band=1;path=/;' + expires;
+            document.cookie = 'light_version=1;path=/;' + expires;
         }
 
         window.addEventListener('load', function () {
             window.clearTimeout(slowLoad);
         }, false);
     </script>
-
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="login.css">
     <meta name="msapplication-square70x70logo" content="/images/icons/windows-tile-70x70.png">
     <meta name="msapplication-square150x150logo" content="/images/icons/windows-tile-150x150.png">
@@ -69,12 +67,7 @@
                                            data-translate="UI_TYPE.TITLE">Version</label>
 
                                     <div class="col-sm-8">
-                                        <select id="version" class="form-control" required="required">
-                                            <option value="light" data-translate="UI_TYPE.LIGHT">Light</option>
-                                            <option value="full" selected="selected"
-                                                    data-translate="UI_TYPE.FULL">Full
-                                            </option>
-                                        </select>
+                                        <select id="version" class="form-control" required="required"></select>
                                     </div>
                                 </div>
                             </div>

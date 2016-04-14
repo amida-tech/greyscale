@@ -4,6 +4,18 @@
 (function () {
     'use strict';
 
+    var _cookie = 'light_version',
+        _versions = {
+            light: {
+                value: 'light',
+                name: 'UI_TYPE.LIGHT'
+            },
+            full: {
+                value: 'full',
+                name: 'UI_TYPE.FULL'
+            }
+        };
+
     $.ready()
         .then(function () {
             return $.include(window.greyscaleEnv, '/m/config.js')
@@ -17,9 +29,25 @@
         if (greyscaleEnv.defaultPassword) {
             $('#pass').value = greyscaleEnv.defaultPassword;
         }
+        var _version = Greyscale.getCookie(_cookie),
+            _elem = $('#version'),
+            v, item, _option;
+
+        for (item in _versions) {
+            if (_versions.hasOwnProperty(item)) {
+                _option = $.create('option',{value:_versions[item].value,text:_versions[item].name});
+                $.inside(_option, _elem);
+            }
+        }
+
+        if (_version) {
+            _elem.value = _versions.light.value;
+        } else {
+            _elem.value = _versions.full.value;
+        }
 
         $('#login-btn')._.events({'click': login});
-        $('#version')._.events({'change': setVersion})
+        _elem._.events({'change': setVersion})
     }
 
     function login(evt) {
@@ -64,6 +92,10 @@
     }
 
     function setVersion() {
-        console.log('UI version changed');
+        if ($('#version').value === _versions.light.value) {
+            Greyscale.setCookie(_cookie, 1);
+        } else {
+            Greyscale.setCookie(_cookie, 0, -1);
+        }
     }
 })();
