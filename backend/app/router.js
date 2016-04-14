@@ -515,6 +515,7 @@ router.route('/:realm/v0.2/uoataglinks/:id')
 //    Visualizations
 //----------------------------------------------------------------------------------------------------------------------
 var Visualization = require('app/controllers/visualizations');
+var ComparativeVisualization = require('app/controllers/comparative_visualizations');
 
 router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
     .get(authenticate('token').always, Visualization.select)
@@ -524,6 +525,38 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
     .get(authenticate('token').always, Visualization.selectOne)
     .put(authenticate('token').always, /*checkRight(), */ Visualization.updateOne)
     .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.select)
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.insertOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectOne)
+    .put(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.updateOne)
+    .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.insertDataset);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets/parse')
+    .post(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.parseDataset);
+
+router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
+    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
+    .put(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.updateDataset)
+    .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    Data Export
+//----------------------------------------------------------------------------------------------------------------------
+var DataExport = require('app/controllers/data_export');
+
+router.route('/:realm/v0.2/data-api/datasets')
+    .get(DataExport.authenticate, DataExport.select);
+
+router.route('/:realm/v0.2/data-api/datasets/:id')
+    .get(DataExport.authenticate, DataExport.selectOne);
 
 module.exports = router;
 

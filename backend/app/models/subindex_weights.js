@@ -5,7 +5,8 @@ var columns = [
     'subindexId',
     'questionId',
     'weight',
-    'type'
+    'type',
+    'aggregateType'
 ];
 
 var SubindexWeight = sql.define({

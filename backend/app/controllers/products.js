@@ -441,7 +441,8 @@ module.exports = {
                         indexId: indexId,
                         questionId: questionId,
                         weight: req.body[i].questionWeights[questionId].weight,
-                        type: req.body[i].questionWeights[questionId].type
+                        type: req.body[i].questionWeights[questionId].type,
+                        aggregateType: req.body[i].questionWeights[questionId].aggregateType
                     };
                     yield thunkQuery(IndexQuestionWeight.insert(weightObj));
                     bologger.log({
@@ -483,6 +484,16 @@ module.exports = {
                     });
                 }
             }
+
+            // remove all old indexes
+            yield thunkQuery(
+                Index
+                    .delete()
+                    .where(
+                        Index.productId.equals(req.params.id)
+                        .and(Index.id.notIn(res.inserted.concat(res.updated)))
+                    )
+            );
 
             return res;
         }).then(function (data) {
@@ -596,7 +607,8 @@ module.exports = {
                         subindexId: subindexId,
                         questionId: questionId,
                         weight: req.body[i].weights[questionId].weight,
-                        type: req.body[i].weights[questionId].type
+                        type: req.body[i].weights[questionId].type,
+                        aggregateType: req.body[i].weights[questionId].aggregateType
                     };
                     yield thunkQuery(SubindexWeight.insert(weightObj));
                     bologger.log({
@@ -616,6 +628,16 @@ module.exports = {
                 }
             }
 
+            // remove all old indexes
+            yield thunkQuery(
+                Subindex
+                    .delete()
+                    .where(
+                        Subindex.productId.equals(req.params.id)
+                        .and(Subindex.id.notIn(res.inserted.concat(res.updated)))
+                    )
+            );
+
             return res;
         }).then(function (data) {
             res.json(data);
@@ -629,7 +651,7 @@ module.exports = {
 
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(req, productId);
+            return yield aggregateIndexes(req, productId, false);
         }).then(function (result) {
             res.json(result);
         }, function (err) {
@@ -642,7 +664,7 @@ module.exports = {
 
         var productId = parseInt(req.params.id);
         co(function* () {
-            return yield aggregateIndexes(req, productId);
+            return yield aggregateIndexes(req, productId, false);
         }).then(function (result) {
             // column titles
             var titles = {
@@ -1044,7 +1066,7 @@ function* dumpProduct(req, productId) {
           '  "UnitOfAnalysis"."ISO2", ' +
           "  format('{%s}', " +
           "    string_agg(format('\"%s\":%s', " +
-          '      "SurveyQuestions".id, ' +
+          '      "SurveyQuestions".id, ' + 
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
           '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
@@ -1108,7 +1130,7 @@ function* dumpProduct(req, productId) {
 
   var data = yield thunkQuery(q);
   data = data.map(function (uoa) {
-      uoa['questions'] = JSON.parse(uoa['questions']);
+      uoa.questions = JSON.parse(uoa.questions);
       return uoa;
   });
   return data;
@@ -1117,11 +1139,6 @@ function* dumpProduct(req, productId) {
 function parseWeights(weightsString) {
     // parse JSON weights string into js object
     // due to postgres quirks, {} represented as '{:}'
-    /*if (weightsString === '{:{"weight": , "type": }}') {
-        return {};
-    } else {
-        return JSON.parse(weightsString);
-    }*/
     try {
         return JSON.parse(weightsString);
     } catch (e) {
@@ -1137,10 +1154,14 @@ function* getSubindexes(req, productId) {
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
           "  format('{%s}', " +
-          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
           '      "SubindexWeights"."questionId", ' +
           '      "SubindexWeights"."weight", ' +
-          '      "SubindexWeights"."type" ' +
+          '      "SubindexWeights"."type", ' +
+          '      CASE ' +
+          '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
+          '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
+          '      END ' +
           "    ), ',') " +
           '  ) AS "weights" ' +
           'FROM ' +
@@ -1156,7 +1177,7 @@ function* getSubindexes(req, productId) {
           '; ';
     var subindexes = yield thunkQuery(q);
     return subindexes.map(function (subindex) {
-      subindex['weights'] = parseWeights(subindex['weights']);
+      subindex.weights = parseWeights(subindex.weights);
       return subindex;
     });
 }
@@ -1169,10 +1190,14 @@ function* getIndexes(req, productId) {
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
         "  format('{%s}', " +
-        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
         '      "IndexQuestionWeights"."questionId", ' +
         '      "IndexQuestionWeights"."weight", ' +
-        '      "IndexQuestionWeights"."type" ' +
+        '      "IndexQuestionWeights"."type", ' +
+        '      CASE ' +
+        '        WHEN "IndexQuestionWeights"."aggregateType" is null THEN \'null\' ' +
+        '        ELSE format(\'"%s"\', "IndexQuestionWeights"."aggregateType") ' +
+        '      END ' +
         "    ), ',') " +
         '  ) AS "questionWeights", ' +
         "  format('{%s}', " +
@@ -1189,7 +1214,7 @@ function* getIndexes(req, productId) {
         'LEFT JOIN ' +
         '  "IndexSubindexWeights" ON "IndexSubindexWeights"."indexId" = "Indexes"."id" ' +
         'WHERE ' +
-        pgEscape('  ("Indexes"."productId" = %s) ', productId) +
+        '  ("Indexes"."productId" = ' + productId + ') ' +
         'GROUP BY ' +
         '  "Indexes"."id", ' +
         '  "Indexes"."title", ' +
@@ -1197,49 +1222,128 @@ function* getIndexes(req, productId) {
         '; ';
     var indexes = yield thunkQuery(q);
     return indexes.map(function (index) {
-        index['questionWeights'] = parseWeights(index['questionWeights']);
-        index['subindexWeights'] = parseWeights(index['subindexWeights']);
+        index.questionWeights = parseWeights(index.questionWeights);
+        index.subindexWeights = parseWeights(index.subindexWeights);
         return index;
     });
 }
 
-function* parseNumericalAnswer(req, raw, questionType) {
+function* parseAnswer(req, answer, questionType) {
     var thunkQuery = req.thunkQuery;
-    var parsed;
-    if (questionType === 5) { // numerical
-        parsed = parseFloat(raw);
-    } else if (questionType === 7) { // currency
-        parsed = parseFloat(raw);
+
+    if (questionType === 5 || questionType === 7) { // numerical or currency
+        return parseFloat(answer);
     } else if (questionType === 3 || questionType === 4) { // single selection
         var selected = (yield thunkQuery(
-            SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw))
+            SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(answer))
         ))[0];
-
-        parsed = parseFloat(selected.value);
+        return selected.value;
     } else if (questionType === 2) { // multiple selection
         // selected options
         var selected = [];
-        for (var j = 0; j < raw.length; j++) {
+        for (var j = 0; j < answer.length; j++) {
             selected.push((yield thunkQuery(
-                SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(raw[j]))
+                SurveyQuestionOption.select().where(SurveyQuestionOption.id.equals(answer[j]))
             ))[0]);
         }
+        return selected.map(function (selection) {
+            return selection.value;
+        });
+    } else {
+        return answer;
+    }
+}
 
-        // TODO: sum or average based on user-specified choice
-        parsed = parseFloat(selected[0].value);
+function* parseNumericalAnswer(raw, questionType) {
+    var parsed;
+    if (questionType === 5 || questionType === 7) { // numerical or currency
+        parsed = raw;
+    } else if (questionType === 3 || questionType === 4) { // single selection
+        parsed = parseFloat(raw);
+    } else if (questionType === 2) { // multiple selection
+        // selected options
+        parsed = raw.map(parseFloat);
     } else {
         debug("Non-numerical question of type %d", questionType);
         parsed = parseFloat(raw);
     }
     return parsed;
 }
+function sum(arr) {
+    return arr.reduce(function (s, v) { return s + v; });
+}
 
-function* aggregateIndexes(req, productId) {
+function avg(arr) {
+    return sum(arr)/arr.length;
+}
+
+function filterData(data, questions, indexes, subindexes, allQuestions) {
+    // only return questions for which at least one UOA has an answer
+    var questionsPresent = new Set();
+
+    // only parse questions required by at least one (sub)index
+    var questionsRequired = new Set();
+    subindexes.forEach(function (subindex) {
+        for (var questionId in subindex.weights) {
+            questionsRequired.add(questionId);
+        }
+    });
+    indexes.forEach(function (index) {
+        for (var questionId in index.questionWeights) {
+            questionsRequired.add(questionId);
+        }
+    });
+
+    // filter data
+    for (var i = 0; i < data.length; i++) {
+        for (var questionId in data[i].questions) {
+            if (questionsRequired.has(questionId)) {
+                questionsPresent.add(questionId);
+            } else if (!allQuestions) {
+                delete data[i].questions[questionId];
+            }
+        }
+    }
+
+    // filter questions
+    questions = questions.filter(function (question) {
+        return questionsPresent.has(question.id.toString());
+    });
+
+    return { questions: questions, questionsRequired: questionsRequired };
+}
+
+function* parseAnswers(req, data, questions, questionsRequired) {
+    // type of each question
+    var questionTypes = {};
+    questions.forEach(function (question) {
+        questionTypes[question.id] = question.type;
+    });
+
+    for (var i = 0; i < data.length; i++) {
+        for (var questionId in data[i].questions) {
+            // turn option id into options
+            data[i].questions[questionId] = yield parseAnswer(
+                req,
+                data[i].questions[questionId],
+                questionTypes[questionId]
+            );
+
+            // only questions which we're using in aggregation
+            if (questionsRequired.has(questionId)) {
+                data[i].questions[questionId] = yield parseNumericalAnswer(
+                    data[i].questions[questionId],
+                    questionTypes[questionId]
+                );
+            }
+        }
+    }
+
+    return data;
+}
+
+function* getQuestions(req, productId) {
     var thunkQuery = req.thunkQuery;
-    var data = yield dumpProduct(req, productId);
-    var subindexes = yield getSubindexes(req, productId);
-    var indexes = yield getIndexes(req, productId);
-
     q =
         'SELECT ' +
         '  "SurveyQuestions"."id", ' +
@@ -1250,116 +1354,119 @@ function* aggregateIndexes(req, productId) {
         'LEFT JOIN ' +
         '  "Products" ON "Products"."surveyId" = "SurveyQuestions"."surveyId" ' +
         'WHERE ' +
-        pgEscape('  ("Products"."id" = %s) ', productId) +
+        '  ("Products"."id" = ' + productId + ') ' +
         '; ';
-    var questions = yield thunkQuery(q);
+    return yield thunkQuery(q);
+}
 
-    // type of each question
-    var questionTypes = {};
-    questions.forEach(function (question) {
-        questionTypes[question.id] = question.type;
-    });
+function calcMinsMaxes(data) {
+    var mins = {};
+    var maxes = {};
 
-    // only return questions for which at least one UOA has an answer
-    var questionsPresent = new Set();
-
-    // only parse questions required by at least one (sub)index
-    var questionsRequired = new Set();
-    subindexes.forEach(function (subindex) {
-        for (var questionId in subindex['weights']) {
-            questionsRequired.add(questionId);
-        }
-    });
-    indexes.forEach(function (index) {
-        for (var questionId in index['questionWeights']) {
-            questionsRequired.add(questionId);
-        }
-    });
-
-    // parse question answers to number
-    for (var i = 0; i < data.length; i++) {
-        var datum = data[i];
-        // parse question answers to number
-        for (var questionId in datum['questions']) {
-            if (questionsRequired.has(questionId)) {
-                questionsPresent.add(questionId);
-                datum['questions'][questionId] = yield parseNumericalAnswer(
-                    req,
-                    datum['questions'][questionId],
-                    questionTypes[questionId]
-                );
-            } else {
-                delete datum['questions'][questionId];
+    data.forEach(function (datum) {
+        for (var id in datum) {
+            if (datum && datum[id].constructor === Array) { // array of values
+                var valSum = sum(datum[id]);
+                var valAvg = avg(datum[id]);
+                if (!(id in mins)) {
+                    mins[id] = { sum: valSum, average: valAvg };
+                } else {
+                    if (valSum < mins[id].sum) { mins[id].sum = valSum; }
+                    if (valAvg < mins[id].average) { mins[id].average = valAvg; }
+                }
+                if (!(id in maxes)) {
+                    maxes[id] = { sum: valSum, average: valAvg };
+                } else {
+                    if (valSum > maxes[id].sum) { maxes[id].sum = valSum; }
+                    if (valAvg > maxes[id].average) { maxes[id].average = valAvg; }
+                }
+            } else if (datum) { // single value
+                var val = datum[id];
+                if (!(id in mins) || val < mins[id]) { mins[id] = val; }
+                if (!(id in maxes) || val > maxes[id]) { maxes[id] = val; }
             }
         }
-        data[i] = datum;
+    });
+
+    return { mins: mins, maxes: maxes };
+}
+
+function calcTerm(weights, vals, minsMaxes) {
+    var value = 0;
+    for (var id in weights) {
+        var weight = weights[id];
+        var val = vals[id];
+
+        if (val && val.constructor === Array) {
+            if (weight.aggregateType === "average") { // average
+                val = avg(val);
+            } else { // sum
+                weight.aggregateType = 'sum';
+                val = sum(val);
+            }
+        }
+
+        if (weight.type === 'value') { // raw value
+            value += weight.weight * val;
+        } else if (weight.type === 'percentile') { // percentile rank
+            var min = minsMaxes.mins[id];
+            var max = minsMaxes.maxes[id];
+            if (typeof min === 'object') { // typeof max = 'object'
+                min = min[weight.aggregateType];
+                max = max[weight.aggregateType];
+            }
+            value += weight.weight * (val - min) / (max - min);
+        }
     }
+    return value;
+}
+
+function* aggregateIndexes(req, productId, allQuestions) {
+    // get data
+    var data = yield dumpProduct(req, productId);
+    var subindexes = yield getSubindexes(req, productId);
+    var indexes = yield getIndexes(req, productId);
+    var questions = yield getQuestions(req, productId);
+
+    // initial preprocessing
+    var filtered = filterData(data, questions, indexes, subindexes, allQuestions);
+    if (!allQuestions) {
+        questions = filtered.questions;
+    }
+    data = yield parseAnswers(req, data, questions, filtered.questionsRequired);
 
     // precalculate min/max of questions for subindex percentile calculations
-    var qMins = {};
-    var qMaxes = {};
-    data.forEach(function (datum) {
-        for (var questionId in datum['questions']) {
-            var val = datum['questions'][questionId];
-            if (!(questionId in qMins) || val < qMins[questionId]) { qMins[questionId] = val; }
-            if (!(questionId in qMaxes) || val > qMaxes[questionId]) { qMaxes[questionId] = val; }
+    // qMinsMaxes = calcMinsMaxes(_.pluck(data, 'questions'));
+    qMinsMaxes = calcMinsMaxes(data.map(function (datum) {
+        var qs = {};
+        for (var qid in datum.questions) {
+            if (filtered.questionsRequired.has(qid)) {
+                qs[qid] = datum.questions[qid];
+            }
         }
-    });
+        return qs;
+    }));
 
     // calculate subindexes
     for (var i = 0; i < data.length; i++) {
-        data[i]['subindexes'] = {};
-        subindexes.forEach(function (subindex) {
-            var value = 0;
-            for (var questionId in subindex['weights']) {
-                var weight = subindex['weights'][questionId];
-                var val = data[i]['questions'][questionId];
-                if (weight.type === 'value') { // raw value
-                    value += weight.weight * val;
-                } else if (weight.type === 'percentile') { // percentile rank
-                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
-                }
-            }
-            data[i]['subindexes'][subindex['id']] = value / subindex['divisor'];
+        data[i].subindexes = {};
+        subindexes.forEach(function (si) {
+            data[i].subindexes[si.id] = calcTerm(si.weights, data[i].questions, qMinsMaxes) / si.divisor;
         });
     }
 
     // precalculate min/max of subindexes for index percentile calculations
-    var siMins = {};
-    var siMaxes = {};
-    data.forEach(function (datum) {
-        for (var subindexId in datum['subindexes']) {
-            var val = datum['subindexes'][subindexId];
-            if (!(subindexId in siMins) || val < siMins[subindexId]) { siMins[subindexId] = val; }
-            if (!(subindexId in siMaxes) || val > siMaxes[subindexId]) { siMaxes[subindexId] = val; }
-        }
-    });
+    var siMinsMaxes = calcMinsMaxes(_.pluck(data, 'subindexes'));
 
     // calculate indexes
     var result = { agg: [] };
     for (var i = 0; i < data.length; i++) {
-        data[i]['indexes'] = {};
+        data[i].indexes = {};
         indexes.forEach(function (index) {
-            var value = 0;
-            for (var questionId in index['questionWeights']) {
-                var weight = index['questionWeights'][questionId];
-                var val = data[i]['questions'][questionId];
-                if (weight.type === 'value') { // raw value
-                    value += weight.weight * val;
-                } else if (weight.type === 'percentile') { // percentile rank
-                    value += weight.weight * (val - qMins[questionId]) / (qMaxes[questionId] - qMins[questionId]);
-                }
-            }
-            for (var subindexId in index['subindexWeights']) {
-                var weight = index['subindexWeights'][subindexId];
-                var val = data[i]['subindexes'][subindexId];
-                if (weight.type === 'value') { // raw value
-                    value += weight.weight * val;
-                } else if (weight.type === 'percentile') { // percentile rank
-                    value += weight.weight * (val - siMins[subindexId]) / (siMaxes[subindexId] - siMins[subindexId]);
-                }
-            }
-            data[i]['indexes'][index['id']] = value / index['divisor'];
+            data[i].indexes[index.id] = (
+                    calcTerm(index.questionWeights, data[i].questions, qMinsMaxes) +
+                    calcTerm(index.subindexWeights, data[i].subindexes, siMinsMaxes)
+                ) / index.divisor;
         });
         result.agg.push(data[i]);
     }
@@ -1371,9 +1478,8 @@ function* aggregateIndexes(req, productId) {
     result.indexes = indexes.map(function (index) {
         return { id: index.id, title: index.title };
     });
-    result.questions = questions.filter(function (question) {
-        return questionsPresent.has(question.id.toString());
-    });
+    result.questions = questions;
 
     return result;
 }
+module.exports.calcAggregateIndexes = aggregateIndexes;

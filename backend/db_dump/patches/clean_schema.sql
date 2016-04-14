@@ -2,9 +2,9 @@ DO $$
 DECLARE org_id int;
 DECLARE schema_name char(10);
 BEGIN
-	org_id := 59;
+	org_id := 57;
 
-	SET search_path TO 'yandex';
+	SET search_path TO 'gfta';
 
 	UPDATE "Organizations" SET "adminUserId" = NULL WHERE "id" <> org_id;
 
@@ -14,6 +14,8 @@ BEGIN
 	DELETE FROM "Visualizations" WHERE "organizationId" <> org_id;
 	DELETE FROM "Groups" WHERE "organizationId" <> org_id;
 
+
+	DELETE FROM "SubindexWeights" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 
 	DELETE FROM "IndexQuestionWeights" WHERE "questionId" IN (SELECT "id" FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
 	DELETE FROM "IndexQuestionWeights" WHERE "indexId" IN (SELECT "id" FROM "Indexes" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id)));
@@ -32,6 +34,7 @@ BEGIN
 	DELETE FROM "SurveyQuestions" WHERE "surveyId" IN (SELECT "id" FROM "Surveys" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id));
 
 	DELETE FROM "Indexes" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id));
+	DELETE FROM "Subindexes" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id));
 
 
 	UPDATE "ProductUOA" SET "currentStepId" = NULL WHERE "currentStepId" IN (SELECT "id" FROM "WorkflowSteps" WHERE "workflowId" IN (SELECT "id" FROM "Workflows" WHERE "productId" IN (SELECT "id" FROM "Products" WHERE "projectId" IN (SELECT "id" FROM "Projects" WHERE "organizationId" <> org_id))));

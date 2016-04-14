@@ -9,7 +9,7 @@ CREATE TABLE "IndexQuestionWeights" (
 );
 
 
-ALTER TABLE "IndexQuestionWeights" OWNER TO indaba;
+ALTER TABLE "IndexQuestionWeights" OWNER TO indabauser;
 
 --
 -- Name: IndexSubindexWeights; Type: TABLE; Schema: public; Owner: rickards; Tablespace: 
@@ -23,7 +23,7 @@ CREATE TABLE "IndexSubindexWeights" (
 );
 
 
-ALTER TABLE "IndexSubindexWeights" OWNER TO indaba;
+ALTER TABLE "IndexSubindexWeights" OWNER TO indabauser;
 
 --
 -- Name: Index_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
@@ -37,7 +37,7 @@ CREATE SEQUENCE "Index_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Index_id_seq" OWNER TO indaba;
+ALTER TABLE "Index_id_seq" OWNER TO indabauser;
 
 --
 -- Name: Indexes; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
@@ -52,7 +52,7 @@ CREATE TABLE "Indexes" (
 );
 
 
-ALTER TABLE "Indexes" OWNER TO indaba;
+ALTER TABLE "Indexes" OWNER TO indabauser;
 
 -- Name: SubindexWeights; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
 --
@@ -65,7 +65,7 @@ CREATE TABLE "SubindexWeights" (
 );
 
 
-ALTER TABLE "SubindexWeights" OWNER TO indaba;
+ALTER TABLE "SubindexWeights" OWNER TO indabauser;
 
 --
 -- Name: Subindex_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
@@ -79,7 +79,7 @@ CREATE SEQUENCE "Subindex_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Subindex_id_seq" OWNER TO indaba;
+ALTER TABLE "Subindex_id_seq" OWNER TO indabauser;
 
 --
 -- Name: Subindexes; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
@@ -93,7 +93,7 @@ CREATE TABLE "Subindexes" (
     divisor numeric DEFAULT 1 NOT NULL
 );
 
-ALTER TABLE "Subindexes" OWNER TO indaba;
+ALTER TABLE "Subindexes" OWNER TO indabauser;
 
 -- Name: Visualizations; Type: TABLE; Schema: public; Owner: indaba; Tablespace: 
 --
@@ -111,7 +111,7 @@ CREATE TABLE "Visualizations" (
 );
 
 
-ALTER TABLE "Visualizations" OWNER TO indaba;
+ALTER TABLE "Visualizations" OWNER TO indabauser;
 
 --
 -- Name: Visualizations_id_seq; Type: SEQUENCE; Schema: public; Owner: indaba
@@ -125,7 +125,7 @@ CREATE SEQUENCE "Visualizations_id_seq"
     CACHE 1;
 
 
-ALTER TABLE "Visualizations_id_seq" OWNER TO indaba;
+ALTER TABLE "Visualizations_id_seq" OWNER TO indabauser;
 
 --
 -- Name: Visualizations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: indaba

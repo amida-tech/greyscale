@@ -7,6 +7,9 @@ angular.module('greyscaleApp')
     $scope.model = {
         visualization: angular.copy(visualization)
     };
+    if (!$scope.model.visualization.type) {
+        $scope.model.visualization.type = 'single';
+    }
 
     $scope.close = function () {
         $uibModalInstance.dismiss();

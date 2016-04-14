@@ -358,6 +358,7 @@
                 "TITLE": "Title",
                 "VALUE": "Value",
                 "WEIGHTS": {
+                    "AGGREGATE_TYPE": "Aggregation Type",
                     "FIELD": "Field",
                     "QUESTION": "Question",
                     "TYPE": "Type",
@@ -706,6 +707,7 @@
         "MODAL_TITLE": "Edit Visualization {{visualization.title}}",
         "MODAL_TITLE_CREATE": "Create Visualization",
         "TITLE": "Title",
+        "TYPE": "Type",
         "VISUALIZATIONS": "Visualizations"
     },
     "WORKFLOW_STEPS": {
