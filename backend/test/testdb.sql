@@ -2554,7 +2554,8 @@ CREATE TABLE "Users" (
     "lastActive" timestamp with time zone,
     affiliation character varying,
     "isAnonymous" boolean DEFAULT false NOT NULL,
-    "langId" integer
+    "langId" integer,
+    salt character varying
 );
 
 
