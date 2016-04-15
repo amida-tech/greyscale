@@ -18,7 +18,7 @@
 
     $.ready()
         .then(function () {
-            return $.include(window.greyscaleEnv, '/m/config.js')
+            return $.include(window.Greyscale, '/m/greyscale.js')
         })
         .then(init);
 
