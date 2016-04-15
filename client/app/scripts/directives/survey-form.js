@@ -606,6 +606,8 @@ angular.module('greyscaleApp')
                         if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
                             answer.value = fld.otherOption.value;
                         }
+                        answer.incOtherOpt = fld.otherOption.checked;
+                        console.log(fld);
                         break;
 
                     case 'dropdown':

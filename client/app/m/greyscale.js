@@ -21,9 +21,14 @@
                         setCookie: _setCookie,
                         getCookie: _getCookie,
                         showRealmSelector: _showOrgs,
-                        showErr: _showErr
+                        showErr: _showErr,
+                        getUrlParam: _getUrlParam,
+                        fetch: _fetch
                     };
-                    $('#org')._.events({'change': _setRealm});
+                    var orgEl = $('#org');
+                    if (orgEl) {
+                        orgEl._.events({'change': _setRealm});
+                    }
 
                     return true;
                 });
@@ -102,4 +107,32 @@
             Greyscale.setCookie('current_realm', _select.value, 1);
         }
     }
+
+    function _getUrlParam(name) {
+        var url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+        var results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    function _fetch(method, url, params) {
+        params = params || {};
+        url = _getBaseUrl() + '/' + url;
+        var defaultParams = {
+            method: method,
+            responseType: 'json',
+            headers: {
+                token: _getCookie('token'),
+                'Content-type': 'application/json'
+            }
+        };
+        return $.fetch(url, $.extend(defaultParams, params))
+            .then(function(req){
+                return req.response;
+            });
+    }
+
 })();

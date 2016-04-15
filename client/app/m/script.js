@@ -66,10 +66,10 @@
         $.fetch(getBaseUrl() + 'surveys/' + surveyId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
             survey = request.response;
             $('#title').innerHTML = survey.title;
-            generateSurvey(survey.questions);
 
             $.fetch(getBaseUrl() + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
                 taskInfo = request.response;
+                generateSurvey(survey.questions);
                 resolvingMode();
                 load();
             }).catch(function (error) {
@@ -210,7 +210,7 @@
                 fieldSectionEnd(data);
                 break;
             case 'text':
-                fieldText(data);
+                fieldText(data, field);
                 break;
             case 'number':
                 fieldText(data);
@@ -224,7 +224,7 @@
                 fieldRadioCheckboxes(data);
                 break;
             case 'paragraph':
-                fieldTextarea(data);
+                fieldTextarea(data, field);
                 break;
             case 'dropdown':
                 fieldDropdown(data);
@@ -238,7 +238,17 @@
             default:
                 return;
         }
+        field.currentAnswer = {
+            surveyId: surveyId,
+            questionId: parseInt(field.id.replace('c', '')),
+            productId: taskInfo.productId,
+            UOAid: taskInfo.uoaId,
+            wfStepId: taskInfo.stepId,
+            userId: userId,
+            attachments: []
+        };
         if (data.hasAttachments) {
+            field.hasAttachments = true;
             fieldAddAttachments(field);
         }
         validationRule(data);
@@ -254,7 +264,7 @@
         if (currentParent === survey) return;
         currentParent = currentParent.parentNode;
     }
-    function fieldText(data) {
+    function fieldText(data, field) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
         var input = $.create('input', {
@@ -265,19 +275,23 @@
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            change: function(){
+                field.currentAnswer.value = input.value;
+                saveAnswer(field);
+            }
         });
     }
-    function fieldTextarea(data) {
+    function fieldTextarea(data, field) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
         var input = $.create('textarea', { className: data.field_options.size, name: data.cid });
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            'change': function(){
+                field.currentAnswer.value = input.value;
+                saveAnswer(field);
+            }
         });
     }
     function fieldRadioCheckboxes(data) {
@@ -441,72 +455,23 @@
             format: 'YYYY/MM/DD'
         });
     }
-    function fieldAddAttachments(field, attachments) {
+    function fieldAddAttachments(field, answer) {
         //if (!data.hasAttachments) return;
         //if (data.field_type !== 'text') return;
-console.dir(field);
+
         //var field = getField(data.cid);
         if (!field.attachmentsGroupDiv) {
             field.attachmentsGroupDiv = $.create('div');
             $.inside(field.attachmentsGroupDiv, field);
         }
 
-        function createInput() {
-            var div = $.create('div');
-            $.inside(div, field.attachmentsGroupDiv);
-            var input = $.create('input', {
-                type: 'file',
-                name: field.id
-            });
-            $.inside(input, div);
 
-            field.attachmentsLastInput = input;
-            input._.events({
-                'change': function () { fileChange(input); },
-            });
-        }
 
-        function prependFileItem(fileInfo) {
-            var div = $.create('div');
-            $.start(div, field.attachmentsGroupDiv);
-            var fileItem = $.create('div', {
-                contents: fileInfo.filename,
-                className: 'file-item'
-            });
-            $.inside(fileItem, div);
-
-            var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
-            del._.events({
-                'click': function () {
-                    fileItem._.unbind();
-                    fileItem.parentNode._.remove();
-                    deleteAttachment(fileInfo);
-                }
-            });
-            $.inside(del, fileItem);
-        }
-
-        function fileChange(input) {
-            //setChangeFlag();
-            //if (input !== field.attachmentsLastInput) return;
-            //var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
-            //del._.events({
-            //    'click': function () {
-            //        input._.unbind();
-            //        input.parentNode._.remove();
-            //        setChangeFlag();
-            //    }
-            //});
-            //createInput();
-            console.dir(input);
-            sendAttachment(input.files[0], field.answerId);
-        }
-
-        if (!attachments) {
-            createInput();
-        } else if (attachments.length) {
-            for (var ai = attachments.length - 1; ai >= 0; ai--) {
-                prependFileItem(attachments[ai]);
+        if (!answer) {
+            createInput(field);
+        } else if (answer.attachments && answer.attachments.length) {
+            for (var ai = answer.attachments.length - 1; ai >= 0; ai--) {
+                prependFileItem(field, answer.attachments[ai]);
             }
         }
 
@@ -517,6 +482,54 @@ console.dir(field);
         //        alert(1);
         //    }
         //});
+    }
+
+    function fileChange(field, input) {
+        sendAttachment(field, input.files[0])
+            .then(function(file){
+                var answer = field.currentAnswer;
+                if (answer) {
+                    answer.attachments.push(file);
+                    prependFileItem(field, file);
+                }
+                input.value = null;
+                autosave(true);
+            });
+    }
+
+    function prependFileItem(field, fileInfo) {
+        var div = $.create('div');
+        $.start(div, field.attachmentsGroupDiv);
+        var fileItem = $.create('div', {
+            contents: fileInfo.filename||fileInfo.name,
+            className: 'file-item'
+        });
+        $.inside(fileItem, div);
+
+        var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+        del._.events({
+            'click': function () {
+                fileItem._.unbind();
+                fileItem.parentNode._.remove();
+                deleteAttachment(fileInfo);
+            }
+        });
+        $.inside(del, fileItem);
+    }
+
+    function createInput(field) {
+        var div = $.create('div');
+        $.inside(div, field.attachmentsGroupDiv);
+        var input = $.create('input', {
+            type: 'file',
+            name: field.id
+        });
+        $.inside(input, div);
+
+        field.attachmentsLastInput = input;
+        input._.events({
+            'change': function () { fileChange(field, input); },
+        });
     }
     //End Generate Survey
 
@@ -532,37 +545,37 @@ console.dir(field);
         });
     }
 
-    function sendAttachment(file, answerId) {
-        var formData = new FormData();
-        formData.append('answerId', answerId);
-        formData.append('file', file, file.name);
+    function sendAttachment(field, file) {
+        return new Promise(function(resolve, reject){
+            var formData = new FormData();
 
-        var xhr = new XMLHttpRequest();
+            if (field.currentAnswer) {
+                formData.append('answerId', field.currentAnswer.answerId);
+            }
+            formData.append('file', file, file.name);
 
-        // обработчик для закачки
-        //xhr.upload.onprogress = function(event) {
-        //    log(event.loaded + ' / ' + event.total);
-        //}
+            var xhr = new XMLHttpRequest();
 
-        // обработчики успеха и ошибки
-        // если status == 200, то это успех, иначе ошибка
-        //xhr.onload = xhr.onerror = function() {
-        //    if (this.status == 200) {
-        //        log("success");
-        //    } else {
-        //        log("error " + this.status);
-        //    }
-        //};
+            xhr.onload = xhr.onerror = function() {
+                if (this.status == 201) {
+                    var response = JSON.parse(this.response);
+                    file.id = response.id;
+                    if (!field.currentAnswer) {
+                        field.currentAnswer = {
+                            attachments: []
+                        };
+                        field.currentAnswer.attachments.push(response.id);
+                    }
+                    resolve(file);
+                } else {
+                    reject("response code " + this.status);
+                }
+            };
 
-        xhr.open('POST', getBaseUrl() + 'attachments', true);
-        xhr.setRequestHeader('token', token);
-        xhr.send(formData);
-    }
-
-    function upload(url, file) {
-
-
-
+            xhr.open('POST', getBaseUrl() + 'attachments', true);
+            xhr.setRequestHeader('token', token);
+            xhr.send(formData);
+        });
     }
 
     //Validation
@@ -863,7 +876,7 @@ console.dir(field);
             });
     }
     function getSavedAnswers() {
-        var url = getBaseUrl() + 'survey_answers?surveyId=' + surveyId + '&productId=' + taskInfo.productId + '&UOAid=' + taskInfo.uoaId + '&wfStepId=' + taskInfo.stepId + '&userId=' + userId;
+        var url = getBaseUrl() + 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?order=version';
         $.fetch(url, {
             method: 'GET',
             responseType: 'json',
@@ -896,7 +909,7 @@ console.dir(field);
         }
         setAnswersState(savedAnswers);
         //skipItems();
-        autosave();
+        //autosave();
     }
     //End Load
 
@@ -908,6 +921,7 @@ console.dir(field);
         var answers = [];
         for (var i = 0; i < fields.length; i++) {
             var id = fields[i].id;
+            var field = getField(id);
             var type = fields[i]._.getAttribute('data-type');
             //var skip = fields[i]._.getAttribute('data-skip');
             var val;
@@ -955,10 +969,24 @@ console.dir(field);
                 case 'section_break':
                     continue;
             }
-            answers.push({ id: id, type: type, value: val, /*skip: skip*/ });
+            answers.push({ id: id,
+                type: type,
+                value: val,
+                attachments: _getAttachments(fields[i])
+                /*skip: skip*/
+            });
         }
         return answers;
     }
+
+    function _getAttachments(field) {
+        if (!field.currentAnswer) {
+            return [];
+        } else {
+            return field.currentAnswer.attachments;
+        }
+    }
+
     function setAnswersState(answers) {
         var fields = $$('.field');
         var i, j;
@@ -973,6 +1001,13 @@ console.dir(field);
                 break;
             }
             if (!answer) continue;
+
+            fields[i].currentAnswer.answerId = answer.answerId;
+            fields[i].currentAnswer.optionId = answer.optionId;
+            fields[i].currentAnswer.id = answer.id;
+            fields[i].currentAnswer.value = answer.value;
+            fields[i].currentAnswer.isResponse = false;
+
             switch (fields[i]._.getAttribute('data-type')) {
                 case 'text':
                 case 'number':
@@ -1020,10 +1055,11 @@ console.dir(field);
                 default:
                     return;
             }
-            if (answer.attachments) {
-                fieldAddAttachments(fields[i], answer.attachments);
+
+            if (fields[i].hasAttachments) {
+                //answer.attachments = answer.attachments || [];
+                fieldAddAttachments(fields[i], answer);
             }
-            fields[i].answerId = answer.answerId;
         }
     }
     function setAnswerBullet(field, value) {
@@ -1077,26 +1113,65 @@ console.dir(field);
                 default:
                     data.value = answers[i].value
             }
+            if (answers[i].attachments && answers[i].attachments.length) {
+                data.attachments = answers[i].attachments.map(function(attachment){
+                   return attachment.id;
+                });
+            }
             dataToSave.push(data);
         }
-        $.fetch(getBaseUrl() + 'survey_answers' + (draft ? '?autosave=true' : ''), {
+        return $.fetch(getBaseUrl() + 'survey_answers' + (draft ? '?autosave=true' : ''), {
             method: 'POST',
             data: JSON.stringify(dataToSave),
             responseType: 'json',
             headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function () {
+        }).then(function (request) {
+            var questions = request.response;
             console.log('saved to server');
             hasChanges = false;
-            moveTask(draft).then(function(){
+            if (!draft) {
+                moveTask().then(function(){
+                    if (callback) callback();
+                });
+            } else {
                 if (callback) callback();
-            });
+            }
+
 
         }).catch(function (error) {
             console.error(error);
             if (callback) callback();
         });
     }
-    function autosave() { setTimeout(function () { save(true, function () { autosave(); }); }, 5000); }
+    var autosaveLoop;
+    function autosave(force) {
+        if (force) {
+            clearTimeout(autosaveLoop);
+            hasChanges = true;
+            save(true).then(function(){
+                //autosave();
+            });
+        } else {
+            autosaveLoop = setTimeout(function () {
+                save(true, function () {
+                    autosave();
+                });
+            }, 5000);
+        }
+    }
+
+    function saveAnswer(field) {
+        var answer = field.currentAnswer;
+        console.log(answer);
+        var url = 'survey_answers' + (answer.answerId ? '/' + answer.answerId : '');
+        return $.fetch(getBaseUrl() + url, {
+            method: answer.answerId ? 'PUT' : 'POST',
+            responseType: 'json',
+            headers: { token: token, 'Content-type': 'application/json' },
+            data: JSON.stringify(answer)
+        });
+    }
+
     function submitSurvey() {
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
@@ -1111,10 +1186,7 @@ console.dir(field);
         });
     }
 
-    function moveTask(skip) {
-        if (skip) {
-            return Promise.resolve();
-        }
+    function moveTask() {
         return $.fetch(getBaseUrl() + 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId, {
             method: 'GET',
             responseType: 'json',
@@ -1229,26 +1301,28 @@ console.dir(field);
     $.ready().then(function(){
         token = getCookie('token');
 
-        renderUserBlock();
+        renderUserBlock().then(function(){
+            var page = window.location.pathname.split('/')[2];
+            switch (page) {
+                case 'interviewRenderer':
+                    readySurvey();
+                    break;
 
-        var page = window.location.pathname.split('/')[2];
-        switch (page) {
-            case 'interviewRenderer':
-                readySurvey();
-                break;
-
-            case '':
-                renderTasks();
-                break;
-        }
+                case '':
+                    renderTasks();
+                    break;
+            }
+        });
     });
 
     function renderUserBlock() {
         var userBlockTemplate = '{{firstName}} {{lastName}} <a href="/login/logout">Logout</a>';
-        getUser().then(function(){
+        return getUser().then(function(user){
+            userId = user.id;
             var userBlock = $('#user-block');
             userBlock.innerHTML = fillTemplate(userBlockTemplate, user);
             userBlock._.style({display:''});
+            return user;
         });
     }
 
