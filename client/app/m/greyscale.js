@@ -23,7 +23,6 @@
                         showRealmSelector: _showOrgs,
                         showErr: _showErr
                     };
-                    console.log('Greyscale');
                     $('#org')._.events({'change': _setRealm});
 
                     return true;

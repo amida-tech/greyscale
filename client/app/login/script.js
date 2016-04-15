@@ -29,25 +29,10 @@
         if (greyscaleEnv.defaultPassword) {
             $('#pass').value = greyscaleEnv.defaultPassword;
         }
-        var _version = Greyscale.getCookie(_cookie),
-            _elem = $('#version'),
-            v, item, _option;
-
-        for (item in _versions) {
-            if (_versions.hasOwnProperty(item)) {
-                _option = $.create('option',{value:_versions[item].value,text:_versions[item].name});
-                $.inside(_option, _elem);
-            }
-        }
-
-        if (_version) {
-            _elem.value = _versions.light.value;
-        } else {
-            _elem.value = _versions.full.value;
-        }
 
         $('#login-btn')._.events({'click': login});
-        _elem._.events({'change': setVersion})
+        $('#full')._.events({'click': goFull});
+        return true;
     }
 
     function login(evt) {
@@ -97,5 +82,11 @@
         } else {
             Greyscale.setCookie(_cookie, 0, -1);
         }
+    }
+
+    function goFull(/*Event*/evt) {
+        evt.preventDefault();
+        Greyscale.setCookie(_cookie, 0, -1);
+        window.location.href = '/';
     }
 })();
