@@ -234,9 +234,9 @@ module.exports = {
                 );
             }
 
-            if (!result.curStep.allowEdit) {
-                throw new HttpError(403, 'You do not have permission to edit answers');
-            }
+            //if (!result.curStep.allowEdit) {
+            //    throw new HttpError(403, 'You do not have permission to edit answers');
+            //}
 
             if (req.body.isResponse) {
                 var updateObj = {comments: req.body.value};
@@ -387,7 +387,7 @@ module.exports = {
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
+var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return ticket;
             }catch(e){
                 throw new HttpError(500, e);
