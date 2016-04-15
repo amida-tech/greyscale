@@ -4,9 +4,9 @@
 (function () {
     $.ready()
         .then(function () {
-            return $.include(window.greyscaleEnv, '/m/config.js');
-        })
-        .then(init);
+            return $.include(window.greyscaleEnv, '/m/config.js')
+                .then(init);
+        });
 
     function init() {
         if (greyscaleEnv.defaultUser) {
@@ -14,6 +14,7 @@
         }
         Greyscale.setCookie('current_realm', 'public', -1);
         $('#remind-btn')._.events({click: remind});
+        return true;
     }
 
     function remind(/* Event */ evt) {

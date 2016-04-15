@@ -611,8 +611,8 @@
         "TITLE": "Translations"
     },
     "UI_TYPE": {
-        "FULL": "Full",
-        "LIGHT": "Light",
+        "FULL": "Full version",
+        "LIGHT": "Light version",
         "TITLE": "Version"
     },
     "UOAS": {
