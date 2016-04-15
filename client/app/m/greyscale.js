@@ -7,29 +7,37 @@
     var _urls = {
         chkToken: '/users/checkToken',
         login: '/users/token',
-        remind: '/users/forgot'
+        remind: '/users/forgot',
+        languages: '/languages'
     };
 
-    $.ready().then(function () {
-        $('#org')._.events({'change': _setRealm});
-    });
+    $.ready()
+        .then(function () {
+            return $.include(window.greyscaleEnv, '/m/config.js')
+                .then(function () {
+                    window.Greyscale = window.Greyscale || {
+                        getApiUrl: _getApiUrl,
+                        getBaseUrl: _getBaseUrl,
+                        setCookie: _setCookie,
+                        getCookie: _getCookie,
+                        showRealmSelector: _showOrgs,
+                        showErr: _showErr
+                    };
+                    console.log('Greyscale');
+                    $('#org')._.events({'change': _setRealm});
 
-    window.Greyscale = {
-        getApiUrl: _getApiUrl,
-        getBaseUrl: _getBaseUrl,
-        setCookie: _setCookie,
-        getCookie: _getCookie,
-        showRealmSelector: _showOrgs,
-        showErr: _showErr
-    };
+                    return true;
+                });
+        });
 
     function _getBaseUrl() {
-        if (window.greyscaleEnv) {
+        if (greyscaleEnv) {
             var _realm = _getCookie('current_realm') || greyscaleEnv.adminSchema;
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [_realm, greyscaleEnv.apiVersion].join('/');
             return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
         } else {
+            console.log('config not loaded');
             return '';
         }
     }

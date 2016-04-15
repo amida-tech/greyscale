@@ -52,11 +52,11 @@
         <div class="row">
             <div class="col-md-6 col-md-offset-3 col-lg-4 col-lg-offset-4">
                 <div class="panel panel-body">
-                    <div id="language-selector" class="pull-right" style="margin-top: 16px">
+                    <div id="language-selector" class="pull-right language-selector dropdown" style="margin-top: 16px">
                         <span class="dropdown-toggle" data-toggle="dropdown" title="English (English)">
-                            <span class="locale ng-binding">en</span>
-                            <span class="fa fa-caret-down"></span>
+                            <span class="locale">en</span><span class="fa fa-caret-down"></span>
                         </span>
+                        <ul id="lang-menu" class="dropdown-menu dropdown-menu-right"></ul>
                     </div>
                     <div class="logo"></div>
                     <div class="panel panel-default">
@@ -126,8 +126,10 @@
     </div>
 </div>
 <script type="text/javascript" src="/m/bliss.min.js"></script>
-<script type="text/javascript" src="/m/translate.js"></script>
+<script type="text/javascript" src="/m/config.js"></script>
 <script type="text/javascript" src="/m/greyscale.js"></script>
+<script type="text/javascript" src="/m/language.js"></script>
+<script type="text/javascript" src="/m/translate.js"></script>
 <script type="text/javascript" src="base64.js"></script>
 <script type="text/javascript" src="script.js"></script>
 </body>
