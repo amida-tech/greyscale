@@ -13,6 +13,7 @@ var _app = angular.module('greyscaleApp', [
     'ngResource',
     'ngTouch',
     'ngTable',
+    'ngMessages',
     'ui.bootstrap',
     'ui.router',
     'RDash',

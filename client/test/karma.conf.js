@@ -57,7 +57,7 @@ module.exports = function(config) {
       'bower_components/angular-ui-sortable/sortable.js',
       'bower_components/minigrid/src/index.js',
       'bower_components/socket.io-client/socket.io.js',
-      'bower_components/d3-tip/index.js',
+      'bower_components/angular-messages/angular-messages.js',
       // endbower
       ".tmp/l10n/en.js",
       "app/greyscale.core/scripts/greyscale.core.js",
