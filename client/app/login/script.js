@@ -19,8 +19,8 @@
     $.ready()
         .then(function () {
             return $.include(window.Greyscale, '/m/greyscale.js')
-        })
-        .then(init);
+                .then(init);
+        });
 
     function init() {
         if (greyscaleEnv.defaultUser) {

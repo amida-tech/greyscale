@@ -14,21 +14,21 @@
     $.ready()
         .then(function () {
             return $.include(window.greyscaleEnv, '/m/config.js')
-        })
-        .then(function () {
-            $('#org')._.events({'change': _setRealm});
+                .then(function () {
+                    window.Greyscale = window.Greyscale || {
+                        getApiUrl: _getApiUrl,
+                        getBaseUrl: _getBaseUrl,
+                        setCookie: _setCookie,
+                        getCookie: _getCookie,
+                        showRealmSelector: _showOrgs,
+                        showErr: _showErr
+                    };
+                    console.log('Greyscale');
+                    $('#org')._.events({'change': _setRealm});
 
-            window.Greyscale = {
-                getApiUrl: _getApiUrl,
-                getBaseUrl: _getBaseUrl,
-                setCookie: _setCookie,
-                getCookie: _getCookie,
-                showRealmSelector: _showOrgs,
-                showErr: _showErr
-            };
-            return true;
+                    return true;
+                });
         });
-
 
     function _getBaseUrl() {
         if (greyscaleEnv) {

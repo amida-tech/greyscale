@@ -10,7 +10,8 @@
 
     $.ready()
         .then(function () {
-            return $.include(window.Greyscale, '/m/greyscale.js').then(init);
+            return $.include(window.Greyscale, '/m/greyscale.js')
+                .then(init);
         });
 
     function init() {
