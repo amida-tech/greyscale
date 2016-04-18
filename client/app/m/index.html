@@ -1,24 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <script type="text/javascript">
-        function setLowBand(isLow) {
-            var d = new Date();
-            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
-            var expires = "expires=" + (isLow) ? d.toGMTString() : -1;
-            document.cookie = 'light_version=1;path=/;' + expires;
-        }
-
-        setLowBand(false);
-
-        var slowLoad = window.setTimeout(function () {
-            setLowBand(true);
-        }, 2500);
-
-        window.addEventListener('load', function () {
-            window.clearTimeout(slowLoad);
-        }, false);
-    </script>
+    <script type="text/javascript">(function(){f(false);var c=window.setTimeout(function (){f(true);}, 2500);function f(l) {var d = new Date();d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((l) ? 1 : -1)));var e = "expires=" + d.toGMTString();document.cookie = 'light_version=1;path=/;' + e;}window.addEventListener('load', function () {window.clearTimeout(c);}, false);})();</script>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="pikaday.css" />
     <link rel="stylesheet" href="style.css" />

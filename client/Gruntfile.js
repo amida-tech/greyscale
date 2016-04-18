@@ -380,7 +380,7 @@ module.exports = function (grunt) {
             dist: {
                 src: [
                     '<%= yeoman.dist %>/scripts/{,*/}*.js',
-                    '<%= yeoman.dist %>/styles/{,*/}*.css',
+                    '<%= yeoman.dist %>/styles/{,**/}*.css',
                     '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
                     '<%= yeoman.dist %>/styles/fonts/*'
                 ]
@@ -391,7 +391,10 @@ module.exports = function (grunt) {
         // concat, minify and revision files. Creates configurations in memory so
         // additional tasks can operate on them
         useminPrepare: {
-            html: '<%= yeoman.app %>/index.html',
+            html: [
+                '<%= yeoman.app %>/index.html',
+                '<%= yeoman.app %>/{login,forgot,m{,/interviewRenderer}}/index.html'
+            ],
             options: {
                 dest: '<%= yeoman.dist %>',
                 flow: {
@@ -408,7 +411,7 @@ module.exports = function (grunt) {
 
         // Performs rewrites based on filerev and the useminPrepare configuration
         usemin: {
-            html: ['<%= yeoman.dist %>/{,*/}*.html'],
+            html: ['<%= yeoman.dist %>/{,**/}*.html'],
             css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
             js: ['<%= yeoman.dist %>/scripts/{,*/}*.js'],
             options: {
@@ -458,7 +461,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     cwd: '<%= yeoman.dist %>',
-                    src: ['*.html'],
+                    src: ['{,login,forgot,m{,/interviewRenderer}}/*.html'],
                     dest: '<%= yeoman.dist %>'
                 }]
             }
@@ -805,7 +808,7 @@ module.exports = function (grunt) {
         'postcss',
         'ngtemplates',
         'concat',
-        //        'uglify',
+        //'uglify',
         'ngAnnotate',
         'i18n',
         'copy:l10n',

@@ -4,18 +4,6 @@
 (function () {
     'use strict';
 
-    var _cookie = 'light_version',
-        _versions = {
-            light: {
-                value: 'light',
-                name: 'UI_TYPE.LIGHT'
-            },
-            full: {
-                value: 'full',
-                name: 'UI_TYPE.FULL'
-            }
-        };
-
     $.ready()
         .then(function () {
             return $.include(window.Greyscale, '/m/greyscale.js')
@@ -31,7 +19,6 @@
         }
 
         $('#login-btn')._.events({'click': login});
-        $('#full')._.events({'click': goFull});
         return true;
     }
 
@@ -74,19 +61,5 @@
                 return true;
             });
 
-    }
-
-    function setVersion() {
-        if ($('#version').value === _versions.light.value) {
-            Greyscale.setCookie(_cookie, 1);
-        } else {
-            Greyscale.setCookie(_cookie, 0, -1);
-        }
-    }
-
-    function goFull(/*Event*/evt) {
-        evt.preventDefault();
-        Greyscale.setCookie(_cookie, 0, -1);
-        window.location.href = '/';
     }
 })();
