@@ -7,7 +7,7 @@
         });
 
     function init() {
-        var _locale = Greyscale.getCookie('locale');
+        var _locale = Greyscale.getCookie('locale') || 'en';
         var script = document.createElement('script');
         script.src = '/l10n/' + _locale + '.js';
         document.head.appendChild(script);
