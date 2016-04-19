@@ -13,7 +13,8 @@ angular.module('greyscaleApp')
         };
         return pub;
     })
-    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, greyscaleWebSocketSrv, userNotificationsSrv) {
+    .directive('userNotifications', function (_, greyscaleProfileSrv,
+        greyscaleNotificationApi, Organization, greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv) {
         return {
             restrict: 'A',
             replace: true,
@@ -49,27 +50,34 @@ angular.module('greyscaleApp')
                 };
 
                 var user = function () {};
+                var _accessLevel, _realm;
 
                 greyscaleProfileSrv.getProfile()
                     .then(function (profile) {
                         user = profile;
+                        _accessLevel = greyscaleProfileSrv.getAccessLevelMask();
+                        _realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
                         _getUnreadNotifications();
                         greyscaleWebSocketSrv.on('something-new', _getUnreadNotifications);
-                        userNotificationsSrv.setUpdate(_getUnreadNotifications);
+                        userNotificationsSrv.setUpdate(_getUnreadNotifications, _realm);
                     });
 
                 scope.markAsRead = function (notification, index) {
-                    greyscaleNotificationApi.setRead(notification.id)
+                    greyscaleNotificationApi.setRead(notification.id, _realm)
                         .then(function () {
                             scope.model.notifications.splice(index, 1);
                         });
                 };
 
+                function _isSuperAdmin() {
+                    return ((_accessLevel & greyscaleGlobals.userRoles.superAdmin.mask) !== 0);
+                }
+
                 function _getUnreadNotifications() {
                     greyscaleNotificationApi.list({
                             userTo: user.id,
                             read: false
-                        })
+                        }, _realm)
                         .then(function (notifications) {
                             scope.model.notifications = _.sortBy(notifications, 'created').reverse();
                         });
