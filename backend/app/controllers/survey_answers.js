@@ -124,19 +124,24 @@ module.exports = {
                         'WHERE a."id" = ANY (s."attachments") ' +
                     ') as att) as attachments ' +
                     'FROM "SurveyAnswers" as s ' +
-                    'WHERE s."productId" = %L ' +
-                    'AND s."UOAid" = %L ' +
-                    'AND s."version" = ( ' +
+                    'WHERE s."id" = ( ' +
                         'SELECT ' +
-                        'MAX(samax."version") AS "version_max" ' +
+                        'samax."id" ' +
                         'FROM "SurveyAnswers" as samax ' +
                         'WHERE ( ' +
                             '(samax."productId" = %L) ' +
                             'AND (samax."UOAid" = %L) ' +
                             'AND (samax."questionId" = s."questionId") ' +
                         ') ' +
-                    ')', condition.productId, condition.UOAid, condition.productId, condition.UOAid
+                        'ORDER BY ' +
+                            '(CASE WHEN ((version IS NULL) AND ("userId" = %L)) THEN 1 ELSE 0 END) DESC, ' +
+                            '(CASE WHEN (version IS NULL) THEN 0 ELSE version END) DESC ' +
+                        'LIMIT 1' +
+                    ')', condition.productId, condition.UOAid, req.user.id.toString()
                 );
+
+
+
 
 
             } else {
