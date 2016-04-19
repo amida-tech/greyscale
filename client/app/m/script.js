@@ -1,7 +1,6 @@
 ﻿//http://localhost:8081/interviewRenderer/?surveyId=86&taskId=95
 (function () {
     'use strict';
-
     var types = [
         'text',
         'paragraph',
@@ -213,7 +212,7 @@
                 fieldText(data, field);
                 break;
             case 'number':
-                fieldText(data);
+                fieldText(data, field);
                 $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
                 break;
             case 'scale':
@@ -245,12 +244,14 @@
             UOAid: taskInfo.uoaId,
             wfStepId: taskInfo.stepId,
             userId: userId,
+            isResponse: false,
             attachments: []
         };
         if (data.hasAttachments) {
             field.hasAttachments = true;
             fieldAddAttachments(field);
         }
+        field.questionData = data;
         validationRule(data);
     }
     function fieldSectionStart(data) {
@@ -275,12 +276,34 @@
         $.inside(input, div);
 
         input._.events({
-            change: function(){
-                field.currentAnswer.value = input.value;
-                saveAnswer(field);
-            }
+            change: _onChange,
+            keyup: _onChange
+
         });
+
+        var thr = new Throttle(_saveChanges);
+        function _onChange() {
+            thr.run();
+            return;
+        }
+        function _saveChanges() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
+            saveAnswer(field);
+        }
     }
+
+    function Throttle(cb, ttl) {
+        this.cb = cb;
+        this.ttl = ttl;
+    }
+    Throttle.prototype.run = function(){
+        if (this.t) {
+            clearTimeout(this.t);
+        }
+        this.t = setTimeout(this.cb, this.ttl || 1000);
+    };
+
     function fieldTextarea(data, field) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
@@ -288,11 +311,20 @@
         $.inside(input, div);
 
         input._.events({
-            'change': function(){
-                field.currentAnswer.value = input.value;
-                saveAnswer(field);
-            }
+            change: _onChange,
+            keyup: _onChange
+
         });
+        var thr = new Throttle(_saveChanges);
+        function _onChange() {
+            thr.run();
+            return;
+        }
+        function _saveChanges() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
+            saveAnswer(field);
+        }
     }
     function fieldRadioCheckboxes(data) {
         var type = data.field_type === 'radio' ? 'radio' : 'checkbox';
@@ -315,7 +347,9 @@
                 //'data-skip': data.field_options.options[i].skip
             });
             $.inside(input, checkboxLabel);
-            input._.events({ 'change': setChangeFlag });
+            input._.events({
+                'change': _changeBox
+            });
 
             $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
         }
@@ -326,14 +360,47 @@
             input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other', 'data-id': '', /*'data-skip': data.field_options.skip*/ });
             $.inside(input, block);
             input._.events({
-                'change': setChangeFlag
+                'change': _changeBox
             });
             var inputVariant = $.create('input', { type: 'text', name: data.cid, className: 'other-text' });
             $.inside(inputVariant, block);
             inputVariant._.events({
-                'change': setChangeFlag,
-                'keypress': setChangeFlag
+                'change': _changeBox,
+                'keyup': _changeBox
             });
+        }
+
+        var thr = new Throttle(_saveBoxAnswers);
+        function _changeBox() {
+            thr.run();
+        }
+
+        function _saveBoxAnswers() {
+            var field = getField(data.cid);
+            var changed = false;
+            var oldState = JSON.stringify(field.currentAnswer.optionId);
+            var newState = [];
+            var type = field.questionData.field_type === 'radio' ? 'radio' : 'checkbox';
+            $$('input[type="' + type + '"]', fieldSet).map(function(inputEl){
+                if (inputEl.checked) {
+                    var optionId = inputEl.attributes['data-id'].value;
+                    if (optionId.length) {
+                        newState.push(parseInt(optionId));
+                    }
+                }
+            });
+            if (JSON.stringify(newState) !== oldState) {
+                field.currentAnswer.optionId = newState;
+                changed = true;
+            }
+            var otherInputEl = $('.other-text', fieldSet);
+            if (otherInputEl && field.currentAnswer.value !== otherInputEl.value) {
+                field.currentAnswer.value = otherInputEl.value;
+                changed = true;
+            }
+            if (changed) {
+                saveAnswer(field);
+            }
         }
     }
     function fieldDropdown(data) {
@@ -343,7 +410,7 @@
         $.inside(div, getField(data.cid));
         var select = $.create('select', { name: data.cid });
         $.inside(select, div);
-        select._.events({ 'change': setChangeFlag });
+        select._.events({ 'change': _changeState });
 
         if (data.field_options.include_blank_option) {
             option = $.create('option', {
@@ -365,10 +432,22 @@
             });
             $.inside(option, select);
         }
+
+        function _changeState() {
+            var field = getField(data.cid);
+            var options = $$('option', field);
+            options.map(function(option){
+                if (option.selected) {
+                    field.currentAnswer.optionId = [parseInt(option.attributes['data-id'].value)];
+                    saveAnswer(field);
+                }
+            });
+        }
     }
     function fieldScale(data) {
         fieldText(data);
-        var input = $('input', getField(data.cid));
+        var field = getField(data.cid);
+        var input = $('input', field);
         $.after($.create('span', { contents: [' ', data.field_options.units] }), input);
         var minus = $.create('a', { contents: ['<'], className: 'less' });
         $.before(minus, input);
@@ -377,6 +456,7 @@
                 var number = parseFloat(input.value);
                 number = isNaN(number) ? 0 : number;
                 input.value = data.field_options.min !== undefined ? Math.max(number - 1, data.field_options.min) : number - 1;
+                _saveValue();
             }
         });
         var plus = $.create('a', { contents: ['>'], className: 'more' });
@@ -386,14 +466,26 @@
                 var number = parseFloat(input.value);
                 number = isNaN(number) ? 0 : number;
                 input.value = data.field_options.max !== undefined ? Math.min(number + 1, data.field_options.max) : number + 1;
+                _saveValue();
             }
         });
+        input.disabled = true;
+
+        var thr = new Throttle(function(){
+            field.currentAnswer.value = input.value;
+            saveAnswer(field);
+        });
+        function _saveValue() {
+            validateAll(data);
+            thr.run();
+        }
     }
     function fieldBullet(data) {
         var last;
 
         var groupDiv = $.create('div');
-        $.inside(groupDiv, getField(data.cid));
+        var field = getField(data.cid);
+        $.inside(groupDiv, field);
 
         function createInput() {
             var div = $.create('div');
@@ -407,20 +499,25 @@
 
             last = input;
             input._.events({
-                'change': function () { bulletChange(input); },
-                'keypress': function () { bulletChange(input); }
+                change: function () { bulletChange(input); },
+                keyup: function () { bulletChange(input); }
             });
         }
 
+        var thr = new Throttle(_saveBulletsAnswer);
         function bulletChange(input) {
-            setChangeFlag();
-            if (input !== last) return;
+            //setChangeFlag();
+            if (input !== last) {
+                thr.run();
+                return;
+            }
             var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
             del._.events({
                 'click': function () {
                     input._.unbind();
                     input.parentNode._.remove();
-                    setChangeFlag();
+                    //setChangeFlag();
+                    bulletChange(input);
                 }
             });
             del._.after(input)
@@ -431,13 +528,32 @@
             var inputs = $$('input', field);
             for (var i = 0; i < inputs.length; i++) inputs[i]._.unbind('blur');
             validationRule(data);
+            bulletChange(input);
+        }
+
+        function _saveBulletsAnswer() {
+            var field = getField(data.cid);
+            //saveBullets(data);
+            var bulletEls = $$('input', field);
+            var bullets = [];
+            bulletEls.map(function(bulletEl){
+                if (bulletEl.value !== '') {
+                    bullets.push(bulletEl.value);
+                }
+            });
+            var newValue = JSON.stringify(bullets);
+            if (field.currentAnswer.value !== newValue) {
+                field.currentAnswer.value = JSON.stringify(bullets);
+                saveAnswer(field);
+            }
         }
 
         createInput();
     }
     function fieldDate(data) {
         var div = $.create('div');
-        $.inside(div, getField(data.cid));
+        var field = getField(data.cid);
+        $.inside(div, field);
         var input = $.create('input', {
             type: 'text',
             className: data.field_options.size ? data.field_options.size : '',
@@ -446,26 +562,33 @@
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            'change': _saveDate,
+            'keyup': _saveDate
         });
 
-        var picker = new Pikaday({
+        field.picker = new Pikaday({
             field: input,
             format: 'YYYY/MM/DD'
         });
+
+        function _saveDate() {
+            var field = getField(data.cid);
+            var oldValue = Date.parse(field.currentAnswer.value);
+            var newValue = Date.parse(field.picker.getDate());
+            if (oldValue !== newValue) {
+                field.currentAnswer.value = field.picker.getDate();
+                saveAnswer(field);
+            }
+
+            //console.log(Date.parse(field.currentAnswer.value));
+            //console.log(Date.parse(field.picker.getDate()));
+        }
     }
     function fieldAddAttachments(field, answer) {
-        //if (!data.hasAttachments) return;
-        //if (data.field_type !== 'text') return;
-
-        //var field = getField(data.cid);
         if (!field.attachmentsGroupDiv) {
             field.attachmentsGroupDiv = $.create('div');
             $.inside(field.attachmentsGroupDiv, field);
         }
-
-
 
         if (!answer) {
             createInput(field);
@@ -474,14 +597,6 @@
                 prependFileItem(field, answer.attachments[ai]);
             }
         }
-
-        //var send = $.create('button', { contents: ['send'], type: 'button' });
-        //$.inside(send, field);
-        //send._.events({
-        //    'click': function () {
-        //        alert(1);
-        //    }
-        //});
     }
 
     function fileChange(field, input) {
@@ -489,11 +604,10 @@
             .then(function(file){
                 var answer = field.currentAnswer;
                 if (answer) {
-                    answer.attachments.push(file);
                     prependFileItem(field, file);
                 }
                 input.value = null;
-                autosave(true);
+                saveAnswer(field);
             });
     }
 
@@ -564,8 +678,8 @@
                         field.currentAnswer = {
                             attachments: []
                         };
-                        field.currentAnswer.attachments.push(response.id);
                     }
+                    field.currentAnswer.attachments.push(file.id);
                     resolve(file);
                 } else {
                     reject("response code " + this.status);
@@ -624,8 +738,8 @@
                 var select = $('select', field);
                 mustHaveError = select.selectedIndex < 0 || !select[select.selectedIndex].attributes['data-id'].value;
                 break;
-            default:
-                return;
+            //default:
+            //    return;
         }
         addRemoveError(data, { type: 'required', text: errorText }, mustHaveError);
     }
@@ -949,7 +1063,7 @@
                     val = [];
                     for (j = 0; j < inputs.length; j++) {
                         if (!inputs[j].checked) continue;
-                        if (inputs[j].className.indexOf('other') === -1)
+                        if (~inputs[j].className.indexOf('other'))
                             val.push({ id: inputs[j].attributes['data-id'].value, label: inputs[j].attributes['data-label'].value, /*skip: inputs[j].attributes['data-skip'].value,*/ value: inputs[j].value });
                         else
                             val.push({ id: null, label: null, /*skip: skip,*/ value: $('.other-text', fields[i]).value });
@@ -1013,7 +1127,11 @@
                 case 'number':
                 case 'scale':
                 case 'date':
-                    $('input', fields[i]).value = answer.value;
+                    if (fields[i].picker) {
+                        fields[i].picker.setDate(answer.value);
+                    } else {
+                        $('input', fields[i]).value = answer.value;
+                    }
                     validateAll(getData(id));
                     break;
                 case 'bullet_points':
@@ -1033,7 +1151,9 @@
                         for (j = 0; j < answer.optionId.length; j++) {
                             if (!answer.optionId[j]) continue;
                             var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
-                            input.checked = true;
+                            if (input) {
+                                input.checked = true;
+                            }
                         }
                     }
                     validateAll(getData(id));
@@ -1058,6 +1178,11 @@
 
             if (fields[i].hasAttachments) {
                 //answer.attachments = answer.attachments || [];
+                if (answer.attachments && answer.attachments.length) {
+                    fields[i].currentAnswer.attachments = answer.attachments.map(function(file){
+                        return file.id;
+                    });
+                }
                 fieldAddAttachments(fields[i], answer);
             }
         }
@@ -1160,15 +1285,36 @@
         }
     }
 
-    function saveAnswer(field) {
-        var answer = field.currentAnswer;
-        console.log(answer);
-        var url = 'survey_answers' + (answer.answerId ? '/' + answer.answerId : '');
-        return $.fetch(getBaseUrl() + url, {
-            method: answer.answerId ? 'PUT' : 'POST',
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' },
-            data: JSON.stringify(answer)
+    function saveAnswer(field, version) {
+        return new Promise(function(resolve, reject){
+            setTimeout(function(){
+                var errors = field.questionData && field.questionData.errors;
+                if (errors && errors.length) {
+                    reject({errors: errors})
+                    return;
+                }
+                var answer = field.currentAnswer;
+                $.fetch(getBaseUrl() + 'survey_answers' + (version ? '' : '?autosave=true') , {
+                    method: 'POST',
+                    responseType: 'json',
+                    headers: { token: token, 'Content-type': 'application/json' },
+                    data: JSON.stringify([answer])
+                }).then(function(req){
+                    if (!answer.answerId) {
+                        var newObject = req.response[0];
+                        if (newObject.id) {
+                            answer.answerId = newObject.id;
+                        } else {
+                            console.error('answer saving error', newObject);
+                            reject(newObject);
+                        }
+                    }
+                    resolve(req.response[0]);
+                }).catch(function(err){
+                    console.error('answer saving error', err);
+                    reject(err);
+                });
+            }, 20); // wait for validation ends
         });
     }
 
@@ -1179,11 +1325,52 @@
             $('#resolve-entry textarea').className += 'invalid';
             return;
         }
-        save(false, function () {
-            resolveTask().then(function(){
-                document.location.href = "/m/";
+        saveOneByOne()
+            .then(function(){
+                console.log('ddddd');
+            })
+            //.then(resolveTask)
+            //.then(function(){
+            //    document.location.href = "/m/";
+            //});
+        //save(false);
+    }
+
+    function saveOneByOne() {
+        var currentFails;
+        return new Promise(function(resolve, reject) {
+            var chain;
+            dataFields.map(function(fieldData){
+                if (!chain) {
+                    chain = _saveAnswerVersion(fieldData.cid);
+                } else {
+                    chain = chain.then(function(){
+                        return _saveAnswerVersion(fieldData.cid);
+                    });
+                }
             });
+            if (chain) {
+                chain.then(function(){
+                    if (!currentFails) {
+                        resolve();
+                    } else {
+                        reject();
+                    }
+                });
+            } else {
+                resolve();
+            }
         });
+
+        function _saveAnswerVersion(cid) {
+            var field = getField(cid);
+            return saveAnswer(field, true).catch(function(err){
+                console.log(err);
+                currentFails = currentFails || [];
+                currentFails.push(cid);
+                return Promise.resolve();
+            });
+        }
     }
 
     function moveTask() {
