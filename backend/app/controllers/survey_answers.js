@@ -25,6 +25,7 @@ var
     crypto = require('crypto'),
     config = require('config'),
     mc = require('app/mc_helper'),
+    pgEscape = require('pg-escape'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_survey_answers');
@@ -58,6 +59,9 @@ module.exports = {
 
     getByProdUoa: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+
+        var isLast = req.query.only && req.query.only == 'last';
+
         co(function* () {
             var condition = _.pick(req.params,['productId','UOAid']);
 
@@ -109,20 +113,47 @@ module.exports = {
                 }
             }
 
-            return yield thunkQuery(
-                SurveyAnswer
+            if (isLast) {
+
+                var q = pgEscape(
+                    'SELECT ' +
+                    's.*, ' +
+                    '(SELECT array_agg(row_to_json(att)) FROM ( ' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AnswerAttachments" a ' +
+                        'WHERE a."id" = ANY (s."attachments") ' +
+                    ') as att) as attachments ' +
+                    'FROM "SurveyAnswers" as s ' +
+                    'WHERE s."productId" = %L ' +
+                    'AND s."UOAid" = %L ' +
+                    'AND s."version" = ( ' +
+                        'SELECT ' +
+                        'MAX(samax."version") AS "version_max" ' +
+                        'FROM "SurveyAnswers" as samax ' +
+                        'WHERE ( ' +
+                            '(samax."productId" = %L) ' +
+                            'AND (samax."UOAid" = %L) ' +
+                            'AND (samax."questionId" = s."questionId") ' +
+                        ') ' +
+                    ')', condition.productId, condition.UOAid, condition.productId, condition.UOAid
+                );
+
+
+            } else {
+                var q = SurveyAnswer
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                        'FROM "AnswerAttachments" a ' +
+                        'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
                     .where(condition)
-                , _.omit(req.query,['productId','UOAid'])
-            );
+            }
+
+            return yield thunkQuery(q, _.omit(req.query,['productId','UOAid']));
         }).then(function (data) {
             res.json(data);
         }, function (err) {
