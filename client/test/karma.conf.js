@@ -46,7 +46,7 @@ module.exports = function(config) {
       'bower_components/lodash-angular-wrapper/lodash-angular-wrapper.js',
       'bower_components/angular-inform/dist/angular-inform.js',
       'bower_components/ng-table/dist/ng-table.min.js',
-      'bower_components/plotly.js/dist/plotly.min.js',
+      'bower_components/plotly.js/plotly.js',
       'bower_components/angular-mocks/angular-mocks.js',
       'bower_components/isteven-angular-multiselect/isteven-multi-select.js',
       'bower_components/angular-translate/angular-translate.js',
