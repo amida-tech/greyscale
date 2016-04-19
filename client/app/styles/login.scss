@@ -2,7 +2,7 @@
 // override bootstrap variables
 @import "bootstrap/variables";
 @import "fontawesome/variables";
-@import "fontawesome/font-awesome-login";
+//@import "fontawesome/font-awesome-login";
 @import "bootstrap/_bootstrap-login.scss";
 @import "general";
 //@import "forms";
@@ -75,6 +75,14 @@
     text-align: right;
 }
 
+.text-center {
+    text-align: center;
+}
+
+.text-danger {
+    color: $red;
+}
+
 .dropdown-menu {
     position: absolute;
     top: 100%;
@@ -115,4 +123,28 @@
     line-height: 1.428571429;
     color: $grey-medium-dark;
     white-space: nowrap;
+}
+
+.arrow-down {
+    margin: 0 0 0.15em 0;
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 0.35em solid transparent;
+    border-right: 0.35em solid transparent;
+    border-top: 0.37em solid $grey-medium-dark;
+}
+
+.exclamation-circle:before {
+    font-style: normal;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 67%;
+    content: "!";
+    border: 1px solid;
+    border-radius: 1.2em;
+    margin: 0 0.4em 0 0;
+    width: 1.2em;
+    height: 1.2em;
+    line-height: 1.2em;
 }

@@ -92,7 +92,7 @@
         if (err && err.xhr) {
             _msg = (err.xhr.response && err.xhr.response.message) ? err.xhr.response.message : err.xhr.statusText;
         }
-        _elem.innerHTML = '<i class="fa fa-exclamation-circle"> ' + _msg + '</i>';
+        _elem.innerHTML = '<i class="exclamation-circle"> ' + _msg + '</i>';
         _elem.classList.remove('hidden');
     }
 
