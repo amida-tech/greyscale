@@ -808,12 +808,12 @@ module.exports = function (grunt) {
         'postcss',
         'ngtemplates',
         'concat',
-        //'uglify',
         'ngAnnotate',
         'i18n',
         'copy:l10n',
         'copy:dist',
         'cssmin',
+        'uglify',
         'filerev',
         'usemin',
         'htmlmin'
