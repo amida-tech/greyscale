@@ -33,6 +33,7 @@
     var content;
     var userId;
     var hasChanges = false;
+    var errorMessages;
 
     function getBaseUrl() {
         var realm = getCookie('current_realm');
@@ -247,6 +248,11 @@
             isResponse: false,
             attachments: []
         };
+        if (data.field_options.options) {
+            field.currentAnswer.optionId = data.field_options.options.map(function(option){
+                return option.id;
+            });
+        }
         if (data.hasAttachments) {
             field.hasAttachments = true;
             fieldAddAttachments(field);
@@ -283,12 +289,12 @@
 
         var thr = new Throttle(_saveChanges);
         function _onChange() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
             thr.run();
             return;
         }
         function _saveChanges() {
-            field.currentAnswer.value = input.value;
-            validateAll(field.questionData);
             saveAnswer(field);
         }
     }
@@ -317,12 +323,12 @@
         });
         var thr = new Throttle(_saveChanges);
         function _onChange() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
             thr.run();
             return;
         }
         function _saveChanges() {
-            field.currentAnswer.value = input.value;
-            validateAll(field.questionData);
             saveAnswer(field);
         }
     }
@@ -348,7 +354,8 @@
             });
             $.inside(input, checkboxLabel);
             input._.events({
-                'change': _changeBox
+                'change': _changeBox,
+                'click': _changeBox
             });
 
             $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
@@ -360,7 +367,8 @@
             input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other', 'data-id': '', /*'data-skip': data.field_options.skip*/ });
             $.inside(input, block);
             input._.events({
-                'change': _changeBox
+                'change': _changeBox,
+                'click': _changeBox
             });
             var inputVariant = $.create('input', { type: 'text', name: data.cid, className: 'other-text' });
             $.inside(inputVariant, block);
@@ -372,6 +380,7 @@
 
         var thr = new Throttle(_saveBoxAnswers);
         function _changeBox() {
+            validateAll(data);
             thr.run();
         }
 
@@ -384,8 +393,8 @@
             $$('input[type="' + type + '"]', fieldSet).map(function(inputEl){
                 if (inputEl.checked) {
                     var optionId = inputEl.attributes['data-id'].value;
-                    if (optionId.length) {
-                        newState.push(parseInt(optionId));
+                    if (optionId && optionId.length) {
+                        newState.push(+optionId);
                     }
                 }
             });
@@ -506,6 +515,7 @@
 
         var thr = new Throttle(_saveBulletsAnswer);
         function bulletChange(input) {
+            validateAll(data);
             //setChangeFlag();
             if (input !== last) {
                 thr.run();
@@ -725,10 +735,15 @@
             case 'radio':
                 mustHaveError = true;
                 $$('.option', field).forEach(function (input) { if (input.checked) mustHaveError = false; });
-                if (mustHaveError) {
-                    var other = $('.other', field);
-                    var otherText = $('.other-text', field);
-                    if (other && other.checked && otherText && otherText.value.length > 0) mustHaveError = false;
+                var other = $('.other', field);
+                var otherText = $('.other-text', field);
+                if (other && otherText) {
+                    if (mustHaveError && other.checked && otherText.value.length) {
+                        mustHaveError = false;
+                    }
+                    if (other.checked && !otherText.value.length) {
+                        mustHaveError = true;
+                    }
                 }
                 break;
             case 'paragraph':
@@ -990,7 +1005,7 @@
             });
     }
     function getSavedAnswers() {
-        var url = getBaseUrl() + 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?order=version';
+        var url = getBaseUrl() + 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?only=last';
         $.fetch(url, {
             method: 'GET',
             responseType: 'json',
@@ -1000,7 +1015,7 @@
             for (var i = 0; i < request.response.length; i++) {
                 var answer = request.response[i];
                 if (!savedAnswers) savedAnswers = [];
-                if (answer.version !== null) continue;
+                //if (answer.version !== null) continue;
                 savedAnswers.push({
                     answerId: answer.id,
                     id: answer.questionId,
@@ -1165,11 +1180,10 @@
                 case 'dropdown':
                     var options = $$('option', fields[i]);
                     if (!answer.optionId || answer.optionId.length === 0) continue;
-                    for (j = 0; j < options.length; j++) {
-                        if (!options[j].attributes['data-id'].value && parseInt(options[j].attributes['data-id'].value) !== answer.optionId[0]) continue;
-                        options[j].selected = true;
-                        break;
-                    }
+                    options.map(function(option){
+                        var optionValid = option.attributes['data-id'].value && option.attributes['data-id'].value !== '';
+                        option.selected = optionValid && ~answer.optionId.indexOf(parseInt(option.attributes['data-id'].value));
+                    });
                     validateAll(getData(id));
                     break;
                 default:
@@ -1286,6 +1300,7 @@
     }
 
     function saveAnswer(field, version) {
+        disableSaving(true);
         return new Promise(function(resolve, reject){
             setTimeout(function(){
                 var errors = field.questionData && field.questionData.errors;
@@ -1294,24 +1309,27 @@
                     return;
                 }
                 var answer = field.currentAnswer;
+                if (!answer.answerId) {
+                    console.log(answer,taskInfo);
+                    answer.taskId = taskInfo.id;
+                }
+                //console.log(answer);
                 $.fetch(getBaseUrl() + 'survey_answers' + (version ? '' : '?autosave=true') , {
                     method: 'POST',
                     responseType: 'json',
                     headers: { token: token, 'Content-type': 'application/json' },
                     data: JSON.stringify([answer])
                 }).then(function(req){
-                    if (!answer.answerId) {
-                        var newObject = req.response[0];
-                        if (newObject.id) {
-                            answer.answerId = newObject.id;
-                        } else {
-                            console.error('answer saving error', newObject);
-                            reject(newObject);
-                        }
+                    var response = req.response[0];
+                    answer.answerId = response.id;
+                    if (response.status === 'Fail') {
+                        errorMessages.add(response.message);
                     }
-                    resolve(req.response[0]);
+                    disableSaving(false);
+                    resolve(response);
                 }).catch(function(err){
                     console.error('answer saving error', err);
+                    disableSaving(false);
                     reject(err);
                 });
             }, 20); // wait for validation ends
@@ -1326,21 +1344,29 @@
             return;
         }
         saveOneByOne()
-            .then(function(){
-                console.log('ddddd');
+            .then(function(fails){
+                if (fails) {
+                    errorMessages.add(fails.length + ' error(s) occured during saving your answers. Please try to submit survey again to complete this task.' );
+                    return Promise.reject();
+                }
+                return Promise.resolve();
             })
-            //.then(resolveTask)
-            //.then(function(){
-            //    document.location.href = "/m/";
-            //});
+            .then(resolveTask)
+            .then(function(){
+                document.location.href = "/m/";
+            });
         //save(false);
     }
 
     function saveOneByOne() {
-        var currentFails;
-        return new Promise(function(resolve, reject) {
+        disableSaving(true);
+        informSaving(true);
+        return new Promise(function(resolve) {
             var chain;
             dataFields.map(function(fieldData){
+                if (saveOneByOne.fails && !~saveOneByOne.fails.indexOf(fieldData.cid)) {
+                    return;
+                }
                 if (!chain) {
                     chain = _saveAnswerVersion(fieldData.cid);
                 } else {
@@ -1351,26 +1377,44 @@
             });
             if (chain) {
                 chain.then(function(){
-                    if (!currentFails) {
-                        resolve();
-                    } else {
-                        reject();
-                    }
+                    resolve();
                 });
             } else {
                 resolve();
             }
+        }).then(function(){
+            var response = null;
+            if (saveOneByOne.fails && saveOneByOne.fails.length) {
+                response = saveOneByOne.fails;
+            }
+            disableSaving(false);
+            informSaving(false);
+            return response;
         });
 
         function _saveAnswerVersion(cid) {
             var field = getField(cid);
-            return saveAnswer(field, true).catch(function(err){
-                console.log(err);
-                currentFails = currentFails || [];
-                currentFails.push(cid);
+            return saveAnswer(field, true)
+            .then(function(){
+                if (saveOneByOne.fails && ~saveOneByOne.fails.indexOf(cid)) {
+                    saveOneByOne.fails.splice(saveOneByOne.fails.indexOf(cid),1);
+                }
+            })
+            .catch(function(err){
+                saveOneByOne.fails = saveOneByOne.fails || [];
+                if (!~saveOneByOne.fails.indexOf(cid)) {
+                    saveOneByOne.fails.push(cid);
+                }
                 return Promise.resolve();
             });
         }
+    }
+
+    function informSaving(state) {
+        var informs = $$('.inform-saving');
+        informs.map(function(inform){
+            inform._.style({display: state ? '' : 'none'});
+        });
     }
 
     function moveTask() {
@@ -1383,7 +1427,7 @@
 
     function resolveTask() {
         if (!taskInfo.flagged) {
-            return Promise.resolve();
+            return moveTask();
         }
         var notify = {
             taskId: taskInfo.id,
@@ -1409,15 +1453,18 @@
     }
 
     function submitCheck() {
-        $('#submit').disabled = false;
-        $('#submit2').disabled = false;
+        disableSaving(false);
         for (var i = 0; i < dataFields.length; i++) {
             if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
-            $('#submit').disabled = true;
-            $('#submit2').disabled = true;
+            disableSaving(true);
             return false;
         }
         return true;
+    }
+
+    function disableSaving(state) {
+        $('#submit').disabled = state;
+        $('#submit2').disabled = state;
     }
     //End Save
 
@@ -1488,6 +1535,8 @@
     $.ready().then(function(){
         token = getCookie('token');
 
+        _initErrorMessages();
+
         renderUserBlock().then(function(){
             var page = window.location.pathname.split('/')[2];
             switch (page) {
@@ -1511,6 +1560,52 @@
             userBlock._.style({display:''});
             return user;
         });
+    }
+
+    function _initErrorMessages() {
+        errorMessages = $.create('div', {
+            id: 'error-messages'
+        });
+        errorMessages._.inside($('body'));
+        if (errorMessages) {
+            errorMessages.add = _addErrorMessage;
+        }
+    }
+
+    function _addErrorMessage(text) {
+        var message = $.create('div', {
+            className: 'error-message',
+        });
+
+        message.closeButton = $.create('div', {
+            className: 'close',
+            innerHTML: '&times;'
+        });
+        message.closeButton._.start(message);
+
+        message.text = $.create('span', {
+            className: 'text',
+            contents:[text]
+        });
+        message.text._.start(message);
+
+        message._.inside(errorMessages);
+
+        var t = setTimeout(function(){
+            _removeErrorMessage(message);
+        }, 10000);
+        message.closeButton._.events({
+            click: function(){
+                clearTimeout(t);
+                _removeErrorMessage(message);
+            }
+        });
+
+    }
+
+    function _removeErrorMessage(m) {
+        m.closeButton._.unbind();
+        m.remove();
     }
 
 })();
