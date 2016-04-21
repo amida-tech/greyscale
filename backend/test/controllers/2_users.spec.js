@@ -5,6 +5,7 @@ var request = require('supertest');
 
 var superAdmin   = config.testEntities.superAdmin;
 var admin        = config.testEntities.admin;
+var users        = config.testEntities.users;
 var organization = config.testEntities.organization;
 
 var api_base          = 'http://localhost:' + config.port + '/';
@@ -29,7 +30,7 @@ describe('Users:', function () {
                     return done(err);
                 }
                 expect(res.body.token).to.exist;
-                suToken = res.body.token;
+                admToken = res.body.token;
                 done();
             });
     });
@@ -38,9 +39,36 @@ describe('Users:', function () {
         done();
     });
 
-    it('Invite usual users', function (done) {
-        done();
-    });
+    for (var i in users) {
+        inviteUserTest(users[i]);
+    }
+
+    function inviteUserTest(user){
+        it('Invite usual user ' + user.firstName, function (done) {
+            api_created_realm
+                .post('/users/self/organization/invite') // invite
+                .send(user)
+                .set('token', admToken)
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(res.body.activationToken).to.exist;
+
+                    api_created_realm
+                        .post('/users/activate/' + res.body.activationToken) // and activate
+                        .expect(200)
+                        .send(user)
+                        .end(function (err, res) {
+                            if (err) {
+                                return done(err);
+                            }
+                            done();
+                        });
+                });
+        });
+    }
 
     it('Edit usual users info', function (done) {
         done();
