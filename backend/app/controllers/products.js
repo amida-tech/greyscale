@@ -778,7 +778,7 @@ module.exports = {
                         action: 'update',
                         object: 'ProductUOA',
                         entities: null,
-                        info: 'Error update currentStep for product `'+req.param.id+'` (Not found step ID or min step position)'
+                        info: 'Error update currentStep for product `'+req.params.id+'` (Not found step ID or min step position)'
                     });
                 }
             }
@@ -1049,7 +1049,7 @@ function* updateCurrentStepId(req) {
     result = yield thunkQuery(updateProductUOAQuery);
 
     return {
-        productId: req.param.id,
+        productId: req.params.id,
         currentStepId: stepIdMinPosition
     };
 
