@@ -760,7 +760,27 @@ module.exports = {
         co(function* () {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
-                yield * updateCurrentStepId(req);
+                var result = yield * updateCurrentStepId(req);
+                if (typeof result === 'object') {
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'update',
+                        object: 'ProductUOA',
+                        entities: result,
+                        quantity: 1,
+                        info: 'Update currentStep to `'+result.currentStepId+'` for product `'+result.productId+'` (for all subjects)'
+                    });
+                } else {
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'update',
+                        object: 'ProductUOA',
+                        entities: null,
+                        info: 'Error update currentStep for product `'+req.param.id+'` (Not found step ID or min step position)'
+                    });
+                }
             }
             return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
         }).then(function (data) {
@@ -982,18 +1002,6 @@ function* updateCurrentStepId(req) {
     var thunkQuery = req.thunkQuery;
     var result;
     // get min step position for specified productId
-/*
-    var minStepPositionQuery =
-        'SELECT '+
-        'min("WorkflowSteps"."position") as "minPosition", '+
-        '"Workflows"."productId" '+
-        'FROM '+
-        '"WorkflowSteps" '+
-        'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
-        'WHERE '+
-        pgEscape('"Workflows"."productId" = %s ', req.params.id)+
-        'group by "Workflows"."productId"';
-*/
     var minStepPositionQuery = WorkflowStep
         .select(
         sql.functions.MIN(WorkflowStep.position).as('minPosition'),
@@ -1007,22 +1015,12 @@ function* updateCurrentStepId(req) {
 
     result = yield thunkQuery(minStepPositionQuery);
     if (!_.first(result)) {
-        return;
+        debug('Not found  min step position for productId `'+req.params.id+'`');
+        return null;
     }
     var minStepPosition = result[0].minPosition;
 
     // get step ID with min step position for specified productId
-/*
-    var stepIdMinPositionQuery =
-        'SELECT '+
-        '"WorkflowSteps"."id" '+
-        'FROM '+
-        '"WorkflowSteps" '+
-        'INNER JOIN "Workflows" ON "WorkflowSteps"."workflowId" = "Workflows"."id" '+
-        'WHERE '+
-        pgEscape('"Workflows"."productId" = %s AND ', req.params.id)+
-        pgEscape('"WorkflowSteps"."position" = %s',  minStepPosition);
-*/
     var stepIdMinPositionQuery = WorkflowStep
         .select(WorkflowStep.id)
         .from(WorkflowStep
@@ -1033,7 +1031,8 @@ function* updateCurrentStepId(req) {
 
     result = yield thunkQuery(stepIdMinPositionQuery);
     if (!_.first(result)) {
-        return;
+        debug('Not found step ID with min step position for productId `'+req.params.id+'`');
+        return null;
     }
     var stepIdMinPosition = result[0].id;
 
@@ -1042,18 +1041,17 @@ function* updateCurrentStepId(req) {
     );
 
     // update all currentStepId with min position step ID for specified productId
-/*
-    var updateProductUOAQuery =
-        'UPDATE "ProductUOA" '+
-        'SET "currentStepId" = ' +stepIdMinPosition+ ' '+
-        'WHERE "productId"= '+req.params.id+ ' AND "currentStepId" is NULL';
-*/
     var updateProductUOAQuery = ProductUOA
         .update({currentStepId: stepIdMinPosition})
         .where(ProductUOA.productId.equals(req.params.id))
         .and(ProductUOA.currentStepId.isNull());
 
     result = yield thunkQuery(updateProductUOAQuery);
+
+    return {
+        productId: req.param.id,
+        currentStepId: stepIdMinPosition
+    };
 
 }
 
@@ -1066,7 +1064,7 @@ function* dumpProduct(req, productId) {
           '  "UnitOfAnalysis"."ISO2", ' +
           "  format('{%s}', " +
           "    string_agg(format('\"%s\":%s', " +
-          '      "SurveyQuestions".id, ' + 
+          '      "SurveyQuestions".id, ' +
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
           '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
