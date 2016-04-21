@@ -41,6 +41,7 @@ describe('Users:', function () {
 
     for (var i in users) {
         inviteUserTest(users[i]);
+        //loginUserTest(users[i]);
     }
 
     function inviteUserTest(user){
@@ -66,6 +67,21 @@ describe('Users:', function () {
                             }
                             done();
                         });
+                });
+        });
+    }
+
+    function loginUserTest(user){
+        it('Authorize usual user ' + user.firstName, function (done) {
+            api_created_realm
+                .get('/users/token')
+                .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))
+                .expect(200)
+                .end(function (err, res) {
+                    if (err) {
+                        return done(err);
+                    }
+                    expect(res.body.token).to.exist;
                 });
         });
     }
