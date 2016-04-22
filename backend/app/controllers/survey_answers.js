@@ -732,6 +732,8 @@ function *addAnswer (req, dataObject) {
         });
     } else {
         dataObject.userId = req.user.realmUserId; // add from realmUserId instead of user id
+        delete dataObject.id;
+        console.log(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns));
         var answer = yield thunkQuery(
             SurveyAnswer
                 .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))

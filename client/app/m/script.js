@@ -1,7 +1,6 @@
 ﻿//http://localhost:8081/interviewRenderer/?surveyId=86&taskId=95
 (function () {
     'use strict';
-
     var types = [
         'text',
         'paragraph',
@@ -34,6 +33,7 @@
     var content;
     var userId;
     var hasChanges = false;
+    var errorMessages;
 
     function getBaseUrl() {
         var realm = getCookie('current_realm');
@@ -66,10 +66,10 @@
         $.fetch(getBaseUrl() + 'surveys/' + surveyId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
             survey = request.response;
             $('#title').innerHTML = survey.title;
-            generateSurvey(survey.questions);
 
             $.fetch(getBaseUrl() + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
                 taskInfo = request.response;
+                generateSurvey(survey.questions);
                 resolvingMode();
                 load();
             }).catch(function (error) {
@@ -210,10 +210,10 @@
                 fieldSectionEnd(data);
                 break;
             case 'text':
-                fieldText(data);
+                fieldText(data, field);
                 break;
             case 'number':
-                fieldText(data);
+                fieldText(data, field);
                 $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
                 break;
             case 'scale':
@@ -224,7 +224,7 @@
                 fieldRadioCheckboxes(data);
                 break;
             case 'paragraph':
-                fieldTextarea(data);
+                fieldTextarea(data, field);
                 break;
             case 'dropdown':
                 fieldDropdown(data);
@@ -238,9 +238,26 @@
             default:
                 return;
         }
+        field.currentAnswer = {
+            surveyId: surveyId,
+            questionId: parseInt(field.id.replace('c', '')),
+            productId: taskInfo.productId,
+            UOAid: taskInfo.uoaId,
+            wfStepId: taskInfo.stepId,
+            userId: userId,
+            isResponse: false,
+            attachments: []
+        };
+        if (data.field_options.options) {
+            field.currentAnswer.optionId = data.field_options.options.map(function(option){
+                return option.id;
+            });
+        }
         if (data.hasAttachments) {
+            field.hasAttachments = true;
             fieldAddAttachments(field);
         }
+        field.questionData = data;
         validationRule(data);
     }
     function fieldSectionStart(data) {
@@ -254,7 +271,7 @@
         if (currentParent === survey) return;
         currentParent = currentParent.parentNode;
     }
-    function fieldText(data) {
+    function fieldText(data, field) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
         var input = $.create('input', {
@@ -265,20 +282,55 @@
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            change: _onChange,
+            keyup: _onChange
+
         });
+
+        var thr = new Throttle(_saveChanges);
+        function _onChange() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
+            thr.run();
+            return;
+        }
+        function _saveChanges() {
+            saveAnswer(field);
+        }
     }
-    function fieldTextarea(data) {
+
+    function Throttle(cb, ttl) {
+        this.cb = cb;
+        this.ttl = ttl;
+    }
+    Throttle.prototype.run = function(){
+        if (this.t) {
+            clearTimeout(this.t);
+        }
+        this.t = setTimeout(this.cb, this.ttl || 1000);
+    };
+
+    function fieldTextarea(data, field) {
         var div = $.create('div');
         $.inside(div, getField(data.cid));
         var input = $.create('textarea', { className: data.field_options.size, name: data.cid });
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            change: _onChange,
+            keyup: _onChange
+
         });
+        var thr = new Throttle(_saveChanges);
+        function _onChange() {
+            field.currentAnswer.value = input.value;
+            validateAll(field.questionData);
+            thr.run();
+            return;
+        }
+        function _saveChanges() {
+            saveAnswer(field);
+        }
     }
     function fieldRadioCheckboxes(data) {
         var type = data.field_type === 'radio' ? 'radio' : 'checkbox';
@@ -301,7 +353,10 @@
                 //'data-skip': data.field_options.options[i].skip
             });
             $.inside(input, checkboxLabel);
-            input._.events({ 'change': setChangeFlag });
+            input._.events({
+                'change': _changeBox,
+                'click': _changeBox
+            });
 
             $.inside($.create('span', { contents: [data.field_options.options[i].label] }), checkboxLabel);
         }
@@ -312,14 +367,49 @@
             input = $.create('input', { type: type, value: 'Other', name: data.cid, className: 'other', 'data-id': '', /*'data-skip': data.field_options.skip*/ });
             $.inside(input, block);
             input._.events({
-                'change': setChangeFlag
+                'change': _changeBox,
+                'click': _changeBox
             });
             var inputVariant = $.create('input', { type: 'text', name: data.cid, className: 'other-text' });
             $.inside(inputVariant, block);
             inputVariant._.events({
-                'change': setChangeFlag,
-                'keypress': setChangeFlag
+                'change': _changeBox,
+                'keyup': _changeBox
             });
+        }
+
+        var thr = new Throttle(_saveBoxAnswers);
+        function _changeBox() {
+            validateAll(data);
+            thr.run();
+        }
+
+        function _saveBoxAnswers() {
+            var field = getField(data.cid);
+            var changed = false;
+            var oldState = JSON.stringify(field.currentAnswer.optionId);
+            var newState = [];
+            var type = field.questionData.field_type === 'radio' ? 'radio' : 'checkbox';
+            $$('input[type="' + type + '"]', fieldSet).map(function(inputEl){
+                if (inputEl.checked) {
+                    var optionId = inputEl.attributes['data-id'].value;
+                    if (optionId && optionId.length) {
+                        newState.push(+optionId);
+                    }
+                }
+            });
+            if (JSON.stringify(newState) !== oldState) {
+                field.currentAnswer.optionId = newState;
+                changed = true;
+            }
+            var otherInputEl = $('.other-text', fieldSet);
+            if (otherInputEl && field.currentAnswer.value !== otherInputEl.value) {
+                field.currentAnswer.value = otherInputEl.value;
+                changed = true;
+            }
+            if (changed) {
+                saveAnswer(field);
+            }
         }
     }
     function fieldDropdown(data) {
@@ -329,7 +419,7 @@
         $.inside(div, getField(data.cid));
         var select = $.create('select', { name: data.cid });
         $.inside(select, div);
-        select._.events({ 'change': setChangeFlag });
+        select._.events({ 'change': _changeState });
 
         if (data.field_options.include_blank_option) {
             option = $.create('option', {
@@ -351,10 +441,22 @@
             });
             $.inside(option, select);
         }
+
+        function _changeState() {
+            var field = getField(data.cid);
+            var options = $$('option', field);
+            options.map(function(option){
+                if (option.selected) {
+                    field.currentAnswer.optionId = [parseInt(option.attributes['data-id'].value)];
+                    saveAnswer(field);
+                }
+            });
+        }
     }
     function fieldScale(data) {
         fieldText(data);
-        var input = $('input', getField(data.cid));
+        var field = getField(data.cid);
+        var input = $('input', field);
         $.after($.create('span', { contents: [' ', data.field_options.units] }), input);
         var minus = $.create('a', { contents: ['<'], className: 'less' });
         $.before(minus, input);
@@ -363,6 +465,7 @@
                 var number = parseFloat(input.value);
                 number = isNaN(number) ? 0 : number;
                 input.value = data.field_options.min !== undefined ? Math.max(number - 1, data.field_options.min) : number - 1;
+                _saveValue();
             }
         });
         var plus = $.create('a', { contents: ['>'], className: 'more' });
@@ -372,14 +475,26 @@
                 var number = parseFloat(input.value);
                 number = isNaN(number) ? 0 : number;
                 input.value = data.field_options.max !== undefined ? Math.min(number + 1, data.field_options.max) : number + 1;
+                _saveValue();
             }
         });
+        input.disabled = true;
+
+        var thr = new Throttle(function(){
+            field.currentAnswer.value = input.value;
+            saveAnswer(field);
+        });
+        function _saveValue() {
+            validateAll(data);
+            thr.run();
+        }
     }
     function fieldBullet(data) {
         var last;
 
         var groupDiv = $.create('div');
-        $.inside(groupDiv, getField(data.cid));
+        var field = getField(data.cid);
+        $.inside(groupDiv, field);
 
         function createInput() {
             var div = $.create('div');
@@ -393,20 +508,26 @@
 
             last = input;
             input._.events({
-                'change': function () { bulletChange(input); },
-                'keypress': function () { bulletChange(input); }
+                change: function () { bulletChange(input); },
+                keyup: function () { bulletChange(input); }
             });
         }
 
+        var thr = new Throttle(_saveBulletsAnswer);
         function bulletChange(input) {
-            setChangeFlag();
-            if (input !== last) return;
+            validateAll(data);
+            //setChangeFlag();
+            if (input !== last) {
+                thr.run();
+                return;
+            }
             var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
             del._.events({
                 'click': function () {
                     input._.unbind();
                     input.parentNode._.remove();
-                    setChangeFlag();
+                    //setChangeFlag();
+                    bulletChange(input);
                 }
             });
             del._.after(input)
@@ -417,13 +538,32 @@
             var inputs = $$('input', field);
             for (var i = 0; i < inputs.length; i++) inputs[i]._.unbind('blur');
             validationRule(data);
+            bulletChange(input);
+        }
+
+        function _saveBulletsAnswer() {
+            var field = getField(data.cid);
+            //saveBullets(data);
+            var bulletEls = $$('input', field);
+            var bullets = [];
+            bulletEls.map(function(bulletEl){
+                if (bulletEl.value !== '') {
+                    bullets.push(bulletEl.value);
+                }
+            });
+            var newValue = JSON.stringify(bullets);
+            if (field.currentAnswer.value !== newValue) {
+                field.currentAnswer.value = JSON.stringify(bullets);
+                saveAnswer(field);
+            }
         }
 
         createInput();
     }
     function fieldDate(data) {
         var div = $.create('div');
-        $.inside(div, getField(data.cid));
+        var field = getField(data.cid);
+        $.inside(div, field);
         var input = $.create('input', {
             type: 'text',
             className: data.field_options.size ? data.field_options.size : '',
@@ -432,91 +572,88 @@
         $.inside(input, div);
 
         input._.events({
-            'change': setChangeFlag,
-            'keypress': setChangeFlag
+            'change': _saveDate,
+            'keyup': _saveDate
         });
 
-        var picker = new Pikaday({
+        field.picker = new Pikaday({
             field: input,
             format: 'YYYY/MM/DD'
         });
+
+        function _saveDate() {
+            var field = getField(data.cid);
+            var oldValue = Date.parse(field.currentAnswer.value);
+            var newValue = Date.parse(field.picker.getDate());
+            if (oldValue !== newValue) {
+                field.currentAnswer.value = field.picker.getDate();
+                saveAnswer(field);
+            }
+
+            //console.log(Date.parse(field.currentAnswer.value));
+            //console.log(Date.parse(field.picker.getDate()));
+        }
     }
-    function fieldAddAttachments(field, attachments) {
-        //if (!data.hasAttachments) return;
-        //if (data.field_type !== 'text') return;
-console.dir(field);
-        //var field = getField(data.cid);
+    function fieldAddAttachments(field, answer) {
         if (!field.attachmentsGroupDiv) {
             field.attachmentsGroupDiv = $.create('div');
             $.inside(field.attachmentsGroupDiv, field);
         }
 
-        function createInput() {
-            var div = $.create('div');
-            $.inside(div, field.attachmentsGroupDiv);
-            var input = $.create('input', {
-                type: 'file',
-                name: field.id
-            });
-            $.inside(input, div);
-
-            field.attachmentsLastInput = input;
-            input._.events({
-                'change': function () { fileChange(input); },
-            });
-        }
-
-        function prependFileItem(fileInfo) {
-            var div = $.create('div');
-            $.start(div, field.attachmentsGroupDiv);
-            var fileItem = $.create('div', {
-                contents: fileInfo.filename,
-                className: 'file-item'
-            });
-            $.inside(fileItem, div);
-
-            var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
-            del._.events({
-                'click': function () {
-                    fileItem._.unbind();
-                    fileItem.parentNode._.remove();
-                    deleteAttachment(fileInfo);
-                }
-            });
-            $.inside(del, fileItem);
-        }
-
-        function fileChange(input) {
-            //setChangeFlag();
-            //if (input !== field.attachmentsLastInput) return;
-            //var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
-            //del._.events({
-            //    'click': function () {
-            //        input._.unbind();
-            //        input.parentNode._.remove();
-            //        setChangeFlag();
-            //    }
-            //});
-            //createInput();
-            console.dir(input);
-            sendAttachment(input.files[0], field.answerId);
-        }
-
-        if (!attachments) {
-            createInput();
-        } else if (attachments.length) {
-            for (var ai = attachments.length - 1; ai >= 0; ai--) {
-                prependFileItem(attachments[ai]);
+        if (!answer) {
+            createInput(field);
+        } else if (answer.attachments && answer.attachments.length) {
+            for (var ai = answer.attachments.length - 1; ai >= 0; ai--) {
+                prependFileItem(field, answer.attachments[ai]);
             }
         }
+    }
 
-        //var send = $.create('button', { contents: ['send'], type: 'button' });
-        //$.inside(send, field);
-        //send._.events({
-        //    'click': function () {
-        //        alert(1);
-        //    }
-        //});
+    function fileChange(field, input) {
+        sendAttachment(field, input.files[0])
+            .then(function(file){
+                var answer = field.currentAnswer;
+                if (answer) {
+                    prependFileItem(field, file);
+                }
+                input.value = null;
+                saveAnswer(field);
+            });
+    }
+
+    function prependFileItem(field, fileInfo) {
+        var div = $.create('div');
+        $.start(div, field.attachmentsGroupDiv);
+        var fileItem = $.create('div', {
+            contents: fileInfo.filename||fileInfo.name,
+            className: 'file-item'
+        });
+        $.inside(fileItem, div);
+
+        var del = $.create('a', { className: 'del-bullet', contents: ['X'] });
+        del._.events({
+            'click': function () {
+                fileItem._.unbind();
+                fileItem.parentNode._.remove();
+                deleteAttachment(fileInfo);
+            }
+        });
+        $.inside(del, fileItem);
+    }
+
+    function createInput(field) {
+        var div = $.create('div');
+        $.inside(div, field.attachmentsGroupDiv);
+        var input = $.create('input', {
+            type: 'file',
+            name: field.id
+        });
+        $.inside(input, div);
+
+        field.attachmentsLastInput = input;
+        input._.events({
+            'change': function () { fileChange(field, input); },
+        });
     }
     //End Generate Survey
 
@@ -532,37 +669,37 @@ console.dir(field);
         });
     }
 
-    function sendAttachment(file, answerId) {
-        var formData = new FormData();
-        formData.append('answerId', answerId);
-        formData.append('file', file, file.name);
+    function sendAttachment(field, file) {
+        return new Promise(function(resolve, reject){
+            var formData = new FormData();
 
-        var xhr = new XMLHttpRequest();
+            if (field.currentAnswer) {
+                formData.append('answerId', field.currentAnswer.answerId);
+            }
+            formData.append('file', file, file.name);
 
-        // обработчик для закачки
-        //xhr.upload.onprogress = function(event) {
-        //    log(event.loaded + ' / ' + event.total);
-        //}
+            var xhr = new XMLHttpRequest();
 
-        // обработчики успеха и ошибки
-        // если status == 200, то это успех, иначе ошибка
-        //xhr.onload = xhr.onerror = function() {
-        //    if (this.status == 200) {
-        //        log("success");
-        //    } else {
-        //        log("error " + this.status);
-        //    }
-        //};
+            xhr.onload = xhr.onerror = function() {
+                if (this.status == 201) {
+                    var response = JSON.parse(this.response);
+                    file.id = response.id;
+                    if (!field.currentAnswer) {
+                        field.currentAnswer = {
+                            attachments: []
+                        };
+                    }
+                    field.currentAnswer.attachments.push(file.id);
+                    resolve(file);
+                } else {
+                    reject("response code " + this.status);
+                }
+            };
 
-        xhr.open('POST', getBaseUrl() + 'attachments', true);
-        xhr.setRequestHeader('token', token);
-        xhr.send(formData);
-    }
-
-    function upload(url, file) {
-
-
-
+            xhr.open('POST', getBaseUrl() + 'attachments', true);
+            xhr.setRequestHeader('token', token);
+            xhr.send(formData);
+        });
     }
 
     //Validation
@@ -598,10 +735,15 @@ console.dir(field);
             case 'radio':
                 mustHaveError = true;
                 $$('.option', field).forEach(function (input) { if (input.checked) mustHaveError = false; });
-                if (mustHaveError) {
-                    var other = $('.other', field);
-                    var otherText = $('.other-text', field);
-                    if (other && other.checked && otherText && otherText.value.length > 0) mustHaveError = false;
+                var other = $('.other', field);
+                var otherText = $('.other-text', field);
+                if (other && otherText) {
+                    if (mustHaveError && other.checked && otherText.value.length) {
+                        mustHaveError = false;
+                    }
+                    if (other.checked && !otherText.value.length) {
+                        mustHaveError = true;
+                    }
                 }
                 break;
             case 'paragraph':
@@ -611,8 +753,8 @@ console.dir(field);
                 var select = $('select', field);
                 mustHaveError = select.selectedIndex < 0 || !select[select.selectedIndex].attributes['data-id'].value;
                 break;
-            default:
-                return;
+            //default:
+            //    return;
         }
         addRemoveError(data, { type: 'required', text: errorText }, mustHaveError);
     }
@@ -863,7 +1005,7 @@ console.dir(field);
             });
     }
     function getSavedAnswers() {
-        var url = getBaseUrl() + 'survey_answers?surveyId=' + surveyId + '&productId=' + taskInfo.productId + '&UOAid=' + taskInfo.uoaId + '&wfStepId=' + taskInfo.stepId + '&userId=' + userId;
+        var url = getBaseUrl() + 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?only=last';
         $.fetch(url, {
             method: 'GET',
             responseType: 'json',
@@ -873,7 +1015,7 @@ console.dir(field);
             for (var i = 0; i < request.response.length; i++) {
                 var answer = request.response[i];
                 if (!savedAnswers) savedAnswers = [];
-                if (answer.version !== null) continue;
+                //if (answer.version !== null) continue;
                 savedAnswers.push({
                     answerId: answer.id,
                     id: answer.questionId,
@@ -896,7 +1038,7 @@ console.dir(field);
         }
         setAnswersState(savedAnswers);
         //skipItems();
-        autosave();
+        //autosave();
     }
     //End Load
 
@@ -908,6 +1050,7 @@ console.dir(field);
         var answers = [];
         for (var i = 0; i < fields.length; i++) {
             var id = fields[i].id;
+            var field = getField(id);
             var type = fields[i]._.getAttribute('data-type');
             //var skip = fields[i]._.getAttribute('data-skip');
             var val;
@@ -935,7 +1078,7 @@ console.dir(field);
                     val = [];
                     for (j = 0; j < inputs.length; j++) {
                         if (!inputs[j].checked) continue;
-                        if (inputs[j].className.indexOf('other') === -1)
+                        if (~inputs[j].className.indexOf('other'))
                             val.push({ id: inputs[j].attributes['data-id'].value, label: inputs[j].attributes['data-label'].value, /*skip: inputs[j].attributes['data-skip'].value,*/ value: inputs[j].value });
                         else
                             val.push({ id: null, label: null, /*skip: skip,*/ value: $('.other-text', fields[i]).value });
@@ -955,10 +1098,24 @@ console.dir(field);
                 case 'section_break':
                     continue;
             }
-            answers.push({ id: id, type: type, value: val, /*skip: skip*/ });
+            answers.push({ id: id,
+                type: type,
+                value: val,
+                attachments: _getAttachments(fields[i])
+                /*skip: skip*/
+            });
         }
         return answers;
     }
+
+    function _getAttachments(field) {
+        if (!field.currentAnswer) {
+            return [];
+        } else {
+            return field.currentAnswer.attachments;
+        }
+    }
+
     function setAnswersState(answers) {
         var fields = $$('.field');
         var i, j;
@@ -973,12 +1130,23 @@ console.dir(field);
                 break;
             }
             if (!answer) continue;
+
+            fields[i].currentAnswer.answerId = answer.answerId;
+            fields[i].currentAnswer.optionId = answer.optionId;
+            fields[i].currentAnswer.id = answer.id;
+            fields[i].currentAnswer.value = answer.value;
+            fields[i].currentAnswer.isResponse = false;
+
             switch (fields[i]._.getAttribute('data-type')) {
                 case 'text':
                 case 'number':
                 case 'scale':
                 case 'date':
-                    $('input', fields[i]).value = answer.value;
+                    if (fields[i].picker) {
+                        fields[i].picker.setDate(answer.value);
+                    } else {
+                        $('input', fields[i]).value = answer.value;
+                    }
                     validateAll(getData(id));
                     break;
                 case 'bullet_points':
@@ -998,7 +1166,9 @@ console.dir(field);
                         for (j = 0; j < answer.optionId.length; j++) {
                             if (!answer.optionId[j]) continue;
                             var input = $('input[data-id="' + answer.optionId[j] + '"]', fields[i]);
-                            input.checked = true;
+                            if (input) {
+                                input.checked = true;
+                            }
                         }
                     }
                     validateAll(getData(id));
@@ -1010,20 +1180,25 @@ console.dir(field);
                 case 'dropdown':
                     var options = $$('option', fields[i]);
                     if (!answer.optionId || answer.optionId.length === 0) continue;
-                    for (j = 0; j < options.length; j++) {
-                        if (!options[j].attributes['data-id'].value && parseInt(options[j].attributes['data-id'].value) !== answer.optionId[0]) continue;
-                        options[j].selected = true;
-                        break;
-                    }
+                    options.map(function(option){
+                        var optionValid = option.attributes['data-id'].value && option.attributes['data-id'].value !== '';
+                        option.selected = optionValid && ~answer.optionId.indexOf(parseInt(option.attributes['data-id'].value));
+                    });
                     validateAll(getData(id));
                     break;
                 default:
                     return;
             }
-            if (answer.attachments) {
-                fieldAddAttachments(fields[i], answer.attachments);
+
+            if (fields[i].hasAttachments) {
+                //answer.attachments = answer.attachments || [];
+                if (answer.attachments && answer.attachments.length) {
+                    fields[i].currentAnswer.attachments = answer.attachments.map(function(file){
+                        return file.id;
+                    });
+                }
+                fieldAddAttachments(fields[i], answer);
             }
-            fields[i].answerId = answer.answerId;
         }
     }
     function setAnswerBullet(field, value) {
@@ -1077,26 +1252,90 @@ console.dir(field);
                 default:
                     data.value = answers[i].value
             }
+            if (answers[i].attachments && answers[i].attachments.length) {
+                data.attachments = answers[i].attachments.map(function(attachment){
+                   return attachment.id;
+                });
+            }
             dataToSave.push(data);
         }
-        $.fetch(getBaseUrl() + 'survey_answers' + (draft ? '?autosave=true' : ''), {
+        return $.fetch(getBaseUrl() + 'survey_answers' + (draft ? '?autosave=true' : ''), {
             method: 'POST',
             data: JSON.stringify(dataToSave),
             responseType: 'json',
             headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function () {
+        }).then(function (request) {
+            var questions = request.response;
             console.log('saved to server');
             hasChanges = false;
-            moveTask(draft).then(function(){
+            if (!draft) {
+                moveTask().then(function(){
+                    if (callback) callback();
+                });
+            } else {
                 if (callback) callback();
-            });
+            }
+
 
         }).catch(function (error) {
             console.error(error);
             if (callback) callback();
         });
     }
-    function autosave() { setTimeout(function () { save(true, function () { autosave(); }); }, 5000); }
+    var autosaveLoop;
+    function autosave(force) {
+        if (force) {
+            clearTimeout(autosaveLoop);
+            hasChanges = true;
+            save(true).then(function(){
+                //autosave();
+            });
+        } else {
+            autosaveLoop = setTimeout(function () {
+                save(true, function () {
+                    autosave();
+                });
+            }, 5000);
+        }
+    }
+
+    function saveAnswer(field, version) {
+        disableSaving(true);
+        return new Promise(function(resolve, reject){
+            setTimeout(function(){
+                var errors = field.questionData && field.questionData.errors;
+                if (errors && errors.length) {
+                    reject({errors: errors})
+                    return;
+                }
+                var answer = field.currentAnswer;
+                if (!answer.answerId) {
+                    console.log(answer,taskInfo);
+                    answer.taskId = taskInfo.id;
+                }
+                //console.log(answer);
+                $.fetch(getBaseUrl() + 'survey_answers' + (version ? '' : '?autosave=true') , {
+                    method: 'POST',
+                    responseType: 'json',
+                    headers: { token: token, 'Content-type': 'application/json' },
+                    data: JSON.stringify([answer])
+                }).then(function(req){
+                    var response = req.response[0];
+                    answer.answerId = response.id;
+                    if (response.status === 'Fail') {
+                        errorMessages.add(response.message);
+                    }
+                    disableSaving(false);
+                    resolve(response);
+                }).catch(function(err){
+                    console.error('answer saving error', err);
+                    disableSaving(false);
+                    reject(err);
+                });
+            }, 20); // wait for validation ends
+        });
+    }
+
     function submitSurvey() {
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
@@ -1104,17 +1343,81 @@ console.dir(field);
             $('#resolve-entry textarea').className += 'invalid';
             return;
         }
-        save(false, function () {
-            resolveTask().then(function(){
+        saveOneByOne()
+            .then(function(fails){
+                if (fails) {
+                    errorMessages.add(fails.length + ' error(s) occured during saving your answers. Please try to submit survey again to complete this task.' );
+                    return Promise.reject();
+                }
+                return Promise.resolve();
+            })
+            .then(resolveTask)
+            .then(function(){
                 document.location.href = "/m/";
             });
+        //save(false);
+    }
+
+    function saveOneByOne() {
+        disableSaving(true);
+        informSaving(true);
+        return new Promise(function(resolve) {
+            var chain;
+            dataFields.map(function(fieldData){
+                if (saveOneByOne.fails && !~saveOneByOne.fails.indexOf(fieldData.cid)) {
+                    return;
+                }
+                if (!chain) {
+                    chain = _saveAnswerVersion(fieldData.cid);
+                } else {
+                    chain = chain.then(function(){
+                        return _saveAnswerVersion(fieldData.cid);
+                    });
+                }
+            });
+            if (chain) {
+                chain.then(function(){
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        }).then(function(){
+            var response = null;
+            if (saveOneByOne.fails && saveOneByOne.fails.length) {
+                response = saveOneByOne.fails;
+            }
+            disableSaving(false);
+            informSaving(false);
+            return response;
+        });
+
+        function _saveAnswerVersion(cid) {
+            var field = getField(cid);
+            return saveAnswer(field, true)
+            .then(function(){
+                if (saveOneByOne.fails && ~saveOneByOne.fails.indexOf(cid)) {
+                    saveOneByOne.fails.splice(saveOneByOne.fails.indexOf(cid),1);
+                }
+            })
+            .catch(function(err){
+                saveOneByOne.fails = saveOneByOne.fails || [];
+                if (!~saveOneByOne.fails.indexOf(cid)) {
+                    saveOneByOne.fails.push(cid);
+                }
+                return Promise.resolve();
+            });
+        }
+    }
+
+    function informSaving(state) {
+        var informs = $$('.inform-saving');
+        informs.map(function(inform){
+            inform._.style({display: state ? '' : 'none'});
         });
     }
 
-    function moveTask(skip) {
-        if (skip) {
-            return Promise.resolve();
-        }
+    function moveTask() {
         return $.fetch(getBaseUrl() + 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId, {
             method: 'GET',
             responseType: 'json',
@@ -1124,7 +1427,7 @@ console.dir(field);
 
     function resolveTask() {
         if (!taskInfo.flagged) {
-            return Promise.resolve();
+            return moveTask();
         }
         var notify = {
             taskId: taskInfo.id,
@@ -1150,15 +1453,18 @@ console.dir(field);
     }
 
     function submitCheck() {
-        $('#submit').disabled = false;
-        $('#submit2').disabled = false;
+        disableSaving(false);
         for (var i = 0; i < dataFields.length; i++) {
             if (!dataFields[i].errors || !dataFields[i].errors.length) continue;
-            $('#submit').disabled = true;
-            $('#submit2').disabled = true;
+            disableSaving(true);
             return false;
         }
         return true;
+    }
+
+    function disableSaving(state) {
+        $('#submit').disabled = state;
+        $('#submit2').disabled = state;
     }
     //End Save
 
@@ -1229,27 +1535,77 @@ console.dir(field);
     $.ready().then(function(){
         token = getCookie('token');
 
-        renderUserBlock();
+        _initErrorMessages();
 
-        var page = window.location.pathname.split('/')[2];
-        switch (page) {
-            case 'interviewRenderer':
-                readySurvey();
-                break;
+        renderUserBlock().then(function(){
+            var page = window.location.pathname.split('/')[2];
+            switch (page) {
+                case 'interviewRenderer':
+                    readySurvey();
+                    break;
 
-            case '':
-                renderTasks();
-                break;
-        }
+                case '':
+                    renderTasks();
+                    break;
+            }
+        });
     });
 
     function renderUserBlock() {
         var userBlockTemplate = '{{firstName}} {{lastName}} <a href="/login/logout">Logout</a>';
-        getUser().then(function(){
+        return getUser().then(function(user){
+            userId = user.id;
             var userBlock = $('#user-block');
             userBlock.innerHTML = fillTemplate(userBlockTemplate, user);
             userBlock._.style({display:''});
+            return user;
         });
+    }
+
+    function _initErrorMessages() {
+        errorMessages = $.create('div', {
+            id: 'error-messages'
+        });
+        errorMessages._.inside($('body'));
+        if (errorMessages) {
+            errorMessages.add = _addErrorMessage;
+        }
+    }
+
+    function _addErrorMessage(text) {
+        var message = $.create('div', {
+            className: 'error-message',
+        });
+
+        message.closeButton = $.create('div', {
+            className: 'close',
+            innerHTML: '&times;'
+        });
+        message.closeButton._.start(message);
+
+        message.text = $.create('span', {
+            className: 'text',
+            contents:[text]
+        });
+        message.text._.start(message);
+
+        message._.inside(errorMessages);
+
+        var t = setTimeout(function(){
+            _removeErrorMessage(message);
+        }, 10000);
+        message.closeButton._.events({
+            click: function(){
+                clearTimeout(t);
+                _removeErrorMessage(message);
+            }
+        });
+
+    }
+
+    function _removeErrorMessage(m) {
+        m.closeButton._.unbind();
+        m.remove();
     }
 
 })();
