@@ -482,7 +482,7 @@ angular.module('greyscaleApp')
                             }
                         }
 
-                        fld.answer = {};
+                        fld.answer.value = {};
                         if (fld.withOther) {
                             fld.otherOption = {
                                 id: -1,
@@ -509,8 +509,8 @@ angular.module('greyscaleApp')
                                 id: -1,
                                 value: answer.value || fld.value
                             };
-                            if (!fld.answer && answer.value) {
-                                fld.answer = fld.otherOption;
+                            if (!fld.answer.value && answer.value) {
+                                fld.answer.value = fld.otherOption;
                             }
                         }
 
@@ -527,15 +527,15 @@ angular.module('greyscaleApp')
 
                     case 'bullet_points':
                         var tmp = angular.fromJson(answer.value);
-                        fld.answer = [];
+                        fld.answer.value = [];
                         for (o = 0; o < tmp.length; o++) {
-                            fld.answer.push({
+                            fld.answer.value.push({
                                 data: tmp[o]
                             });
                         }
 
                         if (!flags.readonly) {
-                            fld.answer.push({
+                            fld.answer.value.push({
                                 data: ''
                             });
                         }
@@ -543,7 +543,7 @@ angular.module('greyscaleApp')
                         break;
 
                     case 'date':
-                        fld.answer = new Date(answer.value);
+                        fld.answer.value = new Date(answer.value);
                         break;
 
                     default:
