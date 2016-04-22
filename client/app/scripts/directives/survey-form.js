@@ -286,7 +286,10 @@ angular.module('greyscaleApp')
                                 hasComments: field.hasComments,
                                 ngModel: {},
                                 flags: flags,
-                                answer: null,
+                                answer: {
+                                    id: null,
+                                    value: null
+                                },
                                 answerId: null,
                                 prevAnswers: [],
                                 responses: null,
@@ -297,13 +300,18 @@ angular.module('greyscaleApp')
                             });
 
                             if (fld.canAttach) {
-                                fld.attachments = [];
+                                fld.answer.attachments = [];
+                            }
+
+                            if (fld.withLinks) {
+                                fld.answer.links = [];
                             }
 
                             switch (type) {
                             case 'checkboxes':
+                                fld.answer.options = [];
                                 for (o = 0; o < field.options.length; o++) {
-                                    angular.extend(fld.options[o] || {}, {
+                                    fld.answer.options.push({
                                         checked: field.options[o] ? field.options[o].isSelected : false,
                                         name: field.options[o] ? field.options[o].label : ''
                                     });
@@ -312,6 +320,7 @@ angular.module('greyscaleApp')
 
                             case 'dropdown':
                             case 'radio':
+                                fld.answer.options = [];
                                 if (type === 'dropdown') {
                                     if (!fld.required) {
                                         fld.options.unshift({
@@ -319,27 +328,27 @@ angular.module('greyscaleApp')
                                             label: '',
                                             value: null
                                         });
-                                        fld.answer = fld.options[0];
+                                        fld.answer.options = fld.options[0];
                                     }
                                 }
 
                                 for (o = 0; o < field.options.length; o++) {
                                     if (field.options[o] && field.options[o].isSelected) {
-                                        fld.answer = field.options[o];
+                                        fld.answer.option = field.options[o];
                                     }
                                 }
                                 break;
 
                             case 'number':
                                 if (fld.intOnly) {
-                                    fld.answer = parseInt(fld.value);
+                                    fld.answer.value = parseInt(fld.value);
                                 } else {
-                                    fld.answer = parseFloat(fld.value);
+                                    fld.answer.value = parseFloat(fld.value);
                                 }
                                 break;
 
                             default:
-                                fld.answer = fld.value;
+                                fld.answer.value = fld.value;
                             }
                             qid++;
                             if (!fld.qid) {
@@ -451,14 +460,16 @@ angular.module('greyscaleApp')
                 }
                 if (answer) {
                     fld.answerId = answer.id;
+                    fld.answer.id = answer.id;
+
                     fld.langId = answer.langId || fld.langId;
 
                     if (fld.canAttach) {
-                        fld.attachments = answer.attachments || [];
+                        fld.answer.attachments = answer.attachments || [];
                     }
 
                     if (fld.hasComments) {
-                        fld.comment = answer.comments || '';
+                        fld.answer.comment = answer.comments || '';
                     }
 
                     switch (fld.type) {

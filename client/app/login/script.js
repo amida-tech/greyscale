@@ -45,7 +45,7 @@
                     Greyscale.setCookie('current_realm', xhr.response.realm);
                 }
                 Greyscale.setCookie('token', xhr.response.token);
-                window.location.href = '/';
+                window.location.href = '/m/';
                 return true;
             })
             .catch(function (err) {

@@ -28,19 +28,19 @@ angular.module('greyscaleApp')
                         };
                     } else if (_fieldName === 'comments') {
                         _data = {
-                            entityId: _field.answerId,
+                            entityId: _field.answer.id,
                             langId: _field.langId,
                             type: _commentInput,
                             field: 'comments',
-                            value: _field.comment
+                            value: _answer.comment
                         };
                     } else {
                         _data = {
-                            entityId: _field.answerId,
+                            entityId: _field.answer.id,
                             langId: _field.langId,
                             type: _field.type,
                             field: 'value',
-                            value: _answer
+                            value: _answer.value
                         };
 
                         switch (_field.type) {

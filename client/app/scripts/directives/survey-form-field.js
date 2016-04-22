@@ -39,7 +39,7 @@ angular.module('greyscaleApp')
 
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
+                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer.value" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
 
                         var borders = getBorders(scope.field);
                         var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
@@ -93,7 +93,7 @@ angular.module('greyscaleApp')
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-valid="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
-                            message += '<span ng-show="field.answer">' + i18n.translate('COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
+                            message += '<span ng-show="field.answer.value">' + i18n.translate('COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
 
                             break;
 
@@ -169,7 +169,7 @@ angular.module('greyscaleApp')
                                 required: scope.field.required
                             };
 
-                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" validator="field"' +
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer.value" validator="field"' +
                                 'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
 
                             message += '<span ng-if ="field.ngModel.$error.date" translate="FORMS.WRONG_DATE_FORMAT"></span>';
