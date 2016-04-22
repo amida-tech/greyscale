@@ -8,22 +8,27 @@
     <script type="text/javascript" src="bliss.js"></script>
     <script type="text/javascript" src="moment.min.js"></script>
     <script type="text/javascript" src="pikaday.js"></script>
+    <script type="text/javascript" src="greyscale.js"></script>
     <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="translate.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <title id="page-title"></title>
 </head>
 <body>
     <div id="user-block" style="display: none"></div>
-    <span class="logo-home"><img src="/favicon.ico"></span>
 
-    <h1 id="title">Tasks</h1>
+    <div class="full-version-link" data-translate="UI_TYPE.FULL" data-translate-values='{"href":"/#/"}'></div>
+
+    <div class="logo-home"><img src="/favicon.ico"></div>
+
+    <h1 id="title" data-translate="DASHBOARD.TASKS"></h1>
 
     <div id="active-tasks"></div>
-    <div id="no-active-tasks" style="display: none">No active tasks</div>
+    <div id="no-active-tasks" style="display: none" data-translate="MY_TASKS.NO_TASKS"></div>
 
     <script type="text/template" id="task-template">
         <div class="task">
-            <div class="flagged show-{{showFlag}}">Flagged</div>
+            <div class="flagged show-{{showFlag}}"><span data-translate="PM_PRODUCT_DASHBOARD.COUNT_FLAGGED"></span></div>
             <p>{{step.title}}</p>
             <p><a href="/m/interviewRenderer/?surveyId={{survey.id}}&taskId={{id}}">{{survey.title}}</a></p>
             <p>{{startDateFormatted}} - {{endDateFormatted}}</p>
