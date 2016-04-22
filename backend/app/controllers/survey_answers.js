@@ -25,6 +25,7 @@ var
     crypto = require('crypto'),
     config = require('config'),
     mc = require('app/mc_helper'),
+    pgEscape = require('pg-escape'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_survey_answers');
@@ -58,6 +59,9 @@ module.exports = {
 
     getByProdUoa: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+
+        var isLast = req.query.only && req.query.only == 'last';
+
         co(function* () {
             var condition = _.pick(req.params,['productId','UOAid']);
 
@@ -109,20 +113,52 @@ module.exports = {
                 }
             }
 
-            return yield thunkQuery(
-                SurveyAnswer
+            if (isLast) {
+
+                var q = pgEscape(
+                    'SELECT ' +
+                    's.*, ' +
+                    '(SELECT array_agg(row_to_json(att)) FROM ( ' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AnswerAttachments" a ' +
+                        'WHERE a."id" = ANY (s."attachments") ' +
+                    ') as att) as attachments ' +
+                    'FROM "SurveyAnswers" as s ' +
+                    'WHERE s."id" = ( ' +
+                        'SELECT ' +
+                        'samax."id" ' +
+                        'FROM "SurveyAnswers" as samax ' +
+                        'WHERE ( ' +
+                            '(samax."productId" = %L) ' +
+                            'AND (samax."UOAid" = %L) ' +
+                            'AND (samax."questionId" = s."questionId") ' +
+                        ') ' +
+                        'ORDER BY ' +
+                            '(CASE WHEN ((version IS NULL) AND ("userId" = %L)) THEN 1 ELSE 0 END) DESC, ' +
+                            '(CASE WHEN (version IS NULL) THEN 0 ELSE version END) DESC ' +
+                        'LIMIT 1' +
+                    ')', condition.productId, condition.UOAid, req.user.id.toString()
+                );
+
+
+
+
+
+            } else {
+                var q = SurveyAnswer
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype"' +
+                        'FROM "AnswerAttachments" a ' +
+                        'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
                     .where(condition)
-                , _.omit(req.query,['productId','UOAid'])
-            );
+            }
+
+            return yield thunkQuery(q, _.omit(req.query,['productId','UOAid']));
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -696,6 +732,7 @@ function *addAnswer (req, dataObject) {
         });
     } else {
         dataObject.userId = req.user.realmUserId; // add from realmUserId instead of user id
+        delete dataObject.id;
         var answer = yield thunkQuery(
             SurveyAnswer
                 .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))

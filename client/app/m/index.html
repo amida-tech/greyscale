@@ -1,46 +1,34 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <script type="text/javascript">
-        function setLowBand(isLow) {
-            var d = new Date();
-            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
-            var expires = "expires=" + (isLow) ? d.toGMTString() : -1;
-            document.cookie = 'light_version=1;path=/;' + expires;
-        }
-
-        setLowBand(false);
-
-        var slowLoad = window.setTimeout(function () {
-            setLowBand(true);
-        }, 2500);
-
-        window.addEventListener('load', function () {
-            window.clearTimeout(slowLoad);
-        }, false);
-    </script>
+    <script type="text/javascript">(function(){f(false);var c=window.setTimeout(function (){f(true);}, 2500);function f(l) {var d = new Date();d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((l) ? 1 : -1)));var e = "expires=" + d.toGMTString();document.cookie = 'low_bandwidth=1;path=/;' + e;}window.addEventListener('load', function () {window.clearTimeout(c);}, false);})();</script>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="pikaday.css" />
     <link rel="stylesheet" href="style.css" />
     <script type="text/javascript" src="bliss.js"></script>
     <script type="text/javascript" src="moment.min.js"></script>
     <script type="text/javascript" src="pikaday.js"></script>
+    <script type="text/javascript" src="greyscale.js"></script>
     <script type="text/javascript" src="config.js"></script>
+    <script type="text/javascript" src="translate.js"></script>
     <script type="text/javascript" src="script.js"></script>
     <title id="page-title"></title>
 </head>
 <body>
     <div id="user-block" style="display: none"></div>
-    <span class="logo-home"><img src="/favicon.ico"></span>
 
-    <h1 id="title">Tasks</h1>
+    <div class="full-version-link" data-translate="UI_TYPE.FULL" data-translate-values='{"href":"/#/"}'></div>
+
+    <div class="logo-home"><img src="/favicon.ico"></div>
+
+    <h1 id="title" data-translate="DASHBOARD.TASKS"></h1>
 
     <div id="active-tasks"></div>
-    <div id="no-active-tasks" style="display: none">No active tasks</div>
+    <div id="no-active-tasks" style="display: none" data-translate="MY_TASKS.NO_TASKS"></div>
 
     <script type="text/template" id="task-template">
         <div class="task">
-            <div class="flagged show-{{showFlag}}">Flagged</div>
+            <div class="flagged show-{{showFlag}}"><span data-translate="PM_PRODUCT_DASHBOARD.COUNT_FLAGGED"></span></div>
             <p>{{step.title}}</p>
             <p><a href="/m/interviewRenderer/?surveyId={{survey.id}}&taskId={{id}}">{{survey.title}}</a></p>
             <p>{{startDateFormatted}} - {{endDateFormatted}}</p>

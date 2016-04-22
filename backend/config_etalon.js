@@ -137,15 +137,38 @@ var environments = {
         testEntities: {
             superAdmin: {
                 email: 'test-su@mail.net',
-                password: 'testuser'
+                password: 'testsuperadmin'
             },
             admin: {
                 email: 'test-adm@mail.net',
                 firstName: 'Test',
                 lastName: 'Admin',
                 roleID: 2,
-                password: 'testuser'
+                password: 'testadmin'
             },
+            users: [
+                {
+                    firstName: 'User1',
+                    lastName: 'Test',
+                    email: 'user1@mail.net',
+                    roleID: 3,
+                    password: 'testuser1'
+                },
+                {
+                    firstName: 'User2',
+                    lastName: 'Test',
+                    email: 'user2@mail.net',
+                    roleID: 3,
+                    password: 'testuser2'
+                },
+                {
+                    firstName: 'User3',
+                    lastName: 'Test',
+                    email: 'user3@mail.net',
+                    roleID: 3,
+                    password: 'testuser3'
+                }
+            ],
             organization : {
                 name: 'Test organization',
                 realm: 'testorg'

@@ -136,6 +136,7 @@
         "UNTITLED": "Untitled",
         "UPPER_LATIN": "Upper-latin",
         "VALUE": "Value",
+        "WITH_LINKS": "With links",
         "WORDS": "words",
         "YES": "Yes"
     },
@@ -611,8 +612,8 @@
         "TITLE": "Translations"
     },
     "UI_TYPE": {
-        "FULL": "Full version",
-        "LIGHT": "Light version",
+        "FULL": "<a href=\"{{href}}\">Full version</a>",
+        "LIGHT": "<a href=\"{{href}}\">Light version</a>",
         "TITLE": "Version"
     },
     "UOAS": {

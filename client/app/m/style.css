@@ -310,3 +310,29 @@ textarea.invalid {
     border-color: red;
 
 }
+#error-messages {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 10px;
+    z-index: 10;
+}
+#error-messages .error-message {
+    background: #FFC5BF;
+    margin-bottom: 5px;
+}
+#error-messages .error-message .text {
+    display: inline-block;
+    padding: 20px;
+}
+#error-messages .error-message .close {
+    float: right;
+    padding: 10px 20px 10px 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.full-version-link {
+    float: right;
+    margin-right: 50px;
+}

@@ -1,24 +1,7 @@
 ﻿<!doctype html>
 <html>
 <head>
-    <script type="text/javascript">
-        function setLowBand(isLow) {
-            var d = new Date();
-            d.setTime(d.getTime() + (24 * 60 * 60 * 1000));
-            var expires = "expires=" + (isLow) ? d.toGMTString() : -1;
-            document.cookie = 'light_version=1;path=/;' + expires;
-        }
-
-        setLowBand(false);
-
-        var slowLoad = window.setTimeout(function () {
-            setLowBand(true);
-        }, 2500);
-
-        window.addEventListener('load', function () {
-            window.clearTimeout(slowLoad);
-        }, false);
-    </script>
+    <script type="text/javascript">(function(){f(false);var c=window.setTimeout(function (){f(true);}, 2500);function f(l) {var d = new Date();d.setTime(d.getTime() + (24 * 60 * 60 * 1000 * ((l) ? 1 : -1)));var e = "expires=" + d.toGMTString();document.cookie = 'low_bandwidth=1;path=/;' + e;}window.addEventListener('load', function () {window.clearTimeout(c);}, false);})();</script>
     <meta charset="utf-8">
     <title></title>
     <meta name="description" content="">
@@ -87,7 +70,7 @@
 <script src="bower_components/lodash-angular-wrapper/lodash-angular-wrapper.js"></script>
 <script src="bower_components/angular-inform/dist/angular-inform.js"></script>
 <script src="bower_components/ng-table/dist/ng-table.min.js"></script>
-<script src="bower_components/plotly.js/dist/plotly.min.js"></script>
+<script src="bower_components/plotly.js/plotly.js"></script>
 <script src="bower_components/angular-mocks/angular-mocks.js"></script>
 <script src="bower_components/isteven-angular-multiselect/isteven-multi-select.js"></script>
 <script src="bower_components/angular-translate/angular-translate.js"></script>
@@ -168,6 +151,7 @@
 <script src="greyscale.rest/scripts/services/greyscale-notification.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-attachment.js"></script>
 <script src="greyscale.rest/scripts/services/greyscale-visualization.js"></script>
+<script src="greyscale.rest/scripts/services/greyscale-comparative-visualization.js"></script>
 <!-- end greyscale.user -->
 <!-- endbuild -->
 

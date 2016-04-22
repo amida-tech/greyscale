@@ -2,11 +2,14 @@
 
 angular.module('greyscaleApp')
     .controller('MessagesCtrl', function (_, $q, $sce, $scope, greyscaleProfileSrv, greyscaleUserApi,
-        greyscaleModalsSrv, greyscaleNotificationApi) {
+        greyscaleModalsSrv, greyscaleNotificationApi, greyscaleGlobals, Organization) {
 
         $scope.model = {};
 
+        var _realm;
+
         greyscaleProfileSrv.getProfile()
+            .then(_setRealm)
             .then(_loadData)
             .then(_normalizeData)
             .then(_parseConversations)
@@ -30,6 +33,11 @@ angular.module('greyscaleApp')
                 return unread;
             }
         };
+
+        function _setRealm(profile) {
+            _realm = greyscaleProfileSrv.isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
+            return profile;
+        }
 
         function _normalizeData(data) {
             var allMessages = [];
@@ -69,10 +77,10 @@ angular.module('greyscaleApp')
             var req = {
                 income: greyscaleNotificationApi.list({
                     userTo: profile.id
-                }),
+                }, _realm),
                 outcome: greyscaleNotificationApi.list({
                     userFrom: profile.id
-                })
+                }, _realm)
             };
             return $q.all(req);
         }

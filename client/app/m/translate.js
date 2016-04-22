@@ -7,13 +7,14 @@
         });
 
     function init() {
-        var _locale = Greyscale.getCookie('locale');
+        var _locale = Greyscale.getCookie('locale') || 'en';
         var script = document.createElement('script');
         script.src = '/l10n/' + _locale + '.js';
         document.head.appendChild(script);
         script.onreadystatechange = script.onload = proceed;
         window.Greyscale = window.Greyscale || {};
         window.Greyscale.translate = translate;
+        window.Greyscale.translateProceed = proceed;
     }
 
     function translate(key, params) {

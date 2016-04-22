@@ -4,13 +4,15 @@ angular.module('greyscale.tables')
         greyscaleProfileSrv,
         greyscaleGroupApi,
         greyscaleNotificationApi,
-        greyscaleModalsSrv, userNotificationsSrv) {
+        greyscaleModalsSrv, userNotificationsSrv, greyscaleGlobals, Organization) {
 
         var tns = 'NOTIFICATIONS.';
 
         var _dicts = {};
 
         var _extModel = {};
+
+        var _realm;
 
         var _cols = [{
             field: 'created',
@@ -63,11 +65,12 @@ angular.module('greyscale.tables')
 
         function _getData() {
             return greyscaleProfileSrv.getProfile()
+                .then(_setRealm)
                 .then(function (profile) {
                     var req = {
                         notifications: greyscaleNotificationApi.list({
                             userTo: profile.id
-                        })
+                        }, _realm)
                     };
                     return $q.all(req).then(function (promises) {
                         return promises.notifications;
@@ -75,13 +78,14 @@ angular.module('greyscale.tables')
                 });
         }
 
-        function _getUserName(msg) {
-
+        function _setRealm(profile) {
+            _realm = greyscaleProfileSrv.isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
+            return profile;
         }
 
         function _toggleRead(msg) {
             var method = msg.read ? 'setUnread' : 'setRead';
-            greyscaleNotificationApi[method](msg.id)
+            greyscaleNotificationApi[method](msg.id, _realm)
                 .then(function () {
                     msg.read = !msg.read;
                     userNotificationsSrv.update();
