@@ -100,6 +100,21 @@ itHelper = {
                 done();
             });
     },
+    insertOneErrMessage : function (api, get, token, insertItem, status, errCode, message, done) {
+        api
+            .post(get)
+            .set('token', token)
+            .send(insertItem)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                expect(res.body.message).to.have.string(message);
+                done();
+            });
+    },
     deleteOne : function (api, get, token, status, done) {
         api
             .delete(get)

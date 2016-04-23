@@ -1,5 +1,5 @@
 /**
- * Unit of Analisys Tags tests
+ * Unit of Analisys tests
  **/
 
 var chai = require('chai');
@@ -26,8 +26,8 @@ var obj ={};
 var path = '/uoas';
 
 // make all users list
-//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
-testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
+testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
+//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
 describe('Subjects (Units of Analisys):', function () {
