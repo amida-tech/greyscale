@@ -190,13 +190,8 @@ angular.module('greyscaleApp')
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
-                        if (scope.field.links || scope.field.withLinks) {
-                            links = '<div><p translate="SURVEYS.LINKS"></p>';
-
-                            if (scope.field.withLinks) {
-                                links += '<gs-links model="field.answerLinks"></gs-links>';
-                            }
-                            links += '</div>';
+                        if (scope.field.withLinks) {
+                            links = '<gs-links model="field.answerLinks"></gs-links>';
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
