@@ -50,11 +50,14 @@ ithelper = {
             user = _.find(allUsers, {roleID : role});
         } else {
             // ordinary users
-            var i = _.findIndex(allUsers, {roleID : role});
-            if (i !== -1 ){
-                var ordinaryUsers = allUsers.slice(i);
-                if (num > 0 && num <= ordinaryUsers.length) {
-                    user = ordinaryUsers[num-1];
+            var j = 0;
+            for (var i = 0; i < allUsers.length; i++) {
+                if (allUsers[i].roleID === role) {
+                    j++;
+                    if (num > 0 && num === j) {
+                        user = allUsers[i];
+                        break;
+                    }
                 }
             }
         }

@@ -136,6 +136,150 @@ describe('Notifications:', function () {
             });
         });
 
+        describe('Check users notifications: ', function () {
+            describe('userId filter: ', function () {
+                it('True number of records (userId = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userId='+obj.user1Id, tokenAdmin, 200, 4, done);
+                });
+                it('True number of records (userId = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userId='+obj.user1Id, tokenUser1, 200, 4, done);
+                });
+                it('True number of records (userId = user1Id) as user2 - userId ignored, return only records for user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userId='+obj.user1Id, tokenUser2, 200, 1, done);
+                });
+            });
+            describe('userFrom filter: ', function () {
+                it('True number of records (userFrom = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id, tokenAdmin, 200, 2, done);
+                });
+                it('True number of records (userFrom = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id, tokenUser1, 200, 1, done);
+                });
+                it('True number of records (userFrom = user1Id) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id, tokenUser2, 200, 0, done);
+                });
+            });
+            describe('userTo filter: ', function () {
+                it('True number of records (userTo = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userTo='+obj.user1Id, tokenAdmin, 200, 4, done);
+                });
+                it('True number of records (userTo = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userTo='+obj.user1Id, tokenUser1, 200, 1, done);
+                });
+                it('True number of records (userTo = user1Id) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userTo='+obj.user1Id, tokenUser2, 200, 0, done);
+                });
+            });
+            describe('userFrom & userTo filter: ', function () {
+                it('True number of records (userFrom = user1Id, userTo = adminId) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenAdmin, 200, 2, done);
+                });
+                it('True number of records (userFrom = user1Id, userTo = adminId) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenUser1, 200, 4, done);
+                });
+                it('True number of records (userFrom = user1Id, userTo = adminId) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'/users?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenUser2, 200, 1, done);
+                });
+            });
+        });
+
+        describe('Check notifications SELECT: ', function () {
+            describe('userId filter: ', function () {
+                it('True number of records (userId = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id, tokenAdmin, 200, 4, done);
+                });
+                it('True number of records (userId = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id, tokenUser1, 200, 4, done);
+                });
+                it('True number of records (userId = user1Id) as user2 - userId ignored, return only records for user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id, tokenUser2, 200, 1, done);
+                });
+            });
+            describe('userFrom filter: ', function () {
+                it('True number of records (userFrom = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id, tokenAdmin, 200, 1, done);
+                });
+                it('True number of records (userFrom = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id, tokenUser1, 200, 1, done);
+                });
+                it('True number of records (userFrom = user1Id) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id, tokenUser2, 200, 0, done);
+                });
+            });
+            describe('userTo filter: ', function () {
+                it('True number of records (userTo = user1Id) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userTo='+obj.user1Id, tokenAdmin, 200, 2, done);
+                });
+                it('True number of records (userTo = user1Id) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userTo='+obj.user1Id, tokenUser1, 200, 1, done);
+                });
+                it('True number of records (userTo = user1Id) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userTo='+obj.user1Id, tokenUser2, 200, 0, done);
+                });
+            });
+            describe('userFrom & userTo filter: ', function () {
+                it('True number of records (userFrom = user1Id, userTo = adminId) as admin', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenAdmin, 200, 1, done);
+                });
+                it('True number of records (userFrom = user1Id, userTo = adminId) as user1', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenUser1, 200, 4, done);
+                });
+                it('True number of records (userFrom = user1Id, userTo = adminId) as user2', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userFrom='+obj.user1Id+'&userTo='+obj.adminId, tokenUser2, 200, 1, done);
+                });
+            });
+        });
+
+        describe('Check notifications READ/UNREAD: ', function () {
+            describe('READ filter: ', function () {
+                it('True number of records (userId = user1Id) as admin - READ', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=true', tokenAdmin, 200, 0, done);
+                });
+                it('True number of records (userId = user1Id) as admin - UNREAD', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=false', tokenAdmin, 200, 4, done);
+                });
+            });
+            describe('Mark read/unread: ', function () {
+                it('Mark (5) as READ', function (done) {
+                    ithelper.updateOne(testEnv.api_created_realm, path + '/markread/' + obj.id5, tokenAdmin, {}, 202, done);
+                });
+                it('Check `READ` records after mark as READ', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=true', tokenAdmin, 200, 1, done);
+                });
+                it('Check `UNREAD` records after mark as READ', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=false', tokenAdmin, 200, 3, done);
+                });
+                it('Mark (5) as UNREAD', function (done) {
+                    ithelper.updateOne(testEnv.api_created_realm, path + '/markunread/' + obj.id5, tokenAdmin, {}, 202, done);
+                });
+                it('Check `READ` records after mark as UNREAD', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=true', tokenAdmin, 200, 0, done);
+                });
+                it('Check `UNREAD` records after mark as UNREAD', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=false', tokenAdmin, 200, 4, done);
+                });
+                it('Mark ALL (userFrom = user1) as READ', function (done) {
+                    ithelper.updateOne(testEnv.api_created_realm, path + '/markallread/?userFrom=' + obj.user1Id, tokenAdmin, {}, 202, done);
+                });
+                it('Check `READ` records after mark as READ', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=true', tokenAdmin, 200, 2, done);
+                });
+                it('Check `UNREAD` records after mark as READ', function (done) {
+                    ithelper.select(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=false', tokenAdmin, 200, 2, done);
+                });
+                it('Mark invite user notification with id=3 as UNREAD - "status quo"', function (done) {
+                    ithelper.updateOne(testEnv.api_created_realm, path + '/markunread/3', tokenAdmin, {}, 202, done);
+                });
+            });
+        });
+        describe('RESEND notifications: ', function () {
+            it('Resend (5)', function (done) {
+                ithelper.updateOne(testEnv.api_created_realm, path + '/resend/' + obj.id5, tokenAdmin, {}, 202, done);
+            });
+            it('Resend user invite (user1)', function (done) {
+                ithelper.updateOne(testEnv.api_created_realm, path + '/resenduserinvite/' + obj.user1Id, tokenAdmin, {}, 202, done);
+            });
+        });
 
         describe('Delete all entities after tests completed', function () {
             it('Delete created notification (1)', function (done) {
@@ -152,6 +296,9 @@ describe('Notifications:', function () {
             });
             it('Delete created notification (5)', function (done) {
                 ithelper.deleteOne(testEnv.api_created_realm, path + '/delete?id=' + obj.id5, tokenSuperAdmin, 204, done);
+            });
+            it('Delete all notification (userFrom = admin, userTo = user1)', function (done) {
+                ithelper.deleteOne(testEnv.api_created_realm, path + '/delete?userFrom=' + obj.adminId+'&userTo='+obj.user1Id, tokenSuperAdmin, 204, done);
             });
         });
     }
