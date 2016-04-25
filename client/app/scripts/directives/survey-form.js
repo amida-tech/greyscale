@@ -293,11 +293,16 @@ angular.module('greyscaleApp')
                                 response: '',
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
-                                comment: ''
+                                comment: '',
+                                withLinks: field.withLinks || true //debug mode
                             });
 
                             if (fld.canAttach) {
                                 fld.attachments = [];
+                            }
+
+                            if (fld.withLinks) {
+                                fld.answerLinks = ['http://www.example.org'];
                             }
 
                             switch (type) {
