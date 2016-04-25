@@ -599,7 +599,7 @@ function* checkInsert(req, note) {
         } catch (err) {
             throw new HttpError(403, 'Cannot find model file: ' + essence.fileName);
         }
-        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Discussion`s entry');
+        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entry');
     }
     return note;
 }
