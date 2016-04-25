@@ -332,3 +332,7 @@ textarea.invalid {
     font-size: 20px;
     cursor: pointer;
 }
+.full-version-link {
+    float: right;
+    margin-right: 50px;
+}

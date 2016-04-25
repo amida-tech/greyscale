@@ -60,19 +60,22 @@ module.exports = {
             var dataClassTypeId = yield thunkQuery(UnitOfAnalysisTag.select(UnitOfAnalysisTag.classTypeId)
                 .where(UnitOfAnalysisTag.id.equals(req.body.uoaTagId)));
             var classTypeId = dataClassTypeId[0] ? dataClassTypeId[0].classTypeId : null;
-            var queryClassTypeName = UnitOfAnalysisClassType.select(UnitOfAnalysisClassType.name);
-            if (dataClassTypeId[0]) {
-                queryClassTypeName = queryClassTypeName.where(UnitOfAnalysisClassType.id.equals(dataClassTypeId[0].classTypeId));
+            if (!classTypeId) {
+                next(new HttpError(401, 'Not found tag with specified Id `' + req.body.uoaTagId + '`'));
+            } else {
+                var queryClassTypeName = UnitOfAnalysisClassType
+                    .select(UnitOfAnalysisClassType.name)
+                    .where(UnitOfAnalysisClassType.id.equals(classTypeId));
+                var classTypeName = thunkQuery(queryClassTypeName);
+
+                var query = UnitOfAnalysisTagLink.select(UnitOfAnalysisTag.classTypeId)
+                    .from(UnitOfAnalysisTagLink.leftJoin(UnitOfAnalysisTag).on(UnitOfAnalysisTagLink.uoaTagId.equals(UnitOfAnalysisTag.id)))
+                    .where(UnitOfAnalysisTagLink.uoaId.equals(req.body.uoaId))
+                    .where(UnitOfAnalysisTag.classTypeId.equals(classTypeId));
+                var uoaTagLink = thunkQuery(query);
+
+                return yield [classTypeId, classTypeName, uoaTagLink];
             }
-            var classTypeName = thunkQuery(queryClassTypeName);
-
-            var query = UnitOfAnalysisTagLink.select(UnitOfAnalysisTag.classTypeId)
-                .from(UnitOfAnalysisTagLink.leftJoin(UnitOfAnalysisTag).on(UnitOfAnalysisTagLink.uoaTagId.equals(UnitOfAnalysisTag.id)));
-            query.where(UnitOfAnalysisTagLink.uoaId.equals(req.body.uoaId));
-            query.where(UnitOfAnalysisTag.classTypeId.equals(dataClassTypeId[0].classTypeId));
-
-            var uoaTagLink = thunkQuery(query);
-            return yield [classTypeId, classTypeName, uoaTagLink];
         }).then(function (data) {
             if ((data[2]).length > 0) {
                 next(new HttpError(401, 'Could not add tag with the same classification type: `' + data[1][0].name + '`'));
@@ -82,22 +85,6 @@ module.exports = {
             next(err);
         });
     },
-
-    /*
-        var isExistMatrix = yield thunkQuery(AccessMatrix.select().where(AccessMatrix.id.equals(req.body.matrixId)));
-    if (!_.first(isExistMatrix)) {
-        throw new HttpError(403, 'Matrix with this id does not exist');
-    }
-
-    var result = yield thunkQuery(Product.insert(req.body).returning(Product.id));
-
-    return result;
-    }).then(function (data) {
-        res.status(201).json(_.first(data));
-    }, function (err) {
-        next(err);
-    });
-    */
 
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;

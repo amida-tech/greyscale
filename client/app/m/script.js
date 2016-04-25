@@ -1,6 +1,9 @@
 ﻿//http://localhost:8081/interviewRenderer/?surveyId=86&taskId=95
 (function () {
     'use strict';
+
+    var gs;
+
     var types = [
         'text',
         'paragraph',
@@ -35,10 +38,10 @@
     var hasChanges = false;
     var errorMessages;
 
-    function getBaseUrl() {
-        var realm = getCookie('current_realm');
-        return constUrl.split(':realm').join(realm);
-    }
+    //function getBaseUrl() {
+    //    var realm = getCookie('current_realm') || 'public';
+    //    return constUrl.split(':realm').join(realm);
+    //}
 
     function setChangeFlag() { hasChanges = true; }
     function getCookie(name) {
@@ -63,12 +66,18 @@
         surveyId = parseInt(getParameterByName('surveyId'));
         taskId = parseInt(getParameterByName('taskId'));
 
-        $.fetch(getBaseUrl() + 'surveys/' + surveyId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-            survey = request.response;
+        var fullVersionLink = $('.full-version-link a');
+        fullVersionLink.href = fullVersionLink.href.replace(':surveyId', surveyId);
+        fullVersionLink.href = fullVersionLink.href.replace(':taskId', taskId);
+
+        gs.fetch('GET', 'surveys/' + surveyId)
+        .then(function (surveyData) {
+            survey = surveyData;
             $('#title').innerHTML = survey.title;
 
-            $.fetch(getBaseUrl() + 'tasks/' + taskId, { method: 'GET', responseType: 'json', headers: { token: token } }).then(function (request) {
-                taskInfo = request.response;
+            gs.fetch('GET', 'tasks/' + taskId)
+            .then(function (taskData) {
+                taskInfo = taskData;
                 generateSurvey(survey.questions);
                 resolvingMode();
                 load();
@@ -86,9 +95,9 @@
         if (taskInfo.flagged) {
             $('#resolve-entry')._.style({display:''});
             var params = 'taskId=' + taskInfo.id;
-            $.fetch(getBaseUrl() + 'discussions/entryscope?' + params, { method: 'GET', responseType: 'json', headers: { token: token } })
-            .then(function (req) {
-                var resolve = req.response.resolveList;
+            gs.fetch('GET', 'discussions/entryscope?' + params)
+            .then(function (res) {
+                var resolve = res.resolveList;
                 if (resolve[0]) {
                     taskInfo.resolve = resolve[0];
                 }
@@ -658,11 +667,8 @@
     //End Generate Survey
 
     function deleteAttachment(fileInfo) {
-        return $.fetch(getBaseUrl() + 'attachments/' + fileInfo.id, {
-            method: 'DELETE',
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function () {
+        return gs.fetch('GET', 'attachments/' + fileInfo.id)
+        .then(function () {
             console.log('attachment deleted');
         }).catch(function (error) {
             console.error(error);
@@ -696,7 +702,7 @@
                 }
             };
 
-            xhr.open('POST', getBaseUrl() + 'attachments', true);
+            xhr.open('POST', gs.getBaseUrl() + '/attachments', true);
             xhr.setRequestHeader('token', token);
             xhr.send(formData);
         });
@@ -994,26 +1000,21 @@
 
     var user;
     function getUser() {
-        var url = getBaseUrl() + 'users/self?fields=id,firstName,lastName,project';
+        var url = 'users/self?fields=id,firstName,lastName,project';
         if (user) {
             return Promise.resolve(user);
         }
-        return $.fetch(url, { method: 'GET', responseType: 'json', headers: { token: token } })
-            .then(function(req) {
-                user = req.response;
-                return user;
-            });
+        return gs.fetch('GET', url).catch(function(){
+            window.location.href = '/login';
+        });
     }
     function getSavedAnswers() {
-        var url = getBaseUrl() + 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?only=last';
-        $.fetch(url, {
-            method: 'GET',
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function (request) {
+        var url = 'survey_answers/' + taskInfo.productId + '/' + taskInfo.uoaId + '?only=last';
+        gs.fetch('GET', url)
+        .then(function (res) {
             var savedAnswers;
-            for (var i = 0; i < request.response.length; i++) {
-                var answer = request.response[i];
+            for (var i = 0; i < res.length; i++) {
+                var answer = res[i];
                 if (!savedAnswers) savedAnswers = [];
                 //if (answer.version !== null) continue;
                 savedAnswers.push({
@@ -1259,13 +1260,10 @@
             }
             dataToSave.push(data);
         }
-        return $.fetch(getBaseUrl() + 'survey_answers' + (draft ? '?autosave=true' : ''), {
-            method: 'POST',
+        return gs.fetch('POST', 'survey_answers' + (draft ? '?autosave=true' : ''), {
             data: JSON.stringify(dataToSave),
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function (request) {
-            var questions = request.response;
+        }).then(function (res) {
+            var questions = res;
             console.log('saved to server');
             hasChanges = false;
             if (!draft) {
@@ -1314,13 +1312,10 @@
                     answer.taskId = taskInfo.id;
                 }
                 //console.log(answer);
-                $.fetch(getBaseUrl() + 'survey_answers' + (version ? '' : '?autosave=true') , {
-                    method: 'POST',
-                    responseType: 'json',
-                    headers: { token: token, 'Content-type': 'application/json' },
+                gs.fetch('POST', 'survey_answers' + (version ? '' : '?autosave=true') , {
                     data: JSON.stringify([answer])
-                }).then(function(req){
-                    var response = req.response[0];
+                }).then(function(res){
+                    var response = res[0];
                     answer.answerId = response.id;
                     if (response.status === 'Fail') {
                         errorMessages.add(response.message);
@@ -1418,11 +1413,7 @@
     }
 
     function moveTask() {
-        return $.fetch(getBaseUrl() + 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId, {
-            method: 'GET',
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
-        });
+        return gs.fetch('GET', 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId);
     }
 
     function resolveTask() {
@@ -1436,11 +1427,8 @@
             entry: getResolvingEntry(),
             questionId: taskInfo.resolve.questionId
         };
-        return $.fetch(getBaseUrl() + 'discussions', {
-            method: 'POST',
+        return gs.fetch('POST', 'discussions', {
             data: JSON.stringify(notify),
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
         });
     }
 
@@ -1472,13 +1460,10 @@
     function renderTasks() {
         var fields = 'id,startDate,endDate,status,flagged,step,survey';
         var container = $('#active-tasks');
-        container.innerHTML = 'Loading...';
-        $.fetch(getBaseUrl() + 'users/self/tasks?fields=' + fields, {
-            method: 'GET',
-            responseType: 'json',
-            headers: { token: token, 'Content-type': 'application/json' }
-        }).then(function(req){
-            var tasks = req.response;
+        container.innerHTML = gs.translate('TABLES.LOADING_DATA');
+        gs.fetch('GET', 'users/self/tasks?fields=' + fields)
+        .then(function(res){
+            var tasks = res;
             container.innerHTML = null;
             var currentTasks = walk(tasks, function(task){
                 if (task.status === 'current' && task.step.writeToAnswers === true) {
@@ -1495,6 +1480,9 @@
             if (!currentTasks.length) {
                 $('#no-active-tasks')._.style({display:'block'});
             }
+        }).catch(function(){
+            container.innerHTML = null;
+            $('#no-active-tasks')._.style({display:'block'});
         });
     }
 
@@ -1533,7 +1521,13 @@
     }
 
     $.ready().then(function(){
-        token = getCookie('token');
+        gs = window.Greyscale;
+        token = gs.getCookie('token');
+
+        if (!token) {
+            window.location.href = '/login';
+            return;
+        }
 
         _initErrorMessages();
 
@@ -1552,12 +1546,20 @@
     });
 
     function renderUserBlock() {
-        var userBlockTemplate = '{{firstName}} {{lastName}} <a href="/login/logout">Logout</a>';
+        var userBlockTemplate = '{{firstName}} {{lastName}} <a id="logout-link" href="#" data-translate="NAV.LOGOUT"></a>';
         return getUser().then(function(user){
             userId = user.id;
             var userBlock = $('#user-block');
             userBlock.innerHTML = fillTemplate(userBlockTemplate, user);
             userBlock._.style({display:''});
+            window.Greyscale.translateProceed();
+            $('#logout-link')._.events({
+                click: function(e){
+                    e.preventDefault();
+                    gs.setCookie('token', 0);
+                    window.location.href = '/login';
+                }
+            });
             return user;
         });
     }

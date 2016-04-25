@@ -1,4 +1,4 @@
---
+lo--
 -- PostgreSQL database dump
 --
 
@@ -1689,7 +1689,7 @@ ALTER TABLE sceleton."Logs_id_seq" OWNER TO indaba;
 CREATE TABLE "Logs" (
     id integer DEFAULT nextval('"Logs_id_seq"'::regclass) NOT NULL,
     created timestamp(6) with time zone DEFAULT now(),
-    "user" integer NOT NULL,
+    "userid" integer,
     action character varying,
     essence integer NOT NULL,
     entity integer,
@@ -2206,7 +2206,7 @@ CREATE TABLE "UnitOfAnalysis" (
     description character varying(255),
     "shortName" character varying(45),
     "HASC" character varying(20),
-    "unitOfAnalysisType" smallint,
+    "unitOfAnalysisType" smallint NOT NULL,
     "parentId" integer,
     "creatorId" integer NOT NULL,
     "ownerId" integer NOT NULL,
@@ -4488,6 +4488,12 @@ ALTER TABLE ONLY "UnitOfAnalysisType"
 ALTER TABLE ONLY "UnitOfAnalysis"
     ADD CONSTRAINT "UnitOfAnalysis_pkey" PRIMARY KEY (id);
 
+--
+-- Name: UnitOfAnalysis_name_key; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
+--
+
+ALTER TABLE ONLY "UnitOfAnalysis"
+    ADD CONSTRAINT "UnitOfAnalysis_name_key" UNIQUE ("name");
 
 --
 -- Name: UserGroups_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace: 
@@ -4872,14 +4878,6 @@ ALTER TABLE ONLY "Indexes"
 
 ALTER TABLE ONLY "Logs"
     ADD CONSTRAINT "Logs_essence_fkey" FOREIGN KEY (essence) REFERENCES "Essences"(id) ON DELETE SET NULL;
-
-
---
--- Name: Logs_user_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Logs"
-    ADD CONSTRAINT "Logs_user_fkey" FOREIGN KEY ("user") REFERENCES "Users"(id) ON DELETE SET NULL;
 
 
 --

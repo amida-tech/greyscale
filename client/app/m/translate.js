@@ -14,6 +14,7 @@
         script.onreadystatechange = script.onload = proceed;
         window.Greyscale = window.Greyscale || {};
         window.Greyscale.translate = translate;
+        window.Greyscale.translateProceed = proceed;
     }
 
     function translate(key, params) {
