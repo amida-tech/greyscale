@@ -45,14 +45,12 @@ describe('Subjects (Units of Analisys Tag links):', function () {
             });
 
             if (user.roleID === 1) {
-/*
                 describe('Errors creating uoa tag links: ', function () {
                     it('Create new UOA tag links with wrong Tag - impossible', function (done) {
                         var insertItem = {uoaId: 1, uoaTagId: 1};
                         ithelper.insertOneErrMessage(testEnv.api_created_realm, path, token, insertItem, 400, 401, 'Not found tag with specified Id', done);
                     });
                 });
-*/
                 describe('Prepeare for following tests - 2 Class Types and 3 Tags  ', function () {
                     it('Create new UOA classtype (1)', function (done) {
                         var insertItem = {name: 'TestClasstype1'};
@@ -94,7 +92,7 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                         var insertItem = {uoaId: obj.uoaId, uoaTagId: obj.tagId3};
                         ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id2', done);
                     });
-                    it('True number of records', function (done) {
+                    it('Select UOA Tag links - true number of records', function (done) {
                         ithelper.select(testEnv.api_created_realm, path, token, 200, 2, done);
                     });
                     it('Delete created UOA Tag link with Tag1 (classType1)', function (done) {
