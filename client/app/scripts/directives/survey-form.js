@@ -294,7 +294,7 @@ angular.module('greyscaleApp')
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
                                 comment: '',
-                                withLinks: field.withLinks || true //debug mode
+                                withLinks: field.withLinks
                             });
 
                             if (fld.canAttach) {
@@ -302,7 +302,7 @@ angular.module('greyscaleApp')
                             }
 
                             if (fld.withLinks) {
-                                fld.answerLinks = ['http://www.example.org'];
+                                fld.answerLinks = [];
                             }
 
                             switch (type) {
@@ -464,6 +464,10 @@ angular.module('greyscaleApp')
 
                     if (fld.hasComments) {
                         fld.comment = answer.comments || '';
+                    }
+
+                    if (fld.withLinks) {
+                        fld.answerLinks = answer.links || [];
                     }
 
                     switch (fld.type) {
@@ -662,6 +666,10 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         answer.attachments = _.map(fld.attachments, 'id');
+                    }
+
+                    if (fld.withLinks) {
+                        answer.links = fld.answerLinks || [];
                     }
 
                     _answers.push(answer);

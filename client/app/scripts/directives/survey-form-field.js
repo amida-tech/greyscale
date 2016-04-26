@@ -191,7 +191,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.withLinks) {
-                            links = '<gs-links model="field.answerLinks"></gs-links>';
+                            links = '<gs-links model="field.answerLinks" options="field.flags"></gs-links>';
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {

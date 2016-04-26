@@ -8,7 +8,7 @@
         </a>
     </p>
 
-    <div class="row" ng-show="adding">
+    <div class="row" ng-show="adding && !options.readonly">
         <div class="col-xs-12">
             <div class="input-group">
                 <input type="text" class="form-control" ng-model="newUrl" name="newUrl">
@@ -19,8 +19,9 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-3" ng-repeat="item in model">
-            <a href="{{item}}" target="_blank">{{item}}</a>
-            <i class="fa fa-trash action-danger" ng-click="remove($index)"></i></div>
+        <span class="gs-link-wrapper" ng-repeat="item in model">
+            <div><a href="{{item}}" target="_blank">{{item}}</a></div>
+            <i class="fa fa-trash action-danger" ng-click="remove($index)" ng-hide="options.readonly"></i>
+        </span>
     </div>
 </div>

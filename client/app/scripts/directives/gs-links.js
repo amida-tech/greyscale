@@ -19,7 +19,7 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.addToggle = function(){
-                    $scope.adding = !$scope.adding;
+                    $scope.adding = (!$scope.adding && !$scope.options.readonly);
                 };
 
                 $scope.add = function () {
