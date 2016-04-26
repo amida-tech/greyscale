@@ -190,8 +190,8 @@ angular.module('greyscaleApp')
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
-                        if (scope.field.links) {
-                            links = '<div><p translate="SURVEYS.LINKS"></p></div>';
+                        if (scope.field.withLinks) {
+                            links = '<gs-links model="field.answerLinks"></gs-links>';
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
@@ -199,7 +199,7 @@ angular.module('greyscaleApp')
                         }
 
                         body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
-                            message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
+                            message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
 

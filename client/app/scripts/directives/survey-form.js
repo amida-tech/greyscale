@@ -296,7 +296,8 @@ angular.module('greyscaleApp')
                                 response: '',
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
-                                comment: ''
+                                comment: '',
+                                withLinks: field.withLinks || true //debug mode
                             });
 
                             if (fld.canAttach) {
@@ -305,6 +306,10 @@ angular.module('greyscaleApp')
 
                             if (fld.withLinks) {
                                 fld.answer.links = [];
+                            }
+
+                            if (fld.withLinks) {
+                                fld.answerLinks = ['http://www.example.org'];
                             }
 
                             switch (type) {

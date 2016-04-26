@@ -5,10 +5,12 @@
 var chai = require('chai');
 var expect = chai.expect;
 var config = require('../../config');
+var _ = require('underscore');
+
 
 
 // make all users list
-itHelper = {
+ithelper = {
     getAllUsersList: function (testEnv, keys) {
         var allUsers = [];
         if (keys.indexOf('superAdmin') !== -1){
@@ -40,6 +42,54 @@ itHelper = {
             }
         }
         return allUsers;
+    },
+
+    getUser: function (allUsers, role, num) {
+        var user = allUsers[0]; // first user - default
+        if (role < 3) {
+            user = _.find(allUsers, {roleID : role});
+        } else {
+            // ordinary users
+            var j = 0;
+            for (var i = 0; i < allUsers.length; i++) {
+                if (allUsers[i].roleID === role) {
+                    j++;
+                    if (num > 0 && num === j) {
+                        user = allUsers[i];
+                        break;
+                    }
+                }
+            }
+        }
+        return user;
+    },
+
+    getUserId : function (api, get, token, status, obj, key, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                obj[key] = res.body.id;
+                done();
+            });
+    },
+
+    getEssenceId : function (api, get, essenceName, token, status, obj, key, done) {
+        api
+            .get(get+'?tableName='+essenceName)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                obj[key] = res.body[0].id;
+                done();
+            });
     },
 
     select : function (api, get, token, status, numberOfRecords, done) {
@@ -156,4 +206,4 @@ itHelper = {
     }
 };
 
-module.exports = itHelper;
+module.exports = ithelper;
