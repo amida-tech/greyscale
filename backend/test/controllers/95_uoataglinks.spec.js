@@ -1,5 +1,12 @@
 /**
  * Unit of Analisys Tag Links tests
+ *
+ * prerequsites tests: organizations, users, uoatypes, uoaclasstypes, uoatags, uoas
+ *
+ * used entities: organization, users
+ *
+ * created:
+ *
  **/
 
 var chai = require('chai');

@@ -1,5 +1,12 @@
 /**
  * Notifications tests
+ *
+ * prerequsites tests: organizations, users
+ *
+ * used entities: organization, users
+ *
+ * created:
+ *
  **/
 
 var chai = require('chai');
@@ -9,6 +16,7 @@ var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
 var async = require('async');
+var _ = require('underscore');
 
 var testEnv = {};
 testEnv.superAdmin   = config.testEntities.superAdmin;
@@ -319,6 +327,13 @@ describe('Notifications:', function () {
             });
             it('Delete all notification (userFrom = admin, userTo = user1)', function (done) {
                 ithelper.deleteOne(testEnv.api_created_realm, path + '/delete?userFrom=' + obj.adminId+'&userTo='+obj.user1Id, tokenSuperAdmin, 204, done);
+            });
+        });
+        describe('Save test environment objects', function () {
+            it('Save from notifications ***', function (done) {
+                config.testEntities.obj = _.extend({},obj);
+                //console.log(config.testEntities.obj);
+                done();
             });
         });
     }

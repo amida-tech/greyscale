@@ -1,5 +1,12 @@
 /**
  * Unit of Analisys ClassTypes tests
+ *
+ * prerequsites tests: organizations, users
+ *
+ * used entities: organization, users
+ *
+ * created:
+ *
  **/
 
 var chai = require('chai');

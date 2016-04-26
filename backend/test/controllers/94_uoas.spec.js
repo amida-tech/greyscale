@@ -1,5 +1,12 @@
 /**
  * Unit of Analisys tests
+ *
+ * prerequsites tests: organizations, users, uoatypes
+ *
+ * used entities: organization, users, uoatype (Country)
+ *
+ * created: UOA with name 'Test Subject' type 'Country'
+ *
  **/
 
 var chai = require('chai');
@@ -24,6 +31,7 @@ testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organizatio
 var token;
 var obj ={};
 var path = '/uoas';
+var numberOfRecords = 0;
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
@@ -35,10 +43,12 @@ describe('Subjects (Units of Analisys):', function () {
     function allTests(user, token) {
         describe('All of tests for user: ' + user.firstName, function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
-                ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
+                numberOfRecords = (user.roleID === 1) ? 0 : 1;
+                ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', numberOfRecords, done);
             });
             it('Select: True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
+                numberOfRecords = (user.roleID === 1) ? 0 : 1;
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
             });
 
             if (user.roleID === 1) {
@@ -61,7 +71,7 @@ describe('Subjects (Units of Analisys):', function () {
                 });
                 describe('CRUD: ', function () {
                     it('Create new UOA', function (done) {
-                        var insertItem = {name: 'Test UOA', unitOfAnalysisType: 1};
+                        var insertItem = {name: 'Test Subject New', unitOfAnalysisType: 1};
                         ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'uoaId', done);
                     });
                     it('True number of records', function (done) {
@@ -70,24 +80,26 @@ describe('Subjects (Units of Analisys):', function () {
                     it('Create not unique UOA -impossible', function (done) {
                         //"e": "23502",
                         //повторяющееся значение ключа нарушает ограничение уникальности "UnitOfAnalysis_name_key"
-                        var insertItem = {name: 'Test UOA', unitOfAnalysisType: 1};
+                        var insertItem = {name: 'Test Subject New', unitOfAnalysisType: 1};
                         ithelper.insertOneErr(testEnv.api_created_realm, path, token, insertItem, 400, '23505', done);
                     });
                     it('Get created UOA', function (done) {
-                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test UOA', done);
+                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test Subject New', done);
                     });
                     it('Update UOA', function (done) {
-                        var updateItem = {name: 'Test UOA --- updated'};
+                        var updateItem = {name: 'Test Subject'};
                         ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.uoaId, token, updateItem, 202, done);
                     });
                     it('Get updated UOA', function (done) {
-                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test UOA --- updated', done);
+                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test Subject', done);
                     });
+/*
                     it('Delete created/updated UOA', function (done) {
                         ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 204, done);
                     });
-                    it('True number of records after delete', function (done) {
-                        ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
+*/
+                    it('True number of records after test is completed', function (done) {
+                        ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                     });
                 });
             }

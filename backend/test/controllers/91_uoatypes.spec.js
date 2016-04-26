@@ -1,5 +1,11 @@
 /**
  * Unit of Analisys Types tests
+ *
+ * prerequsites tests: organizations, users
+ *
+ * used entities: organization, users, uoatype (Country) - initial sceleton
+ *
+ * created:
  **/
 
 var chai = require('chai');
@@ -8,6 +14,7 @@ var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
+var _ = require('underscore');
 
 var testEnv = {};
 testEnv.superAdmin   = config.testEntities.superAdmin;
@@ -82,6 +89,15 @@ describe('Subject`s types (Unit of Analisys types):', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
+                    describe('Get test environment objects', function () {
+                        it('Get to uoatypes ***', function (done) {
+                            if (_.isEmpty(obj)){
+                                obj = _.extend({},config.testEntities.obj);
+                                //console.log(obj);
+                            }
+                            done();
+                        });
+                    });
                     allTests(user, token);
                     done();
                 });
