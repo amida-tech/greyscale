@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
 
         var _realm;
         greyscaleProfileSrv.getProfile()
-            .then(function(profile){
+            .then(function (profile) {
                 _realm = greyscaleProfileSrv.isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
                 return profile;
             })

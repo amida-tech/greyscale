@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -148,6 +148,10 @@ angular.module('greyscaleApp')
                         $state.go('tasks');
                     }
                 }
+
+                scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
+                    scope.$$childHead.surveyForm.$dirty = true;
+                });
             },
             controller: function ($scope) {
 

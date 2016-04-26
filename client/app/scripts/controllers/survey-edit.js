@@ -12,7 +12,7 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
-        Organization, greyscaleUtilsSrv) {
+        Organization, greyscaleUtilsSrv, greyscaleGlobals) {
 
         var surveyId = $stateParams.surveyId === 'new' ? null : $stateParams.surveyId;
         var projectId;
@@ -68,7 +68,7 @@ angular.module('greyscaleApp')
         }
 
         $scope.save = function () {
-            $scope.$on('form-changes-saved', _save);
+            $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, _save);
             $scope.saveFormbuilder();
         };
         $scope.cancel = function () {
@@ -77,7 +77,7 @@ angular.module('greyscaleApp')
             });
         };
 
-        var firstSave = $scope.$on('form-changes-saved', function () {
+        var firstSave = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
             $scope.dataForm.$dirty = true;
             $timeout(function () {
                 $scope.$digest();

@@ -11,25 +11,33 @@ angular.module('greyscaleApp')
                 options: '='
             },
             templateUrl: 'views/directives/gs-links.html',
-            controller: function ($scope) {
+            controller: function ($scope, greyscaleGlobals) {
                 _init();
 
                 $scope.remove = function (idx) {
                     $scope.model.splice(idx, 1);
+                    _modifyEvt();
                 };
 
-                $scope.addToggle = function(){
+                $scope.addToggle = function () {
                     $scope.adding = (!$scope.adding && !$scope.options.readonly);
                 };
 
                 $scope.add = function () {
-                    $scope.model.push($scope.newUrl);
-                    _init();
+                    if ($scope.model.indexOf($scope.newUrl) === -1) {
+                        $scope.model.push($scope.newUrl);
+                        _modifyEvt();
+                        _init();
+                    }
                 };
 
-                function _init(){
+                function _init() {
                     $scope.adding = false;
-                    $scope.newUrl='';
+                    $scope.newUrl = '';
+                }
+
+                function _modifyEvt() {
+                    $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
                 }
             }
         };

@@ -212,7 +212,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (flags.provideResponses || scope.field.hasComments) {
-                            body = '<div class="field-wrapped">'+(flags.provideResponses?'<div class="wrapper"></div>':'') + body + '</div>';
+                            body = '<div class="field-wrapped">' + (flags.provideResponses ? '<div class="wrapper"></div>' : '') + body + '</div>';
                             body += '<div class="field-comment">';
 
                             if (scope.field.hasComments) {

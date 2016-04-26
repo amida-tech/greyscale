@@ -68,7 +68,9 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
     }
 
     function _editVisualization(visualization) {
-        if (!visualization) { visualization = {}; }
+        if (!visualization) {
+            visualization = {};
+        }
 
         greyscaleModalsSrv.editVisualization(visualization)
             .then(function (visualization) {

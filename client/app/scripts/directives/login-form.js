@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('loginForm', function (greyscaleUserApi, greyscaleEnv) {
+    .directive('loginForm', function (greyscaleUserApi, greyscaleEnv, greyscaleGlobals) {
         return {
             templateUrl: 'views/directives/login-form.html',
             restrict: 'AE',
@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
                     if ($scope.loginForm.$valid) {
                         greyscaleUserApi.login($scope.model.login, $scope.model.password)
                             .then(function () {
-                                $rootScope.$emit('login');
+                                $rootScope.$emit(greyscaleGlobals.events.common.login);
                             })
                             .catch(function (err) {
                                 if (err && err.data && err.data.e === 300) {

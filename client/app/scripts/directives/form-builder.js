@@ -116,7 +116,7 @@ angular.module('greyscaleApp')
                     scope.model.survey.questions.sort(function (a, b) {
                         return a.position - b.position;
                     });
-                    scope.$emit('form-changes-saved');
+                    scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
                     $timeout(function () {
                         scope.$apply();
                     });
@@ -190,7 +190,7 @@ angular.module('greyscaleApp')
                         });
                         scope.saveFormbuilder = function () {
                             if (formbuilder.mainView.formSaved) {
-                                scope.$emit('form-changes-saved');
+                                scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
                             } else {
                                 formbuilder.mainView.saveForm();
                             }

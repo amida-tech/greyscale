@@ -119,7 +119,7 @@ angular.module('greyscale.tables')
         }
 
         function reloadTable() {
-            $rootScope.$broadcast('organization_update');
+            $rootScope.$broadcast(greyscaleGlobals.events.common.orgUpdate);
             _table.tableParams.reload();
         }
 

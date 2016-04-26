@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('DashboardCtrl', function ($scope, $rootScope, $state, greyscaleSideMenu, greyscaleProfileSrv, greyscaleGlobals, i18n) {
+    .controller('DashboardCtrl', function ($scope, $rootScope, $state, greyscaleSideMenu, greyscaleProfileSrv,
+        greyscaleGlobals, i18n) {
 
         var _level;
 
@@ -56,7 +57,7 @@ angular.module('greyscaleApp')
             $scope.model.user.roleName = i18n.translate('DASHBOARD.' + roleName);
         });
         $scope.logout = function () {
-            $rootScope.$emit('logout');
+            $rootScope.$emit(greyscaleGlobals.events.common.logout);
         };
 
         function _isSuperAdmin() {

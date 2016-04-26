@@ -123,8 +123,8 @@ angular.module('greyscaleApp')
                         if (productIndex && productIndex.product) {
                             for (var i = 0; i < scope.datasources.products.length; i++) {
                                 if (
-                                        scope.datasources.products[i].product.id === productIndex.product.id &&
-                                        scope.datasources.products[i].index.id === productIndex.index.id
+                                    scope.datasources.products[i].product.id === productIndex.product.id &&
+                                    scope.datasources.products[i].index.id === productIndex.index.id
                                 ) {
                                     scope.datasources.products[i].product = newProductIndex.product;
                                     scope.datasources.products[i].index = newProductIndex.index;
@@ -149,27 +149,27 @@ angular.module('greyscaleApp')
                             greyscaleComparativeVisualizationApi(Organization.id)
                                 .datasets(scope.visualizationId)
                                 .update(dataset.id, dataset)
-                                .then(function() {
+                                .then(function () {
 
-                                for (var i = 0; i < scope.datasources.datasets.length; i++) {
-                                    if (scope.datasources.datasets[i].id === dataset.id) {
-                                        // editable fields
-                                        ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol'].forEach(function (field) {
-                                            scope.datasources.datasets[i][field] = dataset[field];
-                                        });
+                                    for (var i = 0; i < scope.datasources.datasets.length; i++) {
+                                        if (scope.datasources.datasets[i].id === dataset.id) {
+                                            // editable fields
+                                            ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol'].forEach(function (field) {
+                                                scope.datasources.datasets[i][field] = dataset[field];
+                                            });
 
-                                        // clear cached data
-                                        if (dataset.id in scope.datasetsData) {
-                                            delete scope.datasetsData[dataset.id];
+                                            // clear cached data
+                                            if (dataset.id in scope.datasetsData) {
+                                                delete scope.datasetsData[dataset.id];
+                                            }
+
+                                            break;
                                         }
-
-                                        break;
                                     }
-                                }
 
-                                scope.productsTable.tableParams.reload();
-                            });
-                        // new dataset
+                                    scope.productsTable.tableParams.reload();
+                                });
+                            // new dataset
                         } else {
                             var datasetObj = _.clone(dataset);
                             datasetObj.cols = datasetObj.cols.map(function (col) {
@@ -178,12 +178,12 @@ angular.module('greyscaleApp')
 
                             greyscaleComparativeVisualizationApi(Organization.id)
                                 .datasets(scope.visualizationId)
-                                .add(datasetObj).then(function(resp) {
+                                .add(datasetObj).then(function (resp) {
                                     dataset.id = resp.id;
 
                                     scope.datasources.datasets.push(dataset);
                                     scope.productsTable.tableParams.reload();
-                            });
+                                });
                         }
                     });
                 };
@@ -211,7 +211,7 @@ angular.module('greyscaleApp')
                         // aggregate data for each product
                         scope.datasources.products.forEach(function (product) {
                             if (!(product.product.id in scope.aggregates)) {
-                                var promise = greyscaleProductApi.product(product.product.id).aggregate().then(function(res) {
+                                var promise = greyscaleProductApi.product(product.product.id).aggregate().then(function (res) {
                                     scope.aggregates[product.product.id] = res.agg;
                                 });
                                 promises.push(promise);
@@ -225,7 +225,7 @@ angular.module('greyscaleApp')
                                     .get(dataset.id)
                                     .then(function (data) {
                                         scope.datasetsData[dataset.id] = data;
-                                });
+                                    });
                                 promises.push(promise);
                             }
 
@@ -305,7 +305,7 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                scope.$watch('selectedTargets', function() {
+                scope.$watch('selectedTargets', function () {
                     _filterAndRender();
                     scope.saveVisualization();
                 }, true);
@@ -365,10 +365,14 @@ angular.module('greyscaleApp')
 
                     var productPromise = $q.all(vizData.products.map(function (datum) {
                         // product
-                        datum.product = _.findWhere(scope.allProducts, { id: datum.productId });
+                        datum.product = _.findWhere(scope.allProducts, {
+                            id: datum.productId
+                        });
                         // index
                         return greyscaleProductApi.product(datum.productId).indexesList().then(function (indexes) {
-                            datum.index = _.findWhere(indexes, { id: datum.indexId });
+                            datum.index = _.findWhere(indexes, {
+                                id: datum.indexId
+                            });
                             return datum;
                         });
                     }));
@@ -488,8 +492,10 @@ angular.module('greyscaleApp')
                     var tip = d3.tip()
                         .attr('class', 'd3-tip')
                         .direction('e')
-                        .offset([0,8])
-                        .html(function (d) { return d.val; });
+                        .offset([0, 8])
+                        .html(function (d) {
+                            return d.val;
+                        });
                     svg.call(tip);
 
                     // grid of targets
@@ -510,7 +516,9 @@ angular.module('greyscaleApp')
                         .attr('class', 'row');
                     rows.exit().remove();
 
-                    var cols = rows.selectAll('.target').data(function (d) { return d.data; });
+                    var cols = rows.selectAll('.target').data(function (d) {
+                        return d.data;
+                    });
                     cols.enter().append('rect')
                         .attr('class', 'target')
                         .attr('width', l.width)
@@ -519,9 +527,15 @@ angular.module('greyscaleApp')
                         .on('mouseout', tip.hide);
                     cols.exit().remove();
                     cols
-                        .attr('x', function (d) { return d.x; })
-                        .attr('y', function (d) { return d.y; })
-                        .style('fill', function (d) { return color(d.val); });
+                        .attr('x', function (d) {
+                            return d.x;
+                        })
+                        .attr('y', function (d) {
+                            return d.y;
+                        })
+                        .style('fill', function (d) {
+                            return color(d.val);
+                        });
 
                     // target labels
                     var targetLabels = svg.select('#targetLabels');
@@ -536,8 +550,12 @@ angular.module('greyscaleApp')
                         .style('font-size', l.fontSize + 'px');
                     labels.exit().remove();
                     labels
-                        .attr('y', function (d) { return layout.targets.positions[d.id] + offset; })
-                        .text(function (d) { return d.name; });
+                        .attr('y', function (d) {
+                            return layout.targets.positions[d.id] + offset;
+                        })
+                        .text(function (d) {
+                            return d.name;
+                        });
 
                     // product labels
                     l = layout.productLabels;
@@ -556,14 +574,19 @@ angular.module('greyscaleApp')
                         .style('font-size', l.fontSize + 'px');
                     labels.exit().remove();
                     labels
-                        .attr('y', function (d, i) { return i * vHeight + offset; })
-                        .text(function (d) { return d.title; });
-                    
+                        .attr('y', function (d, i) {
+                            return i * vHeight + offset;
+                        })
+                        .text(function (d) {
+                            return d.title;
+                        });
 
                     // color scale axis
                     l = layout.axis;
                     var axisHeight = vizHeight - vOffset;
-                    if (axisHeight < l.minHeight) { axisHeight = l.minHeight; }
+                    if (axisHeight < l.minHeight) {
+                        axisHeight = l.minHeight;
+                    }
                     var scale = svg.select('#scale')
                         .attr('transform', 'translate(' + vizWidth + ', ' + vOffset + ')');
                     vizWidth += l.colorWidth + l.innerPadding;
