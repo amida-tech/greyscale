@@ -38,7 +38,7 @@ describe('Subject`s classtypes (Unit of Analisys classtypes):', function () {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
             it('Select: true number of records', function (done) {
-                ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
@@ -47,23 +47,23 @@ describe('Subject`s classtypes (Unit of Analisys classtypes):', function () {
                     ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id', done);
                 });
                 it('CRUD: True number of records', function (done) {
-                    ithelper.select(testEnv.api_created_realm, path, token, 200, 1, done);
+                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                 });
                 it('CRUD: Get created UOA classtype', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA classtype', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA classtype', done);
                 });
                 it('CRUD: Update UOA type', function (done) {
                     var updateItem = {name: 'Test UOA classtype --- updated'};
                     ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, token, updateItem, 202, done);
                 });
                 it('CRUD: Get updated UOA classtype', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA classtype --- updated', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA classtype --- updated', done);
                 });
                 it('CRUD: Delete created/updated UOA classtype', function (done) {
                     ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
                 });
                 it('CRUD: True number of records after delete', function (done) {
-                    ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
                 });
             }
         });

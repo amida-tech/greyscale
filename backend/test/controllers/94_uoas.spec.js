@@ -38,7 +38,7 @@ describe('Subjects (Units of Analisys):', function () {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
             it('Select: True number of records', function (done) {
-                ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
@@ -65,7 +65,7 @@ describe('Subjects (Units of Analisys):', function () {
                         ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'uoaId', done);
                     });
                     it('True number of records', function (done) {
-                        ithelper.select(testEnv.api_created_realm, path, token, 200, 1, done);
+                        ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                     });
                     it('Create not unique UOA -impossible', function (done) {
                         //"e": "23502",
@@ -74,20 +74,20 @@ describe('Subjects (Units of Analisys):', function () {
                         ithelper.insertOneErr(testEnv.api_created_realm, path, token, insertItem, 400, '23505', done);
                     });
                     it('Get created UOA', function (done) {
-                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, 'name', 'Test UOA', done);
+                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test UOA', done);
                     });
                     it('Update UOA', function (done) {
                         var updateItem = {name: 'Test UOA --- updated'};
                         ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.uoaId, token, updateItem, 202, done);
                     });
                     it('Get updated UOA', function (done) {
-                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, 'name', 'Test UOA --- updated', done);
+                        ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 200, null, 'name', 'Test UOA --- updated', done);
                     });
                     it('Delete created/updated UOA', function (done) {
                         ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.uoaId, token, 204, done);
                     });
                     it('True number of records after delete', function (done) {
-                        ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                        ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
                     });
                 });
             }
