@@ -126,6 +126,28 @@ ithelper = {
             });
     },
 
+    selectOneCheckFields : function (api, get, token, status, index, checkObj, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body).to.exist;
+
+                for (var key in checkObj) {
+                    if (index !== null && index >= 0 ) {
+                        expect(res.body[index][key]).to.equal(checkObj[key]);
+                    } else {
+                        expect(res.body[key]).to.equal(checkObj[key]);
+                    }
+                }
+                done();
+            });
+    },
+
     insertOne : function (api, get, token, insertItem, status, obj, key, done) {
         api
             .post(get)
