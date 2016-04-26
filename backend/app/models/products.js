@@ -6,7 +6,6 @@ var columns = [
     'description',
     'projectId',
     'originalLangId',
-    'workflowId',
     'surveyId',
     'status'
 ];
@@ -24,7 +23,7 @@ Product.statuses = [
     4  //'CANCELLED'
 ];
 
-Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'workflowId', 'surveyId', 'status'];
+Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'surveyId', 'status'];
 
 Product.translate = [
     'title',
