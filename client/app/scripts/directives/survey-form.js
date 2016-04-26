@@ -294,7 +294,7 @@ angular.module('greyscaleApp')
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
                                 comment: '',
-                                withLinks: field.withLinks || true //debug mode
+                                withLinks: field.withLinks
                             });
 
                             if (fld.canAttach) {
