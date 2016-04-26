@@ -18,7 +18,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(Right.select(Right.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var right = thunkQuery(Right.select(), req.query);
+            var right = thunkQuery(Right.select().order(Right.id), req.query);
 
             return yield [_counter, right];
         }).then(function (data) {
@@ -55,7 +55,7 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params)));
+            var right = yield thunkQuery(Right.select().where(Right.id.equals(req.params.id)));
             if (!_.first(right)) {
                 throw new HttpError(404, 'Not found');
             }

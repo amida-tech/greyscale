@@ -3227,11 +3227,9 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 127	product_delete	Can delete products	4
 16	rights_view_all	Can see list of all rights	\N
 18	rights_view_one	Can see one right	\N
-129	work	Have to work hard :)	\N
 17	rights_add_one	Can add rights	\N
 19	rights_delete_one	Can delete one right .	\N
 131	users_uoa	Can assign units of analysis to user	\N
-133	Bruce the mighty	fghftj	13
 134	users_invite	Can invite users	\N
 135	unitofanalysis_insert_one	\N	6
 136	unitofanalysis_update_one	\N	6
@@ -3728,7 +3726,6 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 2	24
 2	26
 2	33
-2	129
 2	131
 2	132
 2	135
@@ -3748,7 +3745,6 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 2	80
 2	81
 2	127
-2	133
 2	134
 \.
 

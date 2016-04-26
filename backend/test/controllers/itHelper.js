@@ -107,6 +107,21 @@ ithelper = {
             });
     },
 
+    getCheckRights : function (api, get, token, status, errCode, message, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                expect(res.body.message).to.have.string(message);
+                done();
+            });
+    },
+
     selectOneCheckField : function (api, get, token, status, index, name, value, done) {
         api
             .get(get)
@@ -142,6 +157,26 @@ ithelper = {
                         expect(res.body[index][key]).to.equal(checkObj[key]);
                     } else {
                         expect(res.body[key]).to.equal(checkObj[key]);
+                    }
+                }
+                done();
+            });
+    },
+
+    selectCheckAllRecords : function (api, get, token, status, checkArray, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body).to.exist;
+
+                for (var i = 0; i < checkArray.length; i++) {
+                    for (var key in checkArray[i]) {
+                        expect(res.body[i][key]).to.equal(checkArray[i][key]);
                     }
                 }
                 done();
