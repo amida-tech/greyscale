@@ -142,10 +142,10 @@ angular.module('greyscaleApp')
                             }
                             if (scope.field.withOther) {
                                 body += '<div class="input-group"><span class="input-group-addon"><div class="radio">' +
-                                    '<label><input type="radio" ng-model="field.answer.options" ng-disabled="field.flags.readonly || isDisabled" ' +
+                                    '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.answer" ng-readonly="field.flags.readonly"' +
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
                                     translation + '></div>';
                             }
                             body += '</div>';

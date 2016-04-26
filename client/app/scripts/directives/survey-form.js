@@ -286,10 +286,7 @@ angular.module('greyscaleApp')
                                 hasComments: field.hasComments,
                                 ngModel: {},
                                 flags: flags,
-                                answer: {
-                                    id: null,
-                                    value: null
-                                },
+                                answer: null,
                                 answerId: null,
                                 prevAnswers: [],
                                 responses: null,
@@ -301,11 +298,7 @@ angular.module('greyscaleApp')
                             });
 
                             if (fld.canAttach) {
-                                fld.answer.attachments = [];
-                            }
-
-                            if (fld.withLinks) {
-                                fld.answer.links = [];
+                                fld.attachments = [];
                             }
 
                             if (fld.withLinks) {
@@ -314,9 +307,8 @@ angular.module('greyscaleApp')
 
                             switch (type) {
                             case 'checkboxes':
-                                fld.answer.options = [];
                                 for (o = 0; o < field.options.length; o++) {
-                                    fld.answer.options.push({
+                                    angular.extend(fld.options[o] || {}, {
                                         checked: field.options[o] ? field.options[o].isSelected : false,
                                         name: field.options[o] ? field.options[o].label : ''
                                     });
@@ -325,7 +317,6 @@ angular.module('greyscaleApp')
 
                             case 'dropdown':
                             case 'radio':
-                                fld.answer.options = [];
                                 if (type === 'dropdown') {
                                     if (!fld.required) {
                                         fld.options.unshift({
@@ -333,27 +324,27 @@ angular.module('greyscaleApp')
                                             label: '',
                                             value: null
                                         });
-                                        fld.answer.options = fld.options[0];
+                                        fld.answer = fld.options[0];
                                     }
                                 }
 
                                 for (o = 0; o < field.options.length; o++) {
                                     if (field.options[o] && field.options[o].isSelected) {
-                                        fld.answer.option = field.options[o];
+                                        fld.answer = field.options[o];
                                     }
                                 }
                                 break;
 
                             case 'number':
                                 if (fld.intOnly) {
-                                    fld.answer.value = parseInt(fld.value);
+                                    fld.answer = parseInt(fld.value);
                                 } else {
-                                    fld.answer.value = parseFloat(fld.value);
+                                    fld.answer = parseFloat(fld.value);
                                 }
                                 break;
 
                             default:
-                                fld.answer.value = fld.value;
+                                fld.answer = fld.value;
                             }
                             qid++;
                             if (!fld.qid) {
@@ -465,16 +456,14 @@ angular.module('greyscaleApp')
                 }
                 if (answer) {
                     fld.answerId = answer.id;
-                    fld.answer.id = answer.id;
-
                     fld.langId = answer.langId || fld.langId;
 
                     if (fld.canAttach) {
-                        fld.answer.attachments = answer.attachments || [];
+                        fld.attachments = answer.attachments || [];
                     }
 
                     if (fld.hasComments) {
-                        fld.answer.comment = answer.comments || '';
+                        fld.comment = answer.comments || '';
                     }
 
                     switch (fld.type) {
@@ -487,7 +476,7 @@ angular.module('greyscaleApp')
                             }
                         }
 
-                        fld.answer.value = {};
+                        fld.answer = {};
                         if (fld.withOther) {
                             fld.otherOption = {
                                 id: -1,
@@ -514,8 +503,8 @@ angular.module('greyscaleApp')
                                 id: -1,
                                 value: answer.value || fld.value
                             };
-                            if (!fld.answer.value && answer.value) {
-                                fld.answer.value = fld.otherOption;
+                            if (!fld.answer && answer.value) {
+                                fld.answer = fld.otherOption;
                             }
                         }
 
@@ -532,15 +521,15 @@ angular.module('greyscaleApp')
 
                     case 'bullet_points':
                         var tmp = angular.fromJson(answer.value);
-                        fld.answer.value = [];
+                        fld.answer = [];
                         for (o = 0; o < tmp.length; o++) {
-                            fld.answer.value.push({
+                            fld.answer.push({
                                 data: tmp[o]
                             });
                         }
 
                         if (!flags.readonly) {
-                            fld.answer.value.push({
+                            fld.answer.push({
                                 data: ''
                             });
                         }
@@ -548,11 +537,11 @@ angular.module('greyscaleApp')
                         break;
 
                     case 'date':
-                        fld.answer.value = new Date(answer.value);
+                        fld.answer = new Date(answer.value);
                         break;
 
                     default:
-                        fld.answer.value = answer.value;
+                        fld.answer = answer.value;
                     }
                 }
                 if (fld.sub) {
@@ -570,7 +559,6 @@ angular.module('greyscaleApp')
             var formDirty = scope.$$childTail.surveyForm && scope.$$childTail.surveyForm.$dirty || false;
 
             if (!isReadonly && formDirty) {
-                $log.debug('saving...');
                 scope.lock();
                 answers = preSaveFields(scope.fields);
 
@@ -584,9 +572,11 @@ angular.module('greyscaleApp')
                             canMove = (resp[r].statusCode === 200);
                         }
                         scope.savedAt = new Date();
+
                         if (scope.$$childTail.surveyForm) {
                             scope.$$childTail.surveyForm.$dirty = false;
                         }
+
                         return canMove || isAuto;
                     })
                     .catch(function (err) {
@@ -649,8 +639,8 @@ angular.module('greyscaleApp')
                         var tmp = [];
                         if (fld.answer) {
                             for (o = 0; o < fld.answer.length; o++) {
-                                if (fld.answer.value[o].data) {
-                                    tmp.push(fld.answer.value[o].data);
+                                if (fld.answer[o].data) {
+                                    tmp.push(fld.answer[o].data);
                                 }
                             }
                         }
@@ -659,7 +649,7 @@ angular.module('greyscaleApp')
 
                     default:
                         answer.optionId = [null];
-                        answer.value = fld.answer.value;
+                        answer.value = fld.answer;
                     }
 
                     if (provideResponses) {
@@ -671,7 +661,7 @@ angular.module('greyscaleApp')
                     }
 
                     if (fld.canAttach) {
-                        answer.attachments = _.map(fld.answer.attachments, 'id');
+                        answer.attachments = _.map(fld.attachments, 'id');
                     }
 
                     _answers.push(answer);
