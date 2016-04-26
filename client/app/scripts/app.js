@@ -582,14 +582,14 @@ _app.run(function ($state, $stateParams, $rootScope, greyscaleProfileSrv, inform
         }
     });
 
-    $rootScope.$on('logout', function () {
+    $rootScope.$on(greyscaleGlobals.events.common.logout, function () {
         greyscaleProfileSrv.logout()
             .finally(function () {
                 $state.go('login');
             });
     });
 
-    $rootScope.$on('login', function () {
+    $rootScope.$on(greyscaleGlobals.events.common.login, function () {
         greyscaleProfileSrv.getProfile()
             .then(function (profile) {
                 var roleId = profile.roleID;

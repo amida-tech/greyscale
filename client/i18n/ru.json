@@ -576,6 +576,7 @@
         "ITEM": "Опрос",
         "LAST_SAVED": "",
         "LINKS": "",
+        "LINK_PLACEHOLDER": "",
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
@@ -595,6 +596,7 @@
         "SUBMIT": "",
         "TITLE": "",
         "TRANSLATED": "",
+        "URL_INCORRECT": "",
         "VERSION": "Версии",
         "VIEW": "Просмотр"
     },

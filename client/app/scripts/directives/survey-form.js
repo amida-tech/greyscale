@@ -30,7 +30,7 @@ angular.module('greyscaleApp')
                     if (!isReadonly) {
                         return saveAnswers(scope, true);
                     } else {
-                        return $q.reject('');
+                        return $q.reject('form is readonly');
                     }
                 };
 
@@ -148,6 +148,10 @@ angular.module('greyscaleApp')
                         $state.go('tasks');
                     }
                 }
+
+                scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
+                    scope.$$childHead.surveyForm.$dirty = true;
+                });
             },
             controller: function ($scope) {
 
@@ -293,11 +297,16 @@ angular.module('greyscaleApp')
                                 response: '',
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
-                                comment: ''
+                                comment: '',
+                                withLinks: field.withLinks
                             });
 
                             if (fld.canAttach) {
                                 fld.attachments = [];
+                            }
+
+                            if (fld.withLinks) {
+                                fld.answerLinks = [];
                             }
 
                             switch (type) {
@@ -461,6 +470,10 @@ angular.module('greyscaleApp')
                         fld.comment = answer.comments || '';
                     }
 
+                    if (fld.withLinks) {
+                        fld.answerLinks = answer.links || [];
+                    }
+
                     switch (fld.type) {
                     case 'checkboxes':
                         oQty = fld.options.length;
@@ -551,7 +564,9 @@ angular.module('greyscaleApp')
             var res = $q.resolve(isAuto);
             var answers = [];
 
-            if (!isReadonly) {
+            var formDirty = scope.$$childTail.surveyForm && scope.$$childTail.surveyForm.$dirty || false;
+
+            if (!isReadonly && formDirty) {
                 scope.lock();
                 answers = preSaveFields(scope.fields);
 
@@ -565,6 +580,11 @@ angular.module('greyscaleApp')
                             canMove = (resp[r].statusCode === 200);
                         }
                         scope.savedAt = new Date();
+
+                        if (scope.$$childTail.surveyForm) {
+                            scope.$$childTail.surveyForm.$dirty = false;
+                        }
+
                         return canMove || isAuto;
                     })
                     .catch(function (err) {
@@ -650,6 +670,10 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         answer.attachments = _.map(fld.attachments, 'id');
+                    }
+
+                    if (fld.withLinks) {
+                        answer.links = fld.answerLinks || [];
                     }
 
                     _answers.push(answer);

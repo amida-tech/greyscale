@@ -15,6 +15,7 @@
         padding: 0 5px;
     }
 }
+
 .survey-form {
 
     .attachments {
@@ -182,4 +183,36 @@
 
 .field-response .fa-check, .field-response-text.yes {
     color: $green;
+}
+
+.gs-links {
+    p {
+        border-bottom: solid 1px $grey-light;
+        margin-bottom: ($grid-gutter-width / 6);
+    }
+    .gs-link-wrapper {
+        display: inline-block;
+        position: relative;
+        margin: 0 ($grid-gutter-width / 2);
+        max-width: 7.5em;
+
+        div {
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            margin: 0px;
+            white-space: nowrap;
+        }
+
+        i {
+            position: absolute;
+            display: block;
+            padding: 0;
+            margin: 0;
+            line-height: inherit;
+            top: 0;
+            right: -($grid-gutter-width / 2);
+        }
+    }
 }

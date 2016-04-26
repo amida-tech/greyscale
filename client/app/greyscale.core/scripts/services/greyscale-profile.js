@@ -143,7 +143,7 @@ angular.module('greyscale.core')
                 .then(function (isAuth) {
                     if (!isAuth) {
                         greyscaleUtilsSrv.errorMsg('ERROR.BAD_TOKEN');
-                        $rootScope.$broadcast('logout');
+                        $rootScope.$broadcast(greyscaleGlobals.events.common.logout);
                     }
                 });
         }

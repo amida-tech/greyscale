@@ -5,6 +5,17 @@
 angular.module('greyscale.core')
     .provider('greyscaleGlobals', function () {
         var self = {
+            events: {
+                common: {
+                    login: 'LOGIN',
+                    logout: 'LOGOUT',
+                    orgUpdate: 'ORGANIZATION_UPDATE'
+                },
+                survey: {
+                    answerDirty: 'ANSWER_DIRTY',
+                    builderFormSaved: 'form-changes-saved'
+                }
+            },
             projectStates: [{
                 id: 0,
                 name: 'INACTIVE'

@@ -1,0 +1,34 @@
+<div class="gs-links">
+    <p>
+        <span translate="SURVEYS.LINKS"></span>
+        <a class="action action-primary" ng-click="addToggle()"
+           title="{{'COMMON.ADD' | translate}}"
+           ng-hide="options.readonly">
+            <i class="fa fa-plus"></i>
+        </a>
+    </p>
+
+    <div class="row" ng-show="adding && !options.readonly">
+        <div class="col-xs-12">
+            <form name="{{formName}}">
+                <div class="input-group">
+                    <input type="url" class="form-control" ng-model="newUrl" name="newUrl" placeholder="{{'SURVEYS.LINK_PLACEHOLDER' | translate}}"/>
+                    <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" translate="COMMON.ADD" ng-click="add()"
+                            ng-disabled="(this[formName].newUrl.$invalid || !this[formName].newUrl.$dirty)"></button>
+                    </span>
+                </div>
+                <div class="text-center" ng-messages="this[formName].newUrl.$error" role="alert"
+                     ng-if="this[formName].newUrl.$dirty">
+                    <span ng-message="url" class="help-block"><span class="error" translate="SURVEYS.URL_INCORRECT"></span></span>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row">
+        <span class="gs-link-wrapper" ng-repeat="item in model">
+            <div><a href="{{item}}" target="_blank">{{item}}</a></div>
+            <i class="fa fa-trash action-danger" ng-click="remove($index)" ng-hide="options.readonly"></i>
+        </span>
+    </div>
+</div>

@@ -86,12 +86,12 @@ angular.module('greyscaleApp')
                     var promise;
                     if (type === 'index') {
                         $scope.model.indexesTable.tableParams.reload();
-                        promise =greyscaleProductApi.product(productId).indexesListUpdate($scope.model.indexes);
+                        promise = greyscaleProductApi.product(productId).indexesListUpdate($scope.model.indexes);
                     } else if (type === 'subindex') {
                         $scope.model.subindexesTable.tableParams.reload();
                         promise = greyscaleProductApi.product(productId).subindexesListUpdate($scope.model.subindexes);
                     }
-                    promise.then(function() {
+                    promise.then(function () {
                         _loadProductIndexes($scope.model.product).then(_storeProductIndexes);
                     });
                 });

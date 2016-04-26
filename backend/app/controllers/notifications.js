@@ -179,7 +179,7 @@ module.exports = {
             var isNotAdmin = !auth.checkAdmin(req.user);
             var currentUserId = req.user.id;
             var essenceId = yield * common.getEssenceId(req, 'Discussions');
-            var userId = req.query.userId;
+            var userId = req.user.id;
 
             var selectWhere = 'WHERE 1=1 ';
             if (!req.query.userFrom && !req.query.userTo) {
@@ -599,7 +599,7 @@ function* checkInsert(req, note) {
         } catch (err) {
             throw new HttpError(403, 'Cannot find model file: ' + essence.fileName);
         }
-        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Discussion`s entry');
+        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entry');
     }
     return note;
 }

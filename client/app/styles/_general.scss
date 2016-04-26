@@ -164,6 +164,7 @@ body {
 
     &:after {
         @extend .row:after;
+        line-height: 0;
     }
 }
 

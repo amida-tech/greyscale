@@ -576,6 +576,7 @@
         "ITEM": "Survey",
         "LAST_SAVED": "Last Saved",
         "LINKS": "Links",
+        "LINK_PLACEHOLDER": "Enter URL here...",
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
@@ -595,6 +596,7 @@
         "SUBMIT": "Save and Submit",
         "TITLE": "Title",
         "TRANSLATED": "Translation complete",
+        "URL_INCORRECT": "URL incorrect",
         "VERSION": "Versions",
         "VIEW": "View"
     },

@@ -5,5 +5,4 @@ angular.module('greyscaleApp').controller('ComparativeVisualizationCtrl', functi
         title: 'Comparative Visualization'
     };
 
-
 });

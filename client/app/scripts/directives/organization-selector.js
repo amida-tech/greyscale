@@ -63,7 +63,7 @@ angular.module('greyscaleApp')
                     _userAccessLevel = greyscaleProfileSrv.getAccessLevelMask();
 
                     if (_isSuperAdmin()) {
-                        $scope.$on('organization_update', getOrganizations);
+                        $scope.$on(greyscaleGlobals.events.common.orgUpdate, getOrganizations);
 
                         getOrganizations().then(function () {
                             var organizationId = parseInt($cookies.get('orgId'));

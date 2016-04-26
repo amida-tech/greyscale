@@ -136,7 +136,7 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly || isDisabled"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
@@ -190,8 +190,8 @@ angular.module('greyscaleApp')
                             body = '<p class="subtext error">field type "{{field.type}}" rendering is not implemented yet</p>';
                         }
 
-                        if (scope.field.links) {
-                            links = '<div><p translate="SURVEYS.LINKS"></p></div>';
+                        if (scope.field.withLinks) {
+                            links = '<gs-links model="field.answerLinks" options="field.flags"></gs-links>';
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
@@ -199,7 +199,7 @@ angular.module('greyscaleApp')
                         }
 
                         body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
-                            message + '</span><span class="pull-left">' + borders + '</span></p>' + attach;
+                            message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
 
@@ -212,7 +212,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (flags.provideResponses || scope.field.hasComments) {
-                            body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
+                            body = '<div class="field-wrapped">' + (flags.provideResponses ? '<div class="wrapper"></div>' : '') + body + '</div>';
                             body += '<div class="field-comment">';
 
                             if (scope.field.hasComments) {

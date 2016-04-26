@@ -97,7 +97,7 @@ User.validPassword = function (pas, salt, checkpas) {
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday', 'password',
     'updated', 'timezone','location','cell','address',
-    'lang','bio','notifyLevel','affiliation'
+    'lang','bio','notifyLevel','affiliation','isAnonymous'
 ];
 
 User.translate = [
