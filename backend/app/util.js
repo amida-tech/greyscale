@@ -3,13 +3,11 @@ var
     moment    = require('moment'),
     _         = require('underscore'),
     ClientPG  = require('app/db_bootstrap'),
-    config    = require('config');
+    config    = require('config'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
-
-
 
 exports.Query = function (realm) {
     if (typeof realm == 'undefined') {
@@ -315,7 +313,8 @@ function arrayString(val) {
         }
         else
         {
-            result = result + JSON.stringify(prepareValue(val[i]));
+            //result = result + JSON.stringify(prepareValue(val[i]));
+            result = result + JSON.stringify(val[i]);
         }
     }
     result = result + '}';
