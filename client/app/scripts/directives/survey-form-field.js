@@ -136,7 +136,7 @@ angular.module('greyscaleApp')
                             body += '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="field.flags.readonly || isDisabled"' +
+                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
@@ -212,7 +212,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (flags.provideResponses || scope.field.hasComments) {
-                            body = '<div class="field-wrapped"><div class="wrapper"></div>' + body + '</div>';
+                            body = '<div class="field-wrapped">'+(flags.provideResponses?'<div class="wrapper"></div>':'') + body + '</div>';
                             body += '<div class="field-comment">';
 
                             if (scope.field.hasComments) {

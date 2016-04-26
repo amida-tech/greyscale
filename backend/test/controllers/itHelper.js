@@ -92,7 +92,7 @@ ithelper = {
             });
     },
 
-    select : function (api, get, token, status, numberOfRecords, done) {
+    selectCount : function (api, get, token, status, numberOfRecords, done) {
         api
             .get(get)
             .set('token', token)
@@ -107,7 +107,7 @@ ithelper = {
             });
     },
 
-    selectOneCheckField : function (api, get, token, status, name, value, done) {
+    selectOneCheckField : function (api, get, token, status, index, name, value, done) {
         api
             .get(get)
             .set('token', token)
@@ -117,7 +117,11 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body).to.exist;
-                expect(res.body[name]).to.equal(value);
+                if (index !== null && index >= 0 ) {
+                    expect(res.body[index][name]).to.equal(value);
+                } else {
+                    expect(res.body[name]).to.equal(value);
+                }
                 done();
             });
     },

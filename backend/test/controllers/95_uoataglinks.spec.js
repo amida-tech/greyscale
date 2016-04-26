@@ -41,7 +41,7 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
             it('Select: True number of records', function (done) {
-                ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
@@ -93,7 +93,7 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                         ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id2', done);
                     });
                     it('Select UOA Tag links - true number of records', function (done) {
-                        ithelper.select(testEnv.api_created_realm, path, token, 200, 2, done);
+                        ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 2, done);
                     });
                     it('Delete created UOA Tag link with Tag1 (classType1)', function (done) {
                         ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id1, token, 204, done);

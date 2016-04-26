@@ -38,11 +38,11 @@ describe('Subject`s types (Unit of Analisys types):', function () {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 1, done);
             });
             it('Select: true number of records', function (done) {
-                ithelper.select(testEnv.api_created_realm, path, token, 200, 1, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
             });
 
             it('Select: Country record is true', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/1', token, 200, 'name', 'Country', done);
+                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/1', token, 200, null, 'name', 'Country', done);
             });
             if (user.roleID === 1) {
                 it('CRUD: Create new UOA type', function (done) {
@@ -50,20 +50,20 @@ describe('Subject`s types (Unit of Analisys types):', function () {
                     ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id', done);
                 });
                 it('CRUD: Get created UOA type', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA type', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA type', done);
                 });
                 it('CRUD: Update UOA type', function (done) {
                     var updateItem = {name: 'Test UOA type --- updated'};
                     ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, token, updateItem, 202, done);
                 });
                 it('CRUD: Get updated UOA type', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA type --- updated', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA type --- updated', done);
                 });
                 it('CRUD: Delete created/updated UOA type', function (done) {
                     ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
                 });
                 it('CRUD: True number of records after delete', function (done) {
-                    ithelper.select(testEnv.api_created_realm, path, token, 200, 1, done);
+                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                 });
             }
         });

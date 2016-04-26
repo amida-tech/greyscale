@@ -39,7 +39,7 @@ describe('Subject`s tags (Unit of Analisys Tags):', function () {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
             it('Select: true number of records', function (done) {
-                ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
@@ -56,23 +56,23 @@ describe('Subject`s tags (Unit of Analisys Tags):', function () {
                     ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id', done);
                 });
                 it('CRUD: True number of records', function (done) {
-                    ithelper.select(testEnv.api_created_realm, path, token, 200, 1, done);
+                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                 });
                 it('CRUD: Get created UOA tag', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA tag', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA tag', done);
                 });
                 it('CRUD: Update UOA tag', function (done) {
                     var updateItem = {name: 'Test UOA tag --- updated'};
                     ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, token, updateItem, 202, done);
                 });
                 it('CRUD: Get updated UOA tag', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA tag --- updated', done);
+                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'Test UOA tag --- updated', done);
                 });
                 it('CRUD: Delete created/updated UOA tag', function (done) {
                     ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
                 });
                 it('CRUD: True number of records after delete', function (done) {
-                    ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
                 });
                 it('CRUD: Delete created UOA classtype', function (done) {
                     ithelper.deleteOne(testEnv.api_created_realm, pathClassType + '/' + obj.classTypeId, token, 204, done);
