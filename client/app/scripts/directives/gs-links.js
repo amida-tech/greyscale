@@ -14,6 +14,8 @@ angular.module('greyscaleApp')
             controller: function ($scope, greyscaleGlobals) {
                 _init();
 
+                $scope.formName = 'f_' + new Date().getTime();
+
                 $scope.remove = function (idx) {
                     $scope.model.splice(idx, 1);
                     _modifyEvt();
@@ -21,6 +23,7 @@ angular.module('greyscaleApp')
 
                 $scope.addToggle = function () {
                     $scope.adding = (!$scope.adding && !$scope.options.readonly);
+                    $scope.newUrl = '';
                 };
 
                 $scope.add = function () {

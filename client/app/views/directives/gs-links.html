@@ -10,12 +10,19 @@
 
     <div class="row" ng-show="adding && !options.readonly">
         <div class="col-xs-12">
-            <div class="input-group">
-                <input type="text" class="form-control" ng-model="newUrl" name="newUrl">
-                <span class="input-group-btn">
-                    <button class="btn btn-primary" type="button" translate="COMMON.ADD" ng-click="add()"></button>
-                </span>
-            </div>
+            <form name="{{formName}}">
+                <div class="input-group">
+                    <input type="url" class="form-control" ng-model="newUrl" name="newUrl" placeholder="{{'SURVEYS.LINK_PLACEHOLDER' | translate}}"/>
+                    <span class="input-group-btn">
+                    <button class="btn btn-primary" type="button" translate="COMMON.ADD" ng-click="add()"
+                            ng-disabled="(this[formName].newUrl.$invalid || !this[formName].newUrl.$dirty)"></button>
+                    </span>
+                </div>
+                <div class="text-center" ng-messages="this[formName].newUrl.$error" role="alert"
+                     ng-if="this[formName].newUrl.$dirty">
+                    <span ng-message="url" class="help-block"><span class="error" translate="SURVEYS.URL_INCORRECT"></span></span>
+                </div>
+            </form>
         </div>
     </div>
     <div class="row">

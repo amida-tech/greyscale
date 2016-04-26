@@ -576,6 +576,7 @@
         "ITEM": "",
         "LAST_SAVED": "",
         "LINKS": "",
+        "LINK_PLACEHOLDER": "",
         "MAX": "",
         "MIN": "",
         "NAME": "",
@@ -595,6 +596,7 @@
         "SUBMIT": "",
         "TITLE": "",
         "TRANSLATED": "",
+        "URL_INCORRECT": "",
         "VERSION": "",
         "VIEW": ""
     },
