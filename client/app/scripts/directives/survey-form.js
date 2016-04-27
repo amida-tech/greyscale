@@ -26,37 +26,8 @@ angular.module('greyscaleApp')
 
                 scope.$watch('surveyData', updateForm);
 
-                scope.saveDraft = function () {
-                    if (!isReadonly) {
-                        return saveAnswers(scope, true);
-                    } else {
-                        return $q.reject('form is readonly');
-                    }
-                };
-
                 scope.resolveFlagData = {};
                 scope.resolve = _resolve;
-
-                scope.save = function () {
-
-                    var _p = $q.reject('ERROR.STEP_SUBMIT');
-                    if (flags.allowTranslate) {
-                        if (scope.model.translated) {
-                            _p = goNextStep(true);
-                        }
-                    } else {
-                        _p = saveAnswers(scope)
-                            .then(goNextStep);
-                    }
-                    _p.then(goTasks)
-                        .catch(greyscaleUtilsSrv.errorMsg);
-                };
-
-                scope.back = function () {
-                    saveAnswers(scope, true).then(goTasks);
-                };
-
-                scope.autosave = $interval(scope.saveDraft, 15000);
 
                 scope.$on('$destroy', function () {
                     $interval.cancel(scope.autosave);
@@ -71,6 +42,60 @@ angular.module('greyscaleApp')
                 scope.lock = _lock;
                 scope.unlock = _unlock;
 
+                scope.save = function () {
+                    var _p = $q.reject('ERROR.STEP_SUBMIT');
+                    if (flags.allowTranslate) {
+                        if (scope.model.translated) {
+                            _p = goNextStep(true);
+                        }
+                    } else {
+                        _p = saveAnswers(scope)
+                            .then(goNextStep);
+                    }
+
+                    _p.then(goTasks)
+                        .catch(greyscaleUtilsSrv.errorMsg);
+                };
+
+                scope.saveDraft = function () {
+                    if (!isReadonly) {
+                        return saveAnswers(scope, true)
+                            .then(_draftSaved);
+                    } else {
+                        return $q.reject('ERROR.STEP_READONLY');
+                    }
+                };
+
+                scope.back = function () {
+                    saveAnswers(scope, true)
+                        .then(_draftSaved)
+                        .then(goTasks);
+                };
+
+                scope.autosave = $interval(_autosave, 15000);
+
+                function _autosave() {
+                    var res = $q.resolve('nop'),
+                        formDirty = scope.$$childTail.surveyForm && scope.$$childTail.surveyForm.$dirty || false;
+
+                    if (formDirty) {
+                        res = saveAnswers(scope, true)
+                            .then(function (saveSuccess) {
+                                greyscaleUtilsSrv.successMsg('SURVEYS.AUTOSAVE_SUCCESS');
+                                return saveSuccess;
+                            });
+                    }
+
+                    return res;
+                }
+
+                function _draftSaved(res) {
+                    if (res) {
+                        greyscaleUtilsSrv.successMsg('SURVEYS.SAVE_DRAFT_SUCCESS');
+                    }
+                    return res;
+                }
+
                 function _lock() {
                     scope.model.locked = true;
                 }
@@ -79,16 +104,21 @@ angular.module('greyscaleApp')
                     scope.model.locked = false;
                 }
 
-                function goNextStep(data) {
-                    if (scope.surveyData.task) {
-                        return greyscaleProductApi
-                            .product(scope.surveyData.task.productId)
-                            .taskMove(scope.surveyData.task.uoaId)
-                            .then(function () {
-                                return data;
-                            });
+                function goNextStep(saveSuccess) {
+                    if (saveSuccess) {
+                        if (scope.surveyData.task) {
+                            return greyscaleProductApi
+                                .product(scope.surveyData.task.productId)
+                                .taskMove(scope.surveyData.task.uoaId)
+                                .then(function () {
+                                    greyscaleUtilsSrv.successMsg('SURVEYS.SUBMIT_SUCCESS');
+                                    return saveSuccess;
+                                });
+                        } else {
+                            return $q.reject('ERROR.TASK_UNDEFINED');
+                        }
                     } else {
-                        return $q.reject('Task is undefined');
+                        return $q.reject('ERROR.CHANGES_UNSAVED', 'ERROR.STEP_SUBMIT');
                     }
                 }
 
@@ -143,10 +173,11 @@ angular.module('greyscaleApp')
                     }
                 }
 
-                function goTasks(canGo) {
-                    if (canGo) {
+                function goTasks(saveSuccess) {
+                    if (saveSuccess) {
                         $state.go('tasks');
                     }
+                    return saveSuccess;
                 }
 
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
@@ -159,7 +190,9 @@ angular.module('greyscaleApp')
                     contentOpen: false,
                     lang: null,
                     formReadonly: true,
-                    translated: true
+                    translated: true,
+                    locked: false,
+                    savedAt: NaN
                 };
 
                 $scope.goField = function (elemId) {
@@ -180,7 +213,7 @@ angular.module('greyscaleApp')
         };
 
         function isReadonlyFlags(_flags) {
-            return !_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses || _flags.readonly;
+            return !_flags.allowEdit && !_flags.writeToAnswers && !_flags.provideResponses;
         }
 
         function initLanguage(scope) {
@@ -418,8 +451,8 @@ angular.module('greyscaleApp')
                                 recentAnswers[qId] = _answers[v];
                             }
 
-                            if (recentAnswers[qId] && (!scope.savedAt || scope.savedAt < recentAnswers[qId].created)) {
-                                scope.savedAt = recentAnswers[qId].created;
+                            if (recentAnswers[qId] && (!scope.model.savedAt || scope.model.savedAt < recentAnswers[qId].created)) {
+                                scope.model.savedAt = recentAnswers[qId].created;
                             }
                         }
                     }
@@ -447,6 +480,7 @@ angular.module('greyscaleApp')
                         rr = response[response.length - 1];
                         if (rr && rr.userId === currentUserId && rr.wfStepId === currentStepId) {
                             fld.response = rr.comments;
+                            fld.isAgree = (rr.isAgree ? 'y' : (rr.isAgree === false ? 'n' : null));
                         }
                     }
                 }
@@ -511,7 +545,8 @@ angular.module('greyscaleApp')
                                 id: -1,
                                 value: answer.value || fld.value
                             };
-                            if (!fld.answer && answer.value) {
+
+                            if (answer.value) {
                                 fld.answer = fld.otherOption;
                             }
                         }
@@ -566,29 +601,38 @@ angular.module('greyscaleApp')
 
             var formDirty = scope.$$childTail.surveyForm && scope.$$childTail.surveyForm.$dirty || false;
 
-            if (!isReadonly && formDirty) {
+            if (!isReadonly && (formDirty || !isAuto)) {
                 scope.lock();
                 answers = preSaveFields(scope.fields);
 
                 res = greyscaleSurveyAnswerApi.save(answers, isAuto)
                     .then(function (resp) {
-                        var r,
-                            canMove = !isAuto,
+                        var r, errMsg, res,
+                            saveSuccess = true,
                             qty = resp.length;
 
-                        for (r = 0; r < qty && canMove; r++) {
-                            canMove = (resp[r].statusCode === 200);
+                        for (r = 0; r < qty && saveSuccess; r++) {
+                            saveSuccess = (resp[r].statusCode === 200);
+                            if (!saveSuccess) {
+                                errMsg = resp[r].message;
+                            }
                         }
-                        scope.savedAt = new Date();
+                        if (saveSuccess) {
+                            scope.model.savedAt = new Date();
+
+                            res = saveSuccess || isAuto;
+                        } else {
+                            res = $q.reject(errMsg);
+                        }
 
                         if (scope.$$childTail.surveyForm) {
-                            scope.$$childTail.surveyForm.$dirty = false;
+                            scope.$$childTail.surveyForm.$setPristine();
                         }
 
-                        return canMove || isAuto;
+                        return res;
                     })
                     .catch(function (err) {
-                        greyscaleUtilsSrv.errorMsg(err);
+                        greyscaleUtilsSrv.errorMsg(err, 'ERROR.STEP_SUBMIT');
                         return isAuto;
                     })
                     .finally(scope.unlock);
@@ -619,15 +663,14 @@ angular.module('greyscaleApp')
                     case 'checkboxes':
                         answer.optionId = [];
                         for (var o = 0; o < fld.options.length; o++) {
-                            if (fld.options[o] && fld.options[o].checked) {
+                            if (fld.options[o] && fld.options[o].checked && fld.options[o].id >= 0) {
                                 answer.optionId.push(fld.options[o].id);
                             }
                         }
+
                         if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
                             answer.value = fld.otherOption.value;
                         }
-                        //answer.incOtherOpt = fld.otherOption.checked;
-                        //console.log(fld);
                         break;
 
                     case 'dropdown':
@@ -635,8 +678,8 @@ angular.module('greyscaleApp')
                         answer.optionId = [];
                         answer.value = null;
 
-                        if (fld.answer.id) {
-                            if (fld.answer !== -1) {
+                        if (typeof fld.answer.id !== 'undefined') {
+                            if (fld.answer.id > -1) {
                                 answer.optionId = [fld.answer.id];
                             }
                             answer.value = fld.answer.value;
@@ -663,7 +706,7 @@ angular.module('greyscaleApp')
                     if (provideResponses) {
                         answer.isResponse = true;
                         answer.comments = fld.response;
-                        answer.isAgree = fld.isAgree === 'true' ? true : fld.isAgree === 'false' ? false : null;
+                        answer.isAgree = ((fld.isAgree === 'y') ? true : ((fld.isAgree === 'n') ? false : null));
                     } else {
                         answer.comments = fld.comment;
                     }

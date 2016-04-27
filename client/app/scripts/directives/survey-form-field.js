@@ -226,10 +226,10 @@ angular.module('greyscaleApp')
                                     '<textarea placeholder="Comment" ng-model="field.response"></textarea>' +
                                     '<div class="field-comment-radio">' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                                    ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                    ' value="y" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                                     '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                                    ' value="false" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                    ' value="n" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                                     '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
                                     '</div>';
                             }

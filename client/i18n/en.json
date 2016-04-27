@@ -69,7 +69,10 @@
     "ERROR": {
         "ACCESS_RESTRICTED": "Access restricted to",
         "BAD_TOKEN": "Authentication check error",
+        "CHANGES_UNSAVED": "Changes unsaved",
+        "STEP_READONLY": "Task is readonly",
         "STEP_SUBMIT": "Task submit error",
+        "TASK_UNDEFINED": "Task is undefined",
         "TEST": "Test error"
     },
     "FILE": {
@@ -563,6 +566,7 @@
         "AGREE": "Agree",
         "ANSWER_COMMENT": "Answer comment",
         "ATTACHMENTS": "Attachments",
+        "AUTOSAVE_SUCCESS": "Autosaved as draft",
         "BELOW": "below",
         "CONTENT": "Content",
         "CURRENT_COUNT": "Current count",
@@ -591,9 +595,11 @@
         "REVIEVER_COMMENT": "Response",
         "SAVE_AND_RESOLVE": "Resolve",
         "SAVE_DRAFT": "Save as Draft",
+        "SAVE_DRAFT_SUCCESS": "Draft version saved successfully",
         "SELECT_ONE": "select one",
         "STATUS": "Status",
         "SUBMIT": "Save and Submit",
+        "SUBMIT_SUCCESS": "Task submit success",
         "TITLE": "Title",
         "TRANSLATED": "Translation complete",
         "URL_INCORRECT": "URL incorrect",
