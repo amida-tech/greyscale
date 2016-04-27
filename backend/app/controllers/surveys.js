@@ -312,6 +312,7 @@ module.exports = {
                 }
                 else { // delete question
                     try{
+                        yield thunkQuery(SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)));
                         yield thunkQuery(SurveyQuestion.delete().where(SurveyQuestion.id.equals(updateSurvey.questions[i].id)));
                         updateSurvey.questions[i].status = 'Ok';
                         updateSurvey.questions[i].message = 'Deleted';
@@ -558,7 +559,6 @@ function* checkQuestionData(req, dataObj, isCreate) {
     if (isCreate) {
         if (
             typeof dataObj.label === 'undefined' ||
-            //typeof req.body.surveyId == 'undefined' ||
             typeof dataObj.type === 'undefined'
         ) {
             throw new HttpError(403, 'label, surveyId(in params) and type fields are required');
@@ -636,4 +636,3 @@ function* checkQuestionData(req, dataObj, isCreate) {
     }
 
 }
-

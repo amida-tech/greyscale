@@ -191,7 +191,7 @@ module.exports = function (grunt) {
             },
             stage: {
                 options: {
-                    environmentName: 'indaba-backend-stage',
+                    environmentName: 'indaba-backend-memcached-stage',
                 }
             },
             prod: {
