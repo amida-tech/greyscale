@@ -18,7 +18,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(Right.select(Right.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var right = thunkQuery(Right.select().order(Right.id), req.query);
+            var right = thunkQuery(Right.select(), req.query);
 
             return yield [_counter, right];
         }).then(function (data) {

@@ -11,7 +11,8 @@ angular.module('greyscale.core')
             decode: _decode,
             removeInternal: _purify,
             prepareFields: _preProcess,
-            errorMsg: addErrMsg,
+            errorMsg: _errMsg,
+            successMsg: _successMsg,
             getRoleMask: _getRoleMask,
             parseURL: _parseURL,
             getApiBase: _getApiBase,
@@ -50,31 +51,40 @@ angular.module('greyscale.core')
             }
         }
 
-        function addErrMsg(err, prefix) {
-            var msg = prefix ? i18n.translate(prefix) + ': ' : '';
-            var errText = '';
-            if (err) {
-                if (err.data) {
-                    if (err.data.message) {
-                        errText = err.data.message;
+        function _addMsg(msg, prefix, type) {
+            var _msg = prefix ? i18n.translate(prefix) + ': ' : '';
+            var msgText = '';
+            if (msg) {
+                if (msg.data) {
+                    if (msg.data.message) {
+                        msgText = msg.data.message;
                     } else {
-                        errText = err.data;
+                        msgText = msg.data;
                     }
-                } else if (typeof err === 'string') {
-                    errText = err;
-                } else if (err.message) {
-                    errText = err.message;
-                } else if (err.statusText) {
-                    errText = err.statusText;
+                } else if (typeof msg === 'string') {
+                    msgText = msg;
+                } else if (msg.message) {
+                    msgText = msg.message;
+                } else if (msg.statusText) {
+                    msgText = msg.statusText;
                 }
-                msg += i18n.translate(errText);
+                _msg += i18n.translate(msgText);
 
-                $log.debug(err, prefix, msg);
-                inform.add(msg, {
-                    type: 'danger'
+                $log.debug('(' + type + ') ' + _msg);
+
+                inform.add(_msg, {
+                    type: type
                 });
 
             }
+        }
+
+        function _errMsg(err, prefix) {
+            _addMsg(err, prefix, 'danger');
+        }
+
+        function _successMsg(msg, prefix) {
+            _addMsg(msg, prefix, 'success');
         }
 
         function _getRoleMask(roleId, withDefault) {
