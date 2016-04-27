@@ -112,7 +112,7 @@ angular.module('greyscaleApp')
                                 return res;
                             };
 
-                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
@@ -133,9 +133,9 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'radio':
-                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
+                                body += '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
