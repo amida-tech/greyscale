@@ -69,7 +69,10 @@
     "ERROR": {
         "ACCESS_RESTRICTED": "",
         "BAD_TOKEN": "",
+        "CHANGES_UNSAVED": "",
+        "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "TASK_UNDEFINED": "",
         "TEST": ""
     },
     "FILE": {
@@ -563,6 +566,7 @@
         "AGREE": "",
         "ANSWER_COMMENT": "",
         "ATTACHMENTS": "",
+        "AUTOSAVE_SUCCESS": "",
         "BELOW": "",
         "CONTENT": "",
         "CURRENT_COUNT": "",
@@ -591,9 +595,11 @@
         "REVIEVER_COMMENT": "",
         "SAVE_AND_RESOLVE": "",
         "SAVE_DRAFT": "",
+        "SAVE_DRAFT_SUCCESS": "",
         "SELECT_ONE": "",
         "STATUS": "",
         "SUBMIT": "",
+        "SUBMIT_SUCCESS": "",
         "TITLE": "",
         "TRANSLATED": "",
         "URL_INCORRECT": "",

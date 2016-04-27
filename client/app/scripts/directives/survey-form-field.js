@@ -112,7 +112,7 @@ angular.module('greyscaleApp')
                                 return res;
                             };
 
-                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
 
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
@@ -133,9 +133,9 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'radio':
-                            body += '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body = '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
+                                body += '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
@@ -226,10 +226,10 @@ angular.module('greyscaleApp')
                                     '<textarea placeholder="Comment" ng-model="field.response"></textarea>' +
                                     '<div class="field-comment-radio">' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                                    ' value="true" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                    ' value="y" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                                     '<span class="survey-option" translate="SURVEYS.AGREE"></span></label></div>' +
                                     '<div class="radio"><label><input type="radio" name="{{field.cid}}_agree"' +
-                                    ' value="false" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
+                                    ' value="n" ng-model="field.isAgree" ng-required="true" /><i class="chk-box"></i>' +
                                     '<span class="survey-option" translate="SURVEYS.DISAGREE"></span></label></div>' +
                                     '</div>';
                             }

@@ -447,7 +447,7 @@ module.exports = {
             if (!action) {
                 next(new HttpError(400, 'Bad action!'));
             }
-            if (req.user.role === config.adminRole) {
+            if ((req.user.roleID === 1) || (req.user.roleID === 2) ) { // super admin or admin
                 return next();
             }
 

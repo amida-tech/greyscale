@@ -15,6 +15,7 @@ var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
+var _ = require('underscore');
 
 var testEnv = {};
 testEnv.superAdmin   = config.testEntities.superAdmin;
@@ -32,16 +33,17 @@ var token;
 var obj ={};
 var path = '/uoas';
 var numberOfRecords = 0;
+var testTitle = 'Subjects (Units of Analisys): ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
-describe('Subjects (Units of Analisys):', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user: ' + user.firstName, function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
                 numberOfRecords = (user.roleID === 1) ? 0 : 1;
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', numberOfRecords, done);
@@ -101,6 +103,18 @@ describe('Subjects (Units of Analisys):', function () {
                     it('True number of records after test is completed', function (done) {
                         ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                     });
+                    describe('', function () {
+                        it('Save test environment objects from uoas -> obj.uoa.testId (new "Test Subject" Id)', function (done) {
+                            obj = _.extend(obj,{
+                                uoa: {
+                                    testId: obj.uoaId
+                                }
+                            });
+                            config.testEntities.obj = _.extend({},obj);
+                            //console.log(config.testEntities.obj);
+                            done();
+                        });
+                    });
                 });
             }
         });
@@ -119,6 +133,15 @@ describe('Subjects (Units of Analisys):', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
+                    describe('', function () {
+                        it('Get test environment objects to uoas <- config.testEntities.obj', function (done) {
+                            if (_.isEmpty(obj)){
+                                obj = _.extend({},config.testEntities.obj);
+                                //console.log(obj);
+                            }
+                            done();
+                        });
+                    });
                     allTests(user, token);
                     done();
                 });

@@ -14,7 +14,7 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(Essence.select().from(Essence), _.omit(req.query, 'offset', 'limit', 'order'));
+            return yield thunkQuery(Essence.select().from(Essence), _.omit(req.query, 'offset', 'limit'));
         }).then(function (data) {
             res.json(data);
         }, function (err) {

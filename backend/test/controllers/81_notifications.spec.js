@@ -40,16 +40,26 @@ var tokenAdmin;
 var tokenUser1;
 var tokenUser2;
 var tokenUser3;
+var testTitle='Notifications: ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']); // for debug only
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']); // for debug only
 
-describe('Notifications:', function () {
+describe(testTitle, function () {
 
     function allTests() {
-        describe('Select: ', function () {
+        describe('', function () {
+            it('Get test environment objects to notifications <- config.testEntities.obj', function (done) {
+                if (_.isEmpty(obj)){
+                    obj = _.extend({},config.testEntities.obj);
+                    //console.log(obj);
+                }
+                done();
+            });
+        });
+        describe(testTitle+'Select ', function () {
             it('True number of records (superAdmin) = 5', function (done) {
                 tokenSuperAdmin = ithelper.getUser(testEnv.allUsers, 1).token;
                 ithelper.selectCount(testEnv.api, path, tokenSuperAdmin, 200, 5, done); // 5 records "Indaba. Restore password"
@@ -71,7 +81,7 @@ describe('Notifications:', function () {
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser3, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
         });
-        describe('Prepare: get users Id ', function () {
+        describe(testTitle+'Prepare - get users Id ', function () {
             it('Get SuperAdmin Id ', function (done) {
                 ithelper.getUserId(testEnv.api, pathUsersSelf, tokenSuperAdmin, 200, obj, 'superAdminId', done);
             });
@@ -85,7 +95,7 @@ describe('Notifications:', function () {
                 ithelper.getEssenceId(testEnv.api_created_realm, pathEssences, 'Users', tokenAdmin, 200, obj, 'essenceIdUser', done);
             });
         });
-        describe('Errors creating notification: ', function () {
+        describe(testTitle+'Errors creating notification', function () {
             it('userTo must be specified', function (done) {
                 var insertItem = {body: 'Test notification'};
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenSuperAdmin, insertItem, 400, 403, 'must be specified', done);
@@ -111,7 +121,7 @@ describe('Notifications:', function () {
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenSuperAdmin, insertItem, 400, 403, 'does not exist', done);
             });
         });
-        describe('Create notifications: ', function () {
+        describe(testTitle+'Create notifications', function () {
             it('(1) Without essenceId, `from superAdmin to admin`', function (done) {
                 var insertItem = {userTo: obj.adminId, body: 'Test notification 1'};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenSuperAdmin, insertItem, 201, obj, 'id1', done);
@@ -129,7 +139,7 @@ describe('Notifications:', function () {
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'id3', done);
             });
         });
-        describe('Create reply notifications: ', function () {
+        describe(testTitle+'Create reply notifications', function () {
             it('(4) Reply to (1) `from admin to superAdmin` as superAdmin', function (done) {
                 var insertItem = {body: 'Reply 4 for Test notification 1'};
                 ithelper.insertOne(testEnv.api_created_realm, path+'/reply/'+obj.id1, tokenSuperAdmin, insertItem, 201, obj, 'id4', done);
@@ -144,7 +154,7 @@ describe('Notifications:', function () {
             });
         });
 
-        describe('Check users notifications: ', function () {
+        describe(testTitle+'Check users notifications', function () {
             describe('userId filter: ', function () {
                 it('True number of records (userId = user1Id) as admin', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'/users?userId='+obj.user1Id, tokenAdmin, 200, 4, done);
@@ -191,7 +201,7 @@ describe('Notifications:', function () {
             });
         });
 
-        describe('Check notifications SELECT: ', function () {
+        describe(testTitle+'Check notifications SELECT', function () {
             describe('userId filter: ', function () {
                 it('True number of records (userId = user1Id) as admin', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'?userId='+obj.user1Id, tokenAdmin, 200, 4, done);
@@ -238,7 +248,7 @@ describe('Notifications:', function () {
             });
         });
 
-        describe('Check notifications READ/UNREAD: ', function () {
+        describe(testTitle+'Check notifications READ/UNREAD', function () {
             describe('READ filter: ', function () {
                 it('True number of records (userId = user1Id) as admin - READ', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'?userId='+obj.user1Id+'&read=true', tokenAdmin, 200, 0, done);
@@ -280,7 +290,7 @@ describe('Notifications:', function () {
                 });
             });
         });
-        describe('Check anonymous flag: ', function () {
+        describe(testTitle+'Check anonymous flag', function () {
             it('True number of records (userFrom = admin) as user1', function (done) {
                 ithelper.selectCount(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 2, done);
             });
@@ -300,7 +310,7 @@ describe('Notifications:', function () {
                 ithelper.selectOneCheckField(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 0, 'userFromName', 'Test Admin', done);
             });
         });
-        describe('RESEND notifications: ', function () {
+        describe(testTitle+'RESEND notifications', function () {
             it('Resend (5)', function (done) {
                 ithelper.updateOne(testEnv.api_created_realm, path + '/resend/' + obj.id5, tokenAdmin, {}, 202, done);
             });
@@ -309,7 +319,7 @@ describe('Notifications:', function () {
             });
         });
 
-        describe('Delete all entities after tests completed', function () {
+        describe(testTitle+'Delete all entities after tests completed', function () {
             it('Delete created notification (1)', function (done) {
                 ithelper.deleteOne(testEnv.api_created_realm, path + '/delete?id=' + obj.id1, tokenSuperAdmin, 204, done);
             });
@@ -327,13 +337,6 @@ describe('Notifications:', function () {
             });
             it('Delete all notification (userFrom = admin, userTo = user1)', function (done) {
                 ithelper.deleteOne(testEnv.api_created_realm, path + '/delete?userFrom=' + obj.adminId+'&userTo='+obj.user1Id, tokenSuperAdmin, 204, done);
-            });
-        });
-        describe('Save test environment objects', function () {
-            it('Save from notifications ***', function (done) {
-                config.testEntities.obj = _.extend({},obj);
-                //console.log(config.testEntities.obj);
-                done();
             });
         });
     }

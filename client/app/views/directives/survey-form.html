@@ -17,8 +17,8 @@
             </ul>
         </span>
 
-        <p class="subtext pull-right"><span translate=".LAST_SAVED"></span>: <span ng-if="savedAt">{{savedAt|date:'short'}}</span><span
-            ng-if="!savedAt" translate="COMMON.NEVER"></span></p>
+        <p class="subtext pull-right"><span translate=".LAST_SAVED"></span>: <span ng-if="model.savedAt">{{model.savedAt|date:'short'}}</span><span
+            ng-if="!model.savedAt" translate="COMMON.NEVER"></span></p>
     </div>
 
     <uib-accordion>
@@ -60,12 +60,13 @@
                     </div>
 
                     <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
-                            ng-disabled="!surveyForm.$dirty || isLocked() || model.formReadonly || model.locked"
+                            title="{{'SURVEYS.LAST_SAVED' | translate}}: {{model.savedAt | date:'medium'}}"
+                            ng-disabled="(!surveyForm.$dirty || isLocked() || model.formReadonly || model.locked)"
                             translate="SURVEYS.SAVE_DRAFT"></button>
 
                     <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
-                            ng-disabled="surveyForm.$invalid || isLocked() || model.locked"
+                            ng-disabled="(surveyForm.$invalid || isLocked() || model.locked)"
                             translate="SURVEYS.SUBMIT">
                     </button>
 

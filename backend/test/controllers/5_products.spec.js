@@ -6,6 +6,7 @@ var chai = require('chai');
 var expect = chai.expect;
 var assert = chai.assert;
 var config = require('../../config');
+var Products = require('../../app/models/products');
 var ithelper = require('./itHelper');
 var request = require('supertest');
 var _ = require('underscore');
@@ -24,37 +25,37 @@ testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organizatio
 
 var token;
 var obj ={};
-var path = '/surveys';
+var path = '/products';
 
 // make all users list
-testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
+//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
+testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 
-describe('Surveys:', function () {
+describe('Products:', function () {
 
     function allTests(user, token) {
 
         var insertItem = {
-            title: 'Test survey',
-            description: 'Description of test survey',
-            projectId: 2 // TODO get from user self
+            title: 'Test product',
+            description: 'Description of test product',
+            projectId: 2,  // todo get from user self
+            surveyId: obj.survey.id,
+            status: Products.statuses[0]
         };
 
         describe('All of tests for user: ' + user.firstName, function () {
+            //it('Select: correctly sets the X-Total-Count header ', function (done) {
+            //    ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
+            //});
+
 
             it('Select: true number of records', function (done) {
-                ithelper.selectCount(
-                    testEnv.api_created_realm,
-                    path,
-                    token,
-                    200,
-                    (user.roleID === 1) ? 0 : 1,
-                    done
-                );
+                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
+                it('CRUD: Create new product', function (done) {
 
-                it('CRUD: Create new survey', function (done) {
                     ithelper.insertOne(
                         testEnv.api_created_realm,
                         path,
@@ -71,61 +72,41 @@ describe('Surveys:', function () {
                     ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
                 });
 
-                it('CRUD: Get created survey', function (done) {
-                    ithelper.selectOneCheckField(
-                        testEnv.api_created_realm,
-                        path + '/' + insertItem.id,
-                        token,
-                        200,
-                        null,
-                        'title',
-                        insertItem.title,
-                        done
-                    );
-                });
-
-                var updateItem = {
-                    title: insertItem.title + ' --- updated',
-                    description: insertItem.description + ' --- updated'
-                };
-
-                it('CRUD: Update survey', function (done) {
-                    ithelper.updateOne(
-                        testEnv.api_created_realm,
-                        path + '/' + insertItem.id,
-                        token,
-                        updateItem,
-                        202,
-                        done
-                    );
-                });
-
-                it('CRUD: Get updated survey', function (done) {
+                it('CRUD: Get created product', function (done) {
                     ithelper.selectOneCheckFields(
                         testEnv.api_created_realm,
                         path + '/' + insertItem.id,
                         token,
                         200,
                         null,
-                        updateItem,
+                        insertItem,
                         done
                     );
                 });
-                //it('CRUD: Delete created/updated survey', function (done) {
-                //    ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
-                //});
-                //it('CRUD: True number of records after delete', function (done) {
-                //    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
+
+                //it('CRUD: Update product', function (done) {
+                //    var updateItem = {name: 'Test product --- updated'};
+                //    ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, token, updateItem, 202, done);
                 //});
 
+                //it('CRUD: Get updated product', function (done) {
+                //    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, 'name', 'Test UOA classtype --- updated', done);
+                //});
+
+                //it('CRUD: Delete created/updated product', function (done) {
+                //    ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
+                //});
+
+                //it('CRUD: True number of records after delete', function (done) {
+                //    ithelper.select(testEnv.api_created_realm, path, token, 200, 0, done);
+                //});
             }
         });
 
-
         if (user.roleID === 1) {
             describe('Save test environment objects', function () {
-                it('Save from surveys ***', function (done) {
-                    obj.survey = insertItem;
+                it('Save from products ***', function (done) {
+                    obj.product = insertItem;
                     config.testEntities.obj = _.extend({},obj);
                     console.log(config.testEntities.obj);
                     done();
@@ -147,7 +128,24 @@ describe('Surveys:', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
-                    allTests(user, token);
+
+                    describe('Get test environment objects', function () {
+                        it('Get to products ***', function (done) {
+                            if (_.isEmpty(obj)){
+                                obj = _.extend({},config.testEntities.obj);
+
+
+                            }
+                            done();
+                        });
+                    });
+
+                    describe('Tests', function () {
+                        it('Make tests for users', function (done) {
+                            allTests(user, token);
+                            done();
+                        });
+                    });
                     done();
                 });
         });
