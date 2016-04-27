@@ -110,7 +110,7 @@ describe(testTitle, function () {
                 });
 
                 it('Select initial content', function (done) {
-                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rightsContent, done);
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', token, 200, rightsContent, done);
                 });
             } else {
                 // ordinary users does not have rights to view rights
@@ -137,7 +137,7 @@ describe(testTitle, function () {
                 });
                 it('Select new content', function (done) {
                     rightsContent.push(updateItem);
-                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rightsContent, done);
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', token, 200, rightsContent, done);
                 });
 /*
                 it('Delete test right', function (done) {
