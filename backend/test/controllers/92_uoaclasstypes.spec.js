@@ -15,6 +15,7 @@ var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
+var _ = require('underscore');
 
 var testEnv = {};
 testEnv.superAdmin   = config.testEntities.superAdmin;
@@ -31,16 +32,17 @@ testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organizatio
 var token;
 var obj ={};
 var path = '/uoaclasstypes';
+var testTitle = 'Subject`s classtypes (Unit of Analisys classtypes): ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
-describe('Subject`s classtypes (Unit of Analisys classtypes):', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user ' + user.firstName, function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
@@ -89,6 +91,15 @@ describe('Subject`s classtypes (Unit of Analisys classtypes):', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
+                    describe('', function () {
+                        it('Get test environment objects to uoaclasstypes <- config.testEntities.obj', function (done) {
+                            if (_.isEmpty(obj)){
+                                obj = _.extend({},config.testEntities.obj);
+                                //console.log(obj);
+                            }
+                            done();
+                        });
+                    });
                     allTests(user, token);
                     done();
                 });

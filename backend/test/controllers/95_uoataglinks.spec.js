@@ -15,6 +15,7 @@ var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
+var _ = require('underscore');
 
 var testEnv = {};
 testEnv.superAdmin   = config.testEntities.superAdmin;
@@ -34,16 +35,17 @@ var path = '/uoataglinks';
 var pathClassTypes = '/uoaclasstypes';
 var pathTags = '/uoatags';
 var pathUoas = '/uoas';
+var testTitle = 'Subjects (Units of Analisys Tag links): ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']); // for debug only
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']); // for debug only
 
-describe('Subjects (Units of Analisys Tag links):', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user: ' + user.firstName, function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             });
@@ -52,13 +54,13 @@ describe('Subjects (Units of Analisys Tag links):', function () {
             });
 
             if (user.roleID === 1) {
-                describe('Errors creating uoa tag links: ', function () {
+                describe(testTitle+'Errors creating uoa tag links', function () {
                     it('Create new UOA tag links with wrong Tag - impossible', function (done) {
                         var insertItem = {uoaId: 1, uoaTagId: 1};
                         ithelper.insertOneErrMessage(testEnv.api_created_realm, path, token, insertItem, 400, 401, 'Not found tag with specified Id', done);
                     });
                 });
-                describe('Prepeare for following tests - 2 Class Types and 3 Tags  ', function () {
+                describe(testTitle+'Prepeare for following tests - 2 Class Types and 3 Tags  ', function () {
                     it('Create new UOA classtype (1)', function (done) {
                         var insertItem = {name: 'TestClasstype1'};
                         ithelper.insertOne(testEnv.api_created_realm, pathClassTypes, token, insertItem, 201, obj, 'classTypeId1', done);
@@ -80,13 +82,13 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                         ithelper.insertOne(testEnv.api_created_realm, pathTags, token, insertItem, 201, obj, 'tagId3', done);
                     });
                 });
-                describe('Prepeare for following tests - UOA  ', function () {
+                describe(testTitle+'Prepeare for following tests - UOA  ', function () {
                     it('Create new UOA', function (done) {
                         var insertItem = {name: 'UOA1', unitOfAnalysisType: 1}; // uoaType = default (1 Country)
                         ithelper.insertOne(testEnv.api_created_realm, pathUoas, token, insertItem, 201, obj, 'uoaId', done);
                     });
                 });
-                describe('Main tests: ', function () {
+                describe(testTitle+'Main tests', function () {
                     it('Create new UOA Tag link with Tag1 (classType1)', function (done) {
                         var insertItem = {uoaId: obj.uoaId, uoaTagId: obj.tagId1};
                         ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id1', done);
@@ -109,7 +111,7 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                         ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id2, token, 204, done);
                     });
                 });
-                describe('Delete all entities after tests completed', function () {
+                describe(testTitle+'Delete all entities after tests completed', function () {
                     it('Delete created UOA', function (done) {
                         ithelper.deleteOne(testEnv.api_created_realm, pathUoas + '/' + obj.uoaId, token, 204, done);
                     });
@@ -126,7 +128,7 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                         ithelper.deleteOne(testEnv.api_created_realm, pathClassTypes + '/' + obj.classTypeId1, token, 204, done);
                     });
                     it('CRUD: Delete UOA classtype (2)', function (done) {
-                        ithelper.deleteOne(testEnv.api_created_realm, pathClassTypes + '/' + obj.classTypeId1, token, 204, done);
+                        ithelper.deleteOne(testEnv.api_created_realm, pathClassTypes + '/' + obj.classTypeId2, token, 204, done);
                     });
                 });
             }
@@ -146,6 +148,15 @@ describe('Subjects (Units of Analisys Tag links):', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
+                    describe('', function () {
+                        it('Get test environment objects to uoataglinks <- config.testEntities.obj', function (done) {
+                            if (_.isEmpty(obj)){
+                                obj = _.extend({},config.testEntities.obj);
+                                //console.log(obj);
+                            }
+                            done();
+                        });
+                    });
                     allTests(user, token);
                     done();
                 });

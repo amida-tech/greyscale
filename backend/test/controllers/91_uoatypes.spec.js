@@ -31,16 +31,17 @@ testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organizatio
 var token;
 var obj ={};
 var path = '/uoatypes';
+var testTitle = 'Subject`s types (Unit of Analisys types): ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
-describe('Subject`s types (Unit of Analisys types):', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user ' + user.firstName, function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
                 ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 1, done);
             });
@@ -89,8 +90,8 @@ describe('Subject`s types (Unit of Analisys types):', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
-                    describe('Get test environment objects', function () {
-                        it('Get to uoatypes ***', function (done) {
+                    describe('', function () {
+                        it('Get test environment objects to uoatypes <- config.testEntities.obj', function (done) {
                             if (_.isEmpty(obj)){
                                 obj = _.extend({},config.testEntities.obj);
                                 //console.log(obj);
