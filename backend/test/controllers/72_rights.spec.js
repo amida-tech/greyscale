@@ -4,34 +4,40 @@
  * prerequsites tests: organizations, users
  *
  * used entities: organization, users, roles
- //[
- //{action: 'rights_view_all'},
- //{action: 'rights_add_one'},
- //{action: 'rights_view_one'},
- //{action: 'rights_delete_one'},
- //{action: 'rights_edit_one'},
- //{action: 'users_view_all'},
- //{action: 'users_edit_one'},
- //{action: 'users_view_one'},
- //{action: 'users_delete_one'},
- //{action: 'users_token'},
- //{action: 'users_logout_self'},
- //{action: 'users_logout'},
- //{action: 'users_view_self'},
- //{action: 'users_edit_self'},
- //{action: 'role_rights_view_one'},
- //{action: 'role_rights_add'},
- //{action: 'product_delete', essenceId: 4},
- //{action: 'users_uoa'},
- //{action: 'product_uoa', essenceId: 4},
- //{action: 'users_invite'},
- //{action: 'unitofanalysis_insert_one', essenceId: 6},
- //{action: 'unitofanalysis_update_one', essenceId: 6},
- //{action: 'unitofanalysis_delete_one', essenceId: 6},
- //{action: 'groups_delete'}
- //];
+     //[
+     //{action: 'rights_view_all'},
+     //{action: 'rights_add_one'},
+     //{action: 'rights_view_one'},
+     //{action: 'rights_delete_one'},
+     //{action: 'rights_edit_one'},
+     //{action: 'users_view_all'},
+     //{action: 'users_edit_one'},
+     //{action: 'users_view_one'},
+     //{action: 'users_delete_one'},
+     //{action: 'users_token'},
+     //{action: 'users_logout_self'},
+     //{action: 'users_logout'},
+     //{action: 'users_view_self'},
+     //{action: 'users_edit_self'},
+     //{action: 'role_rights_view_one'},
+     //{action: 'role_rights_add'},
+     //{action: 'product_delete', essenceId: 4},
+     //{action: 'users_uoa'},
+     //{action: 'product_uoa', essenceId: 4},
+     //{action: 'users_invite'},
+     //{action: 'unitofanalysis_insert_one', essenceId: 6},
+     //{action: 'unitofanalysis_update_one', essenceId: 6},
+     //{action: 'unitofanalysis_delete_one', essenceId: 6},
+     //{action: 'groups_delete'}
+     //];
  *
- * created:
+ * created: new right for later tests {action: 'rightTest', description: 'Right Test Description'}
+ *
+ *
+ * add to "config.testEntities.obj":
+    //right: {
+    //    testId
+    //}
  *
  **/
 
@@ -87,18 +93,19 @@ var rightsContent = [
 var numberOfRecords = 24;
 var insertItem = {action: 'testRight', description: 'test Right Description'};
 var updateItem = {action: 'rightTest', description: 'Right Test Description'};
+var testTitle='Rights: ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
-describe('Rights:', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user ' + user.firstName, function () {
             if (user.roleID < 3) {
-                it('Select: true number of records', function (done) {
+                it('Select true number of records', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
                 });
 
@@ -132,13 +139,23 @@ describe('Rights:', function () {
                     rightsContent.push(updateItem);
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rightsContent, done);
                 });
+/*
                 it('Delete test right', function (done) {
                     ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, token, 204, done);
                     rightsContent.splice(-1,1);
                     numberOfRecords--;
                 });
-                it('Select: true number of records (after delete)', function (done) {
+*/
+                it('Select true number of records (after delete)', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
+                });
+                describe('', function () {
+                    it('Save test environment objects from rights -> obj.right.testId (new "rightTest" Id)', function (done) {
+                        obj = _.extend(obj,{right: {testId: obj.id}});
+                        config.testEntities.obj = _.extend({},obj);
+                        //console.log(config.testEntities.obj);
+                        done();
+                    });
                 });
             }
         });
@@ -157,8 +174,8 @@ describe('Rights:', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
-                    describe('Get test environment objects', function () {
-                        it('Get to uoatypes ***', function (done) {
+                    describe('', function () {
+                        it('Get test environment objects to rights <- config.testEntities.obj', function (done) {
                             if (_.isEmpty(obj)){
                                 obj = _.extend({},config.testEntities.obj);
                                 //console.log(obj);

@@ -16,8 +16,15 @@
  //{name: 'client', isSystem: true},
  //{name: 'user', isSystem: true}
  //{name: 'roleTest', isSystem: false}
+ //{name: 'roleSystem', isSystem: true}
  //];
- **/
+ *
+ * add to "config.testEntities.obj":
+    //role: {
+    //    testId,
+    //    systemId
+    //}
+**/
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -48,17 +55,18 @@ var rolesContent = [
     {id: 3, name: 'user', isSystem: true}
 ];
 var numberOfRecords = 3;
+var testTitle = 'Roles: ';
 
 // make all users list
 testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
 
-describe('Roles:', function () {
+describe(testTitle, function () {
 
     function allTests(user, token) {
-        describe('All of tests for user: ' + user.firstName, function () {
-            it('Select: true number of records', function (done) {
+        describe(testTitle+'All of tests for user ' + user.firstName, function () {
+            it('Select true number of records', function (done) {
                 ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
             });
 
@@ -80,13 +88,32 @@ describe('Roles:', function () {
                 });
                 it('CRUD: Get updated Role', function (done) {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'roleTest', done);
+                    rolesContent.push({name: 'roleTest', isSystem: false});
                 });
                 it('CRUD: True number of records after insert', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
                 });
+                it('CRUD: Create new System Role - "roleSystem"', function (done) {
+                    var insertItem = {name: 'roleSystem', isSystem: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id1', done);
+                    rolesContent.push(insertItem);
+                    numberOfRecords++;
+                });
                 it('Select new content', function (done) {
-                    rolesContent.push({name: 'roleTest', isSystem: false});
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rolesContent, done);
+                });
+                describe('', function () {
+                    it('Save test environment objects from roles -> obj.role.testId (new "roleTest" Id)', function (done) {
+                        obj = _.extend(obj,{
+                            role: {
+                                testId: obj.id,
+                                systemId: obj.id1
+                            }
+                        });
+                        config.testEntities.obj = _.extend({},obj);
+                        //console.log(config.testEntities.obj);
+                        done();
+                    });
                 });
             }
         });
@@ -105,8 +132,8 @@ describe('Roles:', function () {
                     }
                     expect(res.body.token).to.exist;
                     token = res.body.token;
-                    describe('Get test environment objects', function () {
-                        it('Get to uoatypes ***', function (done) {
+                    describe('', function () {
+                        it('Get test environment objects to roles <- config.testEntities.obj', function (done) {
                             if (_.isEmpty(obj)){
                                 obj = _.extend({},config.testEntities.obj);
                                 //console.log(obj);
