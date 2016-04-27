@@ -63,8 +63,14 @@ upload-form,
 }
 
 .field-description,
-.field-response span {
+.field-response span,
+.section-description {
     white-space: pre-wrap;
+}
+
+.section-description {
+    border-bottom: solid 1px $grey-medium-light;
+    margin-bottom: ($grid-gutter-width / 2);
 }
 
 .input-group-addon {

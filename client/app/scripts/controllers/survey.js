@@ -17,7 +17,7 @@ angular.module('greyscaleApp')
         };
 
         var data = {};
-        var _title = [null, null, null];
+        var _title = [];
 
         var flags = [
             'allowEdit',
@@ -46,18 +46,25 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 data = {
                     survey: resp.survey,
-                    task: resp.task.plain(),
+                    task: resp.task ? resp.task.plain() : null,
                     userId: resp.profile.id,
                     languages: resp.languages.plain(),
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {}
                 };
-                return resp.task ? greyscaleProductApi.get(resp.task.productId) : $q.reject();
+                _title = [data.survey.title];
+                return resp.task ? $q.all({
+                    product: greyscaleProductApi.get(resp.task.productId),
+                    uoa: greyscaleUoaApi.get({
+                        id: data.task.uoaId
+                    })
+                }) : $q.reject();
             })
-            .then(function (product) {
-                data.product = product.plain();
-                _title[0] = data.product.title;
-                return greyscaleProductWorkflowApi.workflow(product.workflow.id).stepsList();
+            .then(function (resp) {
+                data.product = resp.product.plain();
+                data.uoa = resp.uoa.plain();
+                _title = [data.product.title, data.uoa.name];
+                return greyscaleProductWorkflowApi.workflow(data.product.workflow.id).stepsList();
             })
             .then(function (steps) {
                 steps = steps.plain();
@@ -69,16 +76,9 @@ angular.module('greyscaleApp')
                             data.flags[flags[f]] = steps[s][flags[f]];
                         }
                         data.task.step = steps[s];
-                        _title[2] = data.task.step.title;
+                        _title.push(data.task.step.title);
                     }
                 }
-                return data.task.uoaId ? greyscaleUoaApi.get({
-                    id: data.task.uoaId
-                }) : $q.reject();
-            })
-            .then(function (uoa) {
-                data.task.uoa = uoa.plain();
-                _title[1] = uoa.name;
             })
             .finally(function () {
                 $scope.model.title = _title.join(' - ');

@@ -28,7 +28,8 @@ angular.module('greyscaleApp')
                         body = '<uib-accordion><uib-accordion-group is-open="sectionOpen"><uib-accordion-heading>' +
                             '<span class="' + (scope.field.required ? 'required' : '') + '">{{field.label}}</span>' +
                             '<i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
-                            '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading><div class="form-group" ' +
+                            '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading>' +
+                            '<p class="subtext section-description">{{field.description}}</p><div class="form-group" ' +
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
                         var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
