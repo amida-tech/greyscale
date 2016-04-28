@@ -137,14 +137,19 @@ var environments = {
         testEntities: {
             superAdmin: {
                 email: 'test-su@mail.net',
-                password: 'testsuperadmin'
+                firstName: 'Test',
+                lastName: 'SuperAdmin',
+                roleID: 1,
+                password: 'testsuperadmin',
+                token: ''
             },
             admin: {
                 email: 'test-adm@mail.net',
                 firstName: 'Test',
                 lastName: 'Admin',
                 roleID: 2,
-                password: 'testadmin'
+                password: 'testadmin',
+                token: ''
             },
             users: [
                 {
@@ -152,21 +157,24 @@ var environments = {
                     lastName: 'Test',
                     email: 'user1@mail.net',
                     roleID: 3,
-                    password: 'testuser1'
+                    password: 'testuser1',
+                    token: ''
                 },
                 {
                     firstName: 'User2',
                     lastName: 'Test',
                     email: 'user2@mail.net',
                     roleID: 3,
-                    password: 'testuser2'
+                    password: 'testuser2',
+                    token: ''
                 },
                 {
                     firstName: 'User3',
                     lastName: 'Test',
                     email: 'user3@mail.net',
                     roleID: 3,
-                    password: 'testuser3'
+                    password: 'testuser3',
+                    token: ''
                 }
             ],
             organization : {

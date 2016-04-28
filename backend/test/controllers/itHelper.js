@@ -238,6 +238,20 @@ ithelper = {
                 done();
             });
     },
+    deleteOneErrMessage : function (api, get, token, status, errCode, message, done) {
+        api
+            .delete(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                expect(res.body.message).to.have.string(message);
+                done();
+            });
+    },
     checkHeaderValue : function (api, get, token, status, headerName, headerValue, done) {
         api
             .get(get)

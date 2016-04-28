@@ -55,6 +55,20 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+    deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            yield thunkQuery(
+                Essence.delete().where(Essence.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            // ToDo: add Bologger
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
 
     }
 

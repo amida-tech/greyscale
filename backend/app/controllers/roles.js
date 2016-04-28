@@ -86,5 +86,28 @@ module.exports = {
         }, function(err){
             next(err);
         });
+    },
+
+    deleteOne: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+
+        co(function*(){
+            yield thunkQuery(
+                Role.delete().where(Role.id.equals(req.params.id))
+            );
+        }).then(function(data){
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'roles',
+                entity: req.params.id,
+                info: 'Delete role'
+            });
+            res.status(204).end();
+        }, function(err){
+            next(err);
+        });
+
     }
 };
