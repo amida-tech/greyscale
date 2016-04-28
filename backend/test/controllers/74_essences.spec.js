@@ -7,8 +7,6 @@
  *
  //[ see essencesContent ];
  *
- * created: new essence:
- *
 **/
 
 var chai = require('chai');
@@ -20,16 +18,11 @@ var request = require('supertest');
 var _ = require('underscore');
 
 var testEnv = {};
-testEnv.superAdmin   = config.testEntities.superAdmin;
-testEnv.admin        = config.testEntities.admin;
-testEnv.users        = config.testEntities.users;
-testEnv.organization = config.testEntities.organization;
-
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
 testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/';
 testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
+testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
 
 var token;
 var obj ={};
@@ -267,179 +260,150 @@ var essencesContent = [
 var numberOfRecords = essencesContent.length;
 var testTitle = 'Essences: ';
 
-// make all users list
-testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
-
 describe(testTitle, function () {
 
-    function allTests(user, token) {
-        describe(testTitle+'All of tests for user ' + user.firstName, function () {
+    function userTests(user) {
+        describe(testTitle+'All of tests for user `' + user.firstName+'`', function () {
             it('Select true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
             });
 
             it('Select initial content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', token, 200, essencesContent, done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', user.token, 200, essencesContent, done);
             });
-            if (user.roleID === 1) {
-                it('(Err) Create new Essence - "tableName, name, fileName and nameField fields are required"', function (done) {
-                    ithelper.insertOneErrMessage(
-                        testEnv.api_created_realm,
-                        path,
-                        token,
-                        {},
-                        400,
-                        403,
-                        'tableName, name, fileName and nameField fields are required',
-                        done
-                    );
-                });
-                it('(Err) Create new Essence - "record with this tableName or(and) fileName has already exist"', function (done) {
-                    ithelper.insertOneErrMessage(
-                        testEnv.api_created_realm,
-                        path,
-                        token,
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'products',
-                            nameField:'id'
-                        },
-                        400,
-                        403,
-                        'record with this tableName or(and) fileName has already exist',
-                        done
-                    );
-                });
-                it('(Err) Create new Essence - "Cannot find model file"', function (done) {
-                    ithelper.insertOneErrMessage(
-                        testEnv.api_created_realm,
-                        path,
-                        token,
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'logs*',
-                            nameField:'id'
-                        },
-                        400,
-                        403,
-                        'Cannot find model file',
-                        done
-                    );
-                });
-                it('(Err) Create new Essence - "Essence does not have"', function (done) {
-                    ithelper.insertOneErrMessage(
-                        testEnv.api_created_realm,
-                        path,
-                        token,
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'logs',
-                            nameField:'id*'
-                        },
-                        400,
-                        403,
-                        'Essence does not have',
-                        done
-                    );
-                });
-                it('CRUD: Create new Essence - "Logs"', function (done) {
-                    ithelper.insertOne(
-                        testEnv.api_created_realm,
-                        path,
-                        token,
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'logs',
-                            nameField:'id'
-                        },
-                        201,
-                        obj,
-                        'id',
-                        done
-                    );
-                    numberOfRecords++;
-                    essencesContent.push(
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'logs',
-                            nameField:'id'
-                        }
-                    );
-                });
-                it('CRUD: Get created Essence', function (done) {
-                    ithelper.selectOneCheckFields(
-                        testEnv.api_created_realm,
-                        path + '?tableName=Logs',
-                        token,
-                        200,
-                        0,
-                        {
-                            tableName:'Logs',
-                            name:'logs',
-                            fileName:'logs',
-                            nameField:'id'
-                        },
-                        done
-                    );
-                });
-                it('CRUD: True number of records after insert', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
-                });
-                it('Select new content', function (done) {
-                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', token, 200, essencesContent, done);
-                });
-                describe('', function () {
-                    it('Save test environment objects from essences -> obj.essence.testId (new "Logs" Id)', function (done) {
-                        obj = _.extend(obj,{
-                            essence: {
-                                testId: obj.id
-                            }
-                        });
-                        config.testEntities.obj = _.extend({},obj);
-                        //console.log(config.testEntities.obj);
-                        done();
-                    });
-                });
-            }
         });
     }
 
-    function makeTests(user) {
-        it('Authorize user ' + user.firstName, function(done) {
-            var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
-            api
-                .get('/users/token')
-                .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))
-                .expect(200)
-                .end(function (err, res) {
-                    if (err) {
-                        return err;
+    function adminTests(user) {
+        describe(testTitle+'All of tests for admin `' + user.firstName+'`', function () {
+            it('(Err) Create new Essence - "tableName, name, fileName and nameField fields are required"', function (done) {
+                ithelper.insertOneErrMessage(
+                    testEnv.api_created_realm,
+                    path,
+                    user.token,
+                    {},
+                    400,
+                    403,
+                    'tableName, name, fileName and nameField fields are required',
+                    done
+                );
+            });
+            it('(Err) Create new Essence - "record with this tableName or(and) fileName has already exist"', function (done) {
+                ithelper.insertOneErrMessage(
+                    testEnv.api_created_realm,
+                    path,
+                    user.token,
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'products',
+                        nameField:'id'
+                    },
+                    400,
+                    403,
+                    'record with this tableName or(and) fileName has already exist',
+                    done
+                );
+            });
+            it('(Err) Create new Essence - "Cannot find model file"', function (done) {
+                ithelper.insertOneErrMessage(
+                    testEnv.api_created_realm,
+                    path,
+                    user.token,
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'logs*',
+                        nameField:'id'
+                    },
+                    400,
+                    403,
+                    'Cannot find model file',
+                    done
+                );
+            });
+            it('(Err) Create new Essence - "Essence does not have"', function (done) {
+                ithelper.insertOneErrMessage(
+                    testEnv.api_created_realm,
+                    path,
+                    user.token,
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'logs',
+                        nameField:'id*'
+                    },
+                    400,
+                    403,
+                    'Essence does not have',
+                    done
+                );
+            });
+            it('CRUD: Create new Essence - "Logs"', function (done) {
+                ithelper.insertOne(
+                    testEnv.api_created_realm,
+                    path,
+                    user.token,
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'logs',
+                        nameField:'id'
+                    },
+                    201,
+                    obj,
+                    'id',
+                    done
+                );
+                numberOfRecords++;
+                essencesContent.push(
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'logs',
+                        nameField:'id'
                     }
-                    expect(res.body.token).to.exist;
-                    token = res.body.token;
-                    describe('', function () {
-                        it('Get test environment objects to essences <- config.testEntities.obj', function (done) {
-                            if (_.isEmpty(obj)){
-                                obj = _.extend({},config.testEntities.obj);
-                                //console.log(obj);
-                            }
-                            done();
-                        });
-                    });
-                    allTests(user, token);
-                    done();
-                });
+                );
+            });
+            it('CRUD: Get created Essence', function (done) {
+                ithelper.selectOneCheckFields(
+                    testEnv.api_created_realm,
+                    path + '?tableName=Logs',
+                    user.token,
+                    200,
+                    0,
+                    {
+                        tableName:'Logs',
+                        name:'logs',
+                        fileName:'logs',
+                        nameField:'id'
+                    },
+                    done
+                );
+            });
+            it('CRUD: True number of records after insert', function (done) {
+                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+            });
+            it('Select new content', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', user.token, 200, essencesContent, done);
+            });
+            it('Delete essence', function (done) {
+                ithelper.deleteOne(testEnv.api_created_realm, path+'/' + obj.id, user.token, 204, done);
+                    essencesContent.splice(-1,1);
+                    numberOfRecords--;
+            });
+            it('Select content after deleting = initial content', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?order=id', user.token, 200, essencesContent, done);
+            });
         });
-
     }
 
-    for (var i = 0; i < testEnv.allUsers.length; i++) {
-        makeTests(testEnv.allUsers[i]);
+    userTests(config.testEntities.superAdmin);
+    adminTests(config.testEntities.superAdmin);
+    userTests(config.testEntities.admin);
+    adminTests(config.testEntities.admin);
+    for (var i = 0; i < config.testEntities.users.length; i++) {
+        userTests(config.testEntities.users[i]);
     }
 
 });
