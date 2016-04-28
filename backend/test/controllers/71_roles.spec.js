@@ -57,99 +57,58 @@ var rolesContent = [
 var numberOfRecords = 3;
 var testTitle = 'Roles: ';
 
-// make all users list
-testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
-//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']);
-//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']);
-
 describe(testTitle, function () {
 
-    function allTests(user, token) {
+    function userTests(user) {
         describe(testTitle+'All of tests for user ' + user.firstName, function () {
             it('Select true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
+                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
             });
 
             it('Select initial content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rolesContent, done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
             });
-            if (user.roleID === 1) {
-                it('CRUD: Create new Role - "testRole"', function (done) {
-                    var insertItem = {name: 'testRole'};
-                    ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id', done);
-                    numberOfRecords++;
-                });
-                it('CRUD: Get created Role', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'testRole', done);
-                });
-                it('CRUD: Update Role', function (done) {
-                    var updateItem = {name: 'roleTest'};
-                    ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, token, updateItem, 202, done);
-                });
-                it('CRUD: Get updated Role', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, token, 200, null, 'name', 'roleTest', done);
-                    rolesContent.push({name: 'roleTest', isSystem: false});
-                });
-                it('CRUD: True number of records after insert', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, numberOfRecords, done);
-                });
-                it('CRUD: Create new System Role - "roleSystem"', function (done) {
-                    var insertItem = {name: 'roleSystem', isSystem: true};
-                    ithelper.insertOne(testEnv.api_created_realm, path, token, insertItem, 201, obj, 'id1', done);
-                    rolesContent.push(insertItem);
-                    numberOfRecords++;
-                });
-                it('Select new content', function (done) {
-                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, token, 200, rolesContent, done);
-                });
-                describe('', function () {
-                    it('Save test environment objects from roles -> obj.role.testId (new "roleTest" Id)', function (done) {
-                        obj = _.extend(obj,{
-                            role: {
-                                testId: obj.id,
-                                systemId: obj.id1
-                            }
-                        });
-                        config.testEntities.obj = _.extend({},obj);
-                        //console.log(config.testEntities.obj);
-                        done();
-                    });
-                });
-            }
         });
     }
 
-    function makeTests(user) {
-        it('Authorize user ' + user.firstName, function(done) {
-            var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
-            api
-                .get('/users/token')
-                .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))
-                .expect(200)
-                .end(function (err, res) {
-                    if (err) {
-                        return err;
-                    }
-                    expect(res.body.token).to.exist;
-                    token = res.body.token;
-                    describe('', function () {
-                        it('Get test environment objects to roles <- config.testEntities.obj', function (done) {
-                            if (_.isEmpty(obj)){
-                                obj = _.extend({},config.testEntities.obj);
-                                //console.log(obj);
-                            }
-                            done();
-                        });
-                    });
-                    allTests(user, token);
-                    done();
-                });
+    function adminTests(user) {
+        describe(testTitle+'All of tests for admin ' + user.firstName, function () {
+            it('CRUD: Create new Role - "testRole"', function (done) {
+                var insertItem = {name: 'testRole'};
+                ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id', done);
+                numberOfRecords++;
+            });
+            it('CRUD: Get created Role', function (done) {
+                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, user.token, 200, null, 'name', 'testRole', done);
+            });
+            it('CRUD: Update Role', function (done) {
+                var updateItem = {name: 'roleTest'};
+                ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, user.token, updateItem, 202, done);
+            });
+            it('CRUD: Get updated Role', function (done) {
+                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, user.token, 200, null, 'name', 'roleTest', done);
+                rolesContent.push({name: 'roleTest', isSystem: false});
+            });
+            it('CRUD: True number of records after insert', function (done) {
+                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+            });
+            it('CRUD: Create new System Role - "roleSystem"', function (done) {
+                var insertItem = {name: 'roleSystem', isSystem: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id1', done);
+                rolesContent.push(insertItem);
+                numberOfRecords++;
+            });
+            it('Select new content', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
+            });
         });
-
     }
 
-    for (var i = 0; i < testEnv.allUsers.length; i++) {
-        makeTests(testEnv.allUsers[i]);
+    userTests(config.testEntities.superAdmin);
+    adminTests(config.testEntities.superAdmin);
+    userTests(config.testEntities.admin);
+    for (var i = 0; i < config.testEntities.users.length; i++) {
+        userTests(config.testEntities.users[i]);
     }
 
 });

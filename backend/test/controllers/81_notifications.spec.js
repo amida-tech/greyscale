@@ -35,49 +35,35 @@ var obj ={};
 var path = '/notifications';
 var pathUsersSelf = '/users/self';
 var pathEssences = '/essences';
-var tokenSuperAdmin;
-var tokenAdmin;
-var tokenUser1;
-var tokenUser2;
-var tokenUser3;
+var tokenSuperAdmin = config.testEntities.superAdmin.token;
+var tokenAdmin = config.testEntities.admin.token;
+var tokenUser1 = config.testEntities.users[0].token;
+var tokenUser2 = config.testEntities.users[1].token;
+var tokenUser3 = config.testEntities.users[2].token;
 var testTitle='Notifications: ';
-
-// make all users list
-testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
-//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin']); // for debug only
-//testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['users']); // for debug only
 
 describe(testTitle, function () {
 
     function allTests() {
-        describe('', function () {
-            it('Get test environment objects to notifications <- config.testEntities.obj', function (done) {
-                if (_.isEmpty(obj)){
-                    obj = _.extend({},config.testEntities.obj);
-                    //console.log(obj);
-                }
-                done();
-            });
-        });
         describe(testTitle+'Select ', function () {
             it('True number of records (superAdmin) = 5', function (done) {
-                tokenSuperAdmin = ithelper.getUser(testEnv.allUsers, 1).token;
+                tokenSuperAdmin = config.testEntities.superAdmin.token;
                 ithelper.selectCount(testEnv.api, path, tokenSuperAdmin, 200, 5, done); // 5 records "Indaba. Restore password"
             });
             it('True number of records (admin) = 1', function (done) {
-                tokenAdmin = ithelper.getUser(testEnv.allUsers, 2).token;
+                tokenAdmin = config.testEntities.admin.token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 1) = 1', function (done) {
-                tokenUser1 = ithelper.getUser(testEnv.allUsers, 3, 1).token;
+                tokenUser1 = config.testEntities.users[0].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser1, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 2) = 1', function (done) {
-                tokenUser2 = ithelper.getUser(testEnv.allUsers, 3, 2).token;
+                tokenUser2 = config.testEntities.users[1].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser2, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 3) = 1', function (done) {
-                tokenUser3 = ithelper.getUser(testEnv.allUsers, 3, 3).token;
+                tokenUser3 = config.testEntities.users[2].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser3, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
         });
@@ -341,28 +327,6 @@ describe(testTitle, function () {
         });
     }
 
-    async.each(testEnv.allUsers, function(user, doneUser){
-            // Authorize users and save token for later use
-            it('Authorize user ' + user.firstName, function(done) {
-                var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
-                api
-                    .get('/users/token')
-                    .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))
-                    .expect(200)
-                    .end(function (err, res) {
-                        if (err) {
-                            return err;
-                        }
-                        expect(res.body.token).to.exist;
-                        user.token = res.body.token;
-                        done();
-                        doneUser();
-                    });
-            });
-        }, function (err) {
-            //console.log('Authorize all users - done');
-            allTests();
-        }
-    );
+    allTests();
 
 });
