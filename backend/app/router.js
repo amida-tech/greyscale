@@ -16,7 +16,8 @@ router.route('/:realm/v0.2/roles')
 
 router.route('/:realm/v0.2/roles/:id')
     .get(authenticate('token').ifPossible, roles.selectOne)
-    .put(authenticate('token').ifPossible, roles.updateOne);
+    .put(authenticate('token').ifPossible, roles.updateOne)
+    .delete(authenticate('token').ifPossible, roles.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    RIGHTS
