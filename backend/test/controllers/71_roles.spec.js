@@ -10,20 +10,6 @@
  //{name: 'user', isSystem: true}
  //];
  *
- * created: new role
- //[
- //{name: 'admin', isSystem: true},
- //{name: 'client', isSystem: true},
- //{name: 'user', isSystem: true}
- //{name: 'roleTest', isSystem: false}
- //{name: 'roleSystem', isSystem: true}
- //];
- *
- * add to "config.testEntities.obj":
-    //role: {
-    //    testId,
-    //    systemId
-    //}
 **/
 
 var chai = require('chai');
@@ -35,16 +21,11 @@ var request = require('supertest');
 var _ = require('underscore');
 
 var testEnv = {};
-testEnv.superAdmin   = config.testEntities.superAdmin;
-testEnv.admin        = config.testEntities.admin;
-testEnv.users        = config.testEntities.users;
-testEnv.organization = config.testEntities.organization;
-
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
 testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/';
 testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
+testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
 
 var token;
 var obj ={};
@@ -60,7 +41,7 @@ var testTitle = 'Roles: ';
 describe(testTitle, function () {
 
     function userTests(user) {
-        describe(testTitle+'All of tests for user ' + user.firstName, function () {
+        describe(testTitle+'All of tests for user `' + user.firstName+'`', function () {
             it('Select true number of records', function (done) {
                 ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
             });
@@ -72,7 +53,7 @@ describe(testTitle, function () {
     }
 
     function adminTests(user) {
-        describe(testTitle+'All of tests for admin ' + user.firstName, function () {
+        describe(testTitle+'All of tests for admin `' + user.firstName+'`', function () {
             it('CRUD: Create new Role - "testRole"', function (done) {
                 var insertItem = {name: 'testRole'};
                 ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id', done);
@@ -101,12 +82,26 @@ describe(testTitle, function () {
             it('Select new content', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
             });
+            it('Delete system role', function (done) {
+                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id1, user.token, 204, done);
+                rolesContent.splice(-1,1);
+                numberOfRecords--;
+            });
+            it('Delete test role', function (done) {
+                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, user.token, 204, done);
+                rolesContent.splice(-1,1);
+                numberOfRecords--;
+            });
+            it('Select content after deletions = initial content', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
+            });
         });
     }
 
     userTests(config.testEntities.superAdmin);
     adminTests(config.testEntities.superAdmin);
     userTests(config.testEntities.admin);
+    adminTests(config.testEntities.admin);
     for (var i = 0; i < config.testEntities.users.length; i++) {
         userTests(config.testEntities.users[i]);
     }
