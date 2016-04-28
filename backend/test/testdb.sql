@@ -3333,7 +3333,7 @@ SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 268, true);
 --
 
 COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt) FROM stdin;
-1	350	test-su@mail.net	Test	Super Admin	2d97fa50e82fb50e883dfd491565f276349eed70dbf0ed0c188b051018ede809	\N	\N	1f211bb6cfd964dce1a4f8adfb3335f55edb7a283646fe43d211ca983668a1b6	1460547790071	2016-04-04 14:37:54.284+03	2016-04-13 14:37:14.142147	t	\N	\N	\N	\N	\N	\N	\N	0	\N	2016-04-13 14:37:14.136+03	\N	f	\N	\N
+1	350	test-su@mail.net	Test	SuperAdmin	d8c6eef7ff25452097a750b6ed8a80fe0e22a9003d51aacc99f194fd2c78fe62	\N	\N	1f211bb6cfd964dce1a4f8adfb3335f55edb7a283646fe43d211ca983668a1b6	1460547790071	2016-04-04 14:37:54.284+03	2016-04-13 14:37:14.142147	t	\N	\N	\N	\N	\N	\N	\N	0	\N	2016-04-13 14:37:14.136+03	\N	f	\N	f42d1a395d0ec925750be5dd44358c82
 \.
 
 
