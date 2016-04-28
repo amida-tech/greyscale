@@ -114,10 +114,8 @@ passport.use(new BasicStrategy({
 
             var user =  yield thunkQuery(
                 User.select().where(
-                    {
-                        roleID : 1,
-                        email : email
-                    }
+                    sql.functions.UPPER(User.email).equals(email.toUpperCase())
+                    .and(User.roleID.equals(1))
                 )
             );
 
