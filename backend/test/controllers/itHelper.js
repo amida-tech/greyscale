@@ -6,8 +6,11 @@ var chai = require('chai');
 var expect = chai.expect;
 var config = require('../../config');
 var _ = require('underscore');
+var request = require('superagent');
+var co = require('co');
 
-
+var backendServerDomain = 'http://localhost'; // ToDo: to config
+var apiBase = backendServerDomain + ':' + config.port + '/' + config.pgConnect.adminSchema + '/v0.2';
 
 // make all users list
 ithelper = {
@@ -278,7 +281,40 @@ ithelper = {
                 }
                 done();
             });
+    },
+
+    getTokens: function(usersArray) {
+        return new Promise((resolve, reject) => {
+            co(function* (){
+                for (var i in usersArray) {
+                    var token = yield new Promise((authRes, authRej) => {
+                        request
+                            .get(apiBase + '/users/token')
+                            .set(
+                                'Authorization',
+                                'Basic ' + new Buffer(
+                                    usersArray[i].email
+                                    + ':'
+                                    + usersArray[i].password
+                                ).toString('base64')
+                            )
+                            .end(function (err, res) {
+                                if (err) {
+                                    authRej(err);
+                                }
+                                authRes(res.body.token);
+                            });
+                    });
+                    usersArray[i].token = token;
+                }
+                return usersArray;
+            }).then(
+                (res) => resolve(res),
+                (err) => reject(err)
+            );
+        });
     }
+
 };
 
 module.exports = ithelper;
