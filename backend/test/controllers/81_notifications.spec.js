@@ -19,51 +19,52 @@ var async = require('async');
 var _ = require('underscore');
 
 var testEnv = {};
-testEnv.superAdmin   = config.testEntities.superAdmin;
-testEnv.admin        = config.testEntities.admin;
-testEnv.users        = config.testEntities.users;
-testEnv.organization = config.testEntities.organization;
-
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
 testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/';
 testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
+testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+
+var tokenSuperAdmin;
+var tokenAdmin;
+var tokenUser1;
+var tokenUser2;
+var tokenUser3;
 
 var token;
 var obj ={};
 var path = '/notifications';
 var pathUsersSelf = '/users/self';
 var pathEssences = '/essences';
-var tokenSuperAdmin = config.testEntities.superAdmin.token;
-var tokenAdmin = config.testEntities.admin.token;
-var tokenUser1 = config.testEntities.users[0].token;
-var tokenUser2 = config.testEntities.users[1].token;
-var tokenUser3 = config.testEntities.users[2].token;
 var testTitle='Notifications: ';
 
 describe(testTitle, function () {
 
     function allTests() {
+        describe(testTitle, function () {
+            it('Get tokens', function (done) {
+                tokenSuperAdmin = config.testEntities.superAdmin.token;
+                tokenAdmin = config.testEntities.admin.token;
+                tokenUser1 = config.testEntities.users[0].token;
+                tokenUser2 = config.testEntities.users[1].token;
+                tokenUser3 = config.testEntities.users[2].token;
+                done();
+            });
+        });
         describe(testTitle+'Select ', function () {
             it('True number of records (superAdmin) = 5', function (done) {
-                tokenSuperAdmin = config.testEntities.superAdmin.token;
                 ithelper.selectCount(testEnv.api, path, tokenSuperAdmin, 200, 5, done); // 5 records "Indaba. Restore password"
             });
             it('True number of records (admin) = 1', function (done) {
-                tokenAdmin = config.testEntities.admin.token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 1) = 1', function (done) {
-                tokenUser1 = config.testEntities.users[0].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser1, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 2) = 1', function (done) {
-                tokenUser2 = config.testEntities.users[1].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser2, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
             it('True number of records (user 3) = 1', function (done) {
-                tokenUser3 = config.testEntities.users[2].token;
                 ithelper.selectCount(testEnv.api_created_realm, path, tokenUser3, 200, 1, done); // 1 record "Indaba. Organization membership"
             });
         });
