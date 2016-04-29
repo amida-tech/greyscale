@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -67,9 +67,13 @@ angular.module('greyscaleApp')
                 };
 
                 scope.back = function () {
-                    saveAnswers(scope, true)
-                        .then(_draftSaved)
-                        .then(goTasks);
+                    if (scope.surveyData.task) {
+                        saveAnswers(scope, true)
+                            .then(_draftSaved)
+                            .then(goTasks);
+                    } else {
+                        $window.history.back();
+                    }
                 };
 
                 scope.autosave = $interval(_autosave, 15000);
