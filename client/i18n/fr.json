@@ -269,6 +269,11 @@
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "",
         "PM_PRODUCT_DASHBOARD": "",
+        "POLICY": {
+            "EDIT": "",
+            "REVIEW": "",
+            "TITLE": ""
+        },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "",
         "PROFILE": "",
