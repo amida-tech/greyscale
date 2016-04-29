@@ -272,7 +272,7 @@
         "POLICY": {
             "EDIT": "Policy edit",
             "REVIEW": "Policy review",
-            "TITLE": "Policy"
+            "TITLE": "Policies"
         },
         "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",

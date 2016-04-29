@@ -11,10 +11,10 @@ angular.module('greyscale.core')
                 states: ['organizations', 'superusers']
             }, {
                 title: 'NAV.ADMIN_SECTION',
-                states: ['projects.setup.products', 'access', 'uoas', /*'orgs', */ 'users']
+                states: ['policy', 'projects.setup.products', 'access', 'uoas', /*'orgs', */ 'users']
             }, {
                 title: 'NAV.CONTENT_SECTION',
-                states: ['policy', 'profile', 'tasks', 'visualizations', 'graph', 'table']
+                states: ['profile', 'tasks', 'visualizations', 'graph', 'table']
             }]
         };
 

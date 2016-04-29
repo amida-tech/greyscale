@@ -548,7 +548,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             },
             data: {
                 name: 'NAV.POLICY.TITLE',
-                icon: 'fa-pencil-square-o',
+                icon: 'fa-file',
                 accessLevel: systemRoles.any.mask
             }
         })
