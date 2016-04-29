@@ -53,6 +53,8 @@ var essences = require('app/controllers/essences');
 router.route('/:realm/v0.2/essences')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.select)
     .post(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.insertOne);
+router.route('/:realm/v0.2/essences/:id')
+    .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    PROJECTS
