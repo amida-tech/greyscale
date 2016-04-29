@@ -251,7 +251,7 @@ angular.module('greyscaleApp')
             var survey = scope.surveyData.survey;
             var task = scope.surveyData.task || {};
 
-            var o, item, fld, fldId, q, field, type,
+            var o, qty, item, fld, fldId, q, field, type,
                 r = 0,
                 qid = 0,
                 questions = survey.questions || [],
@@ -306,21 +306,12 @@ angular.module('greyscaleApp')
                         }
                     } else { //push data into current section
                         if (excludedFields.indexOf(field.type) === -1) {
-                            if (!field.options && (type === 'radio' || type === 'checkboxes')) {
-                                field.options = field.options || [];
-                            }
-
                             angular.extend(fld, {
                                 qid: field.qid,
                                 required: field.isRequired,
-                                listType: field.optionNumbering,
-                                options: field.options,
                                 minLength: field.minLength,
                                 maxLength: field.maxLength,
                                 inWords: field.isWordmml,
-                                units: field.units,
-                                intOnly: field.intOnly,
-                                withOther: field.incOtherOpt,
                                 value: field.value,
                                 links: field.links,
                                 canAttach: field.attachment,
@@ -334,9 +325,23 @@ angular.module('greyscaleApp')
                                 response: '',
                                 langId: scope.model.lang,
                                 essenceId: scope.surveyData.essenceId,
-                                comment: '',
                                 withLinks: field.withLinks
                             });
+
+                            if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
+                                angular.extend(fld, {
+                                    listType: field.optionNumbering,
+                                    withOther: field.incOtherOpt,
+                                    options: []
+                                });
+                                field.options = field.options || [];
+                                qty = field.options.length;
+                                for (o = 0; o < qty; o++) {
+                                    if (field.options[o] && field.options[o].id && field.options[o].id >= 0) {
+                                        fld.options.push(field.options[o]);
+                                    }
+                                }
+                            }
 
                             if (fld.canAttach) {
                                 fld.attachments = [];
@@ -346,12 +351,17 @@ angular.module('greyscaleApp')
                                 fld.answerLinks = [];
                             }
 
+                            if (fld.hasComments) {
+                                fld.comment = '';
+                            }
+
                             switch (type) {
                             case 'checkboxes':
-                                for (o = 0; o < field.options.length; o++) {
+                                qty = fld.options.length;
+                                for (o = 0; o < qty; o++) {
                                     angular.extend(fld.options[o] || {}, {
-                                        checked: field.options[o] ? field.options[o].isSelected : false,
-                                        name: field.options[o] ? field.options[o].label : ''
+                                        checked: fld.options[o].isSelected,
+                                        name: fld.options[o].label
                                     });
                                 }
                                 break;
@@ -368,15 +378,20 @@ angular.module('greyscaleApp')
                                         fld.answer = fld.options[0];
                                     }
                                 }
-
-                                for (o = 0; o < field.options.length; o++) {
-                                    if (field.options[o] && field.options[o].isSelected) {
-                                        fld.answer = field.options[o];
+                                qty = fld.options.length;
+                                for (o = 0; o < qty; o++) {
+                                    if (fld.options[o] && fld.options[o].isSelected) {
+                                        fld.answer = fld.options[o];
                                     }
                                 }
                                 break;
 
                             case 'number':
+                                angular.extend(fld, {
+                                    units: field.units || '',
+                                    intOnly: !!field.intOnly
+                                });
+
                                 if (fld.intOnly) {
                                     fld.answer = parseInt(fld.value);
                                 } else {
