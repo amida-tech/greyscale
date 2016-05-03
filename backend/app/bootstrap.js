@@ -180,7 +180,7 @@ app.on('start', function () {
 
     // Setup error handlers
     app.use(function (err, req, res, next) {
-        error(err);
+        error(JSON.stringify(err));
         if (err) {
             switch (err.name) {
             case 'HttpError':

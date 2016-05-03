@@ -180,6 +180,7 @@ passport.use(new TokenStrategy({
 
             // add realmUserId to user
             user.realmUserId = user.id;
+
             if (user.roleID === 1 && req.params.realm !== 'public') {
                 // superuser
                 user.realmUserId = yield* getRealmAdminId(req, req.params.realm);

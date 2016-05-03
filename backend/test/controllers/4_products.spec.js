@@ -1,5 +1,5 @@
 /**
- * Unit of Analisys ClassTypes tests
+ * Products tests
  **/
 
 var chai = require('chai');
@@ -108,7 +108,6 @@ describe('Products:', function () {
                 it('Save from products ***', function (done) {
                     obj.product = insertItem;
                     config.testEntities.obj = _.extend({},obj);
-                    console.log(config.testEntities.obj);
                     done();
                 });
             });
@@ -133,8 +132,6 @@ describe('Products:', function () {
                         it('Get to products ***', function (done) {
                             if (_.isEmpty(obj)){
                                 obj = _.extend({},config.testEntities.obj);
-
-
                             }
                             done();
                         });
