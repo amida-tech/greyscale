@@ -18,6 +18,7 @@
         "ALL": "All",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
+        "ATTACHMENTS": "Attachments",
         "BACK": "Back",
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
@@ -31,6 +32,7 @@
         "EDIT": "Edit",
         "FURTHER": "Further",
         "GLOBALLY": "Globally",
+        "ID": "ID",
         "INFO": "Info",
         "NEVER": "Never",
         "NO": "No",
@@ -72,6 +74,7 @@
         "CHANGES_UNSAVED": "Changes unsaved",
         "STEP_READONLY": "Task is readonly",
         "STEP_SUBMIT": "Task submit error",
+        "SURVEY_UPDATE_ERROR": "Survey update error",
         "TASK_UNDEFINED": "Task is undefined",
         "TEST": "Test error"
     },
@@ -354,6 +357,17 @@
         "NO_PROJECTS": "You have no projects to manage",
         "PROJECT": "Project"
     },
+    "POLICY": {
+        "AUTHOR": "Author",
+        "NEW_POLICY": "New policy",
+        "NUMBER": "Number",
+        "PUBLISH": "Publish",
+        "QUESTIONS": "Questions",
+        "SECTION": "Section",
+        "SUBSECTION": "Subsection",
+        "TEXT": "Draft policy text:",
+        "TITLE": "Policy title"
+    },
     "PRODUCTS": {
         "INDEXES": {
             "FORM": {
@@ -589,6 +603,7 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "NEW_SURVEY": "New survey",
         "NO_DATA": "No data",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",

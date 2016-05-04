@@ -18,6 +18,7 @@
         "ALL": "",
         "APPLY": "",
         "ASSIGN": "",
+        "ATTACHMENTS": "",
         "BACK": "",
         "CANCEL": "",
         "CHARS": "",
@@ -31,6 +32,7 @@
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",
+        "ID": "",
         "INFO": "",
         "NEVER": "",
         "NO": "",
@@ -72,6 +74,7 @@
         "CHANGES_UNSAVED": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "SURVEY_UPDATE_ERROR": "",
         "TASK_UNDEFINED": "",
         "TEST": ""
     },
@@ -354,6 +357,17 @@
         "NO_PROJECTS": "",
         "PROJECT": ""
     },
+    "POLICY": {
+        "AUTHOR": "",
+        "NEW_POLICY": "",
+        "NUMBER": "",
+        "PUBLISH": "",
+        "QUESTIONS": "",
+        "SECTION": "",
+        "SUBSECTION": "",
+        "TEXT": "",
+        "TITLE": ""
+    },
     "PRODUCTS": {
         "INDEXES": {
             "FORM": {
@@ -589,6 +603,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "",
+        "NEW_SURVEY": "",
         "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",

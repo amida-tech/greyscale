@@ -5,6 +5,9 @@
 angular.module('greyscaleApp')
 .controller('PolicyEditCtrl', function($scope, $state, $stateParams ){
         $scope.model = {
-            id: $stateParams.id
+            policy: {
+                isPolicy: !!0,
+                id: $stateParams.id
+            }
         };
     });

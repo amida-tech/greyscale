@@ -18,6 +18,7 @@
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "ATTACHMENTS": "",
         "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
@@ -31,6 +32,7 @@
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
+        "ID": "",
         "INFO": "Информация",
         "NEVER": "",
         "NO": "Нет",
@@ -72,6 +74,7 @@
         "CHANGES_UNSAVED": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "SURVEY_UPDATE_ERROR": "",
         "TASK_UNDEFINED": "",
         "TEST": "Тестовая ошибка"
     },
@@ -354,6 +357,17 @@
         "NO_PROJECTS": "Нет проектов для управления",
         "PROJECT": "Проект"
     },
+    "POLICY": {
+        "AUTHOR": "",
+        "NEW_POLICY": "",
+        "NUMBER": "",
+        "PUBLISH": "",
+        "QUESTIONS": "",
+        "SECTION": "",
+        "SUBSECTION": "",
+        "TEXT": "",
+        "TITLE": ""
+    },
     "PRODUCTS": {
         "INDEXES": {
             "FORM": {
@@ -589,6 +603,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "NEW_SURVEY": "",
         "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",
