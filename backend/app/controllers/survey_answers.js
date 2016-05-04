@@ -664,7 +664,7 @@ function *addAnswer (req, dataObject) {
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
-        if (!dataObject.optionId && !dataObject.isResponse) {
+        if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
             throw new HttpError(403, 'You should provide optionId for this type of question');
         } else {
             for (optIndex in dataObject.optionId) {
@@ -683,7 +683,7 @@ function *addAnswer (req, dataObject) {
             }
         }
     } else {
-        if (!dataObject.value && (!dataObject.isResponse || !req.query.autosave)) {
+        if (!dataObject.value && !dataObject.isResponse && !req.query.autosave) {
             throw new HttpError(403, 'You should provide value for this type of question');
         }
     }
