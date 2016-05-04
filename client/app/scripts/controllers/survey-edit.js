@@ -51,7 +51,7 @@ angular.module('greyscaleApp')
             _survey.projectId = projectId;
 
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-            .then(function () {
+                .then(function () {
                     $state.go('projects.setup.surveys', {
                         projectId: projectId
                     });
