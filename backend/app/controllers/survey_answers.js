@@ -684,7 +684,7 @@ function *addAnswer (req, dataObject) {
             }
         }
     } else {
-        if (!dataObject.value && !dataObject.isResponse) {
+        if (!dataObject.value && (!dataObject.isResponse || !req.query.autosave)) {
             throw new HttpError(403, 'You should provide value for this type of question');
         }
     }
