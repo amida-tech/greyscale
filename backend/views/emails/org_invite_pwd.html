@@ -1,12 +1,19 @@
 <p>
 	Hello <%= name %> <%= surname%>! 
-	<%= inviter.firstName %> <%= inviter.lastName %> has just invited you to Indaba
-	as a member of <%= company.name %> organization.
-</p>
-<p>
-	Your password for first login: <%= password %>
 </p>
 
 <p>
-Please, <a href="<%= config.domain %>/#/login">login</a> and change your password.
+	<%= inviter.firstName %> <%= inviter.lastName %> has just invited you to create an Indaba account as a member of <%= company.name %>.
+</p>
+
+<p>
+	To login for the first time, please use this password: <%= password %>
+</p>
+
+<p>
+    Once you login, please click <a href="<%= config.domain %>/#/login">here</a> to change your password.
+</p>
+
+<p>
+    Thank you!</br>-Indaba
 </p>

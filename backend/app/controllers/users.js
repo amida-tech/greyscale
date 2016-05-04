@@ -768,13 +768,15 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* (){
-            var adminUser = yield thunkQuery(Organization.
-                select(Organization.adminUserId)
-                .from(Organization)
-                .where(Organization.realm.equals(req.params.realm))
-            );
-            if (_.first(adminUser) && _.first(adminUser).adminUserId === parseInt(req.params.id)) {
-                throw new HttpError(400, 'It does not possible delete organization`s admin');
+            if (req.params.realm !== 'public') {
+                var adminUser = yield thunkQuery(Organization.
+                    select(Organization.adminUserId)
+                    .from(Organization)
+                    .where(Organization.realm.equals(req.params.realm))
+                );
+                if (_.first(adminUser) && _.first(adminUser).adminUserId === parseInt(req.params.id)) {
+                    throw new HttpError(400, 'It does not possible delete organization`s admin');
+                }
             }
 
             return yield thunkQuery(

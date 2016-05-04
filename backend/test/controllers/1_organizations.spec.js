@@ -11,6 +11,7 @@ var request = require('supertest');
 var superAdmin   = config.testEntities.superAdmin;
 var admin        = config.testEntities.admin;
 var organization = config.testEntities.organization;
+var users        = config.testEntities.users;
 
 var api_base          = 'http://localhost:' + config.port + '/';
 var api               = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
