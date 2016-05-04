@@ -652,7 +652,8 @@ angular.module('greyscaleApp')
                     })
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err, 'ERROR.STEP_SUBMIT');
-                        return isAuto;
+                        return $q.reject(err);
+//                        return isAuto;
                     })
                     .finally(scope.unlock);
             }
@@ -668,7 +669,7 @@ angular.module('greyscaleApp')
                 fld = fields[f];
                 if (fld.sub) {
                     _answers = _answers.concat(preSaveFields(fld.sub));
-                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comments || fld.canAttach && fld.attachments.length) {
+                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comment || fld.canAttach && fld.attachments.length) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
@@ -719,7 +720,7 @@ angular.module('greyscaleApp')
 
                     default:
                         answer.optionId = [null];
-                        answer.value = fld.answer;
+                        answer.value = fld.answer || null;
                     }
 
                     if (provideResponses) {
