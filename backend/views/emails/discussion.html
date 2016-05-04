@@ -1,8 +1,9 @@
-<p>Hello <%= to.firstName %> <%= to.lastName %>! <%= from.firstName %> <%= from.lastName %> ask you:</p>
+<p>Hello <%= to.firstName %> <%= to.lastName %>! <%= from.firstName %> <%= from.lastName %> posted a discussion comment:</p>
 <p><%- body %></p>
 
 <% if (isReturn) { %>
-<p> Please check your task!</p>
+<p> Please revise and resubmit your response.</p>
 <% } else { %>
-<p> Please, answer</p>
+<p> If you have a response, please login to Indaba and respond in the discussion thread. </p>
 <% } %>
+<p>Thank you!</br>-Indaba</p>

@@ -1,9 +1,15 @@
 <p>
-	Hello <%= name %> <%= surname%>! 
-	<%= inviter.firstName %> <%= inviter.lastName %> has just invited you to Indaba
-	as a member of <%= company.name %> organization.
+	Hello <%= name %> <%= surname%>!
 </p>
 
 <p>
-Please, activate your account by follow this <a href="<%= config.domain %>/#/activate/<%= company.realm %>/<%= token %>">link</a>
+	<%= inviter.firstName %> <%= inviter.lastName %> has just invited you to create an Indaba account as a member of <%= company.name %>.
+</p>
+
+<p>
+Please click <a href="<%= config.domain %>/#/activate/<%= company.realm %>/<%= token %>">here</a> to activate your account. 
+</p>
+<p>
+    Thank you!</br>
+    -Indaba
 </p>
