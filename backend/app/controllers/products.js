@@ -1083,12 +1083,17 @@ function* updateCurrentStepId(req) {
     }
     var minStepPositions = result;
 
+    var essenceId = yield * common.getEssenceId(req, 'Tasks');
+    var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
     // get step ID with min step position for specified productId and each uoaId
     for (var i = 0; i < minStepPositions.length; i++) {
         var nextStep = yield thunkQuery(
             WorkflowStep
                 .select(
-                WorkflowStep.id
+                WorkflowStep.id,
+                Task.userId,
+                Task.id.as('taskId')
             )
                 .from(WorkflowStep
                     .join(Task).on(Task.stepId.equals(WorkflowStep.id))
@@ -1100,6 +1105,8 @@ function* updateCurrentStepId(req) {
         );
         if (_.first(nextStep)) {
             minStepPositions[i].stepId = nextStep[0].id;
+            minStepPositions[i].userId = nextStep[0].userId;
+            minStepPositions[i].taskId = nextStep[0].taskId;
 
             // update all currentStepId with min position step ID for specified productId for each subject
             //
@@ -1109,6 +1116,33 @@ function* updateCurrentStepId(req) {
                 .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
                 )
             );
+
+            // notify
+            //essenceId = yield * common.getEssenceId(req, 'Tasks');
+            var userTo = yield * common.getUser(req, minStepPositions[i].userId);
+            var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
+            //product = yield * common.getEntity(req, task.productId, Product, 'id');
+            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+            //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userTo: minStepPositions[i].userId,
+                    body: 'Task activated (project started)',
+                    essenceId: essenceId,
+                    entityId: task.id,
+                    task: task,
+                    product: product,
+                    uoa: uoa,
+                    step: step,
+                    survey: survey,
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    config: config
+                },
+                'activateTask'
+            );
+
         }
     }
 
