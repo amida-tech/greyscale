@@ -25,6 +25,8 @@ var
     fs = require('fs'),
     crypto = require('crypto'),
     config = require('config'),
+    common = require('app/services/common'),
+    notifications = require('app/controllers/notifications'),
     mc = require('app/mc_helper'),
     pgEscape = require('pg-escape'),
     thunkQuery = thunkify(query);
@@ -829,6 +831,7 @@ function *moveWorkflow (req, productId, UOAid) {
 
     var nextStep = [null];
     if(minNextStepPosition[0].minPosition !== null) { // min next step exists, position is not null
+/*
         nextStep = yield thunkQuery(
             WorkflowStep.select()
                 .where(
@@ -836,6 +839,24 @@ function *moveWorkflow (req, productId, UOAid) {
                     .and(WorkflowStep.position.equals(minNextStepPosition[0].minPosition))
             )
         );
+*/
+
+        nextStep = yield thunkQuery(
+            WorkflowStep
+                .select(
+                WorkflowStep.id,
+                Task.userId,
+                Task.id.as('taskId')
+            )
+                .from(WorkflowStep
+                    .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
+                .where(Task.productId.equals(productId)
+                    .and(Task.uoaId.equals(UOAid))
+                    .and(WorkflowStep.position.equals(minNextStepPosition[0].minPosition))
+            )
+        );
+
     }
 
     if(nextStep[0]){ // next step exists, set it to current
@@ -844,6 +865,33 @@ function *moveWorkflow (req, productId, UOAid) {
                 .update({currentStepId: nextStep[0].id})
                 .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
         );
+
+        // notify
+        var essenceId = yield * common.getEssenceId(req, 'Tasks');
+        var task = yield * common.getTask(req, parseInt(nextStep[0].taskId));
+        var userTo = yield * common.getUser(req, task.userId);
+        var product = yield * common.getEntity(req, task.productId, Product, 'id');
+        var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        var note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'Task activated (next step)',
+                essenceId: essenceId,
+                entityId: nextStep[0].taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'activateTask'
+        );
+
         bologger.log({
             req: req,
             user: req.user,
