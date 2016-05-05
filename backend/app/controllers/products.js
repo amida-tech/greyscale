@@ -1000,57 +1000,65 @@ function* checkProductData(req) {
 
 function* updateCurrentStepId(req) {
     var thunkQuery = req.thunkQuery;
+
+    // start-restart project -> set isComplete flag to false for all subjects
+    yield thunkQuery(
+        ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
+    );
+
     var result;
-    // get min step position for specified productId
+    // get min step position for each productId-uoaId
     var minStepPositionQuery = WorkflowStep
         .select(
         sql.functions.MIN(WorkflowStep.position).as('minPosition'),
-        Workflow.productId
+        Task.uoaId
         )
         .from(WorkflowStep
-            .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
-        .where(Workflow.productId.equals(req.params.id))
-        .group(Workflow.productId);
+        .where(Task.productId.equals(req.params.id))
+        .group(Task.uoaId);
 
     result = yield thunkQuery(minStepPositionQuery);
     if (!_.first(result)) {
         debug('Not found  min step position for productId `'+req.params.id+'`');
         return null;
     }
-    var minStepPosition = result[0].minPosition;
+    var minStepPositions = result;
 
-    // get step ID with min step position for specified productId
-    var stepIdMinPositionQuery = WorkflowStep
-        .select(WorkflowStep.id)
+    // get step ID with min step position for specified productId and each uoaId
+    for (var i = 0; i < minStepPositions.length; i++) {
+        var nextStep = yield thunkQuery(
+            WorkflowStep
+                .select(
+                WorkflowStep.id
+            )
         .from(WorkflowStep
-            .join(Workflow).on(WorkflowStep.workflowId.equals(Workflow.id))
+                    .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
+                .where(Task.productId.equals(req.params.id)
+                .and(Task.uoaId.equals(minStepPositions[i].uoaId))
+                .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
         )
-        .where(Workflow.productId.equals(req.params.id))
-        .and(WorkflowStep.position.equals(minStepPosition));
-
-    result = yield thunkQuery(stepIdMinPositionQuery);
-    if (!_.first(result)) {
-        debug('Not found step ID with min step position for productId `'+req.params.id+'`');
-        return null;
-    }
-    var stepIdMinPosition = result[0].id;
-
-    yield thunkQuery(
-        ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
     );
+        if (_.first(nextStep)) {
+            minStepPositions[i].stepId = nextStep[0].id;
 
-    // update all currentStepId with min position step ID for specified productId
-    var updateProductUOAQuery = ProductUOA
-        .update({currentStepId: stepIdMinPosition})
-        .where(ProductUOA.productId.equals(req.params.id))
-        .and(ProductUOA.currentStepId.isNull());
+            // update all currentStepId with min position step ID for specified productId for each subject
+            //
+            result = yield thunkQuery(ProductUOA
+                .update({currentStepId: minStepPositions[i].stepId})
+                .where(ProductUOA.productId.equals(req.params.id)
+                .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                )
+            );
+        }
+    }
 
-    result = yield thunkQuery(updateProductUOAQuery);
 
     return {
         productId: req.params.id,
-        currentStepId: stepIdMinPosition
+        currentSteps: minStepPositions
     };
 
 }
