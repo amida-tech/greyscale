@@ -223,6 +223,11 @@ var environments = {
                 subject: 'Indaba. You are assigned to task `<%= step.title %>` for survey `<%= survey.title %>` (<%= subject.name %>, <%= product.title %>)',
                 notificationBody: './views/notifications/assign_task.html',
                 emailBody: './views/emails/assign_task.html'
+            },
+            activateTask: {
+                subject: 'Indaba. Your task `<%= step.title %>` for survey `<%= survey.title %>` (<%= subject.name %>, <%= product.title %>) is activated',
+                notificationBody: './views/notifications/activate_task.html',
+                emailBody: './views/emails/activate_task.html'
             }
         }
     }
