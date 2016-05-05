@@ -821,14 +821,14 @@ function *moveWorkflow (req, productId, UOAid) {
             )
             .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
-                .and(WorkflowStep.workflowId.gt(curStep.position))
+                .and(WorkflowStep.position.gt(curStep.position))
                 .and(Task.productId.equals(productId))
                 .and(Task.uoaId.equals(UOAid))
             )
     );
 
     var nextStep = [null];
-    if(minNextStepPosition[0].minPosition) { // min next step exists, position is not null
+    if(minNextStepPosition[0].minPosition !== null) { // min next step exists, position is not null
         nextStep = yield thunkQuery(
             WorkflowStep.select()
                 .where(
