@@ -1,6 +1,8 @@
 var
     _ = require('underscore'),
     config = require('config'),
+    common = require('app/services/common'),
+    notifications = require('app/controllers/notifications'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -160,6 +162,7 @@ module.exports = {
                     throw new HttpError(403, 'uoaId, stepId, userId and productId fields are required');
                 }
 
+                var essenceId, userTo, task, uoa, step, survey, note;
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
                       req.body[i],
@@ -169,6 +172,33 @@ module.exports = {
                         var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
                         updateObj.id = req.body[i].id;
                         res.updated.push(req.body[i].id);
+
+                        // notify
+                        essenceId = yield * common.getEssenceId(req, 'Tasks');
+                        userTo = yield * common.getUser(req, req.body[i].userId);
+                        task = yield * common.getTask(req, parseInt(req.body[i].id));
+                        product = yield * common.getEntity(req, task.productId, Product, 'id');
+                        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+                        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+                        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                        note = yield * notifications.createNotification(req,
+                            {
+                                userFrom: req.user.realmUserId,
+                                userTo: req.body[i].userId,
+                                body: 'Task updated',
+                                essenceId: essenceId,
+                                entityId: req.body[i].id,
+                                task: task,
+                                product: product,
+                                uoa: uoa,
+                                step: step,
+                                survey: survey,
+                                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                                config: config
+                            },
+                            'assignTask'
+                        );
+
                         bologger.log({
                             req: req,
                             user: req.user,
@@ -184,6 +214,33 @@ module.exports = {
                     );
                     req.body[i].id = _.first(id).id;
                     res.inserted.push(req.body[i].id);
+
+                    // notify
+                    essenceId = yield * common.getEssenceId(req, 'Tasks');
+                    userTo = yield * common.getUser(req, req.body[i].userId);
+                    task = yield * common.getTask(req, parseInt(req.body[i].id));
+                    product = yield * common.getEntity(req, task.productId, Product, 'id');
+                    uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+                    step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+                    survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                    note = yield * notifications.createNotification(req,
+                        {
+                            userFrom: req.user.realmUserId,
+                            userTo: req.body[i].userId,
+                            body: 'Task created',
+                            essenceId: essenceId,
+                            entityId: req.body[i].id,
+                            task: task,
+                            product: product,
+                            uoa: uoa,
+                            step: step,
+                            survey: survey,
+                            to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                            config: config
+                        },
+                        'assignTask'
+                    );
+
                     bologger.log({
                         req: req,
                         user: req.user,
@@ -1033,14 +1090,14 @@ function* updateCurrentStepId(req) {
                 .select(
                 WorkflowStep.id
             )
-        .from(WorkflowStep
+                .from(WorkflowStep
                     .join(Task).on(Task.stepId.equals(WorkflowStep.id))
             )
                 .where(Task.productId.equals(req.params.id)
                 .and(Task.uoaId.equals(minStepPositions[i].uoaId))
                 .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
-        )
-    );
+            )
+        );
         if (_.first(nextStep)) {
             minStepPositions[i].stepId = nextStep[0].id;
 
