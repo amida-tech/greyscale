@@ -107,6 +107,9 @@ function* createNotification (req, note, template) {
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
+    if (typeof note.notifyLevel == 'undefined'){
+        note.notifyLevel = userTo.notifyLevel;
+    }
     note.subject = note.subject || '';
     note.subject = ejs.render(config.notificationTemplates[template].subject, note);
     note.message = yield * renderFile(config.notificationTemplates[template].emailBody, note);
@@ -124,7 +127,8 @@ function* createNotification (req, note, template) {
         email: userTo.email,
         message: note.message,
         subject: note.subject,
-        sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null
+        sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null,
+        notifyLevel: note.notifyLevel
         //result: note.result
     };
     // update email's fields before sending

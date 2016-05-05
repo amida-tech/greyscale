@@ -218,6 +218,11 @@ var environments = {
                 subject: '<% if (subject !== \'\') { %><%= subject %><% } else { %>Thank you for registering at Indaba<% } %>',
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
+            },
+            assignTask: {
+                subject: 'Indaba. You are assigned to task `<%= step.title %>` for survey `<%= survey.title %>` (<%= subject.name %>, <%= product.title %>)',
+                notificationBody: './views/notifications/assign_task.html',
+                emailBody: './views/emails/assign_task.html'
             }
         }
     }
