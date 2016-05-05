@@ -17,6 +17,7 @@ var
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
+    sql = require('sql'),
     Query = require('app/util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
@@ -795,7 +796,7 @@ function *moveWorkflow (req, productId, UOAid) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.task) {
+    if (!curStep.survey) {
         throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
@@ -810,14 +811,32 @@ function *moveWorkflow (req, productId, UOAid) {
     }
 
 
-    var nextStep = yield thunkQuery(
-        WorkflowStep.select()
+    var minNextStepPosition = yield thunkQuery(
+        WorkflowStep
+            .select(
+            sql.functions.MIN(WorkflowStep.position).as('minPosition')
+            )
+            .from(WorkflowStep
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
             .where(
-                WorkflowStep.workflowId.equals(curStep.workflowId)
-                    .and(WorkflowStep.position.equals(curStep.position+1))
+            WorkflowStep.workflowId.equals(curStep.workflowId)
+                .and(WorkflowStep.workflowId.gt(curStep.position))
+                .and(Task.productId.equals(productId))
+                .and(Task.uoaId.equals(UOAid))
             )
     );
 
+    var nextStep = [null];
+    if(minNextStepPosition[0].minPosition) { // min next step exists, position is not null
+        nextStep = yield thunkQuery(
+            WorkflowStep.select()
+                .where(
+                WorkflowStep.workflowId.equals(curStep.workflowId)
+                    .and(WorkflowStep.position.equals(minNextStepPosition[0].minPosition))
+            )
+        );
+    }
 
     if(nextStep[0]){ // next step exists, set it to current
         yield thunkQuery(
