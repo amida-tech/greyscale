@@ -1,5 +1,19 @@
-<p>
-	Hello <%= to.firstName %> <%= to.lastName %>! 
-	<%= from.firstName %> <%= from.lastName %> ask you:
-</p>
+<p>Hello <%= to.firstName %> <%= to.lastName %>! <%= from.firstName %> <%= from.lastName %> posted a discussion comment:</p>
 <p><%- body %></p>
+
+<% if (isReturn) { %>
+<p> 
+Please revise and resubmit your response.
+Go to <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= survey.title %>`</a>
+</p>
+<% } else if (isResolve) { %>
+<p> 
+Your discussion comment was resolved. 
+Go to <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= survey.title %>`</a>
+</p>
+<% } else { %>
+<p> 
+If you have a response, please login to Indaba and <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">respond in the discussion thread.</a> 
+</p>
+<% } %>
+<p>Thank you!</br>-Indaba</p>

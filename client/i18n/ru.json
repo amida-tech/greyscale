@@ -18,6 +18,7 @@
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "ATTACHMENTS": "",
         "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
@@ -31,6 +32,7 @@
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
+        "ID": "",
         "INFO": "Информация",
         "NEVER": "",
         "NO": "Нет",
@@ -72,6 +74,7 @@
         "CHANGES_UNSAVED": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "SURVEY_UPDATE_ERROR": "",
         "TASK_UNDEFINED": "",
         "TEST": "Тестовая ошибка"
     },
@@ -269,6 +272,11 @@
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
+        "POLICY": {
+            "EDIT": "",
+            "REVIEW": "",
+            "TITLE": ""
+        },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
@@ -348,6 +356,17 @@
         "NO_PRODUCTS": "Нет проектов",
         "NO_PROJECTS": "Нет проектов для управления",
         "PROJECT": "Проект"
+    },
+    "POLICY": {
+        "AUTHOR": "",
+        "NEW_POLICY": "",
+        "NUMBER": "",
+        "PUBLISH": "",
+        "QUESTIONS": "",
+        "SECTION": "",
+        "SUBSECTION": "",
+        "TEXT": "",
+        "TITLE": ""
     },
     "PRODUCTS": {
         "INDEXES": {
@@ -584,6 +603,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "NEW_SURVEY": "",
         "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",

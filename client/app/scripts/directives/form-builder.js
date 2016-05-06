@@ -124,7 +124,8 @@ angular.module('greyscaleApp')
 
                 function createFormBuilder() {
                     var data = [];
-                    var i, j;
+                    var i, j,
+                        policyQty = 0;
 
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
@@ -135,6 +136,9 @@ angular.module('greyscaleApp')
                             var type = types[question.type];
                             if (!type) {
                                 continue;
+                            }
+                            if (type === 'policy') {
+                                policyQty++;
                             }
                             var field = {
                                 cid: 'c' + question.id,
@@ -174,7 +178,7 @@ angular.module('greyscaleApp')
                                 field.field_options.options.push({
                                     label: question.options[j].label,
                                     value: question.options[j].value,
-                                    checked: question.options[j].isSelected,
+                                    checked: question.options[j].isSelected
                                 });
                             }
                         }
@@ -182,10 +186,21 @@ angular.module('greyscaleApp')
                     if (formbuilder) {
                         formbuilder.off('save');
                     }
+
+                    for (policyQty; policyQty < greyscaleGlobals.formBuilder.policyQty; policyQty++) {
+                        data.push({
+                            field_type: 'policy',
+                            label: 'Policy section ' + (policyQty + 1),
+                            field_options: {
+                                description: ''
+                            }
+                        });
+                    }
                     if (window.Formbuilder) {
                         angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
                             selector: '#formbuilder',
+                            withPolicies: scope.model.survey.isPolicy,
                             bootstrapData: data
                         });
                         scope.saveFormbuilder = function () {

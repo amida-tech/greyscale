@@ -158,6 +158,12 @@ module.exports = {
             //
             req.body.isReturn = (isReturn);
             req.body.isResolve = (isResolve);
+            var retTask = task;
+            if (returnObject) {
+                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
+            }
+            var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId,
@@ -169,8 +175,10 @@ module.exports = {
                     discussionEntry:  req.body,
                     isReturn: (isReturn),
                     isResolve: (isResolve),
+                    task: retTask,
+                    survey: survey,
                     action: 'Add',
-                    notifyLevel: 2,
+                    //notifyLevel: 2,
                     from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     config: config
@@ -219,6 +227,8 @@ module.exports = {
                 from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
             }
             //
+            var product = yield * common.getEntity(req, task.productId, Product, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId,
@@ -230,7 +240,9 @@ module.exports = {
                     discussionEntry:  entry,
                     isReturn: entry.isReturn,
                     isResolve: entry.isResolve,
-                    notifyLevel: 2,
+                    task: task,
+                    survey: survey,
+                    //notifyLevel: 2,
                     from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     action: 'Update',
@@ -685,6 +697,33 @@ function* updateProductUOAStep(req, object) {
             .returning(ProductUOA.currentStepId)
     );
     if (_.first(res)) {
+
+        // notify
+        var essenceId = yield * common.getEssenceId(req, 'Tasks');
+        var task = yield * common.getTask(req, parseInt(object.taskId));
+        var userTo = yield * common.getUser(req, task.userId);
+        var product = yield * common.getEntity(req, task.productId, Product, 'id');
+        var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        var note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'Task activated (flagged)',
+                essenceId: essenceId,
+                entityId: object.taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'activateTask'
+        );
+
         bologger.log({
             req: req,
             action: 'update',
@@ -729,6 +768,33 @@ function* checkUpdateProductUOAStep(req, object) {
                 .returning(ProductUOA.currentStepId)
         );
         if (_.first(res)) {
+
+            // notify
+            var essenceId = yield * common.getEssenceId(req, 'Tasks');
+            var task = yield * common.getTask(req, parseInt(object.taskId));
+            var userTo = yield * common.getUser(req, task.userId);
+            var product = yield * common.getEntity(req, task.productId, Product, 'id');
+            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userTo: task.userId,
+                    body: 'Task activated (resolved)',
+                    essenceId: essenceId,
+                    entityId: object.taskId,
+                    task: task,
+                    product: product,
+                    uoa: uoa,
+                    step: step,
+                    survey: survey,
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    config: config
+                },
+                'activateTask'
+            );
+
             bologger.log({
                 req: req,
                 action: 'update',
