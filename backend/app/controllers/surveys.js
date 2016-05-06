@@ -3,8 +3,9 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    Policy = require('app/models/policies'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
+    User = require('app/models/users'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     co = require('co'),
@@ -22,7 +23,16 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
+            return yield thunkQuery(
+                Survey
+                    .select(Survey.star(), Policy.star())
+                    .from(
+                    Survey
+                    .leftJoin(Policy)
+                    .on(Survey.policyId.equals(Policy.id))
+                )
+                , _.omit(req.query)
+            );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -35,8 +45,14 @@ module.exports = {
         co(function* () {
             var data = yield thunkQuery(
                 Survey
+                .from(
+                    Survey
+                    .leftJoin(Policy)
+                    .on(Survey.policyId.equals(Policy.id))
+                )
                 .select(
                     Survey.star(),
+                    Policy.star(),
                     '(WITH sq AS ' +
                         '( '+
                             'SELECT '+
@@ -56,7 +72,7 @@ module.exports = {
                     'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)'
                 )
                 .where(Survey.id.equals(req.params.id))
-                .group(Survey.id)
+                .group(Survey.id, Policy.id)
             );
             if (_.first(data)) {
                 return data;
@@ -367,6 +383,17 @@ module.exports = {
         co(function* () {
             yield * checkSurveyData(req);
 
+            if (req.body.isPolicy) {
+                yield * checkPolicyData(req);
+
+                var policy = yield thunkQuery(
+                    Policy
+                        .insert(_.pick(req.body, Policy.table._initialConfig.columns))
+                        .returning(Policy.id)
+                );
+                req.body.policyId = policy[0].id;
+            }
+
             var survey = yield thunkQuery(
                 Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id)
             );
@@ -535,23 +562,24 @@ function* addQuestion (req, dataObj) {
 
 function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
-    // if user is superadmin (roleId=1) get projectId from body and check it
-    // else get projectId from req.user.projectId
 
     if (!req.params.id) { // create
-        //if (req.user.roleID == 1) { // superadmin
-        //    var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-        //    if (!_.first(project)) {
-        //        throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
-        //    }
-        //} else {
-            req.body.projectId = req.user.projectId;
-        //}
+        req.body.projectId = req.user.projectId;
 
         if (!req.body.title) {
             throw new HttpError(403, 'title field are required');
         }
     }
+}
+
+function* checkPolicyData(req) {
+    var thunkQuery = thunkify(new Query(req.params.realm));
+
+    if (!req.body.section || !req.body.subsection) {
+        throw new HttpError(403, 'section and subsection fields are required');
+    }
+
+    req.body.author = req.user.realmUserId;
 }
 
 function* checkQuestionData(req, dataObj, isCreate) {
