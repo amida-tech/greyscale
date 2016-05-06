@@ -24,10 +24,18 @@ var
     HttpError = require('app/error').HttpError,
     thunkQuery = thunkify(query);
 
-function* getEntityById(req, id, model, key) {
+var getEntityById = function* (req, id, model, key) {
     var thunkQuery = req.thunkQuery;
     return yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
-}
+};
+exports.getEntityById = getEntityById;
+
+var getEntity = function* (req, id, model, key) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(id))));
+    return (_.first(result)) ? result[0] : null;
+};
+exports.getEntity = getEntity;
 
 var getTask = function* (req, taskId) {
     var thunkQuery = req.thunkQuery;
