@@ -133,14 +133,16 @@ angular.module('greyscale.core')
                     'section_break',
                     'bullet_points',
                     'date',
-                    'scale'
+                    'scale',
+                    'policy'
                 ],
                 excluded: [
                     'section_start',
                     'section_end',
                     'section_break'
                 ],
-                excludedIndexes: []
+                excludedIndexes: [],
+                policyQty: 7
             },
             formBuilderSections: [
                 'section_start',

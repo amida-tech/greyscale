@@ -1,10 +1,10 @@
 <div class="row policy-edit">
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
-        <div class="form-group" ng-show="model.policy.id">
+        <div class="form-group" ng-show="model.survey.id">
             <label class="col-sm-4 control-label">{{'COMMON.ID' | translate}}:</label>
 
             <div class="col-sm-8">
-                <p class="form-control-static">{{model.policy.id}}</p>
+                <p class="form-control-static">{{model.survey.id}}</p>
             </div>
         </div>
 
@@ -12,7 +12,7 @@
             <label for="title" class="col-sm-4 control-label" translate="POLICY.TITLE"></label>
 
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="title" id="title" ng-model="model.policy.title"/>
+                <input type="text" class="form-control" name="title" id="title" ng-model="model.survey.title"/>
             </div>
         </div>
 
@@ -20,7 +20,7 @@
             <label for="section" class="col-sm-4 control-label" translate="POLICY.SECTION"></label>
 
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="section" id="section" ng-model="model.policy.section"/>
+                <input type="text" class="form-control" name="section" id="section" ng-model="model.survey.section"/>
             </div>
         </div>
 
@@ -29,7 +29,7 @@
 
             <div class="col-sm-8">
                 <input type="text" class="form-control" name="subsection" id="subsection"
-                       ng-model="model.policy.subsection"/>
+                       ng-model="model.survey.subsection"/>
             </div>
         </div>
 
@@ -37,7 +37,7 @@
             <label for="number" class="col-sm-4 control-label" translate="POLICY.NUMBER"></label>
 
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="number" id="number" ng-model="model.policy.number"/>
+                <input type="text" class="form-control" name="number" id="number" ng-model="model.survey.number"/>
             </div>
         </div>
 
@@ -45,12 +45,12 @@
             <label for="author" class="col-sm-4 control-label" translate="POLICY.AUTHOR"></label>
 
             <div class="col-sm-8">
-                <input type="text" class="form-control" name="author" id="author" ng-model="model.policy.author"/>
+                <input type="text" class="form-control" name="author" id="author" ng-model="model.survey.author"/>
             </div>
         </div>
 
 
-        <form-builder ng-model="model.policy"></form-builder>
+        <form-builder ng-model="model.survey"></form-builder>
 
         <div no-compile form-builder-control>
             <div class="form-builder-control text-right">
