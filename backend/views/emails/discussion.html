@@ -2,8 +2,18 @@
 <p><%- body %></p>
 
 <% if (isReturn) { %>
-<p> Please revise and resubmit your response.</p>
+<p> 
+Please revise and resubmit your response.
+Go to <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= survey.title %>`</a>
+</p>
+<% } else if (isResolve) { %>
+<p> 
+Your discussion comment was resolved. 
+Go to <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= survey.title %>`</a>
+</p>
 <% } else { %>
-<p> If you have a response, please login to Indaba and respond in the discussion thread. </p>
+<p> 
+If you have a response, please login to Indaba and <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">respond in the discussion thread.</a> 
+</p>
 <% } %>
 <p>Thank you!</br>-Indaba</p>

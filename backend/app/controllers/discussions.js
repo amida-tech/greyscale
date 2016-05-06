@@ -158,6 +158,12 @@ module.exports = {
             //
             req.body.isReturn = (isReturn);
             req.body.isResolve = (isResolve);
+            var retTask = task;
+            if (returnObject) {
+                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
+            }
+            var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId,
@@ -169,8 +175,10 @@ module.exports = {
                     discussionEntry:  req.body,
                     isReturn: (isReturn),
                     isResolve: (isResolve),
+                    task: retTask,
+                    survey: survey,
                     action: 'Add',
-                    notifyLevel: 2,
+                    //notifyLevel: 2,
                     from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     config: config
@@ -219,6 +227,8 @@ module.exports = {
                 from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
             }
             //
+            var product = yield * common.getEntity(req, task.productId, Product, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
             var note = yield * notifications.createNotification(req,
                 {
                     userFrom: req.user.realmUserId,
@@ -230,6 +240,8 @@ module.exports = {
                     discussionEntry:  entry,
                     isReturn: entry.isReturn,
                     isResolve: entry.isResolve,
+                    task: task,
+                    survey: survey,
                     //notifyLevel: 2,
                     from: from,
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
