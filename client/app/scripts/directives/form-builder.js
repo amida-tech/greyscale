@@ -6,7 +6,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData) {
+    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData, $log) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
@@ -14,6 +14,7 @@ angular.module('greyscaleApp')
                 var formbuilder;
                 var types = greyscaleGlobals.formBuilder.fieldTypes;
                 var sizes = ['small', 'medium', 'large'];
+                var policies = [];
 
                 function formBuilderSave(json) {
                     var fields = JSON.parse(json).fields;
@@ -137,9 +138,6 @@ angular.module('greyscaleApp')
                             if (!type) {
                                 continue;
                             }
-                            if (type === 'policy') {
-                                policyQty++;
-                            }
                             var field = {
                                 cid: 'c' + question.id,
                                 field_type: type,
@@ -186,16 +184,19 @@ angular.module('greyscaleApp')
                     if (formbuilder) {
                         formbuilder.off('save');
                     }
-
-                    for (policyQty; policyQty < greyscaleGlobals.formBuilder.policyQty; policyQty++) {
-                        data.push({
-                            field_type: 'policy',
-                            label: 'Policy section ' + (policyQty + 1),
-                            field_options: {
-                                description: ''
-                            }
-                        });
+/*
+                    if (scope.model.survey.isPolicy) {
+                        for (policyQty; policyQty < greyscaleGlobals.formBuilder.policyQty; policyQty++) {
+                            data.push({
+                                field_type: 'policy',
+                                label: 'POLICY.SECTION_' + policyQty,
+                                field_options: {
+                                    description: ''
+                                }
+                            });
+                        }
                     }
+*/
                     if (window.Formbuilder) {
                         angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
@@ -218,6 +219,13 @@ angular.module('greyscaleApp')
                     if (control.length) {
                         controlCopy = control.clone().html();
                         elem.find('.fb-form').after($compile(controlCopy)(scope));
+                    }
+
+                    if (scope.model.survey.isPolicy) {
+                        elem.find('.fb-policy-blocks')
+                            .before($compile(
+                                '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(
+                                scope));
                     }
                 }
 
