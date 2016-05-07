@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
-        Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n) {
+        Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, $log) {
 
         var projectId,
             _policies = [],
@@ -22,7 +22,6 @@ angular.module('greyscaleApp')
         };
 
         $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
-        $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, _save);
 
         Organization.$lock = true;
 
@@ -34,6 +33,7 @@ angular.module('greyscaleApp')
         }
 
         $scope.save = function () {
+            $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, _save);
             $scope.saveFormbuilder();
         };
 
@@ -81,9 +81,11 @@ angular.module('greyscaleApp')
         function _save() {
             var _survey;
 
-            _survey = $scope.model.survey;
+            _survey = angular.extend({},$scope.model.survey);
             _survey.projectId = projectId;
             _survey.isPolicy = true;
+
+            var _questions = $scope.model.survey.questions;
 
             if (surveyId) {
                 _survey.id = surveyId;
@@ -97,11 +99,13 @@ angular.module('greyscaleApp')
 
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
                 .then(function (resp) {
+                    $scope.model.survey.questions = _questions;
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;
                     }
+
                      $state.go('policy', {
-                     projectId: projectId
+                        projectId: projectId
                      });
                 })
                 .catch(function (err) {
