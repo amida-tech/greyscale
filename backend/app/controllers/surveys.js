@@ -25,7 +25,10 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(
                 Survey
-                    .select(Survey.star(), Policy.star())
+                    .select(
+                        Survey.star(), 
+                        Policy.section, Policy.subsection, Policy.author, Policy.number
+                    )
                     .from(
                     Survey
                     .leftJoin(Policy)
@@ -52,7 +55,7 @@ module.exports = {
                 )
                 .select(
                     Survey.star(),
-                    Policy.star(),
+                    Policy.section, Policy.subsection, Policy.author, Policy.number
                     '(WITH sq AS ' +
                         '( '+
                             'SELECT '+
