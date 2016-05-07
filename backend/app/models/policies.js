@@ -15,6 +15,6 @@ var Policy = sql.define({
 
 Policy.whereCol = columns;
 
-Policy.editCols = ['section', 'subsection', 'author', 'number'];
+Policy.editCols = ['section', 'subsection', 'number'];
 
 module.exports = Policy;
