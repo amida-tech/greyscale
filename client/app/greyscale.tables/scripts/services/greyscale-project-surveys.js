@@ -76,10 +76,16 @@ angular.module('greyscale.tables')
         }
 
         function _editSurvey(_survey) {
-            $state.go('projects.setup.surveys.edit', {
-                surveyId: _survey ? _survey.id : 'new',
-                projectId: _getProjectId()
-            });
+            if (_survey && _survey.policyId) {
+                $state.go('policy.edit', {
+                    id: _survey.id
+                });
+            } else {
+                $state.go('projects.setup.surveys.edit', {
+                    surveyId: _survey ? _survey.id : 'new',
+                    projectId: _getProjectId()
+                });
+            }
         }
 
         function _deleteSurvey(_survey) {
