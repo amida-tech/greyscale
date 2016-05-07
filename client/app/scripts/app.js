@@ -26,11 +26,12 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable'
+    'ui.sortable',
+    'textAngular'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
-    greyscaleEnv, greyscaleGlobalsProvider, i18nProvider, $translateProvider) {
+    greyscaleEnv, greyscaleGlobalsProvider, i18nProvider, $translateProvider, taOptionsProvider) {
 
     var globals = greyscaleGlobalsProvider.$get();
 
@@ -39,6 +40,12 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
     $locationProvider.html5Mode(false);
 
     var systemRoles = globals.userRoles;
+
+    taOptionsProvider.toolbar = [
+        ['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol', 'redo', 'undo', 'clear'],
+//        ['justifyLeft', 'justifyCenter', 'justifyRight', 'indent', 'outdent'],
+//        ['html', 'insertImage','insertLink', 'insertVideo', 'wordcount', 'charcount']
+    ];
 
     i18nProvider.init($translateProvider);
     _app.useNgLocale = i18nProvider.useNgLocale; // to reinit $locale after async loading of angular-locale
