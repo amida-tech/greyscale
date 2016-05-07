@@ -55,7 +55,7 @@ module.exports = {
                 )
                 .select(
                     Survey.star(),
-                    Policy.section, Policy.subsection, Policy.author, Policy.number
+                    Policy.section, Policy.subsection, Policy.author, Policy.number,
                     '(WITH sq AS ' +
                         '( '+
                             'SELECT '+
