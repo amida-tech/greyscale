@@ -76,7 +76,7 @@ angular.module('greyscale.tables')
         }
 
         function _editSurvey(_survey) {
-            if (_survey && _survey.projectId) {
+            if (_survey && _survey.policyId) {
                 $state.go('policy.edit', {
                     id: _survey.id
                 });
