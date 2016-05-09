@@ -19,8 +19,8 @@ ithelper = {
         if (keys.indexOf('superAdmin') !== -1){
             allUsers.push( // superAdmin
                 {
-                    firstName: testEnv.superAdmin.firstUser || 'SuperAdmin',
-                    lastName: testEnv.superAdmin.lastUser || 'Test',
+                    firstName: testEnv.superAdmin.firstName || 'SuperAdmin',
+                    lastName: testEnv.superAdmin.lastName || 'Test',
                     email: testEnv.superAdmin.email,
                     roleID: testEnv.superAdmin.roleID || 1,
                     password: testEnv.superAdmin.password
@@ -30,8 +30,8 @@ ithelper = {
         if (keys.indexOf('admin') !== -1) {
             allUsers.push( // admin
                 {
-                    firstName: testEnv.admin.firstUser || 'Admin',
-                    lastName: testEnv.admin.lastUser || 'Test',
+                    firstName: testEnv.admin.firstName || 'Admin',
+                    lastName: testEnv.admin.lastname || 'Test',
                     email: testEnv.admin.email,
                     roleID: testEnv.admin.roleID || 2,
                     password: testEnv.admin.password
