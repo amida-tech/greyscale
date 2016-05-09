@@ -22,6 +22,7 @@ testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/
 testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
 testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
 
+var allUsers  = [];
 var token;
 var obj ={};
 var path = '/uoas';
@@ -29,6 +30,19 @@ var numberOfRecords = 0;
 var testTitle = 'Subjects (Units of Analisys): ';
 
 describe(testTitle, function () {
+
+    before(function(done){
+        // authorize users
+        // allUsers.concat(config.testEntities.users);
+        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        ithelper.getTokens(allUsers).then(
+            (res) => {
+                allUsers = res;
+                done();
+            },
+            (err) => done(err)
+        );
+    });
 
     function userTests(user) {
         describe(testTitle+'All of tests for user `' + user.firstName+'`', function () {
@@ -89,12 +103,15 @@ describe(testTitle, function () {
         });
     }
 
-    userTests(config.testEntities.superAdmin);
-    adminTests(config.testEntities.superAdmin);
-    userTests(config.testEntities.admin);
-    adminTests(config.testEntities.admin);
-    for (var i = 0; i < config.testEntities.users.length; i++) {
-        userTests(config.testEntities.users[i]);
-    }
+    it(testTitle+'start',function(done){
+        userTests(ithelper.getUser(allUsers,1));
+        adminTests(ithelper.getUser(allUsers,1));
+        userTests(ithelper.getUser(allUsers,2));
+        adminTests(ithelper.getUser(allUsers,2));
+        for (var i = 0; i < config.testEntities.users.length; i++) {
+            userTests(ithelper.getUser(allUsers,3,i+1));
+        }
+        done();
+    });
 
 });
