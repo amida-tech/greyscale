@@ -7,6 +7,7 @@ var expect = chai.expect;
 var config = require('../../config');
 var _ = require('underscore');
 var request = require('superagent');
+var exec = require('child_process').exec;
 var co = require('co');
 
 var backendServerDomain = 'http://localhost'; // ToDo: to config
@@ -281,6 +282,23 @@ ithelper = {
                 }
                 done();
             });
+    },
+
+    doSql: function(scriptFile, realm, done) {
+        var cpg = config.pgConnect;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser+' --set=schema='+realm;
+        exec('psql ' + connectStringPg + ' -d ' + cpg.database + ' -f ' + scriptFile, function (err, stdout, stderr) {
+            if (err) {
+                //console.log('exec error: ' + err);
+                done(err);
+            } else if (stderr.length > 0) {
+                //console.log('stderr: '+stderr);
+                done(stderr);
+            } else {
+                //console.log('stdout: '+stdout);
+                done();
+            }
+        });
     },
 
     getTokens: function(usersArray) {
