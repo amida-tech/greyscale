@@ -31,6 +31,7 @@ var tokenUser1;
 var tokenUser2;
 var tokenUser3;
 
+var allUsers  = [];
 var token;
 var obj ={};
 var path = '/notifications';
@@ -40,15 +41,31 @@ var testTitle='Notifications: ';
 
 describe(testTitle, function () {
 
-    function allTests() {
-        describe(testTitle, function () {
-            it('Get tokens', function (done) {
-                tokenSuperAdmin = config.testEntities.superAdmin.token;
-                tokenAdmin = config.testEntities.admin.token;
-                tokenUser1 = config.testEntities.users[0].token;
-                tokenUser2 = config.testEntities.users[1].token;
-                tokenUser3 = config.testEntities.users[2].token;
+    before(function(done){
+        // authorize users
+        // allUsers.concat(config.testEntities.users);
+        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        ithelper.getTokens(allUsers).then(
+            (res) => {
+                allUsers = res;
+                tokenSuperAdmin = ithelper.getUser(allUsers,1).token;
+                tokenAdmin = ithelper.getUser(allUsers,2).token;
+                tokenUser1 = ithelper.getUser(allUsers,3,1).token;
+                tokenUser2 = ithelper.getUser(allUsers,3,2).token;
+                tokenUser3 = ithelper.getUser(allUsers,3,3).token;
                 done();
+            },
+            (err) => done(err)
+        );
+    });
+
+    function allTests() {
+        describe(testTitle+'Prepare for test', function () {
+            it('Do prepare SQL script (public) ', function (done) {
+                ithelper.doSql('test/preNotificationsPublic.sql', config.pgConnect.adminSchema, done);
+            });
+            it('Do prepare SQL script (realm) ', function (done) {
+                ithelper.doSql('test/preNotifications.sql', config.testEntities.organization.realm, done);
             });
         });
         describe(testTitle+'Select ', function () {
