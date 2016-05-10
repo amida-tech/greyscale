@@ -29,7 +29,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'body',
             title: tns + 'MESSAGE',
-            cellTemplate: '<div class="">{{cell}}</div>'
+            cellTemplate: '<p><b>{{row.subject}}</b><br><span ng-bind-html="row.note"></span></p>'
         }, {
             field: 'read',
             title: tns + 'READ',
