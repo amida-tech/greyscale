@@ -8,6 +8,7 @@ var environments = {
         },
         pgConnect: {
             user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
+            testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
             database: process.env.INDABA_PG_DB || 'database',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
@@ -137,16 +138,16 @@ var environments = {
         testEntities: {
             superAdmin: {
                 email: 'test-su@mail.net',
-                firstName: 'Test',
-                lastName: 'SuperAdmin',
+                firstName: 'SuperAdmin',
+                lastName: 'Test',
                 roleID: 1,
                 password: 'testsuperadmin',
                 token: ''
             },
             admin: {
                 email: 'test-adm@mail.net',
-                firstName: 'Test',
-                lastName: 'Admin',
+                firstName: 'Admin',
+                lastName: 'Test',
                 roleID: 2,
                 password: 'testadmin',
                 token: ''
