@@ -4,24 +4,28 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
-        Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, $log) {
+        Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers) {
 
         var projectId,
             _policies = [],
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
 
-        _policiesGenerate(_policies);
-
         $scope.model = {
             survey: {
                 isPolicy: true,
-                isDraft: true
+                isDraft: true,
+                author: -1
             },
-            policies: _policies
+            policies: _policies,
+            authorName: ''
         };
 
-        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
+        greyscaleProfileSrv.getProfile().then(_setAuthor);
+
+        _policiesGenerate(_policies);
+
+        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEmodel.survey.authorY');
 
         Organization.$lock = true;
 
@@ -32,8 +36,12 @@ angular.module('greyscaleApp')
             });
         }
 
+        $scope.getAuthor = function () {
+            greyscaleUsers.get($scope.model.author).then(_setAuthor);
+        };
+
         $scope.save = function () {
-            var _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function() {
+            var _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
                 _deregistator();
                 _save();
             });
@@ -71,6 +79,8 @@ angular.module('greyscaleApp')
                     survey: survey,
                     policies: _policies
                 };
+
+                greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
 
                 $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
                 $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
@@ -144,5 +154,10 @@ angular.module('greyscaleApp')
                     description: ''
                 });
             }
+        }
+
+        function _setAuthor(profile) {
+            $scope.model.survey.author = profile.id;
+            $scope.model.authorName = greyscaleUtilsSrv.getUserName(profile);
         }
     });

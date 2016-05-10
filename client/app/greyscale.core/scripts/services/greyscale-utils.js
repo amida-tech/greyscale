@@ -17,7 +17,8 @@ angular.module('greyscale.core')
             parseURL: _parseURL,
             getApiBase: _getApiBase,
             capitalize: _capitalize,
-            countWords: _countWords
+            countWords: _countWords,
+            getUserName: _getUserName
         };
 
         function _decode(dict, key, code, name) {
@@ -150,5 +151,9 @@ angular.module('greyscale.core')
 
         function _countWords(str) {
             return (str ? str.split(/\s+/).length : 0);
+        }
+
+        function _getUserName(profile) {
+            return [profile.firstName, profile.lastName].join(' ');
         }
     });

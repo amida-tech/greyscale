@@ -49,6 +49,10 @@ angular.module('greyscale.core')
             return res;
         };
 
+        this.getUserName = function () {
+
+        };
+
         this._setAccessLevel = function (profile) {
             var res = $q.reject('no user data loaded');
 

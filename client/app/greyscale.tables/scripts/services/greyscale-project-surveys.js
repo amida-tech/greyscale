@@ -1,7 +1,7 @@
 'use strict';
 angular.module('greyscale.tables')
     .factory('greyscaleProjectSurveysTbl', function ($q, $state, greyscaleSurveyApi, greyscaleProjectApi,
-        greyscaleModalsSrv, greyscaleUtilsSrv) {
+        greyscaleModalsSrv, greyscaleUtilsSrv, $filter) {
 
         var tns = 'SURVEYS.';
 
@@ -15,7 +15,7 @@ angular.module('greyscale.tables')
         }, {
             field: 'description',
             title: tns + 'DESCRIPTION',
-            show: true,
+            show: _isSurvey,
             dataRequired: false,
             dataFormat: 'text'
         }, {
@@ -66,25 +66,40 @@ angular.module('greyscale.tables')
             if (!projectId) {
                 return $q.reject();
             } else {
-                return greyscaleProjectApi.surveysList(projectId);
+                return greyscaleProjectApi.surveysList(projectId)
+                    .then(function (data) {
+                        return $filter('filter')(data, function (item) {
+                            return (_isPolicy() && item.policyId || _isSurvey() && !item.policyId);
+                        });
+                    });
             }
         }
 
         function _reload() {
-            console.log('reload');
             _table.tableParams.reload();
         }
 
         function _editSurvey(_survey) {
-            if (_survey && _survey.policyId) {
-                $state.go('policy.edit', {
-                    id: _survey.id
-                });
+            if (_survey) {
+                if (_survey.policyId) {
+                    $state.go('policy.edit', {
+                        id: _survey.id
+                    });
+                } else {
+                    $state.go('projects.setup.surveys.edit', {
+                        surveyId: _survey.id,
+                        projectId: _getProjectId()
+                    });
+                }
             } else {
-                $state.go('projects.setup.surveys.edit', {
-                    surveyId: _survey ? _survey.id : 'new',
-                    projectId: _getProjectId()
-                });
+                if (_isPolicy()) {
+                    $state.go('policy.edit');
+                } else {
+                    $state.go('projects.setup.surveys.edit', {
+                        surveyId: 'new',
+                        projectId: _getProjectId()
+                    });
+                }
             }
         }
 
@@ -105,6 +120,14 @@ angular.module('greyscale.tables')
             $state.go('survey', {
                 surveyId: _survey.id
             });
+        }
+
+        function _isPolicy() {
+            return _table.mode === 'policy';
+        }
+
+        function _isSurvey() {
+            return !_isPolicy();
         }
 
         return _table;

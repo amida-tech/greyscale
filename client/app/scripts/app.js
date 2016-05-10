@@ -544,7 +544,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             url: 'policy',
             views: {
                 'body@dashboard': {
-                    templateUrl: 'views/controllers/policy.html',
+                    templateUrl: 'views/controllers/project-setup-surveys.html',
                     controller: 'PolicyCtrl'
                 }
             },
