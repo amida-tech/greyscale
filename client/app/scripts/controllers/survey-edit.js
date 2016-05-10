@@ -68,9 +68,13 @@ angular.module('greyscaleApp')
         }
 
         $scope.save = function () {
-            $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, _save);
+            var _deregistrator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
+                _save();
+                _deregistrator();
+            });
             $scope.saveFormbuilder();
         };
+
         $scope.cancel = function () {
             $state.go('projects.setup.surveys', {
                 projectId: projectId
@@ -78,15 +82,10 @@ angular.module('greyscaleApp')
         };
 
         var firstSave = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
-            $scope.dataForm.$dirty = true;
+            $scope.dataForm.$setDirty();
             $timeout(function () {
                 $scope.$digest();
             });
             firstSave();
         });
-
-        $scope.$on('$destroy', function () {
-            Organization.$lock = false;
-        });
-
     });
