@@ -129,7 +129,14 @@ module.exports = {
                     });
                 }
             }
+
+            var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
+
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
+
+            if (survey[0] && survey[0].policyId) {
+                yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
+            }
         }).then(function (data) {
             bologger.log({
                 req: req,
