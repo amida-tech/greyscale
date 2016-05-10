@@ -114,9 +114,11 @@ angular.module('greyscaleApp')
                         delete questions[i].cid;
                         scope.model.survey.questions.push(questions[i]);
                     }
+
                     scope.model.survey.questions.sort(function (a, b) {
                         return a.position - b.position;
                     });
+
                     scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
                     $timeout(function () {
                         scope.$apply();
@@ -181,22 +183,11 @@ angular.module('greyscaleApp')
                             }
                         }
                     }
+
                     if (formbuilder) {
                         formbuilder.off('save');
                     }
-/*
-                    if (scope.model.survey.isPolicy) {
-                        for (policyQty; policyQty < greyscaleGlobals.formBuilder.policyQty; policyQty++) {
-                            data.push({
-                                field_type: 'policy',
-                                label: 'POLICY.SECTION_' + policyQty,
-                                field_options: {
-                                    description: ''
-                                }
-                            });
-                        }
-                    }
-*/
+
                     if (window.Formbuilder) {
                         angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
@@ -224,8 +215,7 @@ angular.module('greyscaleApp')
                     if (scope.model.survey.isPolicy) {
                         elem.find('.fb-policy-blocks')
                             .before($compile(
-                                '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(
-                                scope));
+                                '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(scope));
                     }
                 }
 

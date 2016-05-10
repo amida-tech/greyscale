@@ -32,7 +32,7 @@ var _app = angular.module('greyscaleApp', [
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
-    greyscaleEnv, greyscaleGlobalsProvider, i18nProvider, $translateProvider, $provide) {
+    greyscaleEnv, greyscaleGlobalsProvider, i18nProvider, $translateProvider) {
 
     var globals = greyscaleGlobalsProvider.$get();
 

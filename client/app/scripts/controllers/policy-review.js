@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-.controller('PolicyReviewCtrl', function($scope, $state, $stateParams ){
+    .controller('PolicyReviewCtrl', function ($scope, $state, $stateParams) {
         $scope.model = {
             id: $stateParams.id
         };

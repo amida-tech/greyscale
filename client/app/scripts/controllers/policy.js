@@ -3,6 +3,6 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-.controller('PolicyCtrl', function($scope){
+    .controller('PolicyCtrl', function ($scope) {
         $scope.model = {};
     });
