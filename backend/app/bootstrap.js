@@ -104,7 +104,7 @@ app.on('start', function () {
     app.set('json spaces', 2);
 
     // Parse JSON requests using body-parser
-    app.use(bodyParser.json({limit: '50mb'}));
+    app.use(bodyParser.json({limit: config.max_upload_filesize}));
 
     // view engine
     app.engine('ejs', require('ejs-locals'));
