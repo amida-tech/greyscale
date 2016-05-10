@@ -11,7 +11,7 @@ angular.module('greyscaleApp')
                 options: '='
             },
             templateUrl: 'views/directives/gs-links.html',
-            controller: function ($scope, greyscaleGlobals) {
+            controller: function ($scope, greyscaleGlobals, $element) {
                 _init();
 
                 $scope.formName = 'f_' + new Date().getTime();
@@ -19,6 +19,12 @@ angular.module('greyscaleApp')
                 $scope.remove = function (idx) {
                     $scope.model.splice(idx, 1);
                     _modifyEvt();
+                };
+
+                $scope.urlChange = function() {
+                    if ($scope.formName && $scope[$scope.formName].$$parentForm) {
+                        $scope[$scope.formName].$$parentForm.$dirty = false;
+                    }
                 };
 
                 $scope.addToggle = function () {

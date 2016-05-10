@@ -12,7 +12,10 @@
         <div class="col-xs-12">
             <form name="{{formName}}">
                 <div class="input-group">
-                    <input type="url" class="form-control" ng-model="newUrl" name="newUrl" placeholder="{{'SURVEYS.LINK_PLACEHOLDER' | translate}}"/>
+                    <input type="url" class="form-control" ng-model="newUrl" name="newUrl"
+                           placeholder="{{'SURVEYS.LINK_PLACEHOLDER' | translate}}"
+                           ng-change="urlChange()"
+                    />
                     <span class="input-group-btn">
                     <button class="btn btn-primary" type="button" translate="COMMON.ADD" ng-click="add()"
                             ng-disabled="(this[formName].newUrl.$invalid || !this[formName].newUrl.$dirty)"></button>

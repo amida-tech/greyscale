@@ -185,7 +185,7 @@ angular.module('greyscaleApp')
                 }
 
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
-                    scope.$$childHead.surveyForm.$dirty = true;
+                    scope.$$childHead.surveyForm.$setDirty();
                 });
             },
             controller: function ($scope) {
@@ -669,7 +669,7 @@ angular.module('greyscaleApp')
                 fld = fields[f];
                 if (fld.sub) {
                     _answers = _answers.concat(preSaveFields(fld.sub));
-                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comment || fld.canAttach && fld.attachments.length) {
+                } else if (hasChanges(fld)) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
@@ -743,6 +743,15 @@ angular.module('greyscaleApp')
                 }
             }
             return _answers;
+        }
+
+        function hasChanges (field) {
+            return (field.answer ||
+            field.type === 'checkboxes' ||
+            field.isAgree ||
+            field.comment ||
+            field.canAttach && field.attachments.length ||
+            field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {
