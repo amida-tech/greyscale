@@ -33,7 +33,10 @@ angular.module('greyscaleApp')
         }
 
         $scope.save = function () {
-            $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, _save);
+            var _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function() {
+                _deregistator();
+                _save();
+            });
             $scope.saveFormbuilder();
         };
 
