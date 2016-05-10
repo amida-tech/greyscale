@@ -55,7 +55,7 @@ module.exports = {
                 )
                 .select(
                     Survey.star(),
-                    Policy.section, Policy.subsection, Policy.author, Policy.number
+                    Policy.section, Policy.subsection, Policy.author, Policy.number,
                     '(WITH sq AS ' +
                         '( '+
                             'SELECT '+
@@ -150,6 +150,7 @@ module.exports = {
         co(function* () {
             yield * checkSurveyData(req);
             var updateSurvey = req.body;
+
             updateSurvey = _.pick(updateSurvey, Survey.editCols);
 
             if(Object.keys(updateSurvey).length){
@@ -167,6 +168,29 @@ module.exports = {
                     info: 'Update survey'
                 });
             }
+
+            if (req.body.policyId != null) {
+                updatePolicy = _.pick(req.body, Policy.editCols);
+
+                if(Object.keys(updatePolicy).length){
+                    yield thunkQuery(
+                        Policy
+                            .update(updatePolicy)
+                            .where(Policy.id.equals(req.body.policyId))
+                    );
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'update',
+                        object: 'policies',
+                        entity: req.body.policyId,
+                        info: 'Update policy'
+                    });
+                }
+            }
+
+            
+            
 
             var passedIds = [];
             var updatedIds = [];
@@ -229,10 +253,15 @@ module.exports = {
                                     info: 'Update survey question'
                                 });
                             }
+
                             var deletedQuestionOptions = yield thunkQuery(
                                 SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)).returning(SurveyQuestionOption.id)
                             );
+
+
+
                             if (deletedQuestionOptions && deletedQuestionOptions.length){
+                                
                                 bologger.log({
                                     req: req,
                                     user: req.user,
@@ -289,8 +318,10 @@ module.exports = {
                     if (updateSurvey.questions[i].options && updateSurvey.questions[i].options.length) {
                         var options = [];
                         for (var optionIndex in updateSurvey.questions[i].options) {
-                            options.push(updateSurvey.questions[i].options[optionIndex]);
-                            options[options.length-1].questionId = updateSurvey.questions[i].id;
+                            if (updateSurvey.questions[i].options[optionIndex] != null) {
+                                options.push(updateSurvey.questions[i].options[optionIndex]);
+                                options[options.length-1].questionId = updateSurvey.questions[i].id;
+                            }
                         }
                         try{
                             yield thunkQuery(SurveyQuestionOption.insert(options));
