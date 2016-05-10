@@ -298,8 +298,9 @@ describe(testTitle, function () {
             it('True number of records (userFrom = admin) as user1', function (done) {
                 ithelper.selectCount(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 2, done);
             });
-            it('userFromName = "Test Admin"', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 0, 'userFromName', 'Test Admin', done);
+            it('userFromName = "Admin Test"', function (done) {
+                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 0, 'userFromName',
+                    ithelper.getUser(allUsers,2).firstName + ' ' + ithelper.getUser(allUsers,2).lastName, done);
             });
             it('Update Admin as Anonymous', function (done) {
                 ithelper.updateOne(testEnv.api_created_realm, '/users/self', tokenAdmin, {isAnonymous: true}, 202, done);
@@ -310,8 +311,9 @@ describe(testTitle, function () {
             it('Clear Admin Anonymous flag', function (done) {
                 ithelper.updateOne(testEnv.api_created_realm, '/users/self', tokenAdmin, {isAnonymous: false}, 202, done);
             });
-            it('userFromName = "Test Admin"', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 0, 'userFromName', 'Test Admin', done);
+            it('userFromName = "Admin Test"', function (done) {
+                ithelper.selectOneCheckField(testEnv.api_created_realm, path+'?userFrom='+obj.adminId, tokenUser1, 200, 0, 'userFromName',
+                    ithelper.getUser(allUsers,2).firstName + ' ' + ithelper.getUser(allUsers,2).lastName, done);
             });
         });
         describe(testTitle+'RESEND notifications', function () {

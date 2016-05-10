@@ -72,7 +72,8 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var task = yield * common.getTask(req, req.query.taskId);
+            var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
+            var task = yield * common.getTask(req, taskId);
             var productId = task.productId;
             var uoaId = task.uoaId;
             var selectFields =
@@ -285,7 +286,7 @@ module.exports = {
             // check next entry
             return yield * checkNextEntry(req, req.params.id, true);
         }).then(function (data) {
-            res.json(data);
+            res.json({canUpdate: data});
         }, function (err) {
             next(err);
         });
@@ -383,7 +384,7 @@ function* checkUserId(req, user, userId, taskId, currentStep, tag ) {
 
     result = yield * getUserList(req, user, taskId, productId, uoaId, currentStep, tag);
     if (!_.first(result)) {
-        throw new HttpError(403, 'No available users for this survey'); // just in case - I think, it is not possible case!
+        throw new HttpError(403, 'No available users for this survey`s discussion entry');
     }
     var retObject=null;
 
@@ -406,7 +407,7 @@ function* checkUserId(req, user, userId, taskId, currentStep, tag ) {
             }
     }
     if (!retObject) {
-        throw new HttpError(403, 'User with userId=`'+userId+'` does not available user for this survey');
+        throw new HttpError(403, 'User with userId=`'+userId+'` does not available user for this survey`s discussion entry');
     }
     // if "resolve", check that returnTaskId is exist with returnTaskId = currentTaskId, isReturn=true, isResolve=false
     if (tag === 'resolve') {
