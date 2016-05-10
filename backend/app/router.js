@@ -117,6 +117,8 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
     .put(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
+// TODO refactor to universal attachment mechanism
+
 router.route('/:realm/v0.2/attachments')
     .post(authenticate('token').always, surveyAnswers.attach);
 
@@ -131,6 +133,32 @@ router.route('/:realm/v0.2/attachments/:id/link/:answerId')
 
 router.route('/:realm/v0.2/attachments/:id')
     .delete(authenticate('token').always, surveyAnswers.delAttachment);
+
+
+//----------------------------------------------------------------------------------------------------------------------
+//    ATTACHMENTS (universal mechanism)
+//----------------------------------------------------------------------------------------------------------------------
+
+var attachments = require('app/controllers/attachments');
+
+router.route('/:realm/v0.2/uploads')
+    .get(authenticate('token').always, attachments.select)
+    .post(
+        authenticate('token').always,
+        attachments.add
+    );
+
+router.route('/:realm/v0.2/uploads/:id/link/:entityId')
+    .get(authenticate('token').always, attachments.link);
+
+router.route('/:realm/v0.2/uploads/:id/ticket')
+    .get(authenticate('token').always, attachments.getTicket);
+
+router.route('/:realm/v0.2/uploads/get/:ticket')
+    .get(attachments.getAttachment);
+
+router.route('/:realm/v0.2/uploads/:id')
+    .delete(authenticate('token').always, attachments.delete);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
