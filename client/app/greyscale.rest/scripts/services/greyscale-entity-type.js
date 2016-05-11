@@ -11,12 +11,20 @@ angular.module('greyscale.rest')
             get: _get
         };
 
+        function _postProcess(resp) {
+            if (typeof resp.plain === 'function') {
+                return resp.plain();
+            } else {
+                return resp;
+            }
+        }
+
         function _api() {
             return greyscaleRestSrv().one('essences');
         }
 
         function _list(params) {
-            return _api().get(params);
+            return _api().get(params).then(_postProcess);
         }
 
         function _get(id) {

@@ -213,9 +213,16 @@ angular.module('greyscaleApp')
                     }
 
                     if (scope.model.survey.isPolicy) {
-                        elem.find('.fb-policy-blocks')
-                            .before($compile(
-                                '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(scope));
+                        var _policyBlocks = elem.find('.fb-policy-blocks');
+
+                        _policyBlocks.before($compile(
+                            '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(scope));
+
+                        elem.find('.fb-policy-attachments-label').remove();
+                        elem.find('.fb-btn-policy-attach').remove();
+                        $log.debug(scope.model);
+                        _policyBlocks.after($compile(
+                            '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
                     }
                 }
 

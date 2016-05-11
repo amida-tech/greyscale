@@ -7,24 +7,24 @@ angular.module('greyscaleApp')
         return {
             restrict: 'AE',
             scope: {
-                answerId: '@',
+                itemId: '@',
                 model: '=model',
-                options: '='
+                options: '=',
+                essenceId: '@'
             },
             template: '<div class="panel attachments"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
-                '<div class="panel-body"><div class="row">' +
-                '<attached-file attached-item="item" ng-repeat="item in model track by $index" remove-file="remove($index)"></attached-file>' +
-                '</div><form ng-show="!uploader.progress" class="row" name="{{formName}}"><input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-hide="options.readonly">' +
-                '</form>' +
-                '<div class="progress" ng-if="uploader.progress">' +
-                '  <div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }"></div>' +
-                '</div>' +
-                '</div></div>',
+            '<div class="panel-body"><div class="row">' +
+            '<attached-file attached-item="item" ng-repeat="item in model track by $index" remove-file="remove($index)">' +
+            '</attached-file></div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
+            '<input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-hide="options.readonly">' +
+            '</form><div class="progress" ng-if="uploader.progress">' +
+            '  <div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }"></div>' +
+            '</div></div></div>',
 
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
                 greyscaleAttachmentApi, greyscaleGlobals) {
 
-                var _url = greyscaleUtilsSrv.getApiBase() + '/attachments',
+                var _url = greyscaleUtilsSrv.getApiBase('uploads'),// + '/attachments',
                     _token = greyscaleTokenSrv();
 
                 $scope.formName = 'f_' + new Date().getTime();
@@ -49,7 +49,8 @@ angular.module('greyscaleApp')
                     }
                     item.headers.token = _token;
                     item.formData = [{
-                        answerId: $scope.answerId
+                        essenceId: $scope.essenceId,
+                        entityId: $scope.itemId
                     }];
                     item.idx = $scope.inProgress.length;
                     $scope.inProgress.push(item);

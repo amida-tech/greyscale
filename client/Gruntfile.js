@@ -102,6 +102,7 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/greyscale.core/**/*.js',
                     '<%= yeoman.app %>/greyscale.rest/**/*.js',
                     '<%= yeoman.app %>/greyscale.tables/**/*.js',
+                    '<%= yeoman.app %>/greyscale.wysiwyg/**/*.js',
                     '<%= yeoman.app %>/greyscale.mock/**/*.js'
                 ],
                 tasks: ['newer:jshint:all', 'newer:jscs:all'],
@@ -205,6 +206,7 @@ module.exports = function (grunt) {
                     '!<%= yeoman.app %>/greyscale.core/{,**/}greyscale-env.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.wysiwyg/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ]
             },
@@ -230,7 +232,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/greyscale.core/{,**/}*.js',
                     '!<%= yeoman.app %>/greyscale.core/{,**/}greyscale-env.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
-                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js'
+                    '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.wysiwyg/{,**/}*.js'
                 ]
             },
             test: {
@@ -249,6 +252,7 @@ module.exports = function (grunt) {
                     '!<%= yeoman.app %>/greyscale.core/{,**/}greyscale-env.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.wysiwyg/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
@@ -264,6 +268,7 @@ module.exports = function (grunt) {
                     '!<%= yeoman.app %>/greyscale.core/{,**/}greyscale-env.js',
                     '<%= yeoman.app %>/greyscale.rest/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.tables/{,**/}*.js',
+                    '<%= yeoman.app %>/greyscale.wysiwyg/{,**/}*.js',
                     '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {

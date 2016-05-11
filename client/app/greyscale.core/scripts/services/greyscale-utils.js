@@ -138,11 +138,12 @@ angular.module('greyscale.core')
             return result;
         }
 
-        function _getApiBase() {
+        function _getApiBase(query) {
             var _realm = greyscaleRealmSrv.current();
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [_realm, greyscaleEnv.apiVersion].join('/');
-            return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
+
+            return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path + (query ? '/' + query : '');
         }
 
         function _capitalize(_str) {

@@ -42,3 +42,19 @@ checkbox-list {
 .group-discussion {
     background-color: $grey-light;
 }
+.palette {
+    display: inline-block;
+    line-height: 0;
+    .palette-row {
+        display: block;
+        .palette-item {
+            display: inline-block;
+            border: thin solid $grey-medium-light;
+            width: 1em;
+            height: 1em;
+            border-radius: 0.15em;
+            cursor: pointer;
+            margin: 0.5px;
+        }
+    }
+}
