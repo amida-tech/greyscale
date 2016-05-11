@@ -1,3 +1,4 @@
+-- only for public
 CREATE OR REPLACE FUNCTION twc_delete_old_token()
   RETURNS trigger AS
 $BODY$BEGIN
