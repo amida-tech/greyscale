@@ -86,7 +86,13 @@ Please do not update it manually.
 
 # Build & development
 
-To build, run `grunt`
+To build, run  
+
+`bower update` 
+
+`bower install` 
+
+`grunt build`
 
 To preview, run `grunt serve`
 
