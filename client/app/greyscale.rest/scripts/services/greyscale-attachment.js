@@ -31,7 +31,8 @@ angular.module('greyscale.rest')
         function _list(essenceId, entityId) {
             return _api().get({
                     essenceId: essenceId,
-                    entityId: entityId
+                    entityId: entityId,
+                    fields: 'id,filename,mimetype,size,created'
                 })
                 .then(_preResp);
         }
