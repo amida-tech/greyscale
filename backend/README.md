@@ -6,7 +6,9 @@
 2. We recommend using [node version manager](https://github.com/creationix/nvm) ```nvm install 0.12.7```
 3. Install postgres and pgAdmin on your machine
 4. Configure the application (rename [config_etalon.js](config_etalon.js) to config.js)
-	
+5. Restore the last db dubmp from /db_dump folder
+6. Run all the daily pathes since the last database dump date from /db_dump/patches (since 2015-04-25 all patches are go through the all namespaces, so it is not necessary to run patch for each namespace)
+
 ```
 # In project root to install dependencies, run:
 npm i 
@@ -15,7 +17,7 @@ npm i
 pgAdmin restore
 
 # Run application 
-node --harmony app.js
+node --harmony app.js (since 4.0.0 version --harmony is not necessary)
 ```
 
 
