@@ -187,6 +187,42 @@ ithelper = {
             });
     },
 
+    selectCheckAllRecords4Key : function (api, get, token, status, checkArray, resKey, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body).to.exist;
+
+                for (var i = 0; i < checkArray.length; i++) {
+                    for (var key in checkArray[i]) {
+                        expect(res.body[resKey][i][key]).to.equal(checkArray[i][key]);
+                    }
+                }
+                done();
+            });
+    },
+
+    selectErrMessage : function (api, get, token,  status, errCode, message, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
+                done();
+            });
+    },
+
     insertOne : function (api, get, token, insertItem, status, obj, key, done) {
         api
             .post(get)
@@ -226,7 +262,8 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body.e).to.equal(errCode);
-                expect(res.body.message).to.have.string(message);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
                 done();
             });
     },
@@ -252,7 +289,8 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body.e).to.equal(errCode);
-                expect(res.body.message).to.have.string(message);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
                 done();
             });
     },
@@ -280,6 +318,23 @@ ithelper = {
                 if (err) {
                     return done(err);
                 }
+                done();
+            });
+    },
+
+    updateOneErrMessage : function (api, get, token, updateItem, status, errCode, message, done) {
+        api
+            .put(get)
+            .set('token', token)
+            .send(updateItem)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
                 done();
             });
     },

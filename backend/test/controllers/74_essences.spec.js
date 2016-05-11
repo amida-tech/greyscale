@@ -315,7 +315,7 @@ describe(testTitle, function () {
                     },
                     400,
                     403,
-                    'record with this tableName or(and) fileName has already exist',
+                    'record with this tableName .* fileName has already exist',
                     done
                 );
             });

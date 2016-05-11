@@ -29,7 +29,7 @@ angular.module('greyscaleApp')
                 '               <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
                 '                   <div class="sender">{{notification.userFromName}}</div>' +
                 '                   <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
-                '                   <p>{{notification.body}}</p>' +
+                '                   <p><b>{{notification.subject}}</b><br><span ng-bind-html="notification.note"></span></p>' +
                 '                   <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
                 '                   <div class="clearfix"></div>' +
                 '               </div>' +
