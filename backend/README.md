@@ -3,7 +3,7 @@
 # Indaba Backend Installation
 ------------
 1. Install Node.js v0.11+ (on Debian/Ubuntu: ```apt-get install nodejs```). 
-2. We recommend using [node version manager](https://github.com/creationix/nvm) ```nvm install 0.12.7```
+2. We recommend using [node version manager](https://github.com/creationix/nvm) ```nvm install 5.0.0```
 3. Install postgres and pgAdmin on your machine
 4. Configure the application (rename [config_etalon.js](config_etalon.js) to config.js)
 5. Restore the last db dubmp from /db_dump folder
