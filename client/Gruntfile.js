@@ -65,8 +65,6 @@ module.exports = function (grunt) {
             apiHostname: 'indaba.ntrlab.ru',
             apiPort: '83',
             apiVersion: 'v0.2',
-            defaultUser: 'su@mail.net',
-            defaultPassword: 'testuser',
             adminSchema: 'public',
             tokenTTLsec: 300,
             enableDebugLog: true
@@ -650,8 +648,6 @@ module.exports = function (grunt) {
                         apiPort: '443',
                         apiRealm: 'dev',
                         apiVersion: 'v0.2',
-                        //defaultUser: 'su@mail.net',
-                        //defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
                 }
@@ -667,8 +663,6 @@ module.exports = function (grunt) {
                         apiPort: '443',
                         apiRealm: 'dev',
                         apiVersion: 'v0.2',
-                        //defaultUser: 'su@mail.net',
-                        //defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
                 }
@@ -684,8 +678,6 @@ module.exports = function (grunt) {
                         apiPort: '443',
                         apiRealm: 'dev',
                         apiVersion: 'v0.2',
-                        //defaultUser: 'su@mail.net',
-                        //defaultPassword: 'testuser',
                         enableDebugLog: true
                     }
                 }
