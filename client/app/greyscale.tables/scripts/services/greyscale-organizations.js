@@ -56,7 +56,10 @@ angular.module('greyscale.tables')
                 keyField: 'id',
                 valField: 'email'
             }
-
+        }, {
+            title: tns + 'ENABLE_FEATURE_POLICY',
+            field: 'enableFeaturePolicy',
+            dataFormat: 'boolean'
         }, {
             field: '',
             title: '',

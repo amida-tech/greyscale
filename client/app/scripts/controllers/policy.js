@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyCtrl', function ($scope, $stateParams, greyscaleModalsSrv,
-        greyscaleProjectApi, greyscaleProjectSurveysTbl, Organization) {
+        greyscaleProjectApi, greyscaleProjectSurveysTbl, Organization, $state) {
 
         var surveys = greyscaleProjectSurveysTbl;
 
@@ -17,9 +17,13 @@ angular.module('greyscaleApp')
         Organization.$watch($scope, _renderSurveysTable);
 
         function _renderSurveysTable() {
-            surveys.dataFilter.projectId = Organization.projectId;
-            if (surveys.tableParams) {
-                surveys.tableParams.reload();
+            if (!Organization.enableFeaturePolicy) {
+                $state.go('home');
+            } else {
+                surveys.dataFilter.projectId = Organization.projectId;
+                if (surveys.tableParams) {
+                    surveys.tableParams.reload();
+                }
             }
         }
     });

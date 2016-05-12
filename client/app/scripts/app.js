@@ -551,7 +551,10 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.POLICY.TITLE',
                 icon: 'fa-file',
-                accessLevel: systemRoles.any.mask
+                accessLevel: systemRoles.any.mask,
+                customAccess: {
+                    enableFeaturePolicy: true
+                }
             }
         })
         .state('policy.edit', {
