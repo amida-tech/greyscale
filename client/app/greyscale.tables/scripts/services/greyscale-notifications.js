@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleNotificationsTbl', function ($q, _,
+    .factory('greyscaleNotificationsTbl', function ($q, _, $sce,
         greyscaleProfileSrv,
         greyscaleGroupApi,
         greyscaleNotificationApi,
@@ -29,7 +29,10 @@ angular.module('greyscale.tables')
         }, {
             field: 'body',
             title: tns + 'MESSAGE',
-            cellTemplate: '<p><b>{{row.subject}}</b><br><span ng-bind-html="row.note"></span></p>'
+            cellTemplate: '<p><b>{{row.subject}}</b><br><span ng-bind-html="ext.sanitize(row.note)"></span></p>',
+            cellTemplateExtData: {
+                sanitize: $sce.trustAsHtml
+            }
         }, {
             field: 'read',
             title: tns + 'READ',
