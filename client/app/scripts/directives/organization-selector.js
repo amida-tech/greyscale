@@ -66,10 +66,9 @@ angular.module('greyscaleApp')
                         $scope.$on(greyscaleGlobals.events.common.orgUpdate, getOrganizations);
 
                         getOrganizations().then(function () {
-                            var organizationId = parseInt($cookies.get('orgId'));
-
+                            var realm = $cookies.get('current_realm');
                             var organization = _.find($scope.model.organizations, {
-                                id: organizationId
+                                realm: realm
                             });
 
                             if (organization) {
@@ -91,7 +90,7 @@ angular.module('greyscaleApp')
 
                     greyscaleRealmSrv.current(Organization.realm || 'public');
 
-                    $cookies.put('orgId', Organization.id);
+                    $cookies.put('current_realm', Organization.realm);
 
                     if (!Organization.projectId) {
                         $log.debug('Organization ' + Organization.realm + ':' + Organization.id + ' has no valid project');
