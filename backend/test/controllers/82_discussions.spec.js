@@ -45,8 +45,9 @@ var errQuestionId = 'abc';
 var notExistQuestionId = 9999;
 var questionId = [2, 3];
 
-var errUserId = 'abc';
-var notExistUserId = 9999;
+var errStepId = 'abc';
+var notExistStepId = 9999;
+var stepId = [2, 3, 4, 5];
 var userId = [3, 4, 5];
 var adminId = 2;
 
@@ -227,6 +228,12 @@ describe(testTitle, function () {
 
     function allTests() {
 
+        describe(testTitle+'Clean up', function () {
+            it('Do clean up SQL script ', function (done) {
+                ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
+            });
+        });
+
         describe(testTitle+'Prepare for test', function () {
             it('Do prepare SQL script ', function (done) {
                 ithelper.doSql('test/preDiscussions.sql', config.testEntities.organization.realm, done);
@@ -278,44 +285,44 @@ describe(testTitle, function () {
                     var insertItem = {questionId: questionId[0], taskId: notExistTaskId};
                     ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'does not exist', done);
                 });
-                it('(Err) userId must be specified', function (done) {
+                it('(Err) stepId must be specified', function (done) {
                     var insertItem = {questionId: questionId[0], taskId: taskId[0]};
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'userId must be specified', done);
+                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'stepId must be specified', done);
                 });
-                it('(Err) userId must be integer', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: errUserId};
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'userId must be integer', done);
+                it('(Err) stepId must be integer', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: errStepId};
+                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'stepId must be integer', done);
                 });
                 it('(Err) userId does not exist', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: notExistUserId};
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: notExistStepId};
                     ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'does not exist', done);
                 });
                 it('(Err) discussion`s entry must be specified', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1]};
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1]};
                     ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'Entry must be specified', done);
                 });
             });
             describe('Success:', function () {
-                it('Simple discussion entry from Admin to User2 (q1, t1)', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'simple discussion entry from Admin to User2 (q1, t1)'};
+                it('Simple discussion entry from Admin to Step2 (q1, t1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'simple discussion entry from Admin to Step2 (q1, t1)'};
                     ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId1', done);
                 });
                 it('Get entry update for added entry', function (done) {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+obj.discussionId1, tokenAdmin, 200, null, 'canUpdate', true, done);
                 });
-                it('Update simple discussion entry from Admin to User2 (q1, t1)', function (done) {
-                    var updateItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'UPDATED simple discussion entry from Admin to User2 (q1, t1)'};
+                it('Update simple discussion entry from Admin to Step2 (q1, t1)', function (done) {
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'UPDATED simple discussion entry from Admin to Step2 (q1, t1)'};
                     ithelper.updateOne(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 202, done);
                 });
-                it('Simple discussion entry from User1 to User2 (q1, t1)', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'simple discussion entry from User1 to User2 (q1, t1)'};
+                it('Simple discussion entry from User1 to Step2 (q1, t1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'simple discussion entry from User1 to Step2 (q1, t1)'};
                     ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId2', done);
                 });
                 it('Get entry update for added entry (next entry exist)', function (done) {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+obj.discussionId1, tokenAdmin, 200, null, 'canUpdate', false, done);
                 });
                 it('(Err) Entry with id=<id> cannot be updated, there are have following entries', function (done) {
-                    var updateItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated, there are have following entries'};
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated, there are have following entries'};
                     ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated, there are have following entries', done);
                 });
                 it('True number of discussion`s entries = 2', function (done) {
@@ -331,7 +338,7 @@ describe(testTitle, function () {
         });
         describe(testTitle+'Errors when add discussion`s entry (flagged - return to previous step) ', function () {
             it('(Err) "It is not possible to post entry with "return" flag, because there are not previous steps"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'Error - there are not previous steps', isReturn: true};
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Error - there are not previous steps', isReturn: true};
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'It is not possible to post entry with .* flag, because there are not previous steps', done);
             });
         });
@@ -351,19 +358,19 @@ describe(testTitle, function () {
         });
         describe(testTitle+'Add discussion`s entry (flagged - return to previous step) ', function () {
             it('(Err) "It is not possible to post entry with "return" flag, because Task stepId=<id> does not equal currentStepId=<id>"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'Error - invalid stepId', isReturn: true};
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Error - invalid stepId', isReturn: true};
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'It is not possible to post entry with "return" flag, because Task stepId=.* does not equal currentStepId=.*', done);
             });
-            it('(Err) "User with userId=<id> does not available user for this survey`s discussion entry', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[1], userId: userId[2], entry: 'Error - not available user', isReturn: true};
-                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'User with userId=.* does not available user for this survey`s discussion entry', done);
+            it('(Err) "Step with stepId=<id> does not available step for this survey`s discussion entry', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[2], entry: 'Error - not available step', isReturn: true};
+                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
             });
-            it('(Err) "No available users for this survey`s discussion entry"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[1], userId: userId[2], entry: 'Error - No available users for this survey`s discussion entry', isResolve: true};
-                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'No available users for this survey`s discussion entry', done);
+            it('(Err) "No available steps for this survey`s discussion entry"', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[2], entry: 'Error - No available steps for this survey`s discussion entry', isResolve: true};
+                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'No available steps for this survey`s discussion entry', done);
             });
-            it('Discussion entry (flagged - with return flag) from Admin to User1 (q1, t2)', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[1], userId: userId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to User1 (q1, t2)', isReturn: true};
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', isReturn: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId3', done);
             });
             it('Check current step', function (done) {
@@ -377,12 +384,12 @@ describe(testTitle, function () {
             });
         });
         describe(testTitle+'Add discussion`s entry (flagged - resolve) ', function () {
-            it('(Err) "User with userId=<id> does not available user for this survey`s discussion entry"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[2], entry: 'Error - User with userId=<id> does not available user for this survey`s discussion entry', isResolve: true};
-                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'User with userId=.* does not available user for this survey`s discussion entry', done);
+            it('(Err) "Step with stepId=<id> does not available step for this survey`s discussion entry"', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Error - Step with stepId=<id> does not available step for this survey`s discussion entry', isResolve: true};
+                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
             });
             it('Discussion entry (flagged - resolve)', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], userId: userId[1], entry: 'Discussion entry (flagged - resolve) ', isResolve: true};
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Discussion entry (flagged - resolve) ', isResolve: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId4', done);
             });
             it('Check current step', function (done) {
