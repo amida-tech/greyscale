@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
         return pub;
     })
     .directive('userNotifications', function (_, greyscaleProfileSrv,
-        greyscaleNotificationApi, Organization, greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv) {
+        greyscaleNotificationApi, Organization, greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv, $sce) {
         return {
             restrict: 'A',
             replace: true,
@@ -29,7 +29,7 @@ angular.module('greyscaleApp')
                 '               <div class="notification" ng-repeat="notification in model.notifications track by $index">' +
                 '                   <div class="sender">{{notification.userFromName}}</div>' +
                 '                   <div class="send-time">{{notification.created|date:\'medium\'}}</div>' +
-                '                   <p><b>{{notification.subject}}</b><br><span ng-bind-html="notification.note"></span></p>' +
+                '                   <p><b>{{notification.subject}}</b><br><span ng-bind-html="sanitize(notification.note)"></span></p>' +
                 '                   <div class="control pull-right"><a ng-click="markAsRead(notification, $index); $event.stopPropagation()" translate=".MARK_AS_READ"></a></div>' +
                 '                   <div class="clearfix"></div>' +
                 '               </div>' +
@@ -48,6 +48,8 @@ angular.module('greyscaleApp')
                 scope.model = {
                     notifications: []
                 };
+
+                scope.sanitize = $sce.trustAsHtml;
 
                 var user = function () {};
                 var _accessLevel, _realm;
