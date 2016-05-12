@@ -18,7 +18,8 @@ var columns = [
     'langId',
     'attachments',
     'answerComment',
-    'links'
+    'links',
+    'updated'
 ];
 
 var SurveyAnswer = sql.define({
@@ -34,7 +35,8 @@ SurveyAnswer.editCols = [
     'comments',
     'attachments',
     'answerComment',
-    'links'
+    'links',
+    'updated'
 ];
 
 SurveyAnswer.translate = [

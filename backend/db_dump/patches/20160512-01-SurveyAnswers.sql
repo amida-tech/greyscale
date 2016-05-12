@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.patch_20160511_02_organizations() RETURNS void AS
+CREATE OR REPLACE FUNCTION public.patch_20160512_01_surveyAnswers() RETURNS void AS
 $BODY$
 DECLARE
     schema_name text;
@@ -11,13 +11,13 @@ BEGIN
 		AND (pg_catalog.pg_user.usename = 'indaba') -- HAVE TO SET CORRECT DB USER
 	LOOP
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
-		EXECUTE 'ALTER TABLE "Organizations" ADD COLUMN "enableFeaturePolicy" boolean NOT NULL DEFAULT FALSE;';
+		EXECUTE 'ALTER TABLE "SurveyAnswers" ADD COLUMN "updated" timestamp with time zone';
 	END LOOP;
 
 END
 $BODY$
 LANGUAGE plpgsql;
 
-SELECT public.patch_20160511_02_organizations();
-DROP FUNCTION IF EXISTS public.patch_20160511_02_organizations();
+SELECT public.patch_20160512_01_surveyAnswers();
+DROP FUNCTION IF EXISTS public.patch_20160512_01_surveyAnswers();
 

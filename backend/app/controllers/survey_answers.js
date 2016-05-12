@@ -740,6 +740,7 @@ function *addAnswer (req, dataObject) {
     if (existsNullVer[0]) {
         var answer = {id : existsNullVer[0].id};
         editFields.push('version');
+        dataObject.updated = new Date();
         yield thunkQuery(
             SurveyAnswer
                 .update(_.pick(dataObject, editFields))
