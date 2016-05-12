@@ -653,7 +653,7 @@ angular.module('greyscaleApp')
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err, 'ERROR.STEP_SUBMIT');
                         return $q.reject(err);
-                        //                        return isAuto;
+//                        return isAuto;
                     })
                     .finally(scope.unlock);
             }
