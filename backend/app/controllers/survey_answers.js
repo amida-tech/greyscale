@@ -364,7 +364,7 @@ module.exports = {
             if (!attach[0]) {
                 throw new HttpError(404, 'Attachment not found');
             }
-            if(attach[0].owner != req.user.id){
+            if (attach[0].owner != req.user.id) {
                 throw new HttpError(404, 'Only owner can delete attachment');
             }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
@@ -564,6 +564,21 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 
 };
 
+function isEmptyOptions(optArray) {
+    console.log(optArray);
+    if (!optArray) { // null or andefined
+        return true;
+    }
+    if (Array.isArray(optArray)){
+        if (optArray.length === 0) { // []
+            return true;
+        } else if (optArray[0] === null) { // [null]
+            return true;
+        }
+    }
+    return false;
+}
+
 function *addAnswer (req, dataObject) {
     var thunkQuery = req.thunkQuery;
 
@@ -668,24 +683,28 @@ function *addAnswer (req, dataObject) {
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
-        if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
-            throw new HttpError(403, 'You should provide optionId for this type of question');
-        } else {
-            for (optIndex in dataObject.optionId) {
-                var option = yield thunkQuery(
-                    SurveyQuestionOption
-                        .select()
-                        .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
-                );
-                if (!_.first(option)) {
-                    throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
-                }
 
-                if (_.first(option).questionId !== dataObject.questionId) {
-                    throw new HttpError(403, 'This option does not relate to this question');
+        if (question[0].isRequired || !isEmptyOptions(dataObject.optionId)) {
+            if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
+                throw new HttpError(403, 'You should provide optionId for this type of question');
+            } else {
+                for (optIndex in dataObject.optionId) {
+                    var option = yield thunkQuery(
+                        SurveyQuestionOption
+                            .select()
+                            .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
+                    );
+                    if (!_.first(option)) {
+                        throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
+                    }
+
+                    if (_.first(option).questionId !== dataObject.questionId) {
+                        throw new HttpError(403, 'This option does not relate to this question');
+                    }
                 }
             }
         }
+
     } else {
         if (!dataObject.value && !dataObject.isResponse && !req.query.autosave) {
             throw new HttpError(403, 'You should provide value for this type of question');
