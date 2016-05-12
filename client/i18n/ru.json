@@ -330,6 +330,7 @@
         "ADDRESS": "Адрес",
         "ADMIN_USER": "Админ",
         "DELETE_CONFIRM": "Подтвердите удаление организации <b>{{organization.name}}</b>",
+        "ENABLE_FEATURE_POLICY": "",
         "IS_ACTIVE": "Активная",
         "NAME": "Название",
         "ORGANIZATION": "Организация",

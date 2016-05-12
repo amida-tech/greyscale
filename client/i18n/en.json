@@ -330,6 +330,7 @@
         "ADDRESS": "Address",
         "ADMIN_USER": "Admin user",
         "DELETE_CONFIRM": "Please confirm deleting of organization <b>{{organization.name}}</b>",
+        "ENABLE_FEATURE_POLICY": "Policy Feature Enabled",
         "IS_ACTIVE": "Is active",
         "NAME": "Name",
         "ORGANIZATION": "Organization",

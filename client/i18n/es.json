@@ -330,6 +330,7 @@
         "ADDRESS": "",
         "ADMIN_USER": "",
         "DELETE_CONFIRM": "",
+        "ENABLE_FEATURE_POLICY": "",
         "IS_ACTIVE": "",
         "NAME": "",
         "ORGANIZATION": "",
