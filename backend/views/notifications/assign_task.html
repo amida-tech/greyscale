@@ -2,6 +2,8 @@
 
 <p><%- body %></p>
 
-<p> You are assigned to task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)</p>
+<p> 
+You are assigned to task <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)</a>
+</p>
 
 <p>Thank you!</br>-Indaba</p>

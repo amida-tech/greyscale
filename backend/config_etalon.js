@@ -96,6 +96,8 @@ var environments = {
         },
         pgConnect: {
             user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
+            // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
+            testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test',
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
             database: process.env.INDABA_PG_DB || 'database',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',

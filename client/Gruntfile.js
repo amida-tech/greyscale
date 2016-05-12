@@ -677,6 +677,23 @@ module.exports = function (grunt) {
                         enableDebugLog: true
                     }
                 }
+            },
+            stage: {
+                options: {},
+                constants: {
+                    greyscaleEnv: {
+                        supportedLocales: ['en', 'ru', 'es', 'fr'],
+                        name: 'dev',
+                        apiProtocol: 'https',
+                        apiHostname: 'new.indaba.amida-tech.com',
+                        apiPort: '443',
+                        apiRealm: 'dev',
+                        apiVersion: 'v0.2',
+                        //defaultUser: 'su@mail.net',
+                        //defaultPassword: 'testuser',
+                        enableDebugLog: true
+                    }
+                }
             }
         },
 

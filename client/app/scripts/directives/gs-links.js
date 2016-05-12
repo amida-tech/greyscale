@@ -11,7 +11,7 @@ angular.module('greyscaleApp')
                 options: '='
             },
             templateUrl: 'views/directives/gs-links.html',
-            controller: function ($scope, greyscaleGlobals) {
+            controller: function ($scope, greyscaleGlobals, $element) {
                 _init();
 
                 $scope.formName = 'f_' + new Date().getTime();

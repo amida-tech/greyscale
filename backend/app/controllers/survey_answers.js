@@ -29,6 +29,7 @@ var
     notifications = require('app/controllers/notifications'),
     mc = require('app/mc_helper'),
     pgEscape = require('pg-escape'),
+    bytes = require('bytes'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_survey_answers');
@@ -501,7 +502,7 @@ module.exports = {
                 var file = req.files.file;
 
                 if (file.size > config.max_upload_filesize) {
-                    throw new HttpError(400, 'File must be less then 10 MB');
+                    throw new HttpError(400, 'File must be less than ' + bytes(config.max_upload_filesize));
                 }
 
                 var load = new Promise(function (resolve, reject) {

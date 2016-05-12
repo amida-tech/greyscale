@@ -207,7 +207,7 @@ module.exports = function (grunt) {
     grunt.registerTask('createDatabase', function () {
         var done = this.async();
         var cpg = require('./config').pgConnect;
-        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W';
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser;
         exec('createdb ' + connectStringPg + ' ' + cpg.database, function (err) {
             if (err !== null) {
                 console.log('exec error: ' + err);
@@ -225,7 +225,7 @@ module.exports = function (grunt) {
     grunt.registerTask('dropDatabase', function () {
         var done = this.async();
         var cpg = require('./config').pgConnect;
-        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ';
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser;
         exec('dropdb ' + connectStringPg + ' ' + cpg.database, function (err) {
             if (err !== null) {
                 console.log('exec error: ' + err);
