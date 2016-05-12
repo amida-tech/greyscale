@@ -17,6 +17,7 @@ var
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
     co = require('co'),
+    sql = require('sql'),
     Query = require('app/util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
@@ -24,6 +25,8 @@ var
     fs = require('fs'),
     crypto = require('crypto'),
     config = require('config'),
+    common = require('app/services/common'),
+    notifications = require('app/controllers/notifications'),
     mc = require('app/mc_helper'),
     pgEscape = require('pg-escape'),
     bytes = require('bytes'),
@@ -361,7 +364,7 @@ module.exports = {
             if (!attach[0]) {
                 throw new HttpError(404, 'Attachment not found');
             }
-            if(attach[0].owner != req.user.id){
+            if (attach[0].owner != req.user.id) {
                 throw new HttpError(404, 'Only owner can delete attachment');
             }
             yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
@@ -561,6 +564,21 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
 
 };
 
+function isEmptyOptions(optArray) {
+    console.log(optArray);
+    if (!optArray) { // null or andefined
+        return true;
+    }
+    if (Array.isArray(optArray)){
+        if (optArray.length === 0) { // []
+            return true;
+        } else if (optArray[0] === null) { // [null]
+            return true;
+        }
+    }
+    return false;
+}
+
 function *addAnswer (req, dataObject) {
     var thunkQuery = req.thunkQuery;
 
@@ -665,24 +683,28 @@ function *addAnswer (req, dataObject) {
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
-        if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
-            throw new HttpError(403, 'You should provide optionId for this type of question');
-        } else {
-            for (optIndex in dataObject.optionId) {
-                var option = yield thunkQuery(
-                    SurveyQuestionOption
-                        .select()
-                        .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
-                );
-                if (!_.first(option)) {
-                    throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
-                }
 
-                if (_.first(option).questionId !== dataObject.questionId) {
-                    throw new HttpError(403, 'This option does not relate to this question');
+        if (question[0].isRequired || !isEmptyOptions(dataObject.optionId)) {
+            if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
+                throw new HttpError(403, 'You should provide optionId for this type of question');
+            } else {
+                for (optIndex in dataObject.optionId) {
+                    var option = yield thunkQuery(
+                        SurveyQuestionOption
+                            .select()
+                            .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
+                    );
+                    if (!_.first(option)) {
+                        throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
+                    }
+
+                    if (_.first(option).questionId !== dataObject.questionId) {
+                        throw new HttpError(403, 'This option does not relate to this question');
+                    }
                 }
             }
         }
+
     } else {
         if (!dataObject.value && !dataObject.isResponse && !req.query.autosave) {
             throw new HttpError(403, 'You should provide value for this type of question');
@@ -718,6 +740,7 @@ function *addAnswer (req, dataObject) {
     if (existsNullVer[0]) {
         var answer = {id : existsNullVer[0].id};
         editFields.push('version');
+        dataObject.updated = new Date();
         yield thunkQuery(
             SurveyAnswer
                 .update(_.pick(dataObject, editFields))
@@ -796,7 +819,7 @@ function *moveWorkflow (req, productId, UOAid) {
         throw new HttpError(403, 'Task is not defined for this Product and UOA');
     }
 
-    if (!curStep.task) {
+    if (!curStep.survey) {
         throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
@@ -811,14 +834,51 @@ function *moveWorkflow (req, productId, UOAid) {
     }
 
 
-    var nextStep = yield thunkQuery(
-        WorkflowStep.select()
+    var minNextStepPosition = yield thunkQuery(
+        WorkflowStep
+            .select(
+            sql.functions.MIN(WorkflowStep.position).as('minPosition')
+            )
+            .from(WorkflowStep
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
             .where(
-                WorkflowStep.workflowId.equals(curStep.workflowId)
-                    .and(WorkflowStep.position.equals(curStep.position+1))
+            WorkflowStep.workflowId.equals(curStep.workflowId)
+                .and(WorkflowStep.position.gt(curStep.position))
+                .and(Task.productId.equals(productId))
+                .and(Task.uoaId.equals(UOAid))
             )
     );
 
+    var nextStep = [null];
+    if(minNextStepPosition[0].minPosition !== null) { // min next step exists, position is not null
+/*
+        nextStep = yield thunkQuery(
+            WorkflowStep.select()
+                .where(
+                WorkflowStep.workflowId.equals(curStep.workflowId)
+                    .and(WorkflowStep.position.equals(minNextStepPosition[0].minPosition))
+            )
+        );
+*/
+
+        nextStep = yield thunkQuery(
+            WorkflowStep
+                .select(
+                WorkflowStep.id,
+                Task.userId,
+                Task.id.as('taskId')
+            )
+                .from(WorkflowStep
+                    .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
+                .where(Task.productId.equals(productId)
+                    .and(Task.uoaId.equals(UOAid))
+                    .and(WorkflowStep.position.equals(minNextStepPosition[0].minPosition))
+            )
+        );
+
+    }
 
     if(nextStep[0]){ // next step exists, set it to current
         yield thunkQuery(
@@ -826,6 +886,33 @@ function *moveWorkflow (req, productId, UOAid) {
                 .update({currentStepId: nextStep[0].id})
                 .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
         );
+
+        // notify
+        var essenceId = yield * common.getEssenceId(req, 'Tasks');
+        var task = yield * common.getTask(req, parseInt(nextStep[0].taskId));
+        var userTo = yield * common.getUser(req, task.userId);
+        var product = yield * common.getEntity(req, task.productId, Product, 'id');
+        var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        var note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'Task activated (next step)',
+                essenceId: essenceId,
+                entityId: nextStep[0].taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'activateTask'
+        );
+
         bologger.log({
             req: req,
             user: req.user,

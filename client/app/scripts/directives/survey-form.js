@@ -599,7 +599,9 @@ angular.module('greyscaleApp')
                         break;
 
                     case 'date':
-                        fld.answer = new Date(answer.value);
+                        if (answer.value) {
+                            fld.answer = new Date(answer.value);
+                        }
                         break;
 
                     default:
@@ -669,7 +671,7 @@ angular.module('greyscaleApp')
                 fld = fields[f];
                 if (fld.sub) {
                     _answers = _answers.concat(preSaveFields(fld.sub));
-                } else if (fld.answer || fld.type === 'checkboxes' || fld.isAgree || fld.comment || fld.canAttach && fld.attachments.length) {
+                } else if (hasChanges(fld)) {
                     answer = {
                         questionId: fld.id,
                         langId: fld.langId,
@@ -698,7 +700,7 @@ angular.module('greyscaleApp')
                         answer.optionId = [];
                         answer.value = null;
 
-                        if (typeof fld.answer.id !== 'undefined') {
+                        if (fld.answer && typeof fld.answer.id !== 'undefined') {
                             if (fld.answer.id > -1) {
                                 answer.optionId = [fld.answer.id];
                             }
@@ -719,7 +721,7 @@ angular.module('greyscaleApp')
                         break;
 
                     default:
-                        answer.optionId = [null];
+                        answer.optionId = [];
                         answer.value = fld.answer || null;
                     }
 

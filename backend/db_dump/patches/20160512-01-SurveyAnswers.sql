@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.patch_20160407_01_users() RETURNS void AS
+CREATE OR REPLACE FUNCTION public.patch_20160512_01_surveyAnswers() RETURNS void AS
 $BODY$
 DECLARE
     schema_name text;
@@ -11,16 +11,13 @@ BEGIN
 		AND (pg_catalog.pg_user.usename = 'indaba') -- HAVE TO SET CORRECT DB USER
 	LOOP
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
-		EXECUTE
-		    'ALTER TABLE "Users" ALTER COLUMN "notifyLevel" SET DEFAULT 2,  ADD COLUMN "salt" varchar';
+		EXECUTE 'ALTER TABLE "SurveyAnswers" ADD COLUMN "updated" timestamp with time zone';
 	END LOOP;
-	EXECUTE 'ALTER TABLE public."Users" ALTER COLUMN "notifyLevel" SET DEFAULT 2,  ADD COLUMN "salt" varchar'; -- also for public
 
 END
 $BODY$
 LANGUAGE plpgsql;
 
-SELECT public.patch_20160407_01_users();
-DROP FUNCTION IF EXISTS public.patch_20160407_01_users();
-
+SELECT public.patch_20160512_01_surveyAnswers();
+DROP FUNCTION IF EXISTS public.patch_20160512_01_surveyAnswers();
 

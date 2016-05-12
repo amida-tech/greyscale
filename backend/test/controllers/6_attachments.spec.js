@@ -1,20 +1,4 @@
-/**
- * Roles tests
- *
- * prerequsites tests: organizations, users
- *
- * used entities: organization, users, roles
- //[
- //{name: 'admin', isSystem: true},
- //{name: 'client', isSystem: true},
- //{name: 'user', isSystem: true}
- //];
- *
-**/
-
 var chai = require('chai');
-var expect = chai.expect;
-var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
@@ -30,14 +14,9 @@ testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities
 var allUsers  = [];
 var token;
 var obj ={};
-var path = '/roles';
-var rolesContent = [
-    {id: 1, name: 'admin', isSystem: true},
-    {id: 2, name: 'client', isSystem: true},
-    {id: 3, name: 'user', isSystem: true}
-];
-var numberOfRecords = 3;
-var testTitle = 'Roles: ';
+var path = '/uploads';
+
+var testTitle = 'Attachments: ';
 
 describe(testTitle, function () {
 
@@ -55,15 +34,15 @@ describe(testTitle, function () {
     });
 
     function userTests(user) {
-        describe(testTitle+'All of tests for user `' + user.firstName+'`', function () {
-            it('Select true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
-            });
-
-            it('Select initial content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
-            });
-        });
+        //describe(testTitle+'All of tests for user `' + user.firstName+'`', function () {
+        //    it('Select true number of records', function (done) {
+        //        ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+        //    });
+        //
+        //    it('Select initial content', function (done) {
+        //        ithelper.selectCheckAllRecords(testEnv.api_created_realm, path, user.token, 200, rolesContent, done);
+        //    });
+        //});
     }
 
     function adminTests(user) {

@@ -7,6 +7,7 @@ var expect = chai.expect;
 var config = require('../../config');
 var _ = require('underscore');
 var request = require('superagent');
+var exec = require('child_process').exec;
 var co = require('co');
 
 var backendServerDomain = 'http://localhost'; // ToDo: to config
@@ -19,8 +20,8 @@ ithelper = {
         if (keys.indexOf('superAdmin') !== -1){
             allUsers.push( // superAdmin
                 {
-                    firstName: testEnv.superAdmin.firstUser || 'SuperAdmin',
-                    lastName: testEnv.superAdmin.lastUser || 'Test',
+                    firstName: testEnv.superAdmin.firstName || 'SuperAdmin',
+                    lastName: testEnv.superAdmin.lastName || 'Test',
                     email: testEnv.superAdmin.email,
                     roleID: testEnv.superAdmin.roleID || 1,
                     password: testEnv.superAdmin.password
@@ -30,8 +31,8 @@ ithelper = {
         if (keys.indexOf('admin') !== -1) {
             allUsers.push( // admin
                 {
-                    firstName: testEnv.admin.firstUser || 'Admin',
-                    lastName: testEnv.admin.lastUser || 'Test',
+                    firstName: testEnv.admin.firstName || 'Admin',
+                    lastName: testEnv.admin.lastname || 'Test',
                     email: testEnv.admin.email,
                     roleID: testEnv.admin.roleID || 2,
                     password: testEnv.admin.password
@@ -186,6 +187,42 @@ ithelper = {
             });
     },
 
+    selectCheckAllRecords4Key : function (api, get, token, status, checkArray, resKey, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body).to.exist;
+
+                for (var i = 0; i < checkArray.length; i++) {
+                    for (var key in checkArray[i]) {
+                        expect(res.body[resKey][i][key]).to.equal(checkArray[i][key]);
+                    }
+                }
+                done();
+            });
+    },
+
+    selectErrMessage : function (api, get, token,  status, errCode, message, done) {
+        api
+            .get(get)
+            .set('token', token)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
+                done();
+            });
+    },
+
     insertOne : function (api, get, token, insertItem, status, obj, key, done) {
         api
             .post(get)
@@ -225,7 +262,8 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body.e).to.equal(errCode);
-                expect(res.body.message).to.have.string(message);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
                 done();
             });
     },
@@ -251,7 +289,8 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body.e).to.equal(errCode);
-                expect(res.body.message).to.have.string(message);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
                 done();
             });
     },
@@ -281,6 +320,40 @@ ithelper = {
                 }
                 done();
             });
+    },
+
+    updateOneErrMessage : function (api, get, token, updateItem, status, errCode, message, done) {
+        api
+            .put(get)
+            .set('token', token)
+            .send(updateItem)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                expect(res.body.e).to.equal(errCode);
+                //expect(res.body.message).to.have.string(message);
+                expect(res.body.message).to.match(new RegExp(message, 'ig'));
+                done();
+            });
+    },
+
+    doSql: function(scriptFile, realm, done) {
+        var cpg = config.pgConnect;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser+' --set=schema='+realm;
+        exec('psql ' + connectStringPg + ' -d ' + cpg.database + ' -f ' + scriptFile, function (err, stdout, stderr) {
+            if (err) {
+                //console.log('exec error: ' + err);
+                done(err);
+            } else if (stderr.length > 0) {
+                //console.log('stderr: '+stderr);
+                done(stderr);
+            } else {
+                //console.log('stdout: '+stdout);
+                done();
+            }
+        });
     },
 
     getTokens: function(usersArray) {

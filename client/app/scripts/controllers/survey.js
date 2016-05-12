@@ -61,10 +61,17 @@ angular.module('greyscaleApp')
                 }) : $q.reject();
             })
             .then(function (resp) {
-                data.product = resp.product.plain();
-                data.uoa = resp.uoa.plain();
-                _title = [data.product.title, data.uoa.name];
-                return greyscaleProductWorkflowApi.workflow(data.product.workflow.id).stepsList();
+                _title = [];
+                if (resp.product) {
+                    data.product = resp.product.plain();
+                    _title.push(data.product.title);
+                }
+                if (resp.uoa) {
+                    data.uoa = resp.uoa.plain();
+                    _title.push(data.uoa.name);
+                }
+                return data.product ? greyscaleProductWorkflowApi.workflow(data.product.workflow.id).stepsList() :
+                    $q.reject();
             })
             .then(function (steps) {
                 steps = steps.plain();

@@ -8,7 +8,8 @@ var columns = [
     'url',
     'enforceApiSecurity',
     'isActive',
-    'realm'
+    'realm',
+    'enableFeaturePolicy'
 ];
 
 var Organization = sql.define({
@@ -16,7 +17,7 @@ var Organization = sql.define({
     columns: columns
 });
 
-Organization.editCols = ['name','address','url','adminUserId','enforceApiSecurity','isActive'];
+Organization.editCols = ['name','address','url','adminUserId','enforceApiSecurity','isActive','enableFeaturePolicy'];
 
 Organization.whereCol = columns;
 
