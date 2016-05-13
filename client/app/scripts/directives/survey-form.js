@@ -133,25 +133,17 @@ angular.module('greyscaleApp')
                     var taskId = scope.surveyData.task.id;
                     saveAnswers(scope)
                         .then(function () {
-                            return greyscaleDiscussionApi.scopeList({
-                                taskId: taskId
-                            });
-                        })
-                        .then(function (scopeList) {
-                            var resolveList = scopeList.resolveList;
-                            if (!resolveList[0]) {
-                                return $q.reject('no resolve list');
+                            var resolveData = scope.surveyData.resolveData;
+                            if (!resolveData) {
+                                return $q.reject('on resolve data');
                             }
-
-                            var resolve = resolveList[0];
-
                             return {
                                 taskId: taskId,
                                 //userId: resolve.userId,
-                                questionId: resolve.questionId,
+                                questionId: resolveData.questionId,
                                 isResolve: true,
                                 entry: scope.resolveFlagData.entry,
-                                stepId: resolve.stepId
+                                stepId: resolveData.stepId
                             };
                         })
                         .then(greyscaleDiscussionApi.add)
