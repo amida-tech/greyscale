@@ -708,6 +708,7 @@ function* updateProductUOAStep(req, object) {
         var essenceId = yield * common.getEssenceId(req, 'Tasks');
         var task = yield * common.getTask(req, parseInt(object.taskId));
         var userTo = yield * common.getUser(req, task.userId);
+        var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         var product = yield * common.getEntity(req, task.productId, Product, 'id');
         var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
         var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
@@ -724,6 +725,9 @@ function* updateProductUOAStep(req, object) {
                 uoa: uoa,
                 step: step,
                 survey: survey,
+                user: userTo,
+                organization: organization,
+                date: new Date(),
                 to: {firstName : userTo.firstName, lastName: userTo.lastName},
                 config: config
             },
@@ -779,6 +783,7 @@ function* checkUpdateProductUOAStep(req, object) {
             var essenceId = yield * common.getEssenceId(req, 'Tasks');
             var task = yield * common.getTask(req, parseInt(object.taskId));
             var userTo = yield * common.getUser(req, task.userId);
+            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
             var product = yield * common.getEntity(req, task.productId, Product, 'id');
             var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
             var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
@@ -795,6 +800,9 @@ function* checkUpdateProductUOAStep(req, object) {
                     uoa: uoa,
                     step: step,
                     survey: survey,
+                    user: userTo,
+                    organization: organization,
+                    date: new Date(),
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     config: config
                 },
