@@ -21,7 +21,7 @@
             ng-if="!model.savedAt" translate="COMMON.NEVER"></span></p>
     </div>
 
-    <uib-accordion>
+    <uib-accordion ng-hide="policy.id">
         <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>
                 {{'SURVEYS.CONTENT' | translate}}
@@ -41,6 +41,10 @@
                     <h1>{{surveyData.survey.title}}</h1>
 
                     <p>{{surveyData.survey.description}}</p>
+                </div>
+                <div ng-show="policy.id">
+                    <fb-policy ng-model="item" ng-repeat="item in policy.sections"></fb-policy>
+                    <attachments model="policy.attachments" item-id="{{policy.id}}" essence-id="{{policy.essenceId}}"></attachments>
                 </div>
                 <div class="form-group"
                      ng-repeat="fld in fields"
@@ -64,13 +68,15 @@
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
                             translate="SURVEYS.SAVE_DRAFT"></button>
 
-                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
+                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right"
+                            ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
                             ng-disabled="(surveyForm.$invalid || isLocked() || model.locked)"
                             translate="SURVEYS.SUBMIT">
                     </button>
 
-                    <button class="btn btn-primary pull-right" ng-show="surveyData.flags.allowTranslate && !model.translated"
+                    <button class="btn btn-primary pull-right"
+                            ng-show="surveyData.flags.allowTranslate && !model.translated"
                             disabled="disabled">
                         <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
                             <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
