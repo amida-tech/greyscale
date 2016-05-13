@@ -22,7 +22,7 @@ angular.module('greyscaleApp')
             '</div></div></div>',
 
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleAttachmentApi, greyscaleGlobals) {
+                greyscaleAttachmentApi, greyscaleGlobals, $log) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('uploads'),// + '/attachments',
                     _token = greyscaleTokenSrv();
@@ -80,7 +80,7 @@ angular.module('greyscaleApp')
 
                 function removeAttach(idx) {
                     var deleted = $scope.model.splice(idx, 1);
-                    greyscaleAttachmentApi.delete(deleted[0].id)
+                    greyscaleAttachmentApi.delete(deleted[0].id, deleted[0].ver)
                         .then(_modifyEvt)
                         .catch(function (err) {
                             greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');

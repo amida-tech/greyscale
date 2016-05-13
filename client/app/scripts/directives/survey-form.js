@@ -4,7 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
+        greyscaleAttachmentApi) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -197,7 +198,8 @@ angular.module('greyscaleApp')
                     formReadonly: true,
                     translated: true,
                     locked: false,
-                    savedAt: NaN
+                    savedAt: NaN,
+                    isPolicy: false
                 };
 
                 $scope.goField = function (elemId) {
@@ -257,6 +259,8 @@ angular.module('greyscaleApp')
                 qid = 0,
                 questions = survey.questions || [],
                 qQty = questions.length;
+
+            scope.isPolicy = (scope.surveyData.survey.policyId !== null);
 
             surveyParams = {
                 surveyId: survey.id,
@@ -524,6 +528,11 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
+                        oQty = fld.attachments.length;
+                        for (o = 0; o < oQty; o++) {
+                            fld.attachments[o].ver = 'v1';
+                        }
+                        loadAttachments(fld);
                     }
 
                     if (fld.hasComments) {
@@ -620,6 +629,13 @@ angular.module('greyscaleApp')
                 }
             }
 
+        }
+
+        function loadAttachments(fld) {
+            greyscaleAttachmentApi.list(fld.essenceId, fld.answerId)
+                .then(function (attachmentsV2) {
+                    fld.attachments = fld.attachments.concat(attachmentsV2);
+                })
         }
 
         function saveAnswers(scope, isAuto) {
