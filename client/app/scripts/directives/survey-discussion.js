@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
-        greyscaleUtilsSrv) {
+        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _) {
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes;
 
@@ -113,30 +113,40 @@ angular.module('greyscaleApp')
                     params = {
                         surveyId: survey.id,
                         taskId: task.id
-                    };
+                    },
+                    workflowId = data.product.workflow.id;
 
                 scope.surveyParams = {
                     userFromId: scope.surveyData.userId,
                     taskId: task.id
                 };
 
-                greyscaleDiscussionApi.getUsers(task.id)
-                    .then(function (users) {
-                        var u,
-                            qty = users.length;
-                        scope.model.associate = {};
-                        scope.model.assignTo = [];
-
-                        for (u = 0; u < qty; u++) {
-                            scope.model.associate[users[u].userId] = users[u];
-                            if (users[u].userId !== scope.surveyData.userId) {
-                                var user = angular.copy(users[u]);
-                                user.role = task.step.role;
-                                scope.model.assignTo.push(user);
-                            }
-                        }
+                greyscaleProductWorkflowApi.workflow(workflowId).stepsList()
+                    .then(function(steps){
+                        _.remove(steps, {id: task.stepId});
+                        scope.model.assignTo = steps.plain();
                         return greyscaleDiscussionApi.list(params);
                     })
+                //;
+                //
+                //greyscaleDiscussionApi.getUsers(task.id)
+                //    .then(function (users) {
+                //        return;
+                //        var u,
+                //            qty = users.length;
+                //        scope.model.associate = {};
+                //        scope.model.assignTo = [];
+                //
+                //        for (u = 0; u < qty; u++) {
+                //            scope.model.associate[users[u].userId] = users[u];
+                //            if (users[u].userId !== scope.surveyData.userId) {
+                //                var user = angular.copy(users[u]);
+                //                //user.role = task.step.role;
+                //                scope.model.assignTo.push(user);
+                //            }
+                //        }
+                //        return greyscaleDiscussionApi.list(params);
+                //    })
                     .then(function (resp) {
                         var r, q, quest, msg, discuss,
                             qid = 0,
