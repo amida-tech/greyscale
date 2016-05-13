@@ -146,10 +146,11 @@ angular.module('greyscaleApp')
 
                             return {
                                 taskId: taskId,
-                                userId: resolve.userId,
+                                //userId: resolve.userId,
                                 questionId: resolve.questionId,
                                 isResolve: true,
-                                entry: scope.resolveFlagData.entry
+                                entry: scope.resolveFlagData.entry,
+                                stepId: resolve.stepId
                             };
                         })
                         .then(greyscaleDiscussionApi.add)
