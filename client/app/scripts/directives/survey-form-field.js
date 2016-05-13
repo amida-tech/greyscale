@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log) {
+    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout, $anchorScroll) {
 
         return {
             restrict: 'AE',
@@ -242,6 +242,16 @@ angular.module('greyscaleApp')
                     elem.append(body);
 
                     $compile(elem.contents())(scope);
+
+                    var flagQuestionId;
+                    var flagQuestion = $location.hash();
+                    var match = flagQuestion.match(/^question(\d+)$/);
+                    if (match) {
+                        flagQuestionId = parseInt(match[1]);
+                        if (flagQuestionId && flagQuestionId === scope.field.id) {
+                            _flagQuestion(elem, flagQuestionId);
+                        }
+                    }
                 }
             }
         };
@@ -272,5 +282,21 @@ angular.module('greyscaleApp')
             }
 
             return borders.join(', ');
+        }
+
+        function _flagQuestion(elem, id) {
+            var elemId = 'flag-question-' + id;
+            elem.attr('id', elemId);
+            $timeout(function(){
+                elem.addClass('flag-question');
+                elem.prepend('<i class="flag fa fa-flag text-danger pull-right"></i>');
+                var group = elem.closest('.panel-group');
+                if (group.length) {
+                    group.find('.accordion-toggle').click();
+                }
+                $timeout(function(){
+                    $anchorScroll(elemId);
+                }, 10);
+            });
         }
     });
