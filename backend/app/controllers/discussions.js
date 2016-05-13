@@ -4,6 +4,7 @@ var
     config = require('config'),
     common = require('app/services/common'),
     BoLogger = require('app/bologger'),
+    Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
