@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $location) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -132,24 +132,17 @@ angular.module('greyscaleApp')
                     var taskId = scope.surveyData.task.id;
                     saveAnswers(scope)
                         .then(function () {
-                            return greyscaleDiscussionApi.scopeList({
-                                taskId: taskId
-                            });
-                        })
-                        .then(function (scopeList) {
-                            var resolveList = scopeList.resolveList;
-                            if (!resolveList[0]) {
-                                return $q.reject('no resolve list');
+                            var resolveData = scope.surveyData.resolveData;
+                            if (!resolveData) {
+                                return $q.reject('on resolve data');
                             }
-
-                            var resolve = resolveList[0];
-
                             return {
                                 taskId: taskId,
-                                userId: resolve.userId,
-                                questionId: resolve.questionId,
+                                //userId: resolve.userId,
+                                questionId: resolveData.questionId,
                                 isResolve: true,
-                                entry: scope.resolveFlagData.entry
+                                entry: scope.resolveFlagData.entry,
+                                stepId: resolveData.stepId
                             };
                         })
                         .then(greyscaleDiscussionApi.add)
@@ -437,7 +430,8 @@ angular.module('greyscaleApp')
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
                     var v, answer, qId,
-                        qty = _answers.length;
+                        qty = _answers.length,
+                        answDate;
 
                     recentAnswers = {};
                     responses = {};
@@ -446,6 +440,7 @@ angular.module('greyscaleApp')
                     for (v = 0; v < qty; v++) {
                         qId = fldNamePrefix + _answers[v].questionId;
                         _answers[v].created = new Date(_answers[v].created);
+                        _answers[v].updated = new Date(_answers[v].updated);
 
                         if (!surveyAnswers[qId]) {
                             surveyAnswers[qId] = [];
@@ -470,8 +465,12 @@ angular.module('greyscaleApp')
                                 recentAnswers[qId] = _answers[v];
                             }
 
-                            if (recentAnswers[qId] && (!scope.model.savedAt || scope.model.savedAt < recentAnswers[qId].created)) {
-                                scope.model.savedAt = recentAnswers[qId].created;
+                            if (recentAnswers[qId]) {
+                                answDate = recentAnswers[qId].updated > recentAnswers[qId].created ?
+                                    recentAnswers[qId].updated : recentAnswers[qId].created;
+                                if (!scope.model.savedAt || scope.model.savedAt < answDate) {
+                                    scope.model.savedAt = answDate;
+                                }
                             }
                         }
                     }
@@ -747,7 +746,7 @@ angular.module('greyscaleApp')
             return _answers;
         }
 
-        function hasChanges (field) {
+        function hasChanges(field) {
             return (field.answer ||
             field.type === 'checkboxes' ||
             field.isAgree ||
@@ -776,11 +775,14 @@ angular.module('greyscaleApp')
                 case 'scale':
                     var unit = field.find('.input-group-addon');
                     unit = unit.length ? unit.html() : '';
-                    field.replaceWith('<div class="handwrite-field unit-line"><span class="pull-right">' + unit + '</span></div>');
+                    field.replaceWith(
+                        '<div class="handwrite-field unit-line"><span class="pull-right">' + unit + '</span></div>');
                     break;
 
                 case 'bullet_points':
-                    field.replaceWith('<div class="handwrite-field bullet-line"><i class="fa fa-caret-right"></i><div></div></div>'.repeat(5));
+                    field.replaceWith(
+                        '<div class="handwrite-field bullet-line"><i class="fa fa-caret-right"></i><div></div></div>'.repeat(
+                            5));
                     break;
 
                 case 'dropdown':
@@ -789,7 +791,8 @@ angular.module('greyscaleApp')
                     options.each(function (i, option) {
                         option = $(option);
                         if (option.val() !== '' && option.text() !== '') {
-                            select.append('<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() + '</span>');
+                            select.append(
+                                '<span class="select-option"><i class="fa fa-circle-o"></i> ' + option.text() + '</span>');
                         }
                     });
                     field.replaceWith(select);
@@ -817,7 +820,8 @@ angular.module('greyscaleApp')
                     bullets.each(function (i, bullet) {
                         var val = $(bullet).find('input').val();
                         if (val !== '') {
-                            replace.push('<div class="bullet-point"><i class="fa fa-caret-right"></i> ' + val + '</div>');
+                            replace.push(
+                                '<div class="bullet-point"><i class="fa fa-caret-right"></i> ' + val + '</div>');
                         }
                     });
                     field.replaceWith('<p>' + replace.join('') + '</p>');

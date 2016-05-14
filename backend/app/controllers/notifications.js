@@ -186,20 +186,25 @@ module.exports = {
             var userId = req.user.id;
 
             var selectWhere = 'WHERE 1=1 ';
-            if (!req.query.userFrom && !req.query.userTo) {
-                userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
-                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
-            } else if (req.query.userFrom && !req.query.userTo) {
-                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+            if (isNotAdmin) { // not Admin - only self incoming notifications
                 selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
-            } else if (!req.query.userFrom && req.query.userTo) {
-                selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userFrom');
-                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
-            } else if (!isNotAdmin){
-                selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
-                selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
-            } else {
-                selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
+                if (req.query.userFrom) { //if specified - filter userFrom
+                    selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                }
+                // all other query parameters - ignored
+            } else { // Admin - can request any filtered notifications
+                if (!req.query.userFrom && !req.query.userTo) {
+                    userId = (req.query.userId && !isNotAdmin) ? req.query.userId : req.user.id;
+                    selectWhere = selectWhere + pgEscape('AND ("Notifications"."userFrom" = %s OR "Notifications"."userTo" = %s ) ', userId, userId);
+                } else if (req.query.userFrom && !req.query.userTo) {
+                    selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                    selectWhere = setWhereInt(selectWhere, userId, 'Notifications', 'userTo');
+                } else if (!req.query.userFrom && req.query.userTo) {
+                    selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+                } else {
+                    selectWhere = setWhereInt(selectWhere, req.query.userFrom, 'Notifications', 'userFrom');
+                    selectWhere = setWhereInt(selectWhere, req.query.userTo, 'Notifications', 'userTo');
+                }
             }
             selectWhere = setWhereBool(selectWhere, req.query.read, 'Notifications', 'read');
 

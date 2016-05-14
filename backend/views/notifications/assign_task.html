@@ -1,9 +1,17 @@
+<%#
+
+%>
+
 <p>Hello <%= to.firstName %> <%= to.lastName %>! </p>
 
-<p><%- body %></p>
-
-<p> 
-You are assigned to task <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>">`<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)</a>
+<p>
+    Date: <%= date.toLocaleString() %></br>
+    <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%- body %>. You are assigned to task.</a>
 </p>
-
-<p>Thank you!</br>-Indaba</p>
+<p>
+    Organisation: <%= organization.name %></br>
+    Project: <%= product.title %></br>
+    Survey: <%= survey.title %></br>
+    Subject: <%= uoa.name %></br>
+    Task: <%= step.title %></br></br>
+</p>

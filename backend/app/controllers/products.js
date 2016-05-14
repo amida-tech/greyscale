@@ -9,6 +9,7 @@ var
     csv = require('express-csv'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
+    Organization = require('app/models/organizations'),
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
@@ -162,7 +163,7 @@ module.exports = {
                     throw new HttpError(403, 'uoaId, stepId, userId and productId fields are required');
                 }
 
-                var essenceId, userTo, task, uoa, step, survey, note;
+                var essenceId, userTo, task, uoa, step, survey, note, organization;
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
                       req.body[i],
@@ -176,6 +177,7 @@ module.exports = {
                         // notify
                         essenceId = yield * common.getEssenceId(req, 'Tasks');
                         userTo = yield * common.getUser(req, req.body[i].userId);
+                        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                         task = yield * common.getTask(req, parseInt(req.body[i].id));
                         product = yield * common.getEntity(req, task.productId, Product, 'id');
                         uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
@@ -193,6 +195,9 @@ module.exports = {
                                 uoa: uoa,
                                 step: step,
                                 survey: survey,
+                                user: userTo,
+                                organization: organization,
+                                date: new Date(),
                                 to: {firstName : userTo.firstName, lastName: userTo.lastName},
                                 config: config
                             },
@@ -218,6 +223,7 @@ module.exports = {
                     // notify
                     essenceId = yield * common.getEssenceId(req, 'Tasks');
                     userTo = yield * common.getUser(req, req.body[i].userId);
+                    organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                     task = yield * common.getTask(req, parseInt(req.body[i].id));
                     product = yield * common.getEntity(req, task.productId, Product, 'id');
                     uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
@@ -235,6 +241,9 @@ module.exports = {
                             uoa: uoa,
                             step: step,
                             survey: survey,
+                            user: userTo,
+                            organization: organization,
+                            date: new Date(),
                             to: {firstName : userTo.firstName, lastName: userTo.lastName},
                             config: config
                         },
@@ -1120,6 +1129,7 @@ function* updateCurrentStepId(req) {
             // notify
             //essenceId = yield * common.getEssenceId(req, 'Tasks');
             var userTo = yield * common.getUser(req, minStepPositions[i].userId);
+            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
             var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
             //product = yield * common.getEntity(req, task.productId, Product, 'id');
             var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
@@ -1137,6 +1147,9 @@ function* updateCurrentStepId(req) {
                     uoa: uoa,
                     step: step,
                     survey: survey,
+                    user: userTo,
+                    organization: organization,
+                    date: new Date(),
                     to: {firstName : userTo.firstName, lastName: userTo.lastName},
                     config: config
                 },

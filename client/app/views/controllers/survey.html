@@ -3,7 +3,7 @@
         <rd-widget ng-show="model.title">
             <rd-widget-header title="{{model.title}}"></rd-widget-header>
             <rd-widget-body>
-                <survey-form survey-data="model.surveyData"></survey-form>
+                <survey-form survey-data="model.surveyData" ng-class="{'flagged-survey':model.surveyData.resolveData}"></survey-form>
             </rd-widget-body>
         </rd-widget>
     </div>
