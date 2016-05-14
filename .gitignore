@@ -7,3 +7,4 @@ backend/node_modules/
 backend/.idea/
 backend/db_dump/local/
 npm-debug.log
+*.DS_Store
