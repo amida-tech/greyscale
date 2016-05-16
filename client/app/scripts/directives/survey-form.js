@@ -190,8 +190,7 @@ angular.module('greyscaleApp')
                     formReadonly: true,
                     translated: true,
                     locked: false,
-                    savedAt: NaN,
-                    isPolicy: false
+                    savedAt: NaN
                 };
 
                 $scope.goField = function (elemId) {
@@ -231,23 +230,17 @@ angular.module('greyscaleApp')
 
         function prepareFields(scope) {
             scope.fields = [];
-            scope.policy = {};
             scope.content = [];
             scope.recentSaved = null;
 
             scope.lock();
 
-            var content = [],
-                fields = [],
-                policy = {
-                    id: NaN,
-                    essenceId: NaN,
-                    sections: []
-                },
-                ref = [{
-                    fields: fields,
-                    content: content
-                }];
+            var content = [];
+            var fields = [];
+            var ref = [{
+                fields: fields,
+                content: content
+            }];
 
             var survey = scope.surveyData.survey;
             var task = scope.surveyData.task || {};
@@ -286,169 +279,145 @@ angular.module('greyscaleApp')
                 field = questions[q];
                 type = fieldTypes[field.type];
                 if (type) {
-                    if (type === 'policy') {
-                        policy.sections.push({
-                            id: field.id,
-                            type: type,
-                            label: field.label,
-                            description: field.description
-                        });
-                    } else {
-                        fldId = fldNamePrefix + field.id;
-                        item = {
-                            type: type,
-                            title: field.label,
-                            href: fldId
-                        };
+                    fldId = fldNamePrefix + field.id;
+                    item = {
+                        type: type,
+                        title: field.label,
+                        href: fldId
+                    };
 
-                        fld = {
-                            id: field.id,
-                            cid: fldId,
-                            type: type,
-                            label: field.label,
-                            description: field.description
-                        };
+                    fld = {
+                        id: field.id,
+                        cid: fldId,
+                        type: type,
+                        label: field.label,
+                        description: field.description
+                    };
 
-                        if (type === 'section_end') { // close section
-                            if (r > 0) {
-                                r--;
-                            }
-                        } else { //push data into current section
-                            if (excludedFields.indexOf(field.type) === -1) {
+                    if (type === 'section_end') { // close section
+                        if (r > 0) {
+                            r--;
+                        }
+                    } else { //push data into current section
+                        if (excludedFields.indexOf(field.type) === -1) {
+                            angular.extend(fld, {
+                                qid: field.qid,
+                                required: field.isRequired,
+                                minLength: field.minLength,
+                                maxLength: field.maxLength,
+                                inWords: field.isWordmml,
+                                value: field.value,
+                                links: field.links,
+                                canAttach: field.attachment,
+                                hasComments: field.hasComments,
+                                ngModel: {},
+                                flags: flags,
+                                answer: null,
+                                answerId: null,
+                                prevAnswers: [],
+                                responses: null,
+                                response: '',
+                                langId: scope.model.lang,
+                                essenceId: scope.surveyData.essenceId,
+                                withLinks: field.withLinks
+                            });
+
+                            if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
                                 angular.extend(fld, {
-                                    qid: field.qid,
-                                    required: field.isRequired,
-                                    minLength: field.minLength,
-                                    maxLength: field.maxLength,
-                                    inWords: field.isWordmml,
-                                    value: field.value,
-                                    links: field.links,
-                                    canAttach: field.attachment,
-                                    hasComments: field.hasComments,
-                                    ngModel: {},
-                                    flags: flags,
-                                    answer: null,
-                                    answerId: null,
-                                    prevAnswers: [],
-                                    responses: null,
-                                    response: '',
-                                    langId: scope.model.lang,
-                                    essenceId: scope.surveyData.essenceId,
-                                    withLinks: field.withLinks
+                                    listType: field.optionNumbering,
+                                    withOther: field.incOtherOpt,
+                                    options: []
+                                });
+                                field.options = field.options || [];
+                                qty = field.options.length;
+                                for (o = 0; o < qty; o++) {
+                                    if (field.options[o] && field.options[o].id && field.options[o].id >= 0) {
+                                        fld.options.push(field.options[o]);
+                                    }
+                                }
+                            }
+
+                            if (fld.canAttach) {
+                                fld.attachments = [];
+                            }
+
+                            if (fld.withLinks) {
+                                fld.answerLinks = [];
+                            }
+
+                            if (fld.hasComments) {
+                                fld.comment = '';
+                            }
+
+                            switch (type) {
+                            case 'checkboxes':
+                                qty = fld.options.length;
+                                for (o = 0; o < qty; o++) {
+                                    angular.extend(fld.options[o] || {}, {
+                                        checked: fld.options[o].isSelected,
+                                        name: fld.options[o].label
+                                    });
+                                }
+                                break;
+
+                            case 'dropdown':
+                            case 'radio':
+                                if (type === 'dropdown') {
+                                    if (!fld.required) {
+                                        fld.options.unshift({
+                                            id: null,
+                                            label: '',
+                                            value: null
+                                        });
+                                        fld.answer = fld.options[0];
+                                    }
+                                }
+                                qty = fld.options.length;
+                                for (o = 0; o < qty; o++) {
+                                    if (fld.options[o] && fld.options[o].isSelected) {
+                                        fld.answer = fld.options[o];
+                                    }
+                                }
+                                break;
+
+                            case 'number':
+                                angular.extend(fld, {
+                                    units: field.units || '',
+                                    intOnly: !!field.intOnly
                                 });
 
-                                if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
-                                    angular.extend(fld, {
-                                        listType: field.optionNumbering,
-                                        withOther: field.incOtherOpt,
-                                        options: []
-                                    });
-                                    field.options = field.options || [];
-                                    qty = field.options.length;
-                                    for (o = 0; o < qty; o++) {
-                                        if (field.options[o] && field.options[o].id && field.options[o].id >= 0) {
-                                            fld.options.push(field.options[o]);
-                                        }
-                                    }
+                                if (fld.intOnly) {
+                                    fld.answer = parseInt(fld.value);
+                                } else {
+                                    fld.answer = parseFloat(fld.value);
                                 }
+                                break;
 
-                                if (fld.canAttach) {
-                                    fld.attachments = [];
-                                }
-
-                                if (fld.withLinks) {
-                                    fld.answerLinks = [];
-                                }
-
-                                if (fld.hasComments) {
-                                    fld.comment = '';
-                                }
-
-                                switch (type) {
-                                case 'checkboxes':
-                                    qty = fld.options.length;
-                                    for (o = 0; o < qty; o++) {
-                                        angular.extend(fld.options[o] || {}, {
-                                            checked: fld.options[o].isSelected,
-                                            name: fld.options[o].label
-                                        });
-                                    }
-                                    break;
-
-                                case 'dropdown':
-                                case 'radio':
-                                    if (type === 'dropdown') {
-                                        if (!fld.required) {
-                                            fld.options.unshift({
-                                                id: null,
-                                                label: '',
-                                                value: null
-                                            });
-                                            fld.answer = fld.options[0];
-                                        }
-                                    }
-                                    qty = fld.options.length;
-                                    for (o = 0; o < qty; o++) {
-                                        if (fld.options[o] && fld.options[o].isSelected) {
-                                            fld.answer = fld.options[o];
-                                        }
-                                    }
-                                    break;
-
-                                case 'number':
-                                    angular.extend(fld, {
-                                        units: field.units || '',
-                                        intOnly: !!field.intOnly
-                                    });
-
-                                    if (fld.intOnly) {
-                                        fld.answer = parseInt(fld.value);
-                                    } else {
-                                        fld.answer = parseFloat(fld.value);
-                                    }
-                                    break;
-
-                                default:
-                                    fld.answer = fld.value;
-                                }
-                                qid++;
-                                if (!fld.qid) {
-                                    fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
-                                }
+                            default:
+                                fld.answer = fld.value;
                             }
-
-                            ref[r].content.push(item);
-                            ref[r].fields.push(fld);
-
+                            qid++;
+                            if (!fld.qid) {
+                                fld.qid = i18n.translate('SURVEYS.QUESTION') + qid;
+                            }
                         }
 
-                        if (type === 'section_start') { // create subsection, move pointer to it
-                            item.sub = [];
-                            fld.sub = [];
-                            ref[++r] = {
-                                fields: fld.sub,
-                                content: item.sub
-                            };
-                        }
+                        ref[r].content.push(item);
+                        ref[r].fields.push(fld);
+
+                    }
+
+                    if (type === 'section_start') { // create subsection, move pointer to it
+                        item.sub = [];
+                        fld.sub = [];
+                        ref[++r] = {
+                            fields: fld.sub,
+                            content: item.sub
+                        };
                     }
                 }
             }
 
-            if (survey.policyId !== null) {
-                policy.id = survey.policyId;
-
-                greyscaleEntityTypeApi.list({fileName: 'policies'})
-                    .then(function (essence) {
-                        policy.essenceId = essence.id;
-                        return greyscaleAttachmentApi.list(essence.id, policy.id);
-                    })
-                    .then(function (attachments) {
-                        policy.attachments = attachments;
-                    });
-
-            }
-
-            scope.policy = policy;
             scope.fields = fields;
             scope.content = content;
             scope.unlock();
@@ -459,7 +428,6 @@ angular.module('greyscaleApp')
             var responses = {};
 
             scope.lock();
-
             greyscaleSurveyAnswerApi.list(surveyParams.productId, surveyParams.UOAid)
                 .then(function (_answers) {
                     var v, answer, qId,
@@ -494,9 +462,7 @@ angular.module('greyscaleApp')
                             _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
                             answer.version < _answers[v].version
                         ) {
-                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
-                                recentAnswers[qId] = _answers[v];
-                            }
+                            recentAnswers[qId] = _answers[v];
 
                             if (recentAnswers[qId]) {
                                 answDate = recentAnswers[qId].updated > recentAnswers[qId].created ?
