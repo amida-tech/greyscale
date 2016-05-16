@@ -26,7 +26,9 @@ angular.module('greyscaleApp')
             essenceId: -1
         };
 
-        greyscaleEntityTypeApi.list({fileName: (isPolicy ? 'policies' : 'survey_answers')})
+        greyscaleEntityTypeApi.list({
+                fileName: (isPolicy ? 'policies' : 'survey_answers')
+            })
             .then(function (essences) {
                 if (essences.length) {
                     $scope.model.essenceId = essences[0].id;

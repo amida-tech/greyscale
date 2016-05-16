@@ -221,7 +221,7 @@ angular.module('greyscaleApp')
                         elem.find('.fb-policy-attachments-label').remove();
                         elem.find('.fb-btn-policy-attach').remove();
                         elem.find('.fb-btn-policy-upload')
-                            .attr('disabled','disabled')
+                            .attr('disabled', 'disabled')
                             .addClass('btn btn-default');
                         _policyBlocks.after($compile(
                             '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
