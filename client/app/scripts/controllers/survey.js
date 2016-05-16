@@ -107,7 +107,7 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _getResolveData(scopeList){
+        function _getResolveData(scopeList) {
             var resolveList = scopeList.resolveList;
             return resolveList[0];
         }
@@ -116,7 +116,11 @@ angular.module('greyscaleApp')
             var flagQuestion = $location.hash();
             var match = flagQuestion.match(/^question(\d+)$/);
             if (!match) {
-                $state.go('survey', {surveyId: data.survey.id, task: data.task.id, '#': 'question' + data.resolveData.questionId});
+                $state.go('survey', {
+                    surveyId: data.survey.id,
+                    task: data.task.id,
+                    '#': 'question' + data.resolveData.questionId
+                });
             }
         }
     });
