@@ -515,11 +515,6 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
-                        oQty = fld.attachments.length;
-                        for (o = 0; o < oQty; o++) {
-                            fld.attachments[o].ver = 'v1';
-                        }
-                        loadAttachments(fld);
                     }
 
                     if (fld.hasComments) {
@@ -618,13 +613,6 @@ angular.module('greyscaleApp')
 
         }
 
-        function loadAttachments(fld) {
-            greyscaleAttachmentApi.list(fld.essenceId, fld.answerId)
-                .then(function (attachmentsV2) {
-                    fld.attachments = fld.attachments.concat(attachmentsV2);
-                })
-        }
-
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
@@ -665,7 +653,7 @@ angular.module('greyscaleApp')
                     .catch(function (err) {
                         greyscaleUtilsSrv.errorMsg(err, 'ERROR.STEP_SUBMIT');
                         return $q.reject(err);
-                        //                        return isAuto;
+//                        return isAuto;
                     })
                     .finally(scope.unlock);
             }
