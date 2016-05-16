@@ -4,7 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $location) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
+        $location) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -461,9 +462,7 @@ angular.module('greyscaleApp')
                             _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
                             answer.version < _answers[v].version
                         ) {
-                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
-                                recentAnswers[qId] = _answers[v];
-                            }
+                            recentAnswers[qId] = _answers[v];
 
                             if (recentAnswers[qId]) {
                                 answDate = recentAnswers[qId].updated > recentAnswers[qId].created ?
