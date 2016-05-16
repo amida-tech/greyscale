@@ -81,7 +81,7 @@ angular.module('greyscaleApp')
         function _save() {
             var _survey;
 
-            _survey = angular.extend({},$scope.model.survey);
+            _survey = angular.extend({}, $scope.model.survey);
             _survey.projectId = projectId;
             _survey.isPolicy = true;
 
@@ -98,15 +98,15 @@ angular.module('greyscaleApp')
             }
 
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-                .then(function (resp) {
+            .then(function (resp) {
                     $scope.model.survey.questions = _questions;
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;
                     }
 
-                     $state.go('policy', {
+                    $state.go('policy', {
                         projectId: projectId
-                     });
+                    });
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
