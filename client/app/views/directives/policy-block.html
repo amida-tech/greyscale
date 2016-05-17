@@ -1,5 +1,5 @@
 <div class="policy-review">
-    <div class="form-horizontal col-sm-12">
+    <div class="form-horizontal">
         <div class="form-group" ng-show="policyData.id">
             <label class="col-sm-4 control-label">{{'COMMON.ID' | translate}}:</label>
             <p class="col-sm-8 form-control-static">{{policyData.id}}</p>
@@ -40,7 +40,7 @@
             </div>
         </div>
     </div>
-    <div class="col-sm-12 policy-sections" ng-show="policyData.id">
+    <div class="policy-sections" ng-show="policyData.id">
         <fb-policy ng-model="item" ng-repeat="item in policyData.sections"></fb-policy>
         <attachments model="policyData.attachments" item-id="{{policyData.id}}"
                      essence-id="{{policyData.essenceId}}"></attachments>
