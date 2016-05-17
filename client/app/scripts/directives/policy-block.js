@@ -15,7 +15,7 @@ angular.module('greyscaleApp')
                     if (data) {
                         _refreshPolicy(scope, data);
                     }
-                })
+                });
             }
         };
 

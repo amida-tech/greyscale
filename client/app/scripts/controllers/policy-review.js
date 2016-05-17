@@ -57,8 +57,7 @@ angular.module('greyscaleApp')
                         attachments: []
                     }
                 };
-                angular.extend(data.policy, {
-                });
+                angular.extend(data.policy, {});
 
                 greyscaleEntityTypeApi.getByFile('policies')
                     .then(function (essence) {
@@ -69,7 +68,7 @@ angular.module('greyscaleApp')
                         data.policy.attachments = attachments;
                     });
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
-                    data.policy.authorName = greyscaleUtilsSrv.getUserName(profile)
+                    data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
                 });
 
                 _separatePolicy(data);
