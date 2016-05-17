@@ -158,6 +158,8 @@ exports.Query = function (realm) {
                         });
                     }
 
+                    //client.removeListener('error', errorListener);
+
                     return cbfunc ? cb(null, result.rows) : result.rows;
                 });
             }
