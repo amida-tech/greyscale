@@ -22,7 +22,7 @@ angular.module('greyscaleApp')
                 '</div></div></div>',
 
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleAttachmentApi, greyscaleGlobals, $log) {
+                greyscaleAttachmentApi, greyscaleGlobals) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('uploads'), // + '/attachments',
                     _token = greyscaleTokenSrv();

@@ -135,7 +135,7 @@ angular.module('greyscaleApp')
                         .then(function () {
                             var resolveData = scope.surveyData.resolveData;
                             if (!resolveData) {
-                                return $q.reject('on resolve data');
+                                return $q.reject('no resolve data');
                             }
                             return {
                                 taskId: taskId,
@@ -231,7 +231,6 @@ angular.module('greyscaleApp')
 
         function prepareFields(scope) {
             scope.fields = [];
-            scope.policy = {};
             scope.content = [];
             scope.recentSaved = null;
 
@@ -434,22 +433,6 @@ angular.module('greyscaleApp')
                 }
             }
 
-            if (survey.policyId !== null) {
-                policy.id = survey.policyId;
-
-                greyscaleEntityTypeApi.getByFile('policies')
-                    .then(function (essence) {
-                        policy.essenceId = essence.id;
-                        return greyscaleAttachmentApi.list(essence.id, policy.id);
-                    })
-                    .then(function (attachments) {
-                        $log.debug('result policy ', policy);
-                        policy.attachments = attachments;
-                        scope.policy = policy;
-                    });
-            }
-
-            $log.debug(policy);
             scope.fields = fields;
             scope.content = content;
             scope.unlock();
@@ -792,11 +775,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-                field.type === 'checkboxes' ||
-                field.isAgree ||
-                field.comment ||
-                field.canAttach && field.attachments.length ||
-                field.withLinks && field.answerLinks.length);
+            field.type === 'checkboxes' ||
+            field.isAgree ||
+            field.comment ||
+            field.canAttach && field.attachments.length ||
+            field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {

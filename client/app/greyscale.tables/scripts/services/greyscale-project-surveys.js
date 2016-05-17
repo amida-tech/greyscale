@@ -117,9 +117,13 @@ angular.module('greyscale.tables')
         }
 
         function _viewSurvey(_survey) {
-            $state.go('survey', {
-                surveyId: _survey.id
-            });
+            if (_isPolicy()) {
+                $state.go('policy.review',{id: _survey.id})
+            } else {
+                $state.go('survey', {
+                    surveyId: _survey.id
+                });
+            }
         }
 
         function _isPolicy() {

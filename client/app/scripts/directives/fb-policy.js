@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('fbPolicy', function ($log) {
+    .directive('fbPolicy', function () {
         return {
             restrict: 'E',
             require: 'ngModel',

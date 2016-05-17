@@ -39,7 +39,7 @@ angular.module('greyscale.rest')
             return _api().get({
                     essenceId: essenceId,
                     entityId: entityId,
-                    fields: 'id,filename,mimetype,size,created'
+                    fields: 'id,filename,mimetype,size'
                 })
                 .then(_preResp);
         }
