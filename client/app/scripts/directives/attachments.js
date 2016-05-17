@@ -14,7 +14,7 @@ angular.module('greyscaleApp')
             },
             template: '<div class="panel attachments"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row">' +
-                '<attached-file attached-item="item" ng-repeat="item in model track by $index" remove-file="remove($index)">' +
+                '<attached-file attached-item="item" ng-repeat="item in model track by $index" remove-file="remove($index)" options="options">' +
                 '</attached-file></div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
                 '<input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-hide="options.readonly">' +
                 '</form><div class="progress" ng-if="uploader.progress">' +
@@ -79,12 +79,14 @@ angular.module('greyscaleApp')
                 };
 
                 function removeAttach(idx) {
-                    var deleted = $scope.model.splice(idx, 1);
-                    greyscaleAttachmentApi.delete(deleted[0].id, deleted[0].ver)
-                        .then(_modifyEvt)
-                        .catch(function (err) {
-                            greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
-                        });
+                    if ($scope.options && !$scope.options.readonly) {
+                        var deleted = $scope.model.splice(idx, 1);
+                        greyscaleAttachmentApi.delete(deleted[0].id, deleted[0].ver)
+                            .then(_modifyEvt)
+                            .catch(function (err) {
+                                greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
+                            });
+                    }
                 }
 
                 function _modifyEvt() {

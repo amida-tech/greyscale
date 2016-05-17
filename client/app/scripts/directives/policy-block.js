@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('policyBlock', function ($log) {
+    .directive('policyBlock', function () {
         return {
             restrict: 'E',
             templateUrl: 'views/directives/policy-block.html',
@@ -19,7 +19,5 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _refreshPolicy(scope, data) {
-            $log.debug(data);
-        }
+        function _refreshPolicy(scope, data) {}
     });

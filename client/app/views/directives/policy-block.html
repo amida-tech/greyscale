@@ -1,18 +1,20 @@
-<div class="policy-review">
-    <div class="form-horizontal">
-        <div class="form-group" ng-show="policyData.id">
-            <label class="col-sm-4 control-label">{{'COMMON.ID' | translate}}:</label>
-            <p class="col-sm-8 form-control-static">{{policyData.id}}</p>
+<div class="policy" ng-class="{'policy-review':policyData.options.readonly}">
+    <div class="policy-head form-horizontal">
+        <div class="form-group">
+            <label for="title" class="col-sm-4 control-label" translate="POLICY.TITLE"></label>
+            <div class="col-sm-8">
+                <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.title}}</p>
+                <input type="text" class="form-control" name="title" id="title" ng-model="policyData.title"
+                       ng-hide="policyData.options.readonly"/>
+            </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-4 control-label" translate="POLICY.TITLE"></label>
-            <p class="col-sm-8 form-control-static">{{policyData.title}}</p>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-4 control-label" translate="POLICY.SECTION"></label>
+            <label for="section" class="col-sm-4 control-label" translate="POLICY.SECTION"></label>
 
             <div class="col-sm-8">
-                <p class="form-control-static">{{policyData.section}}</p>
+                <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.section}}</p>
+                <input type="text" class="form-control" name="section" id="section" ng-model="policyData.section"
+                       ng-hide="policyData.options.readonly"/>
             </div>
         </div>
 
@@ -20,7 +22,9 @@
             <label class="col-sm-4 control-label" translate="POLICY.SUBSECTION"></label>
 
             <div class="col-sm-8">
-                <p class="form-control-static">{{policyData.subsection}}</p>
+                <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.subsection}}</p>
+                <input type="text" class="form-control" name="subsection" id="subsection"
+                       ng-model="policyData.subsection" ng-hide="policyData.options.readonly"/>
             </div>
         </div>
 
@@ -28,7 +32,9 @@
             <label class="col-sm-4 control-label" translate="POLICY.NUMBER"></label>
 
             <div class="col-sm-8">
-                <p class="form-control-static">{{policyData.number}}</p>
+                <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.number}}</p>
+                <input type="text" class="form-control" name="number" id="number" ng-model="policyData.number"
+                       ng-hide="policyData.options.readonly"/>
             </div>
         </div>
 
@@ -43,6 +49,6 @@
     <div class="policy-sections" ng-show="policyData.id">
         <fb-policy ng-model="item" ng-repeat="item in policyData.sections"></fb-policy>
         <attachments model="policyData.attachments" item-id="{{policyData.id}}"
-                     essence-id="{{policyData.essenceId}}"></attachments>
+                     essence-id="{{policyData.essenceId}}" options="policyData.options"></attachments>
     </div>
 </div>

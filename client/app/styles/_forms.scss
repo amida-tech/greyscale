@@ -57,7 +57,7 @@ upload-form,
 }
 
 .form-group .subtext {
-//    max-height: 3.5em;
+    //    max-height: 3.5em;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -142,6 +142,20 @@ option.disabled {
     }
 }
 
+.policy {
+    .policy-sections {
+        border-top: solid thin $grey-medium-light;
+        border-bottom: solid thin $grey-medium-light;
+        padding-top: 15px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+
+        .panel {
+            margin-bottom: 0;
+        }
+    }
+}
+
 .policy-review {
     .form-group {
         margin-bottom: 0;
@@ -149,7 +163,7 @@ option.disabled {
             padding-top: 0;
         }
         .form-control-static {
-            padding-top:0;
+            padding-top: 0;
             min-height: 1em;
         }
     }
@@ -157,8 +171,6 @@ option.disabled {
         padding-top: 15px;
         padding-bottom: 10px;
         margin-bottom: 15px;
-        border-top: solid thin $grey-medium-light;
-        border-bottom: solid thin $grey-medium-light;
 
         .panel {
             margin-bottom: 0;

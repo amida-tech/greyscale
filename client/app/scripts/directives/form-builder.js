@@ -216,11 +216,11 @@ angular.module('greyscaleApp')
                         var _policyBlocks = elem.find('.fb-policy-blocks');
 
                         _policyBlocks.before($compile(
-                            '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(scope));
+                            '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
 
                         elem.find('.fb-policy-attachments-label').remove();
                         elem.find('.fb-btn-policy-attach').remove();
-                        elem.find('.fb-btn-policy-upload')
+                        elem.find('.fb-btn-policy-upload').remove()
                             .attr('disabled', 'disabled')
                             .addClass('btn btn-default');
                         _policyBlocks.after($compile(

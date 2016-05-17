@@ -53,6 +53,9 @@ angular.module('greyscaleApp')
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,
                         number: resp.survey.number,
+                        options: {
+                            readonly: true
+                        },
                         sections: [],
                         attachments: []
                     }
