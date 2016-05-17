@@ -447,7 +447,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             pgEscape('"Tasks"."uoaId" = %s ', uoaId);
     if (tag === 'return'){
         query = query + pgEscape('AND "WorkflowSteps"."position" < %s',currentStep.position);
-    } else if (tag == 'resolve') {
+    } else if (tag === 'resolve') {
         query =
             'SELECT '+
                 '"Tasks"."userId" as userid, ' +
@@ -475,7 +475,8 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
     }
     var thunkQuery = req.thunkQuery;
-    return yield thunkQuery(query);
+    var result = yield thunkQuery(query);
+    return (tag === 'resolve') ? [_.last(result)] : result;
 }
 
 function* getAvailableUsers(req) {
