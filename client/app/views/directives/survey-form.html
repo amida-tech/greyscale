@@ -1,5 +1,5 @@
 <div translate-namespace="SURVEYS">
-    <div class="clearfix">
+    <div class="clearfix" ng-hide="surveyData.survey.policyId">
         <select class="pull-left" ng-model="model.lang"
                 ng-options="lang.id as lang.nativeName for lang in languages"></select>
 
@@ -21,7 +21,7 @@
             ng-if="!model.savedAt" translate="COMMON.NEVER"></span></p>
     </div>
 
-    <uib-accordion ng-hide="policy.id">
+    <uib-accordion ng-hide="surveyData.survey.policyId">
         <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>
                 {{'SURVEYS.CONTENT' | translate}}
@@ -41,10 +41,6 @@
                     <h1>{{surveyData.survey.title}}</h1>
 
                     <p>{{surveyData.survey.description}}</p>
-                </div>
-                <div ng-show="policy.id">
-                    <fb-policy ng-model="item" ng-repeat="item in policy.sections"></fb-policy>
-                    <attachments model="policy.attachments" item-id="{{policy.id}}" essence-id="{{policy.essenceId}}"></attachments>
                 </div>
                 <div class="form-group"
                      ng-repeat="fld in fields"

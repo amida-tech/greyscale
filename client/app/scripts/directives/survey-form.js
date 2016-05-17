@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
         $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
-        greyscaleAttachmentApi, greyscaleEntityTypeApi) {
+        greyscaleAttachmentApi, greyscaleEntityTypeApi, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -135,7 +135,7 @@ angular.module('greyscaleApp')
                         .then(function () {
                             var resolveData = scope.surveyData.resolveData;
                             if (!resolveData) {
-                                return $q.reject('on resolve data');
+                                return $q.reject('no resolve data');
                             }
                             return {
                                 taskId: taskId,
@@ -231,7 +231,6 @@ angular.module('greyscaleApp')
 
         function prepareFields(scope) {
             scope.fields = [];
-            scope.policy = {};
             scope.content = [];
             scope.recentSaved = null;
 
@@ -434,21 +433,6 @@ angular.module('greyscaleApp')
                 }
             }
 
-            if (survey.policyId !== null) {
-                policy.id = survey.policyId;
-
-                greyscaleEntityTypeApi.list({fileName: 'policies'})
-                    .then(function (essence) {
-                        policy.essenceId = essence.id;
-                        return greyscaleAttachmentApi.list(essence.id, policy.id);
-                    })
-                    .then(function (attachments) {
-                        policy.attachments = attachments;
-                    });
-
-            }
-
-            scope.policy = policy;
             scope.fields = fields;
             scope.content = content;
             scope.unlock();
@@ -654,7 +638,7 @@ angular.module('greyscaleApp')
             greyscaleAttachmentApi.list(fld.essenceId, fld.answerId)
                 .then(function (attachmentsV2) {
                     fld.attachments = fld.attachments.concat(attachmentsV2);
-                })
+                });
         }
 
         function saveAnswers(scope, isAuto) {

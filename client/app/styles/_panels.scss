@@ -58,3 +58,14 @@ checkbox-list {
         }
     }
 }
+
+div.disabled {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: absolute;
+    opacity: 0.5;
+    background-color: #fff;
+    z-index: 10;
+}

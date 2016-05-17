@@ -6,7 +6,7 @@
 // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
 angular.module('greyscaleApp')
-    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData, $log) {
+    .directive('formBuilder', function (greyscaleGlobals, $compile, $timeout, i18nData) {
         return {
             templateUrl: 'views/directives/form-builder.html',
             restrict: 'E',
@@ -216,12 +216,12 @@ angular.module('greyscaleApp')
                         var _policyBlocks = elem.find('.fb-policy-blocks');
 
                         _policyBlocks.before($compile(
-                            '<fb-policy ng-model="item" ng-repeat="item in model.policies"></fb-policy>')(scope));
+                            '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
 
                         elem.find('.fb-policy-attachments-label').remove();
                         elem.find('.fb-btn-policy-attach').remove();
-                        elem.find('.fb-btn-policy-upload')
-                            .attr('disabled','disabled')
+                        elem.find('.fb-btn-policy-upload').remove()
+                            .attr('disabled', 'disabled')
                             .addClass('btn btn-default');
                         _policyBlocks.after($compile(
                             '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));

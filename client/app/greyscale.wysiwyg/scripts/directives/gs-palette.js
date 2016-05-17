@@ -7,10 +7,12 @@ angular.module('greyscale.wysiwyg')
             restrict: 'AEC',
             scope: {},
             template: '<div class="palette"><div class="palette-row" ng-repeat="row in model.palette">' +
-            '<div class="palette-item" style="background-color:{{color}};" ng-repeat="color in row"></div></div></div>',
+                '<div class="palette-item" style="background-color:{{color}};" ng-repeat="color in row"></div></div></div>',
             controller: function ($scope) {
                 $scope.model = {
-                    palette: [[]],
+                    palette: [
+                        []
+                    ],
                     rows: 8,
                     cols: 8
                 };
