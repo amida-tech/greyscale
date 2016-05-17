@@ -22,6 +22,7 @@ var
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
     UOA = require('app/models/uoas'),
+    Discussion = require('app/models/discussions'),
     Index = require('app/models/indexes.js'),
     Subindex = require('app/models/subindexes.js'),
     IndexQuestionWeight = require('app/models/index_question_weights.js'),
@@ -1022,6 +1023,17 @@ module.exports = {
             next(err);
         });
 
+    },
+
+    productUOAmove: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* (){
+            return yield * moveWorkflow(req, req.params.id, req.params.uoaid);
+        }).then(function () {
+            res.status(200).end();
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
@@ -1593,3 +1605,281 @@ function* aggregateIndexes(req, productId, allQuestions) {
     return result;
 }
 module.exports.calcAggregateIndexes = aggregateIndexes;
+
+var moveWorkflow = function* (req, productId, UOAid) {
+    var essenceId,task, userTo, organization, product, uoa, step, survey, note;
+    var thunkQuery = req.thunkQuery;
+    //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
+    //    throw new HttpError(403, 'Access denied');
+    //}
+    var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
+    if (req.query.resolve) { // try to resolve
+        // check if resolve is possible
+        var resolvePossible = yield * isResolvePossible(req, productId, UOAid);
+        if (!resolvePossible) {
+            throw new HttpError(403, 'Resolve is not possible. Not all flags are resolved.');
+        }
+        // DO resolve
+        var step4Resolve = yield * getStep4Resolve(req, curStep.task.id);
+        if (!step4Resolve){
+            throw new HttpError(403, 'Resolve is not possible. Not found step for resolve');
+        }
+        // activate discussion`s entry with resolve flag
+        yield * activateEntries(req, curStep.task.id, {isResolve: true});
+
+        // set currentStep to step4Resolve
+        yield * updateCurrentStep(req, step4Resolve, productId, UOAid);
+
+        // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
+        //essenceId = yield * common.getEssenceId(req, 'Tasks');
+        task = yield * common.getTaskByStep(req, step4Resolve);
+        userTo = yield * common.getUser(req, task.userId);
+        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+        product = yield * common.getEntity(req, task.productId, Product, 'id');
+        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'flags were resolved',
+                //essenceId: essenceId,
+                //entityId: nextStep.taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                user: userTo,
+                organization: organization,
+                date: new Date(),
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'resolveFlag'
+        );
+        return;
+
+    }
+
+    // check if exist return flag(s)
+    var returnStepId = yield * common.getReturnStep(req, productId, UOAid);
+    if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
+        // set currentStep to step from returnTaskId
+        yield * updateCurrentStep(req, returnStepId, productId, UOAid);
+        // activate discussion`s entry with return flag
+        var flagsCount = yield * activateEntries(req, curStep.task.id, {isReturn: true});
+
+        // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
+        //essenceId = yield * common.getEssenceId(req, 'Tasks');
+        task = yield * common.getTaskByStep(req, returnStepId);
+        userTo = yield * common.getUser(req, task.userId);
+        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+        product = yield * common.getEntity(req, task.productId, Product, 'id');
+        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'flags requiring resolution',
+                //essenceId: essenceId,
+                //entityId: nextStep.taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                user: userTo,
+                organization: organization,
+                date: new Date(),
+                flags: {count: flagsCount},
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'returnFlag'
+        );
+        return;
+    }
+    var minNextStepPosition = yield * common.getMinNextStepPosition(req, curStep, productId, UOAid);
+    var nextStep = null;
+    if(minNextStepPosition !== null) { // min next step exists, position is not null
+        nextStep = yield * common.getNextStep(req, minNextStepPosition, productId, UOAid);
+    }
+
+    if(nextStep) { // next step exists, set it to current
+        // set currentStep to step from returnTaskId
+        yield * updateCurrentStep(req, nextStep.id, curStep.task.productId, curStep.task.uoaId);
+
+        // notify
+        essenceId = yield * common.getEssenceId(req, 'Tasks');
+        task = yield * common.getTask(req, parseInt(nextStep.taskId));
+        userTo = yield * common.getUser(req, task.userId);
+        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+        product = yield * common.getEntity(req, task.productId, Product, 'id');
+        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+        note = yield * notifications.createNotification(req,
+            {
+                userFrom: req.user.realmUserId,
+                userTo: task.userId,
+                body: 'Task activated (next step)',
+                essenceId: essenceId,
+                entityId: nextStep.taskId,
+                task: task,
+                product: product,
+                uoa: uoa,
+                step: step,
+                survey: survey,
+                user: userTo,
+                organization: organization,
+                date: new Date(),
+                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                config: config
+            },
+            'activateTask'
+        );
+
+    }else{
+        // next step does not exists - set productUOA status to complete
+        yield thunkQuery(
+            ProductUOA
+                .update({isComplete: true})
+                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+        );
+        bologger.log({
+            req: req,
+            user: req.user,
+            action: 'update',
+            object: 'ProductUOA',
+            entities: {
+                productId: curStep.task.productId,
+                uoaId: curStep.task.uoaId,
+                isComplete: true
+            },
+            quantity: 1,
+            info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+        });
+        var uncompleted = yield thunkQuery( // check for uncompleted
+            ProductUOA
+                .select()
+                .where(
+                {
+                    productId: curStep.task.productId,
+                    isComplete: false
+                }
+            )
+        );
+        if (!uncompleted.length) { // set product status to complete
+            yield thunkQuery(
+                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+            );
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'Product',
+                entity: curStep.task.productId,
+                info: 'Set product status to complete'
+            });
+        }
+    }
+    debug(nextStep);
+
+};
+exports.moveWorkflow = moveWorkflow;
+
+function* updateCurrentStep(req, currentStepId, productId, uoaId) {
+    var thunkQuery = req.thunkQuery;
+    // set currentStep
+    yield thunkQuery(
+        ProductUOA
+            .update({currentStepId: currentStepId})
+            .where({productId: productId, UOAid: uoaId})
+    );
+
+    bologger.log({
+        req: req,
+        user: req.user,
+        action: 'update',
+        object: 'ProductUOA',
+        entities: {
+            productId: productId,
+            uoaId: uoaId,
+            currentStepId: currentStepId
+        },
+        quantity: 1,
+        info: 'Update currentStep to `'+currentStepId+'` for subject `'+uoaId+'` for product `'+productId+'` (return flag)'
+    });
+}
+
+function* activateEntries(req, taskId, flag) {
+    var thunkQuery = req.thunkQuery;
+
+    // activate discussion`s entry with return (reslove) flag
+    var whereCond = _.extend({taskId: taskId, activated: false}, flag);
+    var result = yield thunkQuery(
+        Discussion
+            .update({activated: true})
+            .where(whereCond)
+            .returning(Discussion.id, Discussion.taskId)
+    );
+
+    bologger.log({
+        req: req,
+        user: req.user,
+        action: 'update',
+        object: 'Discussions',
+        entities: result,
+        quantity: (result) ? result.length: 0,
+        info: 'Activate return entries for task `'+taskId+'`'
+    });
+
+    return (result) ? result.length: 0;
+}
+
+function* isResolvePossible(req, productId, uoaId) {
+    /*
+     Check possibility to Resolve
+     If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
+     then Resolve is possible.
+     */
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion
+            .select(Discussion.questionId)
+            .from(Discussion
+                .join(Task)
+                .on(Task.id.equals(Discussion.taskId))
+            )
+            .where(
+            Discussion.isReturn.equals(true)
+                .and(Discussion.isResolve.equals(false))
+                .and(Task.productId.equals(productId))
+                .and(Task.uoaId.equals(uoaId))
+            )
+    );
+    return (!_.first(result));
+}
+
+function* getStep4Resolve(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion
+            .select(Task.stepId)
+            .from(Discussion
+                .join(Task)
+                .on(Task.id.equals(Discussion.taskId))
+        )
+            .where(
+            Discussion.isResolve.equals(true)
+                .and(Discussion.isReturn.equals(true))
+                .and(Discussion.activated.equals(true))
+                .and(Discussion.returnTaskId.equals(taskId))
+        )
+    );
+    return (result[0]) ? result[0].stepId : null;
+}

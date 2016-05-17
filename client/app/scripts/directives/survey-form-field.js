@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log) {
+    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout, $anchorScroll) {
 
         return {
             restrict: 'AE',
@@ -203,8 +203,6 @@ angular.module('greyscaleApp')
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
-
-                            //TODO here is pervious responses
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
                                 '<div class="field-response" gs-version-edit' + ((flags.allowTranslate) ? ' translation="comments" ' : '') + '><span>' +
@@ -242,6 +240,16 @@ angular.module('greyscaleApp')
                     elem.append(body);
 
                     $compile(elem.contents())(scope);
+
+                    var flagQuestionId;
+                    var flagQuestion = $location.hash();
+                    var match = flagQuestion.match(/^question(\d+)$/);
+                    if (match) {
+                        flagQuestionId = parseInt(match[1]);
+                        if (flagQuestionId && flagQuestionId === scope.field.id) {
+                            _flagQuestion(elem, flagQuestionId);
+                        }
+                    }
                 }
             }
         };
@@ -272,5 +280,21 @@ angular.module('greyscaleApp')
             }
 
             return borders.join(', ');
+        }
+
+        function _flagQuestion(elem, id) {
+            var elemId = 'flag-question-' + id;
+            elem.attr('id', elemId);
+            $timeout(function () {
+                elem.addClass('flag-question');
+                elem.prepend('<i class="flag fa fa-flag text-danger pull-right"></i>');
+                var group = elem.closest('.panel-group');
+                if (group.length) {
+                    group.find('.accordion-toggle').click();
+                }
+                $timeout(function () {
+                    $anchorScroll(elemId);
+                }, 10);
+            });
         }
     });

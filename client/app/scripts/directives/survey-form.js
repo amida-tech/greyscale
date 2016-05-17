@@ -133,25 +133,17 @@ angular.module('greyscaleApp')
                     var taskId = scope.surveyData.task.id;
                     saveAnswers(scope)
                         .then(function () {
-                            return greyscaleDiscussionApi.scopeList({
-                                taskId: taskId
-                            });
-                        })
-                        .then(function (scopeList) {
-                            var resolveList = scopeList.resolveList;
-                            if (!resolveList[0]) {
-                                return $q.reject('no resolve list');
+                            var resolveData = scope.surveyData.resolveData;
+                            if (!resolveData) {
+                                return $q.reject('on resolve data');
                             }
-
-                            var resolve = resolveList[0];
-
                             return {
                                 taskId: taskId,
                                 //userId: resolve.userId,
-                                questionId: resolve.questionId,
+                                questionId: resolveData.questionId,
                                 isResolve: true,
                                 entry: scope.resolveFlagData.entry,
-                                stepId: resolve.stepId
+                                stepId: resolveData.stepId
                             };
                         })
                         .then(greyscaleDiscussionApi.add)
@@ -502,9 +494,7 @@ angular.module('greyscaleApp')
                             _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
                             answer.version < _answers[v].version
                         ) {
-                            if (flags.seeOthersResponses || _answers[v].userId === currentUserId) {
-                                recentAnswers[qId] = _answers[v];
-                            }
+                            recentAnswers[qId] = _answers[v];
 
                             if (recentAnswers[qId]) {
                                 answDate = recentAnswers[qId].updated > recentAnswers[qId].created ?
@@ -801,11 +791,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-            field.type === 'checkboxes' ||
-            field.isAgree ||
-            field.comment ||
-            field.canAttach && field.attachments.length ||
-            field.withLinks && field.answerLinks.length);
+                field.type === 'checkboxes' ||
+                field.isAgree ||
+                field.comment ||
+                field.canAttach && field.attachments.length ||
+                field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {

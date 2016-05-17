@@ -21,7 +21,7 @@ angular.module('greyscaleApp')
                     _modifyEvt();
                 };
 
-                $scope.urlChange = function() {
+                $scope.urlChange = function () {
                     if ($scope.formName && $scope[$scope.formName].$$parentForm) {
                         $scope[$scope.formName].$$parentForm.$dirty = false;
                     }

@@ -231,6 +231,16 @@ var environments = {
                 subject: 'Indaba. Your task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>) is activated',
                 notificationBody: './views/notifications/activate_task.html',
                 emailBody: './views/emails/activate_task.html'
+            },
+            returnFlag: {
+                subject: 'Indaba. You have <%= flags.count %> flags requiring resolution in the <%= uoa.name %> survey for the <%= product.title %>',
+                notificationBody: './views/notifications/return_flag.html',
+                emailBody: './views/emails/return_flag.html'
+            },
+            resolveFlag: {
+                subject: 'Indaba. Flags were resolved and are ready to be reviewed in the <%= uoa.name %> survey for the <%= product.title %>',
+                notificationBody: './views/notifications/resolve_flag.html',
+                emailBody: './views/emails/resolve_flag.html'
             }
         }
     }

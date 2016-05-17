@@ -47,6 +47,16 @@ var getTask = function* (req, taskId) {
 };
 exports.getTask = getTask;
 
+var getTaskByStep = function* (req, stepId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, stepId, Task, 'stepId');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with stepId `'+parseInt(stepId).toString()+'` does not exist');
+    }
+    return result[0];
+};
+exports.getTaskByStep = getTaskByStep;
+
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');
     if (!_.first(result)) {
@@ -122,3 +132,132 @@ var isExistsUserInRealm = function* (req, realm, email) {
     return result[0] ? result[0] : false;
 };
 exports.isExistsUserInRealm = isExistsUserInRealm;
+
+var getCurrentStepExt = function* (req, productId, uoaId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        ProductUOA
+            .select(
+            WorkflowStep.star(),
+            'row_to_json("Tasks".*) as task',
+            'row_to_json("Surveys".*) as survey'
+        )
+            .from(
+            ProductUOA
+                .leftJoin(WorkflowStep)
+                .on(ProductUOA.currentStepId.equals(WorkflowStep.id))
+                .leftJoin(Task)
+                .on(
+                Task.stepId.equals(WorkflowStep.id)
+                    .and(Task.uoaId.equals(ProductUOA.UOAid))
+            )
+                .leftJoin(Product)
+                .on(ProductUOA.productId.equals(Product.id))
+                .leftJoin(Survey)
+                .on(Product.surveyId.equals(Survey.id))
+        )
+            .where(
+            ProductUOA.productId.equals(productId)
+                .and(ProductUOA.UOAid.equals(uoaId))
+        )
+    );
+
+    var curStep = result[0];
+
+    if (!curStep.workflowId) {
+        throw new HttpError(403, 'Current step is not defined');
+    }
+
+    if (!curStep.task) {
+        throw new HttpError(403, 'Task is not defined for this Product and UOA');
+    }
+
+    if (!curStep.survey) {
+        throw new HttpError(403, 'Survey is not defined for this Product');
+    }
+
+    if (req.user.roleID == 3) { // simple user
+        if (curStep.task.userId != req.user.id) {
+            throw new HttpError(
+                403,
+                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
+                '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
+            );
+        }
+    }
+
+    return curStep;
+};
+exports.getCurrentStepExt = getCurrentStepExt;
+
+var getMinNextStepPosition = function* (req, curStep, productId, uoaId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        WorkflowStep
+            .select(
+            sql.functions.MIN(WorkflowStep.position).as('minPosition')
+        )
+            .from(WorkflowStep
+                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+        )
+            .where(
+            WorkflowStep.workflowId.equals(curStep.workflowId)
+                .and(WorkflowStep.position.gt(curStep.position))
+                .and(Task.productId.equals(productId))
+                .and(Task.uoaId.equals(uoaId))
+        )
+    );
+    if (result[0]) {
+        return result[0].minPosition;
+    }
+    return null;
+
+};
+exports.getMinNextStepPosition = getMinNextStepPosition;
+
+var getNextStep = function* (req, minNextStepPosition, productId, uoaId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        WorkflowStep
+            .select(
+            WorkflowStep.id,
+            Task.userId,
+            Task.id.as('taskId')
+        )
+            .from(WorkflowStep
+                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+        )
+            .where(Task.productId.equals(productId)
+                .and(Task.uoaId.equals(uoaId))
+                .and(WorkflowStep.position.equals(minNextStepPosition))
+        )
+    );
+    return result[0];
+
+};
+exports.getNextStep = getNextStep;
+
+var getReturnStep = function* (req, productId, uoaId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion
+            .select(
+            sql.functions.MIN(Task.stepId).as('minPosition')
+        )
+            .from(Discussion
+                .join(Task).on(Task.id.equals(Discussion.returnTaskId))
+        )
+            .where(
+            Discussion.activated.equals(false)
+                .and(Discussion.isReturn.equals(true))
+                .and(Task.productId.equals(productId))
+                .and(Task.uoaId.equals(uoaId))
+        )
+    );
+    if (result[0]) {
+        return result[0].minPosition;
+    }
+    return null;
+
+};
+exports.getReturnStep = getReturnStep;

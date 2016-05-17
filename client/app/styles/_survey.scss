@@ -216,3 +216,15 @@
         }
     }
 }
+
+.flag-question {
+    background-color: #fcf8e3;
+    box-shadow: 0 0 10px 10px #fcf8e3;
+
+    .flag {
+        display: none;
+    }
+}
+.flagged-survey .flag-question .flag {
+    display: block;
+}
