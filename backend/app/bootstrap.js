@@ -224,7 +224,7 @@ app.on('start', function () {
     var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
-
+	pg.defaults.poolSize = 1;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
 
         if (err) {
