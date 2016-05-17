@@ -28,45 +28,6 @@ var
     thunkQuery = thunkify(query),
     pgEscape = require('pg-escape');
 
-var isInt = function(val){
-    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
-};
-
-var setWhereInt = function(selectQuery, val, model, key){
-    if(val) {
-        if ( isInt(val)) {
-            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
-        }
-    }
-    return selectQuery;
-};
-
-function* checkOneId(req, val, model, key, keyName, modelName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
-    }
-    else if (!isInt(val)) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    }
-    else if (_.isString(val) && parseInt(val).toString() !== val) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    }
-    else {
-        var thunkQuery = req.thunkQuery;
-        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
-        if (!_.first(exist)) {
-            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
-        }
-    }
-    return parseInt(val);
-}
-
-function* checkString(val, keyName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
-    }
-    return val;
-}
 
 module.exports = {
 
@@ -127,9 +88,13 @@ module.exports = {
                 retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
                 userTo = yield * common.getUser(req, retTask.userId);
             }
-            req.body = _.extend(req.body, {userFromId: req.user.realmUserId}); // add from realmUserId instead of user id
-            req.body = _.extend(req.body, {userId: userTo.id}); // add userId from task (for backward compability)
-            req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
+            req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
+            req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
+            req.body = _.extend(req.body, {stepFromId: task.stepId});               // add stepFromId from task (for future use)
+            if (!isReturn && !isResolve) {
+                req.body = _.extend(req.body, {activated: true});                   // ordinary entries is activated
+            }
+            req.body = _.pick(req.body, Discussion.insertCols);                     // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             bologger.log({
                 req: req,
@@ -139,7 +104,13 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-            var entry=_.first(result);
+            if (isResolve) {
+                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+            }
+            return _.first(result);
+
+/* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
+
             var newStep;
             if (isReturn) {
                 newStep = yield * updateProductUOAStep(req, returnObject);
@@ -190,6 +161,7 @@ module.exports = {
                 'discussion'
             );
             return entry;
+*/
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -212,6 +184,9 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Update body of discussion`s entry'
             });
+            return result;
+
+/* no notification when update discussion entry - notification only when return-resolve
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
             var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
@@ -252,6 +227,7 @@ module.exports = {
                 'discussion'
             );
             return result;
+*/
 
         }).then(function (data) {
             res.status(202).end();
@@ -357,7 +333,7 @@ function* checkInsert(req) {
     }
     else if (req.body.isResolve) {
         returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
-        req.body = _.omit(req.body, 'isReturn', 'isResolve'); // remove isReturn flag from body
+        req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
     return returnObject;
 }
@@ -599,6 +575,7 @@ function* checkNextEntry(req, id, checkOnly) {
         'WHERE '+
             pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
             pgEscape('"Tasks"."productId" = %s AND ', productId)+
+            pgEscape('"Discussions"."questionId" = %s AND ', entry.questionId)+
             pgEscape('"Discussions".order > %s', entry.order);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
@@ -866,4 +843,44 @@ function* getUserToStep(req, productId, uoaId, userId) {
         throw new HttpError(403, 'Error find step for (productId, uoaId, userId)=('+productId.toString()+', '+uoaId.toString()+', '+userId.toString()+')');
     }
     return result[0];
+}
+
+var isInt = function(val){
+    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
+};
+
+var setWhereInt = function(selectQuery, val, model, key){
+    if(val) {
+        if ( isInt(val)) {
+            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
+        }
+    }
+    return selectQuery;
+};
+
+function* checkOneId(req, val, model, key, keyName, modelName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    else if (!isInt(val)) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else if (_.isString(val) && parseInt(val).toString() !== val) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else {
+        var thunkQuery = req.thunkQuery;
+        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
+        if (!_.first(exist)) {
+            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
+        }
+    }
+    return parseInt(val);
+}
+
+function* checkString(val, keyName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    return val;
 }

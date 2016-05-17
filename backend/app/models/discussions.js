@@ -9,13 +9,15 @@ var Discussion = sql.define({
         'userFromId',
         'userId',
         'stepId',
+        'stepFromId',
         'order',
         'entry',
         'isReturn',
         'isResolve',
         'returnTaskId',
         'created',
-        'updated'
+        'updated',
+        'activated'
     ]
 });
 
@@ -25,11 +27,13 @@ Discussion.insertCols = [
     'userFromId',
     'userId',
     'stepId',
+    'stepFromId',
     'order',
     'entry',
     'isReturn',
     'isResolve',
-    'returnTaskId'
+    'returnTaskId',
+    'activated'
 ];
 
 Discussion.updateCols = [
