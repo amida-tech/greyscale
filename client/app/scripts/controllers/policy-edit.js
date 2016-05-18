@@ -3,6 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
+<<<<<<< HEAD
     .controller('PolicyEditCtrl', function ($scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, $log) {
 
@@ -142,4 +143,10 @@ angular.module('greyscaleApp')
                 });
             }
         }
+=======
+.controller('PolicyEditCtrl', function($scope, $state, $stateParams ){
+        $scope.model = {
+            id: $stateParams.id
+        };
+>>>>>>> hcsc backbone
     });

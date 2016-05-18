@@ -269,6 +269,11 @@
         "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
+        "POLICY": {
+            "EDIT": "Policy edit",
+            "REVIEW": "Policy review",
+            "TITLE": "Policy"
+        },
         "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
         "PROFILE": "Profile",
