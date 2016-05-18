@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION public.patch_20160516_01_discussions() RETURNS void AS
+CREATE OR REPLACE FUNCTION public.patch_20160517_01_discussions() RETURNS void AS
 $BODY$
 DECLARE
     schema_name text;
@@ -12,16 +12,13 @@ BEGIN
 	LOOP
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 --        RAISE NOTICE 'SET search_path TO %', quote_ident(schema_name);
-		EXECUTE 'ALTER TABLE "Discussions" '
-            || 'ADD COLUMN "stepFromId" int4, '
-            || 'ADD COLUMN "activated" bool DEFAULT false NOT NULL, '
-            || 'ADD FOREIGN KEY ("stepFromId") REFERENCES "WorkflowSteps" ("id");';
+                EXECUTE 'UPDATE "Discussions" SET "activated" = true;';
 
 	END LOOP;
 END;
 $BODY$
 LANGUAGE plpgsql;
 
-SELECT public.patch_20160516_01_discussions();
-DROP FUNCTION IF EXISTS public.patch_20160516_01_discussions();
+SELECT public.patch_20160517_01_discussions();
+DROP FUNCTION IF EXISTS public.patch_20160517_01_discussions();
 

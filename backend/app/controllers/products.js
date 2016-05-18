@@ -1662,6 +1662,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
         return;
 
     }
+    if (req.query.force) { // force to move step
+        // delete discussion`s entry with return flag
+        yield * deleteEntries(req, curStep.task.id, {isReturn: true});
+    }
 
     // check if exist return flag(s)
     var returnStepId = yield * common.getReturnStep(req, productId, UOAid);
@@ -1835,7 +1839,32 @@ function* activateEntries(req, taskId, flag) {
         object: 'Discussions',
         entities: result,
         quantity: (result) ? result.length: 0,
-        info: 'Activate return entries for task `'+taskId+'`'
+        info: 'Activate return(resolve) entries for task `'+taskId+'`'
+    });
+
+    return (result) ? result.length: 0;
+}
+
+function* deleteEntries(req, taskId, flag) {
+    var thunkQuery = req.thunkQuery;
+
+    // delete discussion`s entry with return (reslove) flag ??? (maybe update flag to false)
+    var whereCond = _.extend({taskId: taskId, activated: false}, flag);
+    var result = yield thunkQuery(
+        Discussion
+            .delete()
+            .where(whereCond)
+            .returning(Discussion.id, Discussion.taskId)
+    );
+
+    bologger.log({
+        req: req,
+        user: req.user,
+        action: 'delete',
+        object: 'Discussions',
+        entities: result,
+        quantity: (result) ? result.length: 0,
+        info: 'Delete return(resolve) entries for task `'+taskId+'`'
     });
 
     return (result) ? result.length: 0;

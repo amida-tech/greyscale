@@ -172,12 +172,12 @@ var getUser4task2ReturnList = [
 
 var getUser4task1ResolveList = [
     {
-        firstName : 'User2',
+        firstName : 'User3',
         lastName : 'Test',
-        role : 'Role 2',
-        stepId : 3,
-        stepName : 'Step 2',
-        userId : 4
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3',
+        userId : 5
     }
 ];
 
@@ -197,8 +197,8 @@ describe(testTitle, function () {
                 tokenUser2 = ithelper.getUser(allUsers,3,2).token;
                 tokenUser3 = ithelper.getUser(allUsers,3,3).token;
                 // correct user names
-                getUser4task1ResolveList[0].firstName = ithelper.getUser(allUsers,3,2).firstName;
-                getUser4task1ResolveList[0].lastName = ithelper.getUser(allUsers,3,2).lastName;
+                getUser4task1ResolveList[0].firstName = ithelper.getUser(allUsers,3,3).firstName;
+                getUser4task1ResolveList[0].lastName = ithelper.getUser(allUsers,3,3).lastName;
 
                 getUser4task2[1].firstName = ithelper.getUser(allUsers,3,2).firstName;
                 getUser4task2[1].lastName = ithelper.getUser(allUsers,3,2).lastName;
@@ -228,11 +228,6 @@ describe(testTitle, function () {
 
     function allTests() {
 
-        describe(testTitle+'Clean up', function () {
-            it('Do clean up SQL script ', function (done) {
-                ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
-            });
-        });
         describe(testTitle+'Clean up', function () {
             it('Do clean up SQL script ', function (done) {
                 ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
@@ -394,6 +389,24 @@ describe(testTitle, function () {
                 var insertItem = {questionId: questionId[2], taskId: taskId[1], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', isReturn: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId33', done);
             });
+            it('Move to the  next step (force)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?force=true', tokenAdmin, 200, [], done);
+            });
+            it('Check current step', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId41', done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', function (done) {
+                var insertItem = {questionId: questionId[1], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId42', done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', function (done) {
+                var insertItem = {questionId: questionId[2], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId43', done);
+            });
             it('Move to the  next step (return flags exist)', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
             });
@@ -409,20 +422,20 @@ describe(testTitle, function () {
         });
         describe(testTitle+'Add discussion`s entry (flagged - resolve) ', function () {
             it('(Err) "Step with stepId=<id> does not available step for this survey`s discussion entry"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Error - Step with stepId=<id> does not available step for this survey`s discussion entry', isResolve: true};
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Error - Step with stepId=<id> does not available step for this survey`s discussion entry', isResolve: true};
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
             });
             it('Discussion entry (flagged - resolve Q1)', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Discussion entry (flagged - resolve Q1) ', isResolve: true};
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId41', done);
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q1) ', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
             });
             it('Discussion entry (flagged - resolve Q2)', function (done) {
-                var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[1], entry: 'Discussion entry (flagged - resolve Q2) ', isResolve: true};
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId42', done);
+                var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q2) ', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId52', done);
             });
             it('Update Discussion entry (flagged - resolve Q1)', function (done) {
-                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'UPDATED Discussion entry (flagged - resolve Q1)'};
-                ithelper.updateOne(testEnv.api_created_realm, path+'/'+obj.discussionId41, tokenAdmin, updateItem, 202, done);
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'UPDATED Discussion entry (flagged - resolve Q1)'};
+                ithelper.updateOne(testEnv.api_created_realm, path+'/'+obj.discussionId51, tokenAdmin, updateItem, 202, done);
             });
             it('Check current step (Step1) - resolve flag does not move workflow', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
@@ -431,14 +444,14 @@ describe(testTitle, function () {
                 ithelper.selectErrMessage(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 400, 403, 'Resolve is not possible. Not all flags are resolved.', done);
             });
             it('Discussion entry (flagged - resolve Q3)', function (done) {
-                var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[1], entry: 'Discussion entry (flagged - resolve Q3) ', isResolve: true};
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId43', done);
+                var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q3) ', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId53', done);
             });
             it('Resolve (move to resolve step)', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
             });
             it('Check current step (after resolve)', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[1]}], done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
             });
         });
         describe(testTitle+'get Users ', function () {
