@@ -67,7 +67,7 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
             var selectQuery = selectFields + selectFrom + selectWhere;
-            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
+            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset'));
         }).then(function (data) {
             res.json(data);
         }, function (err) {
