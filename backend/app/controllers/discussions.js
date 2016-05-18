@@ -472,10 +472,36 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
             'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
             pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
-                'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+                'AND "Discussions"."isReturn" = true ' +
+                'AND "Discussions"."activated" = true LIMIT 1';// AND "Discussions"."isResolve" = false';
     }
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(query);
+    if  (tag === 'resolve') {
+        query =
+            'SELECT ' +
+            '"Discussions"."id" ' +
+            'FROM "Discussions" ' +
+            pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
+            'AND "Discussions"."isResolve" = true ' +
+            'LIMIT 1';
+        var result1 = yield thunkQuery(query);
+        if (_.first(result1)) { // resolve records exist
+            query =
+                'SELECT ' +
+                '"Discussions"."id" ' +
+                'FROM "Discussions" ' +
+                pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
+                'AND "Discussions"."isResolve" = true ' +
+                'AND "Discussions"."activated" = true ' +
+                'LIMIT 1';
+            var result2 = yield thunkQuery(query);
+            if (_.first(result2)) { // all resolve records activated
+                result = null; // resolveList must be empty
+            }
+        }
+    }
+
     return (tag === 'resolve') ? [_.last(result)] : result;
 }
 
