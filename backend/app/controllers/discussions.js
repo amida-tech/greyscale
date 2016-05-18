@@ -60,14 +60,26 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.questionId, 'Discussions', 'questionId');
             //selectWhere = setWhereInt(selectWhere, req.query.userId, 'Discussions', 'userId');
             selectWhere = setWhereInt(selectWhere, req.query.userFromId, 'Discussions', 'userFromId');
-            //selectWhere = setWhereInt(selectWhere, req.query.taskId, 'Discussions', 'taskId');
+            selectWhere = setWhereInt(selectWhere, req.query.taskId, 'Discussions', 'taskId');
             selectWhere = setWhereInt(selectWhere, uoaId, 'UnitOfAnalysis', 'id');
             selectWhere = setWhereInt(selectWhere, productId, 'Products', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
-            var selectQuery = selectFields + selectFrom + selectWhere;
-            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset'));
+            var selectOrder = '';
+            if (req.query.order) {
+                var sorted = req.query.order.split(',');
+                for (var i = 0; i < sorted.length; i++) {
+                    var sort = sorted[i];
+                    selectOrder =
+                        ((selectOrder === '') ? 'ORDER BY ' : ', ')+
+                        sort.replace('-', '').trim()+
+                        (sort.indexOf('-') === 0 ? ' desc' : ' asc');
+                }
+            }
+
+            var selectQuery = selectFields + selectFrom + selectWhere+selectOrder;
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -239,6 +251,8 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            // check next entry
+            var nextEntry = yield * checkNextEntry(req, req.params.id);
             return yield thunkQuery(Discussion.delete().where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
@@ -608,7 +622,7 @@ function* checkNextEntry(req, id, checkOnly) {
     result = yield thunkQuery(query);
     if (_.first(result)) {
         if (checkOnly) return false;
-        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated, there are have following entries');
+        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated or deleted, there are have following entries');
     }
     return true;
 }
@@ -831,7 +845,7 @@ function* checkUpdateProductUOAStep(req, object) {
 
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
-    var res = yield thunkQuery(Discussion.update({isResolve: true, updated: new Date()})
+    var res = yield thunkQuery(Discussion.update({isResolve: true})
             .where(Discussion.id.equals(discussionId))
             .returning(Discussion.id)
     );
