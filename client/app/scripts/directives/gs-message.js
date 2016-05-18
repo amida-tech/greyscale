@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, $log) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -29,12 +29,18 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.apply = function () {
+                    var _backup = $scope.model.entry;
                     $scope.model.entry = $scope.entry;
-
                     if (typeof $scope.update === 'function') {
-                        $scope.update();
+                        $scope.update()
+                            .catch(function(err){
+                                $scope.model.entry = _backup;
+                                greyscaleUtilsSrv.errorMsg(err);
+                            })
+                            .finally(_toggleEdit);
+                    } else {
+                        _toggleEdit();
                     }
-                    _toggleEdit();
                 };
 
                 $scope.cancel = _toggleEdit;
@@ -42,6 +48,7 @@ angular.module('greyscaleApp')
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
                 }
+
                 _associate = $scope.associate;
             }
         };

@@ -68,15 +68,16 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.updateMsg = function (message) {
-                    $log.debug('update', message);
+                    return greyscaleDiscussionApi.update(message.id, message);
                 };
 
                 $scope.removeMsg = function (message) {
-                    greyscaleDiscussionApi.remove(message.id)
+                    return greyscaleDiscussionApi.remove(message.id)
                         .then(function () {
                             var i, qty,
                                 idx = null,
                                 list = $scope.model.questions[message.questionId].items;
+
                             if (list) {
                                 qty = list.length;
                                 for (i = 0; i < qty && !idx; i++) {
@@ -90,7 +91,7 @@ angular.module('greyscaleApp')
                                     $scope.model.questions[message.questionId].isOpen = false;
                                 }
                             }
-                        })
+                        });
                 };
 
                 emptyMsgForm();
