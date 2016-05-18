@@ -1,18 +1,19 @@
 <div>
     <uib-accordion>
-        <uib-accordion-group is-open="item.isOpen" ng-repeat="item in model.questions"
-                             is-disabled="item.messages.length<1">
+        <uib-accordion-group is-open="discuss.isOpen" ng-repeat="discuss in model.questions.list"
+                             is-disabled="discuss.items.length<1">
             <uib-accordion-heading>
-                {{item.title}}
-                <i class="fa pull-right" ng-class="{'fa-caret-up': item.isOpen, 'fa-caret-down': !item.isOpen}"></i>
+                {{discuss.title}}
+                <i class="fa pull-right" ng-class="{'fa-caret-up': discuss.isOpen, 'fa-caret-down': !discuss.isOpen}"></i>
             </uib-accordion-heading>
-            <div class="gs-message" gs-message="msg" ng-repeat="msg in item.messages"></div>
+            <div class="gs-message" gs-message="msg" associate="model.associate" ng-repeat="msg in discuss.items"
+            remove="removeMsg(msg)" update="updateMsg(msg)"></div>
         </uib-accordion-group>
     </uib-accordion>
     <div class="form" ng-form="msgForm">
         <div class="form-group">
             <select class="form-control"
-                    ng-options="item.id as item.title for item in model.questions"
+                    ng-options="item.id as item.title for item in model.questions.list"
                     ng-model="model.msg.questionId"
                     ng-required="true">
                 <option value="" selected disabled style="display:none;"
@@ -25,12 +26,6 @@
                       placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"></textarea>
         </div>
         <div class="form-group">
-            <!--<select class="form-control"-->
-                    <!--ng-options="item.userId as (item.firstName+ ' '+item.lastName + ' (' + item.role + ')') for item in model.assignTo"-->
-                    <!--ng-model="model.msg.userId"-->
-                    <!--ng-required="true">-->
-                <!--<option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>-->
-            <!--</select>-->
             <select class="form-control"
                     ng-options="item.id as (item.title + ' (' + item.role + ')') for item in model.assignTo"
                     ng-model="model.msg.stepId"

@@ -20,7 +20,11 @@ angular.module('greyscale.rest')
         }
 
         function _response(data) {
-            return data.plain();
+            if (data && typeof data.plain === 'function') {
+                return data.plain();
+            } else {
+                return data;
+            }
         }
 
         function _list(params) {
@@ -36,15 +40,15 @@ angular.module('greyscale.rest')
         }
 
         function _add(data) {
-            return _api().customPOST(data);
+            return _api().customPOST(data).then(_response);
         }
 
         function _update(id, data) {
-            return _api().one(id + '').customPUT(data);
+            return _api().one(id + '').customPUT(data).then(_response);
         }
 
         function _remove(id) {
-            return _api().one(id + '').remove();
+            return _api().one(id + '').remove().then(_response);
         }
 
         function _users(taskId) {
