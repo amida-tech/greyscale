@@ -1142,7 +1142,7 @@ function* updateCurrentStepId(req) {
     }
     var minStepPositions = result;
 
-    if (product.status != 2) { // not suspended
+
         // get step ID with min step position for specified productId and each uoaId
         for (var i = 0; i < minStepPositions.length; i++) {
             var nextStep = yield thunkQuery(
@@ -1167,12 +1167,31 @@ function* updateCurrentStepId(req) {
 
                 // update all currentStepId with min position step ID for specified productId for each subject
                 //
-                result = yield thunkQuery(ProductUOA
-                    .update({currentStepId: minStepPositions[i].stepId})
-                    .where(ProductUOA.productId.equals(req.params.id)
-                        .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                    )
-                );
+                if (product.status != 2) { // not suspended
+                    result = yield thunkQuery(ProductUOA
+                        .update({currentStepId: minStepPositions[i].stepId})
+                        .where(ProductUOA.productId.equals(req.params.id)
+                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                        )
+                    );
+                } else {
+                    var result1 = yield thunkQuery(
+                        ProductUOA
+                        .select()
+                        .where(ProductUOA.productId.equals(req.params.id)
+                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                            .and(ProductUOA.currentStepId.isNull())
+                        )
+                    );
+                    if (_.first(result1)) {
+                        result = yield thunkQuery(ProductUOA
+                            .update({currentStepId: minStepPositions[i].stepId})
+                            .where(ProductUOA.productId.equals(req.params.id)
+                                .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                            )
+                        );
+                    }
+                }
 
                 // notify
                 //essenceId = yield * common.getEssenceId(req, 'Tasks');
@@ -1206,7 +1225,6 @@ function* updateCurrentStepId(req) {
 
             }
         }
-    }
 
 
 
