@@ -42,7 +42,7 @@ module.exports = {
                 'SELECT '+
                 '"Discussions".*, '+
                 '"Tasks"."uoaId", '+
-                '"Tasks"."stepId", '+
+                //'"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId"';
 
