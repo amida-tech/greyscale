@@ -1,5 +1,5 @@
 <div>
-    <uib-accordion>
+    <uib-accordion ng-show="model.questions.length > 0">
         <uib-accordion-group is-open="item.isOpen" ng-repeat="item in model.questions"
                              is-disabled="item.messages.length<1">
             <uib-accordion-heading>
@@ -25,12 +25,6 @@
                       placeholder="{{'PLACEHOLDER.INPUT_MESSAGE' | translate}}"></textarea>
         </div>
         <div class="form-group">
-            <!--<select class="form-control"-->
-                    <!--ng-options="item.userId as (item.firstName+ ' '+item.lastName + ' (' + item.role + ')') for item in model.assignTo"-->
-                    <!--ng-model="model.msg.userId"-->
-                    <!--ng-required="true">-->
-                <!--<option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>-->
-            <!--</select>-->
             <select class="form-control"
                     ng-options="item.id as (item.title + ' (' + item.role + ')') for item in model.assignTo"
                     ng-model="model.msg.stepId"
