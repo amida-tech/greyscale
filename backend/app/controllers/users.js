@@ -45,7 +45,7 @@ module.exports = {
     token: function (req, res, next) {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
-            var needNewToken = false;
+            var needNewToken = true; // before false. Always new token
             var data = yield thunkQuery(Token.select().where({
                 userID : req.user.id,
                 realm  : req.params.realm
