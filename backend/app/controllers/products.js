@@ -220,10 +220,9 @@ module.exports = {
                         userTo = yield * common.getUser(req, req.body[i].userId);
                         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                         task = yield * common.getTask(req, parseInt(req.body[i].id));
-                        product = yield * common.getEntity(req, task.productId, Product, 'id');
                         uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                        survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
                         note = yield * notifications.createNotification(req,
                             {
                                 userFrom: req.user.realmUserId,
@@ -232,7 +231,7 @@ module.exports = {
                                 essenceId: essenceId,
                                 entityId: req.body[i].id,
                                 task: task,
-                                product: product,
+                                product: product[0],
                                 uoa: uoa,
                                 step: step,
                                 survey: survey,
@@ -266,10 +265,9 @@ module.exports = {
                     userTo = yield * common.getUser(req, req.body[i].userId);
                     organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                     task = yield * common.getTask(req, parseInt(req.body[i].id));
-                    product = yield * common.getEntity(req, task.productId, Product, 'id');
                     uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                     step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                    survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                    survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
                     note = yield * notifications.createNotification(req,
                         {
                             userFrom: req.user.realmUserId,
@@ -278,7 +276,7 @@ module.exports = {
                             essenceId: essenceId,
                             entityId: req.body[i].id,
                             task: task,
-                            product: product,
+                            product: product[0],
                             uoa: uoa,
                             step: step,
                             survey: survey,
