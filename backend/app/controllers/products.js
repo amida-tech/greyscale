@@ -314,14 +314,18 @@ module.exports = {
                             .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
                     );
 
+
+
                     if (firstStep) {
-                        ProductUOA
+                       yield thunkQuery(
+                           ProductUOA
                             .update({currentStepId: firstStep[0].id})
                             .where(
                                 ProductUOA.productId.equals(product[0].id)
                                 .and(ProductUOA.UOAid.equals(uoa.id))
                                 .and(ProductUOA.currentStepId.isNull())
-                            );
+                            )
+                        );
                     }
                 }
 
