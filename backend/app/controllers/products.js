@@ -1035,7 +1035,7 @@ module.exports = {
                     UOAid: req.body[i]
                 };
 
-                if (firstStep) {
+                if (firstStep && (product[0].status == 1)) { // step exists and product started
                     productUnit.currentStepId = firstStep[0].id;
                 }
 
