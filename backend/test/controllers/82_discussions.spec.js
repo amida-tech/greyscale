@@ -181,6 +181,30 @@ var getUser4task1ResolveList = [
     }
 ];
 
+var discussionsByCreated = [
+        {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)'},
+        //{entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)'},
+        //{entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)'},
+        //{entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)'},
+        {entry:'UPDATED Discussion entry (flagged - resolve Q1)'},
+        {entry:'Discussion entry (flagged - resolve Q2)'},
+        {entry:'Discussion entry (flagged - resolve Q3)'}
+    ];
+
+var discussionsByCreatedDesc = [
+    {entry:'Discussion entry (flagged - resolve Q3)'},
+    {entry:'Discussion entry (flagged - resolve Q2)'},
+    {entry:'UPDATED Discussion entry (flagged - resolve Q1)'},
+    {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)'}
+];
+
+var discussionsByEntry = [
+    {entry:'Discussion entry (flagged - resolve Q2)'},
+    {entry:'Discussion entry (flagged - resolve Q3)'},
+    {entry:'UPDATED Discussion entry (flagged - resolve Q1)'},
+    {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)'}
+];
+
 describe(testTitle, function () {
 
 
@@ -322,8 +346,12 @@ describe(testTitle, function () {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+obj.discussionId1, tokenAdmin, 200, null, 'canUpdate', false, done);
                 });
                 it('(Err) Entry with id=<id> cannot be updated, there are have following entries', function (done) {
-                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated, there are have following entries'};
-                    ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated, there are have following entries', done);
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                    ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
+                });
+                it('(Err) Entry with id=<id> cannot be deleted, there are have following entries', function (done) {
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR DELETED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                    ithelper.deleteOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
                 });
                 it('True number of discussion`s entries = 2', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'?taskId='+taskId[0], tokenUser1, 200, 2, done);
@@ -378,8 +406,12 @@ describe(testTitle, function () {
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId32', done);
             });
             it('(Err) Entry with id=<id> cannot be updated, there are have following entries', function (done) {
-                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated, there are have following entries'};
-                ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated, there are have following entries', done);
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
+            });
+            it('(Err) Entry with id=<id> cannot be deleted, there are have following entries', function (done) {
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR DELETED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                ithelper.deleteOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
             });
             it('Update Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', function (done) {
                 var updateItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[1], entry: 'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)'};
@@ -426,11 +458,11 @@ describe(testTitle, function () {
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
             });
             it('Discussion entry (flagged - resolve Q1)', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q1) ', isResolve: true};
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q1)', isResolve: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
             });
             it('Discussion entry (flagged - resolve Q2)', function (done) {
-                var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q2) ', isResolve: true};
+                var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q2)', isResolve: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId52', done);
             });
             it('Update Discussion entry (flagged - resolve Q1)', function (done) {
@@ -444,7 +476,7 @@ describe(testTitle, function () {
                 ithelper.selectErrMessage(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 400, 403, 'Resolve is not possible. Not all flags are resolved.', done);
             });
             it('Discussion entry (flagged - resolve Q3)', function (done) {
-                var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q3) ', isResolve: true};
+                var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q3)', isResolve: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId53', done);
             });
             it('Resolve (move to resolve step)', function (done) {
@@ -498,6 +530,17 @@ describe(testTitle, function () {
             });
             it('for task2', function (done) {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
+            });
+        });
+        describe(testTitle+'sorting ', function () {
+            it('Order by "created"', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created', tokenAdmin, 200, discussionsByCreated, done);
+            });
+            it('Order by "created" descending', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=-created', tokenAdmin, 200, discussionsByCreatedDesc, done);
+            });
+            it('Order by "entry"', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=entry', tokenAdmin, 200, discussionsByEntry, done);
             });
         });
 /*

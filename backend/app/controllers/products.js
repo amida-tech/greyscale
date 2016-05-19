@@ -77,18 +77,47 @@ module.exports = {
                 .select(
                     Task.star(),
                     'CASE ' +
-                        'WHEN (' +
+                        'WHEN '+
+                            '(' +
                             'SELECT ' +
                                 '"Discussions"."id" ' +
                             'FROM "Discussions" ' +
                             'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                             'AND "Discussions"."isReturn" = true ' +
                             'AND "Discussions"."isResolve" = false ' +
+                            'AND "Discussions"."activated" = true ' +
+                            'LIMIT 1' +
+                            ') IS NULL ' +
+                            ' AND (' +
+                            'SELECT ' +
+                                '"Discussions"."id" ' +
+                            'FROM "Discussions" ' +
+                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                            'AND "Discussions"."isResolve" = true ' +
+                            'AND "Discussions"."activated" = false ' +
                             'LIMIT 1' +
                             ') IS NULL ' +
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
+                    '( '+
+                        'SELECT count("Discussions"."id") ' +
+                        'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                        //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                    ') as flaggedCount',
+                    '(' +
+                        'SELECT ' +
+                        '"Discussions"."taskId" ' +
+                        'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                        //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                        'LIMIT 1' +
+                    ') as flaggedFrom',
                     'CASE ' +
                         'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
                         'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
@@ -1079,10 +1108,19 @@ function* checkProductData(req) {
 function* updateCurrentStepId(req) {
     var thunkQuery = req.thunkQuery;
 
+    var essenceId = yield * common.getEssenceId(req, 'Tasks');
+    var product   = yield * common.getEntity(req, req.params.id, Product, 'id');
+    var survey    = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+
+    console.log(product.status);
+
     // start-restart project -> set isComplete flag to false for all subjects
-    yield thunkQuery(
-        ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
-    );
+    if (product.status != 2) { // not suspended
+        yield thunkQuery(
+            ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
+        );
+    }
+
 
     var result;
     // get min step position for each productId-uoaId
@@ -1099,77 +1137,95 @@ function* updateCurrentStepId(req) {
 
     result = yield thunkQuery(minStepPositionQuery);
     if (!_.first(result)) {
-        debug('Not found  min step position for productId `'+req.params.id+'`');
+        debug('Not found min step position for productId `'+req.params.id+'`');
         return null;
     }
     var minStepPositions = result;
 
-    var essenceId = yield * common.getEssenceId(req, 'Tasks');
-    var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-    // get step ID with min step position for specified productId and each uoaId
-    for (var i = 0; i < minStepPositions.length; i++) {
-        var nextStep = yield thunkQuery(
-            WorkflowStep
-                .select(
-                WorkflowStep.id,
-                Task.userId,
-                Task.id.as('taskId')
-            )
-                .from(WorkflowStep
-                    .join(Task).on(Task.stepId.equals(WorkflowStep.id))
-            )
-                .where(Task.productId.equals(req.params.id)
-                .and(Task.uoaId.equals(minStepPositions[i].uoaId))
-                .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
-            )
-        );
-        if (_.first(nextStep)) {
-            minStepPositions[i].stepId = nextStep[0].id;
-            minStepPositions[i].userId = nextStep[0].userId;
-            minStepPositions[i].taskId = nextStep[0].taskId;
 
-            // update all currentStepId with min position step ID for specified productId for each subject
-            //
-            result = yield thunkQuery(ProductUOA
-                .update({currentStepId: minStepPositions[i].stepId})
-                .where(ProductUOA.productId.equals(req.params.id)
-                .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                )
+        // get step ID with min step position for specified productId and each uoaId
+        for (var i = 0; i < minStepPositions.length; i++) {
+            var nextStep = yield thunkQuery(
+                WorkflowStep
+                    .select(
+                        WorkflowStep.id,
+                        Task.userId,
+                        Task.id.as('taskId')
+                    )
+                    .from(WorkflowStep
+                        .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+                    )
+                    .where(Task.productId.equals(req.params.id)
+                        .and(Task.uoaId.equals(minStepPositions[i].uoaId))
+                        .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
+                    )
             );
+            if (_.first(nextStep)) {
+                minStepPositions[i].stepId = nextStep[0].id;
+                minStepPositions[i].userId = nextStep[0].userId;
+                minStepPositions[i].taskId = nextStep[0].taskId;
 
-            // notify
-            //essenceId = yield * common.getEssenceId(req, 'Tasks');
-            var userTo = yield * common.getUser(req, minStepPositions[i].userId);
-            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-            var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
-            //product = yield * common.getEntity(req, task.productId, Product, 'id');
-            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-            //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: req.user.realmUserId,
-                    userTo: minStepPositions[i].userId,
-                    body: 'Task activated (project started)',
-                    essenceId: essenceId,
-                    entityId: task.id,
-                    task: task,
-                    product: product,
-                    uoa: uoa,
-                    step: step,
-                    survey: survey,
-                    user: userTo,
-                    organization: organization,
-                    date: new Date(),
-                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    config: config
-                },
-                'activateTask'
-            );
+                // update all currentStepId with min position step ID for specified productId for each subject
+                //
+                if (product.status != 2) { // not suspended
+                    result = yield thunkQuery(ProductUOA
+                        .update({currentStepId: minStepPositions[i].stepId})
+                        .where(ProductUOA.productId.equals(req.params.id)
+                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                        )
+                    );
+                } else {
+                    var result1 = yield thunkQuery(
+                        ProductUOA
+                        .select()
+                        .where(ProductUOA.productId.equals(req.params.id)
+                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                            .and(ProductUOA.currentStepId.isNull())
+                        )
+                    );
+                    if (_.first(result1)) {
+                        result = yield thunkQuery(ProductUOA
+                            .update({currentStepId: minStepPositions[i].stepId})
+                            .where(ProductUOA.productId.equals(req.params.id)
+                                .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                            )
+                        );
+                    }
+                }
 
+                // notify
+                //essenceId = yield * common.getEssenceId(req, 'Tasks');
+                var userTo = yield * common.getUser(req, minStepPositions[i].userId);
+                var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+                var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
+                //product = yield * common.getEntity(req, task.productId, Product, 'id');
+                var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+                var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+                //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                var note = yield * notifications.createNotification(req,
+                    {
+                        userFrom: req.user.realmUserId,
+                        userTo: minStepPositions[i].userId,
+                        body: 'Task activated (project started)',
+                        essenceId: essenceId,
+                        entityId: task.id,
+                        task: task,
+                        product: product,
+                        uoa: uoa,
+                        step: step,
+                        survey: survey,
+                        user: userTo,
+                        organization: organization,
+                        date: new Date(),
+                        to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                        config: config
+                    },
+                    'activateTask'
+                );
+
+            }
         }
-    }
+
 
 
     return {

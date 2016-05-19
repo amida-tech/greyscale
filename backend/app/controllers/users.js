@@ -45,7 +45,7 @@ module.exports = {
     token: function (req, res, next) {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
-            var needNewToken = false;
+            var needNewToken = true; // before false. Always new token
             var data = yield thunkQuery(Token.select().where({
                 userID : req.user.id,
                 realm  : req.params.realm
@@ -1116,18 +1116,47 @@ module.exports = {
                     'row_to_json("Surveys".*) as survey',
                     'row_to_json("WorkflowSteps") as step',
                     'CASE ' +
-                        'WHEN (' +
-                            'SELECT ' +
-                            '"Discussions"."id" ' +
-                            'FROM "Discussions" ' +
-                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                            'AND "Discussions"."isReturn" = true ' +
-                            'AND "Discussions"."isResolve" = false ' +
-                            'LIMIT 1' +
-                        ') IS NULL ' +
+                        'WHEN '+
+                            '(' +
+                                'SELECT ' +
+                                    '"Discussions"."id" ' +
+                                    'FROM "Discussions" ' +
+                                'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                                'AND "Discussions"."isReturn" = true ' +
+                                'AND "Discussions"."isResolve" = false ' +
+                                'AND "Discussions"."activated" = true ' +
+                                'LIMIT 1' +
+                            ') IS NULL ' +
+                            ' AND (' +
+                                'SELECT ' +
+                                    '"Discussions"."id" ' +
+                                    'FROM "Discussions" ' +
+                                'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
+                                'AND "Discussions"."isResolve" = true ' +
+                                'AND "Discussions"."activated" = false ' +
+                                'LIMIT 1' +
+                            ') IS NULL ' +
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
+                    '( '+
+                        'SELECT count("Discussions"."id") ' +
+                            'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                            //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                    ') as flaggedCount',
+                    '(' +
+                        'SELECT ' +
+                            '"Discussions"."taskId" ' +
+                            'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                            //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                        'LIMIT 1' +
+                    ') as flaggedFrom',
                     'CASE ' +
                         'WHEN ' +
                             '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +

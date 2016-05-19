@@ -42,7 +42,7 @@ module.exports = {
                 'SELECT '+
                 '"Discussions".*, '+
                 '"Tasks"."uoaId", '+
-                '"Tasks"."stepId", '+
+                //'"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId"';
 
@@ -66,8 +66,20 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
-            var selectQuery = selectFields + selectFrom + selectWhere;
-            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
+            var selectOrder = '';
+            if (req.query.order) {
+                var sorted = req.query.order.split(',');
+                for (var i = 0; i < sorted.length; i++) {
+                    var sort = sorted[i];
+                    selectOrder =
+                        ((selectOrder === '') ? 'ORDER BY ' : ', ')+
+                        sort.replace('-', '').trim()+
+                        (sort.indexOf('-') === 0 ? ' desc' : ' asc');
+                }
+            }
+
+            var selectQuery = selectFields + selectFrom + selectWhere+selectOrder;
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -245,6 +257,8 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            // check next entry
+            var nextEntry = yield * checkNextEntry(req, req.params.id);
             return yield thunkQuery(Discussion.delete().where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
@@ -478,10 +492,36 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
             'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
             pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
-                'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+                'AND "Discussions"."isReturn" = true ' +
+                'AND "Discussions"."activated" = true LIMIT 1';// AND "Discussions"."isResolve" = false';
     }
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(query);
+    if  (tag === 'resolve') {
+        query =
+            'SELECT ' +
+            '"Discussions"."id" ' +
+            'FROM "Discussions" ' +
+            pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
+            'AND "Discussions"."isResolve" = true ' +
+            'LIMIT 1';
+        var result1 = yield thunkQuery(query);
+        if (_.first(result1)) { // resolve records exist
+            query =
+                'SELECT ' +
+                '"Discussions"."id" ' +
+                'FROM "Discussions" ' +
+                pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
+                'AND "Discussions"."isResolve" = true ' +
+                'AND "Discussions"."activated" = true ' +
+                'LIMIT 1';
+            var result2 = yield thunkQuery(query);
+            if (_.first(result2)) { // all resolve records activated
+                result = null; // resolveList must be empty
+            }
+        }
+    }
+
     return (tag === 'resolve') ? [_.last(result)] : result;
 }
 
@@ -588,7 +628,7 @@ function* checkNextEntry(req, id, checkOnly) {
     result = yield thunkQuery(query);
     if (_.first(result)) {
         if (checkOnly) return false;
-        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated, there are have following entries');
+        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated or deleted, there are have following entries');
     }
     return true;
 }
@@ -811,7 +851,7 @@ function* checkUpdateProductUOAStep(req, object) {
 
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
-    var res = yield thunkQuery(Discussion.update({isResolve: true, updated: new Date()})
+    var res = yield thunkQuery(Discussion.update({isResolve: true})
             .where(Discussion.id.equals(discussionId))
             .returning(Discussion.id)
     );
