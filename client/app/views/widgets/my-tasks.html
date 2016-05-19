@@ -2,7 +2,7 @@
 
     <div class="cards" minigrid minigrid-collection="model.tasks">
         <div class="card" ng-repeat="task in model.tasks">
-            <p>{{task.step.title}}</p>
+            <p><i class="fa fa-flag text-danger pull-right" ng-if="task.flagged"></i> {{task.step.title}}</p>
             <p>
                 <a ng-href="#/survey/{{task.survey.id}}/task/{{task.id}}">
                     {{task.survey.title}}
