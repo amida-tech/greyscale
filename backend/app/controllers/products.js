@@ -1720,7 +1720,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
     if (req.query.force) { // force to move step
         // delete discussion`s entry with return flag
-        yield * deleteEntries(req, curStep.task.id, {isReturn: true});
+        //yield * deleteEntries(req, curStep.task.id, {isReturn: true});
     }
 
     // check if exist return flag(s)
@@ -1929,8 +1929,7 @@ function* deleteEntries(req, taskId, flag) {
 function* isResolvePossible(req, productId, uoaId) {
     /*
      Check possibility to Resolve
-     If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-     then Resolve is possible.
+     If exist ACTIVATED record in table Discussions for current surveys (unique Product-UoA) which have isReturn=true and isResolve=false - resolve does not possible
      */
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
@@ -1942,6 +1941,7 @@ function* isResolvePossible(req, productId, uoaId) {
             )
             .where(
             Discussion.isReturn.equals(true)
+                .and(Discussion.activated.equals(true))
                 .and(Discussion.isResolve.equals(false))
                 .and(Task.productId.equals(productId))
                 .and(Task.uoaId.equals(uoaId))
