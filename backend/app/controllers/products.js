@@ -977,7 +977,19 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of unit ids in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)));
+            var product = yield thunkQuery(
+                Product
+                    .select(
+                        Product.star(),
+                        'row_to_json("Workflows") as workflow'
+                    )
+                    .from(
+                        Product
+                        .leftJoin(Workflow)
+                        .on(Workflow.productId.equals(Product.id))
+                    )
+                    .where(Product.id.equals(req.params.id))
+            );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
             }
@@ -991,6 +1003,25 @@ module.exports = {
                 return value.id;
             });
             var insertArr = [];
+
+            var firstStep;
+
+            if (product[0].workflow) {
+                firstStep = yield thunkQuery(
+                    WorkflowStep
+                        .select()
+                        .where(
+                            WorkflowStep.position.in(
+                                WorkflowStep
+                                    .subQuery()
+                                    .select(sql.functions.MIN(WorkflowStep.position))
+                                    .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                            )
+                        )
+                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                );
+            }
+
             for (var i in req.body) {
                 if (ids.indexOf(req.body[i]) === -1) {
                     throw new HttpError(403, 'Unit of Analisys with id = ' + req.body[i] + ' does not exist');
@@ -998,10 +1029,17 @@ module.exports = {
                 if (existIds.indexOf(req.body[i]) > -1) {
                     throw new HttpError(403, 'Relation for Unit of Analisys with id = ' + req.body[i] + ' has already existed');
                 }
-                insertArr.push({
+
+                var productUnit = {
                     productId: req.params.id,
                     UOAid: req.body[i]
-                });
+                };
+
+                if (firstStep) {
+                    productUnit.currentStepId = firstStep[0].id;
+                }
+
+                insertArr.push(productUnit);
             }
 
             return yield thunkQuery(ProductUOA.insert(insertArr).returning('*'));
