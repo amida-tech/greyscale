@@ -167,7 +167,18 @@ module.exports = {
 
         co(function* () {
             var product = yield thunkQuery(
-                Product.select().where(Product.id.equals(req.params.id))
+                Product
+                    .select(
+                        Product.star(),
+                        'row_to_json("Workflows") as workflow'
+                    )
+                    .from(
+                        Product
+                        .leftJoin(Workflow)
+                        .on(Workflow.productId.equals(Product.id))
+
+                    )
+                    .where(Product.id.equals(req.params.id))
             );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
@@ -288,6 +299,32 @@ module.exports = {
                         entity: req.body[i].id,
                         info: 'Add new task for product `'+req.params.id+'`'
                     });
+                }
+
+                if (product[0].workflow) {
+                    var firstStep = yield thunkQuery(
+                        WorkflowStep
+                            .select()
+                            .where(
+                                WorkflowStep.position.in(
+                                    WorkflowStep
+                                        .subQuery()
+                                        .select(sql.functions.MIN(WorkflowStep.position))
+                                        .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                                )
+                            )
+                            .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                    );
+
+                    if (firstStep) {
+                        ProductUOA
+                            .update({currentStepId: firstStep[0].id})
+                            .where(
+                                ProductUOA.productId.equals(product[0].id)
+                                .and(ProductUOA.UOAid.equals(uoa.id))
+                                .and(ProductUOA.currentStepId.isNull())
+                            );
+                    }
                 }
 
             }
@@ -1006,21 +1043,7 @@ module.exports = {
 
             var firstStep;
 
-            if (product[0].workflow) {
-                firstStep = yield thunkQuery(
-                    WorkflowStep
-                        .select()
-                        .where(
-                            WorkflowStep.position.in(
-                                WorkflowStep
-                                    .subQuery()
-                                    .select(sql.functions.MIN(WorkflowStep.position))
-                                    .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                            )
-                        )
-                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                );
-            }
+
 
             for (var i in req.body) {
                 if (ids.indexOf(req.body[i]) === -1) {
@@ -1035,9 +1058,9 @@ module.exports = {
                     UOAid: req.body[i]
                 };
 
-                if (firstStep && (product[0].status == 1)) { // step exists and product started
-                    productUnit.currentStepId = firstStep[0].id;
-                }
+                //if (firstStep && (product[0].status == 1)) { // step exists and product started
+                //    productUnit.currentStepId = firstStep[0].id;
+                //}
 
                 insertArr.push(productUnit);
             }
