@@ -269,11 +269,6 @@
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
-        "POLICY": {
-            "EDIT": "",
-            "REVIEW": "",
-            "TITLE": ""
-        },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
