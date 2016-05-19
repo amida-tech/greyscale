@@ -202,7 +202,8 @@ angular.module('greyscaleApp')
                 $scope.isLocked = function () {
                     var _locked;
                     _locked = isReadonlyFlags(flags) &&
-                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate);
+                        (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
+                        (flags.discussionParticipation && !flags.draftFlag);
 
                     return _locked;
                 };
@@ -746,11 +747,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-                field.type === 'checkboxes' ||
-                field.isAgree ||
-                field.comment ||
-                field.canAttach && field.attachments.length ||
-                field.withLinks && field.answerLinks.length);
+            field.type === 'checkboxes' ||
+            field.isAgree ||
+            field.comment ||
+            field.canAttach && field.attachments.length ||
+            field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {
