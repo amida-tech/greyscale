@@ -423,7 +423,7 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
             'SELECT "Discussions".id ' +
             'FROM "Discussions" ' +
             pgEscape('WHERE "Discussions"."returnTaskId" = %s', taskId) +
-            ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+            ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true';
         result = yield thunkQuery(query);
         if (!_.first(result)) {
             retObject=null;
