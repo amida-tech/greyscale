@@ -47,9 +47,10 @@ var getTask = function* (req, taskId) {
 };
 exports.getTask = getTask;
 
-var getTaskByStep = function* (req, stepId) {
+var getTaskByStep = function* (req, stepId, uoaId) {
     var thunkQuery = req.thunkQuery;
-    var result = yield * getEntityById(req, stepId, Task, 'stepId');
+    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId))));
+    //getEntityById(req, stepId, Task, 'stepId');
     if (!_.first(result)) {
         throw new HttpError(403, 'Task with stepId `'+parseInt(stepId).toString()+'` does not exist');
     }

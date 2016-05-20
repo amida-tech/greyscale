@@ -1746,7 +1746,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, step4Resolve);
+        task = yield * common.getTaskByStep(req, step4Resolve, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
@@ -1792,7 +1792,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, returnStepId);
+        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
