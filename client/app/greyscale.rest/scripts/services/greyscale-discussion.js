@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleDiscussionApi', function (greyscaleRestSrv) {
+    .factory('greyscaleDiscussionApi', function (_, greyscaleRestSrv) {
         return {
             list: _list,
             scopeList: _scope,
@@ -28,7 +28,10 @@ angular.module('greyscale.rest')
         }
 
         function _list(params) {
-            return _api().get(params).then(_response);
+            params = angular.extend({order: 'created'}, params);
+            return _api().get(params).then(_response).then(function(data){
+                return data.reverse();
+            });
         }
 
         function _scope(params) {
