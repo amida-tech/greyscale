@@ -53,7 +53,7 @@ BoLogger.prototype.log = function (data) {
         var id = yield thunkQuery(Log.insert(this.data).returning(Log.id));
         return data;
     }).then(function (data) {
-        next();
+        // next();
     }, function (err) {
         logger.error(err);
     });
