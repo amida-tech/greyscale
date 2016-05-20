@@ -1127,15 +1127,6 @@ module.exports = {
                                 'AND "Discussions"."activated" = true ' +
                                 'LIMIT 1' +
                             ') IS NULL ' +
-                            ' AND (' +
-                                'SELECT ' +
-                                    '"Discussions"."id" ' +
-                                    'FROM "Discussions" ' +
-                                'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
-                                'AND "Discussions"."isResolve" = true ' +
-                                'AND "Discussions"."activated" = false ' +
-                                'LIMIT 1' +
-                            ') IS NULL ' +
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
@@ -1144,7 +1135,7 @@ module.exports = {
                             'FROM "Discussions" ' +
                         'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                         'AND "Discussions"."isReturn" = true ' +
-                            //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."isResolve" = false ' +
                         'AND "Discussions"."activated" = true ' +
                     ') as flaggedCount',
                     '(' +
@@ -1153,7 +1144,7 @@ module.exports = {
                             'FROM "Discussions" ' +
                         'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                         'AND "Discussions"."isReturn" = true ' +
-                            //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."isResolve" = false ' +
                         'AND "Discussions"."activated" = true ' +
                         'LIMIT 1' +
                     ') as flaggedFrom',
