@@ -59,7 +59,6 @@ angular.module('greyscaleApp')
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {}
                 };
-                console.log(data);
                 if (data.resolveData) {
                     data.discussions = greyscaleDiscussionApi.list({
                         surveyId: surveyId,

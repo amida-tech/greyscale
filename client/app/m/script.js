@@ -73,6 +73,10 @@
         gs.fetch('GET', 'surveys/' + surveyId)
         .then(function (surveyData) {
             survey = surveyData;
+            if (survey.status !== 'current') {
+                window.location.href = '/m/';
+                return;
+            }
             $('#title').innerHTML = survey.title;
 
             gs.fetch('GET', 'tasks/' + taskId)
@@ -94,6 +98,7 @@
     function resolvingMode() {
         if (taskInfo.flagged) {
             //$('#resolve-entry')._.style({display:''});
+            disableSaving(true);
             var params = 'taskId=' + taskInfo.id;
             gs.fetch('GET', 'discussions/entryscope?' + params)
             .then(function (res) {
@@ -110,13 +115,14 @@
             .then(function(discussions){
                 survey.questions.map(function(question){
                     discussions.map(function(message){
-                        if (message.questionId === question.id && message.isReturn && !message.activated) {
+                        if (message.questionId === question.id && message.isReturn && !message.isResolve) {
                             question.flagResolve = question.flagResolve || {};
                             $.extend(question.flagResolve, message);
                         }
                         if (message.questionId === question.id && message.isResolve && !message.isReturn && !message.activated) {
                             question.flagResolve = question.flagResolve || {};
                             question.flagResolve.draft = message;
+                            disableSaving(false);
                         }
                     });
                     if (question.flagResolve) {
@@ -154,26 +160,39 @@
         var resolveInput = $.create('input', {className: 'flag-resolve-input'});
         $.inside(resolveInput, resolveContainer);
 
-        resolveInput._.events({'keyup paste': _saveFlagResolveDraft(question.flagResolve)});
+        var errorEl = $.create('div', {
+            className: 'flag-resolve-error',
+            contents: ['This field should be filled']
+        });
+        errorEl._.style({display: 'none'});
+        $.inside(errorEl, resolveContainer);
+
+        resolveInput._.events({
+            'keyup paste delete cut': _saveFlagResolveDraft(question.flagResolve, errorEl)
+        });
 
         if (question.flagResolve.draft.id) {
             resolveInput.value = question.flagResolve.draft.entry;
         }
     }
 
-    function _saveFlagResolveDraft(resolveData) {
+    function _saveFlagResolveDraft(resolveData, errorEl) {
         var timer;
         return function(e){
             if (timer) {
                 clearTimeout(timer);
             }
+            resolveData.draft.entry = e.target.value;
+            var draft = resolveData.draft;
+            if (draft.entry === '') {
+                errorEl._.style({display:''});
+                disableSaving(true);
+                return;
+            } else {
+                disableSaving(false);
+                errorEl._.style({display:'none'});
+            }
             timer = setTimeout(function(){
-                resolveData.draft.entry = e.target.value;
-                var draft = resolveData.draft;
-                if (draft.entry === '') {
-                    return;
-                }
-
                 var method = draft.id ? 'PUT' : 'POST';
                 var url =  'discussions' + (draft.id ? '/' + draft.id : '');
                 gs.fetch(method, url, {
@@ -1437,7 +1456,7 @@
             })
             .then(resolveTask)
             .then(function(){
-                document.location.href = "/m/";
+                window.location.href = '/m/';
             });
         //save(false);
     }

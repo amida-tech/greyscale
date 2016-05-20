@@ -217,12 +217,13 @@ angular.module('greyscaleApp')
                     if (_saveFlagCommentDraft.timer) {
                         $timeout.cancel(_saveFlagCommentDraft.timer);
                     }
+                    var draft = question.flagResolve.draft;
+                    if (draft.entry === '') {
+                        //show error
+                        return;
+                    }
                     _saveFlagCommentDraft.timer = $timeout(function(){
-                        var draft = question.flagResolve.draft;
-                        console.log('save draft flag comment', draft);
-                        if (draft.id && draft.entry === '') {
-                            console.log('del?');
-                        } else if (!draft.id && draft.entry !== '') {
+                        if (!draft.id && draft.entry !== '') {
                             greyscaleDiscussionApi.add(draft).then(function(data){
                                 question.flagResolve.draft.id = data.id;
                             });
@@ -492,6 +493,22 @@ angular.module('greyscaleApp')
             scope.fields = fields;
             scope.content = content;
             scope.unlock();
+
+            $timeout(function(){
+                questions.map(function(question){
+                    if (question.flagResolve) {
+                        scope.model.contentOpen = true;
+                        var field = $('#fld' + question.id);
+                        if (field.length) {
+                            var section = field.closest('uib-accordion');
+                            if (section.length) {
+                                var sectionScope = section.scope();
+                                sectionScope.sectionOpen = true;
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         function loadAnswers(scope) {

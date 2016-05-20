@@ -358,3 +358,6 @@ textarea.invalid {
 .field-resolve .flag-image {
     margin-bottom: 3px;
 }
+.flag-resolve-error {
+    color: #ff0000;
+}
