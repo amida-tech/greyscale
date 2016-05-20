@@ -1782,7 +1782,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
 
     // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, productId, UOAid);
+    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
     if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
         // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, returnStepId, productId, UOAid);

@@ -237,7 +237,7 @@ var getNextStep = function* (req, minNextStepPosition, productId, uoaId) {
 };
 exports.getNextStep = getNextStep;
 
-var getReturnStep = function* (req, productId, uoaId) {
+var getReturnStep = function* (req, taskId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         Discussion
@@ -250,8 +250,7 @@ var getReturnStep = function* (req, productId, uoaId) {
             .where(
             Discussion.activated.equals(false)
                 .and(Discussion.isReturn.equals(true))
-                .and(Task.productId.equals(productId))
-                .and(Task.uoaId.equals(uoaId))
+                .and(Discussion.taskId.equals(taskId))
         )
     );
     if (result[0]) {
