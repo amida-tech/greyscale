@@ -72,7 +72,7 @@ module.exports = {
                 for (var i = 0; i < sorted.length; i++) {
                     var sort = sorted[i];
                     selectOrder =
-                        ((selectOrder === '') ? 'ORDER BY ' : ', ')+
+                        ((selectOrder === '') ? 'ORDER BY ' : selectOrder+', ')+
                         sort.replace('-', '').trim()+
                         (sort.indexOf('-') === 0 ? ' desc' : ' asc');
                 }
