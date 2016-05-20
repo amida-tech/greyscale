@@ -1,20 +1,6 @@
 .user-notifications {
     .dropdown-toggle {
         position: relative;
-        .counter {
-            display: inline-block;
-            position: absolute;
-            font-size: 10px;
-            background: $red;
-            text-align: center;
-            line-height: 17px;
-            min-width: 17px;
-            color: $white;
-            font-weight: bold;
-            right: -9px;
-            top: 6px;
-            border-radius: 10px;
-        }
     }
     .scroll {
         overflow: hidden;

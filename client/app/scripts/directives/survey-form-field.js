@@ -38,6 +38,12 @@ angular.module('greyscaleApp')
                             label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                         }
 
+                        if (scope.field.flagResolve) {
+                            label += '<div class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
+                                '<input class="form-control" ng-model="field.flagResolve.draft.entry" placeholder="{{\'SURVEYS.RESOLVE_COMMENT\' | translate}}"/>' +
+                                '</div>';
+                        }
+
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
                         var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';

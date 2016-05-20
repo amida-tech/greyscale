@@ -173,6 +173,17 @@
     }
 }
 
+.question-flag-resolving {
+    padding: 5px;
+    border: 1px solid $brand-danger;
+
+    margin: -10px 0 10px 0;
+
+    input {
+        display: block;
+    }
+}
+
 .flag-question {
     background-color: #fcf8e3;
     box-shadow: 0 0 10px 10px #fcf8e3;

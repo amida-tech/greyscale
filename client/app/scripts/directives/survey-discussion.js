@@ -4,9 +4,12 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
-        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q, $log) {
+        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
-        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes;
+        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
+            flaggedQuestions = [],
+            flaggedStep = null,
+            currentStep = null;
 
         return {
             restrict: 'E',
@@ -37,12 +40,14 @@ angular.module('greyscaleApp')
 
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
-
+console.log(body);
+                    //return;
                     greyscaleDiscussionApi.add(body)
                         .then(function (resp) {
                             if ($scope.model.questions[body.questionId]) {
                                 angular.extend(body, resp);
                                 $scope.model.questions[body.questionId].items.unshift(body);
+                                flaggedQuestions.push(body.questionId);
                             }
                             if (typeof $scope.onSend === 'function') {
                                 $scope.onSend(body);
@@ -55,12 +60,7 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.flagIsDisabled = function () {
-                    var q, qQty, m, mQty,
-                        hasUnresolvedFlag = false;
-                    for (q = 0; q < qQty; q++) {
-                        if ($scope.model.questions.list[q]) {
-                        }
-                    }
+                    var hasUnresolvedFlag = false;
                     angular.forEach($scope.model.questions.list, function (q) {
                         if (q.messages && q.messages.length) {
                             angular.forEach(q.messages, function (m) {
@@ -70,7 +70,7 @@ angular.module('greyscaleApp')
                             });
                         }
                     });
-                    return hasUnresolvedFlag;
+                    return false && hasUnresolvedFlag;
                 };
 
                 $scope.updateMsg = function (message) {
@@ -79,14 +79,20 @@ angular.module('greyscaleApp')
 
                 $scope.flagChange = function () {
                     if ($scope.model.msg.isReturn) {
-                        $scope.model.msg.stepId = $scope.model.draftFlag.stepId;
+                        if (flaggedStep) {
+                            $scope.model.msg.stepId = flaggedStep.id;
+                        }
                     } else {
                         $scope.model.msg.stepId = null;
                     }
                 };
 
                 $scope.filterSteps = function (elem) {
-                    return !$scope.model.msg.isReturn || !$scope.model.draftFlag || (elem.id === $scope.model.draftFlag.stepId);
+                    return (!$scope.model.msg.isReturn || !flaggedStep || (elem.id === flaggedStep.id)) && elem.position < currentStep.position;
+                };
+
+                $scope.filterQuests = function (quest) {
+                    return !$scope.model.msg.isReturn || (flaggedQuestions.indexOf(quest.id) === -1);
                 };
 
                 $scope.removeMsg = function (message) {
@@ -149,13 +155,15 @@ angular.module('greyscaleApp')
                 $q.all(reqs).then(function (resp) {
                     var i, qty, quest, msg, discuss,
                         qid = 0,
-                        questions = survey.questions || [];
+                        questions = survey.questions || [],
+                        _steps;
 
                     /* assign to steps */
-                    _.remove(resp.steps, {
+                    _steps = _.remove(resp.steps.plain(), {
                         id: task.stepId
                     });
-                    scope.model.assignTo = resp.steps.plain();
+                    currentStep = _steps[0];
+                    scope.model.assignTo = resp.steps;
 
                     /* form associate */
                     scope.model.associate = {};
@@ -188,6 +196,8 @@ angular.module('greyscaleApp')
                         }
                     }
 
+                    flaggedQuestions = [];
+                    flaggedStep = null;
                     qty = resp.messages.length;
                     for (i = 0; i < qty; i++) {
                         msg = resp.messages[i];
@@ -195,7 +205,13 @@ angular.module('greyscaleApp')
                             scope.model.questions[msg.questionId].items.push(msg);
                         }
                         if (!msg.activated && msg.isReturn && !msg.resolved) {
-                            scope.model.draftFlag = msg;
+                            flaggedQuestions.push(msg.questionId);
+                            if (!flaggedStep) {
+                                flaggedStep = _.find(scope.model.assignTo, {
+                                    id: msg.stepId
+                                });
+                            }
+
                             scope.surveyData.flags.draftFlag = true;
                         }
 

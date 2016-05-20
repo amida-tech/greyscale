@@ -88,15 +88,6 @@ module.exports = {
                             'AND "Discussions"."activated" = true ' +
                             'LIMIT 1' +
                             ') IS NULL ' +
-                            ' AND (' +
-                            'SELECT ' +
-                                '"Discussions"."id" ' +
-                            'FROM "Discussions" ' +
-                            'WHERE "Discussions"."taskId" = "Tasks"."id" ' +
-                            'AND "Discussions"."isResolve" = true ' +
-                            'AND "Discussions"."activated" = false ' +
-                            'LIMIT 1' +
-                            ') IS NULL ' +
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
@@ -105,7 +96,7 @@ module.exports = {
                         'FROM "Discussions" ' +
                         'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                         'AND "Discussions"."isReturn" = true ' +
-                        //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."isResolve" = false ' +
                         'AND "Discussions"."activated" = true ' +
                     ') as flaggedCount',
                     '(' +
@@ -114,7 +105,7 @@ module.exports = {
                         'FROM "Discussions" ' +
                         'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                         'AND "Discussions"."isReturn" = true ' +
-                        //'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."isResolve" = false ' +
                         'AND "Discussions"."activated" = true ' +
                         'LIMIT 1' +
                     ') as flaggedFrom',
@@ -1734,7 +1725,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
     if (req.query.resolve) { // try to resolve
         // check if resolve is possible
-        var resolvePossible = yield * isResolvePossible(req, productId, UOAid);
+        var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
             throw new HttpError(403, 'Resolve is not possible. Not all flags are resolved.');
         }
@@ -1743,6 +1734,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
         if (!step4Resolve){
             throw new HttpError(403, 'Resolve is not possible. Not found step for resolve');
         }
+
+        // update return entries - resolve their
+        yield * updateReturnTask(req, curStep.task.id);
+
         // activate discussion`s entry with resolve flag
         yield * activateEntries(req, curStep.task.id, {isResolve: true});
 
@@ -1751,11 +1746,12 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, step4Resolve);
+        task = yield * common.getTaskByStep(req, step4Resolve, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
-        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        //uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        uoa = yield * common.getEntity(req, UOAid, UOA, 'id');
         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
         survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
         note = yield * notifications.createNotification(req,
@@ -1787,7 +1783,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
 
     // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, productId, UOAid);
+    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
     if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
         // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, returnStepId, productId, UOAid);
@@ -1796,7 +1792,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, returnStepId);
+        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
@@ -1989,28 +1985,44 @@ function* deleteEntries(req, taskId, flag) {
     return (result) ? result.length: 0;
 }
 
-function* isResolvePossible(req, productId, uoaId) {
+function* isResolvePossible(req, taskId) {
     /*
      Check possibility to Resolve
      If exist ACTIVATED record in table Discussions for current surveys (unique Product-UoA) which have isReturn=true and isResolve=false - resolve does not possible
      */
     var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(
+    var query;
+    // count of existing entries with flags
+    query =
         Discussion
-            .select(Discussion.questionId)
-            .from(Discussion
-                .join(Task)
-                .on(Task.id.equals(Discussion.taskId))
-            )
+            .select(Discussion.count('count'))
+            .from(Discussion)
             .where(
             Discussion.isReturn.equals(true)
                 .and(Discussion.activated.equals(true))
                 .and(Discussion.isResolve.equals(false))
-                .and(Task.productId.equals(productId))
-                .and(Task.uoaId.equals(uoaId))
-            )
-    );
-    return (!_.first(result));
+                .and(Discussion.returnTaskId.equals(taskId))
+        );
+    var result = yield thunkQuery(query);
+    var countFlags = (_.first(result)) ? result[0].count : 0;
+    if (countFlags === 0 ) {
+        return false; // flags does not exist - resolve is not possible
+    }
+    // count of existing entries with Resolve
+    query =
+        Discussion
+            .select(Discussion.count('count'))
+            .from(Discussion)
+            .where(
+            Discussion.isReturn.equals(false)
+                .and(Discussion.activated.equals(false))
+                .and(Discussion.isResolve.equals(true))
+                .and(Discussion.taskId.equals(taskId))
+        );
+    result = yield thunkQuery(query);
+    var countResolves = (_.first(result)) ? result[0].count : 0;
+
+    return (countFlags === countResolves);
 }
 
 function* getStep4Resolve(req, taskId) {
@@ -2023,7 +2035,7 @@ function* getStep4Resolve(req, taskId) {
                 .on(Task.id.equals(Discussion.taskId))
         )
             .where(
-            Discussion.isResolve.equals(true)
+            Discussion.isResolve.equals(false)
                 .and(Discussion.isReturn.equals(true))
                 .and(Discussion.activated.equals(true))
                 .and(Discussion.returnTaskId.equals(taskId))
@@ -2031,3 +2043,36 @@ function* getStep4Resolve(req, taskId) {
     );
     return (result[0]) ? result[0].stepId : null;
 }
+
+function* updateReturnTask(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion.update({isResolve: true})
+            .where(
+            Discussion.isReturn.equals(true)
+                .and(Discussion.activated.equals(true))
+                .and(Discussion.isResolve.equals(false))
+                .and(Discussion.returnTaskId.equals(taskId))
+        )
+            .returning(Discussion.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Update task, that was returned before (resolve task)'
+        });
+    } else {
+        bologger.error({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Update task, that was returned before (resolve task)'
+        }, 'Couldn`t find discussion`s entry with returnTasId = `'+taskId+'`');
+
+    }
+}
+
