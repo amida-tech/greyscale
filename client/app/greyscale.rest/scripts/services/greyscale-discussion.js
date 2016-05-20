@@ -28,10 +28,8 @@ angular.module('greyscale.rest')
         }
 
         function _list(params) {
-            params = angular.extend({order: 'created'}, params);
-            return _api().get(params).then(_response).then(function(data){
-                return data.reverse();
-            });
+            params = angular.extend({order: '-created,-updated'}, params);
+            return _api().get(params).then(_response);
         }
 
         function _scope(params) {

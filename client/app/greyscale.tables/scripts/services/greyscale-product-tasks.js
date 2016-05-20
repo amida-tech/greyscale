@@ -188,8 +188,8 @@ angular.module('greyscale.tables')
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {
                         stepTask.flagClass = 'backward';
-                        stepTask.flaggedto = _flagSrc;
-                        stepTask.flaggedfrom = _flagDst;
+                        stepTask.flaggedto = _flagDst;
+                        stepTask.flaggedfrom = _flagSrc;
                         _flagSrc = null;
                     }
                 }
