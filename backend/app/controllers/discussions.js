@@ -538,7 +538,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
                 pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
                 'AND "Discussions"."isReturn" = true ' +
-                //'AND "Discussions"."isResolve" = false ' +
+                'AND "Discussions"."isResolve" = false ' +
                 'AND "Discussions"."activated" = true ' +
                 'LIMIT 1';
             var result = yield thunkQuery(query);
