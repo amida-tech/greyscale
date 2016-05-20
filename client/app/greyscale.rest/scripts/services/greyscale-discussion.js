@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleDiscussionApi', function (greyscaleRestSrv) {
+    .factory('greyscaleDiscussionApi', function (_, greyscaleRestSrv) {
         return {
             list: _list,
             scopeList: _scope,
@@ -20,10 +20,15 @@ angular.module('greyscale.rest')
         }
 
         function _response(data) {
-            return data.plain();
+            if (data && typeof data.plain === 'function') {
+                return data.plain();
+            } else {
+                return data;
+            }
         }
 
         function _list(params) {
+            params = angular.extend({order: '-created,-updated'}, params);
             return _api().get(params).then(_response);
         }
 
@@ -36,15 +41,15 @@ angular.module('greyscale.rest')
         }
 
         function _add(data) {
-            return _api().customPOST(data);
+            return _api().customPOST(data).then(_response);
         }
 
         function _update(id, data) {
-            return _api().one(id + '').customPUT(data);
+            return _api().one(id + '').customPUT(data).then(_response);
         }
 
         function _remove(id) {
-            return _api().one(id + '').remove();
+            return _api().one(id + '').remove().then(_response);
         }
 
         function _users(taskId) {

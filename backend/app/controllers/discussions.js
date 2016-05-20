@@ -28,45 +28,6 @@ var
     thunkQuery = thunkify(query),
     pgEscape = require('pg-escape');
 
-var isInt = function(val){
-    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
-};
-
-var setWhereInt = function(selectQuery, val, model, key){
-    if(val) {
-        if ( isInt(val)) {
-            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
-        }
-    }
-    return selectQuery;
-};
-
-function* checkOneId(req, val, model, key, keyName, modelName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
-    }
-    else if (!isInt(val)) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    }
-    else if (_.isString(val) && parseInt(val).toString() !== val) {
-        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
-    }
-    else {
-        var thunkQuery = req.thunkQuery;
-        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
-        if (!_.first(exist)) {
-            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
-        }
-    }
-    return parseInt(val);
-}
-
-function* checkString(val, keyName) {
-    if (!val) {
-        throw new HttpError(403, keyName +' must be specified');
-    }
-    return val;
-}
 
 module.exports = {
 
@@ -81,7 +42,7 @@ module.exports = {
                 'SELECT '+
                 '"Discussions".*, '+
                 '"Tasks"."uoaId", '+
-                '"Tasks"."stepId", '+
+                //'"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId"';
 
@@ -105,8 +66,20 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
-            var selectQuery = selectFields + selectFrom + selectWhere;
-            return yield thunkQuery(selectQuery, _.pick(req.query, 'limit', 'offset', 'order'));
+            var selectOrder = '';
+            if (req.query.order) {
+                var sorted = req.query.order.split(',');
+                for (var i = 0; i < sorted.length; i++) {
+                    var sort = sorted[i];
+                    selectOrder =
+                        ((selectOrder === '') ? 'ORDER BY ' : selectOrder+', ')+
+                        sort.replace('-', '').trim()+
+                        (sort.indexOf('-') === 0 ? ' desc' : ' asc');
+                }
+            }
+
+            var selectQuery = selectFields + selectFrom + selectWhere+selectOrder;
+            return yield thunkQuery(selectQuery);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -127,9 +100,13 @@ module.exports = {
                 retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
                 userTo = yield * common.getUser(req, retTask.userId);
             }
-            req.body = _.extend(req.body, {userFromId: req.user.realmUserId}); // add from realmUserId instead of user id
-            req.body = _.extend(req.body, {userId: userTo.id}); // add userId from task (for backward compability)
-            req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
+            req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
+            req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
+            req.body = _.extend(req.body, {stepFromId: task.stepId});               // add stepFromId from task (for future use)
+            if (!isReturn && !isResolve) {
+                req.body = _.extend(req.body, {activated: true});                   // ordinary entries is activated
+            }
+            req.body = _.pick(req.body, Discussion.insertCols);                     // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
             bologger.log({
                 req: req,
@@ -139,7 +116,15 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-            var entry=_.first(result);
+/*
+            if (isResolve) {
+                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+            }
+*/
+            return _.first(result);
+
+/* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
+
             var newStep;
             if (isReturn) {
                 newStep = yield * updateProductUOAStep(req, returnObject);
@@ -190,6 +175,7 @@ module.exports = {
                 'discussion'
             );
             return entry;
+*/
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -212,6 +198,9 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Update body of discussion`s entry'
             });
+            return result;
+
+/* no notification when update discussion entry - notification only when return-resolve
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
             var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
@@ -252,6 +241,7 @@ module.exports = {
                 'discussion'
             );
             return result;
+*/
 
         }).then(function (data) {
             res.status(202).end();
@@ -263,6 +253,8 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            // check next entry
+            var nextEntry = yield * checkNextEntry(req, req.params.id);
             return yield thunkQuery(Discussion.delete().where(Discussion.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
@@ -357,7 +349,7 @@ function* checkInsert(req) {
     }
     else if (req.body.isResolve) {
         returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
-        req.body = _.omit(req.body, 'isReturn', 'isResolve'); // remove isReturn flag from body
+        req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
     return returnObject;
 }
@@ -427,7 +419,7 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
             'SELECT "Discussions".id ' +
             'FROM "Discussions" ' +
             pgEscape('WHERE "Discussions"."returnTaskId" = %s', taskId) +
-            ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+            ' AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true';
         result = yield thunkQuery(query);
         if (!_.first(result)) {
             retObject=null;
@@ -440,40 +432,89 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
 }
 
 function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
+
+    var thunkQuery = req.thunkQuery;
     var isNotAdmin = !auth.checkAdmin(user);
     var userId = user.id;
     var blindReview = (!!currentStep.blindReview);
-    // available all users for this survey
-    var query =
-        'SELECT ' +
+
+    if (tag !== 'resolve') {
+        // available all users for this survey
+        var query =
+            'SELECT ' +
             '"Tasks"."userId" as userid, ' +
-            '"Tasks"."id" as taskid, '+
-            '"Tasks"."title" as taskname, '+
-            '"Tasks"."stepId" as stepid, '+
-            '"WorkflowSteps"."title" as stepname, '+
-            '"WorkflowSteps"."role" as role, '+
-            'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
-            'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
-            '"Tasks"."productId" as productid, '+
-            '"Tasks"."uoaId" as uoaid '+
-        'FROM ' +
-            '"Tasks" '+
-        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-        'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
-        'WHERE ' +
+            '"Tasks"."id" as taskid, ' +
+            '"Tasks"."title" as taskname, ' +
+            '"Tasks"."stepId" as stepid, ' +
+            '"WorkflowSteps"."title" as stepname, ' +
+            '"WorkflowSteps"."role" as role, ' +
+            'CAST( CASE WHEN ' +
+            pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview) +
+            pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ', isNotAdmin, userId) +
+            'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", ' +
+            'CAST( CASE WHEN ' +
+            pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview) +
+            pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ', isNotAdmin, userId) +
+            'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", ' +
+            '"Tasks"."productId" as productid, ' +
+            '"Tasks"."uoaId" as uoaid ' +
+            'FROM ' +
+            '"Tasks" ' +
+            'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
+            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+            'WHERE ' +
             pgEscape('"Tasks"."productId" = %s AND ', productId) +
             pgEscape('"Tasks"."uoaId" = %s ', uoaId);
-    if (tag === 'return'){
-        query = query + pgEscape('AND "WorkflowSteps"."position" < %s',currentStep.position);
-    } else if (tag == 'resolve') {
+        if (tag === 'return') {
+            query = query + pgEscape('AND "WorkflowSteps"."position" < %s', currentStep.position);
+        }
+        return yield thunkQuery(query);
+    } else  { //if (tag === 'resolve')
+        var resolve = null;
+        // check existing entries with flags
         query =
-            'SELECT '+
+            'SELECT ' +
+            'sum(CASE WHEN "Discussions"."isResolve" = true THEN 1 ELSE 0 END) as resolved, ' +
+            'sum(CASE WHEN "Discussions"."isResolve" = true THEN 0 ELSE 1 END) as nonresolved ' +
+            'FROM "Discussions" ' +
+            pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId) +
+            'AND "Discussions"."isReturn" = true ' +
+            'AND "Discussions"."activated" = true ';
+        var existFlags = yield thunkQuery(query);
+        if (!_.first(existFlags)) { // flags does not exist
+            // resolve list is empty
+        } else {
+            if (existFlags[0].nonresolved > 0) {
+                // entries with not-resolved flags are exist => get resolve list
+                resolve=true;
+/*
+            } else if (existFlags[0].resolved > 0) {
+                // entries with resolved flags are exist => check resolve-entries
+                query =
+                    'SELECT ' +
+                    'sum(CASE WHEN "Discussions"."activated" = true THEN 0 ELSE 1 END) as nonactivated ' +
+                    'FROM "Discussions" ' +
+                    pgEscape('WHERE "Discussions"."taskId" = %s ', taskId) +
+                    'AND "Discussions"."isReturn" = false ' +
+                    'AND "Discussions"."isResolve" = true ';
+                var existResolves = yield thunkQuery(query);
+                if (!_.first(existResolves)) { // resolves does not exist -> not possible!?
+                    // resolve list is empty
+                } else {
+                    if (existResolves[0].nonactivated > 0) {
+                        // non activated resolve entries are exist => get resolve list
+                        resolve=true;
+                    } else {
+                        // resolve list is empty
+                    }
+                }
+*/
+            }
+        }
+        if (resolve) {
+            // get resolve list
+            query =
+                'SELECT '+
                 '"Tasks"."userId" as userid, ' +
                 '"Tasks"."id" as taskid, '+
                 '"Tasks"."title" as taskname, '+
@@ -481,25 +522,30 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 '"WorkflowSteps"."title" as stepname, '+
                 '"WorkflowSteps"."role" as role, '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                    'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
+                'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                    'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
-            '"Tasks"."productId" as productid, '+
-            '"Tasks"."uoaId" as uoaid, '+
-            '"Discussions"."questionId" as questionid ' +
-            'FROM "Discussions" ' +
-            'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
-            'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
-            pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
-                'AND "Discussions"."isReturn" = true AND "Discussions"."isResolve" = false';
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
+                'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
+                '"Tasks"."productId" as productid, '+
+                '"Tasks"."uoaId" as uoaid, '+
+                '"Discussions"."questionId" as questionid ' +
+                'FROM "Discussions" ' +
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
+                pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
+                'AND "Discussions"."isReturn" = true ' +
+                'AND "Discussions"."isResolve" = false ' +
+                'AND "Discussions"."activated" = true ' +
+                'LIMIT 1';
+            var result = yield thunkQuery(query);
+            resolve = (_.first(result)) ? [_.last(result)] : result;
+        }
+        return resolve;
     }
-    var thunkQuery = req.thunkQuery;
-    return yield thunkQuery(query);
 }
 
 function* getAvailableUsers(req) {
@@ -599,12 +645,13 @@ function* checkNextEntry(req, id, checkOnly) {
         'WHERE '+
             pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
             pgEscape('"Tasks"."productId" = %s AND ', productId)+
+            pgEscape('"Discussions"."questionId" = %s AND ', entry.questionId)+
             pgEscape('"Discussions".order > %s', entry.order);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (_.first(result)) {
         if (checkOnly) return false;
-        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated, there are have following entries');
+        throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated or deleted, there are have following entries');
     }
     return true;
 }
@@ -827,7 +874,7 @@ function* checkUpdateProductUOAStep(req, object) {
 
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
-    var res = yield thunkQuery(Discussion.update({isResolve: true, updated: new Date()})
+    var res = yield thunkQuery(Discussion.update({isResolve: true})
             .where(Discussion.id.equals(discussionId))
             .returning(Discussion.id)
     );
@@ -866,4 +913,44 @@ function* getUserToStep(req, productId, uoaId, userId) {
         throw new HttpError(403, 'Error find step for (productId, uoaId, userId)=('+productId.toString()+', '+uoaId.toString()+', '+userId.toString()+')');
     }
     return result[0];
+}
+
+var isInt = function(val){
+    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
+};
+
+var setWhereInt = function(selectQuery, val, model, key){
+    if(val) {
+        if ( isInt(val)) {
+            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
+        }
+    }
+    return selectQuery;
+};
+
+function* checkOneId(req, val, model, key, keyName, modelName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    else if (!isInt(val)) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else if (_.isString(val) && parseInt(val).toString() !== val) {
+        throw new HttpError(403, keyName + ' must be integer (' + val + ')');
+    }
+    else {
+        var thunkQuery = req.thunkQuery;
+        var exist = yield thunkQuery(model.select().from(model).where(model[key].equals(parseInt(val))));
+        if (!_.first(exist)) {
+            throw new HttpError(403, modelName +' with '+keyName+'=`'+val+'` does not exist');
+        }
+    }
+    return parseInt(val);
+}
+
+function* checkString(val, keyName) {
+    if (!val) {
+        throw new HttpError(403, keyName +' must be specified');
+    }
+    return val;
 }

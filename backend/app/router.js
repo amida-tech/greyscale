@@ -258,7 +258,7 @@ router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
     .post(authenticate('token').always, checkRight('product_uoa'), products.UOAadd);
 
 router.route('/:realm/v0.2/products/:id/move/:uoaid')
-    .get(authenticate('token').always, surveyAnswers.productUOAmove);
+    .get(authenticate('token').always, products.productUOAmove);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS

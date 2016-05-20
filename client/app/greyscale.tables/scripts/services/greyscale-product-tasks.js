@@ -1,9 +1,7 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleProductTasksTbl', function (_, $q, $sce,
-        greyscaleProductApi,
-        greyscaleProductWorkflowApi,
+    .factory('greyscaleProductTasksTbl', function (_, $q, $sce, greyscaleProductApi, greyscaleProductWorkflowApi,
         greyscaleUserApi, greyscaleGroupApi, greyscaleModalsSrv, greyscaleGlobals) {
 
         var tns = 'PRODUCT_TASKS.';
@@ -19,11 +17,10 @@ angular.module('greyscale.tables')
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-                '       uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'"' +
-                '       ng-class="{active:item.active, delayed: item.active && !row.onTime}" ng-repeat="item in row.progress track by $index">' +
-                '    <i ng-if="item.flagged" class="fa fa-flag"></i>' +
-                '</span>' +
-                '</span>'
+                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+                'ng-class="{active:item.active, delayed: item.active && !row.onTime}" ng-repeat="item in row.progress track by $index">' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i><span class="counter" ng-show="item.flagged">{{item.flaggedcount}}</span>' +
+                '</span></span>'
                 //}, {
                 //    title: tns + 'STEP',
                 //    field: 'step.title',
@@ -43,8 +40,8 @@ angular.module('greyscale.tables')
             //    title: tns + 'FLAGS',
             //    field: 'flagged',
             //    sortable: 'flagged',
-            //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa fa-flag"></i></div>'
-            //}, {
+            //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa
+            // fa-flag"></i></div>' }, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
             cellTemplate: '<span ng-class="{\'text-danger\': ext.isOverdueDeadline(row) }">{{row.endDate|date}}</span>',
@@ -181,16 +178,43 @@ angular.module('greyscale.tables')
             task.progress = [];
             var id = parseInt(task.id);
             var unCompletedCount = 0;
+            var _flagSrc, _flagDst;
+
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
                     stepId: step.id
-                });
+                }) || {};
+                stepTask.flagClass = '';
+                if (_flagSrc) {
+                    if (stepTask.id === _flagSrc) {
+                        stepTask.flagClass = 'backward';
+                        stepTask.flaggedto = _flagDst;
+                        stepTask.flaggedfrom = _flagSrc;
+                        _flagSrc = null;
+                    }
+                }
+                if (stepTask.flagged) {
+                    stepTask.flagClass = stepTask.flagClass || 'flag';
+                    _flagSrc = task.flaggedfrom;
+                    _flagDst = task.id;
+                }
                 if (!stepTask) {
                     task.progress.push({
                         step: step
                     });
                 } else {
-                    var progressTask = _.pick(stepTask, ['id', 'status', 'flagged', 'step', 'user', 'endDate']);
+                    var progressTask = _.pick(stepTask, [
+                        'id',
+                        'status',
+                        'flagged',
+                        'step',
+                        'user',
+                        'endDate',
+                        'flaggedcount',
+                        'flagClass',
+                        'flaggedfrom',
+                        'flaggedto'
+                    ]);
                     task.progress.push(progressTask);
                     if (task.status !== 'completed') {
                         unCompletedCount++;
@@ -221,7 +245,8 @@ angular.module('greyscale.tables')
 
         function _isOnTime(task) {
             var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0, 0, 0, 0);
-            var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59, 999);
+            var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59,
+                999);
             if (!shouldBeStarted) {
                 return true;
             }

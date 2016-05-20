@@ -38,6 +38,12 @@ angular.module('greyscaleApp')
                             label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                         }
 
+                        if (scope.field.flagResolve) {
+                            label += '<div class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
+                                '<input class="form-control" ng-model="field.flagResolve.draft.entry" placeholder="{{\'SURVEYS.RESOLVE_COMMENT\' | translate}}"/>' +
+                                '</div>';
+                        }
+
                         scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
 
                         var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
@@ -203,8 +209,6 @@ angular.module('greyscaleApp')
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
-
-                            //TODO here is pervious responses
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
                                 '<div class="field-response" gs-version-edit' + ((flags.allowTranslate) ? ' translation="comments" ' : '') + '><span>' +
@@ -287,14 +291,14 @@ angular.module('greyscaleApp')
         function _flagQuestion(elem, id) {
             var elemId = 'flag-question-' + id;
             elem.attr('id', elemId);
-            $timeout(function(){
+            $timeout(function () {
                 elem.addClass('flag-question');
                 elem.prepend('<i class="flag fa fa-flag text-danger pull-right"></i>');
                 var group = elem.closest('.panel-group');
                 if (group.length) {
                     group.find('.accordion-toggle').click();
                 }
-                $timeout(function(){
+                $timeout(function () {
                     $anchorScroll(elemId);
                 }, 10);
             });

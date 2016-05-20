@@ -51,13 +51,13 @@
 
                 <div class="pull-right">
 
-                    <div ng-if="surveyData.task.flagged" class="form-horizontal" style="margin:0 0 10px 5px;">
-                        <textarea class="form-control"
-                                  placeholder="{{'SURVEYS.RESOLVE_ENTRY' | translate}}"
-                                  ng-model="resolveFlagData.entry"
-                                  ng-required="true"></textarea>
+                    <!--<div ng-if="surveyData.task.flagged" class="form-horizontal" style="margin:0 0 10px 5px;">-->
+                        <!--<textarea class="form-control"-->
+                                  <!--placeholder="{{'SURVEYS.RESOLVE_ENTRY' | translate}}"-->
+                                  <!--ng-model="resolveFlagData.entry"-->
+                                  <!--ng-required="true"></textarea>-->
 
-                    </div>
+                    <!--</div>-->
 
                     <button class="btn pull-right" ng-click="saveDraft()" style="clear:right"
                             title="{{'SURVEYS.LAST_SAVED' | translate}}: {{model.savedAt | date:'medium'}}"
@@ -78,8 +78,8 @@
 
                     <button ng-if="surveyData.task.flagged"
                             class="btn btn-primary pull-right"
-                            ng-disabled="!resolveFlagData.entry || model.locked"
-                            ng-click="resolve()"
+                            ng-disabled="!allFlagsCommented() || model.locked"
+                            ng-click="save(true)"
                             style="vertical-align: top">
                         <span translate="SURVEYS.SAVE_AND_RESOLVE"></span> <i class="fa fa-flag"></i></button>
                 </div>

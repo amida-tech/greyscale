@@ -42,7 +42,7 @@ var notExistTaskId = 9999;
 var taskId = [2, 3, 4, 5];
 var errQuestionId = 'abc';
 var notExistQuestionId = 9999;
-var questionId = [2, 3];
+var questionId = [2, 3, 4];
 
 var errStepId = 'abc';
 var notExistStepId = 9999;
@@ -123,6 +123,29 @@ var getUser4task1 = [
     }
 ];
 
+var getUser4survey = [
+    {
+        role : 'Role 1',
+        stepId : 2,
+        stepName : 'Step1'
+    },
+    {
+        role : 'Role 2',
+        stepId : 3,
+        stepName : 'Step 2'
+    },
+    {
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3'
+    },
+    {
+        role : 'Role 4',
+        stepId : 5,
+        stepName : 'Step 4'
+    }
+];
+
 var getUser4task1Anonymous = [
     {
         firstName : 'User1',
@@ -169,15 +192,89 @@ var getUser4task2ReturnList = [
     }
 ];
 
-var getUser4task1ResolveList = [
+var getUser4task3ReturnList = [
     {
-        firstName : 'User2',
-        lastName : 'Test',
+        role : 'Role 1',
+        stepId : 2,
+        stepName : 'Step1'
+    },
+    {
         role : 'Role 2',
         stepId : 3,
-        stepName : 'Step 2',
-        userId : 4
+        stepName : 'Step 2'
     }
+];
+
+var getUser4task1ResolveList = [
+    {
+        firstName : 'User3',
+        lastName : 'Test',
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3',
+        userId : 5
+    }
+];
+
+var getUser4task1RL_SQ = [
+    {
+        role : 'Role 2',
+        stepId : 3,
+        stepName : 'Step 2'
+    }
+];
+
+var getUser4task2RL_SQ = [
+    {
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3'
+    }
+];
+
+var discussionsByCreated = [
+        {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true},
+        {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: false},
+        {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: false},
+        {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: false},
+        {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+        {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
+        {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
+        {entry:'UPDATED Discussion entry (flagged - resolve Q1)', activated: true},
+        {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
+        {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
+        {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+        {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true}
+];
+
+var discussionsByCreatedDesc = [
+    {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
+    {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: false},
+    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: false},
+    {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true}
+];
+
+var discussionsByEntry = [
+    {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
+    {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: false},
+    {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true}
 ];
 
 describe(testTitle, function () {
@@ -196,8 +293,8 @@ describe(testTitle, function () {
                 tokenUser2 = ithelper.getUser(allUsers,3,2).token;
                 tokenUser3 = ithelper.getUser(allUsers,3,3).token;
                 // correct user names
-                getUser4task1ResolveList[0].firstName = ithelper.getUser(allUsers,3,2).firstName;
-                getUser4task1ResolveList[0].lastName = ithelper.getUser(allUsers,3,2).lastName;
+                getUser4task1ResolveList[0].firstName = ithelper.getUser(allUsers,3,3).firstName;
+                getUser4task1ResolveList[0].lastName = ithelper.getUser(allUsers,3,3).lastName;
 
                 getUser4task2[1].firstName = ithelper.getUser(allUsers,3,2).firstName;
                 getUser4task2[1].lastName = ithelper.getUser(allUsers,3,2).lastName;
@@ -321,8 +418,12 @@ describe(testTitle, function () {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+obj.discussionId1, tokenAdmin, 200, null, 'canUpdate', false, done);
                 });
                 it('(Err) Entry with id=<id> cannot be updated, there are have following entries', function (done) {
-                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated, there are have following entries'};
-                    ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated, there are have following entries', done);
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                    ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
+                });
+                it('(Err) Entry with id=<id> cannot be deleted, there are have following entries', function (done) {
+                    var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR DELETED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                    ithelper.deleteOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
                 });
                 it('True number of discussion`s entries = 2', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'?taskId='+taskId[0], tokenUser1, 200, 2, done);
@@ -346,7 +447,7 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
             });
             it('Check current step', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: 3}], done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[1]}], done);
             });
             it('get Entryscope for task2 (availList)', function (done) {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2, 'availList', done);
@@ -368,12 +469,144 @@ describe(testTitle, function () {
                 var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[2], entry: 'Error - No available steps for this survey`s discussion entry', isResolve: true};
                 ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'No available steps for this survey`s discussion entry', done);
             });
+            it('Check flagged task1 (flagged = true, count = 0)', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: false, flaggedcount: '0', flaggedfrom: null}, done);
+            });
             it('Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', function (done) {
                 var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', isReturn: true};
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId3', done);
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId31', done);
+            });
+            it('Check flagged task1 (flagged = true, count = 0) after 1 draft', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: false, flaggedcount: '0', flaggedfrom: null}, done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', function (done) {
+                var insertItem = {questionId: questionId[1], taskId: taskId[1], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId32', done);
+            });
+            it('Check flagged task1 (flagged = true, count = 0) after 2 draft', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: false, flaggedcount: '0', flaggedfrom: null}, done);
+            });
+            it('(Err) Entry with id=<id> cannot be updated, there are have following entries', function (done) {
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR UPDATED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                ithelper.updateOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, updateItem, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
+            });
+            it('(Err) Entry with id=<id> cannot be deleted, there are have following entries', function (done) {
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'ERROR DELETED Entry with id=<id> cannot be updated or deleted, there are have following entries'};
+                ithelper.deleteOneErrMessage(testEnv.api_created_realm, path+'/'+obj.discussionId1, tokenAdmin, 400, 403, 'Entry with id=.* cannot be updated or deleted, there are have following entries', done);
+            });
+            it('Update Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', function (done) {
+                var updateItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[1], entry: 'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)'};
+                ithelper.updateOne(testEnv.api_created_realm, path+'/'+obj.discussionId32, tokenAdmin, updateItem, 202, done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', function (done) {
+                var insertItem = {questionId: questionId[2], taskId: taskId[1], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId33', done);
+            });
+            it('Check flagged task1 (flagged = true, count = 0) after 3 draft', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: false, flaggedcount: '0', flaggedfrom: null}, done);
+            });
+            it('Move to the  next step (force)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?force=true', tokenAdmin, 200, [], done);
             });
             it('Check current step', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: 2}], done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+            });
+            it('Check flagged task1 (flagged = true, count = 0) new step', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: false, flaggedcount: '0', flaggedfrom: null}, done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId41', done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', function (done) {
+                var insertItem = {questionId: questionId[1], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId42', done);
+            });
+            it('Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', function (done) {
+                var insertItem = {questionId: questionId[2], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId43', done);
+            });
+            it('get Entryscope for task3 (returnList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[2], tokenAdmin, 200, getUser4task3ReturnList, 'returnList', done);
+            });
+            it('Move to the  next step (return flags exist)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+            });
+            it('Check current step', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
+            });
+            it('Check flagged task1 (flagged = true, count = 3)', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: true, flaggedcount: '3', flaggedfrom: 4}, done);
+            });
+            it('get Entryscope for task1 (availList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
+            });
+            it('get Entryscope for task1 (resolveList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+            });
+            it('get Entryscope for task1 (returnList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'returnList', done);
+            });
+        });
+        describe(testTitle+'Add discussion`s entry (flagged - resolve) ', function () {
+            it('(Err) "Step with stepId=<id> does not available step for this survey`s discussion entry"', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Error - Step with stepId=<id> does not available step for this survey`s discussion entry', isResolve: true};
+                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
+            });
+            it('Discussion entry (flagged - resolve Q1)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q1)', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
+            });
+            it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+            });
+            it('Check flagged task1 (flagged = true, count = 3) after 1 resolve', function (done) {
+                ithelper.selectOneCheckFields(testEnv.api_created_realm, '/tasks/'+taskId[0], tokenAdmin, 200, null, {flagged: true, flaggedcount: '3', flaggedfrom: 4}, done);
+            });
+            it('Discussion entry (flagged - resolve Q2)', function (done) {
+                var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q2)', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId52', done);
+            });
+            it('Update Discussion entry (flagged - resolve Q1)', function (done) {
+                var updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'UPDATED Discussion entry (flagged - resolve Q1)'};
+                ithelper.updateOne(testEnv.api_created_realm, path+'/'+obj.discussionId51, tokenAdmin, updateItem, 202, done);
+            });
+            it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+            });
+            it('Check current step (Step1) - resolve flag does not move workflow', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
+            });
+            it('(Err) Resolve is not possible. Not all flags are resolved.', function (done) {
+                ithelper.selectErrMessage(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 400, 403, 'Resolve is not possible. Not all flags are resolved.', done);
+            });
+            it('Discussion entry (flagged - resolve Q3)', function (done) {
+                var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[2], entry: 'Discussion entry (flagged - resolve Q3)', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId53', done);
+            });
+            it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+            });
+            it('Resolve (move to resolve step)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
+            });
+            it('Check current step (after resolve)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+            });
+            it('get Entryscope for task1 (resolveList is empty)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
+            });
+        });
+        describe(testTitle+'ONCE MORE Add discussion`s entry (flagged - return to previous step) ', function () {
+            it('ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[2], stepId: stepId[0], entry: 'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', isReturn: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId61', done);
+            });
+            it('Move to the  next step (return flags exist)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+            });
+            it('Check current step', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
             });
             it('get Entryscope for task1 (availList)', function (done) {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
@@ -382,19 +615,81 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
             });
         });
-        describe(testTitle+'Add discussion`s entry (flagged - resolve) ', function () {
-            it('(Err) "Step with stepId=<id> does not available step for this survey`s discussion entry"', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'Error - Step with stepId=<id> does not available step for this survey`s discussion entry', isResolve: true};
-                ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenUser1, insertItem, 400, 403, 'Step with stepId=.* does not available step for this survey`s discussion entry', done);
+        describe(testTitle+'ONCE MORE Add discussion`s entry (flagged - resolve) ', function () {
+            it('ONCE MORE Discussion entry (flagged - resolve Q1)', function (done) {
+                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'ONCE MORE Discussion entry (flagged - resolve Q1)', isResolve: true};
+                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
             });
-            it('Discussion entry (flagged - resolve)', function (done) {
-                var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'Discussion entry (flagged - resolve) ', isResolve: true};
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId4', done);
+            it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
             });
-            it('Check current step', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: 3}], done);
+            it('Resolve (move to resolve step)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
+            });
+            it('Check current step (after resolve)', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+            });
+            it('get Entryscope for task1 (resolveList is empty)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
             });
         });
+        describe(testTitle+'SEQUENTIAL FLAGGED', function () {
+            describe(testTitle+'SEQUENTIAL FLAGGED Step3->Step2', function () {
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+                });
+                it('SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[2], stepId: stepId[1], entry: 'SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', isReturn: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId71', done);
+                });
+                it('Move to the  next step (return flags exist)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+                });
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[1]}], done);
+                });
+                it('get Entryscope for task2 (availList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4survey, 'availList', done);
+                });
+                it('get Entryscope for task2 (resolveList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2RL_SQ, 'resolveList', done);
+                });
+                it('SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: 'SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', isReturn: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId72', done);
+                });
+                it('Move to the  next step (return flags exist)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+                });
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
+                });
+                it('get Entryscope for task1 (resolveList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1RL_SQ, 'resolveList', done);
+                });
+            });
+/*
+            describe(testTitle+'ONCE MORE Add discussion`s entry (flagged - resolve) ', function () {
+                it('ONCE MORE Discussion entry (flagged - resolve Q1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'ONCE MORE Discussion entry (flagged - resolve Q1)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
+                });
+                it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+                });
+                it('Resolve (move to resolve step)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
+                });
+                it('Check current step (after resolve)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+                });
+                it('get Entryscope for task1 (resolveList is empty)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
+                });
+            });
+*/
+        });
+/*
         describe(testTitle+'get Users ', function () {
             it('(Err) taskId must be integer', function (done) {
                 ithelper.selectErrMessage(testEnv.api_created_realm, path+'/users/'+errTaskId, tokenSuperAdmin, 400, 403, 'taskId must be integer', done);
@@ -441,11 +736,29 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
             });
         });
+*/
+        describe(testTitle+'sorting ', function () {
+/*
+            it('Order by "created"', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created,updated', tokenAdmin, 200, discussionsByCreated, done);
+            });
+*/
+/*
+            it('Order by "created" descending', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=-created', tokenAdmin, 200, discussionsByCreatedDesc, done);
+            });
+            it('Order by "entry"', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=entry', tokenAdmin, 200, discussionsByEntry, done);
+            });
+*/
+        });
+/*
         describe(testTitle+'Clean up', function () {
             it('Do clean up SQL script ', function (done) {
                 ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
             });
         });
+*/
     }
 
     allTests();

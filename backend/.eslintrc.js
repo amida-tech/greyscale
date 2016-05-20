@@ -20,9 +20,9 @@ module.exports = {
         "arrow-body-style": "error",
         "arrow-parens": "error",
         "arrow-spacing": "error",
-        "block-scoped-var": "off",
+        "block-scoped-var": "error",
         "block-spacing": "off",
-        "brace-style": "off",
+        "brace-style": ["error", "1tbs"],
         "callback-return": "off",
         "camelcase": "off",
         "comma-dangle": [
@@ -61,11 +61,11 @@ module.exports = {
         "id-blacklist": "error",
         "id-length": "off",
         "id-match": "error",
-        "indent": "off",
+        "indent": ["error", 4],
         "init-declarations": "off",
         "jsx-quotes": "error",
         "key-spacing": "off",
-        "keyword-spacing": "off",
+        "keyword-spacing": ["error", {"before": true}],
         "linebreak-style": [
             "error",
             "unix"
@@ -88,6 +88,7 @@ module.exports = {
         "no-catch-shadow": "error",
         "no-confusing-arrow": "error",
         "no-continue": "off",
+        "no-console": "off",
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
         "no-else-return": "off",

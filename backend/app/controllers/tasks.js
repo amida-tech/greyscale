@@ -51,18 +51,38 @@ module.exports = {
                 .select(
                     Task.star(),
                     'CASE ' +
-                        'WHEN (' +
+                        'WHEN '+
+                            '(' +
                             'SELECT ' +
                             '"Discussions"."id" ' +
-                            'FROM "Discussions" ' +
+                                'FROM "Discussions" ' +
                             'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
                             'AND "Discussions"."isReturn" = true ' +
                             'AND "Discussions"."isResolve" = false ' +
+                            'AND "Discussions"."activated" = true ' +
                             'LIMIT 1' +
-                        ') IS NULL ' +
+                            ') IS NULL ' +
                         'THEN FALSE ' +
                         'ELSE TRUE ' +
                     'END as flagged',
+                    '( '+
+                        'SELECT count("Discussions"."id") ' +
+                            'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                        'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                    ') as flaggedCount',
+                    '(' +
+                        'SELECT ' +
+                        '"Discussions"."taskId" ' +
+                            'FROM "Discussions" ' +
+                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                        'AND "Discussions"."isReturn" = true ' +
+                        'AND "Discussions"."isResolve" = false ' +
+                        'AND "Discussions"."activated" = true ' +
+                        'LIMIT 1' +
+                    ') as flaggedFrom',
                     'CASE ' +
                         'WHEN ' +
                             '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +

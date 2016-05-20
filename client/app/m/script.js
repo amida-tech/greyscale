@@ -78,6 +78,10 @@
             gs.fetch('GET', 'tasks/' + taskId)
             .then(function (taskData) {
                 taskInfo = taskData;
+                if (taskInfo.status !== 'current') {
+                    window.location.href = '/m/';
+                    return;
+                }
                 generateSurvey(survey.questions);
                 resolvingMode();
                 load();
@@ -93,7 +97,8 @@
 
     function resolvingMode() {
         if (taskInfo.flagged) {
-            $('#resolve-entry')._.style({display:''});
+            //$('#resolve-entry')._.style({display:''});
+            disableSaving(true);
             var params = 'taskId=' + taskInfo.id;
             gs.fetch('GET', 'discussions/entryscope?' + params)
             .then(function (res) {
@@ -101,7 +106,104 @@
                 if (resolve[0]) {
                     taskInfo.resolve = resolve[0];
                 }
+                return true;
+            })
+            .then(function(){
+                var params = 'surveyId=' + surveyId + '&taskId=' + taskId;
+                return gs.fetch('GET', 'discussions?' + params)
+            })
+            .then(function(discussions){
+                survey.questions.map(function(question){
+                    discussions.map(function(message){
+                        if (message.questionId === question.id && message.isReturn && !message.isResolve) {
+                            question.flagResolve = question.flagResolve || {};
+                            $.extend(question.flagResolve, message);
+                        }
+                        if (message.questionId === question.id && message.isResolve && !message.isReturn && !message.activated) {
+                            question.flagResolve = question.flagResolve || {};
+                            question.flagResolve.draft = message;
+                            disableSaving(false);
+                        }
+                    });
+                    if (question.flagResolve) {
+                        if (!question.flagResolve.draft) {
+                            question.flagResolve.draft = {
+                                entry: '',
+                                isResolve: true,
+                                activated: false,
+                                isReturn: false,
+                                questionId: question.id,
+                                taskId: taskId,
+                                stepId: taskInfo.resolve.stepId
+                            };
+                        }
+                        _addFlagResolvingMode(question);
+                    }
+                });
             });
+        }
+    }
+
+    function _addFlagResolvingMode(question) {
+        var contentContainer = $('.content-container');
+        if (contentContainer.classList.contains('compact')) {
+            contentContainer.classList.remove('compact');
+        }
+        var contentItemEl = $('#question-link-c' + question.id);
+        $.start($.create('span', {className: 'flag-image'}), contentItemEl);
+
+        var questionEl = getField('c' + question.id);
+        var resolveContainer = $('.field-resolve', questionEl);
+        resolveContainer.classList.add('active');
+        $.inside($.create('span', {className: 'flag-image'}), resolveContainer);
+        $.inside($.create('span', {className: 'flag-message', contents: [question.flagResolve.entry]}), resolveContainer);
+        var resolveInput = $.create('input', {className: 'flag-resolve-input'});
+        $.inside(resolveInput, resolveContainer);
+
+        var errorEl = $.create('div', {
+            className: 'flag-resolve-error',
+            contents: ['This field should be filled']
+        });
+        errorEl._.style({display: 'none'});
+        $.inside(errorEl, resolveContainer);
+
+        resolveInput._.events({
+            'keyup paste delete cut': _saveFlagResolveDraft(question.flagResolve, errorEl)
+        });
+
+        if (question.flagResolve.draft.id) {
+            resolveInput.value = question.flagResolve.draft.entry;
+        }
+    }
+
+    function _saveFlagResolveDraft(resolveData, errorEl) {
+        var timer;
+        return function(e){
+            if (timer) {
+                clearTimeout(timer);
+            }
+            resolveData.draft.entry = e.target.value;
+            var draft = resolveData.draft;
+            if (draft.entry === '') {
+                errorEl._.style({display:''});
+                disableSaving(true);
+                return;
+            } else {
+                disableSaving(false);
+                errorEl._.style({display:'none'});
+            }
+            timer = setTimeout(function(){
+                var method = draft.id ? 'PUT' : 'POST';
+                var url =  'discussions' + (draft.id ? '/' + draft.id : '');
+                gs.fetch(method, url, {
+                   data: JSON.stringify(draft)
+                })
+                .then(function(data){
+                    if (!resolveData.draft.id) {
+                        resolveData.draft.id = data.id;
+                    }
+                });
+            }, 1000);
         }
     }
 
@@ -113,8 +215,7 @@
     function generateSurvey(questions) {
         var i;
         var j;
-        survey = $('#survey');
-        currentParent = survey;
+        currentParent = $('#survey');
         dataFields = [];
         var questionNumber = 0;
         for (i = 0; i < questions.length; i++) {
@@ -165,7 +266,7 @@
         }
 
         var contentDiv = $.create('div', { className: 'content-container compact' });
-        $.start(contentDiv, survey);
+        $.start(contentDiv, currentParent);
         $.inside($.create('span', { contents: ['Content'], className: 'content-title' }), contentDiv);
         var button = $.create('a', { className: 'expand-button' });
         button._.events({ 'click': function () { contentDiv.classList.toggle('compact'); } });
@@ -195,7 +296,7 @@
         var type = data.field_type;
 
         if (type !== 'section_end') {
-            var contentElement = $.create('li', { contents: [data.label] });
+            var contentElement = $.create('li', { contents: [data.label], id: 'question-link-' + data.cid });
             contentElement._.events({ 'click': function () { getField(data.cid).scrollIntoView(); } });
             $.inside(contentElement, content);
         }
@@ -209,6 +310,9 @@
             $.inside($.create('span', { contents: ['*'], className: 'required' }), field);
         if (data.field_options && data.field_options.description)
             $.inside($.create('div', { contents: [data.field_options.description], className: 'description' }), field);
+
+        $.inside($.create('div', { className: 'field-resolve' }), field);
+
         if (field) $.inside(field, currentParent);
 
         switch (type) {
@@ -223,7 +327,7 @@
                 break;
             case 'number':
                 fieldText(data, field);
-                $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input', field));
+                $.after($.create('span', { contents: [' ', data.field_options.units] }), $('input:not(.flag-resolve-input)', field));
                 break;
             case 'scale':
                 fieldScale(data);
@@ -399,7 +503,7 @@
             var oldState = JSON.stringify(field.currentAnswer.optionId);
             var newState = [];
             var type = field.questionData.field_type === 'radio' ? 'radio' : 'checkbox';
-            $$('input[type="' + type + '"]', fieldSet).map(function(inputEl){
+            $$('input[type="' + type + '"]:not(.flag-resolve-input)', fieldSet).map(function(inputEl){
                 if (inputEl.checked) {
                     var optionId = inputEl.attributes['data-id'].value;
                     if (optionId && optionId.length) {
@@ -465,7 +569,7 @@
     function fieldScale(data) {
         fieldText(data);
         var field = getField(data.cid);
-        var input = $('input', field);
+        var input = $('input:not(.flag-resolve-input)', field);
         $.after($.create('span', { contents: [' ', data.field_options.units] }), input);
         var minus = $.create('a', { contents: ['<'], className: 'less' });
         $.before(minus, input);
@@ -544,7 +648,7 @@
             createInput();
 
             var field = getField(data.cid);
-            var inputs = $$('input', field);
+            var inputs = $$('input:not(.flag-resolve-input)', field);
             for (var i = 0; i < inputs.length; i++) inputs[i]._.unbind('blur');
             validationRule(data);
             bulletChange(input);
@@ -553,7 +657,7 @@
         function _saveBulletsAnswer() {
             var field = getField(data.cid);
             //saveBullets(data);
-            var bulletEls = $$('input', field);
+            var bulletEls = $$('input:not(.flag-resolve-input)', field);
             var bullets = [];
             bulletEls.map(function(bulletEl){
                 if (bulletEl.value !== '') {
@@ -726,10 +830,10 @@
             case 'number':
             case 'scale':
             case 'date':
-                mustHaveError = $('input', field).value.length === 0;
+                mustHaveError = $('input:not(.flag-resolve-input)', field).value.length === 0;
                 break;
             case 'bullet_points':
-                var inputs = $$('input', field);
+                var inputs = $$('input:not(.flag-resolve-input)', field);
                 mustHaveError = true;
                 for (var i = 0; i < inputs.length; i++) {
                     if (inputs[i].value.length === 0) continue;
@@ -775,7 +879,7 @@
             var errorTextMin = 'Text is too short. It must be ' + minlength + ' ' + data.field_options.min_max_length_units + ' at least.';
             var errorTextMax = 'Text is too long. It must be less then ' + maxlength + ' ' + data.field_options.min_max_length_units + '.';
 
-            var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
+            var input = data.field_type === 'text' ? $('input:not(.flag-resolve-input)', getField(data.cid)) : $('textarea', getField(data.cid));
             var mustHaveError = false;
             if (data.field_options.min_max_length_units === 'characters') {
                 var characters = input.value ? input.value.length : 0;
@@ -801,7 +905,7 @@
     }
     function validateNumber(data) {
         if (data.field_type !== 'number' && data.field_type !== 'scale') return;
-        var val = $('input', getField(data.cid)).value.trim();
+        var val = $('input:not(.flag-resolve-input)', getField(data.cid)).value.trim();
         var mustHaveError = false;
         var errorText;
         if (data.field_options.integer_only) {
@@ -871,24 +975,24 @@
             case 'text':
             case 'number':
             case 'scale':
-                $('input', field)._.events({
+                $('input:not(.flag-resolve-input)', field)._.events({
                     'blur': function () { validateRequired(data); }
                 });
                 break;
             case 'date':
-                $('input', field)._.events({
+                $('input:not(.flag-resolve-input)', field)._.events({
                     'blur': function () { validateRequired(data); },
                     'change': function () { validateRequired(data); }
                 });
                 break;
             case 'bullet_points':
-                $$('input', field)._.events({
+                $$('input:not(.flag-resolve-input)', field)._.events({
                     'blur': function () { validateRequired(data); }
                 });
                 break;
             case 'checkboxes':
             case 'radio':
-                $$('input', field)._.events({
+                $$('input:not(.flag-resolve-input)', field)._.events({
                     'change': function () { validateRequired(data); },
                     'blur': function () { validateRequired(data); }
                 });
@@ -916,14 +1020,14 @@
         if (!minlength && !maxlength) return;
         if (maxlength && minlength > maxlength) return;
 
-        var input = data.field_type === 'text' ? $('input', getField(data.cid)) : $('textarea', getField(data.cid));
+        var input = data.field_type === 'text' ? $('input:not(.flag-resolve-input)', getField(data.cid)) : $('textarea', getField(data.cid));
         input._.events({
             'blur': function () { validateLength(data); }
         });
     }
     function validationRuleNumber(data) {
         if (data.field_type !== 'number' && data.field_type !== 'scale') return;
-        $('input', getField(data.cid))._.events({
+        $('input:not(.flag-resolve-input)', getField(data.cid))._.events({
             'blur': function () { validateNumber(data); }
         });
     }
@@ -1060,13 +1164,13 @@
                 case 'number':
                 case 'scale':
                 case 'date':
-                    val = $('input', fields[i]).value;
+                    val = $('input:not(.flag-resolve-input)', fields[i]).value;
                     break;
                 case 'paragraph':
                     val = $('textarea', fields[i]).value;
                     break;
                 case 'bullet_points':
-                    var inputs = $$('input', fields[i]);
+                    var inputs = $$('input:not(.flag-resolve-input)', fields[i]);
                     var values = [];
                     for (j = 0; j < inputs.length; j++)
                         if (inputs[j].value)
@@ -1075,7 +1179,7 @@
                     break;
                 case 'checkboxes':
                 case 'radio':
-                    var inputs = $$('input', fields[i]);
+                    var inputs = $$('input:not(.flag-resolve-input)', fields[i]);
                     val = [];
                     for (j = 0; j < inputs.length; j++) {
                         if (!inputs[j].checked) continue;
@@ -1146,7 +1250,7 @@
                     if (fields[i].picker) {
                         fields[i].picker.setDate(answer.value);
                     } else {
-                        $('input', fields[i]).value = answer.value;
+                        $('input:not(.flag-resolve-input)', fields[i]).value = answer.value;
                     }
                     validateAll(getData(id));
                     break;
@@ -1155,7 +1259,7 @@
                     break;
                 case 'checkboxes':
                 case 'radio':
-                    var inputs = $$('input', fields[i]);
+                    var inputs = $$('input:not(.flag-resolve-input)', fields[i]);
                     for (j = 0; j < inputs.length; j++) inputs[j].checked = false;
                     if (answer.value) {
                         var input = $('.other', fields[i]);
@@ -1210,7 +1314,7 @@
                 validateAll(getData(field.id));
                 return;
             }
-            var inputs = $$('input', field);
+            var inputs = $$('input:not(.flag-resolve-input)', field);
             inputs[inputs.length - 1].value = values[0];
             inputs[inputs.length - 1]._.fire('change');
             values.splice(0, 1);
@@ -1298,6 +1402,10 @@
     }
 
     function saveAnswer(field, version) {
+        if (!field.currentAnswer.id) {
+            return Promise.resolve();
+        }
+
         disableSaving(true);
         return new Promise(function(resolve, reject){
             setTimeout(function(){
@@ -1308,7 +1416,7 @@
                 }
                 var answer = field.currentAnswer;
                 if (!answer.answerId) {
-                    console.log(answer,taskInfo);
+                    //console.log(answer,taskInfo);
                     answer.taskId = taskInfo.id;
                 }
                 //console.log(answer);
@@ -1335,7 +1443,7 @@
         for (var i = 0; i < dataFields.length; i++) validateAll(dataFields[i]);
         if (!submitCheck()) return;
         if (!resolveModeCheck()) {
-            $('#resolve-entry textarea').className += 'invalid';
+            //$('#resolve-entry textarea').className += 'invalid';
             return;
         }
         saveOneByOne()
@@ -1348,7 +1456,7 @@
             })
             .then(resolveTask)
             .then(function(){
-                document.location.href = "/m/";
+                window.location.href = '/m/';
             });
         //save(false);
     }
@@ -1412,32 +1520,51 @@
         });
     }
 
-    function moveTask() {
-        return gs.fetch('GET', 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId);
+    function moveTask(resolve) {
+        return gs.fetch('GET', 'products/' + taskInfo.productId + '/move/' + taskInfo.uoaId + (resolve ? '?resolve=true' : ''));
     }
 
     function resolveTask() {
-        if (!taskInfo.flagged) {
-            return moveTask();
+        if (taskInfo.flagged) {
+            var flagged = 0;
+            var resolved = 0;
+            survey.questions.map(function(question){
+                if (!question.flagResolve) {
+                    return;
+                }
+
+                flagged++;
+
+                if (question.flagResolve.draft && question.flagResolve.draft.entry && question.flagResolve.draft.entry !== '') {
+                    resolved++;
+                }
+            });
+            if (flagged !== resolved) {
+                errorMessages.add('Please fill all resolving message');
+                return Promise.reject();
+            }
         }
-        var notify = {
-            taskId: taskInfo.id,
-            userId: taskInfo.resolve.userId,
-            isResolve: true,
-            entry: getResolvingEntry(),
-            questionId: taskInfo.resolve.questionId
-        };
-        return gs.fetch('POST', 'discussions', {
-            data: JSON.stringify(notify),
-        });
+        return moveTask(taskInfo.flagged);
+
+        //var notify = {
+        //    taskId: taskInfo.id,
+        //    userId: taskInfo.resolve.userId,
+        //    isResolve: true,
+        //    entry: getResolvingEntry(),
+        //    questionId: taskInfo.resolve.questionId
+        //};
+        //return gs.fetch('POST', 'discussions', {
+        //    data: JSON.stringify(notify),
+        //});
     }
 
     function resolveModeCheck() {
         if (!taskInfo.flagged) {
             return true;
         }
-        var entry = getResolvingEntry();
-        return entry && entry !== '';
+        //var entry = getResolvingEntry();
+        //return entry && entry !== '';
+        return true;
     }
 
     function submitCheck() {
