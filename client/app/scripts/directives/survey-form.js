@@ -747,11 +747,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-            field.type === 'checkboxes' ||
-            field.isAgree ||
-            field.comment ||
-            field.canAttach && field.attachments.length ||
-            field.withLinks && field.answerLinks.length);
+                field.type === 'checkboxes' ||
+                field.isAgree ||
+                field.comment ||
+                field.canAttach && field.attachments.length ||
+                field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {

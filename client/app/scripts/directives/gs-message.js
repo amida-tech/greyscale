@@ -33,7 +33,7 @@ angular.module('greyscaleApp')
                     $scope.model.entry = $scope.entry;
                     if (typeof $scope.update === 'function') {
                         $scope.update()
-                            .catch(function(err){
+                            .catch(function (err) {
                                 $scope.model.entry = _backup;
                                 greyscaleUtilsSrv.errorMsg(err);
                             })

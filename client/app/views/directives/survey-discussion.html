@@ -13,7 +13,7 @@
     <div class="form" ng-form="msgForm">
         <div class="form-group">
             <select class="form-control"
-                    ng-options="item.id as item.title for item in model.questions.list"
+                    ng-options="item.id as item.title for item in model.questions.list | filter : filterQuests"
                     ng-model="model.msg.questionId"
                     ng-required="true">
                 <option value="" selected disabled style="display:none;"
@@ -34,7 +34,7 @@
             </select>
         </div>
         <div class="form-group clearfix">
-            <div class="checkbox-inline" ng-if="!surveyData.task.flagged && !flagIsDisabled()"><label class="text-danger">
+            <div class="checkbox-inline"><label class="text-danger">
                 <input type="checkbox" ng-model="model.msg.isReturn" ng-change="flagChange()"/> <i class="chk-box"></i> <span translate="PLACEHOLDER.FLAG"></span></label>
             </div>
 
