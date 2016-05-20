@@ -64,7 +64,6 @@ angular.module('greyscaleApp')
                         surveyId: surveyId,
                         taskId: taskId
                     });
-                    //_setQuestionFlag();
                 }
                 _title = [data.survey.title];
                 return resp.task ? $q.all({

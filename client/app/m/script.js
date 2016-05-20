@@ -73,15 +73,15 @@
         gs.fetch('GET', 'surveys/' + surveyId)
         .then(function (surveyData) {
             survey = surveyData;
-            if (survey.status !== 'current') {
-                window.location.href = '/m/';
-                return;
-            }
             $('#title').innerHTML = survey.title;
 
             gs.fetch('GET', 'tasks/' + taskId)
             .then(function (taskData) {
                 taskInfo = taskData;
+                if (taskInfo.status !== 'current') {
+                    window.location.href = '/m/';
+                    return;
+                }
                 generateSurvey(survey.questions);
                 resolvingMode();
                 load();
