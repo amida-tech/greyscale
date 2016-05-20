@@ -167,7 +167,18 @@ module.exports = {
 
         co(function* () {
             var product = yield thunkQuery(
-                Product.select().where(Product.id.equals(req.params.id))
+                Product
+                    .select(
+                        Product.star(),
+                        'row_to_json("Workflows") as workflow'
+                    )
+                    .from(
+                        Product
+                        .leftJoin(Workflow)
+                        .on(Workflow.productId.equals(Product.id))
+
+                    )
+                    .where(Product.id.equals(req.params.id))
             );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
@@ -209,10 +220,9 @@ module.exports = {
                         userTo = yield * common.getUser(req, req.body[i].userId);
                         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                         task = yield * common.getTask(req, parseInt(req.body[i].id));
-                        product = yield * common.getEntity(req, task.productId, Product, 'id');
                         uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                        survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
                         note = yield * notifications.createNotification(req,
                             {
                                 userFrom: req.user.realmUserId,
@@ -221,7 +231,7 @@ module.exports = {
                                 essenceId: essenceId,
                                 entityId: req.body[i].id,
                                 task: task,
-                                product: product,
+                                product: product[0],
                                 uoa: uoa,
                                 step: step,
                                 survey: survey,
@@ -255,10 +265,9 @@ module.exports = {
                     userTo = yield * common.getUser(req, req.body[i].userId);
                     organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
                     task = yield * common.getTask(req, parseInt(req.body[i].id));
-                    product = yield * common.getEntity(req, task.productId, Product, 'id');
                     uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                     step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                    survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                    survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
                     note = yield * notifications.createNotification(req,
                         {
                             userFrom: req.user.realmUserId,
@@ -267,7 +276,7 @@ module.exports = {
                             essenceId: essenceId,
                             entityId: req.body[i].id,
                             task: task,
-                            product: product,
+                            product: product[0],
                             uoa: uoa,
                             step: step,
                             survey: survey,
@@ -288,6 +297,36 @@ module.exports = {
                         entity: req.body[i].id,
                         info: 'Add new task for product `'+req.params.id+'`'
                     });
+                }
+
+                if (product[0].workflow) {
+                    var firstStep = yield thunkQuery(
+                        WorkflowStep
+                            .select()
+                            .where(
+                                WorkflowStep.position.in(
+                                    WorkflowStep
+                                        .subQuery()
+                                        .select(sql.functions.MIN(WorkflowStep.position))
+                                        .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                                )
+                            )
+                            .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                    );
+
+
+
+                    if (firstStep) {
+                       yield thunkQuery(
+                           ProductUOA
+                            .update({currentStepId: firstStep[0].id})
+                            .where(
+                                ProductUOA.productId.equals(product[0].id)
+                                .and(ProductUOA.UOAid.equals(uoa.id))
+                                .and(ProductUOA.currentStepId.isNull())
+                            )
+                        );
+                    }
                 }
 
             }
@@ -977,7 +1016,19 @@ module.exports = {
                 throw new HttpError(403, 'You should pass an array of unit ids in request body');
             }
 
-            var product = yield thunkQuery(Product.select().where(Product.id.equals(req.params.id)));
+            var product = yield thunkQuery(
+                Product
+                    .select(
+                        Product.star(),
+                        'row_to_json("Workflows") as workflow'
+                    )
+                    .from(
+                        Product
+                        .leftJoin(Workflow)
+                        .on(Workflow.productId.equals(Product.id))
+                    )
+                    .where(Product.id.equals(req.params.id))
+            );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
             }
@@ -991,6 +1042,11 @@ module.exports = {
                 return value.id;
             });
             var insertArr = [];
+
+            var firstStep;
+
+
+
             for (var i in req.body) {
                 if (ids.indexOf(req.body[i]) === -1) {
                     throw new HttpError(403, 'Unit of Analisys with id = ' + req.body[i] + ' does not exist');
@@ -998,10 +1054,17 @@ module.exports = {
                 if (existIds.indexOf(req.body[i]) > -1) {
                     throw new HttpError(403, 'Relation for Unit of Analisys with id = ' + req.body[i] + ' has already existed');
                 }
-                insertArr.push({
+
+                var productUnit = {
                     productId: req.params.id,
                     UOAid: req.body[i]
-                });
+                };
+
+                //if (firstStep && (product[0].status == 1)) { // step exists and product started
+                //    productUnit.currentStepId = firstStep[0].id;
+                //}
+
+                insertArr.push(productUnit);
             }
 
             return yield thunkQuery(ProductUOA.insert(insertArr).returning('*'));

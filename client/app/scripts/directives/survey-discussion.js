@@ -196,6 +196,7 @@ angular.module('greyscaleApp')
                         }
                         if (!msg.activated && msg.isReturn && !msg.resolved) {
                             scope.model.draftFlag = msg;
+                            scope.surveyData.flags.draftFlag = true;
                         }
 
                     }

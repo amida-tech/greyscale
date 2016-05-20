@@ -436,40 +436,87 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
 }
 
 function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
+
+    var thunkQuery = req.thunkQuery;
     var isNotAdmin = !auth.checkAdmin(user);
     var userId = user.id;
     var blindReview = (!!currentStep.blindReview);
-    // available all users for this survey
-    var query =
-        'SELECT ' +
+
+    if (tag !== 'resolve') {
+        // available all users for this survey
+        var query =
+            'SELECT ' +
             '"Tasks"."userId" as userid, ' +
-            '"Tasks"."id" as taskid, '+
-            '"Tasks"."title" as taskname, '+
-            '"Tasks"."stepId" as stepid, '+
-            '"WorkflowSteps"."title" as stepname, '+
-            '"WorkflowSteps"."role" as role, '+
-            'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
-            'CAST( CASE WHEN '+
-                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
-            '"Tasks"."productId" as productid, '+
-            '"Tasks"."uoaId" as uoaid '+
-        'FROM ' +
-            '"Tasks" '+
-        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-        'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
-        'WHERE ' +
+            '"Tasks"."id" as taskid, ' +
+            '"Tasks"."title" as taskname, ' +
+            '"Tasks"."stepId" as stepid, ' +
+            '"WorkflowSteps"."title" as stepname, ' +
+            '"WorkflowSteps"."role" as role, ' +
+            'CAST( CASE WHEN ' +
+            pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview) +
+            pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ', isNotAdmin, userId) +
+            'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", ' +
+            'CAST( CASE WHEN ' +
+            pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview) +
+            pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ', isNotAdmin, userId) +
+            'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", ' +
+            '"Tasks"."productId" as productid, ' +
+            '"Tasks"."uoaId" as uoaid ' +
+            'FROM ' +
+            '"Tasks" ' +
+            'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
+            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+            'WHERE ' +
             pgEscape('"Tasks"."productId" = %s AND ', productId) +
             pgEscape('"Tasks"."uoaId" = %s ', uoaId);
-    if (tag === 'return'){
-        query = query + pgEscape('AND "WorkflowSteps"."position" < %s',currentStep.position);
-    } else if (tag === 'resolve') {
+        if (tag === 'return') {
+            query = query + pgEscape('AND "WorkflowSteps"."position" < %s', currentStep.position);
+        }
+        return yield thunkQuery(query);
+    } else  { //if (tag === 'resolve')
+        var resolve = null;
+        // check existing entries with flags
         query =
-            'SELECT '+
+            'SELECT ' +
+            'sum(CASE WHEN "Discussions"."isResolve" = true THEN 1 ELSE 0 END) as resolved, ' +
+            'sum(CASE WHEN "Discussions"."isResolve" = true THEN 0 ELSE 1 END) as nonresolved ' +
+            'FROM "Discussions" ' +
+            pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId) +
+            'AND "Discussions"."isReturn" = true ' +
+            'AND "Discussions"."activated" = true ';
+        var existFlags = yield thunkQuery(query);
+        if (!_.first(existFlags)) { // flags does not exist
+            // resolve list is empty
+        } else {
+            if (existFlags[0].nonresolved > 0) {
+                // entries with not-resolved flags are exist => get resolve list
+                resolve=true;
+            } else if (existFlags[0].resolved > 0) {
+                // entries with resolved flags are exist => check resolve-entries
+                query =
+                    'SELECT ' +
+                    'sum(CASE WHEN "Discussions"."activated" = true THEN 0 ELSE 1 END) as nonactivated ' +
+                    'FROM "Discussions" ' +
+                    pgEscape('WHERE "Discussions"."taskId" = %s ', taskId) +
+                    'AND "Discussions"."isReturn" = false ' +
+                    'AND "Discussions"."isResolve" = true ';
+                var existResolves = yield thunkQuery(query);
+                if (!_.first(existResolves)) { // resolves does not exist -> not possible!?
+                    // resolve list is empty
+                } else {
+                    if (existResolves[0].nonactivated > 0) {
+                        // non activated resolve entries are exist => get resolve list
+                        resolve=true;
+                    } else {
+                        // resolve list is empty
+                    }
+                }
+            }
+        }
+        if (resolve) {
+            // get resolve list
+            query =
+                'SELECT '+
                 '"Tasks"."userId" as userid, ' +
                 '"Tasks"."id" as taskid, '+
                 '"Tasks"."title" as taskname, '+
@@ -477,52 +524,30 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 '"WorkflowSteps"."title" as stepname, '+
                 '"WorkflowSteps"."role" as role, '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                    'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
+                'THEN \'Anonymous\'  ELSE "Users"."firstName" END as varchar) AS "firstName", '+
                 'CAST( CASE WHEN '+
-                    pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
-                    pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
-                    'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
-            '"Tasks"."productId" as productid, '+
-            '"Tasks"."uoaId" as uoaid, '+
-            '"Discussions"."questionId" as questionid ' +
-            'FROM "Discussions" ' +
-            'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
-            'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
-            pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
-                'AND "Discussions"."isReturn" = true ' +
-                'AND "Discussions"."activated" = true LIMIT 1';// AND "Discussions"."isResolve" = false';
-    }
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(query);
-    if  (tag === 'resolve') {
-        query =
-            'SELECT ' +
-            '"Discussions"."id" ' +
-            'FROM "Discussions" ' +
-            pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
-            'AND "Discussions"."isResolve" = true ' +
-            'LIMIT 1';
-        var result1 = yield thunkQuery(query);
-        if (_.first(result1)) { // resolve records exist
-            query =
-                'SELECT ' +
-                '"Discussions"."id" ' +
+                pgEscape('("WorkflowSteps"."id" <> %s AND %s) OR ', currentStep.id, blindReview)+
+                pgEscape('( "Users"."isAnonymous" AND %s AND "Users"."id" <> %s) ',isNotAdmin, userId)+
+                'THEN \'\'  ELSE "Users"."lastName" END as varchar) AS "lastName", '+
+                '"Tasks"."productId" as productid, '+
+                '"Tasks"."uoaId" as uoaid, '+
+                '"Discussions"."questionId" as questionid ' +
                 'FROM "Discussions" ' +
-                pgEscape('WHERE "Discussions"."taskId" = %s ', taskId)+
-                'AND "Discussions"."isResolve" = true ' +
+                'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
+                'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
+                'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" '+
+                pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId)+
+                'AND "Discussions"."isReturn" = true ' +
+                //'AND "Discussions"."isResolve" = false ' +
                 'AND "Discussions"."activated" = true ' +
                 'LIMIT 1';
-            var result2 = yield thunkQuery(query);
-            if (_.first(result2)) { // all resolve records activated
-                result = null; // resolveList must be empty
-            }
+            var result = yield thunkQuery(query);
+            resolve = (_.first(result)) ? [_.last(result)] : result;
         }
+        return resolve;
     }
-
-    return (tag === 'resolve') ? [_.last(result)] : result;
 }
 
 function* getAvailableUsers(req) {
