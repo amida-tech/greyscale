@@ -10,10 +10,13 @@ angular.module('greyscaleApp')
 
         $scope.loading = true;
 
+        var taskId = $stateParams.taskId;
+        var surveyId = $stateParams.surveyId;
+
         $scope.model = {
             title: '',
             surveyData: null,
-            showDiscuss: $stateParams.taskId
+            showDiscuss: taskId
         };
 
         var data = {};
@@ -38,7 +41,7 @@ angular.module('greyscaleApp')
             })
         };
 
-        if ($stateParams.taskId) {
+        if (taskId) {
             reqs.task = greyscaleTaskApi.get($stateParams.taskId);
             reqs.scopeList = greyscaleDiscussionApi.scopeList({
                 taskId: $stateParams.taskId
@@ -57,14 +60,19 @@ angular.module('greyscaleApp')
                     flags: {}
                 };
                 if (data.resolveData) {
-                    _setQuestionFlag();
+                    data.discussions = greyscaleDiscussionApi.list({
+                        surveyId: surveyId,
+                        taskId: taskId
+                    });
                 }
                 _title = [data.survey.title];
                 return resp.task ? $q.all({
                     product: greyscaleProductApi.get(resp.task.productId),
                     uoa: greyscaleUoaApi.get({
                         id: data.task.uoaId
-                    })
+                    }),
+                    survey: data.survey,
+                    discussions: data.discussions
                 }) : $q.reject();
             })
             .then(function (resp) {
@@ -76,6 +84,9 @@ angular.module('greyscaleApp')
                 if (resp.uoa) {
                     data.uoa = resp.uoa.plain();
                     _title.push(data.uoa.name);
+                }
+                if (resp.discussions) {
+                    _resolveQuestionsFlags(resp.survey, resp.discussions);
                 }
                 return data.product ? greyscaleProductWorkflowApi.workflow(data.product.workflow.id).stepsList() :
                     $q.reject();
@@ -110,6 +121,21 @@ angular.module('greyscaleApp')
         function _getResolveData(scopeList) {
             var resolveList = scopeList.resolveList;
             return resolveList[0];
+        }
+
+        function _resolveQuestionsFlags(survey, discussions) {
+            angular.forEach(survey.questions, function(question){
+                angular.forEach(discussions, function(message){
+                    if (message.questionId === question.id && message.isReturn && !message.isResolve) {
+                        question.flagResolve = question.flagResolve || {};
+                        angular.extend(question.flagResolve, message);
+                    }
+                    if (message.questionId === question.id && message.isResolve && !message.isReturn && !message.activated) {
+                        question.flagResolve = question.flagResolve || {};
+                        question.flagResolve.draft = message;
+                    }
+                });
+            });
         }
 
         function _setQuestionFlag() {

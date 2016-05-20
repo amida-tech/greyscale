@@ -43,7 +43,9 @@ angular.module('greyscaleApp')
                 scope.lock = _lock;
                 scope.unlock = _unlock;
 
-                scope.save = function () {
+                scope.allFlagsCommented = _allFlagsCommented;
+
+                scope.save = function (resolve) {
                     var _p = $q.reject('ERROR.STEP_SUBMIT');
                     if (flags.allowTranslate) {
                         if (scope.model.translated) {
@@ -51,7 +53,9 @@ angular.module('greyscaleApp')
                         }
                     } else {
                         _p = saveAnswers(scope)
-                            .then(goNextStep);
+                            .then(function(res){
+                                return goNextStep(res,resolve);
+                            });
                     }
 
                     _p.then(goTasks)
@@ -109,12 +113,16 @@ angular.module('greyscaleApp')
                     scope.model.locked = false;
                 }
 
-                function goNextStep(saveSuccess) {
+                function goNextStep(saveSuccess, resolve) {
+                    var params = {};
                     if (saveSuccess) {
                         if (scope.surveyData.task) {
+                            if (resolve) {
+                                params.resolve = true;
+                            }
                             return greyscaleProductApi
                                 .product(scope.surveyData.task.productId)
-                                .taskMove(scope.surveyData.task.uoaId)
+                                .taskMove(scope.surveyData.task.uoaId, params)
                                 .then(function () {
                                     greyscaleUtilsSrv.successMsg('SURVEYS.SUBMIT_SUCCESS');
                                     return saveSuccess;
@@ -178,6 +186,54 @@ angular.module('greyscaleApp')
                     return saveSuccess;
                 }
 
+                function _allFlagsCommented() {
+                    var flagged = 0;
+                    var commented = 0;
+                    scope.surveyData.flagsResolve = scope.surveyData.flagsResolve || {};
+                    angular.forEach(scope.surveyData.survey.questions, function(question){
+                        if (question.flagResolve) {
+                            question.flagResolve.draft = question.flagResolve.draft || {
+                                    entry: '',
+                                    isResolve: true,
+                                    activated: false,
+                                    isReturn: false,
+                                    questionId: question.id,
+                                    taskId: scope.surveyData.task.id,
+                                    stepId: scope.surveyData.resolveData.stepId
+                                };
+                            flagged++;
+                            if (question.flagResolve.draft.entry !== '') {
+                                commented++;
+                            }
+                            if (question.flagResolve.lastEntry === undefined || question.flagResolve.draft.entry !== question.flagResolve.lastEntry) {
+                                question.flagResolve.lastEntry = question.flagResolve.draft.entry;
+                                _saveFlagCommentDraft(question);
+                            }
+                        }
+                    });
+                    return flagged > 0 && commented === flagged;
+                }
+
+                function _saveFlagCommentDraft(question) {
+                    if (_saveFlagCommentDraft.timer) {
+                        $timeout.cancel(_saveFlagCommentDraft.timer);
+                    }
+                    var draft = question.flagResolve.draft;
+                    if (draft.entry === '') {
+                        //show error
+                        return;
+                    }
+                    _saveFlagCommentDraft.timer = $timeout(function(){
+                        if (!draft.id && draft.entry !== '') {
+                            greyscaleDiscussionApi.add(draft).then(function(data){
+                                question.flagResolve.draft.id = data.id;
+                            });
+                        } else if (draft.id && draft.entry !== '') {
+                            greyscaleDiscussionApi.update(draft.id, draft);
+                        }
+                    }, 500);
+                }
+
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
                     scope.$$childHead.surveyForm.$setDirty();
                 });
@@ -206,6 +262,20 @@ angular.module('greyscaleApp')
                     _locked = isReadonlyFlags(flags) &&
                         (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
+
+                    if ($scope.surveyData && $scope.surveyData.task.flagged) {
+                        var flagged = 0;
+                        var resolved = 0;
+                        angular.forEach($scope.surveyData.survey.questions, function(question){
+                            if (question.flagResolve) {
+                                flagged++;
+                                if (question.flagResolve.draft && question.flagResolve.draft.entry !== '') {
+                                    resolved++;
+                                }
+                            }
+                        });
+                        _locked = resolved !== flagged;
+                    }
 
                     return _locked;
                 };
@@ -298,7 +368,8 @@ angular.module('greyscaleApp')
                         item = {
                             type: type,
                             title: field.label,
-                            href: fldId
+                            href: fldId,
+                            flagged: !!field.flagResolve
                         };
 
                         fld = {
@@ -309,33 +380,34 @@ angular.module('greyscaleApp')
                             description: field.description
                         };
 
-                        if (type === 'section_end') { // close section
-                            if (r > 0) {
-                                r--;
-                            }
-                        } else { //push data into current section
-                            if (excludedFields.indexOf(field.type) === -1) {
-                                angular.extend(fld, {
-                                    qid: field.qid,
-                                    required: field.isRequired,
-                                    minLength: field.minLength,
-                                    maxLength: field.maxLength,
-                                    inWords: field.isWordmml,
-                                    value: field.value,
-                                    links: field.links,
-                                    canAttach: field.attachment,
-                                    hasComments: field.hasComments,
-                                    ngModel: {},
-                                    flags: flags,
-                                    answer: null,
-                                    answerId: null,
-                                    prevAnswers: [],
-                                    responses: null,
-                                    response: '',
-                                    langId: scope.model.lang,
-                                    essenceId: scope.surveyData.essenceId,
-                                    withLinks: field.withLinks
-                                });
+                    if (type === 'section_end') { // close section
+                        if (r > 0) {
+                            r--;
+                        }
+                    } else { //push data into current section
+                        if (excludedFields.indexOf(field.type) === -1) {
+                            angular.extend(fld, {
+                                qid: field.qid,
+                                required: field.isRequired,
+                                minLength: field.minLength,
+                                maxLength: field.maxLength,
+                                inWords: field.isWordmml,
+                                value: field.value,
+                                links: field.links,
+                                canAttach: field.attachment,
+                                hasComments: field.hasComments,
+                                ngModel: {},
+                                flags: flags,
+                                answer: null,
+                                answerId: null,
+                                prevAnswers: [],
+                                responses: null,
+                                response: '',
+                                langId: scope.model.lang,
+                                essenceId: scope.surveyData.essenceId,
+                                withLinks: field.withLinks,
+                                flagResolve: field.flagResolve
+                            });
 
                                 if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
                                     angular.extend(fld, {
@@ -437,6 +509,22 @@ angular.module('greyscaleApp')
             scope.fields = fields;
             scope.content = content;
             scope.unlock();
+
+            $timeout(function(){
+                questions.map(function(question){
+                    if (question.flagResolve) {
+                        scope.model.contentOpen = true;
+                        var field = $('#fld' + question.id);
+                        if (field.length) {
+                            var section = field.closest('uib-accordion');
+                            if (section.length) {
+                                var sectionScope = section.scope();
+                                sectionScope.sectionOpen = true;
+                            }
+                        }
+                    }
+                });
+            });
         }
 
         function loadAnswers(scope) {
@@ -776,11 +864,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-            field.type === 'checkboxes' ||
-            field.isAgree ||
-            field.comment ||
-            field.canAttach && field.attachments.length ||
-            field.withLinks && field.answerLinks.length);
+                field.type === 'checkboxes' ||
+                field.isAgree ||
+                field.comment ||
+                field.canAttach && field.attachments.length ||
+                field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {

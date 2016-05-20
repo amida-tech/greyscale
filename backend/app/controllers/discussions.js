@@ -72,7 +72,7 @@ module.exports = {
                 for (var i = 0; i < sorted.length; i++) {
                     var sort = sorted[i];
                     selectOrder =
-                        ((selectOrder === '') ? 'ORDER BY ' : ', ')+
+                        ((selectOrder === '') ? 'ORDER BY ' : selectOrder+', ')+
                         sort.replace('-', '').trim()+
                         (sort.indexOf('-') === 0 ? ' desc' : ' asc');
                 }
@@ -116,9 +116,11 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
+/*
             if (isResolve) {
                 var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
             }
+*/
             return _.first(result);
 
 /* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
@@ -491,6 +493,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             if (existFlags[0].nonresolved > 0) {
                 // entries with not-resolved flags are exist => get resolve list
                 resolve=true;
+/*
             } else if (existFlags[0].resolved > 0) {
                 // entries with resolved flags are exist => check resolve-entries
                 query =
@@ -511,6 +514,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                         // resolve list is empty
                     }
                 }
+*/
             }
         }
         if (resolve) {

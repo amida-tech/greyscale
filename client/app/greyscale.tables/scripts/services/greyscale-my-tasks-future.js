@@ -52,7 +52,7 @@ angular.module('greyscale.tables')
                     //twoWeeks.setDate(twoWeeks.getDate() + 14);
                     var startDate = new Date(item.startDate);
                     startDate.setHours(0, 0, 0, 0);
-                    return startDate >= today /*&& startDate < twoWeeks*/;
+                    return startDate >= today /*&& startDate < twoWeeks*/ ;
                 });
             });
         }
