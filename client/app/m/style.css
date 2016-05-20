@@ -336,3 +336,25 @@ textarea.invalid {
     float: right;
     margin-right: 50px;
 }
+
+.field-resolve.active {
+    border: 1px solid #ff0000;
+    padding: 3px;
+    margin: 5px 0;
+}
+.field-resolve .flag-resolve-input {
+    display: block;
+    clear: both;
+    width: 100%;
+}
+.flag-image {
+    display: inline-block;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AUUBS0nTuDT9QAAAHdJREFUGNONz7EJwmAUReEv+ttE0BHcwBEEwbEsrQTXsHQXhxBrKyUg18IIQgzmNJcH9z44wincQsI1HMIyTCHMw7oK0eWJe5sFdV+xw8hABhcLHri0WWPx40FTsMfuLWiMCTZYYYYzjsL2M4t+s/J9VH9kmiEyLzGRISx0v1BSAAAAAElFTkSuQmCC);
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.field-resolve .flag-image {
+    margin-bottom: 3px;
+}

@@ -266,7 +266,7 @@ angular.module('greyscaleApp')
                         angular.forEach($scope.surveyData.survey.questions, function(question){
                             if (question.flagResolve) {
                                 flagged++;
-                                if (question.flagResolve.draft.entry !== '') {
+                                if (question.flagResolve.draft && question.flagResolve.draft.entry !== '') {
                                     resolved++;
                                 }
                             }
