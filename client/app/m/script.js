@@ -109,7 +109,7 @@
                 return true;
             })
             .then(function(){
-                var params = 'surveyId=' + surveyId + '&taskId=' + taskId;
+                var params = 'filter=resolve&surveyId=' + surveyId + '&taskId=' + taskId;
                 return gs.fetch('GET', 'discussions?' + params)
             })
             .then(function(discussions){

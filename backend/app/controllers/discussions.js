@@ -66,6 +66,18 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
+            if(req.query.filter === 'resolve') {
+                /*
+                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                */
+                selectWhere = selectWhere + ' AND (' +
+                    '("Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true) ' +
+                    'OR ' +
+                    '("Discussions"."isReturn" = false AND "Discussions"."isResolve" = true AND "Discussions"."activated" = false) ' +
+                    ') ';
+            }
+
             var selectOrder = '';
             if (req.query.order) {
                 var sorted = req.query.order.split(',');
