@@ -263,7 +263,7 @@ angular.module('greyscaleApp')
                         (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
 
-                    if ($scope.surveyData && $scope.surveyData.task.flagged) {
+                    if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
                         var flagged = 0;
                         var resolved = 0;
                         angular.forEach($scope.surveyData.survey.questions, function(question){
