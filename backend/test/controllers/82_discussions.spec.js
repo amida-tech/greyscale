@@ -124,6 +124,29 @@ var getUser4task1 = [
     }
 ];
 
+var getUser4survey = [
+    {
+        role : 'Role 1',
+        stepId : 2,
+        stepName : 'Step1'
+    },
+    {
+        role : 'Role 2',
+        stepId : 3,
+        stepName : 'Step 2'
+    },
+    {
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3'
+    },
+    {
+        role : 'Role 4',
+        stepId : 5,
+        stepName : 'Step 4'
+    }
+];
+
 var getUser4task1Anonymous = [
     {
         firstName : 'User1',
@@ -170,6 +193,19 @@ var getUser4task2ReturnList = [
     }
 ];
 
+var getUser4task3ReturnList = [
+    {
+        role : 'Role 1',
+        stepId : 2,
+        stepName : 'Step1'
+    },
+    {
+        role : 'Role 2',
+        stepId : 3,
+        stepName : 'Step 2'
+    }
+];
+
 var getUser4task1ResolveList = [
     {
         firstName : 'User3',
@@ -178,6 +214,22 @@ var getUser4task1ResolveList = [
         stepId : 4,
         stepName : 'Step 3',
         userId : 5
+    }
+];
+
+var getUser4task1RL_SQ = [
+    {
+        role : 'Role 2',
+        stepId : 3,
+        stepName : 'Step 2'
+    }
+];
+
+var getUser4task2RL_SQ = [
+    {
+        role : 'Role 3',
+        stepId : 4,
+        stepName : 'Step 3'
     }
 ];
 
@@ -475,6 +527,9 @@ describe(testTitle, function () {
                 var insertItem = {questionId: questionId[2], taskId: taskId[2], stepId: stepId[0], entry: 'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', isReturn: true};
                 ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId43', done);
             });
+            it('get Entryscope for task3 (returnList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[2], tokenAdmin, 200, getUser4task3ReturnList, 'returnList', done);
+            });
             it('Move to the  next step (return flags exist)', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
             });
@@ -489,6 +544,9 @@ describe(testTitle, function () {
             });
             it('get Entryscope for task1 (resolveList)', function (done) {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+            });
+            it('get Entryscope for task1 (returnList)', function (done) {
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'returnList', done);
             });
         });
         describe(testTitle+'Add discussion`s entry (flagged - resolve) ', function () {
@@ -576,6 +634,63 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
             });
         });
+        describe(testTitle+'SEQUENTIAL FLAGGED', function () {
+            describe(testTitle+'SEQUENTIAL FLAGGED Step3->Step2', function () {
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+                });
+                it('SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[2], stepId: stepId[1], entry: 'SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', isReturn: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId71', done);
+                });
+                it('Move to the  next step (return flags exist)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+                });
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[1]}], done);
+                });
+                it('get Entryscope for task2 (availList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4survey, 'availList', done);
+                });
+                it('get Entryscope for task2 (resolveList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2RL_SQ, 'resolveList', done);
+                });
+                it('SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: 'SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', isReturn: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId72', done);
+                });
+                it('Move to the  next step (return flags exist)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
+                });
+                it('Check current step', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[0]}], done);
+                });
+                it('get Entryscope for task1 (resolveList)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1RL_SQ, 'resolveList', done);
+                });
+            });
+/*
+            describe(testTitle+'ONCE MORE Add discussion`s entry (flagged - resolve) ', function () {
+                it('ONCE MORE Discussion entry (flagged - resolve Q1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'ONCE MORE Discussion entry (flagged - resolve Q1)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
+                });
+                it('get Entryscope for task1 (resolveList = step3)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+                });
+                it('Resolve (move to resolve step)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
+                });
+                it('Check current step (after resolve)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
+                });
+                it('get Entryscope for task1 (resolveList is empty)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
+                });
+            });
+*/
+        });
+/*
         describe(testTitle+'get Users ', function () {
             it('(Err) taskId must be integer', function (done) {
                 ithelper.selectErrMessage(testEnv.api_created_realm, path+'/users/'+errTaskId, tokenSuperAdmin, 400, 403, 'taskId must be integer', done);
@@ -622,16 +737,21 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
             });
         });
+*/
         describe(testTitle+'sorting ', function () {
+/*
             it('Order by "created"', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created', tokenAdmin, 200, discussionsByCreated, done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created,updated', tokenAdmin, 200, discussionsByCreated, done);
             });
+*/
+/*
             it('Order by "created" descending', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=-created', tokenAdmin, 200, discussionsByCreatedDesc, done);
             });
             it('Order by "entry"', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=entry', tokenAdmin, 200, discussionsByEntry, done);
             });
+*/
         });
 /*
         describe(testTitle+'Clean up', function () {

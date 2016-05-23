@@ -183,7 +183,7 @@ angular.module('greyscale.tables')
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
                     stepId: step.id
-                });
+                }) || {};
                 stepTask.flagClass = '';
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {

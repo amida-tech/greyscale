@@ -1746,11 +1746,12 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, step4Resolve);
+        task = yield * common.getTaskByStep(req, step4Resolve, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
-        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        //uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+        uoa = yield * common.getEntity(req, UOAid, UOA, 'id');
         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
         survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
         note = yield * notifications.createNotification(req,
@@ -1782,7 +1783,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
 
     // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, productId, UOAid);
+    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
     if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
         // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, returnStepId, productId, UOAid);
@@ -1791,7 +1792,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTaskByStep(req, returnStepId);
+        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
         userTo = yield * common.getUser(req, task.userId);
         organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
         product = yield * common.getEntity(req, task.productId, Product, 'id');
