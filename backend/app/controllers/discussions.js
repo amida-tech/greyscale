@@ -349,6 +349,8 @@ function* checkInsert(req) {
     var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
     var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
     var entry = yield * checkString(req.body.entry, 'Entry');
+    // check if return or resolve entry already exist for question
+    var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
     // get next order for entry
     var nextOrder = yield * getNextOrder(req, taskId, questionId);
     req.body = _.extend(req.body, {order: nextOrder}); // add nextOrder (if order was presented in body replace it)
@@ -965,4 +967,29 @@ function* checkString(val, keyName) {
         throw new HttpError(403, keyName +' must be specified');
     }
     return val;
+}
+
+function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
+    var thunkQuery = req.thunkQuery;
+    var result;
+    isReturn = (isReturn) ? true : false;
+    isResolve = (isResolve) ? true : false;
+    // check if entry (return or resolve) is exist for taskId, questionId
+    var query =
+            Discussion
+                .select(Discussion.id)
+                .from(Discussion)
+                .where(
+                Discussion.isReturn.equals(isReturn)
+                    .and(Discussion.activated.equals(false))
+                    .and(Discussion.isResolve.equals(isResolve))
+                    .and(Discussion.taskId.equals(taskId))
+                    .and(Discussion.questionId.equals(questionId))
+            );
+    result = yield thunkQuery(query);
+    if (_.first(result)) {
+        var rR = (isReturn) ?'Flag ': ((isResolve) ? 'Resolve ' : '');
+        throw new HttpError(403, rR+'entry for questionId=`'+questionId+'` already exist');
+    }
+    return result;
 }
