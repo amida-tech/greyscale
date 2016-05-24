@@ -11,17 +11,27 @@ angular.module('greyscaleApp')
                 options: '='
             },
             template: '<uib-accordion><uib-accordion-group is-open="sectionOpen"><uib-accordion-heading>' +
-                '<span translate="{{model.label}}"></span><i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
-                '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading>' +
-                '<text-angular ng-model="model.description" ng-hide="options.readonly"></text-angular>' +
-                '<div class="section-text" ng-show="options.readonly" ng-bind-html="model.description"></div>' +
-                '</uib-accordion-group></uib-accordion>',
+            '<span translate="{{model.label}}"></span><i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
+            '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading>' +
+            '<text-angular ng-model="model.description" ng-hide="options.readonly"></text-angular>' +
+
+            '<div gs-popup="contextMenu"><div class="section-text" ng-show="options.readonly" ng-bind-html="model.description"></div></div>' +
+            '</uib-accordion-group></uib-accordion>',
             link: function (scope, elem, attrs, ngModel) {
                 scope.sectionOpen = false;
                 scope.model = {
                     label: '',
                     description: ''
                 };
+
+                scope.contextMenu = [
+                    {
+                        title: 'COMMON.COMMENT',
+                        action: function() {
+                            console.log('comment selected');
+                        }
+                    }
+                ];
 
                 scope.$watch(attrs.ngModel, _setModel);
 
