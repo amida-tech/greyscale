@@ -13,6 +13,16 @@
     "BRAND": {
         "SLOGAN": "Turn knowledge into data."
     },
+    "COMMENTS": {
+        "TAG_COMMENT": "Tag comment",
+        "TITLE": "Make comment",
+        "TYPE": "Comment type",
+        "TYPES": {
+            "CONTENT": "Content",
+            "FORMAT": "Format",
+            "STRUCTURE": "Structure"
+        }
+    },
     "COMMON": {
         "ADD": "Add",
         "ALL": "All",
@@ -23,7 +33,6 @@
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
         "CLOSE": "Close",
-        "COMMENT": "Comment",
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
@@ -53,6 +62,10 @@
         "VIEW": "View",
         "WORDS": "word(s)",
         "YES": "Yes"
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "Comment",
+        "TITLE": "Actions"
     },
     "DASHBOARD": {
         "PROJECTS": "Projects",

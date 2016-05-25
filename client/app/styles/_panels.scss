@@ -69,3 +69,19 @@ div.disabled {
     background-color: #fff;
     z-index: 10;
 }
+
+.gs-contextmenu-wrapper {
+    position: relative;
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+    }
+
+    &.open {
+        .dropdown-menu {
+            display: block;
+        }
+    }
+}
+

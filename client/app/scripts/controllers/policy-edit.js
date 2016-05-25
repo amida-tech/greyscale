@@ -140,7 +140,7 @@ angular.module('greyscaleApp')
             if (surveyId) {
                 _survey.id = surveyId;
             }
-            angular.extend(_survey,{
+            angular.extend(_survey, {
                 policyId: _policy.id,
                 title: _policy.title,
                 section: _policy.section,
@@ -155,7 +155,7 @@ angular.module('greyscaleApp')
             }
 
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-                .then(function (resp) {
+            .then(function (resp) {
                     $scope.model.survey.questions = _questions;
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;

@@ -5,6 +5,38 @@
 angular.module('greyscaleApp')
     .factory('greyscaleModalsSrv', function ($uibModal, $q) {
 
+        return {
+            editRec: modalForm,
+            showRec: modalRecInfo,
+            editCountry: function (_country) {
+                return _simpleMiddleForm('views/modals/country-form.html', _country, null);
+            },
+            editUserOrganization: function (_org) {
+                return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);
+            },
+            addRoleRight: function (_role, _ext) {
+                return _simpleMiddleForm('views/modals/role-right-form.html', _role, _ext);
+            },
+            editSurvey: function (_right, _ext) {
+                return _simpleLargeForm('views/modals/survey-form.html', _right, _ext);
+            },
+            editTranslations: _translationForm,
+            uoasFilter: _uoasFilter,
+            productUoas: _productUoas,
+            productWorkflow: _productWorkflow,
+            productTask: _productTask,
+            userGroups: _userGroups,
+            confirm: _confirm,
+            showVersion: _showVersion,
+            sendNotification: _sendNotification,
+            changePassword: _changePassword,
+            editIndex: _editIndex,
+            editVisualization: _editVisualization,
+            addProduct: _addProduct,
+            importDataset: _importDataset,
+            policyComment: _policyComment
+        };
+
         function hndlModalErr(err) {
             return $q.reject('');
         }
@@ -232,34 +264,7 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        return {
-            editRec: modalForm,
-            showRec: modalRecInfo,
-            editCountry: function (_country) {
-                return _simpleMiddleForm('views/modals/country-form.html', _country, null);
-            },
-            editUserOrganization: function (_org) {
-                return _simpleMiddleForm('views/modals/user-organization-form.html', _org, null);
-            },
-            addRoleRight: function (_role, _ext) {
-                return _simpleMiddleForm('views/modals/role-right-form.html', _role, _ext);
-            },
-            editSurvey: function (_right, _ext) {
-                return _simpleLargeForm('views/modals/survey-form.html', _right, _ext);
-            },
-            editTranslations: _translationForm,
-            uoasFilter: _uoasFilter,
-            productUoas: _productUoas,
-            productWorkflow: _productWorkflow,
-            productTask: _productTask,
-            userGroups: _userGroups,
-            confirm: _confirm,
-            showVersion: _showVersion,
-            sendNotification: _sendNotification,
-            changePassword: _changePassword,
-            editIndex: _editIndex,
-            editVisualization: _editVisualization,
-            addProduct: _addProduct,
-            importDataset: _importDataset
-        };
+        function _policyComment(model, options) {
+            return _simpleLargeForm('views/modals/policy-comment.html',model, options);
+        }
     });

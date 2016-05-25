@@ -13,6 +13,16 @@
     "BRAND": {
         "SLOGAN": "Превращение знаний в данные."
     },
+    "COMMENTS": {
+        "TAG_COMMENT": "",
+        "TITLE": "",
+        "TYPE": "",
+        "TYPES": {
+            "CONTENT": "",
+            "FORMAT": "",
+            "STRUCTURE": ""
+        }
+    },
     "COMMON": {
         "ADD": "Добавить",
         "ALL": "",
@@ -23,7 +33,6 @@
         "CANCEL": "Отмена",
         "CHARS": "",
         "CLOSE": "Закрыть",
-        "COMMENT": "",
         "CONFIRM": "Подтвердить",
         "CONFIRMATION": "Подтверждение",
         "CONTINUE": "Продолжить",
@@ -53,6 +62,10 @@
         "VIEW": "Просмотр",
         "WORDS": "",
         "YES": "Да"
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "",
+        "TITLE": ""
     },
     "DASHBOARD": {
         "PROJECTS": "",
