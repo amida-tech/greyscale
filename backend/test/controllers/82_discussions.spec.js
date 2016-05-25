@@ -244,10 +244,40 @@ var discussionsByCreated = [
         {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
         {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
         {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
-        {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true}
+        {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: false}
+];
+
+var discussionsByCreatedActual = [
+    {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: false}
+];
+
+var discussionsByCreatedEnd = [
+    {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
+    {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q3)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q2)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step2->Step3 Resolve (Q1)', activated: true}
 ];
 
 var discussionsByCreatedDesc = [
+    {entry:'SEQUENTIAL FLAGGED Step2->Step3 Resolve (Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q2)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q3)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', activated: true},
     {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true},
     {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
     {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
@@ -256,24 +286,29 @@ var discussionsByCreatedDesc = [
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
-    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: false},
-    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: false},
-    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: true},
+    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: true},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: true},
     {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true}
 ];
 
 var discussionsByEntry = [
     {entry:'Discussion entry (flagged - resolve Q2)', activated: true},
     {entry:'Discussion entry (flagged - resolve Q3)', activated: true},
-    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t2)', activated: true},
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t3)', activated: true},
-    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: false},
+    {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t2)', activated: true},
     {entry:'Discussion entry (flagged - with return flag) from Admin to Step1 (q3, t3)', activated: true},
     {entry:'ONCE MORE Discussion entry (flagged - resolve Q1)', activated: true},
     {entry:'ONCE MORE Discussion entry (flagged - with return flag) from Admin to Step1 (q1, t3)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q2)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q3)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step2->Step3 Resolve (Q1)', activated: true},
+    {entry:'SEQUENTIAL FLAGGED Step3->Step2 Discussion entry', activated: true},
     {entry:'UPDATED Discussion entry (flagged - resolve Q1)', activated: true},
-    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: false},
+    {entry:'UPDATED Discussion entry (flagged - with return flag) from Admin to Step1 (q2, t2)', activated: true},
     {entry:'UPDATED simple discussion entry from Admin to Step2 (q1, t1)', activated: true}
 ];
 
@@ -623,6 +658,12 @@ describe(testTitle, function () {
             it('get Entryscope for task1 (resolveList = step3)', function (done) {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
             });
+            it('Get all discussion`s entries (Order by "created")', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created,updated', tokenAdmin, 200, discussionsByCreated, done);
+            });
+            it('Get actual messages (without history) discussion`s entries (Order by "created")', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&filter=resolve&order=created,updated', tokenAdmin, 200, discussionsByCreatedActual, done);
+            });
             it('Resolve (move to resolve step)', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
             });
@@ -654,9 +695,9 @@ describe(testTitle, function () {
                 it('get Entryscope for task2 (resolveList)', function (done) {
                     ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2RL_SQ, 'resolveList', done);
                 });
-                it('SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: 'SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', isReturn: true};
-                    ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, obj, 'discussionId72', done);
+                it('(Err) SEQUENTIAL FLAGGED Step2->Step1 Discussion entry ".* entry for questionId=.* already exist"', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[0], entry: '(Err) SEQUENTIAL FLAGGED Step2->Step1 Discussion entry', isReturn: true};
+                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, '.* entry for questionId=.* already exist', done);
                 });
                 it('Move to the  next step (return flags exist)', function (done) {
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId, tokenAdmin, 200, [], done);
@@ -667,29 +708,48 @@ describe(testTitle, function () {
                 it('get Entryscope for task1 (resolveList)', function (done) {
                     ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1RL_SQ, 'resolveList', done);
                 });
-            });
-/*
-            describe(testTitle+'ONCE MORE Add discussion`s entry (flagged - resolve) ', function () {
-                it('ONCE MORE Discussion entry (flagged - resolve Q1)', function (done) {
-                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[2], entry: 'ONCE MORE Discussion entry (flagged - resolve Q1)', isResolve: true};
-                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId51', done);
+                it('SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q1)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId81', done);
                 });
-                it('get Entryscope for task1 (resolveList = step3)', function (done) {
-                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1ResolveList, 'resolveList', done);
+                it('get Entryscope for task1 (resolveList = step2)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1RL_SQ, 'resolveList', done);
                 });
-                it('Resolve (move to resolve step)', function (done) {
+                it('SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q3)', function (done) {
+                    var insertItem = {questionId: questionId[2], taskId: taskId[0], stepId: stepId[1], entry: 'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q3)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId83', done);
+                });
+                it('SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q2)', function (done) {
+                    var insertItem = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[1], entry: 'SEQUENTIAL FLAGGED Step1->Step2 Resolve (Q2)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId82', done);
+                });
+                it('get Entryscope for task1 (resolveList = step2)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1RL_SQ, 'resolveList', done);
+                });
+                it('Resolve (move to resolve step - step2)', function (done) {
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
                 });
-                it('Check current step (after resolve)', function (done) {
+                it('Check current step (after resolve) -> step2', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[1]}], done);
+                });
+                it('get Entryscope for task2 (resolveList = step3)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2RL_SQ, 'resolveList', done);
+                });
+                it('SEQUENTIAL FLAGGED Step2->Step3 Resolve (Q1)', function (done) {
+                    var insertItem = {questionId: questionId[0], taskId: taskId[1], stepId: stepId[2], entry: 'SEQUENTIAL FLAGGED Step2->Step3 Resolve (Q1)', isResolve: true};
+                    ithelper.insertOne(testEnv.api_created_realm, path, tokenUser1, insertItem, 201, obj, 'discussionId91', done);
+                });
+                it('get Entryscope for task2 (resolveList = step3)', function (done) {
+                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2RL_SQ, 'resolveList', done);
+                });
+                it('Resolve (move to resolve step - step3)', function (done) {
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/move/'+uoaId+'?resolve=true', tokenAdmin, 200, [], done);
+                });
+                it('Check current step (after resolve) -> step3', function (done) {
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, '/products/'+productId+'/uoa', tokenAdmin, 200, [{currentStepId: stepId[2]}], done);
                 });
-                it('get Entryscope for task1 (resolveList is empty)', function (done) {
-                    ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, [], 'resolveList', done);
-                });
             });
-*/
         });
-/*
         describe(testTitle+'get Users ', function () {
             it('(Err) taskId must be integer', function (done) {
                 ithelper.selectErrMessage(testEnv.api_created_realm, path+'/users/'+errTaskId, tokenSuperAdmin, 400, 403, 'taskId must be integer', done);
@@ -733,24 +793,19 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
             });
             it('for task2', function (done) {
-                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[0], tokenAdmin, 200, getUser4task1, 'availList', done);
+                ithelper.selectCheckAllRecords4Key(testEnv.api_created_realm, path+'/entryscope?taskId='+taskId[1], tokenAdmin, 200, getUser4task2, 'availList', done);
             });
         });
-*/
         describe(testTitle+'sorting ', function () {
-/*
             it('Order by "created"', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created,updated', tokenAdmin, 200, discussionsByCreated, done);
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created,updated', tokenAdmin, 200, discussionsByCreatedEnd, done);
             });
-*/
-/*
             it('Order by "created" descending', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=-created', tokenAdmin, 200, discussionsByCreatedDesc, done);
             });
             it('Order by "entry"', function (done) {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=entry', tokenAdmin, 200, discussionsByEntry, done);
             });
-*/
         });
 /*
         describe(testTitle+'Clean up', function () {

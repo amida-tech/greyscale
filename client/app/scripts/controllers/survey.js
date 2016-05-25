@@ -62,7 +62,8 @@ angular.module('greyscaleApp')
                 if (data.resolveData) {
                     data.discussions = greyscaleDiscussionApi.list({
                         surveyId: surveyId,
-                        taskId: taskId
+                        taskId: taskId,
+                        filter: 'resolve'
                     });
                 }
                 _title = [data.survey.title];

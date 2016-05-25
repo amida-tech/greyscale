@@ -471,6 +471,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
     },
 
     attach: function (req, res, next) {
+
         var thunkQuery = req.thunkQuery;
         co(function* (){
             if (req.body.answerId) {
@@ -484,6 +485,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
             }
 
             if (req.files.file) {
+                //res.json({ok: true});
                 var file = req.files.file;
 
                 if (file.size > config.max_upload_filesize) {
@@ -536,6 +538,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                 return inserted[0];
 
             } else {
+                res.json({ok: 'File was not sent'});
                 throw HttpError(400, 'File was not sent');
             }
 
