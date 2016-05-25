@@ -119,7 +119,7 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
 router.route('/:realm/v0.2/attachments')
-    .post(/*authenticate('token').always,*/ surveyAnswers.attach);
+    .post(authenticate('token').always, surveyAnswers.attach);
 
 router.route('/:realm/v0.2/attachments/get/:ticket')
     .get(surveyAnswers.getAttachment);
