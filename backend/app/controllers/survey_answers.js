@@ -514,7 +514,7 @@ var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
                     size: file.size,
                     mimetype: file.mimetype,
                     body: filecontent,
-                    owner: req.user.realmUserId
+                    owner: 2//req.user.realmUserId
                 };
 
                 if (req.body.answerId) {
