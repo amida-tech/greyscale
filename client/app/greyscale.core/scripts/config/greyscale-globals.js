@@ -176,6 +176,18 @@ angular.module('greyscale.core')
                 value: 2,
                 name: 'INTERNAL_AND_EMAILS'
             }],
+            commentTypes: [
+                {
+                    value: 0,
+                    name: 'CONTENT'
+                }, {
+                    value: 1,
+                    name: 'FORMAT'
+                }, {
+                    value: 2,
+                    name: 'STRUCTURE'
+                }
+            ],
             adminSchema: 'public',
             tokenTTLsec: 300,
             setRolesId: _setRolesId

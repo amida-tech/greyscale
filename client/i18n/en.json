@@ -16,12 +16,7 @@
     "COMMENTS": {
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
-        "TYPE": "Comment type",
-        "TYPES": {
-            "CONTENT": "Content",
-            "FORMAT": "Format",
-            "STRUCTURE": "Structure"
-        }
+        "TYPE": "Comment type"
     },
     "COMMON": {
         "ADD": "Add",
@@ -167,6 +162,11 @@
         "WRONG_DATE_FORMAT": "Wrong date format."
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "Content",
+            "FORMAT": "Format",
+            "STRUCTURE": "Structure"
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "Internal Notifications Only",
             "INTERNAL_AND_EMAILS": "Internal Notifications And Emails",

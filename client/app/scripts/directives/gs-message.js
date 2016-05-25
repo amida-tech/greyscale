@@ -67,18 +67,8 @@ angular.module('greyscaleApp')
 
         }
 
-        //todo: replace with greyscaleUtilsSrv.getFullName in ntrlab-hcsc
         function _getUserName(userId) {
-            var _user = _getUser(userId),
-                _parts = [];
-
-            if (_user.firstName) {
-                _parts.push(_user.firstName);
-            }
-            if (_user.lastName) {
-                _parts.push(_user.lastName);
-            }
-            return _parts.join(' ');
+            return greyscaleUtilsSrv.getUserName(_getUser(userId));
         }
     });
 /* message object

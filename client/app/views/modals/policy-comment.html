@@ -2,24 +2,24 @@
     <span translate="COMMENTS.TITLE"></span>
 </modal-form-header>
 <div class="modal-body">
-    <div name="dataForm" class="form-horizontal" ng-form="dataForm">
-        <text-angular ng-model="model.comment"></text-angular>
-        <div class="form-group">
-            <label for="ctype" class="col-sm-4 control-label" translate="COMMENTS.TYPE"></label>
-            <div class="col-sm-8">
-                <select id="ctype" ng-model="model.type"
-                        ng-options="item as item.label for item in model.commentTypes"
-                        required="required"
-                ></select>
+    <div name="dataForm" class="form" ng-form="dataForm">
+        <div class="row">
+            <div class="col-sm-12">
+                <text-angular ng-model="model.comment"></text-angular>
             </div>
         </div>
-        <div class="form-group">
-            <label for="person" class="col-sm-4 control-label" translate="COMMENTS.TAG_COMMENT"></label>
-            <div class="col-sm-8">
-                <select id="person" ng-model="model.person"
+        <div class="row">
+            <div class="form-group col-sm-6">
+                <label for="ctype" class="control-label" translate="COMMENTS.TYPE"></label>
+                <select id="ctype" ng-model="model.type" class="form-control"
+                        ng-options="item.value as item.name for item in model.commentTypes"
+                        required="required"></select>
+            </div>
+            <div class="form-group col-sm-6">
+                <label for="person" class="control-label" translate="COMMENTS.TAG_COMMENT"></label>
+                <select id="person" ng-model="model.person" class="form-control"
                         ng-options="person as person.fullName for person in model.commentAssociate"
-                        required="required"
-                ></select>
+                        required="required"></select>
             </div>
         </div>
     </div>

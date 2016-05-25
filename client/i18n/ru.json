@@ -16,12 +16,7 @@
     "COMMENTS": {
         "TAG_COMMENT": "",
         "TITLE": "",
-        "TYPE": "",
-        "TYPES": {
-            "CONTENT": "",
-            "FORMAT": "",
-            "STRUCTURE": ""
-        }
+        "TYPE": ""
     },
     "COMMON": {
         "ADD": "Добавить",
@@ -167,6 +162,11 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "",
+            "FORMAT": "",
+            "STRUCTURE": ""
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "",
             "INTERNAL_AND_EMAILS": "",
