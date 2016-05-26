@@ -20,7 +20,18 @@ angular.module('greyscaleApp')
                 isDraft: true,
                 author: -1
             },
-            policy: {},
+            policy: {
+                id: null,
+                title: '',
+                section: '',
+                subsection: '',
+                number: '',
+                options: {
+                    readonly: false
+                },
+                sections: [],
+                attachments: []
+            },
             policies: _policies,
             attachments: [],
             authorName: '',
@@ -38,7 +49,7 @@ angular.module('greyscaleApp')
 
         greyscaleProfileSrv.getProfile().then(_setAuthor);
 
-        _policiesGenerate(_policies);
+        _policiesGenerate($scope.model.policy.sections);
 
         $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEmodel.survey.authorY');
 
@@ -75,7 +86,7 @@ angular.module('greyscaleApp')
             greyscaleSurveyApi.get(surveyId).then(function (survey) {
                 var _questions = [],
                     _sections = [],
-                    qty = survey.questions.length,
+                    qty = survey.questions ? survey.questions.length : 0,
                     q;
 
                 $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
