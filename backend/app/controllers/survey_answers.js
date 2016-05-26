@@ -471,6 +471,7 @@ module.exports = {
     },
 
     attach: function (req, res, next) {
+
         var thunkQuery = req.thunkQuery;
         co(function* (){
             if (req.body.answerId) {
@@ -484,6 +485,7 @@ module.exports = {
             }
 
             if (req.files.file) {
+                //res.json({ok: true});
                 var file = req.files.file;
 
                 if (file.size > config.max_upload_filesize) {
@@ -536,6 +538,7 @@ module.exports = {
                 return inserted[0];
 
             } else {
+                res.json({ok: 'File was not sent'});
                 throw HttpError(400, 'File was not sent');
             }
 
