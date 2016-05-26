@@ -53,8 +53,8 @@ angular.module('greyscaleApp')
                         }
                     } else {
                         _p = saveAnswers(scope)
-                            .then(function(res){
-                                return goNextStep(res,resolve);
+                            .then(function (res) {
+                                return goNextStep(res, resolve);
                             });
                     }
 
@@ -190,17 +190,17 @@ angular.module('greyscaleApp')
                     var flagged = 0;
                     var commented = 0;
                     scope.surveyData.flagsResolve = scope.surveyData.flagsResolve || {};
-                    angular.forEach(scope.surveyData.survey.questions, function(question){
+                    angular.forEach(scope.surveyData.survey.questions, function (question) {
                         if (question.flagResolve) {
                             question.flagResolve.draft = question.flagResolve.draft || {
-                                    entry: '',
-                                    isResolve: true,
-                                    activated: false,
-                                    isReturn: false,
-                                    questionId: question.id,
-                                    taskId: scope.surveyData.task.id,
-                                    stepId: scope.surveyData.resolveData.stepId
-                                };
+                                entry: '',
+                                isResolve: true,
+                                activated: false,
+                                isReturn: false,
+                                questionId: question.id,
+                                taskId: scope.surveyData.task.id,
+                                stepId: scope.surveyData.resolveData.stepId
+                            };
                             flagged++;
                             if (question.flagResolve.draft.entry !== '') {
                                 commented++;
@@ -223,9 +223,9 @@ angular.module('greyscaleApp')
                         //show error
                         return;
                     }
-                    _saveFlagCommentDraft.timer = $timeout(function(){
+                    _saveFlagCommentDraft.timer = $timeout(function () {
                         if (!draft.id && draft.entry !== '') {
-                            greyscaleDiscussionApi.add(draft).then(function(data){
+                            greyscaleDiscussionApi.add(draft).then(function (data) {
                                 question.flagResolve.draft.id = data.id;
                             });
                         } else if (draft.id && draft.entry !== '') {
@@ -266,7 +266,7 @@ angular.module('greyscaleApp')
                     if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
                         var flagged = 0;
                         var resolved = 0;
-                        angular.forEach($scope.surveyData.survey.questions, function(question){
+                        angular.forEach($scope.surveyData.survey.questions, function (question) {
                             if (question.flagResolve) {
                                 flagged++;
                                 if (question.flagResolve.draft && question.flagResolve.draft.entry !== '') {
@@ -380,34 +380,34 @@ angular.module('greyscaleApp')
                             description: field.description
                         };
 
-                    if (type === 'section_end') { // close section
-                        if (r > 0) {
-                            r--;
-                        }
-                    } else { //push data into current section
-                        if (excludedFields.indexOf(field.type) === -1) {
-                            angular.extend(fld, {
-                                qid: field.qid,
-                                required: field.isRequired,
-                                minLength: field.minLength,
-                                maxLength: field.maxLength,
-                                inWords: field.isWordmml,
-                                value: field.value,
-                                links: field.links,
-                                canAttach: field.attachment,
-                                hasComments: field.hasComments,
-                                ngModel: {},
-                                flags: flags,
-                                answer: null,
-                                answerId: null,
-                                prevAnswers: [],
-                                responses: null,
-                                response: '',
-                                langId: scope.model.lang,
-                                essenceId: scope.surveyData.essenceId,
-                                withLinks: field.withLinks,
-                                flagResolve: field.flagResolve
-                            });
+                        if (type === 'section_end') { // close section
+                            if (r > 0) {
+                                r--;
+                            }
+                        } else { //push data into current section
+                            if (excludedFields.indexOf(field.type) === -1) {
+                                angular.extend(fld, {
+                                    qid: field.qid,
+                                    required: field.isRequired,
+                                    minLength: field.minLength,
+                                    maxLength: field.maxLength,
+                                    inWords: field.isWordmml,
+                                    value: field.value,
+                                    links: field.links,
+                                    canAttach: field.attachment,
+                                    hasComments: field.hasComments,
+                                    ngModel: {},
+                                    flags: flags,
+                                    answer: null,
+                                    answerId: null,
+                                    prevAnswers: [],
+                                    responses: null,
+                                    response: '',
+                                    langId: scope.model.lang,
+                                    essenceId: scope.surveyData.essenceId,
+                                    withLinks: field.withLinks,
+                                    flagResolve: field.flagResolve
+                                });
 
                                 if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
                                     angular.extend(fld, {
@@ -510,8 +510,8 @@ angular.module('greyscaleApp')
             scope.content = content;
             scope.unlock();
 
-            $timeout(function(){
-                questions.map(function(question){
+            $timeout(function () {
+                questions.map(function (question) {
                     if (question.flagResolve) {
                         scope.model.contentOpen = true;
                         var field = $('#fld' + question.id);

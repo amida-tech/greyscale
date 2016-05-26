@@ -40,7 +40,7 @@ angular.module('greyscaleApp')
 
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
-console.log(body);
+                    console.log(body);
                     //return;
                     greyscaleDiscussionApi.add(body)
                         .then(function (resp) {
