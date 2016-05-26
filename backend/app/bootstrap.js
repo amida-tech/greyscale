@@ -42,8 +42,6 @@ app.on('start', function () {
         // realm not set
         var cpg = config.pgConnect;
         co(function*(){
-
-
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
                 try{
                     var schemas = yield mc.get(req.mcClient, 'schemas');
@@ -104,7 +102,7 @@ app.on('start', function () {
     app.set('json spaces', 2);
 
     // Parse JSON requests using body-parser
-    app.use(bodyParser.json({limit: config.max_upload_filesize}));
+    //app.use(bodyParser.json({limit: config.max_upload_filesize}));
 
     // view engine
     app.engine('ejs', require('ejs-locals'));
