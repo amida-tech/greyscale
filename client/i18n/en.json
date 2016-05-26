@@ -386,9 +386,11 @@
         "SECTION_4": "Rationale",
         "SECTION_5": "Contract",
         "SECTION_6": "Pricing",
+        "SECTION_7": "Coding",
         "SUBSECTION": "Subsection",
         "TEXT": "Draft policy text:",
-        "TITLE": "Policy title"
+        "TITLE": "Policy title",
+        "UPLOAD_TEXT": "Copy and paste text into sections below or upload a draft written using the template to automatically divide it into sections below"
     },
     "PRODUCTS": {
         "INDEXES": {

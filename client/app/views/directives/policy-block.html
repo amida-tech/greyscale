@@ -46,7 +46,19 @@
             </div>
         </div>
     </div>
-    <div class="policy-sections" ng-show="policyData.id">
+    <div class="policy-sections">
+        <div class="policy-upload row" ng-hide="policyData.options.readonly">
+            <div class="col-sm-12">
+                <label translate="POLICY.TEXT"></label>
+                <p class="subtext" translate="POLICY.UPLOAD_TEXT"></p>
+                <form ng-show="!uploader.progress" class="row" name="{{formName}}">
+                    <input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader">
+                </form>
+                <div class="progress" ng-if="uploader.progress">
+                    <div class="progress-bar" role="progressbar" ng-style="{width: uploader.progress + '%'}"></div>
+                </div>
+            </div>
+        </div>
         <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options"></fb-policy>
         <attachments model="policyData.attachments" item-id="{{policyData.id}}"
                      essence-id="{{policyData.essenceId}}" options="policyData.options"></attachments>
