@@ -447,6 +447,24 @@ router.route('/:realm/v0.2/discussions/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    COMMENTS
+//----------------------------------------------------------------------------------------------------------------------
+var comments = require('app/controllers/comments');
+
+router.route('/:realm/v0.2/comments')
+    .get(authenticate('token').always, comments.select)
+    .post(authenticate('token').always, comments.insertOne);
+router.route('/:realm/v0.2/comments/users/:taskId')
+    .get(authenticate('token').always, comments.getUsers);
+router.route('/:realm/v0.2/comments/entryscope')
+    .get(authenticate('token').always, comments.getEntryScope);
+router.route('/:realm/v0.2/comments/entryscope/:id')
+    .get(authenticate('token').always, comments.getEntryUpdate);
+router.route('/:realm/v0.2/comments/:id')
+    .put(authenticate('token').always, comments.updateOne)
+    .delete(authenticate('token').always, comments.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS
 //----------------------------------------------------------------------------------------------------------------------
 var notifications = require('app/controllers/notifications');

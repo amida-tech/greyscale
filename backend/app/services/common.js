@@ -13,6 +13,7 @@ var
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
+    Comment = require('app/models/comments'),
     Notification = require('app/models/notifications'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
@@ -61,11 +62,20 @@ exports.getTaskByStep = getTaskByStep;
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Entry with id `'+parseInt(userId).toString()+'` does not exist in discussions');
+        throw new HttpError(403, 'Entry with id `'+parseInt(entryId).toString()+'` does not exist in discussions');
     }
     return result[0];
 };
 exports.getDiscussionEntry = getDiscussionEntry;
+
+var getCommentEntry = function* (req, entryId) {
+    var result = yield * getEntityById(req, entryId, Comment, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Comment with id `'+parseInt(entryId).toString()+'` does not exist in comments');
+    }
+    return result[0];
+};
+exports.getCommentEntry = getCommentEntry;
 
 var getUser = function* (req, userId) {
     var result = yield * getEntityById(req, userId, User, 'id');
