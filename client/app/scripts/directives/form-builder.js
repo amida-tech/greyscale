@@ -14,7 +14,6 @@ angular.module('greyscaleApp')
                 var formbuilder;
                 var types = greyscaleGlobals.formBuilder.fieldTypes;
                 var sizes = ['small', 'medium', 'large'];
-                var policies = [];
 
                 function formBuilderSave(json) {
                     var fields = JSON.parse(json).fields;
