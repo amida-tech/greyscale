@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('policyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
+    .directive('policyDiscussion', function (greyscaleGlobals, i18n, greyscaleCommentApi, greyscaleProfileSrv,
         greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
@@ -40,7 +40,7 @@ angular.module('greyscaleApp')
 
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
-                    greyscaleDiscussionApi.add(body)
+                    greyscaleCommentApi.add(body)
                         .then(function (resp) {
                             if ($scope.model.questions[body.questionId]) {
                                 angular.extend(body, resp);
@@ -72,7 +72,7 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.updateMsg = function (message) {
-                    return greyscaleDiscussionApi.update(message.id, message);
+                    return greyscaleCommentApi.update(message.id, message);
                 };
 
                 $scope.flagChange = function () {

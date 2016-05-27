@@ -12,14 +12,12 @@
             <div class="form-group col-sm-6">
                 <label for="ctype" class="control-label" translate="COMMENTS.TYPE"></label>
                 <select id="ctype" ng-model="model.type" class="form-control"
-                        ng-options="item.value as item.name for item in model.commentTypes"
-                        required="required"></select>
+                        ng-options="item.value as item.name for item in model.commentTypes"></select>
             </div>
             <div class="form-group col-sm-6">
                 <label for="person" class="control-label" translate="COMMENTS.TAG_COMMENT"></label>
                 <select id="person" ng-model="model.person" class="form-control"
-                        ng-options="person as person.fullName for person in model.commentAssociate"
-                        required="required"></select>
+                        ng-options="person as person.fullName for person in model.commentAssociate"></select>
             </div>
         </div>
     </div>
