@@ -1,7 +1,7 @@
 <div>
-    <uib-accordion ng-show="model.questions.length > 0">
-        <uib-accordion-group is-open="discuss.isOpen" ng-repeat="discuss in model.questions"
-                             is-disabled="discuss.messages.length<1">
+    <uib-accordion ng-show="model.questions.list.length > 0">
+        <uib-accordion-group is-open="discuss.isOpen" ng-repeat="discuss in model.questions.list"
+                             is-disabled="discuss.items.length < 1">
             <uib-accordion-heading>
                 {{discuss.title}}
                 <i class="fa pull-right" ng-class="{'fa-caret-up': discuss.isOpen, 'fa-caret-down': !discuss.isOpen}"></i>
