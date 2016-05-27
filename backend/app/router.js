@@ -459,7 +459,7 @@ var comments = require('app/controllers/comments');
 
 router.route('/:realm/v0.2/comments')
     .get(authenticate('token').always, comments.select)
-    .post(authenticate('token').always, comments.insertOne);
+    .post(authenticate('token').always, jsonParser, comments.insertOne);
 router.route('/:realm/v0.2/comments/users/:taskId')
     .get(authenticate('token').always, comments.getUsers);
 router.route('/:realm/v0.2/comments/entryscope')
@@ -467,7 +467,7 @@ router.route('/:realm/v0.2/comments/entryscope')
 router.route('/:realm/v0.2/comments/entryscope/:id')
     .get(authenticate('token').always, comments.getEntryUpdate);
 router.route('/:realm/v0.2/comments/:id')
-    .put(authenticate('token').always, comments.updateOne)
+    .put(authenticate('token').always, jsonParser, comments.updateOne)
     .delete(authenticate('token').always, comments.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
