@@ -14,6 +14,7 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "NO_MESSAGES": "no messages",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
         "TYPE": "Comment type"

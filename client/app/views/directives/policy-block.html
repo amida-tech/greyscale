@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options"></fb-policy>
+        <fb-policy ng-model="item" ng-repeat="item in policyData.sections" options="policyData.options" associate="policyData.associate"></fb-policy>
         <attachments model="policyData.attachments" item-id="{{policyData.id}}"
                      essence-id="{{policyData.essenceId}}" options="policyData.options"></attachments>
     </div>

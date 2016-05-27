@@ -4,19 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function ($scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, greyscaleUoaApi,
-        greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv, greyscaleUsers, greyscaleAttachmentApi) {
-        $scope.loading = true;
-        $scope.model = {
-            id: $stateParams.id,
-            title: '',
-            surveyData: null,
-            showDiscuss: false
-        };
-
-        if (!$scope.model.id) {
-            $state.go('policy');
-        }
+        greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
+        greyscaleUsers, greyscaleAttachmentApi, greyscaleCommentApi) {
 
         var data = {},
             _title = [],
@@ -27,10 +16,33 @@ angular.module('greyscaleApp')
                 essence: greyscaleEntityTypeApi.list({
                     name: 'Survey Answers'
                 })
-            };
+            },
+            surveyId = $stateParams.id,
+            taskId = $stateParams.taskId;
+
+        $scope.loading = true;
+        $scope.model = {
+            id: surveyId,
+            title: '',
+            surveyData: null,
+            showDiscuss: false
+        };
+
+        if (!$scope.model.id) {
+            $state.go('policy');
+        }
+
+        if (taskId) {
+            reqs.task = greyscaleTaskApi.get(taskId);
+            reqs.scopeList = greyscaleCommentApi.scopeList({
+                taskId: taskId
+            });
+        }
 
         $q.all(reqs)
             .then(function (resp) {
+                var i, qty;
+
                 data = {
                     survey: resp.survey,
                     userId: resp.profile.id,
@@ -44,12 +56,22 @@ angular.module('greyscaleApp')
                         subsection: resp.survey.subsection,
                         number: resp.survey.number,
                         options: {
-                            readonly: true
+                            readonly: true,
+                            isPolicy: true
                         },
+                        surveyId: resp.survey.id,
+                        taskId: resp.task ? resp.task.id : null,
+                        userId: resp.profile.id,
                         sections: [],
-                        attachments: []
+                        attachments: [],
+                        associate: resp.scopeList ? resp.scopeList.availList : []
                     }
                 };
+
+                qty = data.policy.associate.length;
+                for (i = 0; i < qty; i++) {
+                    data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
+                }
 
                 greyscaleEntityTypeApi.getByFile('policies')
                     .then(function (essence) {

@@ -3,9 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('policyDiscussion', function (greyscaleGlobals, i18n, greyscaleCommentApi, greyscaleProfileSrv,
-        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q, $log) {
-        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes;
+    .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv) {
 
         return {
             restrict: 'E',
@@ -21,129 +19,56 @@ angular.module('greyscaleApp')
             },
             controller: function ($scope) {
                 $scope.model = {
-                    questions: {
-                        list: []
-                    },
-                    associate: {},
-                    assignTo: [],
-                    draftFlag: null
+                    items: [],
+                    associate: []
                 };
 
-                $scope.surveyParams = {};
-
-                function emptyMsgForm() {
-                    $scope.model.msg = {
-                        userId: null,
-                        questionId: null,
-                        isReturn: false,
-                        entry: ''
+                $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
+                    var _body = {
+                        userFromId: $scope.policy.userId,
+                        taskId: $scope.policy.taskId,
+                        stepId: data.tag ? data.tag.stepId : null,
+                        questionId: data.section.id,
+                        entry: data.comment,
+                        userId: data.tag ? data.tag.userId : null
                     };
-                }
+
+                    greyscaleCommentApi.add(_body)
+                        .then(function (result) {
+                            angular.extend(_body, result);
+                            $scope.model.items.unshift(_body);
+                        })
+                        .catch(greyscaleUtilsSrv.errorMsg);
+                });
             }
         };
 
         function _updateDiscussion(data, scope) {
-            var i, qty, discuss, quest;
-            $log.debug('policy discussion data', data);
-
-            if (data && data.sections) {
-                qty = data.sections.length;
-                for (i = 0; i < qty; i++) {
-                    quest = data.sections[i];
-                    discuss = {
-                        id: quest.id,
-                        title: quest.label,
-                        isOpen: false,
-                        messages: [],
-                        items: []
-                    };
-                    scope.model.questions[quest.id] = discuss;
-                    scope.model.questions.list.push(discuss);
-                }
-            }
-
-            if (data && data.survey && data.task) {
-                var survey = data.survey,
-                    task = data.task,
+            if (data && data.sections && data.taskId) {
+                var i, qty,
                     params = {
-                        surveyId: survey.id,
-                        taskId: task.id
+                        surveyId: data.surveyId,
+                        taskId: data.taskId
                     },
                     reqs = {
-                        users: greyscaleCommentApi.getUsers(task.id),
+                        users: greyscaleCommentApi.getUsers(data.taskId),
                         messages: greyscaleCommentApi.list(params)
                     };
 
-                scope.surveyParams = {
-                    userFromId: scope.surveyData.userId,
-                    taskId: task.id
-                };
-
                 $q.all(reqs).then(function (resp) {
-                    var i, qty, quest, msg, discuss,
-                        qid = 0,
-                        questions = survey.questions || [],
-                        _steps;
-
-                    /* assign to steps */
-                    _steps = _.remove(resp.steps.plain(), {
-                        id: task.stepId
-                    });
-
-                    scope.model.assignTo = resp.steps;
-
                     /* form associate */
                     scope.model.associate = {};
                     qty = resp.users.length;
 
                     for (i = 0; i < qty; i++) {
+                        resp.users[i].fullName = greyscaleUtilsSrv.getUserName(resp.users[i]);
                         scope.model.associate[resp.users[i].userId] = resp.users[i];
                     }
 
                     /* discussions */
-                    qty = questions.length;
-                    for (i = 0; i < qty; i++) {
-                        quest = questions[i];
-                        if (sectionTypes.indexOf(quest.type) === -1) {
-                            qid++;
-                            if (!quest.qid) {
-                                quest.qid = i18n.translate('SURVEYS.QUESTION') + qid;
-                            }
-
-                            discuss = {
-                                id: quest.id,
-                                title: quest.qid,
-                                label: quest.label,
-                                isOpen: false,
-                                messages: [],
-                                items: []
-                            };
-                            scope.model.questions[quest.id] = discuss;
-                            scope.model.questions.list.push(discuss);
-                        }
-                    }
-
-                    qty = resp.messages.length;
-                    for (i = 0; i < qty; i++) {
-                        msg = resp.messages[i];
-                        if (scope.model.questions[msg.questionId]) {
-                            scope.model.questions[msg.questionId].items.push(msg);
-                        }
-                        if (!msg.activated && msg.isReturn && !msg.resolved) {
-                            flaggedQuestions.push(msg.questionId);
-                            if (!flaggedStep) {
-                                flaggedStep = _.find(scope.model.assignTo, {
-                                    id: msg.stepId
-                                });
-                            }
-
-                            scope.surveyData.flags.draftFlag = true;
-                        }
-
-                    }
+                    scope.items = resp.messages;
 
                 });
             }
         }
-
     });

@@ -574,7 +574,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
         })
         .state('policy.review', {
             parent: 'policy',
-            url: '/review/:id',
+            url: '/review/:id/task/:taskId?',
             views: {
                 'body@dashboard': {
                     templateUrl: 'views/controllers/policy-review.html',

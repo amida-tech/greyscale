@@ -1,4 +1,7 @@
 <div>
+    <div class="gs-message" gs-message="msg" associate="model.associate" options="policy.options" ng-repeat="msg in model.items"></div>
+    <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
+<!--
     <uib-accordion ng-show="model.questions.list.length > 0">
         <uib-accordion-group is-open="discuss.isOpen" ng-repeat="discuss in model.questions.list"
                              is-disabled="discuss.messages.length<1">
@@ -10,4 +13,5 @@
             remove="removeMsg(msg)" update="updateMsg(msg)"></div>
         </uib-accordion-group>
     </uib-accordion>
+-->
 </div>

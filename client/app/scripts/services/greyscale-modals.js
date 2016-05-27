@@ -265,6 +265,6 @@ angular.module('greyscaleApp')
         }
 
         function _policyComment(model, options) {
-            return _simpleLargeForm('views/modals/policy-comment.html',model, options);
+            return _simpleLargeForm('views/modals/policy-comment.html', model, options);
         }
     });
