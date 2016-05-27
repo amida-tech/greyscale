@@ -20,16 +20,6 @@ angular.module('greyscaleApp')
 
         var data = {},
             _title = [],
-
-            flags = [
-                'allowEdit',
-                'allowTranslate',
-                'blindReview',
-                'discussionParticipation',
-                'provideResponses',
-                'seeOthersResponses',
-                'writeToAnswers'
-            ],
             reqs = {
                 survey: greyscaleSurveyApi.get($stateParams.id),
                 profile: greyscaleProfileSrv.getProfile(),
@@ -60,7 +50,6 @@ angular.module('greyscaleApp')
                         attachments: []
                     }
                 };
-                angular.extend(data.policy, {});
 
                 greyscaleEntityTypeApi.getByFile('policies')
                     .then(function (essence) {
@@ -70,6 +59,7 @@ angular.module('greyscaleApp')
                     .then(function (attachments) {
                         data.policy.attachments = attachments;
                     });
+
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
                     data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
                 });

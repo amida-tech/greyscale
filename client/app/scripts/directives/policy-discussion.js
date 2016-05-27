@@ -4,24 +4,19 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function (greyscaleGlobals, i18n, greyscaleCommentApi, greyscaleProfileSrv,
-        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
-        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
-        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
-            flaggedQuestions = [],
-            flaggedStep = null,
-            currentStep = null;
+        greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q, $log) {
+        var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes;
 
         return {
             restrict: 'E',
             replace: true,
             scope: {
-                surveyData: '=?',
-                onSend: '=msgOnSubmit'
+                policy: '=?'
             },
             templateUrl: 'views/directives/policy-discussion.html',
             link: function (scope) {
-                scope.$watch('surveyData', function (data) {
-                    updateDicscussion(data, scope);
+                scope.$watch('policy', function (data) {
+                    _updateDiscussion(data, scope);
                 });
             },
             controller: function ($scope) {
@@ -36,80 +31,6 @@ angular.module('greyscaleApp')
 
                 $scope.surveyParams = {};
 
-                $scope.sendMsg = function () {
-
-                    var body = angular.copy($scope.model.msg);
-                    angular.extend(body, $scope.surveyParams);
-                    greyscaleCommentApi.add(body)
-                        .then(function (resp) {
-                            if ($scope.model.questions[body.questionId]) {
-                                angular.extend(body, resp);
-                                $scope.model.questions[body.questionId].items.unshift(body);
-                                flaggedQuestions.push(body.questionId);
-                            }
-                            if (typeof $scope.onSend === 'function') {
-                                $scope.onSend(body);
-                            }
-                        })
-                        .catch(greyscaleUtilsSrv.errorMsg)
-                        .finally(function () {
-                            emptyMsgForm();
-                        });
-                };
-
-                $scope.flagIsDisabled = function () {
-                    var hasUnresolvedFlag = false;
-                    angular.forEach($scope.model.questions.list, function (q) {
-                        if (q.messages && q.messages.length) {
-                            angular.forEach(q.messages, function (m) {
-                                if (!hasUnresolvedFlag && m.flagged && !m.resolved) {
-                                    hasUnresolvedFlag = true;
-                                }
-                            });
-                        }
-                    });
-                    return false && hasUnresolvedFlag;
-                };
-
-                $scope.updateMsg = function (message) {
-                    return greyscaleCommentApi.update(message.id, message);
-                };
-
-                $scope.flagChange = function () {
-                    if ($scope.model.msg.isReturn) {
-                        if (flaggedStep) {
-                            $scope.model.msg.stepId = flaggedStep.id;
-                        }
-                    } else {
-                        $scope.model.msg.stepId = null;
-                    }
-                };
-
-                $scope.removeMsg = function (message) {
-                    return greyscaleDiscussionApi.remove(message.id)
-                        .then(function () {
-                            var i, qty,
-                                idx = null,
-                                list = $scope.model.questions[message.questionId].items;
-
-                            if (list) {
-                                qty = list.length;
-                                for (i = 0; i < qty && !idx; i++) {
-                                    if (message.id === list[i].id) {
-                                        idx = i;
-                                    }
-                                }
-                                $scope.model.questions[message.questionId].items.splice(idx, 1);
-
-                                if ($scope.model.questions[message.questionId].items.length < 1) {
-                                    $scope.model.questions[message.questionId].isOpen = false;
-                                }
-                            }
-                        });
-                };
-
-                emptyMsgForm();
-
                 function emptyMsgForm() {
                     $scope.model.msg = {
                         userId: null,
@@ -121,7 +42,25 @@ angular.module('greyscaleApp')
             }
         };
 
-        function updateDicscussion(data, scope) {
+        function _updateDiscussion(data, scope) {
+            var i, qty, discuss, quest;
+            $log.debug('policy discussion data', data);
+
+            if (data && data.sections) {
+                qty = data.sections.length;
+                for (i = 0; i < qty; i++) {
+                    quest = data.sections[i];
+                    discuss = {
+                        id: quest.id,
+                        title: quest.label,
+                        isOpen: false,
+                        messages: [],
+                        items: []
+                    };
+                    scope.model.questions[quest.id] = discuss;
+                    scope.model.questions.list.push(discuss);
+                }
+            }
 
             if (data && data.survey && data.task) {
                 var survey = data.survey,
@@ -130,11 +69,9 @@ angular.module('greyscaleApp')
                         surveyId: survey.id,
                         taskId: task.id
                     },
-                    workflowId = data.product.workflow.id,
                     reqs = {
-                        steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
-                        users: greyscaleDiscussionApi.getUsers(task.id),
-                        messages: greyscaleDiscussionApi.list(params)
+                        users: greyscaleCommentApi.getUsers(task.id),
+                        messages: greyscaleCommentApi.list(params)
                     };
 
                 scope.surveyParams = {
@@ -152,7 +89,7 @@ angular.module('greyscaleApp')
                     _steps = _.remove(resp.steps.plain(), {
                         id: task.stepId
                     });
-                    currentStep = _steps[0];
+
                     scope.model.assignTo = resp.steps;
 
                     /* form associate */
@@ -186,8 +123,6 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    flaggedQuestions = [];
-                    flaggedStep = null;
                     qty = resp.messages.length;
                     for (i = 0; i < qty; i++) {
                         msg = resp.messages[i];
