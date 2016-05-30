@@ -80,6 +80,16 @@ router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    AMAZON WEB SERVICES
+//----------------------------------------------------------------------------------------------------------------------
+var aws = require('app/controllers/aws');
+
+router.route('/:realm/v0.2/aws/upload_link')
+    //.get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
+    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ aws.getUploadLink);
+
+
+//----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
 var surveys = require('app/controllers/surveys');
