@@ -21,8 +21,8 @@ angular.module('greyscaleApp')
                 };
 
                 elem.on('contextmenu', function (evt) {
-                    scope.model.range = window.getSelection().getRangeAt(0);
                     evt.preventDefault();
+                    scope.model.range = window.getSelection().getRangeAt(0);
                     elem.find('#' + scope.model.menuId)
                         .css({
                             left: evt.offsetX,

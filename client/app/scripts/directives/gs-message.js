@@ -3,14 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, $log) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, $log) {
         var _associate = [];
         return {
             restrict: 'A',
             scope: {
                 model: '=gsMessage',
                 associate: '=',
-                options: '=?',
+                options: '=',
                 remove: '&',
                 update: '&'
             },
@@ -29,7 +29,7 @@ angular.module('greyscaleApp')
                     _toggleEdit();
                 };
 
-                $log.debug($scope.model.options);
+                $log.debug('options', $scope.options);
 
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;
@@ -48,11 +48,39 @@ angular.module('greyscaleApp')
 
                 $scope.cancel = _toggleEdit;
 
+                $scope.fullview = function () {
+                    var _comment = $scope.model,
+                        _options = {
+                            readonly: true
+                        };
+
+                    $log.debug('full view', $scope.model);
+
+                    greyscaleModalsSrv.policyComment(_comment, _options);
+                };
+
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
                 }
 
                 _associate = $scope.associate;
+            },
+            link: function (scope, elem) {
+                scope.$watch('model', function () {
+
+                    var msgBody = (elem.find('.gs-message-body')),
+                        taText, fView;
+
+                    if (msgBody.length > 0) {
+                        taText = (msgBody.find('.ta-text'));
+                        fView = (msgBody.find('.gs-message-full-view'));
+                        if (msgBody.innerHeight() < taText.outerHeight()) {
+                            fView.show();
+                        } else {
+                            fView.hide();
+                        }
+                    }
+                });
             }
         };
 
