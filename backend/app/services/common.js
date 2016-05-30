@@ -8,6 +8,8 @@ var
     Essence = require('app/models/essences'),
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),
+    WorkflowStepGroup = require('app/models/workflow_step_groups'),
+    UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
@@ -58,6 +60,46 @@ var getTaskByStep = function* (req, stepId, uoaId) {
     return result[0];
 };
 exports.getTaskByStep = getTaskByStep;
+
+var getUsersForStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, taskId, Task, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
+    }
+    var task = result[0];
+    // get group for step
+    result = yield thunkQuery(WorkflowStepGroup.select().where(WorkflowStepGroup.stepId.equals(task.stepId)));
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
+    }
+    var groups = result;
+
+    // get Users
+    var users = [];
+    for (var i in groups) {
+        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
+        for (var j in usersFromGroup) {
+            if (users.indexOf(usersFromGroup[j].userId ) === -1) {
+                users.push(usersFromGroup[j]);
+            }
+        }
+    }
+
+    return users;
+};
+exports.getUsersForStepByTask = getUsersForStepByTask;
+
+var getUsersFromGroup = function* (req, groupId) {
+    var thunkQuery = req.thunkQuery;
+    // get Users
+    var result = yield thunkQuery(UserGroup.select().where(UserGroup.groupId.equals(groupId)));
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Not found users for group with id `'+groupId+'`');
+    }
+    return result;
+};
+exports.getUsersFromGroup = getUsersFromGroup;
 
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');

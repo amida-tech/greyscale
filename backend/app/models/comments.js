@@ -17,7 +17,9 @@ var Comment = sql.define({
         'returnTaskId',
         'created',
         'updated',
-        'activated'
+        'activated',
+        'tags',
+        'range'
     ]
 });
 
@@ -33,12 +35,16 @@ Comment.insertCols = [
     'isReturn',
     'isResolve',
     'returnTaskId',
-    'activated'
+    'activated',
+    'tags',
+    'range'
 ];
 
 Comment.updateCols = [
     'entry',
-    'updated'
+    'updated',
+    'tags',
+    'range'
 ];
 
 module.exports = Comment;

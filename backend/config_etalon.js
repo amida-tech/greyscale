@@ -241,6 +241,11 @@ var environments = {
                 subject: 'Indaba. Flags were resolved and are ready to be reviewed in the <%= uoa.name %> survey for the <%= product.title %>',
                 notificationBody: './views/notifications/resolve_flag.html',
                 emailBody: './views/emails/resolve_flag.html'
+            },
+            comment: {
+                subject: 'Indaba. <%= action %> in the <%= uoa.name %> survey for the <%= product.title %>',
+                notificationBody: './views/notifications/comment.html',
+                emailBody: './views/emails/comment.html'
             }
         }
     }

@@ -114,11 +114,15 @@ module.exports = {
             req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
             req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
             req.body = _.extend(req.body, {stepFromId: task.stepId});               // add stepFromId from task (for future use)
+            req.body = _.extend(req.body, {stepId: task.stepId});                   // add stepId from task (don't use stepId from body - use stepId only for current task)
             if (!isReturn && !isResolve) {
                 req.body = _.extend(req.body, {activated: true});                   // ordinary entries is activated
             }
             req.body = _.pick(req.body, Comment.insertCols);                     // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+
+            yield * notify(req, result[0].id, task.id, 'Comment added');
+
             bologger.log({
                 req: req,
                 user: req.user,
@@ -127,6 +131,7 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add comment'
             });
+
             return _.first(result);
 
         }).then(function (data) {
@@ -140,9 +145,16 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkUpdate(req);
-            req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
+            req.body = _.extend(req.body, {updated: new Date()});           // update `updated`
+            req.body = _.extend(req.body, {                                 // object to JSON
+                tags: JSON.stringify(req.body.tags),
+                range: JSON.stringify(req.body.range)
+            });
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
-            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id));
+            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
+
+            yield * notify(req, result[0].id, result[0].taskId, 'Comment updated');
+
             bologger.log({
                 req: req,
                 user: req.user,
@@ -244,7 +256,7 @@ module.exports = {
 function* checkInsert(req) {
     var questionId = yield * checkOneId(req, req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
     var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
-    var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
+    //var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
     var entry = yield * checkString(req.body.entry, 'Entry');
     // check if return or resolve entry already exist for question
     var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
@@ -634,36 +646,11 @@ function* updateProductUOAStep(req, object) {
             .returning(ProductUOA.currentStepId)
     );
     if (_.first(res)) {
-
         // notify
-        var essenceId = yield * common.getEssenceId(req, 'Tasks');
-        var task = yield * common.getTask(req, parseInt(object.taskId));
         var userTo = yield * common.getUser(req, task.userId);
-        var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        var product = yield * common.getEntity(req, task.productId, Product, 'id');
-        var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        var note = yield * notifications.createNotification(req,
-            {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'Task activated (flagged)',
-                essenceId: essenceId,
-                entityId: object.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                config: config
-            },
-            'activateTask'
-        );
+        var note = {body: 'Task activated (flagged)'};
+        note = yield * notifications.extendNote(req, note, userTo, 'Tasks', object.taskId, userTo.organizationId, object.taskId);
+        note = notifications.notify(req, userTo, note, 'activateTask');
 
         bologger.log({
             req: req,
@@ -711,34 +698,10 @@ function* checkUpdateProductUOAStep(req, object) {
         if (_.first(res)) {
 
             // notify
-            var essenceId = yield * common.getEssenceId(req, 'Tasks');
-            var task = yield * common.getTask(req, parseInt(object.taskId));
             var userTo = yield * common.getUser(req, task.userId);
-            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-            var product = yield * common.getEntity(req, task.productId, Product, 'id');
-            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: req.user.realmUserId,
-                    userTo: task.userId,
-                    body: 'Task activated (resolved)',
-                    essenceId: essenceId,
-                    entityId: object.taskId,
-                    task: task,
-                    product: product,
-                    uoa: uoa,
-                    step: step,
-                    survey: survey,
-                    user: userTo,
-                    organization: organization,
-                    date: new Date(),
-                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    config: config
-                },
-                'activateTask'
-            );
+            var note = {body: 'Task activated (resolved)'};
+            note = yield * notifications.extendNote(req, note, userTo, 'Tasks', object.taskId, userTo.organizationId, object.taskId);
+            note = notifications.notify(req, userTo, note, 'activateTask');
 
             bologger.log({
                 req: req,
@@ -868,3 +831,46 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
     }
     return result;
 }
+
+
+var notify = function* (req, commentId, taskId, action){
+    // notify
+    var sentUsersId = [];         // array for excluding duplicate sending
+    var task = yield * common.getTask(req, taskId);
+    var userTo = yield * common.getUser(req, task.userId);
+    var note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+    note = notifications.notify(req, userTo, note, 'comment');
+    sentUsersId.push(userTo.id);
+    var users = yield * common.getUsersForStepByTask(req, taskId);
+    for (var i in users) {
+        if (sentUsersId.indexOf(users[i].userId ) === -1) {
+            userTo = yield * common.getUser(req, users[i].userId);
+            note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+            note = notifications.notify(req, userTo, note, 'comment');
+            sentUsersId.push(users[i].userId);
+        }
+    }
+    if (req.body.tags) {
+        req.body.tags = JSON.parse(req.body.tags);
+        for (i in req.body.tags.users) {
+            if (sentUsersId.indexOf(req.body.tags.users[i] ) === -1) {
+                userTo = yield * common.getUser(req, req.body.tags.users[i]);
+                note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+                note = notifications.notify(req, userTo, note, 'comment');
+                sentUsersId.push(req.body.tags.users[i]);
+            }
+        }
+        for (i in req.body.tags.groups) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
+            for (var j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId ) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                    note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+                    note = notifications.notify(req, userTo, note, 'comment');
+                    sentUsersId.push(usersFromGroup[j].userId);
+                }
+            }
+        }
+    }
+};
+

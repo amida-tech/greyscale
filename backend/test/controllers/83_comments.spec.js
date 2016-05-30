@@ -415,14 +415,6 @@ describe(testTitle, function () {
                     insertItem = {questionId: questionId[0], taskId: notExistTaskId};
                     ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'does not exist', done);
                 });
-                it('(Err) stepId must be specified', function (done) {
-                    insertItem = {questionId: questionId[0], taskId: taskId[0]};
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'stepId must be specified', done);
-                });
-                it('(Err) stepId must be integer', function (done) {
-                    insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: errStepId};
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'stepId must be integer', done);
-                });
                 it('(Err) userId does not exist', function (done) {
                     insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: notExistStepId};
                     ithelper.insertOneErrMessage(testEnv.api_created_realm, path, tokenAdmin, insertItem, 400, 403, 'does not exist', done);
@@ -435,17 +427,18 @@ describe(testTitle, function () {
             });
             describe('Success:', function () {
                 it('Simple comment from Admin to Step2 (q1, t1)', function (done) {
-                    insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'simple discussion entry from Admin to Step2 (q1, t1)'};
+                    insertItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[0], entry: 'simple discussion entry from Admin to Step2 (q1, t1)'};
                     ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
                 });
                 it('Get entry update for added entry', function (done) {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+insertItem.id, tokenAdmin, 200, null, 'canUpdate', true, done);
                 });
                 it('Update simple discussion entry from Admin to Step2 (q1, t1)', function (done) {
-                    updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[1], entry: 'UPDATED '+insertItem.entry};
+                    updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[0], entry: 'UPDATED '+insertItem.entry, tags: {users: [2,3,4,5], groups: [2,3,4]}};
                     ithelper.updateOne(testEnv.api_created_realm, path+'/'+insertItem.id, tokenAdmin, updateItem, 202, done);
                 });
                 it('Get comments content', function (done) {
+                    updateItem = _.omit(updateItem, 'tags');
                     ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created', tokenAdmin, 200, [updateItem], done);
                 });
 /*
