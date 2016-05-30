@@ -3,13 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, $log) {
         var _associate = [];
         return {
             restrict: 'A',
             scope: {
                 model: '=gsMessage',
                 associate: '=',
+                options: '=?',
                 remove: '&',
                 update: '&'
             },
@@ -27,6 +28,8 @@ angular.module('greyscaleApp')
                     $scope.entry = $scope.model.entry;
                     _toggleEdit();
                 };
+
+                $log.debug($scope.model.options);
 
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;

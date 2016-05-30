@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv) {
+    .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv, $log) {
 
         return {
             restrict: 'E',
@@ -65,8 +65,9 @@ angular.module('greyscaleApp')
                         scope.model.associate[resp.users[i].userId] = resp.users[i];
                     }
 
+                    $log.debug(resp.messages);
                     /* discussions */
-                    scope.items = resp.messages;
+                    scope.model.items = resp.messages;
 
                 });
             }

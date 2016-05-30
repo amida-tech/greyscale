@@ -15,7 +15,8 @@ angular.module('greyscaleApp')
                 '<span translate="{{model.label}}"></span><i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
                 '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading>' +
                 '<text-angular ng-model="model.description" ng-hide="options.readonly"></text-angular>' +
-                '<div gs-context-menu="contextMenu" class="gs-contextmenu-wrapper dropdown"><div class="section-text" ng-show="options.readonly" ng-bind-html="model.description"></div></div>' +
+                '<div gs-context-menu="contextMenu" class="gs-contextmenu-wrapper dropdown">' +
+                '<div class="section-text ta-text" ng-show="options.readonly" ng-bind-html="model.description"></div></div>' +
                 '</uib-accordion-group></uib-accordion>',
             link: function (scope, elem, attrs, ngModel) {
                 var _policy, _associate;
