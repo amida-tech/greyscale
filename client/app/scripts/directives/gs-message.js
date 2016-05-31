@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, $log) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv,  $log) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -47,10 +47,6 @@ angular.module('greyscaleApp')
                 $scope.cancel = _toggleEdit;
 
                 $scope.fullview = function () {
-                    var _comment = $scope.model;
-
-                    $log.debug('full view', $scope.model);
-
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 

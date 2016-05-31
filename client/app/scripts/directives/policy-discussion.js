@@ -30,12 +30,14 @@ angular.module('greyscaleApp')
                         stepId: data.tag ? data.tag.stepId : null,
                         questionId: data.section.id,
                         entry: data.comment,
-                        userId: data.tag ? data.tag.userId : null
+                        userId: data.tag ? data.tag.userId : null,
+                        range: data.range
                     };
 
                     greyscaleCommentApi.add(_body)
                         .then(function (result) {
                             angular.extend(_body, result);
+                            _body.activated = true;
                             $scope.model.items.unshift(_body);
                         })
                         .catch(greyscaleUtilsSrv.errorMsg);
