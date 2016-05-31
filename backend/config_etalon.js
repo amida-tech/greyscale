@@ -84,6 +84,11 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
+        },
+        aws: {
+            accessKeyId: 'YOURAWSACCESSKEY',
+            secretAccessKey: 'yourAwsSecretAccessKey',
+            region: 'us-east-1'
         }
     },
 

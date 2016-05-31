@@ -86,7 +86,7 @@ var aws = require('app/controllers/aws');
 
 router.route('/:realm/v0.2/aws/upload_link')
     //.get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ aws.getUploadLink);
+    .post(authenticate('token').always, jsonParser, aws.getUploadLink);
 
 
 //----------------------------------------------------------------------------------------------------------------------
