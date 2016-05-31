@@ -215,30 +215,9 @@ module.exports = {
     getUsers: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var userList=[];
-
             var taskId = yield * checkOneId(req, req.params.taskId, Task, 'id', 'taskId', 'Task');
-            var task = yield * common.getTask(req, taskId);
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var currentStep = yield * getCurrentStep(req, taskId);
-
-            var result = yield * getUserList(req, req.user, taskId, productId, uoaId, currentStep);
-            if (_.first(result)) {
-                for (var i = 0; i < result.length; i++) {
-                    userList.push(
-                        {
-                            userId: result[i].userid,
-                            firstName: result[i].firstName,
-                            lastName: result[i].lastName,
-                            stepId: result[i].stepid,
-                            stepName: result[i].stepname,
-                            role: result[i].role
-                        }
-                    );
-                }
-            }
-            return userList;
+            var result = yield * getUsersAndGroups(req, taskId);
+            return result;
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -744,25 +723,6 @@ function* updateReturnTask(req, commentId) {
     }
 }
 
-function* getUserToStep(req, productId, uoaId, userId) {
-    // get step information for userId
-    query =
-        'SELECT '+
-        '"WorkflowSteps".* '+
-        'FROM "Tasks" '+
-        'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" '+
-        'WHERE '+
-        pgEscape('"Tasks"."productId" = %s AND ', productId)+
-        pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
-        pgEscape('"Tasks"."userId" = %s', userId);
-    var thunkQuery = req.thunkQuery;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Error find step for (productId, uoaId, userId)=('+productId.toString()+', '+uoaId.toString()+', '+userId.toString()+')');
-    }
-    return result[0];
-}
-
 var isInt = function(val){
     return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
 };
@@ -870,3 +830,45 @@ var notify = function* (req, commentId, taskId, action){
     }
 };
 
+var getUsersAndGroups = function* (req, taskId){
+    var users = [];
+    var groups = [];
+    var chkUsers = [];
+    var chkGroups = [];
+    var task = yield * common.getTask(req, taskId);
+    var taskAdmin = yield * common.getUser(req, task.userId);
+    users.push({
+        userId: taskAdmin.id,
+        firstName: taskAdmin.firstName,
+        lastName: taskAdmin.lastName,
+        email: taskAdmin.email
+    });
+    chkUsers.push(taskAdmin.id);
+    var stepUsers = yield * common.getUsersForStepByTask(req, taskId);
+    for (var i in stepUsers) {
+        if (chkUsers.indexOf(stepUsers[i].userId ) === -1) {
+            chkUsers.push(stepUsers[i].userId);
+            users.push({
+                userId: stepUsers[i].userId,
+                firstName: stepUsers[i].firstName,
+                lastName: stepUsers[i].lastName,
+                email: stepUsers[i].email
+            });
+        }
+    }
+    var stepGroups = yield * common.getGroupsForStep(req, task.stepId);
+    for (var i in stepGroups) {
+        if (chkGroups.indexOf(stepGroups[i].groupId ) === -1) {
+            chkGroups.push(stepGroups[i].groupId);
+            groups.push({
+                groupId : stepGroups[i].groupId,
+                title: stepGroups[i].title
+            });
+        }
+    }
+
+    return {
+        users: users,
+        groups: groups
+    };
+};

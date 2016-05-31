@@ -9,6 +9,7 @@ var
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),
     WorkflowStepGroup = require('app/models/workflow_step_groups'),
+    Group = require('app/models/groups'),
     UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
@@ -69,11 +70,7 @@ var getUsersForStepByTask = function* (req, taskId) {
     }
     var task = result[0];
     // get group for step
-    result = yield thunkQuery(WorkflowStepGroup.select().where(WorkflowStepGroup.stepId.equals(task.stepId)));
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
-    }
-    var groups = result;
+    var groups = yield * getGroupsForStep(req, task.stepId);
 
     // get Users
     var users = [];
@@ -90,10 +87,46 @@ var getUsersForStepByTask = function* (req, taskId) {
 };
 exports.getUsersForStepByTask = getUsersForStepByTask;
 
+var getGroupsForStep = function* (req, stepId) {
+    var thunkQuery = req.thunkQuery;
+    // get group for step
+    result = yield thunkQuery(
+        WorkflowStepGroup.select(
+            WorkflowStepGroup.star(),
+            Group.title
+        )
+            .from(WorkflowStepGroup
+                .leftJoin(Group)
+                .on(WorkflowStepGroup.groupId.equals(Group.id))
+        )
+            .where(WorkflowStepGroup.stepId.equals(stepId)
+        )
+    );
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
+    }
+    return result;
+};
+exports.getGroupsForStep = getGroupsForStep;
+
 var getUsersFromGroup = function* (req, groupId) {
     var thunkQuery = req.thunkQuery;
     // get Users
-    var result = yield thunkQuery(UserGroup.select().where(UserGroup.groupId.equals(groupId)));
+    var result = yield thunkQuery(
+        UserGroup.select(
+            UserGroup.star(),
+            User.email,
+            User.firstName,
+            User.lastName
+        )
+            .from(UserGroup
+                .leftJoin(User)
+                .on(UserGroup.userId.equals(User.id))
+        )
+            .where(UserGroup.groupId.equals(groupId)
+        )
+    );
+
     if (!_.first(result)) {
         throw new HttpError(403, 'Not found users for group with id `'+groupId+'`');
     }

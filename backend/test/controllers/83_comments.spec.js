@@ -307,6 +307,41 @@ var discussionsByEntry = [
 ];
 
 var insertItem, updateItem;
+var getUsers4Task1_comments = {
+    users:
+        [
+            {
+                userId: 2,
+                firstName: 'Admin',
+                lastName: 'Test',
+                email: 'test-adm@mail.net'
+            },
+            {
+                userId: 3,
+                firstName: 'User1',
+                lastName: 'Test',
+                email: 'user1@mail.net'
+            },
+            {
+                userId: 5,
+                firstName: 'User3',
+                lastName: 'Test',
+                email: 'user3@mail.net'
+            }
+        ],
+    groups:
+        [
+            {
+                groupId: 2,
+                title: 'Admin&User1'
+            },
+            {
+                groupId: 4,
+                title: 'User1&User3'
+            }
+        ]
+};
+
 
 describe(testTitle, function () {
 
@@ -470,6 +505,11 @@ describe(testTitle, function () {
                 it('True number of discussion`s entries for task2 = 0', function (done) {
                     ithelper.selectCount(testEnv.api_created_realm, path+'?taskId='+taskId[1], tokenUser1, 200, 0, done);
                 });
+            });
+        });
+        describe(testTitle+'get Users ', function () {
+            it('for task1 without blindReview flag - Admin request', function (done) {
+                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'/users/'+taskId[0], tokenAdmin, 200, getUsers4Task1_comments, done);
             });
         });
 /*

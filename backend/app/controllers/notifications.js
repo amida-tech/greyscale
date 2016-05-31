@@ -772,6 +772,15 @@ function notify(req, userTo, note, template) {
             sendEmail(req, emailOptions, note, noteInserted[0].id);
         }
 
+        bologger.log({
+            req: req,
+            user: req.user,
+            action: 'insert',
+            object: 'notifications',
+            entity: _.first(noteInserted).id,
+            info: 'Add new notification'
+        });
+
         return noteInserted;
     }).then(function (result) {
         debug('Created notification `'+ note.body+'`');
