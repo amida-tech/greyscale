@@ -121,7 +121,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols);                     // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
-            yield * notify(req, result[0].id, task.id, 'Comment added');
+            notify(req, result[0].id, task.id, 'Comment added', 'Comments');
 
             bologger.log({
                 req: req,
@@ -149,7 +149,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.updateCols);                // update only columns that may be updated
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
 
-            yield * notify(req, result[0].id, result[0].taskId, 'Comment updated');
+            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments');
 
             bologger.log({
                 req: req,
@@ -170,9 +170,11 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            // check next entry
-            var nextEntry = yield * checkNextEntry(req, req.params.id);
-            return yield thunkQuery(Comment.delete().where(Comment.id.equals(req.params.id)));
+            var entry = yield * checkCanUpdate(req, req.params.id);
+            req.body.entry = entry.entry;
+            notify(req, entry.id, entry.taskId, 'Comment deleted');
+
+            yield thunkQuery(Comment.delete().where(Comment.id.equals(req.params.id)));
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -201,11 +203,8 @@ module.exports = {
     getEntryUpdate: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            /*
-             Possible update ONLY comment`s message if comment does not have next message for current Question
-             */
-            // check next entry
-            return yield * checkNextEntry(req, req.params.id, true);
+            var result = yield * checkCanUpdate(req, req.params.id, true);
+            return (!result) ? false : true;
         }).then(function (data) {
             res.json({canUpdate: data});
         }, function (err) {
@@ -216,8 +215,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var taskId = yield * checkOneId(req, req.params.taskId, Task, 'id', 'taskId', 'Task');
-            var result = yield * getUsersAndGroups(req, taskId);
-            return result;
+            return yield * getUsersAndGroups(req, taskId);
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -253,11 +251,7 @@ function* checkInsert(req) {
 }
 
 function* checkUpdate(req) {
-    /*
-     Possible update ONLY comment`s message if comment does not have next message for current Question
-     */
-    // check next entry
-    var nextEntry = yield * checkNextEntry(req, req.params.id);
+    var canUpdate = yield * checkCanUpdate(req, req.params.id);
     var entry = yield * checkString(req.body.entry, 'Entry');
 }
 
@@ -532,6 +526,20 @@ function* checkNextEntry(req, id, checkOnly) {
     return true;
 }
 
+function* checkCanUpdate(req, id, checkOnly) {
+    /*
+     Possible update ONLY self comment`s message (or admin)
+     */
+    var isAdmin = auth.checkAdmin(req.user);
+    var entry = yield * common.getCommentEntry(req, id);
+    if (!isAdmin && entry.userFromId !== req.user.id) {
+        if (checkOnly) return false;
+        throw new HttpError(403, 'Comment with id=`'+id+'` cannot be updated or deleted');
+    }
+    return entry;
+}
+
+
 function* getNextOrder(req, taskId, questionId) {
 
     // 1st - get productId and uoaId for this task
@@ -789,45 +797,51 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
 }
 
 
-var notify = function* (req, commentId, taskId, action){
-    // notify
-    var sentUsersId = [];         // array for excluding duplicate sending
-    var task = yield * common.getTask(req, taskId);
-    var userTo = yield * common.getUser(req, task.userId);
-    var note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
-    note = notifications.notify(req, userTo, note, 'comment');
-    sentUsersId.push(userTo.id);
-    var users = yield * common.getUsersForStepByTask(req, taskId);
-    for (var i in users) {
-        if (sentUsersId.indexOf(users[i].userId ) === -1) {
-            userTo = yield * common.getUser(req, users[i].userId);
-            note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
-            note = notifications.notify(req, userTo, note, 'comment');
-            sentUsersId.push(users[i].userId);
-        }
-    }
-    if (req.body.tags) {
-        req.body.tags = JSON.parse(req.body.tags);
-        for (i in req.body.tags.users) {
-            if (sentUsersId.indexOf(req.body.tags.users[i] ) === -1) {
-                userTo = yield * common.getUser(req, req.body.tags.users[i]);
-                note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+var notify = function(req, commentId, taskId, action, essenceName){
+    co(function* () {
+        // notify
+        var sentUsersId = [];         // array for excluding duplicate sending
+        var task = yield * common.getTask(req, taskId);
+        var userTo = yield * common.getUser(req, task.userId);
+        var note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, essenceName, commentId, userTo.organizationId, taskId);
+        note = notifications.notify(req, userTo, note, 'comment');
+        sentUsersId.push(userTo.id);
+        var users = yield * common.getUsersForStepByTask(req, taskId);
+        for (var i in users) {
+            if (sentUsersId.indexOf(users[i].userId ) === -1) {
+                userTo = yield * common.getUser(req, users[i].userId);
+                note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, essenceName, commentId, userTo.organizationId, taskId);
                 note = notifications.notify(req, userTo, note, 'comment');
-                sentUsersId.push(req.body.tags.users[i]);
+                sentUsersId.push(users[i].userId);
             }
         }
-        for (i in req.body.tags.groups) {
-            var usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
-            for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j].userId ) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                    note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, 'Comments', commentId, userTo.organizationId, taskId);
+        if (req.body.tags) {
+            req.body.tags = JSON.parse(req.body.tags);
+            for (i in req.body.tags.users) {
+                if (sentUsersId.indexOf(req.body.tags.users[i] ) === -1) {
+                    userTo = yield * common.getUser(req, req.body.tags.users[i]);
+                    note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, essenceName, commentId, userTo.organizationId, taskId);
                     note = notifications.notify(req, userTo, note, 'comment');
-                    sentUsersId.push(usersFromGroup[j].userId);
+                    sentUsersId.push(req.body.tags.users[i]);
+                }
+            }
+            for (i in req.body.tags.groups) {
+                var usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
+                for (var j in usersFromGroup) {
+                    if (sentUsersId.indexOf(usersFromGroup[j].userId ) === -1) {
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, {body: req.body.entry, action: action}, userTo, essenceName, commentId, userTo.organizationId, taskId);
+                        note = notifications.notify(req, userTo, note, 'comment');
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
                 }
             }
         }
-    }
+    }).then(function (result) {
+        debug('Created notification for comment with id`'+ commentId+'`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
 };
 
 var getUsersAndGroups = function* (req, taskId){

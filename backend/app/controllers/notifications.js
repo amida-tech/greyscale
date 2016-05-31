@@ -633,7 +633,7 @@ function* checkInsert(req, note) {
         } catch (err) {
             throw new HttpError(403, 'Cannot find model file: ' + essence.fileName);
         }
-        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entry');
+        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entity('+essence.fileName+')');
     }
     return note;
 }
@@ -791,7 +791,14 @@ function notify(req, userTo, note, template) {
 
 function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
 
-    var essenceId = yield * common.getEssenceId(req, essenceName);
+    if (essenceName && essenceName.length > 0) {
+        var essenceId = yield * common.getEssenceId(req, essenceName);
+        note = _.extend(note, {
+                essenceId: essenceId,
+                entityId: entityId
+            }
+        );
+    }
     var organization = yield * common.getEntity(req, orgId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
@@ -803,8 +810,6 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     note = _.extend(note, {
             userFrom: req.user.realmUserId,
             userTo: userTo.id,
-            essenceId: essenceId,
-            entityId: entityId,
             task: task,
             product: product,
             uoa: uoa,
