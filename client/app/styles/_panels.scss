@@ -33,7 +33,8 @@ checkbox-list {
     background-color: $grey-light;
     border: solid thin $grey-medium-light;
     border-radius: 15px;
-
+    margin-bottom: 5px;
+    
     .gs-message-from {
         font-weight: bold;
     }
