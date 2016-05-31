@@ -34,7 +34,8 @@ angular.module('greyscaleApp')
             editVisualization: _editVisualization,
             addProduct: _addProduct,
             importDataset: _importDataset,
-            policyComment: _policyComment
+            policyComment: _policyComment,
+            fullScreenComment: _fullScreenComment
         };
 
         function hndlModalErr(err) {
@@ -60,6 +61,10 @@ angular.module('greyscaleApp')
 
         function _simpleLargeForm(tmplUrl, data, ext) {
             return _simpleForm(tmplUrl, data, ext, 'lg');
+        }
+
+        function _simpleFullScreenForm(tmplUrl, data, ext) {
+            return _simpleForm(tmplUrl, data, ext, 'xxl');
         }
 
         function modalForm(data, tableDescription) {
@@ -266,5 +271,9 @@ angular.module('greyscaleApp')
 
         function _policyComment(model, options) {
             return _simpleLargeForm('views/modals/policy-comment.html', model, options);
+        }
+
+        function _fullScreenComment(comment) {
+            return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
         }
     });

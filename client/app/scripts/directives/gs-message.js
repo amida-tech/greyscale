@@ -29,8 +29,6 @@ angular.module('greyscaleApp')
                     _toggleEdit();
                 };
 
-                $log.debug('options', $scope.options);
-
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;
                     $scope.model.entry = $scope.entry;
@@ -49,14 +47,11 @@ angular.module('greyscaleApp')
                 $scope.cancel = _toggleEdit;
 
                 $scope.fullview = function () {
-                    var _comment = $scope.model,
-                        _options = {
-                            readonly: true
-                        };
+                    var _comment = $scope.model;
 
                     $log.debug('full view', $scope.model);
 
-                    greyscaleModalsSrv.policyComment(_comment, _options);
+                    greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
                 function _toggleEdit() {
@@ -79,6 +74,9 @@ angular.module('greyscaleApp')
                         } else {
                             fView.hide();
                         }
+                    }
+                    if (scope.model) {
+                        scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
                 });
             }

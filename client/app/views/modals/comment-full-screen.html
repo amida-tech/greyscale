@@ -1,0 +1,18 @@
+<modal-form-header>
+<span class="gs-message-from">
+    {{model.fromUserFullName}}
+    <i class="fa fa-flag pull-right" ng-show="model.isReturn"
+       ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+</span>
+</modal-form-header>
+<div class="modal-body">
+    <div class="gs-message-body-warpper">
+        <div class="ta-text ta-scroll-window form-control">
+            <div class="ta-bind" ng-bind-html="model.entry"></div>
+        </div>
+    </div>
+    <p class="subtext">{{model.created | date : 'short'}}</p>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
+</div>

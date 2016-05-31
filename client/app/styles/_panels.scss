@@ -53,10 +53,10 @@ checkbox-list {
             .gs-message-full-view {
                 position: absolute;
                 display: none;
-                left:0;
-                right:0;
-                bottom:0;
-                padding:0 10px 0 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 0 10px 0 0;
                 margin: 0;
                 background: transparent; /* For browsers that do not support gradients */
                 background: -webkit-linear-gradient(transparent, $grey-light); /* For Safari 5.1 to 6.0 */
@@ -65,6 +65,12 @@ checkbox-list {
                 background: linear-gradient(transparent, $grey-light); /* Standard syntax */
             }
         }
+    }
+}
+
+.gs-message-body-wrapper {
+    .ta-text {
+        padding: 5px;
     }
 }
 
