@@ -434,7 +434,7 @@ describe(testTitle, function () {
                     ithelper.selectOneCheckField(testEnv.api_created_realm, path+'/entryscope/'+insertItem.id, tokenAdmin, 200, null, 'canUpdate', true, done);
                 });
                 it('Update simple discussion entry from Admin to Step2 (q1, t1)', function (done) {
-                    updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[0], entry: 'UPDATED '+insertItem.entry, tags: {users: [2,3,4,5], groups: [2,3,4]}};
+                    updateItem = {questionId: questionId[0], taskId: taskId[0], stepId: stepId[0], entry: 'UPDATED '+insertItem.entry, tags: '{"users": [2,3,4,5], "groups": [2,3,4]}'};
                     ithelper.updateOne(testEnv.api_created_realm, path+'/'+insertItem.id, tokenAdmin, updateItem, 202, done);
                 });
                 it('Get comments content', function (done) {

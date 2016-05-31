@@ -146,11 +146,7 @@ module.exports = {
         co(function* () {
             yield * checkUpdate(req);
             req.body = _.extend(req.body, {updated: new Date()});           // update `updated`
-            req.body = _.extend(req.body, {                                 // object to JSON
-                tags: JSON.stringify(req.body.tags),
-                range: JSON.stringify(req.body.range)
-            });
-            req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
+            req.body = _.pick(req.body, Comment.updateCols);                // update only columns that may be updated
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
 
             yield * notify(req, result[0].id, result[0].taskId, 'Comment updated');
