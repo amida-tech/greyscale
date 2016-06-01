@@ -57,7 +57,7 @@ module.exports = {
 
             yield thunkQuery(AttachmentAttempt.delete().where(AttachmentAttempt.key.equals(req.body.key)));
 
-            return id;
+            return id[0];
 
         }).then( function (data) {
             res.json(data);
