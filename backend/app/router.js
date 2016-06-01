@@ -84,9 +84,14 @@ router.route('/:realm/v0.2/projects/:id/surveys')
 //----------------------------------------------------------------------------------------------------------------------
 var aws = require('app/controllers/aws');
 
-router.route('/:realm/v0.2/aws/upload_link')
-    //.get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
+router.route('/:realm/v0.2/uploads/upload_link')
     .post(authenticate('token').always, jsonParser, aws.getUploadLink);
+
+router.route('/:realm/v0.2/uploads/download_link')
+    .post(authenticate('token').always, jsonParser, aws.getDownloadLink);
+
+router.route('/:realm/v0.2/uploads/success')
+    .post(authenticate('token').always, jsonParser, aws.uploadSuccess);
 
 
 //----------------------------------------------------------------------------------------------------------------------
