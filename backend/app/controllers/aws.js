@@ -78,7 +78,8 @@ module.exports = {
             var params = { // TODO add params like mimetype, etc.
                 Bucket: 'ntrlab-amida-indaba',
                 Key: key,
-                Expires: 3600000
+                Expires: 3600000,
+                ContentType: req.body.type
             };
             var url = s3.getSignedUrl('putObject', params);
 
