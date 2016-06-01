@@ -16,7 +16,8 @@ angular.module('greyscale.core')
                     builderFormSaved: 'form-changes-saved'
                 },
                 policy: {
-                    addComment: 'POLICY_ADD_COMMENT'
+                    addComment: 'POLICY_ADD_COMMENT',
+                    
                 }
             },
             projectStates: [{
