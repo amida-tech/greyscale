@@ -401,6 +401,7 @@ module.exports = {
             next(err);
         });
     },
+
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* (){
