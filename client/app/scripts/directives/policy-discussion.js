@@ -30,35 +30,35 @@ angular.module('greyscaleApp')
                         tags: $scope.model.associate.tags
                     });
                     greyscaleModalsSrv.policyComment(data, {})
-                        .then(function (comment_body) {
+                        .then(function (commentBody) {
                             var _tag = {
-                                users: [],
-                                groups: []
-                            }, i,qty;
-                            qty = comment_body.tag.length;
+                                    users: [],
+                                    groups: []
+                                },
+                                i, qty;
+                            qty = commentBody.tag.length;
 
-                            for (i=0; i<qty; i++){
-                                if (comment_body.tag[i].userId) {
-                                    _tag.users.push(comment_body.tag[i].userId);
-                                }else if(comment_body.tag[i].groupId) {
-                                    _tag.groups.push(comment_body.tag[i].groupId);
+                            for (i = 0; i < qty; i++) {
+                                if (commentBody.tag[i].userId) {
+                                    _tag.users.push(commentBody.tag[i].userId);
+                                } else if (commentBody.tag[i].groupId) {
+                                    _tag.groups.push(commentBody.tag[i].groupId);
                                 }
                             }
                             return {
                                 userFromId: $scope.policy.userId,
                                 taskId: $scope.policy.taskId,
                                 stepId: null,
-                                questionId: comment_body.section.id,
-                                entry: comment_body.comment,
-                                range: comment_body.range,
+                                questionId: commentBody.section.id,
+                                entry: commentBody.comment,
+                                range: commentBody.range,
                                 tags: _tag
                             };
                         })
                         .then(greyscaleCommentApi.add)
                         .then(function (result) {
-                            angular.extend(_body, result);
-                            _body.activated = true;
-                            $scope.model.items.unshift(_body);
+                            result.activated = true;
+                            $scope.model.items.unshift(result);
                         })
                         .catch(greyscaleUtilsSrv.errorMsg);
                 });

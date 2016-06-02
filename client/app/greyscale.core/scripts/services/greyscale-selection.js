@@ -45,12 +45,13 @@ angular.module('greyscale.core')
             range.setStart(container, 0);
             range.collapse(true);
 
-            var nodeStack = [container], node,
+            var nodeStack = [container],
+                node,
                 foundStart = false,
                 stop = false;
 
             while (!stop && (node = nodeStack.pop())) {
-                if (node.nodeType == 3) {
+                if (node.nodeType === 3) {
                     var nextCharIndex = charIndex + node.length;
                     if (!foundStart && selection.start >= charIndex && selection.start <= nextCharIndex) {
                         range.setStart(node, selection.start - charIndex);
@@ -78,21 +79,21 @@ angular.module('greyscale.core')
             var selectedTextRange = document.selection.createRange();
             var preSelectionTextRange = document.body.createTextRange();
             preSelectionTextRange.moveToElementText(container);
-            preSelectionTextRange.setEndPoint("EndToStart", selectedTextRange);
+            preSelectionTextRange.setEndPoint('EndToStart', selectedTextRange);
             var start = preSelectionTextRange.text.length;
 
             return {
                 start: start,
                 end: start + selectedTextRange.text.length
-            }
+            };
         }
 
         function _restoreMsSelection(container, selection) {
             var textRange = document.body.createTextRange();
             textRange.moveToElementText(container);
             textRange.collapse(true);
-            textRange.moveEnd("character", selection.end);
-            textRange.moveStart("character", selection.start);
+            textRange.moveEnd('character', selection.end);
+            textRange.moveStart('character', selection.start);
             textRange.select();
         }
 

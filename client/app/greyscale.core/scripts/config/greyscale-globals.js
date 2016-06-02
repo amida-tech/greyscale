@@ -17,7 +17,7 @@ angular.module('greyscale.core')
                 },
                 policy: {
                     addComment: 'POLICY_ADD_COMMENT',
-                    
+
                 }
             },
             projectStates: [{

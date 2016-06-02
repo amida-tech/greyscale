@@ -13,8 +13,8 @@ angular.module('greyscaleApp')
                 qid: '@'
             },
             template: '<ng-transclude></ng-transclude><ul data-toggle="dropdown" id="{{model.menuId}}" class="dropdown-menu" role="menu">' +
-            '<li class="dropdown-header" translate="CONTEXT_MENU.TITLE"></li><li class="divider"></li>' +
-            '<li ng-repeat="item in gsContextMenu"><a translate="{{item.title}}" ng-click="item.action(model.data)"></a></li></ul>',
+                '<li class="dropdown-header" translate="CONTEXT_MENU.TITLE"></li><li class="divider"></li>' +
+                '<li ng-repeat="item in gsContextMenu"><a translate="{{item.title}}" ng-click="item.action(model.data)"></a></li></ul>',
             link: function (scope, elem) {
                 scope.model = {
                     menuId: 'mnu_' + new Date().getTime(),
