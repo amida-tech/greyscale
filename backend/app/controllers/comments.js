@@ -28,6 +28,9 @@ var
     thunkQuery = thunkify(query),
     pgEscape = require('pg-escape');
 
+var debug = require('debug')('debug_comments');
+var error = require('debug')('error');
+debug.log = console.log.bind(console);
 
 module.exports = {
 
