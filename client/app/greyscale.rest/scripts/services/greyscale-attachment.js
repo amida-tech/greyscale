@@ -5,7 +5,7 @@
 angular.module('greyscale.rest')
     .factory('greyscaleAttachmentApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
         return {
-            getTicket: _getTicket,
+            getDownloadUrl: _getDownloadUrl,
             getLink: _getLink,
             delete: _delete
         };
@@ -18,12 +18,12 @@ angular.module('greyscale.rest')
             return resp.plain();
         }
 
-        function _getTicket(attachId) {
+        function _getDownloadUrl(attachId) {
             return _api().one(attachId + '', 'ticket').get().then(_preResp);
         }
 
         function _getLink(ticket) {
-            return greyscaleUtilsSrv.getApiBase() + '/attachments/get/' + ticket.tiсket;
+            return greyscaleUtilsSrv.getApiBase() + '/attachments/get/' + ticket;
         }
 
         function _delete(attachId) {

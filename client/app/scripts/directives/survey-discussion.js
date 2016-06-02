@@ -40,7 +40,7 @@ angular.module('greyscaleApp')
 
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
-console.log(body);
+
                     //return;
                     greyscaleDiscussionApi.add(body)
                         .then(function (resp) {
@@ -145,6 +145,7 @@ console.log(body);
                         steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                         users: greyscaleDiscussionApi.getUsers(task.id),
                         messages: greyscaleDiscussionApi.list(params)
+                        //entryscope: greyscaleDiscussionApi.scopeList({taskId: task.id})
                     };
 
                 scope.surveyParams = {
