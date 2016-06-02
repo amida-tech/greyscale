@@ -96,7 +96,6 @@ angular.module('greyscale.tables')
             formTitle: tns + 'ITEM',
             title: tns + 'HEADER',
             icon: 'fa-paper-plane',
-            pageLength: 10,
             cols: recDescr,
             sorting: {
                 id: 'asc'

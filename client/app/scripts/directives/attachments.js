@@ -55,6 +55,9 @@ angular.module('greyscaleApp')
                     greyscaleUploadApi.getUrl(uploadData).then(function(response){
                         item.url = response.url;
                         item.key = response.key;
+                        item.headers = {
+                            'Content-Disposition': 'attachment; filename="' + item.file.name + '"'
+                        };
                         item.upload();
                     });
                 };

@@ -1,9 +1,19 @@
-<p>Hello <%= to.firstName %> <%= to.lastName %>! <%= from.firstName %> <%= from.lastName %> posted a discussion comment:</p>
-<p><%- body %></p>
+<%#
 
-<% if (isReturn) { %>
-<p> Please revise and resubmit your response.</p>
-<% } else { %>
-<p> If you have a response, please login to Indaba and respond in the discussion thread. </p>
-<% } %>
-<p>Thank you!</br>-Indaba</p>
+%>
+
+<p>Hello <%= to.firstName %> <%= to.lastName %>! </p>
+
+<p>
+    Date: <%= date.toLocaleString() %></br>
+    <a href="<%= config.domain %>/#/survey/<%= survey.id %>/task/<%= task.id %>"><%= action %> in the <%= uoa.name %> survey for the <%= product.title %></a></br>
+    <%= from.firstName %> <%= from.lastName %> posted a discussion comment:</br>
+    <%- body %>
+</p>
+<p>
+    Organisation: <%= organization.name %></br>
+    Project: <%= product.title %></br>
+    Survey: <%= survey.title %></br>
+    Subject: <%= uoa.name %></br>
+    Task: <%= step.title %></br></br>
+</p>

@@ -43,7 +43,6 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'USER_GROUP',
-            pageLength: 10,
             add: {
                 handler: _editGroup
             }

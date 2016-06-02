@@ -5726,10 +5726,10 @@ BEGIN
 	LOOP
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 --        RAISE NOTICE 'SET search_path TO %', quote_ident(schema_name);
-		EXECUTE 'ALTER TABLE "testorg"."Discussions" '
+		EXECUTE 'ALTER TABLE "Discussions" '
             || 'ADD COLUMN "stepFromId" int4, '
             || 'ADD COLUMN "activated" bool DEFAULT false NOT NULL, '
-            || 'ADD FOREIGN KEY ("stepFromId") REFERENCES "testorg"."WorkflowSteps" ("id");';
+            || 'ADD FOREIGN KEY ("stepFromId") REFERENCES "WorkflowSteps" ("id");';
 
 	END LOOP;
 END;

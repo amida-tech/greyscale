@@ -8,6 +8,9 @@ var
     Essence = require('app/models/essences'),
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),
+    WorkflowStepGroup = require('app/models/workflow_step_groups'),
+    Group = require('app/models/groups'),
+    UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
@@ -58,10 +61,82 @@ var getTaskByStep = function* (req, stepId, uoaId) {
 };
 exports.getTaskByStep = getTaskByStep;
 
+var getUsersForStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, taskId, Task, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
+    }
+    var task = result[0];
+    // get group for step
+    var groups = yield * getGroupsForStep(req, task.stepId);
+
+    // get Users
+    var users = [];
+    for (var i in groups) {
+        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
+        for (var j in usersFromGroup) {
+            if (users.indexOf(usersFromGroup[j].userId ) === -1) {
+                users.push(usersFromGroup[j]);
+            }
+        }
+    }
+
+    return users;
+};
+exports.getUsersForStepByTask = getUsersForStepByTask;
+
+var getGroupsForStep = function* (req, stepId) {
+    var thunkQuery = req.thunkQuery;
+    // get group for step
+    result = yield thunkQuery(
+        WorkflowStepGroup.select(
+            WorkflowStepGroup.star(),
+            Group.title
+        )
+            .from(WorkflowStepGroup
+                .leftJoin(Group)
+                .on(WorkflowStepGroup.groupId.equals(Group.id))
+        )
+            .where(WorkflowStepGroup.stepId.equals(stepId)
+        )
+    );
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
+    }
+    return result;
+};
+exports.getGroupsForStep = getGroupsForStep;
+
+var getUsersFromGroup = function* (req, groupId) {
+    var thunkQuery = req.thunkQuery;
+    // get Users
+    var result = yield thunkQuery(
+        UserGroup.select(
+            UserGroup.star(),
+            User.email,
+            User.firstName,
+            User.lastName
+        )
+            .from(UserGroup
+                .leftJoin(User)
+                .on(UserGroup.userId.equals(User.id))
+        )
+            .where(UserGroup.groupId.equals(groupId)
+        )
+    );
+
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Not found users for group with id `'+groupId+'`');
+    }
+    return result;
+};
+exports.getUsersFromGroup = getUsersFromGroup;
+
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Entry with id `'+parseInt(userId).toString()+'` does not exist in discussions');
+        throw new HttpError(403, 'Entry with id `'+parseInt(entryId).toString()+'` does not exist in discussions');
     }
     return result[0];
 };
