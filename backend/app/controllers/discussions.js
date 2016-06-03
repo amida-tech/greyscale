@@ -109,8 +109,18 @@ module.exports = {
             var userTo = yield * common.getUser(req, task.userId);
             var retTask = task;
             if (returnObject) {
-                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                userTo = yield * common.getUser(req, retTask.userId);
+                var returnTaskId = null;
+                if (isReturn) {
+                    returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
+                }
+                if (returnTaskId) {
+                    retTask = yield * common.getTask(req, returnTaskId);
+                    req.body = _.extend(req.body, {stepId: retTask.stepId});                            // use stepId from previous return flags
+                    req.body = _.extend(req.body, {returnTaskId: returnTaskId});                // use returnTaskId from previous return flags
+                } else {
+                    retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
+                    userTo = yield * common.getUser(req, retTask.userId);
+                }
             }
             req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
             req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
@@ -998,4 +1008,37 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
         throw new HttpError(403, rR+'entry for questionId=`'+questionId+'` already exist');
     }
     return result;
+}
+
+var notify = function(req, note0, entryId, taskId, action, essenceName){
+    co(function* () {
+        // notify
+        var task = yield * common.getTask(req, taskId);
+        var userTo = yield * common.getUser(req, task.userId);
+        var note = _.extend(note0, {body: req.body.entry, action: action});
+        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
+        note = notifications.notify(req, userTo, note, 'discussion');
+    }).then(function (result) {
+        debug('Created notification for comment with id`'+ entryId+'`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
+
+function* returnTaskIdIfReturnFlagsExists(req, taskId) {
+    /*
+     Check (return) flag(s) exists and return returnTaskId
+     */
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion
+            .select(Discussion.returnTaskId)
+            .from(Discussion)
+            .where(
+            Discussion.isReturn.equals(true)
+                .and(Discussion.activated.equals(false))
+                .and(Discussion.taskId.equals(taskId))
+        )
+    );
+    return (_.first(result)) ? result[0].returnTaskId : null;
 }
