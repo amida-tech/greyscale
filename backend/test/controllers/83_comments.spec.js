@@ -47,7 +47,7 @@ var adminId = 2;
 var productId = 2;
 var uoaId = 66;
 
-var insertItem, insertItem2, updateItem;
+var insertItem, insertItem2, updateItem, updateItem4Check;
 var getUsers4Task1_comments = {
     users:
         [
@@ -198,14 +198,14 @@ describe(testTitle, function () {
                         taskId: taskId[0],
                         stepId: stepId[0],
                         entry: 'UPDATED '+insertItem.entry,
-                        tags: '{"users": [2,3,4,5], "groups": [2,3,4]}',
-                        range: '{"start":2,"end":7}'
+                        tags: {"users": [2,3,4,5], "groups": [2,3,4]},
+                        range: {"start":2,"end":7}
                     };
                     ithelper.updateOne(testEnv.api_created_realm, path+'/'+insertItem.id, tokenAdmin, updateItem, 202, done);
                 });
                 it('Get comments content', function (done) {
-                    updateItem = _.omit(updateItem, 'tags');
-                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created', tokenAdmin, 200, [updateItem], done);
+                    updateItem4Check = _.extend(updateItem, {tags: JSON.stringify(updateItem.tags), range: JSON.stringify(updateItem.range)});
+                    ithelper.selectCheckAllRecords(testEnv.api_created_realm, path+'?taskId='+taskId[0]+'&order=created', tokenAdmin, 200, [updateItem4Check], done);
                 });
                 it('Simple comment from User1 (Step1, Question2)', function (done) {
                     insertItem2 = {questionId: questionId[1], taskId: taskId[0], stepId: stepId[0], entry: 'Simple comment from User1 (Step1, Question2)'};
