@@ -9,13 +9,13 @@
                     <span translate=".COUNT_UOAS"></span><br>
                 </td>
                 <td>
-                    <span translate=".COUNT_ONTIME"></span> / <span translate=".COUNT_STARTED"></span>
+                    <span 2translate=".COUNT_ONTIME">on track</span> / <span 2translate=".COUNT_STARTED">late</span>
                 </td>
                 <td>
-                    <span translate=".COUNT_DELAYED"></span>
+                    <span 2translate=".COUNT_DELAYED">flagged</span>
                 </td>
                 <td>
-                    <span translate=".COUNT_FLAGGED"></span>
+                    <span 2translate=".COUNT_FLAGGED">complete</span>
                 </td>
             </tr>
 
@@ -24,13 +24,13 @@
                     &nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;
                 </td>
                 <td>
-                    &nbsp;<strong>{{model.count.onTime}} / {{model.count.started}}</strong>&nbsp;
-                </td>
-                <td>
-                    &nbsp;<strong>{{model.count.delayed}}</strong>&nbsp;
+                    &nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;
                 </td>
                 <td>
                     &nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;
+                </td>
+                <td>
+                    &nbsp;<strong>{{model.count.complete}}</strong>&nbsp;
                 </td>
             </tr>
 

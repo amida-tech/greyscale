@@ -35,11 +35,21 @@ angular.module('greyscaleApp')
 
             $scope.model.count.uoas = _.size(_.groupBy(tasksData, 'uoaId'));
 
-            $scope.model.count.flagged = _.filter(tasksData, 'flagged').length;
+            $scope.model.count.flagged = _.filter(tasksData, function(o){
+                return o.flagged && o.status !== 'completed';
+            }).length;
 
             $scope.model.count.started = _.filter(tasksData, 'started').length;
 
-            $scope.model.count.onTime = _.filter(tasksData, 'onTime').length;
+            $scope.model.count.onTime = _.filter(tasksData, function(o){
+                return o.onTime && o.status === 'current';
+            }).length;
+            $scope.model.count.late = _.filter(tasksData, function(o){
+                return !o.onTime && o.status === 'current';
+            }).length;
+            $scope.model.count.complete = _.filter(tasksData, function(o){
+                return o.status === 'completed';
+            }).length;
 
             //$scope.model.count.overdue = _.filter(tasksData, function (task) {
             //    return task.status !== 'completed' && new Date(task.endDate) < new Date();
