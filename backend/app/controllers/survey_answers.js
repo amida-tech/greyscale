@@ -32,6 +32,10 @@ var
     bytes = require('bytes'),
     thunkQuery = thunkify(query);
 
+    AWS = require('aws-sdk');
+    AWS.config.update(config.aws);
+    var s3 = new AWS.S3();
+
 var debug = require('debug')('debug_survey_answers');
 debug.log = console.log.bind(console);
 
@@ -397,6 +401,7 @@ module.exports = {
             next(err);
         });
     },
+
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* (){
@@ -409,17 +414,23 @@ module.exports = {
                 throw new HttpError(404, 'Attachment not found');
             }
 
+            if (attachment[0].amazonKey) {
+                var params = { Bucket: 'ntrlab-amida-indaba', Key: attachment[0].amazonKey };
+                var url = s3.getSignedUrl('getObject', params);
+                return { url: url };
+            }
+
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
                 var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
-                return ticket;
+                return { ticket: ticket };
             }catch(e){
                 throw new HttpError(500, e);
             }
 
         }).then(function(data){
-            res.status(201).json({tiсket:data});
+            res.status(201).json(data);
         }, function(err){
             next(err);
         });
@@ -471,6 +482,7 @@ module.exports = {
     },
 
     attach: function (req, res, next) {
+
         var thunkQuery = req.thunkQuery;
         co(function* (){
             if (req.body.answerId) {
@@ -484,6 +496,7 @@ module.exports = {
             }
 
             if (req.files.file) {
+                //res.json({ok: true});
                 var file = req.files.file;
 
                 if (file.size > config.max_upload_filesize) {
@@ -536,6 +549,7 @@ module.exports = {
                 return inserted[0];
 
             } else {
+                res.json({ok: 'File was not sent'});
                 throw HttpError(400, 'File was not sent');
             }
 

@@ -74,7 +74,6 @@ angular.module('greyscale.tables')
                 'uoa.name': 'asc',
                 'step.position': 'asc'
             },
-            pageLength: 10,
             classes: 'table-hover',
             rowClass: 'action-expand-row',
             //expandedRowShow: true,

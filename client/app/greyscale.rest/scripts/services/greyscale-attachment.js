@@ -11,10 +11,14 @@ angular.module('greyscale.rest')
         };
 
         return {
+<<<<<<< HEAD
             upload: _add,
             list: _list,
             link: _link,
             getTicket: _getTicket,
+=======
+            getDownloadUrl: _getDownloadUrl,
+>>>>>>> ntrlab
             getLink: _getLink,
             delete: _delete
         };
@@ -52,6 +56,7 @@ angular.module('greyscale.rest')
             return _api(version).one(attachId + '', 'ticket').get().then(_preResp);
         }
 
+<<<<<<< HEAD
         function _getLink(ticket, version) {
             version = version || 'v2';
             return greyscaleUtilsSrv.getApiBase(_getEndpoint(version) + '/get/') + ticket.tiсket;
@@ -59,6 +64,14 @@ angular.module('greyscale.rest')
 
         function _delete(attachId, version) {
             return _api(version).one(attachId + '').remove();
+=======
+        function _getDownloadUrl(attachId) {
+            return _api().one(attachId + '', 'ticket').get().then(_preResp);
+        }
+
+        function _getLink(ticket) {
+            return greyscaleUtilsSrv.getApiBase() + '/attachments/get/' + ticket;
+>>>>>>> ntrlab
         }
 
         function _getEndpoint(version) {

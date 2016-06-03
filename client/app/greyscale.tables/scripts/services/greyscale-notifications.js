@@ -60,7 +60,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             //formTitle: tns + 'USER_GROUP',
-            pageLength: 10,
+            pageLength: 50,
             rowClass: function (row) {
                 return !row.read ? 'bg-warning' : '';
             }

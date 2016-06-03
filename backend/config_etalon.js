@@ -84,6 +84,11 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
+        },
+        aws: {
+            accessKeyId: 'YOURAWSACCESSKEY',
+            secretAccessKey: 'yourAwsSecretAccessKey',
+            region: 'us-east-1'
         }
     },
 
@@ -193,7 +198,7 @@ var environments = {
                 emailBody: './views/emails/default.html'
             },
             discussion: {
-                subject: 'Indaba. <%= action %> message in discussion',
+                subject: 'Indaba. <%= from.firstName %> <%= from.lastName %> posted a discussion comment',
                 notificationBody: './views/notifications/entry.html',
                 emailBody: './views/emails/discussion.html'
             },
@@ -241,6 +246,11 @@ var environments = {
                 subject: 'Indaba. Flags were resolved and are ready to be reviewed in the <%= uoa.name %> survey for the <%= product.title %>',
                 notificationBody: './views/notifications/resolve_flag.html',
                 emailBody: './views/emails/resolve_flag.html'
+            },
+            comment: {
+                subject: 'Indaba. <%= action %> in the <%= uoa.name %> survey for the <%= product.title %>',
+                notificationBody: './views/notifications/comment.html',
+                emailBody: './views/emails/comment.html'
             }
         }
     }
