@@ -1822,45 +1822,51 @@ var moveWorkflow = function* (req, productId, UOAid) {
         );
         return;
     }
-    var minNextStepPosition = yield * common.getMinNextStepPosition(req, curStep, productId, UOAid);
+    var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
     if(minNextStepPosition !== null) { // min next step exists, position is not null
-        nextStep = yield * common.getNextStep(req, minNextStepPosition, productId, UOAid);
+        nextStep = yield * common.getNextStep(req, minNextStepPosition, curStep);
+    } else {    // if does not exist next steps with task, then get last step
+        var lastStepPosition = yield * common.getLastStepPosition(req, curStep);
+        if(lastStepPosition !== null) { // last step exists, position is not null
+            nextStep = yield * common.getNextStep(req, lastStepPosition, curStep);
+        }
     }
 
     if(nextStep) { // next step exists, set it to current
-        // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, nextStep.id, curStep.task.productId, curStep.task.uoaId);
 
-        // notify
-        essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTask(req, parseInt(nextStep.taskId));
-        userTo = yield * common.getUser(req, task.userId);
-        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        product = yield * common.getEntity(req, task.productId, Product, 'id');
-        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req,
-            {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'Task activated (next step)',
-                essenceId: essenceId,
-                entityId: nextStep.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                config: config
-            },
-            'activateTask'
-        );
+        if (nextStep.taskId) {
+            // notify
+            essenceId = yield * common.getEssenceId(req, 'Tasks');
+            task = yield * common.getTask(req, parseInt(nextStep.taskId));
+            userTo = yield * common.getUser(req, task.userId);
+            organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+            product = yield * common.getEntity(req, task.productId, Product, 'id');
+            uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+            step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+            survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userTo: task.userId,
+                    body: 'Task activated (next step)',
+                    essenceId: essenceId,
+                    entityId: nextStep.taskId,
+                    task: task,
+                    product: product,
+                    uoa: uoa,
+                    step: step,
+                    survey: survey,
+                    user: userTo,
+                    organization: organization,
+                    date: new Date(),
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    config: config
+                },
+                'activateTask'
+            );
+        }
 
     }else{
         // next step does not exists - set productUOA status to complete
