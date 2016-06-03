@@ -13,6 +13,8 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    mammoth = require("mammoth"),
+    cheerio = require('cheerio'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');
@@ -41,6 +43,47 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+
+    parsePolicyDocx: function (req, res, next) {
+        if (req.files.file) {
+            var file = req.files.file;
+            mammoth
+                .convertToHtml({path: file.path})
+                .then(function(result){
+
+                    if (result.messages.length) { // TODO handle errors
+                        //throw new HttpError(403, 'File convert error: ' + JSON.stringify(result.messages))
+                        //next();
+                    }
+
+                    var html = '<html>' + result.value + '</html>';
+                    var $ = cheerio.load(html);
+                    var obj = {};
+
+                    $('html').children().each(function(key, item) {
+                        if (item.name == 'h1') {
+                            var index = $(item).text().replace(new RegExp('[^a-zA-Z]', 'g'), '');
+                            var current = item;
+                            var content = '';
+
+                            while (['h1','table'].indexOf($(current).next()[0].name) == -1) {
+                                var nextItem = $(current).next()[0];
+                                content += $(nextItem).html();
+                                current = nextItem;
+                            }
+
+                            obj[index] = content;
+                        }
+                    });
+                    res.json(obj);
+                })
+                .done();
+
+
+        }else{
+            next(new HttpError(403, 'Please, provide a file'));
+        }
     },
 
     selectOne: function (req, res, next) {

@@ -5,10 +5,9 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi, greyscaleAttachmentApi) {
+        greyscaleEntityTypeApi, greyscaleAttachmentApi, $log) {
 
         var projectId,
-            _policies = [],
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
 
@@ -20,11 +19,21 @@ angular.module('greyscaleApp')
                 isDraft: true,
                 author: -1
             },
-            policy: {},
-            policies: _policies,
-            attachments: [],
-            authorName: '',
-            essenceId: -1
+            policy: {
+                id: null,
+                title: '',
+                section: '',
+                subsection: '',
+                number: '',
+                author: -1,
+                authorName: '',
+                essenceId: -1,
+                options: {
+                    readonly: false
+                },
+                sections: [],
+                attachments: []
+            }
         };
 
         greyscaleEntityTypeApi.list({
@@ -32,15 +41,15 @@ angular.module('greyscaleApp')
             })
             .then(function (essences) {
                 if (essences.length) {
-                    $scope.model.essenceId = essences[0].id;
+                    $scope.model.policy.essenceId = essences[0].id;
                 }
             });
 
         greyscaleProfileSrv.getProfile().then(_setAuthor);
 
-        _policiesGenerate(_policies);
+        _policiesGenerate($scope.model.policy.sections);
 
-        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEmodel.survey.authorY');
+        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
 
         Organization.$lock = true;
 
@@ -75,7 +84,7 @@ angular.module('greyscaleApp')
             greyscaleSurveyApi.get(surveyId).then(function (survey) {
                 var _questions = [],
                     _sections = [],
-                    qty = survey.questions.length,
+                    qty = survey.questions ? survey.questions.length : 0,
                     q;
 
                 $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
@@ -93,7 +102,6 @@ angular.module('greyscaleApp')
                         sections: [],
                         attachments: []
                     });
-                    _getAttacments();
 
                     for (q = 0; q < qty; q++) {
                         if (survey.questions[q].type === policyIdx) {
@@ -102,15 +110,14 @@ angular.module('greyscaleApp')
                             _questions.push(survey.questions[q]);
                         }
                     }
-
                     _policiesGenerate(_sections);
-
                     survey.questions = _questions;
-
                     $scope.model.survey = survey;
                     $scope.model.policy.sections = _sections;
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
+
+                    _getAttacments();
                 }
                 $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
@@ -121,7 +128,7 @@ angular.module('greyscaleApp')
         }
 
         function _getAttacments() {
-            greyscaleAttachmentApi.list($scope.model.essenceId, $scope.model.survey.policyId)
+            greyscaleAttachmentApi.list($scope.model.policy.essenceId, $scope.model.policy.id)
                 .then(function (_attachments) {
                     $scope.model.policy.attachments = _attachments;
                 });
@@ -140,7 +147,7 @@ angular.module('greyscaleApp')
             if (surveyId) {
                 _survey.id = surveyId;
             }
-            angular.extend(_survey,{
+            angular.extend(_survey, {
                 policyId: _policy.id,
                 title: _policy.title,
                 section: _policy.section,

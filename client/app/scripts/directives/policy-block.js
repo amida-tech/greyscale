@@ -16,6 +16,70 @@ angular.module('greyscaleApp')
                         _refreshPolicy(scope, data);
                     }
                 });
+            },
+            controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
+                greyscaleAttachmentApi, greyscaleGlobals) {
+
+                var _url = greyscaleUtilsSrv.getApiBase('surveys/parsedocx'),
+                    _token = greyscaleTokenSrv();
+
+                $scope.formName = 'f_' + new Date().getTime();
+
+                $scope.model = $scope.model || [];
+
+                $scope.inProgress = [];
+
+                var uploader = $scope.uploader = new FileUploader({
+                    url: _url,
+                    withCredentials: false,
+                    method: 'POST',
+                    removeAfterUpload: true,
+                    autoUpload: true
+                });
+
+                uploader.onBeforeUploadItem = function (item) {
+                    if ($scope.formName && $scope[$scope.formName].$$parentForm) {
+                        $scope[$scope.formName].$$parentForm.$dirty = false;
+                    }
+                    item.headers.token = _token;
+                    item.formData = [{
+                        essenceId: $scope.essenceId,
+                        entityId: $scope.itemId
+                    }];
+                    item.idx = $scope.inProgress.length;
+                    $scope.inProgress.push(item);
+                };
+
+                uploader.onCompleteItem = function (item, data) {
+                    var _sectionName,
+                        i = 0;
+                    if (!item.isError) {
+                        for (_sectionName in data) {
+                            if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
+                                $scope.policyData.sections[i].label = _sectionName;
+                                $scope.policyData.sections[i].description = data[_sectionName];
+                                i++;
+                            }
+                        }
+                        _modifyEvt();
+                    }
+
+                    uploader.clearQueue();
+                    $element.find('form')[0].reset();
+                    $scope.inProgress.splice(item.idx, 1);
+                    $timeout(function () {
+                        $scope.$digest();
+                    });
+                };
+
+                uploader.onErrorItem = function (file, response) {
+                    greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
+                };
+
+                function _modifyEvt() {
+                    $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
+                }
+
             }
         };
 

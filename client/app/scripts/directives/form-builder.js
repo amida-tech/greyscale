@@ -14,7 +14,6 @@ angular.module('greyscaleApp')
                 var formbuilder;
                 var types = greyscaleGlobals.formBuilder.fieldTypes;
                 var sizes = ['small', 'medium', 'large'];
-                var policies = [];
 
                 function formBuilderSave(json) {
                     var fields = JSON.parse(json).fields;
@@ -213,18 +212,21 @@ angular.module('greyscaleApp')
                     }
 
                     if (scope.model.survey.isPolicy) {
-                        var _policyBlocks = elem.find('.fb-policy-blocks');
+                        elem.find('.fb-policy-wrapper').remove();
+                        /*
+                                                var _policyBlocks = elem.find('.fb-policy-blocks');
 
-                        _policyBlocks.before($compile(
-                            '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
+                                                _policyBlocks.before($compile(
+                                                    '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
 
-                        elem.find('.fb-policy-attachments-label').remove();
-                        elem.find('.fb-btn-policy-attach').remove();
-                        elem.find('.fb-btn-policy-upload').remove()
-                            .attr('disabled', 'disabled')
-                            .addClass('btn btn-default');
-                        _policyBlocks.after($compile(
-                            '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
+                                                elem.find('.fb-policy-attachments-label').remove();
+                                                elem.find('.fb-btn-policy-attach').remove();
+                                                elem.find('.fb-btn-policy-upload').remove()
+                                                    .attr('disabled', 'disabled')
+                                                    .addClass('btn btn-default');
+                                                _policyBlocks.after($compile(
+                                                    '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
+                        */
                     }
                 }
 
