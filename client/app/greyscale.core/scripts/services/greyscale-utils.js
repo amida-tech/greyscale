@@ -74,7 +74,8 @@ angular.module('greyscale.core')
                 $log.debug('(' + type + ') ' + _msg);
 
                 inform.add(_msg, {
-                    type: type
+                    type: type,
+                    html: true
                 });
 
             }

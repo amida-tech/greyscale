@@ -59,32 +59,18 @@ angular.module('greyscaleApp')
                         });
                 };
 
-                //$scope.flagIsDisabled = function () {
-                //    var hasUnresolvedFlag = false;
-                //    angular.forEach($scope.model.questions.list, function (q) {
-                //        if (q.messages && q.messages.length) {
-                //            angular.forEach(q.messages, function (m) {
-                //                if (!hasUnresolvedFlag && m.flagged && !m.resolved) {
-                //                    hasUnresolvedFlag = true;
-                //                }
-                //            });
-                //        }
-                //    });
-                //    return false && hasUnresolvedFlag;
-                //};
-
                 $scope.updateMsg = function (message) {
                     return greyscaleDiscussionApi.update(message.id, message);
                 };
 
                 $scope.flagChange = function () {
-                    //if ($scope.model.msg.isReturn) {
-                    //    if (flaggedStep) {
-                    //        $scope.model.msg.stepId = flaggedStep.id;
-                    //    }
-                    //} else {
-                    //    $scope.model.msg.stepId = null;
-                    //}
+                    if ($scope.model.msg.isReturn) {
+                        if (flaggedStep) {
+                            $scope.model.msg.stepId = flaggedStep.id;
+                        }
+                    } else {
+                        $scope.model.msg.stepId = null;
+                    }
                 };
 
                 $scope.assignmentChange = function(){
@@ -94,14 +80,13 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.filterSteps = function (elem) {
-                    if (elem.id === $scope.surveyParams.stepId) {
+                    if (elem.id === $scope.surveyParams.currentStepId) {
                         return false;
                     }
                     if ($scope.model.msg.isReturn && elem.position > currentStep.position) {
                         return false;
                     }
                     return true;
-                    //return (!$scope.model.msg.isReturn || !flaggedStep || (elem.id === flaggedStep.id)) && elem.position < currentStep.position;
                 };
 
                 $scope.filterQuests = function (quest) {
@@ -162,7 +147,7 @@ angular.module('greyscaleApp')
                     };
 
                 scope.surveyParams = {
-                    stepId: task.stepId,
+                    currentStepId: task.stepId,
                     userFromId: scope.surveyData.userId,
                     taskId: task.id
                 };
@@ -219,26 +204,26 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    //flaggedQuestions = [];
-                    //flaggedStep = null;
-                    //qty = resp.messages.length;
-                    //for (i = 0; i < qty; i++) {
-                    //    msg = resp.messages[i];
-                    //    if (scope.model.questions[msg.questionId]) {
-                    //        scope.model.questions[msg.questionId].items.push(msg);
-                    //    }
-                    //    if (!msg.activated && msg.isReturn && !msg.resolved) {
-                    //        flaggedQuestions.push(msg.questionId);
-                    //        if (!flaggedStep) {
-                    //            flaggedStep = _.find(scope.model.assignTo, {
-                    //                id: msg.stepId
-                    //            });
-                    //        }
-                    //
-                    //        scope.surveyData.flags.draftFlag = true;
-                    //    }
-                    //
-                    //}
+                    flaggedQuestions = [];
+                    flaggedStep = null;
+                    qty = resp.messages.length;
+                    for (i = 0; i < qty; i++) {
+                        msg = resp.messages[i];
+                        if (scope.model.questions[msg.questionId]) {
+                            scope.model.questions[msg.questionId].items.push(msg);
+                        }
+                        if (!msg.activated && msg.isReturn && !msg.resolved) {
+                            flaggedQuestions.push(msg.questionId);
+                            if (!flaggedStep) {
+                                flaggedStep = _.find(scope.model.assignTo, {
+                                    id: msg.stepId
+                                });
+                            }
+
+                            scope.surveyData.flags.draftFlag = true;
+                        }
+
+                    }
 
                 });
             }
