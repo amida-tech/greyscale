@@ -57,8 +57,8 @@ angular.module('greyscale.tables')
             show: true,
             //dataFormat: 'action',
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
-            cellTemplate: '<div class="text-right" ng-if="!row.allCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
-                '<div class="text-right" ng-if="row.allCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
+            cellTemplate: '<div class="text-right" ng-if="!row.subjectCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
+                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
             //actions: [{
             //    icon: 'fa-eye'
             //}]
@@ -246,6 +246,10 @@ angular.module('greyscale.tables')
                     task.last = task.progress[i].id === task.id;
                     break;
                 }
+            }
+
+            if (task.progress[task.progress.length - 1].status === 'completed') {
+                task.subjectCompleted = true;
             }
 
             task.started = !!task.lastVersionDate;
