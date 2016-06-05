@@ -476,7 +476,8 @@
         "STEP_SKIPPED": "",
         "TITLE": "Название",
         "UOA": "Субъект",
-        "UOA_TASKS_COMPLETED": "",
+        "UOA_ASSIGNED_TASKS_COMPLETED": "",
+        "UOA_COMPLETED": "",
         "USER": "Пользователь"
     },
     "PROFILE": {

@@ -476,7 +476,8 @@
         "STEP_SKIPPED": "",
         "TITLE": "",
         "UOA": "",
-        "UOA_TASKS_COMPLETED": "",
+        "UOA_ASSIGNED_TASKS_COMPLETED": "",
+        "UOA_COMPLETED": "",
         "USER": ""
     },
     "PROFILE": {
