@@ -44,6 +44,7 @@
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
+        "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
