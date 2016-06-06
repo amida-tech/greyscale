@@ -84,6 +84,11 @@ var environments = {
                 notificationBody: './views/notifications/welcome.html',
                 emailBody: './views/emails/welcome.html'
             }
+        },
+        aws: {
+            accessKeyId: 'YOURAWSACCESSKEY',
+            secretAccessKey: 'yourAwsSecretAccessKey',
+            region: 'us-east-1'
         }
     },
 
@@ -193,7 +198,7 @@ var environments = {
                 emailBody: './views/emails/default.html'
             },
             discussion: {
-                subject: 'Indaba. <%= action %> message in discussion',
+                subject: 'Indaba. <%= from.firstName %> <%= from.lastName %> posted a discussion comment',
                 notificationBody: './views/notifications/entry.html',
                 emailBody: './views/emails/discussion.html'
             },

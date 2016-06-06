@@ -22,7 +22,6 @@ angular.module('greyscale.tables')
             title: '',
             cols: _fields,
             dataPromise: getData,
-            pageLength: 10,
             multiselect: {},
         };
 

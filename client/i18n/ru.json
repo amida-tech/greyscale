@@ -52,6 +52,7 @@
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
         "SEND": "",
         "SEND_MESSAGE": "",
+        "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
         "UNASSIGN": "Отмена назначения",
@@ -520,7 +521,8 @@
         "STEP_SKIPPED": "",
         "TITLE": "Название",
         "UOA": "Субъект",
-        "UOA_TASKS_COMPLETED": "",
+        "UOA_ASSIGNED_TASKS_COMPLETED": "",
+        "UOA_COMPLETED": "",
         "USER": "Пользователь"
     },
     "PROFILE": {

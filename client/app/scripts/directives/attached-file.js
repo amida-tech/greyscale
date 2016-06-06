@@ -23,12 +23,27 @@ angular.module('greyscaleApp')
                     if (!$scope.url) {
                         evt.preventDefault();
                         evt.stopPropagation();
+<<<<<<< HEAD
                         greyscaleAttachmentApi.getTicket($scope.file.id, $scope.file.ver)
                             .then(function (ticket) {
                                 $scope.url = greyscaleAttachmentApi.getLink(ticket, $scope.file.ver);
                                 $timeout(function () {
                                     evt.currentTarget.click();
                                 });
+=======
+                        greyscaleAttachmentApi.getDownloadUrl($scope.file.id)
+                            .then(function (data) {
+                                if (data.ticket) {
+                                    $scope.url = greyscaleAttachmentApi.getLink(data.ticket);
+                                } else if (data.url) {
+                                    $scope.url = data.url;
+                                }
+                                if ($scope.url) {
+                                    $timeout(function () {
+                                        evt.currentTarget.click();
+                                    });
+                                }
+>>>>>>> ntrlab
                             });
                     }
                 };

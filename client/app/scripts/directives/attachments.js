@@ -22,10 +22,14 @@ angular.module('greyscaleApp')
                 '</div></div></div>',
 
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
+<<<<<<< HEAD
                 greyscaleAttachmentApi, greyscaleGlobals) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('uploads'), // + '/attachments',
                     _token = greyscaleTokenSrv();
+=======
+                greyscaleAttachmentApi, greyscaleGlobals, greyscaleUploadApi) {
+>>>>>>> ntrlab
 
                 $scope.formName = 'f_' + new Date().getTime();
 
@@ -36,17 +40,19 @@ angular.module('greyscaleApp')
                 $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
-                    url: _url,
                     withCredentials: false,
-                    method: 'POST',
+                    disableMultipart: true,
+                    method: 'PUT',
                     removeAfterUpload: true,
-                    autoUpload: true
+                    autoUpload: false
                 });
 
-                uploader.onBeforeUploadItem = function (item) {
+                uploader.onAfterAddingFile = function(item){
+
                     if ($scope.formName && $scope[$scope.formName].$$parentForm) {
                         $scope[$scope.formName].$$parentForm.$dirty = false;
                     }
+<<<<<<< HEAD
                     item.headers.token = _token;
                     item.formData = [{
                         essenceId: $scope.essenceId,
@@ -54,16 +60,39 @@ angular.module('greyscaleApp')
                     }];
                     item.idx = $scope.inProgress.length;
                     $scope.inProgress.push(item);
+=======
+
+                    var uploadData = {
+                        size: item.file.size,
+                        type: item.file.type,
+                        name: item.file.name
+                    };
+
+                    greyscaleUploadApi.getUrl(uploadData).then(function(response){
+                        item.url = response.url;
+                        item.key = response.key;
+                        item.headers = {
+                            'Content-Disposition': 'attachment; filename="' + item.file.name + '"'
+                        };
+                        item.upload();
+                    });
+>>>>>>> ntrlab
                 };
 
-                uploader.onCompleteItem = function (item, data) {
+                uploader.onCompleteItem = function (item) {
                     if (!item.isError) {
-                        $scope.model.push({
-                            id: data.id,
-                            filename: item.file.name,
-                            mimeType: item.file.mimetype
+                        var attachData = {
+                            key: item.key,
+                            answerId: $scope.answerId
+                        };
+                        greyscaleUploadApi.success(attachData).then(function(data){
+                            $scope.model.push({
+                                id: data.id,
+                                filename: item.file.name,
+                                mimeType: item.file.mimetype
+                            });
+                            _modifyEvt();
                         });
-                        _modifyEvt();
                     }
 
                     uploader.clearQueue();
@@ -75,7 +104,7 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onErrorItem = function (file, response, status, headers) {
-                    greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
+                    greyscaleUtilsSrv.errorMsg(response || 'Server error', 'Upload file');
                 };
 
                 function removeAttach(idx) {

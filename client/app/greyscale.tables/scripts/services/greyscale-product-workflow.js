@@ -133,7 +133,6 @@ angular.module('greyscale.tables')
         var _table = {
             title: tns + 'PRODUCT_WORKFLOW_STEPS',
             //icon: 'fa-fast-forward',
-            pageLength: 10,
             cols: recDescr,
             dataPromise: _getData,
             dragSortable: true,

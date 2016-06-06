@@ -491,7 +491,6 @@ angular.module('greyscaleApp')
             var _table = {
                 title: tns + 'TITLE',
                 icon: 'fa-tasks',
-                pageLength: 10,
                 cols: _cols,
                 classes: 'table-bordered table-col-sm',
                 dataPromise: function () {

@@ -276,7 +276,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
 };
 exports.getCurrentStepExt = getCurrentStepExt;
 
-var getMinNextStepPosition = function* (req, curStep, productId, uoaId) {
+var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
@@ -299,9 +299,31 @@ var getMinNextStepPosition = function* (req, curStep, productId, uoaId) {
     return null;
 
 };
-exports.getMinNextStepPosition = getMinNextStepPosition;
+exports.getMinNextStepPositionWithTask = getMinNextStepPositionWithTask;
 
-var getNextStep = function* (req, minNextStepPosition, productId, uoaId) {
+var getLastStepPosition = function* (req, curStep) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        WorkflowStep
+            .select(
+            sql.functions.MAX(WorkflowStep.position).as('lastPosition')
+        )
+            .from(WorkflowStep
+        )
+            .where(
+            WorkflowStep.workflowId.equals(curStep.workflowId)
+                .and(WorkflowStep.position.gt(curStep.position))
+        )
+    );
+    if (result[0]) {
+        return result[0].lastPosition;
+    }
+    return null;
+
+};
+exports.getLastStepPosition = getLastStepPosition;
+
+var getNextStep = function* (req, minNextStepPosition, curStep) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
@@ -311,10 +333,9 @@ var getNextStep = function* (req, minNextStepPosition, productId, uoaId) {
             Task.id.as('taskId')
         )
             .from(WorkflowStep
-                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+                .leftJoin(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
-            .where(Task.productId.equals(productId)
-                .and(Task.uoaId.equals(uoaId))
+            .where(WorkflowStep.workflowId.equals(curStep.workflowId)
                 .and(WorkflowStep.position.equals(minNextStepPosition))
         )
     );

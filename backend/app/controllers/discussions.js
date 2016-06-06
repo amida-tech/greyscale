@@ -42,7 +42,7 @@ module.exports = {
                 'SELECT '+
                 '"Discussions".*, '+
                 '"Tasks"."uoaId", '+
-                //'"Tasks"."stepId", '+
+                    //'"Tasks"."stepId", '+
                 '"Tasks"."productId", '+
                 '"SurveyQuestions"."surveyId"';
 
@@ -68,9 +68,9 @@ module.exports = {
 
             if(req.query.filter === 'resolve') {
                 /*
-                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
-                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
-                */
+                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                 (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                 */
                 selectWhere = selectWhere + ' AND (' +
                     '("Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true) ' +
                     'OR ' +
@@ -109,8 +109,18 @@ module.exports = {
             var userTo = yield * common.getUser(req, task.userId);
             var retTask = task;
             if (returnObject) {
-                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                userTo = yield * common.getUser(req, retTask.userId);
+                var returnTaskId = null;
+                if (isReturn) {
+                    returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
+                }
+                if (returnTaskId) {
+                    retTask = yield * common.getTask(req, returnTaskId);
+                    req.body = _.extend(req.body, {stepId: retTask.stepId});                            // use stepId from previous return flags
+                    req.body = _.extend(req.body, {returnTaskId: returnTaskId});                // use returnTaskId from previous return flags
+                } else {
+                    retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
+                    userTo = yield * common.getUser(req, retTask.userId);
+                }
             }
             req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
             req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
@@ -128,68 +138,68 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-/*
-            if (isResolve) {
-                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
-            }
-*/
+            /*
+             if (isResolve) {
+             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+             }
+             */
             return _.first(result);
 
-/* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
+            /* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
 
-            var newStep;
-            if (isReturn) {
-                newStep = yield * updateProductUOAStep(req, returnObject);
-            }
-            if (isResolve) {
-                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
-                newStep = yield * checkUpdateProductUOAStep(req, returnObject);
-            }
-            var essenceId = yield * common.getEssenceId(req, 'Discussions');
-            var userFrom = yield * common.getUser(req, req.user.id);
-            //var userTo = yield * common.getUser(req, req.body.userId);
-            // static blindReview
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            //var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-            var step4userTo = yield * common.getEntityById(req,req.body.stepId, WorkflowStep, 'id');
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
-            if (step4userTo.blindReview) {
-                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-            }
-            //
-            req.body.isReturn = (isReturn);
-            req.body.isResolve = (isResolve);
-            var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
-            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: req.user.realmUserId,
-                    userFromName: userFromName,
-                    userTo: userTo.id,
-                    body: req.body.entry,
-                    essenceId: essenceId,
-                    entityId: entry.id,
-                    discussionEntry:  req.body,
-                    isReturn: (isReturn),
-                    isResolve: (isResolve),
-                    task: retTask,
-                    survey: survey,
-                    action: 'Add',
-                    //notifyLevel: 2,
-                    from: from,
-                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    config: config
-                },
-                'discussion'
-            );
-            return entry;
-*/
+             var newStep;
+             if (isReturn) {
+             newStep = yield * updateProductUOAStep(req, returnObject);
+             }
+             if (isResolve) {
+             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+             newStep = yield * checkUpdateProductUOAStep(req, returnObject);
+             }
+             var essenceId = yield * common.getEssenceId(req, 'Discussions');
+             var userFrom = yield * common.getUser(req, req.user.id);
+             //var userTo = yield * common.getUser(req, req.body.userId);
+             // static blindReview
+             var productId = task.productId;
+             var uoaId = task.uoaId;
+             //var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+             var step4userTo = yield * common.getEntityById(req,req.body.stepId, WorkflowStep, 'id');
+             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+             if (step4userTo.blindReview) {
+             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             } else if (userFrom.isAnonymous) {
+             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             }
+             //
+             req.body.isReturn = (isReturn);
+             req.body.isResolve = (isResolve);
+             var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
+             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+             var note = yield * notifications.createNotification(req,
+             {
+             userFrom: req.user.realmUserId,
+             userFromName: userFromName,
+             userTo: userTo.id,
+             body: req.body.entry,
+             essenceId: essenceId,
+             entityId: entry.id,
+             discussionEntry:  req.body,
+             isReturn: (isReturn),
+             isResolve: (isResolve),
+             task: retTask,
+             survey: survey,
+             action: 'Add',
+             //notifyLevel: 2,
+             from: from,
+             to: {firstName : userTo.firstName, lastName: userTo.lastName},
+             config: config
+             },
+             'discussion'
+             );
+             return entry;
+             */
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -214,52 +224,52 @@ module.exports = {
             });
             return result;
 
-/* no notification when update discussion entry - notification only when return-resolve
-            var entry = yield * common.getDiscussionEntry(req, req.params.id);
-            var essenceId = yield * common.getEssenceId(req, 'Discussions');
-            var userFrom = yield * common.getUser(req, req.user.id);
-            //var userTo = yield * common.getUser(req, entry.userId);
-            // static blindReview
-            var task = yield * common.getTask(req, entry.taskId);
-            var userTo = yield * common.getUser(req, task.userId);
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
-            if (step4userTo.blindReview) {
-                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-            }
-            //
-            var product = yield * common.getEntity(req, task.productId, Product, 'id');
-            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: req.user.realmUserId,
-                    userFromName: userFromName,
-                    userTo: entry.userId,
-                    body: entry.entry,
-                    essenceId: essenceId,
-                    entityId: entry.id,
-                    discussionEntry:  entry,
-                    isReturn: entry.isReturn,
-                    isResolve: entry.isResolve,
-                    task: task,
-                    survey: survey,
-                    //notifyLevel: 2,
-                    from: from,
-                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                    action: 'Update',
-                    config: config
-                },
-                'discussion'
-            );
-            return result;
-*/
+            /* no notification when update discussion entry - notification only when return-resolve
+             var entry = yield * common.getDiscussionEntry(req, req.params.id);
+             var essenceId = yield * common.getEssenceId(req, 'Discussions');
+             var userFrom = yield * common.getUser(req, req.user.id);
+             //var userTo = yield * common.getUser(req, entry.userId);
+             // static blindReview
+             var task = yield * common.getTask(req, entry.taskId);
+             var userTo = yield * common.getUser(req, task.userId);
+             var productId = task.productId;
+             var uoaId = task.uoaId;
+             var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+             if (step4userTo.blindReview) {
+             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             } else if (userFrom.isAnonymous) {
+             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             }
+             //
+             var product = yield * common.getEntity(req, task.productId, Product, 'id');
+             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+             var note = yield * notifications.createNotification(req,
+             {
+             userFrom: req.user.realmUserId,
+             userFromName: userFromName,
+             userTo: entry.userId,
+             body: entry.entry,
+             essenceId: essenceId,
+             entityId: entry.id,
+             discussionEntry:  entry,
+             isReturn: entry.isReturn,
+             isResolve: entry.isResolve,
+             task: task,
+             survey: survey,
+             //notifyLevel: 2,
+             from: from,
+             to: {firstName : userTo.firstName, lastName: userTo.lastName},
+             action: 'Update',
+             config: config
+             },
+             'discussion'
+             );
+             return result;
+             */
 
         }).then(function (data) {
             res.status(202).end();
@@ -413,22 +423,22 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
     var retObject=null;
 
     for (var i = 0; i < result.length; i++) {
-            if (result[i].stepid === parseInt(stepId)){
-                retObject =
-                {
-                    userId: result[i].userid,
-                    userName: result[i].username,
-                    taskId: result[i].taskid,
-                    taskName: result[i].taskname,
-                    stepId: result[i].stepid,
-                    stepName: result[i].stepname,
-                    role: result[i].role,
-                    productId: result[i].productid,
-                    uoaId: result[i].uoaid,
-                    discussionId: null
-                };
-                break;
-            }
+        if (result[i].stepid === parseInt(stepId)){
+            retObject =
+            {
+                userId: result[i].userid,
+                userName: result[i].username,
+                taskId: result[i].taskid,
+                taskName: result[i].taskname,
+                stepId: result[i].stepid,
+                stepName: result[i].stepname,
+                role: result[i].role,
+                productId: result[i].productid,
+                uoaId: result[i].uoaid,
+                discussionId: null
+            };
+            break;
+        }
     }
     if (!retObject) {
         throw new HttpError(403, 'Step with stepId=`'+stepId+'` does not available step for this survey`s discussion entry');
@@ -507,28 +517,28 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             if (existFlags[0].nonresolved > 0) {
                 // entries with not-resolved flags are exist => get resolve list
                 resolve=true;
-/*
-            } else if (existFlags[0].resolved > 0) {
-                // entries with resolved flags are exist => check resolve-entries
-                query =
-                    'SELECT ' +
-                    'sum(CASE WHEN "Discussions"."activated" = true THEN 0 ELSE 1 END) as nonactivated ' +
-                    'FROM "Discussions" ' +
-                    pgEscape('WHERE "Discussions"."taskId" = %s ', taskId) +
-                    'AND "Discussions"."isReturn" = false ' +
-                    'AND "Discussions"."isResolve" = true ';
-                var existResolves = yield thunkQuery(query);
-                if (!_.first(existResolves)) { // resolves does not exist -> not possible!?
-                    // resolve list is empty
-                } else {
-                    if (existResolves[0].nonactivated > 0) {
-                        // non activated resolve entries are exist => get resolve list
-                        resolve=true;
-                    } else {
-                        // resolve list is empty
-                    }
-                }
-*/
+                /*
+                 } else if (existFlags[0].resolved > 0) {
+                 // entries with resolved flags are exist => check resolve-entries
+                 query =
+                 'SELECT ' +
+                 'sum(CASE WHEN "Discussions"."activated" = true THEN 0 ELSE 1 END) as nonactivated ' +
+                 'FROM "Discussions" ' +
+                 pgEscape('WHERE "Discussions"."taskId" = %s ', taskId) +
+                 'AND "Discussions"."isReturn" = false ' +
+                 'AND "Discussions"."isResolve" = true ';
+                 var existResolves = yield thunkQuery(query);
+                 if (!_.first(existResolves)) { // resolves does not exist -> not possible!?
+                 // resolve list is empty
+                 } else {
+                 if (existResolves[0].nonactivated > 0) {
+                 // non activated resolve entries are exist => get resolve list
+                 resolve=true;
+                 } else {
+                 // resolve list is empty
+                 }
+                 }
+                 */
             }
         }
         if (resolve) {
@@ -663,10 +673,10 @@ function* checkNextEntry(req, id, checkOnly) {
         'FROM "Discussions" '+
         'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" '+
         'WHERE '+
-            pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
-            pgEscape('"Tasks"."productId" = %s AND ', productId)+
-            pgEscape('"Discussions"."questionId" = %s AND ', entry.questionId)+
-            pgEscape('"Discussions".order > %s', entry.order);
+        pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
+        pgEscape('"Tasks"."productId" = %s AND ', productId)+
+        pgEscape('"Discussions"."questionId" = %s AND ', entry.questionId)+
+        pgEscape('"Discussions".order > %s', entry.order);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (_.first(result)) {
@@ -711,15 +721,15 @@ function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
     // get current step for survey
     var query =
         'SELECT '+
-            '"Tasks"."stepId" as stepid, '+
-            '"ProductUOA"."currentStepId" as currentstepid '+
+        '"Tasks"."stepId" as stepid, '+
+        '"ProductUOA"."currentStepId" as currentstepid '+
         'FROM '+
-            '"Tasks" '+
+        '"Tasks" '+
         'INNER JOIN "ProductUOA" ON '+
-            '"ProductUOA"."productId" = "Tasks"."productId" AND '+
-            '"ProductUOA"."UOAid" = "Tasks"."uoaId" '+
+        '"ProductUOA"."productId" = "Tasks"."productId" AND '+
+        '"ProductUOA"."UOAid" = "Tasks"."uoaId" '+
         'WHERE '+
-            pgEscape('"Tasks"."id" = %s',  taskId);
+        pgEscape('"Tasks"."id" = %s',  taskId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
@@ -762,7 +772,7 @@ function* updateProductUOAStep(req, object) {
         .where(ProductUOA.productId.equals(object.productId)
             .and(ProductUOA.UOAid.equals(object.uoaId))
         )
-            .returning(ProductUOA.currentStepId)
+        .returning(ProductUOA.currentStepId)
     );
     if (_.first(res)) {
 
@@ -818,9 +828,9 @@ function* updateProductUOAStep(req, object) {
 
 function* checkUpdateProductUOAStep(req, object) {
     /*
-        After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
-        If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-        then change current step of survey to step from "return" Task.
+     After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
+     If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
+     then change current step of survey to step from "return" Task.
      */
     var query =
         'SELECT "Discussions"."questionId" '+
@@ -834,10 +844,10 @@ function* checkUpdateProductUOAStep(req, object) {
     result = yield thunkQuery(query);
     if (!_.first(result)) {
         var res = yield thunkQuery(ProductUOA.update({currentStepId: object.stepId})
-                .where(ProductUOA.productId.equals(object.productId)
-                    .and(ProductUOA.UOAid.equals(object.uoaId))
+            .where(ProductUOA.productId.equals(object.productId)
+                .and(ProductUOA.UOAid.equals(object.uoaId))
             )
-                .returning(ProductUOA.currentStepId)
+            .returning(ProductUOA.currentStepId)
         );
         if (_.first(res)) {
 
@@ -895,8 +905,8 @@ function* checkUpdateProductUOAStep(req, object) {
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
     var res = yield thunkQuery(Discussion.update({isResolve: true})
-            .where(Discussion.id.equals(discussionId))
-            .returning(Discussion.id)
+        .where(Discussion.id.equals(discussionId))
+        .returning(Discussion.id)
     );
     if (_.first(res)) {
         bologger.log({
@@ -982,10 +992,10 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
     isResolve = (isResolve) ? true : false;
     // check if entry (return or resolve) is exist for taskId, questionId
     var query =
-            Discussion
-                .select(Discussion.id)
-                .from(Discussion)
-                .where(
+        Discussion
+            .select(Discussion.id)
+            .from(Discussion)
+            .where(
                 Discussion.isReturn.equals(isReturn)
                     .and(Discussion.activated.equals(false))
                     .and(Discussion.isResolve.equals(isResolve))
@@ -998,4 +1008,37 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
         throw new HttpError(403, rR+'entry for questionId=`'+questionId+'` already exist');
     }
     return result;
+}
+
+var notify = function(req, note0, entryId, taskId, action, essenceName){
+    co(function* () {
+        // notify
+        var task = yield * common.getTask(req, taskId);
+        var userTo = yield * common.getUser(req, task.userId);
+        var note = _.extend(note0, {body: req.body.entry, action: action});
+        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
+        note = notifications.notify(req, userTo, note, 'discussion');
+    }).then(function (result) {
+        debug('Created notification for comment with id`'+ entryId+'`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
+
+function* returnTaskIdIfReturnFlagsExists(req, taskId) {
+    /*
+     Check (return) flag(s) exists and return returnTaskId
+     */
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Discussion
+            .select(Discussion.returnTaskId)
+            .from(Discussion)
+            .where(
+            Discussion.isReturn.equals(true)
+                .and(Discussion.activated.equals(false))
+                .and(Discussion.taskId.equals(taskId))
+        )
+    );
+    return (_.first(result)) ? result[0].returnTaskId : null;
 }

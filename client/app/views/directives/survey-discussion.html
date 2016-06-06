@@ -29,12 +29,13 @@
             <select class="form-control"
                     ng-options="item.id as (item.title + ' (' + item.role + ')') for item in model.assignTo | filter : filterSteps"
                     ng-model="model.msg.stepId"
+                    ng-change="assignmentChange()"
                     ng-required="true">
                 <option value="" selected disabled style="display:none;" translate="PLACEHOLDER.ASSIGN_TO"></option>
             </select>
         </div>
         <div class="form-group clearfix">
-            <div class="checkbox-inline"><label class="text-danger">
+            <div class="checkbox-inline" ng-hide="model.flagDisabled"><label class="text-danger">
                 <input type="checkbox" ng-model="model.msg.isReturn" ng-change="flagChange()"/> <i class="chk-box"></i> <span translate="PLACEHOLDER.FLAG"></span></label>
             </div>
 
