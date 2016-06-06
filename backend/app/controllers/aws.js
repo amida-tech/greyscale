@@ -32,20 +32,40 @@ module.exports = {
     uploadSuccess: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co( function* () {
-            if (!req.body.key || !req.body.answerId) {
-                throw new HttpError(400, 'You should provide key and answerId');
+            if (!req.body.key || !req.body.essenceId || !req.body.entityId) {
+                throw new HttpError(400, 'You should provide key, essenceId and entityId');
             }
-            var answer = yield thunkQuery(SurveyAnswer.select().where(SurveyAnswer.id.equals(req.body.answerId)));
-            if (!answer.length) {
-                throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
+
+            var essence = yield thunkQuery(Essence.select().where(Essence.id.equals(req.body.essenceId)));
+
+            if(!essence.length){
+                throw new HttpError(400, 'Essence with id = ' + req.body.essenceId + 'does not exist');
             }
+
+            try {
+                var model = require('app/models/' + essence[0].fileName);
+            } catch (err) {
+                throw new HttpError(400, 'Cannot load essence model file');
+            }
+
+            var entity = yield thunkQuery(model.select().where(model.id.equals(req.body.entityId)));
+
+            if (!entity.length) {
+                throw new HttpError(400, essence[0].name + ' with id = ' + req.body.entityId + ' does not exist');
+            }
+
+            //var answer = yield thunkQuery(SurveyAnswer.select().where(SurveyAnswer.id.equals(req.body.answerId)));
+            //if (!answer.length) {
+            //    throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
+            //}
+
             var attempt = yield thunkQuery(AttachmentAttempt.select().where(AttachmentAttempt.key.equals(req.body.key)));
             if (!attempt.length) {
                 throw new HttpError(400, 'Key is not valid');
             }
 
             var attachment = {
-                answerId: req.body.answerId,
+                // Id: req.body.answerId,
                 filename: attempt[0].filename,
                 size: attempt[0].size,
                 mimetype: attempt[0].mimetype,
@@ -53,7 +73,9 @@ module.exports = {
                 amazonKey: req.body.key
             };
 
-            var id = yield thunkQuery(AnswerAttachment.insert(attachment).returning(AnswerAttachment.id));
+            var id = yield thunkQuery(Attachment.insert(attachment).returning(Attachment.id));
+
+            // insert record to links ???
 
             yield thunkQuery(AttachmentAttempt.delete().where(AttachmentAttempt.key.equals(req.body.key)));
 

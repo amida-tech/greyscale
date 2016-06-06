@@ -2,8 +2,6 @@ var sql = require('sql');
 
 var columns = [
     'id',
-    'essenceId',
-    'entityId',
     'filename',
     'size',
     'mimetype',
