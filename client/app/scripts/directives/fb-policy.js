@@ -34,8 +34,9 @@ angular.module('greyscaleApp')
                         var _comment = {
                             section: scope.model,
                             quote: data.range.cloneRange().toString(),
-                            range: greyscaleSelection.get(document.getElementById(scope.model.qid))
+                            range: data.selection //greyscaleSelection.get(document.getElementById(scope.model.qid))
                         };
+                        $log.debug(_comment);
                         $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
                     }
                 }];

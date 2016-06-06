@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, i18n, $log) {
+        greyscaleModalsSrv, i18n) {
 
         return {
             restrict: 'E',
@@ -30,7 +30,6 @@ angular.module('greyscaleApp')
                         tags: $scope.model.associate.tags,
                         commentTypes: $scope.model.commentTypes
                     });
-                    $log.debug(data);
                     greyscaleModalsSrv.policyComment(data, {})
                         .then(function (commentBody) {
                             var _tag = {
