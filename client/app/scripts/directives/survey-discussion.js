@@ -73,9 +73,11 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                $scope.assignmentChange = function(){
+                $scope.assignmentChange = function () {
                     var id = $scope.model.msg.stepId;
-                    var item = _.find($scope.model.assignTo, {id: id});
+                    var item = _.find($scope.model.assignTo, {
+                        id: id
+                    });
                     $scope.model.flagDisabled = currentStep.position < item.position;
                 };
 
@@ -143,7 +145,9 @@ angular.module('greyscaleApp')
                         steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                         users: greyscaleDiscussionApi.getUsers(task.id),
                         messages: greyscaleDiscussionApi.list(params),
-                        entryscope: greyscaleDiscussionApi.scopeList({taskId: task.id})
+                        entryscope: greyscaleDiscussionApi.scopeList({
+                            taskId: task.id
+                        })
                     };
 
                 scope.surveyParams = {
@@ -165,8 +169,10 @@ angular.module('greyscaleApp')
                     currentStep = _steps[0];
 
                     var availableSteps = [];
-                    angular.forEach(resp.entryscope.availList, function(step){
-                        var availableStep = _.find(resp.steps, {id: step.stepId});
+                    angular.forEach(resp.entryscope.availList, function (step) {
+                        var availableStep = _.find(resp.steps, {
+                            id: step.stepId
+                        });
                         if (availableStep) {
                             availableSteps.push(availableStep);
                         }

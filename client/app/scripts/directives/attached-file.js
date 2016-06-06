@@ -10,11 +10,10 @@ angular.module('greyscaleApp')
             template: '<div class="col-sm-12 col-xs-12 col-md-6 file-attach">' +
                 '<a class="action action-primary file-link" ng-href="{{url}}" ng-click="download($event)" target="_self" download="{{file.filename}}">' +
                 '<i class="fa {{iconClass}}"></i>{{file.filename}}</a>' +
-                '<a class="action action-danger file-remove" ng-click="remove()" ng-hide="options.readonly"><i class="fa fa-trash"></i></a></div>',
+                '<a class="action action-danger file-remove" ng-click="remove()"><i class="fa fa-trash"></i></a></div>',
             scope: {
                 file: '=attachedItem',
-                remove: '&removeFile',
-                options: '='
+                remove: '&removeFile'
             },
             controller: function ($scope, greyscaleAttachmentApi, $timeout) {
                 $scope.iconClass = 'fa-file';
@@ -23,14 +22,6 @@ angular.module('greyscaleApp')
                     if (!$scope.url) {
                         evt.preventDefault();
                         evt.stopPropagation();
-<<<<<<< HEAD
-                        greyscaleAttachmentApi.getTicket($scope.file.id, $scope.file.ver)
-                            .then(function (ticket) {
-                                $scope.url = greyscaleAttachmentApi.getLink(ticket, $scope.file.ver);
-                                $timeout(function () {
-                                    evt.currentTarget.click();
-                                });
-=======
                         greyscaleAttachmentApi.getDownloadUrl($scope.file.id)
                             .then(function (data) {
                                 if (data.ticket) {
@@ -43,7 +34,6 @@ angular.module('greyscaleApp')
                                         evt.currentTarget.click();
                                     });
                                 }
->>>>>>> ntrlab
                             });
                     }
                 };
