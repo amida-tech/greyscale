@@ -9,7 +9,8 @@ var columns = [
     'mimetype',
     'body',
     'created',
-    'owner'
+    'owner',
+    'amazonKey'
 ];
 
 var Attachment = sql.define({
