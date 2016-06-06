@@ -155,7 +155,7 @@ angular.module('greyscale.tables')
                 var currentTask;
                 angular.forEach(uoaTasks, function (task) {
                     if (!currentTask && task.stepId === task.uoa.currentStepId) {
-                    //if (!currentTask && task.status === 'current') {
+                        //if (!currentTask && task.status === 'current') {
                         currentTask = _setCurrentTask(task, uoaTasks);
                     }
                 });
@@ -276,7 +276,7 @@ angular.module('greyscale.tables')
                 return task.deadlineInfo;
             }
             var info = {};
-            angular.forEach(task.progress, function(progressTask) {
+            angular.forEach(task.progress, function (progressTask) {
                 if (progressTask.endDate) {
                     info.endDate = progressTask.endDate;
                 }
