@@ -46,6 +46,7 @@
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
+        "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
@@ -505,7 +506,8 @@
         "STEP_SKIPPED": "Skipped Step",
         "TITLE": "Project Tasks",
         "UOA": "Subject",
-        "UOA_TASKS_COMPLETED": "Subject Tasks Completed",
+        "UOA_ASSIGNED_TASKS_COMPLETED": "All assigned tasks completed",
+        "UOA_COMPLETED": "Subject tasks completed",
         "USER": "User"
     },
     "PROFILE": {
