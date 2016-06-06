@@ -891,6 +891,7 @@ var getUsersAndGroups = function* (req, taskId){
 
     return {
         users: users,
-        groups: groups
+        groups: groups,
+        commentTypes: Comment.commentTypes
     };
 };
