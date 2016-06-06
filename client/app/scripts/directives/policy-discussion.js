@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv) {
+        greyscaleModalsSrv, i18n, $log) {
 
         return {
             restrict: 'E',
@@ -27,8 +27,10 @@ angular.module('greyscaleApp')
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
                     angular.extend(data, {
                         comment: data.quote ? '<blockquote>' + data.quote + '</blockquote>' : '',
-                        tags: $scope.model.associate.tags
+                        tags: $scope.model.associate.tags,
+                        commentTypes: $scope.model.commentTypes
                     });
+                    $log.debug(data);
                     greyscaleModalsSrv.policyComment(data, {})
                         .then(function (commentBody) {
                             var _tag = {
@@ -52,7 +54,8 @@ angular.module('greyscaleApp')
                                 questionId: commentBody.section.id,
                                 entry: commentBody.comment,
                                 range: commentBody.range,
-                                tags: _tag
+                                tags: _tag,
+                                commentType: commentBody.type
                             };
                         })
                         .then(greyscaleCommentApi.add)
@@ -88,8 +91,9 @@ angular.module('greyscaleApp')
                         tag = resp.tags.users[i];
                         title = greyscaleUtilsSrv.getUserName(tag);
                         angular.extend(tag, {
-                            fullName: title,
+                            fullName: title
                         });
+
                         scope.model.associate.tags.push(tag);
                         scope.model.associate[tag.userId] = tag;
 
@@ -99,6 +103,14 @@ angular.module('greyscaleApp')
                     for (i = 0; i < qty; i++) {
                         scope.model.associate.tags.push(resp.tags.groups[i]);
                     }
+
+                    /* comment types */
+                    qty = resp.tags.commentTypes.length;
+                    for (i = 0; i < qty; i++) {
+                        resp.tags.commentTypes[i].name =
+                            i18n.translate('GLOBALS.COMMENTTYPES.' + resp.tags.commentTypes[i].name);
+                    }
+                    scope.model.commentTypes = resp.tags.commentTypes;
 
                     /* discussions */
                     scope.model.items = resp.messages;

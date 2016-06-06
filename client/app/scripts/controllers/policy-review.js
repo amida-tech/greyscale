@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function ($scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers, greyscaleAttachmentApi, greyscaleCommentApi) {
+        greyscaleUsers, greyscaleCommentApi, $log) {
 
         var data = {},
             _title = [],
@@ -76,7 +76,11 @@ angular.module('greyscaleApp')
                 greyscaleEntityTypeApi.getByFile('policies')
                     .then(function (essence) {
                         data.policy.essenceId = essence.id;
+                        $log.debug('re-factor policy review attachments to S3');
+                        /*
                         return greyscaleAttachmentApi.list(essence.id, data.policy.id);
+                        */
+                        return [];
                     })
                     .then(function (attachments) {
                         data.policy.attachments = attachments;
