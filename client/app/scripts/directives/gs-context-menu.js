@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('gsContextMenu', function (greyscaleSelection, $timeout, $log) {
+    .directive('gsContextMenu', function (greyscaleSelection, $timeout) {
         return {
             restrict: 'A',
             transclude: true,
@@ -13,8 +13,8 @@ angular.module('greyscaleApp')
                 qid: '@'
             },
             template: '<ng-transclude></ng-transclude><ul data-toggle="dropdown" id="{{model.menuId}}" class="dropdown-menu" role="menu">' +
-            '<li class="dropdown-header" translate="CONTEXT_MENU.TITLE"></li><li class="divider"></li>' +
-            '<li ng-repeat="item in gsContextMenu"><a translate="{{item.title}}" ng-click="item.action(model.data)"></a></li></ul>',
+                '<li class="dropdown-header" translate="CONTEXT_MENU.TITLE"></li><li class="divider"></li>' +
+                '<li ng-repeat="item in gsContextMenu"><a translate="{{item.title}}" ng-click="item.action(model.data)"></a></li></ul>',
             link: function (scope, elem) {
                 scope.model = {
                     menuId: 'mnu_' + new Date().getTime(),
@@ -24,9 +24,12 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                elem.on('mousedown', function () {
+                elem.on('mousedown', function (evt) {
                     window.getSelection().collapse(true);
-                    elem.removeClass('open');
+                    var _parent = evt.target.parentNode? evt.target.parentNode.parentNode : null;
+                    if (!_parent || _parent.id !== scope.model.menuId) {
+                        window.getSelection().collapse(true);
+                    }
                 });
 
                 elem.on('mouseup', _showContextMenu);

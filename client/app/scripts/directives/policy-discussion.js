@@ -25,11 +25,13 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
+                    var _newComment = {};
                     angular.extend(data, {
-                        comment: data.quote ? '<blockquote>' + data.quote + '</blockquote>' : '',
+                        comment: data.quote ? '<blockquote>' + data.quote + '</blockquote><br/>' : '',
                         tags: $scope.model.associate.tags,
                         commentTypes: $scope.model.commentTypes
                     });
+
                     greyscaleModalsSrv.policyComment(data, {})
                         .then(function (commentBody) {
                             var _tag = {
@@ -46,7 +48,7 @@ angular.module('greyscaleApp')
                                     _tag.groups.push(commentBody.tag[i].groupId);
                                 }
                             }
-                            return {
+                            _newComment = {
                                 userFromId: $scope.policy.userId,
                                 taskId: $scope.policy.taskId,
                                 stepId: null,
@@ -56,11 +58,13 @@ angular.module('greyscaleApp')
                                 tags: _tag,
                                 commentType: commentBody.type
                             };
+                            return _newComment;
                         })
                         .then(greyscaleCommentApi.add)
                         .then(function (result) {
-                            result.activated = true;
-                            $scope.model.items.unshift(result);
+                            angular.extend(_newComment, result);
+                            _newComment.activated = true;
+                            $scope.model.items.unshift(_newComment);
                         })
                         .catch(greyscaleUtilsSrv.errorMsg);
                 });

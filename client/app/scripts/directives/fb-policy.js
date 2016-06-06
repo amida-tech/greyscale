@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('fbPolicy', function (greyscaleModalsSrv, greyscaleGlobals, greyscaleSelection, greyscaleCommentApi,
-        $rootScope, $log) {
+        $rootScope) {
         return {
             restrict: 'E',
             require: 'ngModel',
@@ -36,7 +36,6 @@ angular.module('greyscaleApp')
                             quote: data.range.cloneRange().toString(),
                             range: data.selection //greyscaleSelection.get(document.getElementById(scope.model.qid))
                         };
-                        $log.debug(_comment);
                         $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
                     }
                 }];
