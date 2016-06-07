@@ -49,9 +49,14 @@ module.exports = {
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "SurveyAnswers"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'SurveyAnswers\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -126,11 +131,16 @@ module.exports = {
                 var q = pgEscape(
                     'SELECT ' +
                     's.*, ' +
-                    '(SELECT array_agg(row_to_json(att)) FROM ( ' +
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
                         'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                        'FROM "AnswerAttachments" a ' +
-                        'WHERE a."id" = ANY (s."attachments") ' +
-                    ') as att) as attachments ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = s."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'SurveyAnswers\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments' +
                     'FROM "SurveyAnswers" as s ' +
                     'WHERE s."id" = ( ' +
                         'SELECT ' +
@@ -157,9 +167,14 @@ module.exports = {
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                        'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                        'FROM "AnswerAttachments" a ' +
-                        'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = "SurveyAnswers"."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'SurveyAnswers\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -182,9 +197,14 @@ module.exports = {
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "SurveyAnswers"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'SurveyAnswers\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(
