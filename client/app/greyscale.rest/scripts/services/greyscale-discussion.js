@@ -28,7 +28,9 @@ angular.module('greyscale.rest')
         }
 
         function _list(params) {
-            params = angular.extend({order: '-created,-updated'}, params);
+            params = angular.extend({
+                order: '-created,-updated'
+            }, params);
             return _api().get(params).then(_response);
         }
 

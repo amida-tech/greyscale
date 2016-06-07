@@ -13,11 +13,18 @@
     "BRAND": {
         "SLOGAN": ""
     },
+    "COMMENTS": {
+        "NO_MESSAGES": "",
+        "TAG_COMMENT": "",
+        "TITLE": "",
+        "TYPE": ""
+    },
     "COMMON": {
         "ADD": "",
         "ALL": "",
         "APPLY": "",
         "ASSIGN": "",
+        "ATTACHMENTS": "",
         "BACK": "",
         "CANCEL": "",
         "CHARS": "",
@@ -31,6 +38,7 @@
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",
+        "ID": "",
         "INFO": "",
         "NEVER": "",
         "NO": "",
@@ -51,6 +59,10 @@
         "VIEW": "",
         "WORDS": "",
         "YES": ""
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "",
+        "TITLE": ""
     },
     "DASHBOARD": {
         "PROJECTS": "",
@@ -73,6 +85,7 @@
         "CHANGES_UNSAVED": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "SURVEY_UPDATE_ERROR": "",
         "TASK_UNDEFINED": "",
         "TEST": ""
     },
@@ -151,6 +164,11 @@
         "WRONG_DATE_FORMAT": ""
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "",
+            "FORMAT": "",
+            "STRUCTURE": ""
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "",
             "INTERNAL_AND_EMAILS": "",
@@ -270,6 +288,11 @@
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "",
         "PM_PRODUCT_DASHBOARD": "",
+        "POLICY": {
+            "EDIT": "",
+            "REVIEW": "",
+            "TITLE": ""
+        },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "",
         "PROFILE": "",
@@ -323,6 +346,7 @@
         "ADDRESS": "",
         "ADMIN_USER": "",
         "DELETE_CONFIRM": "",
+        "ENABLE_FEATURE_POLICY": "",
         "IS_ACTIVE": "",
         "NAME": "",
         "ORGANIZATION": "",
@@ -349,6 +373,26 @@
         "NO_PRODUCTS": "",
         "NO_PROJECTS": "",
         "PROJECT": ""
+    },
+    "POLICY": {
+        "AUTHOR": "",
+        "NEW_POLICY": "",
+        "NUMBER": "",
+        "PUBLISH": "",
+        "QUESTIONS": "",
+        "SECTION": "",
+        "SECTION_0": "",
+        "SECTION_1": "",
+        "SECTION_2": "",
+        "SECTION_3": "",
+        "SECTION_4": "",
+        "SECTION_5": "",
+        "SECTION_6": "",
+        "SECTION_7": "",
+        "SUBSECTION": "",
+        "TEXT": "",
+        "TITLE": "",
+        "UPLOAD_TEXT": ""
     },
     "PRODUCTS": {
         "INDEXES": {
@@ -586,6 +630,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "",
+        "NEW_SURVEY": "",
         "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",

@@ -202,7 +202,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
-                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
+                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" item-id="{{field.answerId}}" essence-id="{{field.essenceId}}" options="field.flags"></attachments>';
                         }
 
                         body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +

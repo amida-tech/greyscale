@@ -14,6 +14,10 @@ angular.module('greyscale.core')
                 survey: {
                     answerDirty: 'ANSWER_DIRTY',
                     builderFormSaved: 'form-changes-saved'
+                },
+                policy: {
+                    addComment: 'POLICY_ADD_COMMENT',
+
                 }
             },
             projectStates: [{
@@ -133,14 +137,16 @@ angular.module('greyscale.core')
                     'section_break',
                     'bullet_points',
                     'date',
-                    'scale'
+                    'scale',
+                    'policy'
                 ],
                 excluded: [
                     'section_start',
                     'section_end',
                     'section_break'
                 ],
-                excludedIndexes: []
+                excludedIndexes: [],
+                policyQty: 8
             },
             formBuilderSections: [
                 'section_start',

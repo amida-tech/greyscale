@@ -99,6 +99,9 @@ router.route('/:realm/v0.2/uploads/success')
 //----------------------------------------------------------------------------------------------------------------------
 var surveys = require('app/controllers/surveys');
 
+router.route('/:realm/v0.2/surveys/parsedocx')
+    .post(/*authenticate('token').always,*/ surveys.parsePolicyDocx);
+
 router.route('/:realm/v0.2/surveys')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
     .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
@@ -133,6 +136,8 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
     .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
+// TODO refactor to universal attachment mechanism
+
 router.route('/:realm/v0.2/attachments')
     .post(authenticate('token').always, surveyAnswers.attach);
 
@@ -147,6 +152,7 @@ router.route('/:realm/v0.2/attachments/:id/link/:answerId')
 
 router.route('/:realm/v0.2/attachments/:id')
     .delete(authenticate('token').always, surveyAnswers.delAttachment);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ATTACHMENTS (universal mechanism)
@@ -300,6 +306,8 @@ router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
 
 router.route('/:realm/v0.2/products/:id/move/:uoaid')
     .get(authenticate('token').always, products.productUOAmove);
+
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
@@ -458,6 +466,24 @@ router.route('/:realm/v0.2/discussions/entryscope/:id')
 router.route('/:realm/v0.2/discussions/:id')
     .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ discussions.updateOne)
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ discussions.deleteOne);
+
+//----------------------------------------------------------------------------------------------------------------------
+//    COMMENTS
+//----------------------------------------------------------------------------------------------------------------------
+var comments = require('app/controllers/comments');
+
+router.route('/:realm/v0.2/comments')
+    .get(authenticate('token').always, comments.select)
+    .post(authenticate('token').always, jsonParser, comments.insertOne);
+router.route('/:realm/v0.2/comments/users/:taskId')
+    .get(authenticate('token').always, comments.getUsers);
+router.route('/:realm/v0.2/comments/entryscope')
+    .get(authenticate('token').always, comments.getEntryScope);
+router.route('/:realm/v0.2/comments/entryscope/:id')
+    .get(authenticate('token').always, comments.getEntryUpdate);
+router.route('/:realm/v0.2/comments/:id')
+    .put(authenticate('token').always, jsonParser, comments.updateOne)
+    .delete(authenticate('token').always, comments.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS

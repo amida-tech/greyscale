@@ -39,13 +39,13 @@ angular.module('greyscaleApp')
 
             $scope.model.count.started = _.filter(tasksData, 'started').length;
 
-            $scope.model.count.onTime = _.filter(tasksData, function(o){
+            $scope.model.count.onTime = _.filter(tasksData, function (o) {
                 return o.onTime && o.status === 'current';
             }).length;
-            $scope.model.count.late = _.filter(tasksData, function(o){
+            $scope.model.count.late = _.filter(tasksData, function (o) {
                 return !o.onTime && o.status === 'current';
             }).length;
-            $scope.model.count.complete = _.filter(tasksData, function(o){
+            $scope.model.count.complete = _.filter(tasksData, function (o) {
                 return o.status === 'completed';
             }).length;
 
@@ -80,7 +80,6 @@ angular.module('greyscaleApp')
         };
 
         function _moveNextStep(task) {
-            console.log('task before', task);
             greyscaleProductApi.product(task.productId).taskMove(task.uoaId)
                 .then(function () {
                     tasksTable.tableParams.reload();
@@ -107,7 +106,7 @@ angular.module('greyscaleApp')
 
         function _getFlaggedCount(tasksData) {
             var flaggedSurveys = [];
-            angular.forEach(tasksData, function(task){
+            angular.forEach(tasksData, function (task) {
                 if (task.status === 'completed' || !task.flagged) {
                     return;
                 }

@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('ModalTranslationCtrl', function ($scope, $q, _, greyscaleUtilsSrv, $uibModalInstance, translation,
-        greyscaleLanguageApi, greyscaleTranslationApi, $log) {
+        greyscaleLanguageApi, greyscaleTranslationApi) {
 
         $scope.model = {
             translations: [],

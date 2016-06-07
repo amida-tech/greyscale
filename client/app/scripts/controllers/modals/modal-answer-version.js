@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, params, greyscaleUserApi) {
+    .controller('ModalAnswerVersionCtrl', function ($scope, $uibModalInstance, params, greyscaleUserApi, greyscaleUtilsSrv) {
         params = params || {};
 
         $scope.field = params.field;

@@ -26,7 +26,9 @@ var _app = angular.module('greyscaleApp', [
     'isteven-multi-select',
     'pascalprecht.translate',
     'angularFileUpload',
-    'ui.sortable'
+    'ui.sortable',
+    'textAngular',
+    'greyscale.wysiwyg'
 ]);
 
 _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatcherFactoryProvider, $urlRouterProvider,
@@ -534,6 +536,54 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             data: {
                 name: 'NAV.NOTIFICATIONS',
                 icon: 'fa-envelope',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('policy', {
+            parent: 'home',
+            url: 'policy',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/project-setup-surveys.html',
+                    controller: 'PolicyCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.POLICY.TITLE',
+                icon: 'fa-file',
+                accessLevel: systemRoles.any.mask,
+                customAccess: {
+                    enableFeaturePolicy: true
+                }
+            }
+        })
+        .state('policy.edit', {
+            parent: 'policy',
+            url: '/edit/:id',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/policy-edit.html',
+                    controller: 'PolicyEditCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.POLICY.EDIT',
+                icon: 'fa-pencil',
+                accessLevel: systemRoles.any.mask
+            }
+        })
+        .state('policy.review', {
+            parent: 'policy',
+            url: '/review/:id/task/:taskId?',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/policy-review.html',
+                    controller: 'PolicyReviewCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.POLICY.REVIEW',
+                icon: 'fa-eye',
                 accessLevel: systemRoles.any.mask
             }
         });

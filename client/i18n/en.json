@@ -13,11 +13,18 @@
     "BRAND": {
         "SLOGAN": "Turn knowledge into data."
     },
+    "COMMENTS": {
+        "NO_MESSAGES": "no messages",
+        "TAG_COMMENT": "Tag comment",
+        "TITLE": "Make comment",
+        "TYPE": "Comment type"
+    },
     "COMMON": {
         "ADD": "Add",
         "ALL": "All",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
+        "ATTACHMENTS": "Attachments",
         "BACK": "Back",
         "CANCEL": "Cancel",
         "CHARS": "character(s)",
@@ -31,6 +38,7 @@
         "EDIT": "Edit",
         "FURTHER": "Further",
         "GLOBALLY": "Globally",
+        "ID": "ID",
         "INFO": "Info",
         "NEVER": "Never",
         "NO": "No",
@@ -51,6 +59,10 @@
         "VIEW": "View",
         "WORDS": "word(s)",
         "YES": "Yes"
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "Comment",
+        "TITLE": "Actions"
     },
     "DASHBOARD": {
         "PROJECTS": "Projects",
@@ -73,6 +85,7 @@
         "CHANGES_UNSAVED": "Changes unsaved",
         "STEP_READONLY": "Task is readonly",
         "STEP_SUBMIT": "Task submit error",
+        "SURVEY_UPDATE_ERROR": "Survey update error",
         "TASK_UNDEFINED": "Task is undefined",
         "TEST": "Test error"
     },
@@ -151,6 +164,11 @@
         "WRONG_DATE_FORMAT": "Wrong date format."
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "Content",
+            "FORMAT": "Format",
+            "STRUCTURE": "Structure"
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "Internal Notifications Only",
             "INTERNAL_AND_EMAILS": "Internal Notifications And Emails",
@@ -270,6 +288,11 @@
         "NOTIFICATIONS": "Notifications",
         "ORGANIZATIONS": "Organizations",
         "PM_PRODUCT_DASHBOARD": "\"{{ext.productName}}\" Project Dashboard",
+        "POLICY": {
+            "EDIT": "Policy edit",
+            "REVIEW": "Policy review",
+            "TITLE": "Policies"
+        },
         "PRODUCT_INDEXES": "\"{{ext.productName}}\" Project Indexes",
         "PRODUCT_TASKS": "\"{{ext.productName}}\" Project Tasks",
         "PROFILE": "Profile",
@@ -323,6 +346,7 @@
         "ADDRESS": "Address",
         "ADMIN_USER": "Admin user",
         "DELETE_CONFIRM": "Please confirm deleting of organization <b>{{organization.name}}</b>",
+        "ENABLE_FEATURE_POLICY": "Policy Feature Enabled",
         "IS_ACTIVE": "Is active",
         "NAME": "Name",
         "ORGANIZATION": "Organization",
@@ -349,6 +373,26 @@
         "NO_PRODUCTS": "No projects",
         "NO_PROJECTS": "You have no projects to manage",
         "PROJECT": "Project"
+    },
+    "POLICY": {
+        "AUTHOR": "Author",
+        "NEW_POLICY": "New policy",
+        "NUMBER": "Number",
+        "PUBLISH": "Publish",
+        "QUESTIONS": "Questions",
+        "SECTION": "Section",
+        "SECTION_0": "Coverage",
+        "SECTION_1": "Descriptions",
+        "SECTION_2": "References",
+        "SECTION_3": "Medicare",
+        "SECTION_4": "Rationale",
+        "SECTION_5": "Contract",
+        "SECTION_6": "Pricing",
+        "SECTION_7": "Coding",
+        "SUBSECTION": "Subsection",
+        "TEXT": "Draft policy text:",
+        "TITLE": "Policy title",
+        "UPLOAD_TEXT": "Copy and paste text into sections below or upload a draft written using the template to automatically divide it into sections below"
     },
     "PRODUCTS": {
         "INDEXES": {
@@ -586,6 +630,7 @@
         "MAX": "max",
         "MIN": "min",
         "NAME": "Name",
+        "NEW_SURVEY": "New survey",
         "NO_DATA": "No data",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
