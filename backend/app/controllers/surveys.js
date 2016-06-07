@@ -417,7 +417,8 @@ module.exports = {
                     .on(SurveyQuestion.id.equals(SurveyQuestionOption.questionId))
                 )
                 .where(SurveyQuestion.surveyId.equals(req.params.id))
-                .group(SurveyQuestion.id)
+                .group(SurveyQuestion.id),
+                _.omit(req.query, 'offset', 'limit')
             );
             return result;
         }).then(function (data) {
