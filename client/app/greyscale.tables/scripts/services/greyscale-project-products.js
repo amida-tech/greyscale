@@ -128,6 +128,7 @@ angular.module('greyscale.tables')
             dataFilter: {},
             formTitle: tns + 'PRODUCT',
             formWarning: _getFormWarning,
+            pageLength: 10,
             add: {
                 handler: _editProduct
             }

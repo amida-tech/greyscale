@@ -28,10 +28,6 @@ var
     thunkQuery = thunkify(query),
     pgEscape = require('pg-escape');
 
-var debug = require('debug')('debug_discussions');
-var error = require('debug')('error');
-debug.log = console.log.bind(console);
-
 
 module.exports = {
 
@@ -113,18 +109,8 @@ module.exports = {
             var userTo = yield * common.getUser(req, task.userId);
             var retTask = task;
             if (returnObject) {
-                var returnTaskId = null;
-                if (isReturn) {
-                    returnTaskId = yield * returnTaskIdIfReturnFlagsExists(req, task.id);
-                }
-                if (returnTaskId) {
-                    retTask = yield * common.getTask(req, returnTaskId);
-                    req.body = _.extend(req.body, {stepId: retTask.stepId});                            // use stepId from previous return flags
-                    req.body = _.extend(req.body, {returnTaskId: returnTaskId});                // use returnTaskId from previous return flags
-                } else {
-                    retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                    userTo = yield * common.getUser(req, retTask.userId);
-                }
+                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
+                userTo = yield * common.getUser(req, retTask.userId);
             }
             req.body = _.extend(req.body, {userFromId: req.user.realmUserId});      // add from realmUserId instead of user id
             req.body = _.extend(req.body, {userId: userTo.id});                     // add userId from task (for backward compability)
@@ -134,9 +120,34 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols);                     // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'insert',
+                object: 'discussions',
+                entity: result[0].id,
+                info: 'Add discussion`s entry'
+            });
+/*
+            if (isResolve) {
+                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+            }
+*/
+            return _.first(result);
 
-            // prepare for notify
+/* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
+
+            var newStep;
+            if (isReturn) {
+                newStep = yield * updateProductUOAStep(req, returnObject);
+            }
+            if (isResolve) {
+                var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+                newStep = yield * checkUpdateProductUOAStep(req, returnObject);
+            }
+            var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
+            //var userTo = yield * common.getUser(req, req.body.userId);
             // static blindReview
             var productId = task.productId;
             var uoaId = task.uoaId;
@@ -151,20 +162,32 @@ module.exports = {
                 userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
                 from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
             }
-
-            notify(req, {userFromName: userFromName, from: from}, result[0].id, task.id, 'Comment added', 'Discussions');
-
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'discussions',
-                entity: result[0].id,
-                info: 'Add discussion`s entry'
-            });
-
-            return _.first(result);
-
+            //
+            req.body.isReturn = (isReturn);
+            req.body.isResolve = (isResolve);
+            var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
+            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userFromName: userFromName,
+                    userTo: userTo.id,
+                    body: req.body.entry,
+                    essenceId: essenceId,
+                    entityId: entry.id,
+                    discussionEntry:  req.body,
+                    isReturn: (isReturn),
+                    isResolve: (isResolve),
+                    action: 'Add',
+                    notifyLevel: 2,
+                    from: from,
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    config: config
+                },
+                'discussion'
+            );
+            return entry;
+*/
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -179,10 +202,21 @@ module.exports = {
             req.body = _.extend(req.body, {updated: new Date()}); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'discussions',
+                entity: result[0].id,
+                info: 'Update body of discussion`s entry'
+            });
+            return result;
 
-            // prepare for notify
+/* no notification when update discussion entry - notification only when return-resolve
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
+            var essenceId = yield * common.getEssenceId(req, 'Discussions');
             var userFrom = yield * common.getUser(req, req.user.id);
+            //var userTo = yield * common.getUser(req, entry.userId);
             // static blindReview
             var task = yield * common.getTask(req, entry.taskId);
             var userTo = yield * common.getUser(req, task.userId);
@@ -198,17 +232,28 @@ module.exports = {
                 userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
                 from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
             }
-            notify(req, {userFromName: userFromName, from: from}, result[0].id, task.id, 'Comment updated', 'Discussions');
-
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'discussions',
-                entity: result[0].id,
-                info: 'Update body of discussion`s entry'
-            });
+            //
+            var note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userFromName: userFromName,
+                    userTo: entry.userId,
+                    body: entry.entry,
+                    essenceId: essenceId,
+                    entityId: entry.id,
+                    discussionEntry:  entry,
+                    isReturn: entry.isReturn,
+                    isResolve: entry.isResolve,
+                    //notifyLevel: 2,
+                    from: from,
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    action: 'Update',
+                    config: config
+                },
+                'discussion'
+            );
             return result;
+*/
 
         }).then(function (data) {
             res.status(202).end();
@@ -947,37 +992,4 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
         throw new HttpError(403, rR+'entry for questionId=`'+questionId+'` already exist');
     }
     return result;
-}
-
-var notify = function(req, note0, entryId, taskId, action, essenceName){
-    co(function* () {
-        // notify
-        var task = yield * common.getTask(req, taskId);
-        var userTo = yield * common.getUser(req, task.userId);
-        var note = _.extend(note0, {body: req.body.entry, action: action});
-        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
-        note = notifications.notify(req, userTo, note, 'discussion');
-    }).then(function (result) {
-        debug('Created notification for comment with id`'+ entryId+'`');
-    }, function (err) {
-        error(JSON.stringify(err));
-    });
-};
-
-function* returnTaskIdIfReturnFlagsExists(req, taskId) {
-    /*
-     Check (return) flag(s) exists and return returnTaskId
-     */
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(
-        Discussion
-            .select(Discussion.returnTaskId)
-            .from(Discussion)
-            .where(
-            Discussion.isReturn.equals(true)
-                .and(Discussion.activated.equals(false))
-                .and(Discussion.taskId.equals(taskId))
-        )
-    );
-    return (_.first(result)) ? result[0].returnTaskId : null;
 }

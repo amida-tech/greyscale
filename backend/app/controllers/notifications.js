@@ -10,13 +10,6 @@ var
     HttpError = require('app/error').HttpError,
     vl = require('validator'),
     Essence = require('app/models/essences'),
-    Product = require('app/models/products'),
-    Organization = require('app/models/organizations'),
-    Workflow = require('app/models/workflows'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    Survey = require('app/models/surveys'),
-    Task = require('app/models/tasks'),
-    UOA = require('app/models/uoas'),
     Notification = require('app/models/notifications'),
     User = require('app/models/users'),
     co = require('co'),
@@ -28,7 +21,6 @@ var
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_notifications');
-var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
 var socketController = require('app/socket/socket-controller.server');
@@ -143,17 +135,9 @@ function* createNotification (req, note, template) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
 
     if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-        sendEmail(req, emailOptions, note, noteInserted[0].id);
+        sendEmail(emailOptions, note);
     }
 
-    bologger.log({
-        req: req,
-        user: req.user,
-        action: 'insert',
-        object: 'notifications',
-        entity: _.first(noteInserted).id,
-        info: 'Add new notification'
-    });
     return noteInserted;
 }
 
@@ -184,7 +168,7 @@ function* resendNotification (req, notificationId) {
     var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(note.id)));
 
     if (!config.email.disable) {  // email notification - does not use notifyLevel
-        sendEmail(req, emailOptions, note, note.id);
+        sendEmail(emailOptions, note);
     }
 
     return note;
@@ -486,7 +470,6 @@ module.exports = {
             req.body.userFrom = req.user.realmUserId; // ignore userFrom from body - use from req.user/ !! Use realmUserId instead of user id
             return yield * createNotification(req, req.body);
         }).then(function (data) {
-/*
             bologger.log({
                 req: req,
                 user: req.user,
@@ -495,7 +478,6 @@ module.exports = {
                 entity: _.first(data).id,
                 info: 'Add new notification'
             });
-*/
             res.status(201).json(_.first(data));
         }, function (err) {
             next(err);
@@ -508,8 +490,7 @@ module.exports = {
             if (req.user.id !== note.userTo && !auth.checkAdmin(req.user)) {
                 throw new HttpError(403, 'You cannot send reply for this notification (not yours)!');
             }
-            req.body.userTo = note.userFrom;    // get userTo for reply from userFrom
-            delete note.notifyLevel;            // don't use notifyLevel from source note - use it from user
+            req.body.userTo = note.userFrom; // get userTo for reply from userFrom
             return note;
         }).then(function (data) {
             next();
@@ -519,8 +500,6 @@ module.exports = {
     },
 
     createNotification: createNotification,
-    extendNote: extendNote,
-    notify: notify,
 
     resend: function (req, res, next) {
         co(function* () {
@@ -580,7 +559,6 @@ module.exports = {
                     },
                     template
                 );
-/*
                 bologger.log({
                     req: req,
                     user: req.user,
@@ -589,7 +567,6 @@ module.exports = {
                     entity: note[0].id,
                     info: 'Create '+logUser+' invite notification'
                 });
-*/
                 if (user.notifyLevel < 2) {
                     resend = note[0].id;
                     return yield * resendNotification(req, note[0].id);
@@ -623,7 +600,6 @@ function* checkInsert(req, note) {
     var userToId = yield * checkOneId(req, note.userTo, User, 'id', 'userTo', 'User');
     var body = yield * checkString(note.body, 'Body');
     if (note.essenceId) {
-        // check essenceId and entityId if specified
         var essenceId = yield * checkOneId(req, note.essenceId, Essence, 'id', 'essenceId', 'Essence');
         var essence = yield * common.getEssence(req, essenceId);
         var model;
@@ -632,7 +608,7 @@ function* checkInsert(req, note) {
         } catch (err) {
             throw new HttpError(403, 'Cannot find model file: ' + essence.fileName);
         }
-        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entity('+essence.fileName+')');
+        var entityId = yield * checkOneId(req, note.entityId, model, 'id', 'id', 'Notification`s entry');
     }
     return note;
 }
@@ -687,7 +663,7 @@ function* renderFile(templateFile, data) {
     return res;
 }
 
-function sendEmail(req, emailOptions, note, noteId) {
+function sendEmail(emailOptions, note) {
     co(function* () {
         var mailer = new Emailer(emailOptions, note);
         //Sync mail send
@@ -702,124 +678,10 @@ function sendEmail(req, emailOptions, note, noteId) {
             debug('EMAIL RESULT --->>> '+sendResult.response);
             note.result = sendResult.response;
         }
-        var email = (emailOptions.to) ? emailOptions.to.email : '';
-        bologger.log({
-            req: req,
-            user: req.user,
-            action: 'insert',
-            object: 'notifications',
-            entity: noteId,
-            info: 'Send email to '+email+' `'+note.body+'` , result: '+note.result
-        });
         return note.result;
     }).then(function (result) {
         co(function* () {
-            var thunkQuery = req.thunkQuery;
-            var upd = yield thunkQuery(Notification.update({result: result}).where(Notification.id.equals(noteId)));
+            var upd = yield thunkQuery(Notification.update({result: result}).where(Notification.id.equals(note.id)));
         });
     });
-}
-
-function notify(req, userTo, note, template) {
-    co(function* () {
-        var thunkQuery = req.thunkQuery;
-        note = yield * checkInsert(req, note);
-        var note4insert = _.extend({}, note);
-        template = (template || 'default');
-        if (!config.notificationTemplates[template]) {
-            template = 'default';
-        }
-
-        note4insert.note = yield * renderFile(config.notificationTemplates[template].notificationBody, note4insert);
-        note4insert = _.pick(note4insert, Notification.insertCols); // insert only columns that may be inserted
-        var noteInserted = yield thunkQuery(Notification.insert(note4insert).returning(Notification.id));
-        if (parseInt(note.notifyLevel) >  1) {  // onsite notification
-            socketController.sendNotification(note.userTo);
-        }
-        var userTo = yield * common.getUser(req, note.userTo);
-        if (!vl.isEmail(userTo.email)) {
-            throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
-        }
-        if (typeof note.notifyLevel == 'undefined'){
-            note.notifyLevel = userTo.notifyLevel;
-        }
-        note.subject = note.subject || '';
-        note.subject = ejs.render(config.notificationTemplates[template].subject, note);
-        note.message = yield * renderFile(config.notificationTemplates[template].emailBody, note);
-        var emailOptions = {
-            to: {
-                name: userTo.firstName,
-                surname: userTo.lastName,
-                email: userTo.email,
-                subject: note.subject
-            },
-            html: note.message
-        };
-
-        var updateFields = {
-            email: userTo.email,
-            message: note.message,
-            subject: note.subject,
-            sent: (parseInt(note.notifyLevel) >  1) ? new Date() : null,
-            notifyLevel: note.notifyLevel
-            //result: note.result
-        };
-        // update email's fields before sending
-        var upd = yield thunkQuery(Notification.update(updateFields).where(Notification.id.equals(noteInserted[0].id)));
-
-        if (parseInt(note.notifyLevel) >  1 && !config.email.disable) {  // email notification
-            sendEmail(req, emailOptions, note, noteInserted[0].id);
-        }
-
-        bologger.log({
-            req: req,
-            user: req.user,
-            action: 'insert',
-            object: 'notifications',
-            entity: _.first(noteInserted).id,
-            info: 'Add new notification'
-        });
-
-        return noteInserted;
-    }).then(function (result) {
-        debug('Created notification `'+ note.body+'`');
-    }, function (err) {
-        error(JSON.stringify(err));
-    });
-}
-
-function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
-
-    if (essenceName && essenceName.length > 0) {
-        var essenceId = yield * common.getEssenceId(req, essenceName);
-        note = _.extend(note, {
-                essenceId: essenceId,
-                entityId: entityId
-            }
-        );
-    }
-    var organization = yield * common.getEntity(req, orgId, Organization, 'id');
-    var task = yield * common.getTask(req, taskId);
-    var product = yield * common.getEntity(req, task.productId, Product, 'id');
-    var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-    var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-
-    note = _.extend(note, {
-            userFrom: req.user.realmUserId,
-            userTo: userTo.id,
-            task: task,
-            product: product,
-            uoa: uoa,
-            step: step,
-            survey: survey,
-            policy: survey,
-            user: userTo,
-            organization: organization,
-            date: new Date(),
-            to: {firstName : userTo.firstName, lastName: userTo.lastName},
-            config: config
-        }
-    );
-    return note;
 }

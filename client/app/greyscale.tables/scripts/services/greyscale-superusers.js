@@ -115,6 +115,8 @@ angular.module('greyscale.tables')
             formTitle: tns + 'USER',
             cols: _fields,
             dataPromise: _getUsers,
+            pageLength: 10,
+            showAllButton: true,
             selectable: true,
             sorting: {
                 created: 'desc'

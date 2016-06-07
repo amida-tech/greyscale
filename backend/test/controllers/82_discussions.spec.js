@@ -15,7 +15,6 @@ var assert = chai.assert;
 var config = require('../../config');
 var ithelper = require('./itHelper');
 var request = require('supertest');
-var async = require('async');
 var _ = require('underscore');
 
 var testEnv = {};

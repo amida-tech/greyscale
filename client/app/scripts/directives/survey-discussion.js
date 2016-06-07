@@ -31,8 +31,7 @@ angular.module('greyscaleApp')
                     },
                     associate: {},
                     assignTo: [],
-                    draftFlag: null,
-                    flagDisabled: false
+                    draftFlag: null
                 };
 
                 $scope.surveyParams = {};
@@ -41,7 +40,7 @@ angular.module('greyscaleApp')
 
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
-
+console.log(body);
                     //return;
                     greyscaleDiscussionApi.add(body)
                         .then(function (resp) {
@@ -60,6 +59,20 @@ angular.module('greyscaleApp')
                         });
                 };
 
+                $scope.flagIsDisabled = function () {
+                    var hasUnresolvedFlag = false;
+                    angular.forEach($scope.model.questions.list, function (q) {
+                        if (q.messages && q.messages.length) {
+                            angular.forEach(q.messages, function (m) {
+                                if (!hasUnresolvedFlag && m.flagged && !m.resolved) {
+                                    hasUnresolvedFlag = true;
+                                }
+                            });
+                        }
+                    });
+                    return false && hasUnresolvedFlag;
+                };
+
                 $scope.updateMsg = function (message) {
                     return greyscaleDiscussionApi.update(message.id, message);
                 };
@@ -74,20 +87,8 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                $scope.assignmentChange = function(){
-                    var id = $scope.model.msg.stepId;
-                    var item = _.find($scope.model.assignTo, {id: id});
-                    $scope.model.flagDisabled = currentStep.position < item.position;
-                };
-
                 $scope.filterSteps = function (elem) {
-                    if (elem.id === $scope.surveyParams.currentStepId) {
-                        return false;
-                    }
-                    if ($scope.model.msg.isReturn && elem.position > currentStep.position) {
-                        return false;
-                    }
-                    return true;
+                    return (!$scope.model.msg.isReturn || !flaggedStep || (elem.id === flaggedStep.id)) && elem.position < currentStep.position;
                 };
 
                 $scope.filterQuests = function (quest) {
@@ -143,12 +144,10 @@ angular.module('greyscaleApp')
                     reqs = {
                         steps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                         users: greyscaleDiscussionApi.getUsers(task.id),
-                        messages: greyscaleDiscussionApi.list(params),
-                        entryscope: greyscaleDiscussionApi.scopeList({taskId: task.id})
+                        messages: greyscaleDiscussionApi.list(params)
                     };
 
                 scope.surveyParams = {
-                    currentStepId: task.stepId,
                     userFromId: scope.surveyData.userId,
                     taskId: task.id
                 };
@@ -164,15 +163,7 @@ angular.module('greyscaleApp')
                         id: task.stepId
                     });
                     currentStep = _steps[0];
-
-                    var availableSteps = [];
-                    angular.forEach(resp.entryscope.availList, function(step){
-                        var availableStep = _.find(resp.steps, {id: step.stepId});
-                        if (availableStep) {
-                            availableSteps.push(availableStep);
-                        }
-                    });
-                    scope.model.assignTo = availableSteps;
+                    scope.model.assignTo = resp.steps;
 
                     /* form associate */
                     scope.model.associate = {};

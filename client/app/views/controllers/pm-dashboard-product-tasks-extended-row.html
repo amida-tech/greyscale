@@ -1,4 +1,4 @@
-<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" class="row" ng-cloak>
+<div ng-if="!row.allCompleted" translate-namespace="PRODUCT_TASKS" class="row" ng-cloak>
     <div class="col-md-2">
         <b translate=".ROLE"></b>:<br>
         {{row.step.role}}
@@ -9,15 +9,12 @@
     </div>
     <div class="col-md-4">
         <a ng-click="ext.notifyUser(row)"><i class="fa fa-envelope-o"></i> <span translate=".NOTIFY_USER"></span></a> <br>
-        <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted">
+        <a ng-click="ext.moveNextStep(row)" ng-if="!row.allCompleted">
             <span ng-show="!row.last"><i class="fa fa-fast-forward"></i> <span translate=".FORCE_NEXT_STEP"></span></span>
             <span ng-show="row.last"><i class="fa fa-check"></i> <span translate=".FORCE_COMPLETE"></span></span>
         </a>
     </div>
 </div>
-<div ng-if="row.subjectCompleted">
-    <small translate="PRODUCT_TASKS.UOA_COMPLETED"></small>
-</div>
-<div ng-if="!row.subjectCompleted && row.allCompleted">
-    <small translate="PRODUCT_TASKS.UOA_ASSIGNED_TASKS_COMPLETED"></small>
+<div ng-if="row.allCompleted">
+    <small translate="PRODUCT_TASKS.UOA_TASKS_COMPLETED"></small>
 </div>

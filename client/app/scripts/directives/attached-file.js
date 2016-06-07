@@ -22,18 +22,12 @@ angular.module('greyscaleApp')
                     if (!$scope.url) {
                         evt.preventDefault();
                         evt.stopPropagation();
-                        greyscaleAttachmentApi.getDownloadUrl($scope.file.id)
-                            .then(function (data) {
-                                if (data.ticket) {
-                                    $scope.url = greyscaleAttachmentApi.getLink(data.ticket);
-                                } else if (data.url) {
-                                    $scope.url = data.url;
-                                }
-                                if ($scope.url) {
-                                    $timeout(function () {
-                                        evt.currentTarget.click();
-                                    });
-                                }
+                        greyscaleAttachmentApi.getTicket($scope.file.id)
+                            .then(function (ticket) {
+                                $scope.url = greyscaleAttachmentApi.getLink(ticket);
+                                $timeout(function () {
+                                    evt.currentTarget.click();
+                                });
                             });
                     }
                 };

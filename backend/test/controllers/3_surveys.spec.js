@@ -39,101 +39,8 @@ var updateItem = {
     title: insertItem.title + ' --- updated',
     description: insertItem.description + ' --- updated'
 };
-var surveyQuestions = [
-    {
-        'label':'Text 1',
-        'isRequired':true,
-        'hasComments':true,
-        'type':0,'position':1,
-        'description':'',
-        'qid':'',
-        'skip':0,
-        'size':0
-    },
-    {
-        'label':'Bullet points 2',
-        'isRequired':true,
-        'attachment':true,
-        'hasComments':true,
-        'withLinks':false,
-        'type':11,
-        'position':2,
-        'description':'Description 2',
-        'qid':'Question ID 1',
-        'skip':0,
-        'size':0,
-        'value':'Value 1'
-    },
-    {
-        'label':'Paragraph 3',
-        'isRequired':true,
-        'type':1,
-        'position':3,
-        'description':'',
-        'qid':'',
-        'skip':0,
-        'size':0
-    },
-    {
-        'label':'Multiple choice 4',
-        'isRequired':true,
-        'attachment':true,
-        'hasComments':true,
-        'withLinks':false,
-        'type':3,
-        'position':4,
-        'description':'Description 4',
-        'qid':'',
-        'skip':0,
-        'size':0,
-        'incOtherOpt':true,
-        'value':'Value Other',
-        'optionNumbering':'decimal',
-        'options':[
-            {'label':'Label 1','value':'Value 1','isSelected':true},
-            {'label':'Label 2','value':'Value 2','isSelected':false}
-        ]
-    },
-    {
-        'label':'Checkboxes 5',
-        'isRequired':true,
-        'attachment':true,
-        'hasComments':true,
-        'withLinks':false,
-        'type':2,
-        'position':5,
-        'description':'',
-        'qid':'',
-        'skip':0,
-        'size':0,
-        'incOtherOpt':true,
-        'value':'Other3',
-        'optionNumbering':'lower-latin',
-        'options':[
-            {'label':'L1','value':'V1','isSelected':true},
-            {'label':'L2','value':'V2','isSelected':false}
-        ]
-    }
-];
 
-var surveyQuestions4Check = _.each(surveyQuestions, function(item, i, array) {
-    array[i] = _.omit(item, 'options');
-});
-
-var insertQuestion = {
-    'label':'One more text',
-    'isRequired':true,
-    'hasComments':true,
-    'type':0,
-    'position':6,
-    'description':'',
-    'qid':'',
-    'skip':0,
-    'size':0
-};
-
-
-    describe(testTitle, function () {
+describe(testTitle, function () {
 
     before(function(done){
         // authorize users
@@ -155,15 +62,10 @@ var insertQuestion = {
 
     function allTests() {
 
-        describe(testTitle+'Clean up', function () {
-            it('Do clean up SQL script ', function (done) {
-                ithelper.doSql('test/postSurveys.sql', config.testEntities.organization.realm, done);
-            });
-        });
         describe(testTitle+'Prepare for test', function () {
 /*
             it('Do prepare SQL script ', function (done) {
-                ithelper.doSql('test/preSurveys.sql', config.testEntities.organization.realm, done);
+                ithelper.doSql('test/preDiscussions.sql', config.testEntities.organization.realm, done);
             });
 */
         });
@@ -196,45 +98,6 @@ var insertQuestion = {
             });
             it('Get updated survey', function (done) {
                 ithelper.selectOneCheckFields(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 200, null, updateItem, done);
-            });
-            it('Delete created/updated survey', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 204, done);
-            });
-            it('True number of surveys after delete', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 0, done);
-            });
-        });
-
-        describe(testTitle+'CRUD + Questions', function () {
-            it('Create new survey with questions', function (done) {
-                insertItem.questions = surveyQuestions;
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
-            });
-            it('True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 1, done);
-            });
-            it('Get created survey', function (done) {
-                ithelper.selectOneCheckField( testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 200, null, 'title', insertItem.title, done);
-            });
-            it('Number of questions (=5)', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions', tokenAdmin, 200, 5, done);
-            });
-            it('Check question`s content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
-            });
-            it('Create new question for survey', function (done) {
-                ithelper.insertOne(testEnv.api_created_realm, path+ '/' + insertItem.id + '/questions', tokenAdmin, insertQuestion, 201, insertQuestion, 'id', done);
-                surveyQuestions.push(insertQuestion);
-            });
-            it('Check question`s content with new question', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
-            });
-            it('Create new question for survey', function (done) {
-                insertQuestion.label = insertQuestion.label + ' --- updated';
-                ithelper.updateOne(testEnv.api_created_realm, '/questions/'+insertQuestion.id, tokenAdmin, insertQuestion, 202, done);
-            });
-            it('Delete new question', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, '/questions/'+insertQuestion.id, tokenAdmin, 204, done);
             });
             it('Delete created/updated survey', function (done) {
                 ithelper.deleteOne(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 204, done);
