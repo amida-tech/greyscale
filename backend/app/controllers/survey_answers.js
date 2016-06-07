@@ -32,10 +32,6 @@ var
     bytes = require('bytes'),
     thunkQuery = thunkify(query);
 
-    AWS = require('aws-sdk');
-    AWS.config.update(config.aws);
-    var s3 = new AWS.S3();
-
 var debug = require('debug')('debug_survey_answers');
 debug.log = console.log.bind(console);
 
@@ -401,7 +397,6 @@ module.exports = {
             next(err);
         });
     },
-
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* (){
@@ -414,23 +409,17 @@ module.exports = {
                 throw new HttpError(404, 'Attachment not found');
             }
 
-            if (attachment[0].amazonKey) {
-                var params = { Bucket: 'ntrlab-amida-indaba', Key: attachment[0].amazonKey };
-                var url = s3.getSignedUrl('getObject', params);
-                return { url: url };
-            }
-
             var ticket = crypto.randomBytes(10).toString('hex');
 
             try{
-                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
-                return { ticket: ticket };
+var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
+                return ticket;
             }catch(e){
                 throw new HttpError(500, e);
             }
 
         }).then(function(data){
-            res.status(201).json(data);
+            res.status(201).json({tiсket:data});
         }, function(err){
             next(err);
         });

@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, $log, inform,
-        i18n, greyscaleRealmSrv, $translate) {
+        i18n, greyscaleRealmSrv) {
 
         return {
             decode: _decode,
@@ -62,7 +62,7 @@ angular.module('greyscale.core')
                         msgText = msg.data;
                     }
                 } else if (typeof msg === 'string') {
-                    msgText = _detectSystem(msg);
+                    msgText = msg;
                 } else if (msg.message) {
                     msgText = msg.message;
                 } else if (msg.statusText) {
@@ -77,13 +77,6 @@ angular.module('greyscale.core')
                 });
 
             }
-        }
-
-        function _detectSystem(msg) {
-            if (msg.match(/^(<!doctype|<html)/i)) {
-                return $translate.instant('COMMON.SERVICE_UNAVAILABLE');
-            }
-            return msg;
         }
 
         function _errMsg(err, prefix) {

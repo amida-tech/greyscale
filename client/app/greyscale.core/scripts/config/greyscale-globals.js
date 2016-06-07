@@ -176,10 +176,7 @@ angular.module('greyscale.core')
             }],
             adminSchema: 'public',
             tokenTTLsec: 300,
-            setRolesId: _setRolesId,
-            widgetTableDefaults: {
-                pageLength: 0
-            }
+            setRolesId: _setRolesId
         };
 
         return {

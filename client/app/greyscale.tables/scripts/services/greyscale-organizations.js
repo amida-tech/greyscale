@@ -76,6 +76,7 @@ angular.module('greyscale.tables')
             cols: _fields,
             dataPromise: getData,
             dataFilter: {},
+            pageLength: 10,
             add: {
                 handler: _editRecord
             }

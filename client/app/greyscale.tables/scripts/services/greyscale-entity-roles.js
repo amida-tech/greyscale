@@ -95,6 +95,7 @@ angular.module('greyscale.tables')
             formAddHeaderPrefix: 'COMMON.ASSIGN',
             cols: _fields,
             dataPromise: getData,
+            pageLength: 10,
             add: {
                 tooltip: 'COMMON.ASSIGN',
                 handler: _editRecord

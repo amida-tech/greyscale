@@ -43,6 +43,7 @@ angular.module('greyscale.tables')
             sorting: {
                 id: 'asc'
             },
+            pageLength: 5,
             cols: recDescr,
             dataPromise: _getData,
             multiselect: {}

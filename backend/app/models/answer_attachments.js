@@ -8,8 +8,7 @@ var columns = [
     'mimetype',
     'body',
     'created',
-    'owner',
-    'amazonKey'
+    'owner'
 ];
 
 var AnswerAttachment = sql.define({

@@ -51,6 +51,7 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             dataFilter: {},
             formTitle: tns + 'ITEM',
+            pageLength: 10,
             add: {
                 handler: _editSurvey
             }
