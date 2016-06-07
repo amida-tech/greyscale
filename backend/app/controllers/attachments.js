@@ -304,6 +304,7 @@ module.exports = {
         }, function(err){
             next(err);
         });
+        console.log('test');
     },
 
     uploadSuccess: function (req, res, next) {
