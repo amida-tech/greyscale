@@ -2,14 +2,13 @@ var sql = require('sql');
 
 var columns = [
     'id',
-    'essenceId',
-    'entityId',
     'filename',
     'size',
     'mimetype',
     'body',
     'created',
-    'owner'
+    'owner',
+    'amazonKey'
 ];
 
 var Attachment = sql.define({

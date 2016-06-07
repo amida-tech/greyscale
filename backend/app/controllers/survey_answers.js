@@ -3,8 +3,10 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    Essence = require('app/models/essences'),
     SurveyAnswer = require('app/models/survey_answers'),
     AnswerAttachment = require('app/models/answer_attachments'),
+    AttachmentLink = require('app/models/attachment_links'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -49,9 +51,14 @@ module.exports = {
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "SurveyAnswers"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'SurveyAnswers\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -126,11 +133,16 @@ module.exports = {
                 var q = pgEscape(
                     'SELECT ' +
                     's.*, ' +
-                    '(SELECT array_agg(row_to_json(att)) FROM ( ' +
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
                         'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                        'FROM "AnswerAttachments" a ' +
-                        'WHERE a."id" = ANY (s."attachments") ' +
-                    ') as att) as attachments ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = s."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'SurveyAnswers\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments' +
                     'FROM "SurveyAnswers" as s ' +
                     'WHERE s."id" = ( ' +
                         'SELECT ' +
@@ -148,18 +160,19 @@ module.exports = {
                     ')', condition.productId, condition.UOAid, req.user.id.toString()
                 );
 
-
-
-
-
             } else {
                 var q = SurveyAnswer
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                        'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                        'FROM "AnswerAttachments" a ' +
-                        'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = "SurveyAnswers"."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'SurveyAnswers\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
@@ -182,9 +195,14 @@ module.exports = {
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype"' +
-                            'FROM "AnswerAttachments" a ' +
-                            'WHERE a."id" = ANY ("SurveyAnswers"."attachments")' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "SurveyAnswers"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'SurveyAnswers\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .from(
@@ -342,225 +360,7 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },
-
-    delAttachment: function(req, res, next){
-        var thunkQuery = req.thunkQuery;
-        co(function* (){
-            var attach = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
-            );
-            if (!attach[0]) {
-                throw new HttpError(404, 'Attachment not found');
-            }
-            if (attach[0].owner != req.user.id) {
-                throw new HttpError(404, 'Only owner can delete attachment');
-            }
-            yield thunkQuery(AnswerAttachment.delete().where(AnswerAttachment.id.equals(req.params.id)));
-        }).then(function(){
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'delete',
-                object: 'answerattachments',
-                entity: req.params.id,
-                info: 'Delete answerattachment'
-            });
-            res.status(204).end();
-        }, function(err){
-            next(err);
-        });
-    },
-
-    getAttachment: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* (){
-            try{
-                var id = yield mc.get(req.mcClient, req.params.ticket);
-            }catch(e){
-                throw new HttpError(500, e);
-            }
-
-            if(!id){
-                throw new HttpError(400, 'Token is not valid');
-            }
-
-            var attachment = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(id))
-            );
-            if (!attachment[0]) {
-                throw new HttpError(404, 'Not found');
-            }
-            return attachment[0];
-
-        }).then(function(file){
-            res.setHeader('Content-disposition', 'attachment; filename=' + file.filename);
-            res.setHeader('Content-type', file.mimetype);
-            res.send(file.body);
-        }, function(err){
-            next(err);
-        });
-    },
-
-    getTicket: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* (){
-
-            var attachment = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
-            );
-
-            if (!attachment[0]) {
-                throw new HttpError(404, 'Attachment not found');
-            }
-
-            if (attachment[0].amazonKey) {
-                var params = { Bucket: 'ntrlab-amida-indaba', Key: attachment[0].amazonKey };
-                var url = s3.getSignedUrl('getObject', params);
-                return { url: url };
-            }
-
-            var ticket = crypto.randomBytes(10).toString('hex');
-
-            try{
-                var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
-                return { ticket: ticket };
-            }catch(e){
-                throw new HttpError(500, e);
-            }
-
-        }).then(function(data){
-            res.status(201).json(data);
-        }, function(err){
-            next(err);
-        });
-    },
-
-    linkAttach: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            var attach = yield thunkQuery(
-                AnswerAttachment.select().where(AnswerAttachment.id.equals(req.params.id))
-            );
-
-            if (!attach[0]) {
-                throw new HttpError(400, 'Attachment with id = ' + req.params.id + ' does not exist');
-            }
-
-            if (attach[0].answerId) {
-                throw new HttpError(400, 'Attachment has already linked with some answer');
-            }
-
-            var answer = yield thunkQuery(
-                SurveyAnswer.select().where(SurveyAnswer.id.equals(req.params.answerId))
-            );
-
-            if (!answer[0]) {
-                throw new HttpError(400, 'Answer with id = ' + req.params.answerId + ' does not exist');
-            }
-
-            return yield thunkQuery(
-                AnswerAttachment
-                .update({answerId: req.params.answerId})
-                .where(AnswerAttachment.id.equals(req.params.id))
-                .returning(AnswerAttachment.id)
-            );
-
-        }).then(function(data){
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'answerattachments',
-                entity: data[0].id,
-                info: 'Update (link) answer attachment'
-            });
-            res.status(202).json(data);
-        }, function(err){
-            next(err);
-        });
-    },
-
-    attach: function (req, res, next) {
-
-        var thunkQuery = req.thunkQuery;
-        co(function* (){
-            if (req.body.answerId) {
-                var answer = yield thunkQuery(
-                    SurveyAnswer.select().where(SurveyAnswer.id.equals(req.body.answerId))
-                );
-
-                if(!answer[0]){
-                    throw new HttpError(400, 'Answer with id = ' + req.body.answerId + ' does not exist');
-                }
-            }
-
-            if (req.files.file) {
-                //res.json({ok: true});
-                var file = req.files.file;
-
-                if (file.size > config.max_upload_filesize) {
-                    throw new HttpError(400, 'File must be less than ' + bytes(config.max_upload_filesize));
-                }
-
-                var load = new Promise(function (resolve, reject) {
-
-                    fs.readFile(file.path, 'hex', function(err, fileData) {
-                        fileData = '\\x' + fileData;
-                        if (err) {
-                            reject(err);
-                        }
-                        resolve(fileData);
-                    });
-
-                });
-
-                try{
-                    var filecontent = yield load;
-                } catch(e) {
-                    debug(e);
-                    throw new HttpError(500, 'File upload error');
-                }
-
-                var record = {
-                    filename: file.originalname,
-                    size: file.size,
-                    mimetype: file.mimetype,
-                    body: filecontent,
-                    owner: req.user.realmUserId
-                };
-
-                if (req.body.answerId) {
-                    record.answerId = req.body.answerId;
-                }
-
-                var inserted = yield thunkQuery(
-                    AnswerAttachment.insert(record).returning(AnswerAttachment.id)
-                );
-                bologger.log({
-                    req: req,
-                    user: req.user,
-                    action: 'insert',
-                    object: 'answerattachments',
-                    entity: inserted[0].id,
-                    info: 'Insert answer attachment'
-                });
-
-                return inserted[0];
-
-            } else {
-                res.json({ok: 'File was not sent'});
-                throw HttpError(400, 'File was not sent');
-            }
-
-        }).then(function(data) {
-            res.status(201).json(data);
-
-        }, function(err) {
-            next(err);
-        });
     }
-
 };
 
 function isEmptyOptions(optArray) {
@@ -770,6 +570,25 @@ function *addAnswer (req, dataObject) {
             entity: answer.id,
             info: 'Add new survey answer'
         });
+    }
+
+    var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('SurveyAnswers')));
+
+    if (Array.isArray(dataObject.attachments)) {
+        yield thunkQuery(
+            AttachmentLink
+                .update(
+                    {
+                        attachments: dataObject.attachments
+                    }
+                )
+                .where(
+                    {
+                        essenceId: essence[0].id,
+                        entityId: answer.id
+                    }
+                )
+        );
     }
 
     return answer;
