@@ -575,20 +575,42 @@ function *addAnswer (req, dataObject) {
     var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('SurveyAnswers')));
 
     if (Array.isArray(dataObject.attachments)) {
-        yield thunkQuery(
-            AttachmentLink
-                .update(
+
+        var link = yield thunkQuery(AttachmentLink.select().where(
+            {
+                essenceId: essence[0].id,
+                entityId: answer.id
+            }
+        ));
+
+        if (link.length) {
+            yield thunkQuery(
+                AttachmentLink
+                    .update(
+                        {
+                            attachments: dataObject.attachments
+                        }
+                    )
+                    .where(
+                        {
+                            essenceId: essence[0].id,
+                            entityId: answer.id
+                        }
+                    )
+            );
+        } else {
+            yield thunkQuery(
+                AttachmentLink.insert(
                     {
+                        essenceId: essence[0].id,
+                        entityId: answer.id,
                         attachments: dataObject.attachments
                     }
                 )
-                .where(
-                    {
-                        essenceId: essence[0].id,
-                        entityId: answer.id
-                    }
-                )
-        );
+            );
+        }
+
+
     }
 
     return answer;
