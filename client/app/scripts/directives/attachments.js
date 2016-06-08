@@ -7,7 +7,6 @@ angular.module('greyscaleApp')
         return {
             restrict: 'AE',
             scope: {
-                answerId: '@',
                 model: '=model',
                 options: '='
             },
@@ -65,8 +64,7 @@ angular.module('greyscaleApp')
                 uploader.onCompleteItem = function (item) {
                     if (!item.isError) {
                         var attachData = {
-                            key: item.key,
-                            answerId: $scope.answerId
+                            key: item.key
                         };
                         greyscaleUploadApi.success(attachData).then(function (data) {
                             $scope.model.push({

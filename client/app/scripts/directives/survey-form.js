@@ -236,6 +236,7 @@ angular.module('greyscaleApp')
 
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
                     scope.$$childHead.surveyForm.$setDirty();
+                    _autosave();
                 });
             },
             controller: function ($scope) {

@@ -15,17 +15,17 @@ angular.module('greyscaleApp')
                 file: '=attachedItem',
                 remove: '&removeFile'
             },
-            controller: function ($scope, greyscaleAttachmentApi, $timeout) {
+            controller: function ($scope, greyscaleUploadApi, $timeout) {
                 $scope.iconClass = 'fa-file';
 
                 $scope.download = function (evt) {
                     if (!$scope.url) {
                         evt.preventDefault();
                         evt.stopPropagation();
-                        greyscaleAttachmentApi.getDownloadUrl($scope.file.id)
+                        greyscaleUploadApi.getDownloadUrl($scope.file.id)
                             .then(function (data) {
                                 if (data.ticket) {
-                                    $scope.url = greyscaleAttachmentApi.getLink(data.ticket);
+                                    $scope.url = greyscaleUploadApi.getLink(data.ticket);
                                 } else if (data.url) {
                                     $scope.url = data.url;
                                 }

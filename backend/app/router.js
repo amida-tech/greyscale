@@ -79,19 +79,6 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-//----------------------------------------------------------------------------------------------------------------------
-//    AMAZON WEB SERVICES
-//----------------------------------------------------------------------------------------------------------------------
-var aws = require('app/controllers/aws');
-
-router.route('/:realm/v0.2/uploads/upload_link')
-    .post(authenticate('token').always, jsonParser, aws.getUploadLink);
-
-router.route('/:realm/v0.2/uploads/download_link')
-    .post(authenticate('token').always, jsonParser, aws.getDownloadLink);
-
-router.route('/:realm/v0.2/uploads/success')
-    .post(authenticate('token').always, jsonParser, aws.uploadSuccess);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -136,22 +123,20 @@ router.route('/:realm/v0.2/survey_answers/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.delete)
     .put(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.update);
 
-// TODO refactor to universal attachment mechanism
-
-router.route('/:realm/v0.2/attachments')
-    .post(authenticate('token').always, surveyAnswers.attach);
-
-router.route('/:realm/v0.2/attachments/get/:ticket')
-    .get(surveyAnswers.getAttachment);
-
-router.route('/:realm/v0.2/attachments/:id/ticket')
-    .get(authenticate('token').always, surveyAnswers.getTicket);
-
-router.route('/:realm/v0.2/attachments/:id/link/:answerId')
-    .get(authenticate('token').always, surveyAnswers.linkAttach);
-
-router.route('/:realm/v0.2/attachments/:id')
-    .delete(authenticate('token').always, surveyAnswers.delAttachment);
+//router.route('/:realm/v0.2/attachments')
+//    .post(authenticate('token').always, surveyAnswers.attach);
+//
+//router.route('/:realm/v0.2/attachments/get/:ticket')
+//    .get(surveyAnswers.getAttachment);
+//
+//router.route('/:realm/v0.2/attachments/:id/ticket')
+//    .get(authenticate('token').always, surveyAnswers.getTicket);
+//
+//router.route('/:realm/v0.2/attachments/:id/link/:answerId')
+//    .get(authenticate('token').always, surveyAnswers.linkAttach);
+//
+//router.route('/:realm/v0.2/attachments/:id')
+//    .delete(authenticate('token').always, surveyAnswers.delAttachment);
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -160,15 +145,18 @@ router.route('/:realm/v0.2/attachments/:id')
 
 var attachments = require('app/controllers/attachments');
 
-router.route('/:realm/v0.2/uploads')
-    .get(authenticate('token').always, attachments.select)
-    .post(
-        authenticate('token').always,
-        attachments.add
-    );
+//router.route('/:realm/v0.2/uploads')
+//    .get(authenticate('token').always, attachments.select)
+//    .post(
+//        authenticate('token').always,
+//        attachments.add
+//    );
 
-router.route('/:realm/v0.2/uploads/:id/link/:entityId')
-    .get(authenticate('token').always, attachments.link);
+//router.route('/:realm/v0.2/uploads/:id/link/:entityId')
+//    .get(authenticate('token').always, attachments.link);
+
+router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
+    .put(authenticate('token').always, jsonParser, attachments.links);
 
 router.route('/:realm/v0.2/uploads/:id/ticket')
     .get(authenticate('token').always, attachments.getTicket);
@@ -176,8 +164,18 @@ router.route('/:realm/v0.2/uploads/:id/ticket')
 router.route('/:realm/v0.2/uploads/get/:ticket')
     .get(attachments.getAttachment);
 
-router.route('/:realm/v0.2/uploads/:id')
-    .delete(authenticate('token').always, attachments.delete);
+//router.route('/:realm/v0.2/uploads/:id')
+//    .delete(authenticate('token').always, attachments.delete);
+
+router.route('/:realm/v0.2/uploads/upload_link')
+    .post(authenticate('token').always, jsonParser, attachments.getUploadLink);
+
+//router.route('/:realm/v0.2/uploads/download_link')
+//    .post(authenticate('token').always, jsonParser, aws.getDownloadLink);
+
+router.route('/:realm/v0.2/uploads/success')
+    .post(authenticate('token').always, jsonParser, attachments.uploadSuccess);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
@@ -195,7 +193,7 @@ router.route('/:realm/v0.2/essence_roles/:id')
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_MATRICES
-//----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------s-----------------------------------------------------------------------
 var accessMatrices = require('app/controllers/access_matrices');
 
 router.route('/:realm/v0.2/access_matrices')
