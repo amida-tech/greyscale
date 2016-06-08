@@ -1,6 +1,7 @@
 var config = require('./config');
 var app = require('express')();
 var co = require('co');
+var _ = require('underscore');
 var Client = require('pg').Client;
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
@@ -9,7 +10,6 @@ var s3 = new AWS.S3();
 
 app.on('start', function () {
     console.log('START..');
-
 
     var ClientPg = function() {
         var client = new Client(config.pgConnect);
@@ -21,7 +21,7 @@ app.on('start', function () {
         client.on('drain', client.end.bind(client));
 
         client.on('end', function(){
-            console.log("Client was disconnected.");
+            //console.log("Client was disconnected.");
         });
 
         return client;
@@ -59,7 +59,10 @@ app.on('start', function () {
                 ContentDisposition: 'attachment; filename="' + item.filename + '"',
             };
 
-            console.log(params);
+            var info = _.omit(params,'Body');
+            info.size = item.size;
+            console.log('PUT to S3 params :');
+            console.log(info);
 
             s3.putObject(params, function(err, data) {
                 if (err) resolve({error: err}); // an error occurred
@@ -81,33 +84,40 @@ app.on('start', function () {
 
         for (var index in schemas) {
             var namespace = schemas[index].nspname;
-
             var preSQL = 'SET search_path TO ' + namespace + ';';
-
+            var sql = preSQL + 'SELECT COUNT(*) FROM "Attachments" WHERE "amazonKey" IS NULL';
+            var count =  yield doQuery(sql);
+            var current = 1;
             var sql = preSQL + 'SELECT * FROM "Attachments" WHERE "amazonKey" IS NULL LIMIT 1';
-
             var attachments =  yield doQuery(sql);
 
             while (attachments.length) {
-                var path = namespace; //req.params.realm;
-                var key = path + '/' + crypto.randomBytes(16).toString('hex');
 
+                console.log(
+                    'Namespace: ' + namespace +
+                    ' File: (id = ' + attachments[0].id + ', filename = ' + attachments[0].filename + ') ' +
+                    current + ' of ' + count[0].count
+                );
+
+                var key = namespace + '/' + crypto.randomBytes(16).toString('hex');
                 var upload = yield putToS3(attachments[0], key);
 
                 if (upload.error) {
                     console.log('FILE UPLOAD ERROR: ' + JSON.stringify(upload.error));
                 } else {
-                    var updateSql = preSQL + 'UPDATE "Attachments" SET "amazonKey" = \'' + key + '\' WHERE id = ' + attachments[0].id;
+                    var updateSql = preSQL + 'UPDATE "Attachments" SET "amazonKey" = \'' + key + '\', body = NULL WHERE id = ' + attachments[0].id;
                     yield doQuery(updateSql);
 
                     var params = { Bucket: config.aws.bucket, Key: key, Expires: 3600000};
                     var url = s3.getSignedUrl('getObject', params);
 
                     console.log('FILE UPLOADED TO S3, url for test = ' + url);
+                    current++;
                 }
-
+                console.log('<<<-------------------------------------------------------------------->>>');
                 sql = preSQL + 'SELECT * FROM "Attachments" WHERE "amazonKey" IS NULL LIMIT 1';
                 attachments =  yield doQuery(sql);
+
             }
         }
 
