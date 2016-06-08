@@ -1,0 +1,27 @@
+{
+  "name": "indaba-backend-migration",
+  "version": "0.2.0",
+  "description": "Migration script for attachments from DB to AWS",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amida-tech/greyscale.git"
+  },
+
+  "dependencies": {
+    "express": "4.10.2",
+    "body-parser": "1.9.2",
+    "multer": "0.1.3",
+    "pg": "3.6.3",
+    "sql": "0.48.0",
+    "co": "4.0.0 ",
+    "mz": "1.1.0",
+    "thunkify": "2.1.2",
+    "underscore": "1.7.0",
+    "aws-sdk": "^2.3.16"
+  },
+
+  "engines": {
+    "node": "~5.0.0"
+  }
+}
