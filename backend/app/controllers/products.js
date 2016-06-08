@@ -2087,7 +2087,7 @@ function* updateReturnTask(req, taskId) {
 
 function* doAutoResolve(req, taskId) {
     var thunkQuery = req.thunkQuery;
-    var query;
+    var query, result;
     // get existing entries with flags
     query =
         Discussion
@@ -2133,7 +2133,17 @@ function* doAutoResolve(req, taskId) {
             });
             var id = resolveEntry.id;
             resolveEntry = _.pick(resolveEntry, Discussion.updateCols); // update only columns that may be updated
-            yield thunkQuery(Discussion.update(resolveEntry).where(Discussion.id.equals(id)).returning(Discussion.id));
+            result = yield thunkQuery(Discussion.update(resolveEntry).where(Discussion.id.equals(id)).returning(Discussion.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Discussions',
+                    entity: result[0].id,
+                    info: 'Update resolve entry (Resolved automatically)'
+                });
+            }
         } else {
             // corresponding resolve entry does not exist - create it
             resolveEntry = _.extend(flagsEntries[i], {
@@ -2151,7 +2161,17 @@ function* doAutoResolve(req, taskId) {
                 updated: new Date()
             });
             resolveEntry = _.pick(resolveEntry, Discussion.insertCols);                     // insert only columns that may be inserted
-            yield thunkQuery(Discussion.insert(resolveEntry).returning(Discussion.id));
+            result = yield thunkQuery(Discussion.insert(resolveEntry).returning(Discussion.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'insert',
+                    object: 'Discussions',
+                    entity: result[0].id,
+                    info: 'Insert resolve entry (Resolved automatically)'
+                });
+            }
 
         }
     }
