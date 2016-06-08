@@ -3,10 +3,12 @@
  */
 'use strict';
 angular.module('greyscale.rest')
-    .factory('greyscaleUploadApi', function (greyscaleRestSrv) {
+    .factory('greyscaleUploadApi', function (greyscaleRestSrv, greyscaleUtilsSrv) {
         return {
             getUrl: _getUrl,
-            success: _success
+            success: _success,
+            getDownloadUrl: _getDownloadUrl,
+            getLink: _getLink
         };
 
         function _api(realm) {
@@ -19,5 +21,17 @@ angular.module('greyscale.rest')
 
         function _success(data, realm) {
             return _api(realm).one('success').customPOST(data);
+        }
+
+        function _getDownloadUrl(attachId) {
+            return _api().one(attachId + '', 'ticket').get().then(_preResp);
+        }
+
+        function _getLink(ticket) {
+            return greyscaleUtilsSrv.getApiBase() + '/uploads/get/' + ticket;
+        }
+
+        function _preResp(resp) {
+            return resp.plain();
         }
     });
