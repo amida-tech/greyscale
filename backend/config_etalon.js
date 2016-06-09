@@ -8,7 +8,7 @@ var environments = {
         },
         pgConnect: {
             user: process.env.RDS_USERNAME || process.env.INDABA_PG_USERNAME || 'db_user',
-
+            testuser: process.env.RDS_TESTUSER || process.env.INDABA_PG_TESTUSER || 'test', // make trust method for this user in PostgreSQL Client Authentication Configuration File (pg_hba.conf)
             password: process.env.RDS_PASSWORD || process.env.INDABA_PG_PASSWORD || 'password',
             database: process.env.INDABA_PG_DB || 'database',
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
@@ -199,7 +199,7 @@ var environments = {
                 emailBody: './views/emails/default.html'
             },
             discussion: {
-                subject: 'Indaba. <%= action %> message in discussion',
+                subject: 'Indaba. <%= from.firstName %> <%= from.lastName %> posted a discussion comment',
                 notificationBody: './views/notifications/entry.html',
                 emailBody: './views/emails/discussion.html'
             },
@@ -247,6 +247,11 @@ var environments = {
                 subject: 'Indaba. Flags were resolved and are ready to be reviewed in the <%= uoa.name %> survey for the <%= product.title %>',
                 notificationBody: './views/notifications/resolve_flag.html',
                 emailBody: './views/emails/resolve_flag.html'
+            },
+            comment: {
+                subject: 'Indaba. <%= action %> in the <%= uoa.name %> survey for the <%= product.title %>',
+                notificationBody: './views/notifications/comment.html',
+                emailBody: './views/emails/comment.html'
             }
         }
     }

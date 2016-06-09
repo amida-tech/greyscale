@@ -69,6 +69,7 @@ angular.module('greyscaleApp')
                         for (j = 0; j < fo.options.length; j++) {
                             var option = fo.options[j];
                             newQuestion.options.push({
+                                id: option.id,
                                 label: option.label,
                                 value: option.value,
                                 isSelected: option.checked
@@ -172,6 +173,7 @@ angular.module('greyscaleApp')
                                     continue;
                                 }
                                 field.field_options.options.push({
+                                    id: question.options[j].id,
                                     label: question.options[j].label,
                                     value: question.options[j].value,
                                     checked: question.options[j].isSelected,

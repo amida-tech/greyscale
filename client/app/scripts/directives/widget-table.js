@@ -5,10 +5,13 @@
 
 angular.module('greyscaleApp')
     .service('widgetTableSrv', function (_, $q, NgTableParams, $filter,
-        $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel) {
+        $compile, i18n, $timeout, $templateCache, $rootScope, ngTableEventsChannel, greyscaleGlobals) {
+
+        var defaults = greyscaleGlobals.widgetTableDefaults;
 
         return {
-            init: _init
+            init: _init,
+            defaults: defaults
         };
 
         function _init(config) {
@@ -38,7 +41,7 @@ angular.module('greyscaleApp')
 
                 model.tableParams = new NgTableParams({
                     page: 1,
-                    count: model.pageLength || 5,
+                    count: model.pageLength !== undefined ? model.pageLength : defaults.pageLength || 999999999,
                     sorting: model.sorting || null
                 }, {
                     counts: model.pageLengths || [],
@@ -79,7 +82,7 @@ angular.module('greyscaleApp')
                 }
 
                 model.tableParams.custom = {
-                    showAllButton: !!model.showAllButton
+                    showAllButton: model.showAllButton !== undefined ? model.showAllButton : defaults.showAllButton
                 };
 
                 model.tableParams.pager = _newPagination(scope);

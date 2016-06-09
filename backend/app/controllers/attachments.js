@@ -36,6 +36,98 @@ module.exports = {
         });
     },
 
+    //add: function (req, res, next) {
+    //    var thunkQuery = req.thunkQuery;
+    //
+    //    co(function* (){
+    //        if (!req.body.essenceId) {
+    //            throw new HttpError(400, 'essenceId field is required');
+    //        }
+    //
+    //        try{
+    //            var essence = yield common.getEssence(req, req.body.essenceId);
+    //        }catch(err){
+    //            throw err;
+    //        }
+    //
+    //        try{
+    //            var model = require('app/models/' + essence.fileName);
+    //        }catch(err){
+    //            throw new HttpError(404, 'Cannot find essence model file (' + essence.fileName + ')');
+    //        }
+    //
+    //        if (req.body.entityId) {
+    //            var entity = yield thunkQuery(model.select().where(model.id.equals(req.body.entityId)));
+    //            if (!entity.length) {
+    //                throw new HttpError(404, essence.name + ' with id = ' + req.body.entityId + ' does not exist');
+    //            }
+    //        }
+    //
+    //        if (req.files.file) {
+    //            var file = req.files.file;
+    //
+    //            if (file.size > config.max_upload_filesize) {
+    //                throw new HttpError(400, 'File must be less then 10 MB');
+    //            }
+    //
+    //            var load = new Promise(function (resolve, reject) {
+    //
+    //                fs.readFile(file.path, 'hex', function(err, fileData) {
+    //                    fileData = '\\x' + fileData;
+    //                    if (err) {
+    //                        reject(err);
+    //                    }
+    //                    resolve(fileData);
+    //                });
+    //
+    //            });
+    //
+    //            try{
+    //                var filecontent = yield load;
+    //            } catch(e) {
+    //                debug(e);
+    //                throw new HttpError(500, 'File upload error');
+    //            }
+    //
+    //            var record = {
+    //                filename: file.originalname,
+    //                essenceId: req.body.essenceId,
+    //                size: file.size,
+    //                mimetype: file.mimetype,
+    //                body: filecontent,
+    //                owner: req.user.realmUserId
+    //            };
+    //
+    //            if (req.body.entityId) {
+    //                record.entityId = req.body.entityId;
+    //            }
+    //
+    //            var inserted = yield thunkQuery(
+    //                Attachment.insert(record).returning(Attachment.id)
+    //            );
+    //            bologger.log({
+    //                req: req,
+    //                user: req.user,
+    //                action: 'insert',
+    //                object: 'attachments',
+    //                entity: inserted[0].id,
+    //                info: 'Insert attachment'
+    //            });
+    //
+    //            return inserted[0];
+    //
+    //        } else {
+    //            throw HttpError(400, 'File was not sent');
+    //        }
+    //
+    //    }).then(function(data) {
+    //        res.status(201).json(data);
+    //
+    //    }, function(err) {
+    //        next(err);
+    //    });
+    //},
+
     links: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
@@ -93,6 +185,63 @@ module.exports = {
         });
     },
 
+    //link: function (req, res, next) {
+    //    var thunkQuery = req.thunkQuery;
+    //    co(function* () {
+    //        var attach = yield thunkQuery(
+    //            Attachment.select().where(Attachment.id.equals(req.params.id))
+    //        );
+    //
+    //        if (!attach[0]) {
+    //            throw new HttpError(400, 'Attachment with id = ' + req.params.id + ' does not exist');
+    //        }
+    //
+    //        if (attach[0].entityId) {
+    //            throw new HttpError(400, 'Attachment has already linked with some entity');
+    //        }
+    //
+    //        try{
+    //            var essence = yield common.getEssence(req, attach[0].essenceId);
+    //        }catch(err){
+    //            throw err;
+    //        }
+    //
+    //        try{
+    //            var model = require('app/models/' + essence.fileName);
+    //        }catch(err){
+    //            throw new HttpError(404, 'Cannot find essence model file (' + essence.fileName + ')');
+    //        }
+    //
+    //        var entity = yield thunkQuery(
+    //            model.select().where(model.id.equals(req.params.entityId))
+    //        );
+    //
+    //        if (!entity.length) {
+    //            throw new HttpError(404, essence.name + ' with id = ' + req.params.entityId + ' does not exist');
+    //        }
+    //
+    //        return yield thunkQuery(
+    //            Attachment
+    //                .update({entityId: req.params.entityId})
+    //                .where(Attachment.id.equals(req.params.id))
+    //                .returning(Attachment.id)
+    //        );
+    //
+    //    }).then(function(data){
+    //        bologger.log({
+    //            req: req,
+    //            user: req.user,
+    //            action: 'update',
+    //            object: 'attachments',
+    //            entity: data[0].id,
+    //            info: 'Update (link) attachment'
+    //        });
+    //        res.status(202).json(data);
+    //    }, function(err){
+    //        next(err);
+    //    });
+    //},
+
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* (){
@@ -106,7 +255,7 @@ module.exports = {
             }
 
             if (attachment[0].amazonKey) {
-                var params = { Bucket: config.awsBucket, Key: attachment[0].amazonKey };
+                var params = { Bucket: 'ntrlab-amida-indaba', Key: attachment[0].amazonKey };
                 var url = s3.getSignedUrl('getObject', params);
                 return { url: url };
             }
@@ -258,8 +407,8 @@ module.exports = {
 
             var path = req.params.realm;
             var key = path + '/' + crypto.randomBytes(16).toString('hex');
-            var params = {
-                Bucket: config.awsBucket,
+            var params = { // TODO add params like mimetype, etc.
+                Bucket: 'ntrlab-amida-indaba',
                 Key: key,
                 Expires: 3600000,
                 ContentType: req.body.type
@@ -290,90 +439,16 @@ module.exports = {
     delete: function(req, res, next){
         var thunkQuery = req.thunkQuery;
         co(function* (){
-            // TODO check right
-
-            if (!req.params.essenceId || !req.params.entityId || !req.params.id) {
-                throw HttpError(400, 'You should provide attachment id, essence Id and entity Id');
-            }
-
-            var link = yield thunkQuery(
-                AttachmentLink
-                    .select()
-                    .where(
-                        AttachmentLink.essenceId.equals(req.params.essenceId)
-                        .and(AttachmentLink.entityId.equals(req.params.entityId))
-                    )
+            var attach = yield thunkQuery(
+                Attachment.select().where(Attachment.id.equals(req.params.id))
             );
-
-            if (!link.length) {
-                throw new HttpError(400, 'Entity does not have any attachment link');
+            if (!attach[0]) {
+                throw new HttpError(404, 'Attachment not found');
             }
-
-            var attIndex = -1;
-
-            if (Array.isArray(link[0].attachments)) {
-                attIndex = link[0].attachments.indexOf(parseInt(req.params.id));
+            if(attach[0].owner != req.user.id){
+                throw new HttpError(404, 'Only owner can delete attachment');
             }
-
-            if (attIndex == -1) {
-                throw new HttpError(400, 'Entity does not link with this attachment id');
-            }
-
-            link[0].attachments.splice(attIndex,1); // remove attachment from links
-
-            if (link[0].attachments.length) { // update attachments array
-                yield thunkQuery(
-                    AttachmentLink
-                    .update(
-                        { attachments: link[0].attachments }
-                    ).where(
-                        AttachmentLink.essenceId.equals(req.params.essenceId)
-                            .and(AttachmentLink.entityId.equals(req.params.entityId))
-                    )
-                );
-            } else { // attachments link empty, remove record
-                yield thunkQuery(
-                    AttachmentLink.delete().where(
-                        AttachmentLink.essenceId.equals(req.params.essenceId)
-                        .and(AttachmentLink.entityId.equals(req.params.entityId))
-                    )
-                );
-            }
-
-            // check for another records with this attachment id
-
-            var records = yield thunkQuery(
-                'SELECT * FROM "AttachmentLinks" WHERE "attachments" @> ARRAY[' + parseInt(req.params.id) + ']'
-            );
-
-            var data = {};
-
-            if (!records.length) {
-                var attachment = yield thunkQuery(Attachment.select().where(Attachment.id.equals(req.params.id)));
-
-                if (attachment.length) {
-                    yield thunkQuery(Attachment.delete().where(Attachment.id.equals(req.params.id)));
-
-                    var params = {
-                        Bucket: config.awsBucket,
-                        Key: attachment[0].amazonKey
-                    };
-
-                    var awsResult = yield new Promise((resolve, reject) => {
-                        s3.deleteObject(params, (err, data) => {
-                            if (err) resolve({error: err}); // an error occurred
-                            else     resolve({error: null}); // successful response
-                        });
-                    });
-
-                    if (awsResult.error) {
-                        data.warning = 'Cannot delete file from remote server';
-                    }
-                }
-            }
-
-            return data;
-
+            yield thunkQuery(Attachment.delete().where(Attachment.id.equals(req.params.id)));
         }).then(function(){
             bologger.log({
                 req: req,

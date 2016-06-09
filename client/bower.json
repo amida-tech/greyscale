@@ -23,7 +23,7 @@
     "pivottable": "^2.0.2",
     "c3": "^0.4.10",
     "d3": "^3.5",
-    "angular-file-upload": "~2.2.0",
+    "angular-file-upload": "~2.3.3",
     "angular-ui-sortable": "~0.13.4",
     "minigrid": "~2.2.0",
     "socket.io-client": "^1.4.5",

@@ -33,7 +33,6 @@ angular.module('greyscale.tables')
             title: tns + 'RESULTS_TITLE',
             icon: 'fa-upload',
             cols: _fields,
-            pageLength: 10,
             dataFilter: {}
         };
 

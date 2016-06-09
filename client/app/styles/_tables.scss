@@ -124,6 +124,9 @@ table.table-col-fixed {
                 left: 0;
             }
             opacity: 1;
+            .counter {
+                top: 13px;
+            }
         }
         &.status-current {
             background: $green;
@@ -136,12 +139,16 @@ table.table-col-fixed {
         }
         &.status-waiting {
             background: #aaa;
+            .fa-backward {
+                position: relative;
+                top: -1px;
+            }
         }
         .counter {
             line-height: 15px;
             min-width: 15px;
-            right: -4px;
-            top: 15px;
+            right: -3px;
+            top: 14px;
             border-radius: 8px;
         }
     }
