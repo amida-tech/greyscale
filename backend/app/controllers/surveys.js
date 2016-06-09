@@ -252,7 +252,7 @@ module.exports = {
                     );
 
                     if (Array.isArray(req.body.attachments)) {
-                        yield *linkAttachments(req.body.policyId, req.body.attachments);
+                        yield *linkAttachments(req, req.body.policyId, req.body.attachments);
                     }
 
                     bologger.log({
@@ -505,7 +505,7 @@ module.exports = {
                 req.body.policyId = policy[0].id;
 
                 if (Array.isArray(req.body.attachments)) {
-                    yield *linkAttachments(policy[0].id, req.body.attachments);
+                    yield *linkAttachments(req, policy[0].id, req.body.attachments);
                 }
 
             }
@@ -699,7 +699,9 @@ function* checkPolicyData(req) {
     req.body.author = req.user.realmUserId;
 }
 
-function* linkAttachments (policyId, attachArr) {
+function* linkAttachments (req, policyId, attachArr) {
+    var thunkQuery = req.thunkQuery;
+
     var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('Policies')));
 
     if (Array.isArray(attachArr)) {
