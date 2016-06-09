@@ -392,7 +392,7 @@ module.exports = {
                             });
                         }
                     }
-                    if (updateSurvey.questions[i].options && updateSurvey.questions[i].options.length) {
+                    if (updateSurvey.questions[i].options && updateSurvey.questions[i].options.length && updateSurvey.questions[i].options[0]) {
                         var options = [];
                         for (var optionIndex in updateSurvey.questions[i].options) {
                             if (updateSurvey.questions[i].options[optionIndex] != null) {
