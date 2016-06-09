@@ -5,6 +5,8 @@ var
     Survey = require('app/models/surveys'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
+    AttachmentLink = require('app/models/attachment_links'),
+    Essence = require('app/models/essences'),
     User = require('app/models/users'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
@@ -29,7 +31,17 @@ module.exports = {
                 Survey
                     .select(
                         Survey.star(), 
-                        Policy.section, Policy.subsection, Policy.author, Policy.number
+                        Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "Policies"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'Policies\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
+                        ') as att) as attachments'
                     )
                     .from(
                     Survey
@@ -115,7 +127,17 @@ module.exports = {
                             'ORDER BY '+
                             '"SurveyQuestions"."position" '+
                         ') '+
-                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)'
+                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)',
+                        '(SELECT array_agg(row_to_json(att)) FROM (' +
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = "Policies"."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'Policies\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments'
                 )
                 .where(Survey.id.equals(req.params.id))
                 .group(Survey.id, Policy.id)
@@ -222,12 +244,17 @@ module.exports = {
             if (req.body.policyId != null) {
                 updatePolicy = _.pick(req.body, Policy.editCols);
 
-                if(Object.keys(updatePolicy).length){
+                if (Object.keys(updatePolicy).length) {
                     yield thunkQuery(
                         Policy
                             .update(updatePolicy)
                             .where(Policy.id.equals(req.body.policyId))
                     );
+
+                    if (Array.isArray(req.body.attachments)) {
+                        yield *linkAttachments(req.body.policyId, req.body.attachments);
+                    }
+
                     bologger.log({
                         req: req,
                         user: req.user,
@@ -476,6 +503,11 @@ module.exports = {
                         .returning(Policy.id)
                 );
                 req.body.policyId = policy[0].id;
+
+                if (Array.isArray(req.body.attachments)) {
+                    yield *linkAttachments(policy[0].id, req.body.attachments);
+                }
+
             }
 
             var survey = yield thunkQuery(
@@ -665,6 +697,47 @@ function* checkPolicyData(req) {
     }
 
     req.body.author = req.user.realmUserId;
+}
+
+function* linkAttachments (policyId, attachArr) {
+    var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('Policies')));
+
+    if (Array.isArray(attachArr)) {
+
+        var link = yield thunkQuery(AttachmentLink.select().where(
+            {
+                essenceId: essence[0].id,
+                entityId: policyId
+            }
+        ));
+
+        if (link.length) {
+            yield thunkQuery(
+                AttachmentLink
+                    .update(
+                        {
+                            attachments: attachArr
+                        }
+                    )
+                    .where(
+                        {
+                            essenceId: essence[0].id,
+                            entityId: policyId
+                        }
+                    )
+            );
+        } else {
+            yield thunkQuery(
+                AttachmentLink.insert(
+                    {
+                        essenceId: essence[0].id,
+                        entityId: policyId,
+                        attachments: attachArr
+                    }
+                )
+            );
+        }
+    }
 }
 
 function* checkQuestionData(req, dataObj, isCreate) {
