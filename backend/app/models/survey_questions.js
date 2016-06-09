@@ -30,23 +30,25 @@ var SurveyQuestion = sql.define({
     columns: columns
 });
 
-SurveyQuestion.types = [
-    0, // Text
-    1, // Paragraph
-    2, // Checkbox
-    3, // Radio
-    4, // Dropdown
-    5, // Digit
-    6, // Email
-    7, // Currency
-    8, // Section start
-    9, // Section end
-    10, // Section separator
-    11, // Bullet points
-    12, // Date
-    13 // Scale
-];
+SurveyQuestion.types = {
+    0: 'Text',
+    1: 'Paragraph',
+    2: 'Checkbox',
+    3: 'Multiple Choice',
+    4: 'Dropdown',
+    5: 'Digit',
+    6: 'Email',
+    7: 'Currency',
+    8: 'Section start',
+    9: 'Section end',
+    10: 'Section separator',
+    11: 'Bullet points',
+    12: 'Date',
+    13: 'Scale'
+};
 SurveyQuestion.multiSelectTypes = [2, 3, 4];
+SurveyQuestion.sectionTypes = [8, 9, 10];
+SurveyQuestion.bulletPointsType = 11;
 
 SurveyQuestion.editCols = [
     'label', 'position', 'isRequired', 'description',
