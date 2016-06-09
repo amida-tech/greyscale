@@ -100,7 +100,7 @@ angular.module('greyscaleApp')
                             readonly: false
                         },
                         sections: [],
-                        attachments: []
+                        attachments: survey.attachments || []
                     });
 
                     for (q = 0; q < qty; q++) {
@@ -117,7 +117,6 @@ angular.module('greyscaleApp')
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
 
-                    _getAttacments();
                 }
                 $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
@@ -125,16 +124,6 @@ angular.module('greyscaleApp')
                     Organization.$setBy('projectId', survey.projectId);
                 }
             });
-        }
-
-        function _getAttacments() {
-            $log.debug('re-factor policy edit attachments!');
-            /*
-            greyscaleAttachmentApi.list($scope.model.policy.essenceId, $scope.model.policy.id)
-                .then(function (_attachments) {
-                    $scope.model.policy.attachments = _attachments;
-                });
-                */
         }
 
         function _save() {

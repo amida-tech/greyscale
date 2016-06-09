@@ -23,11 +23,11 @@ angular.module('greyscale.rest')
 
         function _list(essenceId, entityId) {
             return _api().get({
-                essenceId: essenceId,
-                entityId: entityId,
-                fields: 'id,filename,mimetype,size'
-            })
-            .then(_preResp);
+                    essenceId: essenceId,
+                    entityId: entityId,
+                    fields: 'id,filename,mimetype,size'
+                })
+                .then(_preResp);
         }
 
         function _delete(attachId) {

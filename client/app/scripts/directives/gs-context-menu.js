@@ -26,7 +26,7 @@ angular.module('greyscaleApp')
 
                 elem.on('mousedown', function (evt) {
                     window.getSelection().collapse(true);
-                    var _parent = evt.target.parentNode? evt.target.parentNode.parentNode : null;
+                    var _parent = evt.target.parentNode ? evt.target.parentNode.parentNode : null;
                     if (!_parent || _parent.id !== scope.model.menuId) {
                         window.getSelection().collapse(true);
                     }
