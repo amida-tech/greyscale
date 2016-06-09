@@ -29,13 +29,49 @@ checkbox-list {
 }
 
 .gs-message {
+    padding: 15px;
+    background-color: $grey-light;
+    border: solid thin $grey-medium-light;
+    border-radius: 15px;
+    margin-bottom: 5px;
+
     .gs-message-from {
         font-weight: bold;
     }
+    .gs-message-body-warpper {
 
-    .gs-message-body {
-        max-height: 5em;
-        overflow: hidden;
+        .gs-message-body {
+            position: relative;
+            max-height: 7em;
+            overflow: hidden;
+            .ta-text {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                padding: 5px;
+                background-color: #fff;
+            }
+
+            .gs-message-full-view {
+                position: absolute;
+                display: none;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                padding: 0 10px 0 0;
+                margin: 0;
+                background: transparent; /* For browsers that do not support gradients */
+                background: -webkit-linear-gradient(transparent, $grey-light); /* For Safari 5.1 to 6.0 */
+                background: -o-linear-gradient(transparent, $grey-light); /* For Opera 11.1 to 12.0 */
+                background: -moz-linear-gradient(transparent, $grey-light); /* For Firefox 3.6 to 15 */
+                background: linear-gradient(transparent, $grey-light); /* Standard syntax */
+            }
+        }
+    }
+}
+
+.gs-message-body-wrapper {
+    .ta-text {
+        padding: 5px;
     }
 }
 
@@ -69,6 +105,21 @@ div.disabled {
     opacity: 0.5;
     background-color: #fff;
     z-index: 10;
+}
+
+.gs-contextmenu-wrapper {
+    position: relative;
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+    }
+
+    &.open {
+        .dropdown-menu {
+            display: block;
+        }
+    }
 }
 
 .section-text {

@@ -13,6 +13,12 @@
     "BRAND": {
         "SLOGAN": "Превращение знаний в данные."
     },
+    "COMMENTS": {
+        "NO_MESSAGES": "",
+        "TAG_COMMENT": "",
+        "TITLE": "",
+        "TYPE": ""
+    },
     "COMMON": {
         "ADD": "Добавить",
         "ALL": "",
@@ -46,12 +52,17 @@
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
         "SEND": "",
         "SEND_MESSAGE": "",
+        "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
         "UNASSIGN": "Отмена назначения",
         "VIEW": "Просмотр",
         "WORDS": "",
         "YES": "Да"
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "",
+        "TITLE": ""
     },
     "DASHBOARD": {
         "PROJECTS": "",
@@ -153,6 +164,11 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "",
+            "FORMAT": "",
+            "STRUCTURE": ""
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "",
             "INTERNAL_AND_EMAILS": "",
@@ -505,7 +521,8 @@
         "STEP_SKIPPED": "",
         "TITLE": "Название",
         "UOA": "Субъект",
-        "UOA_TASKS_COMPLETED": "",
+        "UOA_ASSIGNED_TASKS_COMPLETED": "",
+        "UOA_COMPLETED": "",
         "USER": "Пользователь"
     },
     "PROFILE": {

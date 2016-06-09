@@ -72,7 +72,6 @@ angular.module('greyscale.tables')
             cols: resDescr,
             dataPromise: _getData,
             multiselect: {},
-            showAllButton: true,
             dataFilter: {}
         };
 

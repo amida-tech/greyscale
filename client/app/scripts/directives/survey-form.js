@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
         $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
-        greyscaleAttachmentApi, greyscaleEntityTypeApi, $log) {
+        greyscaleAttachmentApi) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -236,6 +236,7 @@ angular.module('greyscaleApp')
 
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
                     scope.$$childHead.surveyForm.$setDirty();
+                    _autosave();
                 });
             },
             controller: function ($scope) {

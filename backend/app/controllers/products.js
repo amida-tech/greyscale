@@ -1723,7 +1723,14 @@ var moveWorkflow = function* (req, productId, UOAid) {
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
-    if (req.query.resolve) { // try to resolve
+
+    var autoResolve = false;
+    if (req.query.force) { // force to move step
+        // if exists entries with return flags then check existing resolve entries and create it if needed
+        autoResolve = yield * doAutoResolve(req, curStep.task.id);
+    }
+
+    if (req.query.resolve || autoResolve) { // try to resolve
         // check if resolve is possible
         var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
@@ -1777,10 +1784,6 @@ var moveWorkflow = function* (req, productId, UOAid) {
         return;
 
     }
-    if (req.query.force) { // force to move step
-        // delete discussion`s entry with return flag
-        //yield * deleteEntries(req, curStep.task.id, {isReturn: true});
-    }
 
     // check if exist return flag(s)
     var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
@@ -1822,45 +1825,51 @@ var moveWorkflow = function* (req, productId, UOAid) {
         );
         return;
     }
-    var minNextStepPosition = yield * common.getMinNextStepPosition(req, curStep, productId, UOAid);
+    var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
     if(minNextStepPosition !== null) { // min next step exists, position is not null
-        nextStep = yield * common.getNextStep(req, minNextStepPosition, productId, UOAid);
+        nextStep = yield * common.getNextStep(req, minNextStepPosition, curStep);
+    } else {    // if does not exist next steps with task, then get last step
+        var lastStepPosition = yield * common.getLastStepPosition(req, curStep);
+        if(lastStepPosition !== null) { // last step exists, position is not null
+            nextStep = yield * common.getNextStep(req, lastStepPosition, curStep);
+        }
     }
 
     if(nextStep) { // next step exists, set it to current
-        // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, nextStep.id, curStep.task.productId, curStep.task.uoaId);
 
-        // notify
-        essenceId = yield * common.getEssenceId(req, 'Tasks');
-        task = yield * common.getTask(req, parseInt(nextStep.taskId));
-        userTo = yield * common.getUser(req, task.userId);
-        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        product = yield * common.getEntity(req, task.productId, Product, 'id');
-        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req,
-            {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'Task activated (next step)',
-                essenceId: essenceId,
-                entityId: nextStep.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                config: config
-            },
-            'activateTask'
-        );
+        if (nextStep.taskId) {
+            // notify
+            essenceId = yield * common.getEssenceId(req, 'Tasks');
+            task = yield * common.getTask(req, parseInt(nextStep.taskId));
+            userTo = yield * common.getUser(req, task.userId);
+            organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+            product = yield * common.getEntity(req, task.productId, Product, 'id');
+            uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+            step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+            survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            note = yield * notifications.createNotification(req,
+                {
+                    userFrom: req.user.realmUserId,
+                    userTo: task.userId,
+                    body: 'Task activated (next step)',
+                    essenceId: essenceId,
+                    entityId: nextStep.taskId,
+                    task: task,
+                    product: product,
+                    uoa: uoa,
+                    step: step,
+                    survey: survey,
+                    user: userTo,
+                    organization: organization,
+                    date: new Date(),
+                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    config: config
+                },
+                'activateTask'
+            );
+        }
 
     }else{
         // next step does not exists - set productUOA status to complete
@@ -2074,5 +2083,98 @@ function* updateReturnTask(req, taskId) {
         }, 'Couldn`t find discussion`s entry with returnTasId = `'+taskId+'`');
 
     }
+}
+
+function* doAutoResolve(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var query, result;
+    // get existing entries with flags
+    query =
+        Discussion
+            .select(Discussion.star())
+            .from(Discussion)
+            .where(
+            Discussion.isReturn.equals(true)
+                .and(Discussion.activated.equals(true))
+                .and(Discussion.isResolve.equals(false))
+                .and(Discussion.returnTaskId.equals(taskId))
+        );
+    var flagsEntries = yield thunkQuery(query);
+    if (!_.first(flagsEntries) || flagsEntries.length === 0 ) {
+        return false; // flags does not exist - resolve is not needed
+    }
+    // get existing entries with Resolve
+    query =
+        Discussion
+            .select(Discussion.star())
+            .from(Discussion)
+            .where(
+            Discussion.isReturn.equals(false)
+                .and(Discussion.activated.equals(false))
+                .and(Discussion.isResolve.equals(true))
+                .and(Discussion.taskId.equals(taskId))
+        );
+    var resolveEntries = yield thunkQuery(query);
+
+    if (!_.first(resolveEntries) || resolveEntries.length === 0) {
+        resolveEntries= []; // there are not resolved entries
+    }
+
+    for (var i in flagsEntries) {
+        // find resolve entry corresponding flag entry
+        var resolveEntry = _.find(resolveEntries, function(entry) {
+            return (entry && entry.taskId === flagsEntries[i].returnTaskId && entry.questionId === flagsEntries[i].questionId);
+        });
+        if (resolveEntry) {
+            // resolve Entry exist - update it with "Resolved automatically"
+            resolveEntry = _.extend(resolveEntry, {
+                entry: resolveEntry.entry.trim() + ' Resolved automatically',
+                updated: new Date()
+            });
+            var id = resolveEntry.id;
+            resolveEntry = _.pick(resolveEntry, Discussion.updateCols); // update only columns that may be updated
+            result = yield thunkQuery(Discussion.update(resolveEntry).where(Discussion.id.equals(id)).returning(Discussion.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Discussions',
+                    entity: result[0].id,
+                    info: 'Update resolve entry (Resolved automatically)'
+                });
+            }
+        } else {
+            // corresponding resolve entry does not exist - create it
+            resolveEntry = _.extend(flagsEntries[i], {
+                taskId: flagsEntries[i].returnTaskId,
+                userId: flagsEntries[i].userFromId,
+                userFromId: req.user.realmUserId,
+                stepFromId: flagsEntries[i].stepId,
+                stepId: flagsEntries[i].stepFromId,
+                isReturn: false,
+                returnTaskId: null,
+                isResolve: true,
+                activated: false,
+                entry: 'Resolved automatically',
+                order: flagsEntries[i].order +1,
+                updated: new Date()
+            });
+            resolveEntry = _.pick(resolveEntry, Discussion.insertCols);                     // insert only columns that may be inserted
+            result = yield thunkQuery(Discussion.insert(resolveEntry).returning(Discussion.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'insert',
+                    object: 'Discussions',
+                    entity: result[0].id,
+                    info: 'Insert resolve entry (Resolved automatically)'
+                });
+            }
+
+        }
+    }
+    return true;
 }
 

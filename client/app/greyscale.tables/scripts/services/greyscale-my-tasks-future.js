@@ -42,17 +42,7 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleTaskApi.myList().then(function (data) {
                 return _.filter(data, function (item) {
-                    if (~['current', 'completed'].indexOf(item.status)) {
-                        return false;
-                    }
-                    var today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    //var twoWeeks = new Date();
-                    //twoWeeks.setHours(0, 0, 0, 0);
-                    //twoWeeks.setDate(twoWeeks.getDate() + 14);
-                    var startDate = new Date(item.startDate);
-                    startDate.setHours(0, 0, 0, 0);
-                    return startDate >= today /*&& startDate < twoWeeks*/ ;
+                    return !(~['current', 'completed'].indexOf(item.status));
                 });
             });
         }

@@ -14,6 +14,10 @@ angular.module('greyscale.core')
                 survey: {
                     answerDirty: 'ANSWER_DIRTY',
                     builderFormSaved: 'form-changes-saved'
+                },
+                policy: {
+                    addComment: 'POLICY_ADD_COMMENT',
+
                 }
             },
             projectStates: [{
@@ -178,7 +182,10 @@ angular.module('greyscale.core')
             }],
             adminSchema: 'public',
             tokenTTLsec: 300,
-            setRolesId: _setRolesId
+            setRolesId: _setRolesId,
+            widgetTableDefaults: {
+                pageLength: 0
+            }
         };
 
         return {

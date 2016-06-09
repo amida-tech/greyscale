@@ -4,11 +4,25 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function ($scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
-        greyscaleProfileSrv, greyscaleProductApi, greyscaleProductWorkflowApi, greyscaleLanguageApi, greyscaleUoaApi,
-        greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv, greyscaleUsers, greyscaleAttachmentApi) {
+        greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
+        greyscaleUsers, greyscaleCommentApi, $log) {
+
+        var data = {},
+            _title = [],
+            reqs = {
+                survey: greyscaleSurveyApi.get($stateParams.id),
+                profile: greyscaleProfileSrv.getProfile(),
+                languages: greyscaleLanguageApi.list(),
+                essence: greyscaleEntityTypeApi.list({
+                    name: 'Survey Answers'
+                })
+            },
+            surveyId = $stateParams.id,
+            taskId = $stateParams.taskId;
+
         $scope.loading = true;
         $scope.model = {
-            id: $stateParams.id,
+            id: surveyId,
             title: '',
             surveyData: null,
             showDiscuss: false
@@ -18,29 +32,17 @@ angular.module('greyscaleApp')
             $state.go('policy');
         }
 
-        var data = {},
-            _title = [],
-
-            flags = [
-                'allowEdit',
-                'allowTranslate',
-                'blindReview',
-                'discussionParticipation',
-                'provideResponses',
-                'seeOthersResponses',
-                'writeToAnswers'
-            ],
-            reqs = {
-                survey: greyscaleSurveyApi.get($stateParams.id),
-                profile: greyscaleProfileSrv.getProfile(),
-                languages: greyscaleLanguageApi.list(),
-                essence: greyscaleEntityTypeApi.list({
-                    name: 'Survey Answers'
-                })
-            };
+        if (taskId) {
+            reqs.task = greyscaleTaskApi.get(taskId);
+            reqs.scopeList = greyscaleCommentApi.scopeList({
+                taskId: taskId
+            });
+        }
 
         $q.all(reqs)
             .then(function (resp) {
+                var i, qty;
+
                 data = {
                     survey: resp.survey,
                     userId: resp.profile.id,
@@ -54,22 +56,36 @@ angular.module('greyscaleApp')
                         subsection: resp.survey.subsection,
                         number: resp.survey.number,
                         options: {
-                            readonly: true
+                            readonly: true,
+                            isPolicy: true
                         },
+                        surveyId: resp.survey.id,
+                        taskId: resp.task ? resp.task.id : null,
+                        userId: resp.profile.id,
                         sections: [],
-                        attachments: []
+                        attachments: [],
+                        associate: resp.scopeList ? resp.scopeList.availList : []
                     }
                 };
-                angular.extend(data.policy, {});
+
+                qty = data.policy.associate.length;
+                for (i = 0; i < qty; i++) {
+                    data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
+                }
 
                 greyscaleEntityTypeApi.getByFile('policies')
                     .then(function (essence) {
                         data.policy.essenceId = essence.id;
+                        $log.debug('re-factor policy review attachments to S3');
+                        /*
                         return greyscaleAttachmentApi.list(essence.id, data.policy.id);
+                        */
+                        return [];
                     })
                     .then(function (attachments) {
                         data.policy.attachments = attachments;
                     });
+
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
                     data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
                 });

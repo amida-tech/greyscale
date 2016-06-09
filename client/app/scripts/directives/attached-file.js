@@ -10,25 +10,30 @@ angular.module('greyscaleApp')
             template: '<div class="col-sm-12 col-xs-12 col-md-6 file-attach">' +
                 '<a class="action action-primary file-link" ng-href="{{url}}" ng-click="download($event)" target="_self" download="{{file.filename}}">' +
                 '<i class="fa {{iconClass}}"></i>{{file.filename}}</a>' +
-                '<a class="action action-danger file-remove" ng-click="remove()" ng-hide="options.readonly"><i class="fa fa-trash"></i></a></div>',
+                '<a class="action action-danger file-remove" ng-click="remove()"><i class="fa fa-trash"></i></a></div>',
             scope: {
                 file: '=attachedItem',
-                remove: '&removeFile',
-                options: '='
+                remove: '&removeFile'
             },
-            controller: function ($scope, greyscaleAttachmentApi, $timeout) {
+            controller: function ($scope, greyscaleUploadApi, $timeout) {
                 $scope.iconClass = 'fa-file';
 
                 $scope.download = function (evt) {
                     if (!$scope.url) {
                         evt.preventDefault();
                         evt.stopPropagation();
-                        greyscaleAttachmentApi.getTicket($scope.file.id, $scope.file.ver)
-                            .then(function (ticket) {
-                                $scope.url = greyscaleAttachmentApi.getLink(ticket, $scope.file.ver);
-                                $timeout(function () {
-                                    evt.currentTarget.click();
-                                });
+                        greyscaleUploadApi.getDownloadUrl($scope.file.id)
+                            .then(function (data) {
+                                if (data.ticket) {
+                                    $scope.url = greyscaleUploadApi.getLink(data.ticket);
+                                } else if (data.url) {
+                                    $scope.url = data.url;
+                                }
+                                if ($scope.url) {
+                                    $timeout(function () {
+                                        evt.currentTarget.click();
+                                    });
+                                }
                             });
                     }
                 };

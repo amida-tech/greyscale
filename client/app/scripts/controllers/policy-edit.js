@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function ($q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi, greyscaleAttachmentApi, $log) {
+        greyscaleEntityTypeApi, $log) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -128,10 +128,13 @@ angular.module('greyscaleApp')
         }
 
         function _getAttacments() {
+            $log.debug('re-factor policy edit attachments!');
+            /*
             greyscaleAttachmentApi.list($scope.model.policy.essenceId, $scope.model.policy.id)
                 .then(function (_attachments) {
                     $scope.model.policy.attachments = _attachments;
                 });
+                */
         }
 
         function _save() {
@@ -162,7 +165,7 @@ angular.module('greyscaleApp')
             }
 
             (_survey.id ? greyscaleSurveyApi.update(_survey) : greyscaleSurveyApi.add(_survey))
-                .then(function (resp) {
+            .then(function (resp) {
                     $scope.model.survey.questions = _questions;
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;
