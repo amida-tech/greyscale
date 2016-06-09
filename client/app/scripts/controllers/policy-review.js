@@ -3,22 +3,22 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('PolicyReviewCtrl', function ($scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
+    .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
         greyscaleUsers, greyscaleCommentApi, $log) {
 
         var data = {},
             _title = [],
+            taskId = $stateParams.taskId,
+            surveyId = $stateParams.id,
             reqs = {
-                survey: greyscaleSurveyApi.get($stateParams.id),
+                survey: greyscaleSurveyApi.get(surveyId),
                 profile: greyscaleProfileSrv.getProfile(),
                 languages: greyscaleLanguageApi.list(),
                 essence: greyscaleEntityTypeApi.list({
                     name: 'Survey Answers'
                 })
-            },
-            surveyId = $stateParams.id,
-            taskId = $stateParams.taskId;
+            };
 
         $scope.loading = true;
         $scope.model = {
@@ -48,7 +48,9 @@ angular.module('greyscaleApp')
                     userId: resp.profile.id,
                     languages: resp.languages.plain(),
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
-                    flags: {},
+                    flags: {
+                        allowEdit: !!resp.task
+                    },
                     policy: {
                         id: resp.survey.policyId,
                         title: resp.survey.title,
@@ -63,9 +65,10 @@ angular.module('greyscaleApp')
                         taskId: resp.task ? resp.task.id : null,
                         userId: resp.profile.id,
                         sections: [],
-                        attachments: [],
+                        attachments: resp.survey.attachments || [],
                         associate: resp.scopeList ? resp.scopeList.availList : []
-                    }
+                    },
+                    task: resp.task
                 };
 
                 qty = data.policy.associate.length;
@@ -73,18 +76,18 @@ angular.module('greyscaleApp')
                     data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
                 }
 
-                greyscaleEntityTypeApi.getByFile('policies')
-                    .then(function (essence) {
-                        data.policy.essenceId = essence.id;
-                        $log.debug('re-factor policy review attachments to S3');
-                        /*
-                        return greyscaleAttachmentApi.list(essence.id, data.policy.id);
-                        */
-                        return [];
-                    })
-                    .then(function (attachments) {
-                        data.policy.attachments = attachments;
-                    });
+                //greyscaleEntityTypeApi.getByFile('policies')
+                //    .then(function (essence) {
+                //        data.policy.essenceId = essence.id;
+                //        $log.debug('re-factor policy review attachments to S3');
+                //        /*
+                //        return greyscaleAttachmentApi.list(essence.id, data.policy.id);
+                //        */
+                //        return [];
+                //    })
+                //    .then(function (attachments) {
+                //        data.policy.attachments = attachments;
+                //    });
 
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
                     data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
