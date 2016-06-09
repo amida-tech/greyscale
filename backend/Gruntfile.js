@@ -4,7 +4,6 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var homeDir = process.env.HOME;
 
-
 var sql = 'test/testdb.sql';
 
 module.exports = function (grunt) {
@@ -27,7 +26,6 @@ module.exports = function (grunt) {
     }
 
     // Define the configuration for all the tasks
-
 
     grunt.initConfig({
 
@@ -77,8 +75,7 @@ module.exports = function (grunt) {
         // Make sure code styles are up to par
         jscs: {
             options: {
-                config: '../.jscsrc',
-                verbose: true
+                config: '../.jscsrc'
             },
             all: {
                 src: ['Gruntfile.js', 'lib/**/*.js', 'app/**/*.js', 'test/**/*.js']
