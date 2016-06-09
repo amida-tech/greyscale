@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('PolicyEditCtrl', function ($q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
+    .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, $log) {
 
@@ -156,7 +156,8 @@ angular.module('greyscaleApp')
                 section: _policy.section,
                 subsection: _policy.subsection,
                 number: _policy.number,
-                author: _policy.author
+                author: _policy.author,
+                attachments: _.map(_policy.attachments, 'id')
             });
             if (_survey.questions) {
                 _survey.questions = _survey.questions.concat($scope.model.policy.sections);
