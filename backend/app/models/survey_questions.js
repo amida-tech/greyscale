@@ -34,7 +34,7 @@ SurveyQuestion.types = {
     0: 'Text',
     1: 'Paragraph',
     2: 'Checkbox',
-    3: 'Radio',
+    3: 'Multiple Choice',
     4: 'Dropdown',
     5: 'Digit',
     6: 'Email',

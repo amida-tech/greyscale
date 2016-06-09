@@ -432,6 +432,11 @@ module.exports = {
                 answer.answerValue = '';
             }
 
+            // increment position by one to ordinal
+            if (answer.stepPosition !== null) {
+                answer.stepPosition++;
+            }
+
             // add blank field for answer comments
             answer.comments = '';
 
@@ -499,42 +504,60 @@ module.exports = {
 
         return answers;
     }).then(function (data) {
+        var keyTitles = {
+            'surveyTitle': 'SurveyName',
+            'questionOrder': 'QuestOrder',
+            'questionCode': 'QuestCode',
+            'questionTitle': 'QuestTitle',
+            'questionType': 'QuestType',
+            'questionWeight': 'QuestValue',
+            'taskId': 'TaskID',
+            'uoaName': 'SubjName',
+            'uoaTypeName': 'SubjType',
+            'uoaTags': 'SubjTags',
+            'stepTitle': 'StepTitle',
+            'stepPosition': 'StepOrder',
+            'ownerId': 'UserID',
+            'ownerName': 'UserName',
+            'answerText': 'AnswerText',
+            'answerValue': 'AnsValue',
+            'links': 'AnsLinks',
+            'attachments': 'AnsAttach',
+            'comments': 'AnsComment'
+        };
+
         // only show relevant keys and order them as we want
         var keys = [
-            // question fields
+            'surveyTitle',
             'questionOrder',
             'questionCode',
             'questionTitle',
-            'questionWeight',
             'questionType',
-
-            // uoa fields
+            'questionWeight',
+            'taskId',
             'uoaName',
             'uoaTypeName',
             'uoaTags',
-
-            // answer fields
             'stepTitle',
             'stepPosition',
+            'ownerId',
+            'ownerName',
             'answerText',
             'answerValue',
             'links',
             'attachments',
-
-            // overall / metadata fields
-            'taskId',
-            'surveyTitle',
-            'ownerId',
-            'ownerName',
             'comments'
         ];
+        var labels = keys.map(function (key) {
+            return keyTitles[key];
+        });
 
         data = data.map(function (answer) {
             return keys.map(function (key) {
                 return answer[key];
             });
         });
-        res.csv([keys].concat(data));
+        res.csv([labels].concat(data));
     },function (err) {
       next(err);
     });
