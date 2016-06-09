@@ -89,7 +89,8 @@ var environments = {
             accessKeyId: 'YOURAWSACCESSKEY',
             secretAccessKey: 'yourAwsSecretAccessKey',
             region: 'us-east-1'
-        }
+        },
+        awsBucket : "your-aws-bucket"
     },
 
     test: {
