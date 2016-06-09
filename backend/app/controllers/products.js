@@ -492,7 +492,7 @@ module.exports = {
         answers = answers.map(function (answer) {
             if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
                 var options = (answer.answerOptions || []).map(function (optionId) {
-                    return questionOptions[optionId];
+                    return questionOptions[optionId] || {};
                 });
                 answer.answerText = _.pluck(options, 'label').join(',');
                 answer.answerValue = _.pluck(options, 'value').filter(function (value) {
