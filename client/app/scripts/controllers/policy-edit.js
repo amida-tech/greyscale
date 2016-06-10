@@ -33,9 +33,7 @@ angular.module('greyscaleApp')
                 },
                 sections: [],
                 attachments: [],
-                attachmentsOptions: {
-                    entityId: surveyId
-                }
+                attachmentsOptions: {}
             }
         };
 
@@ -120,6 +118,8 @@ angular.module('greyscaleApp')
                     $scope.model.policy.sections = _sections;
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
+
+                    $scope.model.policy.attachmentsOptions.entityId = survey.policyId;
 
                 }
                 $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
