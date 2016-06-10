@@ -9,6 +9,10 @@ angular.module('greyscale.rest')
             list: _list
         };
 
+        function _api() {
+            return greyscaleRestSrv().one('attachments');
+        }
+
         function _uploadsApi() {
             return greyscaleRestSrv().one('uploads');
         }

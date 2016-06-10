@@ -625,7 +625,7 @@ angular.module('greyscaleApp')
                         for (o = 0; o < oQty; o++) {
                             fld.attachments[o].ver = 'v1';
                         }
-                        loadAttachments(fld);
+                        //loadAttachments(fld);
                         fld.flags.entityId = answer.id;
                     }
 
