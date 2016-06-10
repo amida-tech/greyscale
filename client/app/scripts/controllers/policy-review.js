@@ -66,19 +66,19 @@ angular.module('greyscaleApp')
                             readonly: true,
                             isPolicy: true
                         },
-                        policyAttachmentsOptions: {
-                            essenceId: policyEssenceId,
-                            entityId: resp.survey.policyId
-                        },
                         surveyId: resp.survey.id,
                         taskId: resp.task ? resp.task.id : null,
                         userId: resp.profile.id,
                         sections: [],
                         attachments: resp.survey.attachments || [],
+                        attachmentsOptions: {
+                            readonly: true
+                        },
                         associate: resp.scopeList ? resp.scopeList.availList : []
                     },
                     task: resp.task
                 };
+                data.flags.essenceId = data.essenceId;
 
                 qty = data.policy.associate.length;
                 for (i = 0; i < qty; i++) {

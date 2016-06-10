@@ -29,19 +29,23 @@ angular.module('greyscaleApp')
                 authorName: '',
                 essenceId: -1,
                 options: {
-                    readonly: false
+                    readonly: false,
                 },
                 sections: [],
-                attachments: []
+                attachments: [],
+                attachmentsOptions: {
+                    entityId: surveyId
+                }
             }
         };
 
         greyscaleEntityTypeApi.list({
-                fileName: (isPolicy ? 'policies' : 'survey_answers')
+                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
             })
             .then(function (essences) {
                 if (essences.length) {
                     $scope.model.policy.essenceId = essences[0].id;
+                    $scope.model.policy.attachmentsOptions.essenceId = essences[0].id;
                 }
             });
 

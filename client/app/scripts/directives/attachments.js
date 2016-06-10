@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
                 model: '=model',
                 options: '='
             },
-            template: '<div class="panel attachments"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
+            template: '<div class="panel attachments" ng-if="!options.readonly || model.length"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row">' +
                 '<attached-file attached-item="item" ng-repeat="item in model track by $index" readonly="options.readonly" remove-file="remove($index)"></attached-file>' +
                 '</div><form ng-show="!uploader.progress" class="row" name="{{formName}}"><input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ng-if="!options.readonly">' +
@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
 
                 uploader.onAfterAddingFile = function (item) {
 
-                    if ($scope.formName && $scope[$scope.formName].$$parentForm) {
+                    if ($scope.formName && $scope[$scope.formName] && $scope[$scope.formName].$$parentForm) {
                         $scope[$scope.formName].$$parentForm.$dirty = false;
                     }
 
