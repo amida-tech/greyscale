@@ -5,6 +5,7 @@ var _ = require('underscore');
 var Client = require('pg').Client;
 var AWS = require('aws-sdk');
 var crypto = require('crypto');
+var utf8 = require('utf8');
 AWS.config.update(config.aws);
 var s3 = new AWS.S3();
 
@@ -51,12 +52,13 @@ app.on('start', function () {
 
     var putToS3 = function (item, key) {
         return new Promise((resolve, reject) => {
+            var filename = utf8.encode(item.filename);
             var params = {
                 Bucket: config.aws.bucket,
                 Key: key,
                 Body: new Buffer(item.body),
                 ContentType: item.mimetype,
-                ContentDisposition: 'attachment; filename="' + item.filename + '"',
+                ContentDisposition: 'attachment; filename*=UTF-8\'\'' + filename,
             };
 
             var info = _.omit(params,'Body');
