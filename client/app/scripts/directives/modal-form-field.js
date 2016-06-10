@@ -91,8 +91,10 @@ angular.module('greyscaleApp')
                             }
                             break;
                         case 'option':
+                            var grouping = clmn.dataSet.groupBy ? 'group by item.group ' : '';
+
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
-                                'ng-options="item.id as item.title disable when model.getDisabled(item) for item in model.options" ' +
+                                'ng-options="item.id as item.title ' + grouping + 'disable when model.getDisabled(item) for item in model.options" ' +
                                 'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
@@ -185,6 +187,11 @@ angular.module('greyscaleApp')
                     var resolvedOption = {
                         id: option[_set.keyField]
                     };
+                    if (typeof _set.groupBy === 'function') {
+                        resolvedOption.group = _set.groupBy(option);
+                    } else if (_set.groupBy) {
+                        resolvedOption.group = option[_set.groupBy];
+                    }
                     if (_set.valField) {
                         resolvedOption.title = option[_set.valField];
                     } else if (_set.template) {

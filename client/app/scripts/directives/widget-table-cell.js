@@ -187,7 +187,9 @@ angular.module('greyscaleApp')
                 function _resolveLinkCell() {
                     var label = elem.html();
                     var link = angular.element('<a>' + label + '</a>');
-                    if (cell.link.state) {
+                    if (typeof cell.link.state === 'function') {
+                        link.attr('ui-sref', cell.link.state($scope.rowValue));
+                    } else if (cell.link.state) {
                         link.attr('ui-sref', cell.link.state);
                     } else if (cell.link.href) {
                         link.attr('ng-href', cell.link.href);

@@ -50,12 +50,21 @@ angular.module('greyscale.tables')
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
-                valField: 'title'
+                valField: 'title',
+                groupBy: function(item){
+                    return item.policyId ? 'Policies' : 'Surveys';
+                }
             },
             link: {
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
-                state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                state: function(item){
+                    console.log(item);
+                    return item.policyId
+                        ? 'policy.edit({id: item.surveyId})'
+                        : 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
+                }
+                //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
             field: 'workflow.name',
