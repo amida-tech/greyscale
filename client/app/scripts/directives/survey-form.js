@@ -650,11 +650,12 @@ angular.module('greyscaleApp')
                         if (fld.withOther) {
                             fld.otherOption = {
                                 id: -1,
-                                value: answer.value || fld.value
+                                value: fld.value
                             };
 
-                            if (answer.value) {
+                            if (!answer.optionId.length) {
                                 fld.answer = fld.otherOption;
+                                fld.answer.value = answer.value;
                             }
                         }
 
@@ -778,8 +779,8 @@ angular.module('greyscaleApp')
                             }
                         }
 
-                        if (fld.withOther && fld.otherOption && fld.otherOption.checked) {
-                            answer.value = fld.otherOption.value;
+                        if (fld.withOther && fld.otherOption) {
+                            answer.value = fld.otherOption.checked ? fld.otherOption.value : '';
                         }
                         break;
 
