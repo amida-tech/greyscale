@@ -9,8 +9,8 @@ angular.module('greyscale.rest')
             list: _list
         };
 
-        function _api() {
-            return greyscaleRestSrv().one('attachments');
+        function _uploadsApi() {
+            return greyscaleRestSrv().one('uploads');
         }
 
         function _preResp(resp) {
@@ -30,7 +30,7 @@ angular.module('greyscale.rest')
                 .then(_preResp);
         }
 
-        function _delete(attachId) {
-            return _api().one(attachId + '').remove();
+        function _delete(attachId, essenceId, entityId) {
+            return _uploadsApi().one(attachId + '').one(essenceId + '').one(entityId + '').remove();
         }
     });

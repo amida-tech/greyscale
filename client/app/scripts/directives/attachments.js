@@ -90,7 +90,7 @@ angular.module('greyscaleApp')
 
                 function removeAttach(idx) {
                     var deleted = $scope.model.splice(idx, 1);
-                    greyscaleAttachmentApi.delete(deleted[0].id)
+                    greyscaleAttachmentApi.delete(deleted[0].id, $scope.options.essenceId, $scope.options.entityId)
                         .then(_modifyEvt)
                         .catch(function (err) {
                             greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');
