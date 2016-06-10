@@ -59,7 +59,6 @@ angular.module('greyscale.tables')
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
                 state: function(item){
-                    console.log(item);
                     return item.policyId
                         ? 'policy.edit({id: item.surveyId})'
                         : 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
@@ -157,9 +156,19 @@ angular.module('greyscale.tables')
                 };
                 return $q.all(req).then(function (promises) {
                     _dicts.surveys = promises.surveys;
-                    return promises.products;
+                    return _setPolicyId(promises.products);
                 });
             }
+        }
+
+        function _setPolicyId(products) {
+            angular.forEach(products, function(product){
+                var survey = _.find(_dicts.surveys, {id: product.surveyId});
+                if (survey) {
+                    product.policyId = survey.policyId;
+                }
+            });
+            return products;
         }
 
         function _getStatus() {
