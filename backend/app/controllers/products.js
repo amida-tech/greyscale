@@ -362,7 +362,7 @@ module.exports = {
               //'"Roles"."name" as "ownerRole", ' +
               '"Surveys"."title" as "surveyTitle", ' +
               '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId",' +
-              '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
+              '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments", "SurveyAnswers"."comments" as "comments" ' +
 
               'FROM "Tasks" ' +
               'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
@@ -436,9 +436,6 @@ module.exports = {
             if (answer.stepPosition !== null) {
                 answer.stepPosition++;
             }
-
-            // add blank field for answer comments
-            answer.comments = '';
 
             // add question type description ('Text' as opposed to 0)
             answer.questionType = SurveyQuestion.types[answer.questionTypeId];
