@@ -142,6 +142,7 @@ angular.module('greyscaleApp')
                         case 'radio':
                             body = '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
+                                console.log(scope.field);
                                 body += '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
