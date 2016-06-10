@@ -109,6 +109,7 @@ angular.module('greyscaleApp')
                 }
             })
             .finally(function () {
+                data.flags.essenceId = data.essenceId;
                 $scope.model.title = _title.join(' - ');
                 $scope.model.surveyData = data;
                 $scope.model.showDiscuss = ($scope.model.showDiscuss && data.flags.discussionParticipation);

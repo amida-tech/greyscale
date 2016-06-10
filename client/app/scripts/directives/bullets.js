@@ -22,6 +22,8 @@ angular.module('greyscaleApp')
             },
             controller: function ($scope) {
 
+                $scope.field.answer = $scope.field.answer || [];
+
                 $scope.remove = _remove;
                 $scope.addEmpty = _addEmpty;
 
