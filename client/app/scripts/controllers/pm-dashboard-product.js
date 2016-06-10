@@ -46,7 +46,7 @@ angular.module('greyscaleApp')
                 return !o.onTime && o.status === 'current';
             }).length;
             $scope.model.count.complete = _.filter(tasksData, function(o){
-                return o.status === 'completed';
+                return o.subjectCompleted;
             }).length;
 
             //$scope.model.count.overdue = _.filter(tasksData, function (task) {
