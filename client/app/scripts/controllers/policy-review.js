@@ -16,7 +16,10 @@ angular.module('greyscaleApp')
                 profile: greyscaleProfileSrv.getProfile(),
                 languages: greyscaleLanguageApi.list(),
                 essence: greyscaleEntityTypeApi.list({
-                    name: 'Survey Answers'
+                    tableName: 'SurveyAnswers'
+                }),
+                policyEssence: greyscaleEntityTypeApi.list({
+                    tableName: 'Policies'
                 })
             };
 
@@ -43,6 +46,8 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 var i, qty;
 
+                var policyEssenceId = resp.policyEssence[0] ? resp.policyEssence[0].id : null;
+
                 data = {
                     survey: resp.survey,
                     userId: resp.profile.id,
@@ -60,6 +65,10 @@ angular.module('greyscaleApp')
                         options: {
                             readonly: true,
                             isPolicy: true
+                        },
+                        policyAttachmentsOptions: {
+                            essenceId: policyEssenceId,
+                            entityId: resp.survey.policyId
                         },
                         surveyId: resp.survey.id,
                         taskId: resp.task ? resp.task.id : null,
