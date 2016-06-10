@@ -44,7 +44,9 @@ SurveyQuestion.types = {
     10: 'Section separator',
     11: 'Bullet points',
     12: 'Date',
-    13: 'Scale'
+    13: 'Scale',
+    14: 'Policy draft section'
+
 };
 SurveyQuestion.multiSelectTypes = [2, 3, 4];
 SurveyQuestion.sectionTypes = [8, 9, 10];
