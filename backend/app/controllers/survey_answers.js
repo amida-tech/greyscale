@@ -35,7 +35,7 @@ var
     thunkQuery = thunkify(query);
 
 var AWS = require('aws-sdk');
-    AWS.config.update(config.aws);
+AWS.config.update(config.aws);
 var s3 = new AWS.S3();
 
 var debug = require('debug')('debug_survey_answers');
@@ -48,20 +48,20 @@ module.exports = {
         co(function* () {
             return yield thunkQuery(
                 SurveyAnswer
-                    .select(
-                        SurveyAnswer.star(),
-                        '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                            'FROM "AttachmentLinks" al ' +
-                            'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "SurveyAnswers"."id" ' +
-                            'JOIN "Essences" e ' +
-                            'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'SurveyAnswers\' ' +
-                            'WHERE a."id" = ANY(al."attachments")' +
-                        ') as att) as attachments'
-                    )
-                    .from(SurveyAnswer),
+                .select(
+                    SurveyAnswer.star(),
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
+                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                    'FROM "AttachmentLinks" al ' +
+                    'JOIN "Attachments" a ' +
+                    'ON al."entityId" = "SurveyAnswers"."id" ' +
+                    'JOIN "Essences" e ' +
+                    'ON e.id = al."essenceId" ' +
+                    'AND e."tableName" = \'SurveyAnswers\' ' +
+                    'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments'
+                )
+                .from(SurveyAnswer),
                 _.omit(req.query)
             );
         }).then(function (data) {
@@ -78,20 +78,18 @@ module.exports = {
         var isLast = req.query.only && req.query.only === 'last';
 
         co(function* () {
-            var condition = _.pick(req.params,['productId','UOAid']);
+            var condition = _.pick(req.params, ['productId', 'UOAid']);
 
-            if(req.user.roleID === 3) {
+            if (req.user.roleID === 3) {
                 var user_tasks = yield thunkQuery(
                     Task.select()
-                    .where(
-                        {
-                            uoaId     : req.params.UOAid,
-                            productId : req.params.productId,
-                            userId    : req.user.id
-                        }
-                    )
+                    .where({
+                        uoaId: req.params.UOAid,
+                        productId: req.params.productId,
+                        userId: req.user.id
+                    })
                 );
-                if(!user_tasks[0]){
+                if (!user_tasks[0]) {
                     throw new HttpError(
                         403,
                         'You should be owner at least of 1 task for this product and subject'
@@ -99,7 +97,7 @@ module.exports = {
                 }
             }
 
-            if(req.user.roleID === 2){
+            if (req.user.roleID === 2) {
                 var org = yield thunkQuery(
                     Product
                     .select(Organization.star())
@@ -134,29 +132,29 @@ module.exports = {
                     'SELECT ' +
                     's.*, ' +
                     '(SELECT array_agg(row_to_json(att)) FROM (' +
-                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                        'FROM "AttachmentLinks" al ' +
-                        'JOIN "Attachments" a ' +
-                        'ON al."entityId" = s."id" ' +
-                        'JOIN "Essences" e ' +
-                        'ON e.id = al."essenceId" ' +
-                        'AND e."tableName" = \'SurveyAnswers\' ' +
-                        'WHERE a."id" = ANY(al."attachments")' +
+                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                    'FROM "AttachmentLinks" al ' +
+                    'JOIN "Attachments" a ' +
+                    'ON al."entityId" = s."id" ' +
+                    'JOIN "Essences" e ' +
+                    'ON e.id = al."essenceId" ' +
+                    'AND e."tableName" = \'SurveyAnswers\' ' +
+                    'WHERE a."id" = ANY(al."attachments")' +
                     ') as att) as attachments' +
                     'FROM "SurveyAnswers" as s ' +
                     'WHERE s."id" = ( ' +
-                        'SELECT ' +
-                        'samax."id" ' +
-                        'FROM "SurveyAnswers" as samax ' +
-                        'WHERE ( ' +
-                            '(samax."productId" = %L) ' +
-                            'AND (samax."UOAid" = %L) ' +
-                            'AND (samax."questionId" = s."questionId") ' +
-                        ') ' +
-                        'ORDER BY ' +
-                            '(CASE WHEN ((version IS NULL) AND ("userId" = %L)) THEN 1 ELSE 0 END) DESC, ' +
-                            '(CASE WHEN (version IS NULL) THEN 0 ELSE version END) DESC ' +
-                        'LIMIT 1' +
+                    'SELECT ' +
+                    'samax."id" ' +
+                    'FROM "SurveyAnswers" as samax ' +
+                    'WHERE ( ' +
+                    '(samax."productId" = %L) ' +
+                    'AND (samax."UOAid" = %L) ' +
+                    'AND (samax."questionId" = s."questionId") ' +
+                    ') ' +
+                    'ORDER BY ' +
+                    '(CASE WHEN ((version IS NULL) AND ("userId" = %L)) THEN 1 ELSE 0 END) DESC, ' +
+                    '(CASE WHEN (version IS NULL) THEN 0 ELSE version END) DESC ' +
+                    'LIMIT 1' +
                     ')', condition.productId, condition.UOAid, req.user.id.toString()
                 );
 
@@ -179,7 +177,7 @@ module.exports = {
                     .where(condition);
             }
 
-            return yield thunkQuery(q, _.omit(req.query,['productId','UOAid']));
+            return yield thunkQuery(q, _.omit(req.query, ['productId', 'UOAid']));
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -189,35 +187,35 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
+        co(function* () {
             var result = yield thunkQuery(
                 SurveyAnswer
-                    .select(
-                        SurveyAnswer.star(),
-                        '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                            'FROM "AttachmentLinks" al ' +
-                            'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "SurveyAnswers"."id" ' +
-                            'JOIN "Essences" e ' +
-                            'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'SurveyAnswers\' ' +
-                            'WHERE a."id" = ANY(al."attachments")' +
-                        ') as att) as attachments'
-                    )
-                    .from(
-                        SurveyAnswer
-                    )
-                    .where(SurveyAnswer.id.equals(req.params.id))
-                    .group(SurveyAnswer.id)
+                .select(
+                    SurveyAnswer.star(),
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
+                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                    'FROM "AttachmentLinks" al ' +
+                    'JOIN "Attachments" a ' +
+                    'ON al."entityId" = "SurveyAnswers"."id" ' +
+                    'JOIN "Essences" e ' +
+                    'ON e.id = al."essenceId" ' +
+                    'AND e."tableName" = \'SurveyAnswers\' ' +
+                    'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments'
+                )
+                .from(
+                    SurveyAnswer
+                )
+                .where(SurveyAnswer.id.equals(req.params.id))
+                .group(SurveyAnswer.id)
             );
             if (!result[0]) {
                 throw new HttpError(404, 'Not found');
             }
             return result[0];
-        }).then(function(data) {
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -226,11 +224,11 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 SurveyAnswer.delete().where(SurveyAnswer.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -240,15 +238,15 @@ module.exports = {
                 info: 'Delete survey answer'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
 
     update: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
-            if((typeof req.body.isResponse === 'undefined') || (typeof req.body.value === 'undefined')){
+        co(function* () {
+            if ((typeof req.body.isResponse === 'undefined') || (typeof req.body.value === 'undefined')) {
                 throw new HttpError(400, 'You should pass isResponse and value parameters');
             }
 
@@ -291,8 +289,8 @@ module.exports = {
             if (result.task.userId !== req.user.id) {
                 throw new HttpError(
                     403,
-                    'Task (id = '+ result.task.id +') on current workflow step assigned to another user ' +
-                    '(task user id = '+ result.task.userId +', user id = '+ req.user.id +')'
+                    'Task (id = ' + result.task.id + ') on current workflow step assigned to another user ' +
+                    '(task user id = ' + result.task.userId + ', user id = ' + req.user.id + ')'
                 );
             }
 
@@ -302,16 +300,20 @@ module.exports = {
 
             var updateObj;
             if (req.body.isResponse) {
-                updateObj = {comments: req.body.value};
+                updateObj = {
+                    comments: req.body.value
+                };
             } else {
-                updateObj = {value: req.body.value};
+                updateObj = {
+                    value: req.body.value
+                };
             }
 
             return yield thunkQuery(
                 SurveyAnswer.update(updateObj).where(SurveyAnswer.id.equals(req.params.id))
             );
 
-        }).then(function (data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -329,18 +331,18 @@ module.exports = {
     add: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if(!Array.isArray(req.body)){
+            if (!Array.isArray(req.body)) {
                 req.body = [req.body];
             }
             var result = [];
-            for (var i in req.body){
-                try{
-                    var answer = yield *addAnswer(req, req.body[i]);
+            for (var i in req.body) {
+                try {
+                    var answer = yield * addAnswer(req, req.body[i]);
                     req.body[i].status = 'Ok';
                     req.body[i].id = answer.id;
                     req.body[i].message = 'Added';
                     req.body[i].statusCode = 200;
-                }catch(err){
+                } catch (err) {
                     req.body[i].status = 'Fail';
                     if (err instanceof HttpError) {
                         req.body[i].message = err.message.message;
@@ -369,7 +371,7 @@ function isEmptyOptions(optArray) {
     if (!optArray) { // null or andefined
         return true;
     }
-    if (Array.isArray(optArray)){
+    if (Array.isArray(optArray)) {
         if (optArray.length === 0) { // []
             return true;
         } else if (optArray[0] === null) { // [null]
@@ -379,7 +381,7 @@ function isEmptyOptions(optArray) {
     return false;
 }
 
-function *addAnswer (req, dataObject) {
+function* addAnswer(req, dataObject) {
     var thunkQuery = req.thunkQuery;
 
     if (!Array.isArray(dataObject.optionId)) {
@@ -390,7 +392,7 @@ function *addAnswer (req, dataObject) {
         Product.select().from(Product).where(Product.id.equals(dataObject.productId))
     );
 
-    if(!product[0]){
+    if (!product[0]) {
         throw new HttpError(403, 'Product with id = ' + dataObject.productId + ' does not exist');
     }
 
@@ -436,7 +438,7 @@ function *addAnswer (req, dataObject) {
 
     var workflow = yield thunkQuery(
         Workflow
-        .select( Workflow.star())
+        .select(Workflow.star())
         .from(Workflow)
         .where(Workflow.productId.equals(dataObject.productId))
     );
@@ -485,14 +487,14 @@ function *addAnswer (req, dataObject) {
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options
 
         if (question[0].isRequired || !isEmptyOptions(dataObject.optionId)) {
-            if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
+            if (!dataObject.optionId && !dataObject.isResponse && !req.query.autosave) {
                 throw new HttpError(403, 'You should provide optionId for this type of question');
             } else {
                 for (var optIndex in dataObject.optionId) {
                     var option = yield thunkQuery(
                         SurveyQuestionOption
-                            .select()
-                            .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
+                        .select()
+                        .where(SurveyQuestionOption.id.equals(dataObject.optionId[optIndex]))
                     );
                     if (!_.first(option)) {
                         throw new HttpError(403, 'Option with id = ' + dataObject.optionId[optIndex] + ' does not exist');
@@ -515,8 +517,8 @@ function *addAnswer (req, dataObject) {
 
     var version = yield thunkQuery(
         SurveyAnswer
-            .select('max("SurveyAnswers"."version")')
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'productId']))
+        .select('max("SurveyAnswers"."version")')
+        .where(_.pick(dataObject, ['questionId', 'UOAid', 'productId']))
     );
 
     if (_.first(version).max === null) {
@@ -527,8 +529,8 @@ function *addAnswer (req, dataObject) {
 
     var existsNullVer = yield thunkQuery(
         SurveyAnswer.select()
-            .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId', 'productId']))
-            .and(SurveyAnswer.version.isNull())
+        .where(_.pick(dataObject, ['questionId', 'UOAid', 'wfStepId', 'productId']))
+        .and(SurveyAnswer.version.isNull())
     );
 
     var editFields = SurveyAnswer.editCols;
@@ -539,13 +541,15 @@ function *addAnswer (req, dataObject) {
 
     var answer;
     if (existsNullVer[0]) {
-        answer = {id : existsNullVer[0].id};
+        answer = {
+            id: existsNullVer[0].id
+        };
         editFields.push('version');
         dataObject.updated = new Date();
         yield thunkQuery(
             SurveyAnswer
-                .update(_.pick(dataObject, editFields))
-                .where(SurveyAnswer.id.equals(existsNullVer[0].id))
+            .update(_.pick(dataObject, editFields))
+            .where(SurveyAnswer.id.equals(existsNullVer[0].id))
         );
         bologger.log({
             req: req,
@@ -560,8 +564,8 @@ function *addAnswer (req, dataObject) {
         delete dataObject.id;
         answer = yield thunkQuery(
             SurveyAnswer
-                .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
-                .returning(SurveyAnswer.id)
+            .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
+            .returning(SurveyAnswer.id)
         );
         answer = answer[0];
         bologger.log({
@@ -578,43 +582,33 @@ function *addAnswer (req, dataObject) {
 
     if (Array.isArray(dataObject.attachments)) {
 
-        var link = yield thunkQuery(AttachmentLink.select().where(
-            {
-                essenceId: essence[0].id,
-                entityId: answer.id
-            }
-        ));
+        var link = yield thunkQuery(AttachmentLink.select().where({
+            essenceId: essence[0].id,
+            entityId: answer.id
+        }));
 
         if (link.length) {
             yield thunkQuery(
                 AttachmentLink
-                    .update(
-                        {
-                            attachments: dataObject.attachments
-                        }
-                    )
-                    .where(
-                        {
-                            essenceId: essence[0].id,
-                            entityId: answer.id
-                        }
-                    )
+                .update({
+                    attachments: dataObject.attachments
+                })
+                .where({
+                    essenceId: essence[0].id,
+                    entityId: answer.id
+                })
             );
         } else {
             yield thunkQuery(
-                AttachmentLink.insert(
-                    {
-                        essenceId: essence[0].id,
-                        entityId: answer.id,
-                        attachments: dataObject.attachments
-                    }
-                )
+                AttachmentLink.insert({
+                    essenceId: essence[0].id,
+                    entityId: answer.id,
+                    attachments: dataObject.attachments
+                })
             );
         }
-
 
     }
 
     return answer;
 }
-

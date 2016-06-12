@@ -8,20 +8,19 @@ var expect = chai.expect;
 var config = require('../../config');
 var request = require('supertest');
 
-var superAdmin   = config.testEntities.superAdmin;
-var admin        = config.testEntities.admin;
+var superAdmin = config.testEntities.superAdmin;
+var admin = config.testEntities.admin;
 var organization = config.testEntities.organization;
-var users        = config.testEntities.users;
+var users = config.testEntities.users;
 
-var api_base          = 'http://localhost:' + config.port + '/';
-var api               = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
+var api_base = 'http://localhost:' + config.port + '/';
+var api = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
 var api_created_realm = request.agent(api_base + organization.realm + '/v0.2');
 
 var suToken;
 var admToken;
 var activationToken;
 var orgId;
-
 
 describe('Organizations:', function () {
 
@@ -63,7 +62,7 @@ describe('Organizations:', function () {
 
         it('Checks for an organization in new realm as a super', function (done) {
             api_created_realm
-                .get('/organizations/'+orgId)
+                .get('/organizations/' + orgId)
                 .set('token', suToken)
                 .expect(200)
                 .end(function (err, res) {
@@ -142,6 +141,5 @@ describe('Organizations:', function () {
                 });
         });
     });
-
 
 });

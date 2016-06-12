@@ -16,7 +16,7 @@ var ClientPG = function () {
 
     client.on('drain', client.end.bind(client));
 
-    client.on('end', function(){
+    client.on('end', function () {
         debug('Client was disconnected.');
     });
 

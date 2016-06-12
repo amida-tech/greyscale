@@ -30,9 +30,7 @@ module.exports = {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
-            var objToInsert = _.pick(req.body,
-                ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']
-            );
+            var objToInsert = _.pick(req.body, ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']);
             objToInsert.organizationId = req.params.organizationId;
             return yield thunkQuery(Visualization.insert(objToInsert).returning(Visualization.id));
         }).then(function (data) {
@@ -57,9 +55,7 @@ module.exports = {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
-            var objToUpdate = _.pick(req.body,
-                ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']
-            );
+            var objToUpdate = _.pick(req.body, ['title', 'productId', 'topicIds', 'indexCollection', 'indexId', 'visualizationType', 'comparativeTopicId']);
             return yield thunkQuery(Visualization.update(objToUpdate).where(
                 Visualization.id.equals(req.params.id).and(Visualization.organizationId.equals(req.params.organizationId))
             ));

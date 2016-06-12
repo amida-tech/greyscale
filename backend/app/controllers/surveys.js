@@ -38,21 +38,21 @@ module.exports = {
                 .select(
                     Survey.star(),
                     '(WITH sq AS ' +
-                        '( '+
-                            'SELECT '+
-                                '"SurveyQuestions".* , '+
-                                'array_agg(row_to_json("SurveyQuestionOptions".*)) as options '+
-                            'FROM '+
-                                '"SurveyQuestions" '+
-                            'LEFT JOIN '+
-                                '"SurveyQuestionOptions" '+
-                            'ON '+
-                                '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" '+
-                            'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" '+
-                            'GROUP BY "SurveyQuestions"."id" '+
-                            'ORDER BY '+
-                            '"SurveyQuestions"."position" '+
-                        ') '+
+                    '( ' +
+                    'SELECT ' +
+                    '"SurveyQuestions".* , ' +
+                    'array_agg(row_to_json("SurveyQuestionOptions".*)) as options ' +
+                    'FROM ' +
+                    '"SurveyQuestions" ' +
+                    'LEFT JOIN ' +
+                    '"SurveyQuestionOptions" ' +
+                    'ON ' +
+                    '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" ' +
+                    'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" ' +
+                    'GROUP BY "SurveyQuestions"."id" ' +
+                    'ORDER BY ' +
+                    '"SurveyQuestions"."position" ' +
+                    ') ' +
                     'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)'
                 )
                 .where(Survey.id.equals(req.params.id))
@@ -92,9 +92,11 @@ module.exports = {
                         user: req.user,
                         action: 'delete',
                         object: 'SurveyQuestionOptions',
-                        entities: {questionId: questions[i].id},
+                        entities: {
+                            questionId: questions[i].id
+                        },
                         quantity: 1,
-                        info: 'Delete survey question options for question '+questions[i].id
+                        info: 'Delete survey question options for question ' + questions[i].id
                     });
 
                     yield thunkQuery(
@@ -133,11 +135,11 @@ module.exports = {
             var updateSurvey = req.body;
             updateSurvey = _.pick(updateSurvey, Survey.editCols);
 
-            if(Object.keys(updateSurvey).length){
+            if (Object.keys(updateSurvey).length) {
                 yield thunkQuery(
                     Survey
-                        .update(updateSurvey)
-                        .where(Survey.id.equals(req.params.id))
+                    .update(updateSurvey)
+                    .where(Survey.id.equals(req.params.id))
                 );
                 bologger.log({
                     req: req,
@@ -157,7 +159,9 @@ module.exports = {
             var dbQuestions = yield thunkQuery(
                 SurveyQuestion.select().where(SurveyQuestion.surveyId.equals(req.params.id))
             );
-            var relIds = dbQuestions.map(function (value) {return value.id;});
+            var relIds = dbQuestions.map(function (value) {
+                return value.id;
+            });
 
             var statusOverall = 202;
             var errorMessages = [];
@@ -169,16 +173,16 @@ module.exports = {
                         passedIds.push(updateSurvey.questions[i].id);
                         if (Object.keys(updateObj).length && relIds.indexOf(updateSurvey.questions[i].id) !== -1 && !updateSurvey.questions[i].deleted) { // have data to update,  exists and not deleted
 
-                            try{
+                            try {
                                 yield thunkQuery(
                                     SurveyQuestion
-                                        .update(updateObj)
-                                        .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
+                                    .update(updateObj)
+                                    .where(SurveyQuestion.id.equals(updateSurvey.questions[i].id))
                                 );
                                 updateSurvey.questions[i].status = 'Ok';
                                 updateSurvey.questions[i].message = 'Updated';
                                 updateSurvey.questions[i].statusCode = 200;
-                            }catch(err){
+                            } catch (err) {
                                 updateSurvey.questions[i].status = 'Fail';
                                 if (err instanceof HttpError) {
                                     updateSurvey.questions[i].message = err.message.message;
@@ -197,7 +201,7 @@ module.exports = {
                                 debug('=== error ===');
                                 debug(err);
                             }
-                            statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+                            statusOverall = (updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
 
                             updatedIds.push(updateSurvey.questions[i].id);
                             if (updateSurvey.questions[i].status === 'Ok') {
@@ -213,7 +217,7 @@ module.exports = {
                             var deletedQuestionOptions = yield thunkQuery(
                                 SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)).returning(SurveyQuestionOption.id)
                             );
-                            if (deletedQuestionOptions && deletedQuestionOptions.length){
+                            if (deletedQuestionOptions && deletedQuestionOptions.length) {
                                 bologger.log({
                                     req: req,
                                     user: req.user,
@@ -221,7 +225,7 @@ module.exports = {
                                     object: 'SurveyQuestionOptions',
                                     entities: deletedQuestionOptions,
                                     quantity: deletedQuestionOptions.length,
-                                    info: 'Delete survey question options for question '+updateSurvey.questions[i].id
+                                    info: 'Delete survey question options for question ' + updateSurvey.questions[i].id
                                 });
                             }
                         }
@@ -230,12 +234,12 @@ module.exports = {
                         insertObj.surveyId = req.params.id;
 
                         var insertId;
-                        try{
+                        try {
                             insertId = yield thunkQuery(SurveyQuestion.insert(insertObj).returning(SurveyQuestion.id));
                             updateSurvey.questions[i].status = 'Ok';
                             updateSurvey.questions[i].message = 'Added';
                             updateSurvey.questions[i].statusCode = 200;
-                        }catch(err){
+                        } catch (err) {
                             updateSurvey.questions[i].status = 'Fail';
                             if (err instanceof HttpError) {
                                 updateSurvey.questions[i].message = err.message.message;
@@ -253,7 +257,7 @@ module.exports = {
                             debug('=== error ===');
                             debug(err);
                         }
-                        statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+                        statusOverall = (updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
 
                         insertIds.push(insertId[0].id);
                         updateSurvey.questions[i].id = insertId[0].id;
@@ -272,14 +276,14 @@ module.exports = {
                         var options = [];
                         for (var optionIndex in updateSurvey.questions[i].options) {
                             options.push(updateSurvey.questions[i].options[optionIndex]);
-                            options[options.length-1].questionId = updateSurvey.questions[i].id;
+                            options[options.length - 1].questionId = updateSurvey.questions[i].id;
                         }
-                        try{
+                        try {
                             yield thunkQuery(SurveyQuestionOption.insert(options));
                             updateSurvey.questions[i].statusOptions = 'Ok';
                             updateSurvey.questions[i].messageOptions = 'Added';
                             updateSurvey.questions[i].statusCodeOptions = 200;
-                        }catch(err){
+                        } catch (err) {
                             updateSurvey.questions[i].statusOptions = 'Fail';
                             if (err instanceof HttpError) {
                                 updateSurvey.questions[i].messageOptions = err.message.message;
@@ -297,7 +301,7 @@ module.exports = {
                             debug('=== error ===');
                             debug(err);
                         }
-                        statusOverall=(updateSurvey.questions[i].statusOptions === 'Ok') ? statusOverall : 400;
+                        statusOverall = (updateSurvey.questions[i].statusOptions === 'Ok') ? statusOverall : 400;
                         if (updateSurvey.questions[i].statusOptions === 'Ok') {
                             bologger.log({
                                 req: req,
@@ -310,15 +314,14 @@ module.exports = {
                             });
                         }
                     }
-                }
-                else { // delete question
-                    try{
+                } else { // delete question
+                    try {
                         yield thunkQuery(SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)));
                         yield thunkQuery(SurveyQuestion.delete().where(SurveyQuestion.id.equals(updateSurvey.questions[i].id)));
                         updateSurvey.questions[i].status = 'Ok';
                         updateSurvey.questions[i].message = 'Deleted';
                         updateSurvey.questions[i].statusCode = 200;
-                    }catch(err){
+                    } catch (err) {
                         updateSurvey.questions[i].status = 'Fail';
                         if (err instanceof HttpError) {
                             updateSurvey.questions[i].message = err.message.message;
@@ -336,8 +339,8 @@ module.exports = {
                         debug('=== error ===');
                         debug(err);
                     }
-                    statusOverall=(updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
-                    if (updateSurvey.questions[i].status=== 'Ok') {
+                    statusOverall = (updateSurvey.questions[i].status === 'Ok') ? statusOverall : 400;
+                    if (updateSurvey.questions[i].status === 'Ok') {
                         bologger.log({
                             req: req,
                             user: req.user,
@@ -378,7 +381,7 @@ module.exports = {
                 survey.questions = [];
                 req.params.id = survey.id;
                 for (var i in req.body.questions) {
-                    var question = yield* addQuestion(req, req.body.questions[i]);
+                    var question = yield * addQuestion(req, req.body.questions[i]);
                     survey.questions.push(question);
                 }
             }
@@ -432,7 +435,7 @@ module.exports = {
     questionAdd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield* addQuestion(req, req.body);
+            return yield * addQuestion(req, req.body);
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -445,11 +448,11 @@ module.exports = {
         co(function* () {
             yield * checkQuestionData(req, req.body, false);
             var updateObj = _.pick(req.body, SurveyQuestion.editCols);
-            if(Object.keys(updateObj).length) {
+            if (Object.keys(updateObj).length) {
                 yield thunkQuery(
                     SurveyQuestion
-                        .update(updateObj)
-                        .where(SurveyQuestion.id.equals(req.params.id))
+                    .update(updateObj)
+                    .where(SurveyQuestion.id.equals(req.params.id))
                 );
             }
         }).then(function () {
@@ -470,11 +473,11 @@ module.exports = {
     questionDelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 SurveyQuestion.delete().where(SurveyQuestion.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -484,7 +487,7 @@ module.exports = {
                 info: 'Delete survey question'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -492,13 +495,13 @@ module.exports = {
 
 };
 
-function* addQuestion (req, dataObj) {
+function* addQuestion(req, dataObj) {
     var thunkQuery = req.thunkQuery;
     yield * checkQuestionData(req, dataObj, true);
     var result = yield thunkQuery(
         SurveyQuestion
-            .insert(_.pick(dataObj, SurveyQuestion.table._initialConfig.columns))
-            .returning(SurveyQuestion.id)
+        .insert(_.pick(dataObj, SurveyQuestion.table._initialConfig.columns))
+        .returning(SurveyQuestion.id)
     );
     result = result[0];
     bologger.log({
@@ -547,7 +550,7 @@ function* checkSurveyData(req) {
         //        throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
         //    }
         //} else {
-            req.body.projectId = req.user.projectId;
+        req.body.projectId = req.user.projectId;
         //}
 
         if (!req.body.title) {
@@ -577,13 +580,15 @@ function* checkQuestionData(req, dataObj, isCreate) {
     }
 
     var surveyId = isCreate ? req.params.id : question.surveyId;
-    dataObj = _.extend(dataObj, {surveyId: surveyId});
+    dataObj = _.extend(dataObj, {
+        surveyId: surveyId
+    });
 
     if (dataObj.type) {
         if (!(parseInt(dataObj.type) in SurveyQuestion.types)) {
             throw new HttpError(
                 403,
-                'Type value should be from 0 till ' + Object.keys(SurveyQuestion.types).length-1
+                'Type value should be from 0 till ' + Object.keys(SurveyQuestion.types).length - 1
             );
         }
     }
@@ -602,7 +607,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
         dataObj.position = isNaN(parseInt(dataObj.position)) ? 0 : parseInt(dataObj.position);
 
         if (dataObj.position > nextPos || dataObj.position < 1) {
-            dataObj.position = isCreate ? nextPos : (nextPos-1);
+            dataObj.position = isCreate ? nextPos : (nextPos - 1);
         }
 
         if ((isCreate && _.first(maxPos))) {

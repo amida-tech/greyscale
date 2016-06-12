@@ -53,7 +53,7 @@ module.exports = {
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             var data = yield thunkQuery(
                 Translations.update({
                     'value': req.body.value
@@ -73,13 +73,13 @@ module.exports = {
                 user: req.user,
                 action: 'update',
                 object: 'translations',
-                entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
+                entities: _.pick(req.params, ['essenceId', 'entityId', 'langId', 'field']),
                 info: 'Update translation'
             });
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -88,7 +88,7 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             var data = yield thunkQuery(
                 Translations.delete().where(_.pick(
                     req.params, [
@@ -104,13 +104,13 @@ module.exports = {
                 user: req.user,
                 action: 'delete',
                 object: 'translations',
-                entities: _.pick(req.params, ['essenceId','entityId','langId','field']),
+                entities: _.pick(req.params, ['essenceId', 'entityId', 'langId', 'field']),
                 info: 'Delete translation'
             });
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -174,7 +174,7 @@ module.exports = {
                     'entityId': req.body.entityId,
                     'field': req.body.field,
                     'langId': req.body.langId,
-                    'value' : req.body.value
+                    'value': req.body.value
                 },
                 info: 'Add new translation'
             });

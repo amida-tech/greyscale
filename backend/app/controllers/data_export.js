@@ -85,7 +85,7 @@ module.exports = {
             result.questions = result.questions.map(function (question) {
                 return _.pick(question, ['id', 'title']);
             });
-            
+
             res.json(result);
         }, function (err) {
             next(err);

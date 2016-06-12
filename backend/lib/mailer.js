@@ -46,11 +46,11 @@ Emailer.prototype.sendSync = function* () {
             generateTextFromHTML: true,
             attachments: attachments
         },
-    transport = this.getTransport();
+        transport = this.getTransport();
     var response;
-    try{
+    try {
         response = yield transport.sendMail(messageData);
-    }catch(e){
+    } catch (e) {
         response = e;
     }
 

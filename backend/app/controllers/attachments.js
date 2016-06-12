@@ -39,7 +39,7 @@ module.exports = {
     links: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co( function* () {
+        co(function* () {
 
             var essence, model;
             if (!req.params.essenceId || !req.params.entityId) {
@@ -57,15 +57,15 @@ module.exports = {
                 }
             }
 
-            try{
+            try {
                 essence = yield common.getEssence(req, req.params.essenceId);
-            }catch(err){
+            } catch (err) {
                 throw err;
             }
 
-            try{
+            try {
                 model = require('app/models/' + essence.fileName);
-            }catch(err){
+            } catch (err) {
                 throw new HttpError(404, 'Cannot find essence model file (' + essence.fileName + ')');
             }
 
@@ -78,16 +78,16 @@ module.exports = {
             }
 
             yield thunkQuery(AttachmentLink
-            .update({attachments: req.body})
-            .where(
-                {
+                .update({
+                    attachments: req.body
+                })
+                .where({
                     essenceId: req.params.essenceId,
                     entityId: req.params.entityId
-                }
-            )
+                })
             );
 
-        }).then( function (data) {
+        }).then(function (data) {
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -96,7 +96,7 @@ module.exports = {
 
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
+        co(function* () {
 
             var attachment = yield thunkQuery(
                 Attachment.select().where(Attachment.id.equals(req.params.id))
@@ -107,23 +107,30 @@ module.exports = {
             }
 
             if (attachment[0].amazonKey) {
-                var params = { Bucket: config.awsBucket, Key: attachment[0].amazonKey };
+                var params = {
+                    Bucket: config.awsBucket,
+                    Key: attachment[0].amazonKey
+                };
                 var url = s3.getSignedUrl('getObject', params);
-                return { url: url };
+                return {
+                    url: url
+                };
             }
 
             var ticket = crypto.randomBytes(10).toString('hex');
 
-            try{
+            try {
                 var r = yield mc.set(req.mcClient, ticket, attachment[0].id);
-                return { tiсket: ticket };
-            }catch(e){
+                return {
+                    tiсket: ticket
+                };
+            } catch (e) {
                 throw new HttpError(500, e);
             }
 
-        }).then(function(data){
+        }).then(function (data) {
             res.status(201).json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -131,14 +138,14 @@ module.exports = {
     getAttachment: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var id;
-        co(function* (){
-            try{
+        co(function* () {
+            try {
                 id = yield mc.get(req.mcClient, req.params.ticket);
-            }catch(e){
+            } catch (e) {
                 throw new HttpError(500, e);
             }
 
-            if(!id){
+            if (!id) {
                 throw new HttpError(400, 'Token is not valid');
             }
 
@@ -150,11 +157,11 @@ module.exports = {
             }
             return attachment[0];
 
-        }).then(function(file){
+        }).then(function (file) {
             res.setHeader('Content-disposition', 'attachment; filename=' + file.filename);
             res.setHeader('Content-type', file.mimetype);
             res.send(file.body);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
         console.log('test');
@@ -162,7 +169,7 @@ module.exports = {
 
     uploadSuccess: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co( function* () {
+        co(function* () {
             if (!req.body.key) {
                 throw new HttpError(400, 'You should provide key');
             }
@@ -187,7 +194,7 @@ module.exports = {
 
                 var essence = yield thunkQuery(Essence.select().where(Essence.id.equals(req.body.essenceId)));
 
-                if(!essence.length){
+                if (!essence.length) {
                     throw new HttpError(400, 'Essence with id = ' + req.body.essenceId + 'does not exist');
                 }
 
@@ -222,11 +229,9 @@ module.exports = {
                     existLink[0].attachments.push(id[0].id);
                     yield thunkQuery(
                         AttachmentLink
-                        .update(
-                            {
-                                attachments: existLink[0].attachments
-                            }
-                        )
+                        .update({
+                            attachments: existLink[0].attachments
+                        })
                         .where(
                             _.omit(link, 'attachments')
                         )
@@ -245,7 +250,7 @@ module.exports = {
                 linked: linked
             };
 
-        }).then( function (data) {
+        }).then(function (data) {
             res.json(data);
         }, function (err) {
             next(err);
@@ -254,7 +259,7 @@ module.exports = {
 
     getUploadLink: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co( function* () {
+        co(function* () {
             if (!req.body.type || !req.body.size || !req.body.name) {
                 throw new HttpError(400, 'You should provide file name, size and type');
             }
@@ -283,16 +288,16 @@ module.exports = {
                 key: key
             };
 
-        }).then( function (data) {
+        }).then(function (data) {
             res.json(data);
-        }, function(err) {
+        }, function (err) {
             next(err);
         });
     },
 
-    delete: function(req, res, next){
+    delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
+        co(function* () {
             // TODO check right
 
             if (!req.params.essenceId || !req.params.entityId || !req.params.id) {
@@ -322,14 +327,14 @@ module.exports = {
                 throw new HttpError(400, 'Entity does not link with this attachment id');
             }
 
-            link[0].attachments.splice(attIndex,1); // remove attachment from links
+            link[0].attachments.splice(attIndex, 1); // remove attachment from links
 
             if (link[0].attachments.length) { // update attachments array
                 yield thunkQuery(
                     AttachmentLink
-                    .update(
-                        { attachments: link[0].attachments }
-                    ).where(
+                    .update({
+                        attachments: link[0].attachments
+                    }).where(
                         AttachmentLink.essenceId.equals(req.params.essenceId)
                         .and(AttachmentLink.entityId.equals(req.params.entityId))
                     )
@@ -365,10 +370,13 @@ module.exports = {
                     var awsResult = yield new Promise((resolve, reject) => {
                         s3.deleteObject(params, (err, data) => {
                             if (err) {
-                                resolve({error: err}); // an error occurred
-                            }
-                            else {
-                                resolve({error: null}); // successful response
+                                resolve({
+                                    error: err
+                                }); // an error occurred
+                            } else {
+                                resolve({
+                                    error: null
+                                }); // successful response
                             }
                         });
                     });
@@ -381,7 +389,7 @@ module.exports = {
 
             return data;
 
-        }).then(function(){
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -391,7 +399,7 @@ module.exports = {
                 info: 'Delete attachment'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     }

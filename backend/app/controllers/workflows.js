@@ -34,16 +34,16 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function* (){
+        co(function* () {
             var data = yield thunkQuery(
                 Workflow.select().where(Workflow.id.equals(req.params.id))
             );
             if (!_.first(data)) {
-                 throw new HttpError(404, 'Not found');
+                throw new HttpError(404, 'Not found');
             }
-        }).then(function(data){
+        }).then(function (data) {
             res.status(200).json(_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -72,11 +72,11 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Workflow.delete().where(Workflow.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -86,7 +86,7 @@ module.exports = {
                 info: 'Delete workflow'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -156,7 +156,6 @@ module.exports = {
                 return value.id;
             });
 
-
             var passedIds = [];
             var updatedIds = [];
             var insertIds = [];
@@ -188,7 +187,7 @@ module.exports = {
                             user: req.user,
                             action: 'update',
                             object: 'workflowstepgroups',
-                            info: 'Delete all workflow step groups for step '+ req.body[i].id
+                            info: 'Delete all workflow step groups for step ' + req.body[i].id
                         });
                     }
                 } else {
@@ -209,12 +208,10 @@ module.exports = {
                 }
                 var insertGroupObjs = [];
                 for (var groupIndex in req.body[i].usergroupId) {
-                    insertGroupObjs.push(
-                        {
-                            stepId : req.body[i].id,
-                            groupId: req.body[i].usergroupId[groupIndex]
-                        }
-                    );
+                    insertGroupObjs.push({
+                        stepId: req.body[i].id,
+                        groupId: req.body[i].usergroupId[groupIndex]
+                    });
                 }
                 debug(insertGroupObjs);
                 if (insertGroupObjs.length) {
@@ -274,7 +271,6 @@ module.exports = {
 
     }
 
-
 };
 
 function* checkData(req) {
@@ -312,8 +308,10 @@ function* setCurrentStepToNull(req, productId) {
 
     var result = yield thunkQuery(
         ProductUOA
-            .update({currentStepId: null})
-            .where(ProductUOA.productId.equals(productId))
+        .update({
+            currentStepId: null
+        })
+        .where(ProductUOA.productId.equals(productId))
     );
 
 }

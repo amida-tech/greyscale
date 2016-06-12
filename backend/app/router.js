@@ -6,7 +6,9 @@ var express = require('express'),
     config = require('config'),
     router = express.Router(),
     bodyParser = require('body-parser'),
-    jsonParser = bodyParser.json({limit: config.max_upload_filesize});
+    jsonParser = bodyParser.json({
+        limit: config.max_upload_filesize
+    });
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ROLES
@@ -79,8 +81,6 @@ router.route('/:realm/v0.2/projects/:id/products')
 router.route('/:realm/v0.2/projects/:id/surveys')
     .get(authenticate('token').always, projects.surveyList);
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,6 @@ router.route('/:realm/v0.2/uploads/upload_link')
 router.route('/:realm/v0.2/uploads/success')
     .post(authenticate('token').always, jsonParser, attachments.uploadSuccess);
 
-
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------
@@ -186,7 +185,7 @@ router.route('/:realm/v0.2/access_permissions/:id')
 var languages = require('app/controllers/languages');
 
 router.route('/:realm/v0.2/languages')
-    .get(/*authenticate('token').always, */languages.select)
+    .get( /*authenticate('token').always, */ languages.select)
     .post(authenticate('token').always, jsonParser, languages.insertOne);
 
 router.route('/:realm/v0.2/languages/:id')
@@ -243,24 +242,24 @@ router.route('/:realm/v0.2/products/:id/tasks')
     .put(authenticate('token').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/aggregate')
-    .get(/*authenticate('token').always,*/ products.aggregateIndexes);
+    .get( /*authenticate('token').always,*/ products.aggregateIndexes);
 
 router.route('/:realm/v0.2/products/:id/aggregate.csv')
-    .get(/*authenticate('token').always,*/ products.aggregateIndexesCsv);
+    .get( /*authenticate('token').always,*/ products.aggregateIndexesCsv);
 
 router.route('/:realm/v0.2/products/:id/indexes')
-    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
+    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
     .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
 
 router.route('/:realm/v0.2/products/:id/subindexes')
-    .get(/*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
+    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
     .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
 
 router.route('/:realm/v0.2/products/:ticket/export.csv')
-    .get(/*authenticate('token').always,*/ products.export);
+    .get( /*authenticate('token').always,*/ products.export);
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
-    .get(/*authenticate('token').always,*/ products.getTicket);
+    .get( /*authenticate('token').always,*/ products.getTicket);
 
 router.route('/:realm/v0.2/products/:id/uoa')
     .get(authenticate('token').always, checkRight('product_uoa'), products.UOAselect)
@@ -543,23 +542,23 @@ router.route('/:realm/v0.2/organizations/:organizationId/visualizations/:id')
     .delete(authenticate('token').always, /*checkRight(), */ Visualization.deleteOne);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations')
-    .get(/*authenticate('token').always,*/ ComparativeVisualization.select)
+    .get( /*authenticate('token').always,*/ ComparativeVisualization.select)
     .post(authenticate('token').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertOne);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id')
-    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectOne)
+    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectOne)
     .put(authenticate('token').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateOne)
     .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteOne);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets')
-    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
+    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDatasets)
     .post(authenticate('token').always, jsonParser, /*checkRight(), */ ComparativeVisualization.insertDataset);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/datasets/parse')
     .post(authenticate('token').always, jsonParser, /*checkRight(), */ ComparativeVisualization.parseDataset);
 
 router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizations/:id/:datasets/:datasetId')
-    .get(/*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
+    .get( /*authenticate('token').always,*/ ComparativeVisualization.selectDataset)
     .put(authenticate('token').always, jsonParser, /*checkRight(), */ ComparativeVisualization.updateDataset)
     .delete(authenticate('token').always, /*checkRight(), */ ComparativeVisualization.deleteDataset);
 

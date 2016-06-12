@@ -44,7 +44,7 @@ var debug = require('debug')('debug_products');
 debug.log = console.log.bind(console);
 
 var moveWorkflow = function* (req, productId, UOAid) {
-    var essenceId,task, userTo, organization, product, uoa, step, survey, note;
+    var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
@@ -65,7 +65,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
         }
         // DO resolve
         var step4Resolve = yield * getStep4Resolve(req, curStep.task.id);
-        if (!step4Resolve){
+        if (!step4Resolve) {
             throw new HttpError(403, 'Resolve is not possible. Not found step for resolve');
         }
 
@@ -73,7 +73,9 @@ var moveWorkflow = function* (req, productId, UOAid) {
         yield * updateReturnTask(req, curStep.task.id);
 
         // activate discussion`s entry with resolve flag
-        yield * activateEntries(req, curStep.task.id, {isResolve: true});
+        yield * activateEntries(req, curStep.task.id, {
+            isResolve: true
+        });
 
         // set currentStep to step4Resolve
         yield * updateCurrentStep(req, step4Resolve, productId, UOAid);
@@ -88,8 +90,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
         uoa = yield * common.getEntity(req, UOAid, UOA, 'id');
         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
         survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req,
-            {
+        note = yield * notifications.createNotification(req, {
                 userFrom: req.user.realmUserId,
                 userTo: task.userId,
                 body: 'flags were resolved',
@@ -103,7 +104,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
                 user: userTo,
                 organization: organization,
                 date: new Date(),
-                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                to: {
+                    firstName: userTo.firstName,
+                    lastName: userTo.lastName
+                },
                 config: config
             },
             'resolveFlag'
@@ -118,7 +122,9 @@ var moveWorkflow = function* (req, productId, UOAid) {
         // set currentStep to step from returnTaskId
         yield * updateCurrentStep(req, returnStepId, productId, UOAid);
         // activate discussion`s entry with return flag
-        var flagsCount = yield * activateEntries(req, curStep.task.id, {isReturn: true});
+        var flagsCount = yield * activateEntries(req, curStep.task.id, {
+            isReturn: true
+        });
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
         //essenceId = yield * common.getEssenceId(req, 'Tasks');
@@ -129,8 +135,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
         uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
         survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req,
-            {
+        note = yield * notifications.createNotification(req, {
                 userFrom: req.user.realmUserId,
                 userTo: task.userId,
                 body: 'flags requiring resolution',
@@ -144,8 +149,13 @@ var moveWorkflow = function* (req, productId, UOAid) {
                 user: userTo,
                 organization: organization,
                 date: new Date(),
-                flags: {count: flagsCount},
-                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                flags: {
+                    count: flagsCount
+                },
+                to: {
+                    firstName: userTo.firstName,
+                    lastName: userTo.lastName
+                },
                 config: config
             },
             'returnFlag'
@@ -154,16 +164,16 @@ var moveWorkflow = function* (req, productId, UOAid) {
     }
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
-    if(minNextStepPosition !== null) { // min next step exists, position is not null
+    if (minNextStepPosition !== null) { // min next step exists, position is not null
         nextStep = yield * common.getNextStep(req, minNextStepPosition, curStep);
-    } else {    // if does not exist next steps with task, then get last step
+    } else { // if does not exist next steps with task, then get last step
         var lastStepPosition = yield * common.getLastStepPosition(req, curStep);
-        if(lastStepPosition !== null) { // last step exists, position is not null
+        if (lastStepPosition !== null) { // last step exists, position is not null
             nextStep = yield * common.getNextStep(req, lastStepPosition, curStep);
         }
     }
 
-    if(nextStep) { // next step exists, set it to current
+    if (nextStep) { // next step exists, set it to current
         yield * updateCurrentStep(req, nextStep.id, curStep.task.productId, curStep.task.uoaId);
 
         if (nextStep.taskId) {
@@ -176,8 +186,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
             uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
             step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
             survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            note = yield * notifications.createNotification(req,
-                {
+            note = yield * notifications.createNotification(req, {
                     userFrom: req.user.realmUserId,
                     userTo: task.userId,
                     body: 'Task activated (next step)',
@@ -191,19 +200,27 @@ var moveWorkflow = function* (req, productId, UOAid) {
                     user: userTo,
                     organization: organization,
                     date: new Date(),
-                    to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                    to: {
+                        firstName: userTo.firstName,
+                        lastName: userTo.lastName
+                    },
                     config: config
                 },
                 'activateTask'
             );
         }
 
-    }else{
+    } else {
         // next step does not exists - set productUOA status to complete
         yield thunkQuery(
             ProductUOA
-                .update({isComplete: true})
-                .where({productId: curStep.task.productId, UOAid: curStep.task.uoaId})
+            .update({
+                isComplete: true
+            })
+            .where({
+                productId: curStep.task.productId,
+                UOAid: curStep.task.uoaId
+            })
         );
         bologger.log({
             req: req,
@@ -216,21 +233,21 @@ var moveWorkflow = function* (req, productId, UOAid) {
                 isComplete: true
             },
             quantity: 1,
-            info: 'Set productUOA status to complete for subject `'+curStep.task.uoaId+'` for product `'+curStep.task.productId+'`'
+            info: 'Set productUOA status to complete for subject `' + curStep.task.uoaId + '` for product `' + curStep.task.productId + '`'
         });
         var uncompleted = yield thunkQuery( // check for uncompleted
             ProductUOA
-                .select()
-                .where(
-                {
-                    productId: curStep.task.productId,
-                    isComplete: false
-                }
-            )
+            .select()
+            .where({
+                productId: curStep.task.productId,
+                isComplete: false
+            })
         );
         if (!uncompleted.length) { // set product status to complete
             yield thunkQuery(
-                Product.update({status: 3}).where(Product.id.equals(curStep.task.productId))
+                Product.update({
+                    status: 3
+                }).where(Product.id.equals(curStep.task.productId))
             );
             bologger.log({
                 req: req,
@@ -282,53 +299,53 @@ module.exports = {
                 .select(
                     Task.star(),
                     'CASE ' +
-                        'WHEN '+
-                            '(' +
-                            'SELECT ' +
-                                '"Discussions"."id" ' +
-                            'FROM "Discussions" ' +
-                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                            'AND "Discussions"."isReturn" = true ' +
-                            'AND "Discussions"."isResolve" = false ' +
-                            'AND "Discussions"."activated" = true ' +
-                            'LIMIT 1' +
-                            ') IS NULL ' +
-                        'THEN FALSE ' +
-                        'ELSE TRUE ' +
+                    'WHEN ' +
+                    '(' +
+                    'SELECT ' +
+                    '"Discussions"."id" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
+                    ') IS NULL ' +
+                    'THEN FALSE ' +
+                    'ELSE TRUE ' +
                     'END as flagged',
-                    '( '+
-                        'SELECT count("Discussions"."id") ' +
-                        'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
+                    '( ' +
+                    'SELECT count("Discussions"."id") ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
                     ') as flaggedCount',
                     '(' +
-                        'SELECT ' +
-                        '"Discussions"."taskId" ' +
-                        'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
-                        'LIMIT 1' +
+                    'SELECT ' +
+                    '"Discussions"."taskId" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
                     ') as flaggedFrom',
                     'CASE ' +
-                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                        'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
-                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                        'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
+                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
+                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
+                    'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
+                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
+                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
                     'END as status ',
                     WorkflowStep.position,
                     '(' +
-                        'SELECT max("SurveyAnswers"."created") ' +
-                        'FROM "SurveyAnswers" ' +
-                        'WHERE ' +
-                            '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                            'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                            'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
+                    'SELECT max("SurveyAnswers"."created") ' +
+                    'FROM "SurveyAnswers" ' +
+                    'WHERE ' +
+                    '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
+                    'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
+                    'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
                     ') as "lastVersionDate"'
                 )
                 .from(
@@ -364,17 +381,17 @@ module.exports = {
         co(function* () {
             var product = yield thunkQuery(
                 Product
-                    .select(
-                        Product.star(),
-                        'row_to_json("Workflows") as workflow'
-                    )
-                    .from(
-                        Product
-                        .leftJoin(Workflow)
-                        .on(Workflow.productId.equals(Product.id))
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows") as workflow'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Workflow.productId.equals(Product.id))
 
-                    )
-                    .where(Product.id.equals(req.params.id))
+                )
+                .where(Product.id.equals(req.params.id))
             );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
@@ -403,10 +420,10 @@ module.exports = {
                 var essenceId, userTo, task, uoa, step, survey, note, organization;
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
-                      req.body[i],
-                      Task.editCols
+                        req.body[i],
+                        Task.editCols
                     );
-                    if(Object.keys(updateObj).length){
+                    if (Object.keys(updateObj).length) {
                         var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
                         updateObj.id = req.body[i].id;
                         res.updated.push(req.body[i].id);
@@ -419,8 +436,7 @@ module.exports = {
                         uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                         step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
                         survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
-                        note = yield * notifications.createNotification(req,
-                            {
+                        note = yield * notifications.createNotification(req, {
                                 userFrom: req.user.realmUserId,
                                 userTo: req.body[i].userId,
                                 body: 'Task updated',
@@ -434,7 +450,10 @@ module.exports = {
                                 user: userTo,
                                 organization: organization,
                                 date: new Date(),
-                                to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                                to: {
+                                    firstName: userTo.firstName,
+                                    lastName: userTo.lastName
+                                },
                                 config: config
                             },
                             'assignTask'
@@ -446,12 +465,12 @@ module.exports = {
                             action: 'update',
                             object: 'tasks',
                             entity: req.body[i].id,
-                            info: 'Update task for product `'+req.params.id+'`'
+                            info: 'Update task for product `' + req.params.id + '`'
                         });
                     }
                 } else { // create
                     var id = yield thunkQuery(
-                      Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
+                        Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
                     );
                     req.body[i].id = _.first(id).id;
                     res.inserted.push(req.body[i].id);
@@ -464,8 +483,7 @@ module.exports = {
                     uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
                     step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
                     survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
-                    note = yield * notifications.createNotification(req,
-                        {
+                    note = yield * notifications.createNotification(req, {
                             userFrom: req.user.realmUserId,
                             userTo: req.body[i].userId,
                             body: 'Task created',
@@ -479,7 +497,10 @@ module.exports = {
                             user: userTo,
                             organization: organization,
                             date: new Date(),
-                            to: {firstName : userTo.firstName, lastName: userTo.lastName},
+                            to: {
+                                firstName: userTo.firstName,
+                                lastName: userTo.lastName
+                            },
                             config: config
                         },
                         'assignTask'
@@ -491,31 +512,31 @@ module.exports = {
                         action: 'insert',
                         object: 'tasks',
                         entity: req.body[i].id,
-                        info: 'Add new task for product `'+req.params.id+'`'
+                        info: 'Add new task for product `' + req.params.id + '`'
                     });
                 }
 
                 if (product[0].workflow) {
                     var firstStep = yield thunkQuery(
                         WorkflowStep
-                            .select()
-                            .where(
-                                WorkflowStep.position.in(
-                                    WorkflowStep
-                                        .subQuery()
-                                        .select(sql.functions.MIN(WorkflowStep.position))
-                                        .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
-                                )
+                        .select()
+                        .where(
+                            WorkflowStep.position.in(
+                                WorkflowStep
+                                .subQuery()
+                                .select(sql.functions.MIN(WorkflowStep.position))
+                                .where(WorkflowStep.workflowId.equals(product[0].workflow.id))
                             )
-                            .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
+                        )
+                        .and(WorkflowStep.workflowId.equals(product[0].workflow.id))
                     );
 
-
-
                     if (firstStep) {
-                       yield thunkQuery(
-                           ProductUOA
-                            .update({currentStepId: firstStep[0].id})
+                        yield thunkQuery(
+                            ProductUOA
+                            .update({
+                                currentStepId: firstStep[0].id
+                            })
                             .where(
                                 ProductUOA.productId.equals(product[0].id)
                                 .and(ProductUOA.UOAid.equals(uoa.id))
@@ -535,243 +556,242 @@ module.exports = {
         });
     },
 
-  export: function (req, res, next) {
-      var thunkQuery = req.thunkQuery;
+    export: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
 
-      co(function* (){
-          var id;
-          try{
-              id = yield mc.get(req.mcClient, req.params.ticket);
-          }catch(e){
-              throw new HttpError(500, e);
-          }
+        co(function* () {
+            var id;
+            try {
+                id = yield mc.get(req.mcClient, req.params.ticket);
+            } catch (e) {
+                throw new HttpError(500, e);
+            }
 
-          if(!id){
-              throw new HttpError(400, 'Ticket is not valid');
-          }
+            if (!id) {
+                throw new HttpError(400, 'Ticket is not valid');
+            }
 
-          var q =
-              'SELECT ' +
-              '"Tasks"."id" as "taskId", ' +
-              '"UnitOfAnalysis"."name" as "uoaName", ' +
-              '"UnitOfAnalysisType"."name" as "uoaTypeName", ' +
-              'array(' +
+            var q =
+                'SELECT ' +
+                '"Tasks"."id" as "taskId", ' +
+                '"UnitOfAnalysis"."name" as "uoaName", ' +
+                '"UnitOfAnalysisType"."name" as "uoaTypeName", ' +
+                'array(' +
                 'SELECT "UnitOfAnalysisTag"."name" ' +
                 'FROM "UnitOfAnalysisTagLink" ' +
                 'LEFT JOIN "UnitOfAnalysisTag" ' +
                 'ON ("UnitOfAnalysisTagLink"."uoaTagId" = "UnitOfAnalysisTag"."id")' +
                 'WHERE "UnitOfAnalysisTagLink"."uoaId" = "UnitOfAnalysis"."id"' +
-              ') as "uoaTags", ' +
-              '"WorkflowSteps"."title" as "stepTitle", "WorkflowSteps"."position" as "stepPosition", ' +
-              '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", ' +
-              //'"Roles"."name" as "ownerRole", ' +
-              '"Surveys"."title" as "surveyTitle", ' +
-              '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId",' +
-              '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
+                ') as "uoaTags", ' +
+                '"WorkflowSteps"."title" as "stepTitle", "WorkflowSteps"."position" as "stepPosition", ' +
+                '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", ' +
+                //'"Roles"."name" as "ownerRole", ' +
+                '"Surveys"."title" as "surveyTitle", ' +
+                '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId",' +
+                '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
 
-              'FROM "Tasks" ' +
-              'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
-              'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
-              'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
-              'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
-              'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
-              //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
-              'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
-              'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
+                'FROM "Tasks" ' +
+                'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
+                'LEFT JOIN "UnitOfAnalysis" ON ("Tasks"."uoaId" = "UnitOfAnalysis"."id") ' +
+                'LEFT JOIN "UnitOfAnalysisType" ON ("UnitOfAnalysisType"."id" = "UnitOfAnalysis"."unitOfAnalysisType") ' +
+                'LEFT JOIN "WorkflowSteps" ON ("Tasks"."stepId" = "WorkflowSteps"."id") ' +
+                'LEFT JOIN "Users" ON ("Tasks"."userId" = "Users"."id") ' +
+                //'LEFT JOIN "Roles" ON ("EssenceRoles"."roleId" = "Roles"."id") ' +
+                'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
+                'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
 
-              'LEFT JOIN ( ' +
-                  'SELECT ' +
-                    'max("SurveyAnswers"."version") as max,' +
-                    '"SurveyAnswers"."questionId",' +
-                    '"SurveyAnswers"."userId",' +
-                    '"SurveyAnswers"."UOAid",' +
-                    '"SurveyAnswers"."wfStepId" ' +
-              'FROM "SurveyAnswers" ' +
-              'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
-              ') as "sa" ' +
+                'LEFT JOIN ( ' +
+                'SELECT ' +
+                'max("SurveyAnswers"."version") as max,' +
+                '"SurveyAnswers"."questionId",' +
+                '"SurveyAnswers"."userId",' +
+                '"SurveyAnswers"."UOAid",' +
+                '"SurveyAnswers"."wfStepId" ' +
+                'FROM "SurveyAnswers" ' +
+                'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
+                ') as "sa" ' +
 
-              'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
-              'AND ("sa"."userId" = "Users"."id")) ' +
-              'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
-              'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
+                'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
+                'AND ("sa"."userId" = "Users"."id")) ' +
+                'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
+                'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
 
-              'LEFT JOIN "SurveyAnswers" ON ( ' +
-                  '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
-              'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
-              'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
-              'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
-              'AND ("SurveyAnswers"."version" = "sa"."max") ' +
-              ') ' +
-              'WHERE ( ' +
-                  pgEscape('("Tasks"."productId" = %s) ', id) +
-                  // filter out section headers
-                  pgEscape('AND ("SurveyQuestions"."type" NOT IN (%s))', SurveyQuestion.sectionTypes) +
-              ')';
-        debug(q);
+                'LEFT JOIN "SurveyAnswers" ON ( ' +
+                '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
+                'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
+                'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
+                'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
+                'AND ("SurveyAnswers"."version" = "sa"."max") ' +
+                ') ' +
+                'WHERE ( ' +
+                pgEscape('("Tasks"."productId" = %s) ', id) +
+                // filter out section headers
+                pgEscape('AND ("SurveyQuestions"."type" NOT IN (%s))', SurveyQuestion.sectionTypes) +
+                ')';
+            debug(q);
 
-        var answers = yield thunkQuery(q);
+            var answers = yield thunkQuery(q);
 
-        // for question order
-        var questionOrdinals = {};
-        var questionCounter = 1;
-        // for attachments
-        var attachmentIds = new Set();
-        // for question options
-        var optionIds = new Set();
-        answers = answers.map(function (answer) {
-            // parse out answer text and value, with logic varying by answer type
-            if (answer.questionTypeId === SurveyQuestion.bulletPointsType) {
-                answer.answerText = answer.answerValue;
-                answer.answerValue = '';
-                if (answer.answerText !== null && answer.answerText.length > 0) {
-                    // remove enclosing square brackets
-                    answer.answerText = answer.answerText.slice(1, answer.answerText.length-1);
+            // for question order
+            var questionOrdinals = {};
+            var questionCounter = 1;
+            // for attachments
+            var attachmentIds = new Set();
+            // for question options
+            var optionIds = new Set();
+            answers = answers.map(function (answer) {
+                // parse out answer text and value, with logic varying by answer type
+                if (answer.questionTypeId === SurveyQuestion.bulletPointsType) {
+                    answer.answerText = answer.answerValue;
+                    answer.answerValue = '';
+                    if (answer.answerText !== null && answer.answerText.length > 0) {
+                        // remove enclosing square brackets
+                        answer.answerText = answer.answerText.slice(1, answer.answerText.length - 1);
+                    }
+                } else if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
+                    // text/value to be stored later, after answer option has been retrieved
+                    (answer.answerOptions || []).forEach(function (optionId) {
+                        optionIds.add(optionId);
+                    });
+                } else {
+                    answer.answerText = answer.answerValue;
+                    answer.answerValue = '';
                 }
-            } else if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
-                // text/value to be stored later, after answer option has been retrieved
-                (answer.answerOptions || []).forEach(function (optionId) {
-                    optionIds.add(optionId);
+
+                // increment position by one to ordinal
+                if (answer.stepPosition !== null) {
+                    answer.stepPosition++;
+                }
+
+                // add blank field for answer comments
+                answer.comments = '';
+
+                // add question type description ('Text' as opposed to 0)
+                answer.questionType = SurveyQuestion.types[answer.questionTypeId];
+
+                // add question order
+                if (!(answer.questionId in questionOrdinals)) {
+                    questionOrdinals[answer.questionId] = questionCounter++;
+                }
+                answer.questionOrder = questionOrdinals[answer.questionId];
+
+                // store attachment IDs for filename lookup
+                (answer.attachments || []).forEach(function (attachmentId) {
+                    attachmentIds.add(attachmentId);
                 });
-            } else {
-                answer.answerText = answer.answerValue;
-                answer.answerValue = '';
-            }
 
-            // increment position by one to ordinal
-            if (answer.stepPosition !== null) {
-                answer.stepPosition++;
-            }
-
-            // add blank field for answer comments
-            answer.comments = '';
-
-            // add question type description ('Text' as opposed to 0)
-            answer.questionType = SurveyQuestion.types[answer.questionTypeId];
-
-            // add question order
-            if (!(answer.questionId in questionOrdinals)) {
-                questionOrdinals[answer.questionId] = questionCounter++;
-            }
-            answer.questionOrder = questionOrdinals[answer.questionId];
-
-            // store attachment IDs for filename lookup
-            (answer.attachments || []).forEach(function (attachmentId) {
-                attachmentIds.add(attachmentId);
+                return answer;
             });
 
-            return answer;
-        });
-
-        // find attachment filenames
-        // multiple attachments per answer so this is simpler than doing a
-        // sql join above
-        var attachments = yield thunkQuery(
-            AnswerAttachment.select(
-                AnswerAttachment.id,
-                AnswerAttachment.filename
-            ).where(AnswerAttachment.id.in(Array.from(attachmentIds)))
-        );
-        var attachmentFilenames = {};
-        attachments.forEach(function (attachment) {
-            attachmentFilenames[attachment.id] = attachment.filename;
-        });
-        answers = answers.map(function (answer) {
-            answer.attachments = (answer.attachments || []).map(function (attachmentId) {
-                return attachmentFilenames[attachmentId];
+            // find attachment filenames
+            // multiple attachments per answer so this is simpler than doing a
+            // sql join above
+            var attachments = yield thunkQuery(
+                AnswerAttachment.select(
+                    AnswerAttachment.id,
+                    AnswerAttachment.filename
+                ).where(AnswerAttachment.id.in(Array.from(attachmentIds)))
+            );
+            var attachmentFilenames = {};
+            attachments.forEach(function (attachment) {
+                attachmentFilenames[attachment.id] = attachment.filename;
             });
-            return answer;
-        });
-
-        // similarly retrieve question options
-        var questionOptionsArr = yield thunkQuery(
-            SurveyQuestionOption.select(
-                SurveyQuestionOption.id,
-                SurveyQuestionOption.value,
-                SurveyQuestionOption.label
-            ).where(SurveyQuestionOption.id.in(Array.from(optionIds)))
-        );
-        var questionOptions = {};
-        questionOptionsArr.forEach(function (questionOption) {
-            questionOptions[questionOption.id] = questionOption;
-        });
-        answers = answers.map(function (answer) {
-            if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
-                var options = (answer.answerOptions || []).map(function (optionId) {
-                    return questionOptions[optionId] || {};
+            answers = answers.map(function (answer) {
+                answer.attachments = (answer.attachments || []).map(function (attachmentId) {
+                    return attachmentFilenames[attachmentId];
                 });
-                answer.answerText = _.pluck(options, 'label').join(',');
-                answer.answerValue = _.pluck(options, 'value').filter(function (value) {
-                    return value;
-                }).join(',');
-            }
-            return answer;
-        });
-
-        return answers;
-    }).then(function (data) {
-        var keyTitles = {
-            'surveyTitle': 'SurveyName',
-            'questionOrder': 'QuestOrder',
-            'questionCode': 'QuestCode',
-            'questionTitle': 'QuestTitle',
-            'questionType': 'QuestType',
-            'questionWeight': 'QuestValue',
-            'taskId': 'TaskID',
-            'uoaName': 'SubjName',
-            'uoaTypeName': 'SubjType',
-            'uoaTags': 'SubjTags',
-            'stepTitle': 'StepTitle',
-            'stepPosition': 'StepOrder',
-            'ownerId': 'UserID',
-            'ownerName': 'UserName',
-            'answerText': 'AnswerText',
-            'answerValue': 'AnsValue',
-            'links': 'AnsLinks',
-            'attachments': 'AnsAttach',
-            'comments': 'AnsComment'
-        };
-
-        // only show relevant keys and order them as we want
-        var keys = [
-            'surveyTitle',
-            'questionOrder',
-            'questionCode',
-            'questionTitle',
-            'questionType',
-            'questionWeight',
-            'taskId',
-            'uoaName',
-            'uoaTypeName',
-            'uoaTags',
-            'stepTitle',
-            'stepPosition',
-            'ownerId',
-            'ownerName',
-            'answerText',
-            'answerValue',
-            'links',
-            'attachments',
-            'comments'
-        ];
-        var labels = keys.map(function (key) {
-            return keyTitles[key];
-        });
-
-        data = data.map(function (answer) {
-            return keys.map(function (key) {
-                return answer[key];
+                return answer;
             });
-        });
-        res.csv([labels].concat(data));
-    },function (err) {
-      next(err);
-    });
-  },
 
+            // similarly retrieve question options
+            var questionOptionsArr = yield thunkQuery(
+                SurveyQuestionOption.select(
+                    SurveyQuestionOption.id,
+                    SurveyQuestionOption.value,
+                    SurveyQuestionOption.label
+                ).where(SurveyQuestionOption.id.in(Array.from(optionIds)))
+            );
+            var questionOptions = {};
+            questionOptionsArr.forEach(function (questionOption) {
+                questionOptions[questionOption.id] = questionOption;
+            });
+            answers = answers.map(function (answer) {
+                if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
+                    var options = (answer.answerOptions || []).map(function (optionId) {
+                        return questionOptions[optionId] || {};
+                    });
+                    answer.answerText = _.pluck(options, 'label').join(',');
+                    answer.answerValue = _.pluck(options, 'value').filter(function (value) {
+                        return value;
+                    }).join(',');
+                }
+                return answer;
+            });
+
+            return answers;
+        }).then(function (data) {
+            var keyTitles = {
+                'surveyTitle': 'SurveyName',
+                'questionOrder': 'QuestOrder',
+                'questionCode': 'QuestCode',
+                'questionTitle': 'QuestTitle',
+                'questionType': 'QuestType',
+                'questionWeight': 'QuestValue',
+                'taskId': 'TaskID',
+                'uoaName': 'SubjName',
+                'uoaTypeName': 'SubjType',
+                'uoaTags': 'SubjTags',
+                'stepTitle': 'StepTitle',
+                'stepPosition': 'StepOrder',
+                'ownerId': 'UserID',
+                'ownerName': 'UserName',
+                'answerText': 'AnswerText',
+                'answerValue': 'AnsValue',
+                'links': 'AnsLinks',
+                'attachments': 'AnsAttach',
+                'comments': 'AnsComment'
+            };
+
+            // only show relevant keys and order them as we want
+            var keys = [
+                'surveyTitle',
+                'questionOrder',
+                'questionCode',
+                'questionTitle',
+                'questionType',
+                'questionWeight',
+                'taskId',
+                'uoaName',
+                'uoaTypeName',
+                'uoaTags',
+                'stepTitle',
+                'stepPosition',
+                'ownerId',
+                'ownerName',
+                'answerText',
+                'answerValue',
+                'links',
+                'attachments',
+                'comments'
+            ];
+            var labels = keys.map(function (key) {
+                return keyTitles[key];
+            });
+
+            data = data.map(function (answer) {
+                return keys.map(function (key) {
+                    return answer[key];
+                });
+            });
+            res.csv([labels].concat(data));
+        }, function (err) {
+            next(err);
+        });
+    },
 
     getTicket: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
+        co(function* () {
 
             var product = yield thunkQuery(
                 Product.select().where(Product.id.equals(req.params.id))
@@ -783,20 +803,18 @@ module.exports = {
 
             var ticket = crypto.randomBytes(10).toString('hex');
 
-            try{
+            try {
                 var r = yield mc.set(req.mcClient, ticket, product[0].id);
                 return ticket;
-            }catch(e){
+            } catch (e) {
                 throw new HttpError(500, e);
             }
 
-        }).then(function(data){
-            res.status(201).json(
-                {
-                    ticket : data
-                }
-            );
-        }, function(err){
+        }).then(function (data) {
+            res.status(201).json({
+                ticket: data
+            });
+        }, function (err) {
             next(err);
         });
     },
@@ -857,7 +875,7 @@ module.exports = {
                         action: 'update',
                         object: 'indexes',
                         entity: req.body[i].id,
-                        info: 'Update index for product `'+req.params.id+'`'
+                        info: 'Update index for product `' + req.params.id + '`'
                     });
 
                     // drop all existing weights
@@ -875,7 +893,7 @@ module.exports = {
                             indexId: req.body[i].id
                         },
                         quantity: 1,
-                        info: 'Drop all existing question weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
+                        info: 'Drop all existing question weights for index `' + req.body[i].id + '` for product `' + req.params.id + '`'
                     });
                     yield thunkQuery(IndexSubindexWeight.delete().where(IndexSubindexWeight.indexId.equals(req.body[i].id)), {
                         'realm': req.param('realm')
@@ -891,7 +909,7 @@ module.exports = {
                             indexId: req.body[i].id
                         },
                         quantity: 1,
-                        info: 'Drop all existing subindex weights for index `'+req.body[i].id+'` for product `'+req.params.id+'`'
+                        info: 'Drop all existing subindex weights for index `' + req.body[i].id + '` for product `' + req.params.id + '`'
                     });
 
                     indexId = req.body[i].id;
@@ -910,7 +928,7 @@ module.exports = {
                         action: 'insert',
                         object: 'Indexes',
                         entity: indexId,
-                        info: 'Add new index for product `'+req.params.id+'`'
+                        info: 'Add new index for product `' + req.params.id + '`'
                     });
                 }
 
@@ -937,7 +955,7 @@ module.exports = {
                             questionId: questionId
                         },
                         quantity: 1,
-                        info: 'Add new question weight for index `'+indexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
+                        info: 'Add new question weight for index `' + indexId + '` for question `' + questionId + '` for product `' + req.params.id + '`'
                     });
                 }
                 for (var subindexId in req.body[i].subindexWeights) {
@@ -960,7 +978,7 @@ module.exports = {
                             subindexId: subindexId
                         },
                         quantity: 1,
-                        info: 'Add new subindex weight for index `'+indexId+'` for subindex `'+subindexId+'` for product `'+req.params.id+'`'
+                        info: 'Add new subindex weight for index `' + indexId + '` for subindex `' + subindexId + '` for product `' + req.params.id + '`'
                     });
                 }
             }
@@ -968,11 +986,11 @@ module.exports = {
             // remove all old indexes
             yield thunkQuery(
                 Index
-                    .delete()
-                    .where(
-                        Index.productId.equals(req.params.id)
-                        .and(Index.id.notIn(res.inserted.concat(res.updated)))
-                    )
+                .delete()
+                .where(
+                    Index.productId.equals(req.params.id)
+                    .and(Index.id.notIn(res.inserted.concat(res.updated)))
+                )
             );
 
             return res;
@@ -982,7 +1000,6 @@ module.exports = {
             next(err);
         });
     },
-
 
     subindexes: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
@@ -1039,7 +1056,7 @@ module.exports = {
                         action: 'update',
                         object: 'Subindexes',
                         entity: req.body[i].id,
-                        info: 'Update subindex for product `'+req.params.id+'`'
+                        info: 'Update subindex for product `' + req.params.id + '`'
                     });
 
                     // drop all existing weights
@@ -1060,7 +1077,7 @@ module.exports = {
                             subindexId: subindexId
                         },
                         quantity: 1,
-                        info: 'Drop all existing weights for subindex `'+subindexId+'` for product `'+req.params.id+'`'
+                        info: 'Drop all existing weights for subindex `' + subindexId + '` for product `' + req.params.id + '`'
                     });
                 } else { // create
                     subindexObj.productId = req.params.id;
@@ -1077,7 +1094,7 @@ module.exports = {
                         object: 'Subindexes',
                         entity: subindexId,
                         entities: null,
-                        info: 'Add new subindex for product `'+req.params.id+'`'
+                        info: 'Add new subindex for product `' + req.params.id + '`'
                     });
                 }
 
@@ -1103,7 +1120,7 @@ module.exports = {
                             questionId: questionId
                         },
                         quantity: 1,
-                        info: 'Add new weight for subindex `'+subindexId+'` for question `'+questionId+'` for product `'+req.params.id+'`'
+                        info: 'Add new weight for subindex `' + subindexId + '` for question `' + questionId + '` for product `' + req.params.id + '`'
                     });
                 }
             }
@@ -1111,11 +1128,11 @@ module.exports = {
             // remove all old indexes
             yield thunkQuery(
                 Subindex
-                    .delete()
-                    .where(
-                        Subindex.productId.equals(req.params.id)
-                        .and(Subindex.id.notIn(res.inserted.concat(res.updated)))
-                    )
+                .delete()
+                .where(
+                    Subindex.productId.equals(req.params.id)
+                    .and(Subindex.id.notIn(res.inserted.concat(res.updated)))
+                )
             );
 
             return res;
@@ -1185,8 +1202,8 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function* (){
-            var product =  yield thunkQuery(
+        co(function* () {
+            var product = yield thunkQuery(
                 Product
                 .select(
                     Product.star(),
@@ -1200,14 +1217,14 @@ module.exports = {
                 .where(Product.id.equals(req.params.id))
             );
 
-            if(!_.first(product)){
+            if (!_.first(product)) {
                 throw new HttpError(403, 'Not found');
             }
 
             return _.first(product);
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        },function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -1215,11 +1232,11 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1229,7 +1246,7 @@ module.exports = {
                 info: 'Delete product'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -1249,7 +1266,7 @@ module.exports = {
                         object: 'ProductUOA',
                         entities: result,
                         quantity: 1,
-                        info: 'Update currentStep to `'+result.currentStepId+'` for product `'+result.productId+'` (for all subjects)'
+                        info: 'Update currentStep to `' + result.currentStepId + '` for product `' + result.productId + '` (for all subjects)'
                     });
                 } else {
                     bologger.log({
@@ -1258,7 +1275,7 @@ module.exports = {
                         action: 'update',
                         object: 'ProductUOA',
                         entities: null,
-                        info: 'Error update currentStep for product `'+req.params.id+'` (Not found step ID or min step position)'
+                        info: 'Error update currentStep for product `' + req.params.id + '` (Not found step ID or min step position)'
                     });
                 }
             }
@@ -1325,14 +1342,14 @@ module.exports = {
     UOAadd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             yield thunkQuery(
                 ProductUOA.insert({
                     productId: req.params.id,
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1344,11 +1361,11 @@ module.exports = {
                     uoaId: req.params.uoaId
                 },
                 quantity: 1,
-                info: 'Add new subject `'+req.params.uoaId+'` for product `'+req.params.id+'`'
+                info: 'Add new subject `' + req.params.uoaId + '` for product `' + req.params.id + '`'
             });
 
             res.status(201).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -1363,16 +1380,16 @@ module.exports = {
 
             var product = yield thunkQuery(
                 Product
-                    .select(
-                        Product.star(),
-                        'row_to_json("Workflows") as workflow'
-                    )
-                    .from(
-                        Product
-                        .leftJoin(Workflow)
-                        .on(Workflow.productId.equals(Product.id))
-                    )
-                    .where(Product.id.equals(req.params.id))
+                .select(
+                    Product.star(),
+                    'row_to_json("Workflows") as workflow'
+                )
+                .from(
+                    Product
+                    .leftJoin(Workflow)
+                    .on(Workflow.productId.equals(Product.id))
+                )
+                .where(Product.id.equals(req.params.id))
             );
             if (!_.first(product)) {
                 throw new HttpError(403, 'Product with id = ' + req.params.id + ' does not exist');
@@ -1389,8 +1406,6 @@ module.exports = {
             var insertArr = [];
 
             var firstStep;
-
-
 
             for (var i in req.body) {
                 if (ids.indexOf(req.body[i]) === -1) {
@@ -1422,7 +1437,7 @@ module.exports = {
                 entity: null,
                 entities: data,
                 quantity: data.length,
-                info: 'Add new subjects (uoas) for product `'+req.params.id+'`'
+                info: 'Add new subjects (uoas) for product `' + req.params.id + '`'
             });
             res.json(data);
         }, function (err) {
@@ -1434,14 +1449,14 @@ module.exports = {
     UOAdelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 ProductUOA.delete().where({
                     productId: req.params.id,
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function(){
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -1453,10 +1468,10 @@ module.exports = {
                     uoaId: req.params.uoaid
                 },
                 quantity: 1,
-                info: 'Delete subject `'+req.params.uoaid+'` for product `'+req.params.id+'`'
+                info: 'Delete subject `' + req.params.uoaid + '` for product `' + req.params.id + '`'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -1464,7 +1479,7 @@ module.exports = {
 
     productUOAmove: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function* (){
+        co(function* () {
             return yield * moveWorkflow(req, req.params.id, req.params.uoaid);
         }).then(function () {
             res.status(200).end();
@@ -1517,25 +1532,26 @@ function* updateCurrentStepId(req) {
     var thunkQuery = req.thunkQuery;
 
     var essenceId = yield * common.getEssenceId(req, 'Tasks');
-    var product   = yield * common.getEntity(req, req.params.id, Product, 'id');
-    var survey    = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+    var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
 
     console.log(product.status);
 
     // start-restart project -> set isComplete flag to false for all subjects
     if (product.status !== 2) { // not suspended
         yield thunkQuery(
-            ProductUOA.update({isComplete: false}).where(ProductUOA.productId.equals(req.params.id))
+            ProductUOA.update({
+                isComplete: false
+            }).where(ProductUOA.productId.equals(req.params.id))
         );
     }
-
 
     var result;
     // get min step position for each productId-uoaId
     var minStepPositionQuery = WorkflowStep
         .select(
-        sql.functions.MIN(WorkflowStep.position).as('minPosition'),
-        Task.uoaId
+            sql.functions.MIN(WorkflowStep.position).as('minPosition'),
+            Task.uoaId
         )
         .from(WorkflowStep
             .join(Task).on(Task.stepId.equals(WorkflowStep.id))
@@ -1545,96 +1561,99 @@ function* updateCurrentStepId(req) {
 
     result = yield thunkQuery(minStepPositionQuery);
     if (!_.first(result)) {
-        debug('Not found min step position for productId `'+req.params.id+'`');
+        debug('Not found min step position for productId `' + req.params.id + '`');
         return null;
     }
     var minStepPositions = result;
 
+    // get step ID with min step position for specified productId and each uoaId
+    for (var i = 0; i < minStepPositions.length; i++) {
+        var nextStep = yield thunkQuery(
+            WorkflowStep
+            .select(
+                WorkflowStep.id,
+                Task.userId,
+                Task.id.as('taskId')
+            )
+            .from(WorkflowStep
+                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+            )
+            .where(Task.productId.equals(req.params.id)
+                .and(Task.uoaId.equals(minStepPositions[i].uoaId))
+                .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
+            )
+        );
+        if (_.first(nextStep)) {
+            minStepPositions[i].stepId = nextStep[0].id;
+            minStepPositions[i].userId = nextStep[0].userId;
+            minStepPositions[i].taskId = nextStep[0].taskId;
 
-        // get step ID with min step position for specified productId and each uoaId
-        for (var i = 0; i < minStepPositions.length; i++) {
-            var nextStep = yield thunkQuery(
-                WorkflowStep
-                    .select(
-                        WorkflowStep.id,
-                        Task.userId,
-                        Task.id.as('taskId')
+            // update all currentStepId with min position step ID for specified productId for each subject
+            //
+            if (product.status !== 2) { // not suspended
+                result = yield thunkQuery(ProductUOA
+                    .update({
+                        currentStepId: minStepPositions[i].stepId
+                    })
+                    .where(ProductUOA.productId.equals(req.params.id)
+                        .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
                     )
-                    .from(WorkflowStep
-                        .join(Task).on(Task.stepId.equals(WorkflowStep.id))
-                    )
-                    .where(Task.productId.equals(req.params.id)
-                        .and(Task.uoaId.equals(minStepPositions[i].uoaId))
-                        .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
-                    )
-            );
-            if (_.first(nextStep)) {
-                minStepPositions[i].stepId = nextStep[0].id;
-                minStepPositions[i].userId = nextStep[0].userId;
-                minStepPositions[i].taskId = nextStep[0].taskId;
-
-                // update all currentStepId with min position step ID for specified productId for each subject
-                //
-                if (product.status !== 2) { // not suspended
-                    result = yield thunkQuery(ProductUOA
-                        .update({currentStepId: minStepPositions[i].stepId})
-                        .where(ProductUOA.productId.equals(req.params.id)
-                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                        )
-                    );
-                } else {
-                    var result1 = yield thunkQuery(
-                        ProductUOA
-                        .select()
-                        .where(ProductUOA.productId.equals(req.params.id)
-                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                            .and(ProductUOA.currentStepId.isNull())
-                        )
-                    );
-                    if (_.first(result1)) {
-                        result = yield thunkQuery(ProductUOA
-                            .update({currentStepId: minStepPositions[i].stepId})
-                            .where(ProductUOA.productId.equals(req.params.id)
-                                .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                            )
-                        );
-                    }
-                }
-
-                // notify
-                //essenceId = yield * common.getEssenceId(req, 'Tasks');
-                var userTo = yield * common.getUser(req, minStepPositions[i].userId);
-                var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-                var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
-                //product = yield * common.getEntity(req, task.productId, Product, 'id');
-                var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-                var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-                var note = yield * notifications.createNotification(req,
-                    {
-                        userFrom: req.user.realmUserId,
-                        userTo: minStepPositions[i].userId,
-                        body: 'Task activated (project started)',
-                        essenceId: essenceId,
-                        entityId: task.id,
-                        task: task,
-                        product: product,
-                        uoa: uoa,
-                        step: step,
-                        survey: survey,
-                        user: userTo,
-                        organization: organization,
-                        date: new Date(),
-                        to: {firstName : userTo.firstName, lastName: userTo.lastName},
-                        config: config
-                    },
-                    'activateTask'
                 );
-
+            } else {
+                var result1 = yield thunkQuery(
+                    ProductUOA
+                    .select()
+                    .where(ProductUOA.productId.equals(req.params.id)
+                        .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                        .and(ProductUOA.currentStepId.isNull())
+                    )
+                );
+                if (_.first(result1)) {
+                    result = yield thunkQuery(ProductUOA
+                        .update({
+                            currentStepId: minStepPositions[i].stepId
+                        })
+                        .where(ProductUOA.productId.equals(req.params.id)
+                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
+                        )
+                    );
+                }
             }
+
+            // notify
+            //essenceId = yield * common.getEssenceId(req, 'Tasks');
+            var userTo = yield * common.getUser(req, minStepPositions[i].userId);
+            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
+            var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
+            //product = yield * common.getEntity(req, task.productId, Product, 'id');
+            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
+            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
+            //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+            var note = yield * notifications.createNotification(req, {
+                    userFrom: req.user.realmUserId,
+                    userTo: minStepPositions[i].userId,
+                    body: 'Task activated (project started)',
+                    essenceId: essenceId,
+                    entityId: task.id,
+                    task: task,
+                    product: product,
+                    uoa: uoa,
+                    step: step,
+                    survey: survey,
+                    user: userTo,
+                    organization: organization,
+                    date: new Date(),
+                    to: {
+                        firstName: userTo.firstName,
+                        lastName: userTo.lastName
+                    },
+                    config: config
+                },
+                'activateTask'
+            );
+
         }
-
-
+    }
 
     return {
         productId: req.params.id,
@@ -1646,80 +1665,80 @@ function* updateCurrentStepId(req) {
 function* dumpProduct(req, productId) {
     var thunkQuery = req.thunkQuery;
     var q =
-          'SELECT ' +
-          '  "SurveyAnswers"."UOAid" AS "id", ' +
-          '  "UnitOfAnalysis"."name", ' +
-          '  "UnitOfAnalysis"."ISO2", ' +
-          '  format(\'{%s}\', ' +
-          '    string_agg(format(\'"%s":%s\', ' +
-          '      "SurveyQuestions".id, ' +
-          // use optionId for multichoice questions, value otherwise
-          '      CASE ' +
-          '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
-          '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
-          '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
-          '      END ' +
-          '    ), \',\') ' +
-          '  ) AS "questions" ' +
-          'FROM ' +
-          '  "SurveyQuestions" ' +
-          'LEFT JOIN ' +
-          '  "Products" ON ("Products"."surveyId" = "SurveyQuestions"."surveyId") ' +
-          'LEFT JOIN ( ' +
-          '  SELECT ' +
-          '    "SurveyAnswers"."questionId", ' +
-          '    "SurveyAnswers"."UOAid", ' +
-          '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
-          '  FROM ' +
-          '    "SurveyAnswers" ' +
-          '  WHERE ' +
-          pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
-          '  GROUP BY ' +
-          '    "SurveyAnswers"."questionId", ' +
-          '    "SurveyAnswers"."UOAid" ' +
-          ') as "sqWf" ON ("sqWf"."questionId" = "SurveyQuestions"."id") ' +
-          'LEFT JOIN ( ' +
-          '  SELECT ' +
-          '    "SurveyAnswers"."questionId", ' +
-          '    "SurveyAnswers"."UOAid", ' +
-          '    "SurveyAnswers"."wfStepId", ' +
-          '    max("SurveyAnswers"."version") as "maxVersion" ' +
-          '  FROM ' +
-          '    "SurveyAnswers" ' +
-          '  WHERE ' +
-          pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
-          '  GROUP BY ' +
-          '    "SurveyAnswers"."questionId", ' +
-          '    "SurveyAnswers"."UOAid", ' +
-          '    "SurveyAnswers"."wfStepId" ' +
-          ') as "sqMax" ON ( ' +
-          '  ("sqMax"."questionId" = "SurveyQuestions"."id") ' +
-          '  AND ("sqMax"."UOAid" = "sqWf"."UOAid") ' +
-          '  AND ("sqMax"."wfStepId" = "sqWf"."maxWfStepId") ' +
-          ') ' +
-          'INNER JOIN "SurveyAnswers" ON ( ' +
-          '  ("SurveyAnswers"."questionId" = "SurveyQuestions".id) ' +
-          '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
-          '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
-          '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
-          pgEscape('  AND ("SurveyAnswers"."productId" = %s)', productId) +
-          ') ' +
-          'LEFT JOIN ' +
-          '  "UnitOfAnalysis" ON ("UnitOfAnalysis"."id" = "SurveyAnswers"."UOAid") ' +
-          'WHERE ' +
-          pgEscape('  ("Products"."id" = %s)', productId) +
-          'GROUP BY ' +
-          '  "SurveyAnswers"."UOAid", ' +
-          '  "UnitOfAnalysis"."ISO2", ' +
-          '  "UnitOfAnalysis"."name" ' +
-          '; ';
+        'SELECT ' +
+        '  "SurveyAnswers"."UOAid" AS "id", ' +
+        '  "UnitOfAnalysis"."name", ' +
+        '  "UnitOfAnalysis"."ISO2", ' +
+        '  format(\'{%s}\', ' +
+        '    string_agg(format(\'"%s":%s\', ' +
+        '      "SurveyQuestions".id, ' +
+        // use optionId for multichoice questions, value otherwise
+        '      CASE ' +
+        '        WHEN ("SurveyQuestions"."type"=2 OR "SurveyQuestions"."type"=3 OR "SurveyQuestions"."type"=4) ' +
+        '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
+        '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
+        '      END ' +
+        '    ), \',\') ' +
+        '  ) AS "questions" ' +
+        'FROM ' +
+        '  "SurveyQuestions" ' +
+        'LEFT JOIN ' +
+        '  "Products" ON ("Products"."surveyId" = "SurveyQuestions"."surveyId") ' +
+        'LEFT JOIN ( ' +
+        '  SELECT ' +
+        '    "SurveyAnswers"."questionId", ' +
+        '    "SurveyAnswers"."UOAid", ' +
+        '    max("SurveyAnswers"."wfStepId") as "maxWfStepId" ' +
+        '  FROM ' +
+        '    "SurveyAnswers" ' +
+        '  WHERE ' +
+        pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
+        '  GROUP BY ' +
+        '    "SurveyAnswers"."questionId", ' +
+        '    "SurveyAnswers"."UOAid" ' +
+        ') as "sqWf" ON ("sqWf"."questionId" = "SurveyQuestions"."id") ' +
+        'LEFT JOIN ( ' +
+        '  SELECT ' +
+        '    "SurveyAnswers"."questionId", ' +
+        '    "SurveyAnswers"."UOAid", ' +
+        '    "SurveyAnswers"."wfStepId", ' +
+        '    max("SurveyAnswers"."version") as "maxVersion" ' +
+        '  FROM ' +
+        '    "SurveyAnswers" ' +
+        '  WHERE ' +
+        pgEscape('    ("SurveyAnswers"."productId" = %s)', productId) +
+        '  GROUP BY ' +
+        '    "SurveyAnswers"."questionId", ' +
+        '    "SurveyAnswers"."UOAid", ' +
+        '    "SurveyAnswers"."wfStepId" ' +
+        ') as "sqMax" ON ( ' +
+        '  ("sqMax"."questionId" = "SurveyQuestions"."id") ' +
+        '  AND ("sqMax"."UOAid" = "sqWf"."UOAid") ' +
+        '  AND ("sqMax"."wfStepId" = "sqWf"."maxWfStepId") ' +
+        ') ' +
+        'INNER JOIN "SurveyAnswers" ON ( ' +
+        '  ("SurveyAnswers"."questionId" = "SurveyQuestions".id) ' +
+        '  AND ("SurveyAnswers"."UOAid" = "sqWf"."UOAid") ' +
+        '  AND ("SurveyAnswers"."wfStepId" = "sqWf"."maxWfStepId") ' +
+        '  AND ("SurveyAnswers"."version" = "sqMax"."maxVersion") ' +
+        pgEscape('  AND ("SurveyAnswers"."productId" = %s)', productId) +
+        ') ' +
+        'LEFT JOIN ' +
+        '  "UnitOfAnalysis" ON ("UnitOfAnalysis"."id" = "SurveyAnswers"."UOAid") ' +
+        'WHERE ' +
+        pgEscape('  ("Products"."id" = %s)', productId) +
+        'GROUP BY ' +
+        '  "SurveyAnswers"."UOAid", ' +
+        '  "UnitOfAnalysis"."ISO2", ' +
+        '  "UnitOfAnalysis"."name" ' +
+        '; ';
 
-  var data = yield thunkQuery(q);
-  data = data.map(function (uoa) {
-      uoa.questions = JSON.parse(uoa.questions);
-      return uoa;
-  });
-  return data;
+    var data = yield thunkQuery(q);
+    data = data.map(function (uoa) {
+        uoa.questions = JSON.parse(uoa.questions);
+        return uoa;
+    });
+    return data;
 }
 
 function parseWeights(weightsString) {
@@ -1735,36 +1754,36 @@ function parseWeights(weightsString) {
 function* getSubindexes(req, productId) {
     var thunkQuery = req.thunkQuery;
     var q =
-          'SELECT ' +
-          '  "Subindexes"."id", ' +
-          '  "Subindexes"."title", ' +
-          '  "Subindexes"."divisor"::float, ' +
-          '  format(\'{%s}\', ' +
-          '    string_agg(format(\'"%s":{"weight": %s, "type": "%s", "aggregateType": %s}\', ' +
-          '      "SubindexWeights"."questionId", ' +
-          '      "SubindexWeights"."weight", ' +
-          '      "SubindexWeights"."type", ' +
-          '      CASE ' +
-          '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
-          '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
-          '      END ' +
-          '    ), \',\') ' +
-          '  ) AS "weights" ' +
-          'FROM ' +
-          '  "Subindexes" ' +
-          'LEFT JOIN ' +
-          '  "SubindexWeights" ON "SubindexWeights"."subindexId" = "Subindexes"."id" ' +
-          'WHERE ' +
-          pgEscape('  ("Subindexes"."productId" = %s) ', productId) +
-          'GROUP BY ' +
-          '  "Subindexes"."id", ' +
-          '  "Subindexes"."title", ' +
-          '  "Subindexes"."divisor" ' +
-          '; ';
+        'SELECT ' +
+        '  "Subindexes"."id", ' +
+        '  "Subindexes"."title", ' +
+        '  "Subindexes"."divisor"::float, ' +
+        '  format(\'{%s}\', ' +
+        '    string_agg(format(\'"%s":{"weight": %s, "type": "%s", "aggregateType": %s}\', ' +
+        '      "SubindexWeights"."questionId", ' +
+        '      "SubindexWeights"."weight", ' +
+        '      "SubindexWeights"."type", ' +
+        '      CASE ' +
+        '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
+        '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
+        '      END ' +
+        '    ), \',\') ' +
+        '  ) AS "weights" ' +
+        'FROM ' +
+        '  "Subindexes" ' +
+        'LEFT JOIN ' +
+        '  "SubindexWeights" ON "SubindexWeights"."subindexId" = "Subindexes"."id" ' +
+        'WHERE ' +
+        pgEscape('  ("Subindexes"."productId" = %s) ', productId) +
+        'GROUP BY ' +
+        '  "Subindexes"."id", ' +
+        '  "Subindexes"."title", ' +
+        '  "Subindexes"."divisor" ' +
+        '; ';
     var subindexes = yield thunkQuery(q);
     return subindexes.map(function (subindex) {
-      subindex.weights = parseWeights(subindex.weights);
-      return subindex;
+        subindex.weights = parseWeights(subindex.weights);
+        return subindex;
     });
 }
 
@@ -1856,12 +1875,15 @@ function* parseNumericalAnswer(raw, questionType) {
     }
     return parsed;
 }
+
 function sum(arr) {
-    return arr.reduce(function (s, v) { return s + v; });
+    return arr.reduce(function (s, v) {
+        return s + v;
+    });
 }
 
 function avg(arr) {
-    return sum(arr)/arr.length;
+    return sum(arr) / arr.length;
 }
 
 function filterData(data, questions, indexes, subindexes, allQuestions) {
@@ -1897,7 +1919,10 @@ function filterData(data, questions, indexes, subindexes, allQuestions) {
         return questionsPresent.has(question.id.toString());
     });
 
-    return { questions: questions, questionsRequired: questionsRequired };
+    return {
+        questions: questions,
+        questionsRequired: questionsRequired
+    };
 }
 
 function* parseAnswers(req, data, questions, questionsRequired) {
@@ -1956,26 +1981,47 @@ function calcMinsMaxes(data) {
                 var valSum = sum(datum[id]);
                 var valAvg = avg(datum[id]);
                 if (!(id in mins)) {
-                    mins[id] = { sum: valSum, average: valAvg };
+                    mins[id] = {
+                        sum: valSum,
+                        average: valAvg
+                    };
                 } else {
-                    if (valSum < mins[id].sum) { mins[id].sum = valSum; }
-                    if (valAvg < mins[id].average) { mins[id].average = valAvg; }
+                    if (valSum < mins[id].sum) {
+                        mins[id].sum = valSum;
+                    }
+                    if (valAvg < mins[id].average) {
+                        mins[id].average = valAvg;
+                    }
                 }
                 if (!(id in maxes)) {
-                    maxes[id] = { sum: valSum, average: valAvg };
+                    maxes[id] = {
+                        sum: valSum,
+                        average: valAvg
+                    };
                 } else {
-                    if (valSum > maxes[id].sum) { maxes[id].sum = valSum; }
-                    if (valAvg > maxes[id].average) { maxes[id].average = valAvg; }
+                    if (valSum > maxes[id].sum) {
+                        maxes[id].sum = valSum;
+                    }
+                    if (valAvg > maxes[id].average) {
+                        maxes[id].average = valAvg;
+                    }
                 }
             } else if (datum) { // single value
                 var val = datum[id];
-                if (!(id in mins) || val < mins[id]) { mins[id] = val; }
-                if (!(id in maxes) || val > maxes[id]) { maxes[id] = val; }
+                if (!(id in mins) || val < mins[id]) {
+                    mins[id] = val;
+                }
+                if (!(id in maxes) || val > maxes[id]) {
+                    maxes[id] = val;
+                }
             }
         }
     });
 
-    return { mins: mins, maxes: maxes };
+    return {
+        mins: mins,
+        maxes: maxes
+    };
 }
 
 function calcTerm(weights, vals, minsMaxes) {
@@ -2046,24 +2092,32 @@ function* aggregateIndexes(req, productId, allQuestions) {
     var siMinsMaxes = calcMinsMaxes(_.pluck(data, 'subindexes'));
 
     // calculate indexes
-    var result = { agg: [] };
+    var result = {
+        agg: []
+    };
     for (i = 0; i < data.length; i++) {
         data[i].indexes = {};
         indexes.forEach(function (index) {
             data[i].indexes[index.id] = (
-                    calcTerm(index.questionWeights, data[i].questions, qMinsMaxes) +
-                    calcTerm(index.subindexWeights, data[i].subindexes, siMinsMaxes)
-                ) / index.divisor;
+                calcTerm(index.questionWeights, data[i].questions, qMinsMaxes) +
+                calcTerm(index.subindexWeights, data[i].subindexes, siMinsMaxes)
+            ) / index.divisor;
         });
         result.agg.push(data[i]);
     }
 
     // add all (non)calculated fields
     result.subindexes = subindexes.map(function (subindex) {
-        return { id: subindex.id, title: subindex.title };
+        return {
+            id: subindex.id,
+            title: subindex.title
+        };
     });
     result.indexes = indexes.map(function (index) {
-        return { id: index.id, title: index.title };
+        return {
+            id: index.id,
+            title: index.title
+        };
     });
     result.questions = questions;
 
@@ -2076,8 +2130,13 @@ function* updateCurrentStep(req, currentStepId, productId, uoaId) {
     // set currentStep
     yield thunkQuery(
         ProductUOA
-            .update({currentStepId: currentStepId})
-            .where({productId: productId, UOAid: uoaId})
+        .update({
+            currentStepId: currentStepId
+        })
+        .where({
+            productId: productId,
+            UOAid: uoaId
+        })
     );
 
     bologger.log({
@@ -2091,7 +2150,7 @@ function* updateCurrentStep(req, currentStepId, productId, uoaId) {
             currentStepId: currentStepId
         },
         quantity: 1,
-        info: 'Update currentStep to `'+currentStepId+'` for subject `'+uoaId+'` for product `'+productId+'` (return flag)'
+        info: 'Update currentStep to `' + currentStepId + '` for subject `' + uoaId + '` for product `' + productId + '` (return flag)'
     });
 }
 
@@ -2099,12 +2158,17 @@ function* activateEntries(req, taskId, flag) {
     var thunkQuery = req.thunkQuery;
 
     // activate discussion`s entry with return (reslove) flag
-    var whereCond = _.extend({taskId: taskId, activated: false}, flag);
+    var whereCond = _.extend({
+        taskId: taskId,
+        activated: false
+    }, flag);
     var result = yield thunkQuery(
         Discussion
-            .update({activated: true})
-            .where(whereCond)
-            .returning(Discussion.id, Discussion.taskId)
+        .update({
+            activated: true
+        })
+        .where(whereCond)
+        .returning(Discussion.id, Discussion.taskId)
     );
 
     bologger.log({
@@ -2113,23 +2177,26 @@ function* activateEntries(req, taskId, flag) {
         action: 'update',
         object: 'Discussions',
         entities: result,
-        quantity: (result) ? result.length: 0,
-        info: 'Activate return(resolve) entries for task `'+taskId+'`'
+        quantity: (result) ? result.length : 0,
+        info: 'Activate return(resolve) entries for task `' + taskId + '`'
     });
 
-    return (result) ? result.length: 0;
+    return (result) ? result.length : 0;
 }
 
 function* deleteEntries(req, taskId, flag) {
     var thunkQuery = req.thunkQuery;
 
     // delete discussion`s entry with return (reslove) flag ??? (maybe update flag to false)
-    var whereCond = _.extend({taskId: taskId, activated: false}, flag);
+    var whereCond = _.extend({
+        taskId: taskId,
+        activated: false
+    }, flag);
     var result = yield thunkQuery(
         Discussion
-            .delete()
-            .where(whereCond)
-            .returning(Discussion.id, Discussion.taskId)
+        .delete()
+        .where(whereCond)
+        .returning(Discussion.id, Discussion.taskId)
     );
 
     bologger.log({
@@ -2138,11 +2205,11 @@ function* deleteEntries(req, taskId, flag) {
         action: 'delete',
         object: 'Discussions',
         entities: result,
-        quantity: (result) ? result.length: 0,
-        info: 'Delete return(resolve) entries for task `'+taskId+'`'
+        quantity: (result) ? result.length : 0,
+        info: 'Delete return(resolve) entries for task `' + taskId + '`'
     });
 
-    return (result) ? result.length: 0;
+    return (result) ? result.length : 0;
 }
 
 function* isResolvePossible(req, taskId) {
@@ -2155,29 +2222,29 @@ function* isResolvePossible(req, taskId) {
     // count of existing entries with flags
     query =
         Discussion
-            .select(Discussion.count('count'))
-            .from(Discussion)
-            .where(
+        .select(Discussion.count('count'))
+        .from(Discussion)
+        .where(
             Discussion.isReturn.equals(true)
-                .and(Discussion.activated.equals(true))
-                .and(Discussion.isResolve.equals(false))
-                .and(Discussion.returnTaskId.equals(taskId))
+            .and(Discussion.activated.equals(true))
+            .and(Discussion.isResolve.equals(false))
+            .and(Discussion.returnTaskId.equals(taskId))
         );
     var result = yield thunkQuery(query);
     var countFlags = (_.first(result)) ? result[0].count : 0;
-    if (countFlags === 0 ) {
+    if (countFlags === 0) {
         return false; // flags does not exist - resolve is not possible
     }
     // count of existing entries with Resolve
     query =
         Discussion
-            .select(Discussion.count('count'))
-            .from(Discussion)
-            .where(
+        .select(Discussion.count('count'))
+        .from(Discussion)
+        .where(
             Discussion.isReturn.equals(false)
-                .and(Discussion.activated.equals(false))
-                .and(Discussion.isResolve.equals(true))
-                .and(Discussion.taskId.equals(taskId))
+            .and(Discussion.activated.equals(false))
+            .and(Discussion.isResolve.equals(true))
+            .and(Discussion.taskId.equals(taskId))
         );
     result = yield thunkQuery(query);
     var countResolves = (_.first(result)) ? result[0].count : 0;
@@ -2189,16 +2256,16 @@ function* getStep4Resolve(req, taskId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         Discussion
-            .select(Task.stepId)
-            .from(Discussion
-                .join(Task)
-                .on(Task.id.equals(Discussion.taskId))
+        .select(Task.stepId)
+        .from(Discussion
+            .join(Task)
+            .on(Task.id.equals(Discussion.taskId))
         )
-            .where(
+        .where(
             Discussion.isResolve.equals(false)
-                .and(Discussion.isReturn.equals(true))
-                .and(Discussion.activated.equals(true))
-                .and(Discussion.returnTaskId.equals(taskId))
+            .and(Discussion.isReturn.equals(true))
+            .and(Discussion.activated.equals(true))
+            .and(Discussion.returnTaskId.equals(taskId))
         )
     );
     return (result[0]) ? result[0].stepId : null;
@@ -2207,14 +2274,16 @@ function* getStep4Resolve(req, taskId) {
 function* updateReturnTask(req, taskId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
-        Discussion.update({isResolve: true})
-            .where(
+        Discussion.update({
+            isResolve: true
+        })
+        .where(
             Discussion.isReturn.equals(true)
-                .and(Discussion.activated.equals(true))
-                .and(Discussion.isResolve.equals(false))
-                .and(Discussion.returnTaskId.equals(taskId))
+            .and(Discussion.activated.equals(true))
+            .and(Discussion.isResolve.equals(false))
+            .and(Discussion.returnTaskId.equals(taskId))
         )
-            .returning(Discussion.id)
+        .returning(Discussion.id)
     );
     if (_.first(result)) {
         bologger.log({
@@ -2231,7 +2300,7 @@ function* updateReturnTask(req, taskId) {
             entities: result,
             quantity: result.length,
             info: 'Update task, that was returned before (resolve task)'
-        }, 'Couldn`t find discussion`s entry with returnTasId = `'+taskId+'`');
+        }, 'Couldn`t find discussion`s entry with returnTasId = `' + taskId + '`');
 
     }
 }
@@ -2242,38 +2311,38 @@ function* doAutoResolve(req, taskId) {
     // get existing entries with flags
     query =
         Discussion
-            .select(Discussion.star())
-            .from(Discussion)
-            .where(
+        .select(Discussion.star())
+        .from(Discussion)
+        .where(
             Discussion.isReturn.equals(true)
-                .and(Discussion.activated.equals(true))
-                .and(Discussion.isResolve.equals(false))
-                .and(Discussion.returnTaskId.equals(taskId))
+            .and(Discussion.activated.equals(true))
+            .and(Discussion.isResolve.equals(false))
+            .and(Discussion.returnTaskId.equals(taskId))
         );
     var flagsEntries = yield thunkQuery(query);
-    if (!_.first(flagsEntries) || flagsEntries.length === 0 ) {
+    if (!_.first(flagsEntries) || flagsEntries.length === 0) {
         return false; // flags does not exist - resolve is not needed
     }
     // get existing entries with Resolve
     query =
         Discussion
-            .select(Discussion.star())
-            .from(Discussion)
-            .where(
+        .select(Discussion.star())
+        .from(Discussion)
+        .where(
             Discussion.isReturn.equals(false)
-                .and(Discussion.activated.equals(false))
-                .and(Discussion.isResolve.equals(true))
-                .and(Discussion.taskId.equals(taskId))
+            .and(Discussion.activated.equals(false))
+            .and(Discussion.isResolve.equals(true))
+            .and(Discussion.taskId.equals(taskId))
         );
     var resolveEntries = yield thunkQuery(query);
 
     if (!_.first(resolveEntries) || resolveEntries.length === 0) {
-        resolveEntries= []; // there are not resolved entries
+        resolveEntries = []; // there are not resolved entries
     }
 
     for (var i in flagsEntries) {
         // find resolve entry corresponding flag entry
-        var resolveEntry = _.find(resolveEntries, function(entry) {
+        var resolveEntry = _.find(resolveEntries, function (entry) {
             return (entry && entry.taskId === flagsEntries[i].returnTaskId && entry.questionId === flagsEntries[i].questionId);
         });
         if (resolveEntry) {
@@ -2308,10 +2377,10 @@ function* doAutoResolve(req, taskId) {
                 isResolve: true,
                 activated: false,
                 entry: 'Resolved automatically',
-                order: flagsEntries[i].order +1,
+                order: flagsEntries[i].order + 1,
                 updated: new Date()
             });
-            resolveEntry = _.pick(resolveEntry, Discussion.insertCols);                     // insert only columns that may be inserted
+            resolveEntry = _.pick(resolveEntry, Discussion.insertCols); // insert only columns that may be inserted
             result = yield thunkQuery(Discussion.insert(resolveEntry).returning(Discussion.id));
             if (_.first(result)) {
                 bologger.log({
@@ -2328,4 +2397,3 @@ function* doAutoResolve(req, taskId) {
     }
     return true;
 }
-

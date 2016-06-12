@@ -79,7 +79,7 @@ var User = sql.define({
 
 User.hashPassword = function (salt, password) {
     var hash = crypto.createHash('sha256');
-    if (salt){
+    if (salt) {
         hash.update(util.format('%s+%s+%s', config.auth.salt, salt, password));
     } else {
         hash.update(util.format('%s+%s', config.auth.salt, password));
@@ -96,8 +96,8 @@ User.validPassword = function (pas, salt, checkpas) {
 
 User.editCols = [
     'firstName', 'lastName', 'phone', 'birthday', 'password',
-    'updated', 'timezone','location','cell','address',
-    'lang','bio','notifyLevel','affiliation','isAnonymous'
+    'updated', 'timezone', 'location', 'cell', 'address',
+    'lang', 'bio', 'notifyLevel', 'affiliation', 'isAnonymous'
 ];
 
 User.translate = [
@@ -108,7 +108,7 @@ User.translate = [
     'location'
 ];
 
-User.view = function(user){
+User.view = function (user) {
     return _.pick(user, viewFields);
 };
 

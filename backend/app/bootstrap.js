@@ -32,21 +32,21 @@ var app = require('express')();
 app.on('start', function () {
 
     // MEMCHACHE
-    app.use(function(req,res,next){
-		debug('Request URL:', req.url);
+    app.use(function (req, res, next) {
+        debug('Request URL:', req.url);
         req.mcClient = mcClient;
         next();
     });
 
-    app.use('/:realm',function(req, res, next){
+    app.use('/:realm', function (req, res, next) {
         // realm not set
         var cpg = config.pgConnect;
         var schemas;
-        co(function*(){
+        co(function* () {
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                try{
+                try {
                     schemas = yield mc.get(req.mcClient, 'schemas');
-                }catch(e){
+                } catch (e) {
                     throw new HttpError(500, e);
                 }
             }
@@ -68,9 +68,9 @@ app.on('start', function () {
                     }
                 }
                 if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                    try{
+                    try {
                         schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
-                    }catch(e){
+                    } catch (e) {
                         throw new HttpError(500, e);
                     }
                 }
@@ -80,11 +80,11 @@ app.on('start', function () {
                 throw new HttpError(400, 'Namespace ' + req.params.realm + ' does not exist');
             }
             return req.params.realm;
-        }).then(function(data){
+        }).then(function (data) {
             var query = new Query(data);
             req.thunkQuery = thunkify(query);
             next();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     });
@@ -163,8 +163,6 @@ app.on('start', function () {
     //
     //});
 
-
-
     // Route requests to controllers/actions
     app.use(require('app/router'));
 
@@ -223,7 +221,7 @@ app.on('start', function () {
     var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
-	pg.defaults.poolSize = 100;
+    pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
 
         if (err) {
@@ -284,7 +282,6 @@ app.on('start', function () {
         require('app/socket/socket-controller.server').init(server);
     }
 
-
     //Connect to memchache server
     var memcache = require('memcache');
 
@@ -293,20 +290,17 @@ app.on('start', function () {
         config.mc.host
     );
 
-    mcClient.on('connect', function(){
+    mcClient.on('connect', function () {
         debug('mc connected');
         startServer();
     });
 
-    mcClient.on('error', function(e){
+    mcClient.on('error', function (e) {
         error('MEMCACHE ERROR');
         debug(e);
     });
 
     mcClient.connect();
-
-
-
 
 });
 

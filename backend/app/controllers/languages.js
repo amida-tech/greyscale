@@ -15,13 +15,13 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Language.select().from(Language)
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.json(data);
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -29,17 +29,17 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
-            var data =  yield thunkQuery(
+        co(function* () {
+            var data = yield thunkQuery(
                 Language.select().from(Language).where(Language.id.equals(req.params.id))
             );
             if (!data.length) {
                 throw new HttpError(404, 'Not found');
             }
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.json(_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -48,13 +48,13 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Language.delete().where(Language.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -63,13 +63,13 @@ module.exports = {
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Language.update(req.body).where(Language.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -77,13 +77,13 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Language.insert(req.body).returning(Language.id)
             );
-        }).then(function(data){
+        }).then(function (data) {
             res.status(201).json(_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     }

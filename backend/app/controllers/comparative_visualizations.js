@@ -19,10 +19,10 @@ module.exports = {
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
                     'format(\'[%s]\', ' +
-                        'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
-                            '"ComparativeVisualizationProducts"."productId", ' +
-                            '"ComparativeVisualizationProducts"."indexId" ' +
-                        '), \',\')' +
+                    'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
+                    '"ComparativeVisualizationProducts"."productId", ' +
+                    '"ComparativeVisualizationProducts"."indexId" ' +
+                    '), \',\')' +
                     ') AS products ',
                     '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )
@@ -110,7 +110,7 @@ module.exports = {
             // do in one transaction to prevent pkey conflicts with ~simultaneous requests
             var q = 'BEGIN; ';
             q += 'DELETE FROM "ComparativeVisualizationProducts" ' +
-                    'WHERE "ComparativeVisualizationProducts"."visualizationId" = ' + req.params.id + '; ';
+                'WHERE "ComparativeVisualizationProducts"."visualizationId" = ' + req.params.id + '; ';
 
             // insert new ones
             (req.body.products || []).forEach(function (product) {
@@ -148,10 +148,10 @@ module.exports = {
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
                     'format(\'[%s]\', ' +
-                        'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
-                            '"ComparativeVisualizationProducts"."productId", ' +
-                            '"ComparativeVisualizationProducts"."indexId" ' +
-                        '), \',\')' +
+                    'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
+                    '"ComparativeVisualizationProducts"."productId", ' +
+                    '"ComparativeVisualizationProducts"."indexId" ' +
+                    '), \',\')' +
                     ') AS products',
                     '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )
@@ -180,14 +180,13 @@ module.exports = {
         });
     },
 
-
     parseDataset: function (req, res, next) {
         var csv = require('csv');
         var fs = require('fs');
 
-        var upload = function*(){
-            return yield new Promise(function(resolve, reject) {
-                if(req.files.file) {
+        var upload = function* () {
+            return yield new Promise(function (resolve, reject) {
+                if (req.files.file) {
                     console.log(req.files.file);
                     fs.readFile(req.files.file.path, 'utf8', function (err, data) {
                         if (err) {
@@ -195,14 +194,14 @@ module.exports = {
                         }
                         resolve(data);
                     });
-                }else{
-                    reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
+                } else {
+                    reject(new HttpError(403, 'Please, pass csv file in files[\'file\']'));
                 }
             });
         };
 
         var parser = function* (data) {
-            return yield new Promise(function(resolve, reject){
+            return yield new Promise(function (resolve, reject) {
                 csv.parse(data, function (err, data) {
                     if (err) {
                         reject(new HttpError(403, 'Cannot parse data from file'));
@@ -214,8 +213,8 @@ module.exports = {
 
         co(function* () {
             try {
-                var doUpload = yield* upload();
-                var parsed = yield* parser(doUpload);
+                var doUpload = yield * upload();
+                var parsed = yield * parser(doUpload);
 
                 var cols = parsed.shift().map(function (title, i) {
                     return {
@@ -454,4 +453,3 @@ function parseProductsString(productsString) {
         return [];
     }
 }
-
