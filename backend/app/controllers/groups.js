@@ -17,7 +17,7 @@ module.exports = {
     selectByOrg: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot view groups from other organizations');
             }
             var result = yield thunkQuery(
@@ -34,15 +34,15 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot post groups to other organizations');
             }
             if (!req.body.title) {
                 throw new HttpError(400, 'Title is required');
             }
             var objToInsert = {
-                organizationId : req.params.organizationId,
-                title : req.body.title
+                organizationId: req.params.organizationId,
+                title: req.body.title
             };
             return yield thunkQuery(Group.insert(objToInsert).returning(Group.id));
         }).then(function (data) {
@@ -63,14 +63,14 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.body.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== req.body.organizationId)) {
                 throw new HttpError(400, 'You cannot update groups from other organizations');
             }
             if (!req.body.title) {
                 throw new HttpError(400, 'Title is required');
             }
             var objToUpdate = {
-                title : req.body.title
+                title: req.body.title
             };
             return yield thunkQuery(Group.update(objToUpdate).where(Group.id.equals(req.params.id)));
         }).then(function () {
@@ -116,7 +116,7 @@ module.exports = {
             var result = yield thunkQuery(
                 Group.select().where(Group.id.equals(req.params.id))
             );
-            if(!result[0]){
+            if (!result[0]) {
                 throw new HttpError(404, 'Not found');
             }
             return result[0];

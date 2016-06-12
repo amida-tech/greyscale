@@ -1,5 +1,6 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
+    HttpError = require('app/error').HttpError,
     config = require('config'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -29,17 +30,17 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             var data = yield thunkQuery(
                 Role.select().where(_.pick(req.params, ['id']))
             );
-            if(!data.length){
+            if (!data.length) {
                 throw new HttpError(404, 'Not found');
             }
             return data;
-        }).then(function(role){
+        }).then(function (role) {
             res.json(_.first(role));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -47,11 +48,11 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Role.insert(req.body).returning(Role.id)
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -61,7 +62,7 @@ module.exports = {
                 info: 'Add new role'
             });
             res.status(201).json(_.first(data));
-        }, function(err){
+        }, function (err) {
 
         });
 
@@ -69,11 +70,11 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Role.update(req.body).where(Role.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -83,7 +84,7 @@ module.exports = {
                 info: 'Update role'
             });
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -91,11 +92,11 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             yield thunkQuery(
                 Role.delete().where(Role.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -105,7 +106,7 @@ module.exports = {
                 info: 'Delete role'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 

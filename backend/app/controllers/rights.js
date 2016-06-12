@@ -71,11 +71,11 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
-           return yield thunkQuery(
-               Right.update(req.body).where(Right.id.equals(req.params.id))
-           );
-        }).then(function(data){
+        co(function* () {
+            return yield thunkQuery(
+                Right.update(req.body).where(Right.id.equals(req.params.id))
+            );
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -85,7 +85,7 @@ module.exports = {
                 info: 'Update right'
             });
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -94,11 +94,11 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             yield thunkQuery(
                 Right.delete().where(Right.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -108,7 +108,7 @@ module.exports = {
                 info: 'Delete right'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 

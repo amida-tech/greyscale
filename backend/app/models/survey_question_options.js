@@ -6,7 +6,8 @@ var columns = [
     'value',
     'label',
     'skip',
-    'isSelected'
+    'isSelected',
+    'langId'
 ];
 
 var SurveyQuestionOption = sql.define({

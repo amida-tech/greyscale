@@ -1,16 +1,99 @@
 var
     HttpError = require('app/error').HttpError,
-    moment    = require('moment'),
-    _         = require('underscore'),
-    ClientPG  = require('app/db_bootstrap'),
-    config    = require('config'),
+    moment = require('moment'),
+    _ = require('underscore'),
+    ClientPG = require('app/db_bootstrap'),
+    config = require('config'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
 debug.log = console.log.bind(console);
 
+var prepareValue = function (val, seen) {
+    //debug(val);
+
+    if (val instanceof Buffer) {
+        return val;
+    }
+    if (val instanceof Date) {
+        return pgEscape.literal(dateToString(val));
+    }
+    if (Array.isArray(val)) {
+        return '\'' + arrayString(val) + '\'';
+    }
+    if (val === null || typeof val === 'undefined') {
+        return null;
+    }
+    if (typeof val === 'object') {
+        return prepareObject(val, seen);
+    }
+    if (typeof val === 'string') {
+        return pgEscape.literal(val.toString());
+    }
+    return val.toString();
+};
+
+function prepareObject(val, seen) {
+    if (val.toPostgres && typeof val.toPostgres === 'function') {
+        seen = seen || [];
+        if (seen.indexOf(val) !== -1) {
+            throw new Error('circular reference detected while preparing "' + val + '" for query');
+        }
+        seen.push(val);
+
+        return prepareValue(val.toPostgres(prepareValue), seen);
+    }
+    return JSON.stringify(val);
+}
+
+function dateToString(date) {
+    function pad(number, digits) {
+        number = '' + number;
+        while (number.length < digits) {
+            number = '0' + number;
+        }
+        return number;
+    }
+
+    var offset = -date.getTimezoneOffset();
+    var ret = pad(date.getFullYear(), 4) + '-' +
+        pad(date.getMonth() + 1, 2) + '-' +
+        pad(date.getDate(), 2) + 'T' +
+        pad(date.getHours(), 2) + ':' +
+        pad(date.getMinutes(), 2) + ':' +
+        pad(date.getSeconds(), 2) + '.' +
+        pad(date.getMilliseconds(), 3);
+
+    if (offset < 0) {
+        ret += '-';
+        offset *= -1;
+    } else {
+        ret += '+';
+    }
+    return ret + pad(Math.floor(offset / 60), 2) + ':' + pad(offset % 60, 2);
+}
+
+function arrayString(val) {
+    var result = '{';
+    for (var i = 0; i < val.length; i++) {
+        if (i > 0) {
+            result = result + ',';
+        }
+        if (val[i] === null || typeof val[i] === 'undefined') {
+            result = result + 'NULL';
+        } else if (Array.isArray(val[i])) {
+            result = result + arrayString(val[i]);
+        } else {
+            //result = result + JSON.stringify(prepareValue(val[i]));
+            result = result + JSON.stringify(val[i]);
+        }
+    }
+    result = result + '}';
+    return result;
+}
+
 exports.Query = function (realm) {
-    if (typeof realm == 'undefined') {
+    if (typeof realm === 'undefined') {
         realm = config.pgConnect.adminSchema;
     }
 
@@ -31,21 +114,20 @@ exports.Query = function (realm) {
             doQuery(queryObject, options, cb);
         });
 
-
-        function doFields(rows, fieldsArray){
+        function doFields(rows, fieldsArray) {
             rows = _.map(rows, function (i) {
                 return _.pick(i, fieldsArray);
             });
             return rows;
         }
 
-        function doQuery(queryObject, options, cb){
+        function doQuery(queryObject, options, cb) {
+            var queryString;
             if (typeof queryObject === 'string') {
 
-                var queryString =
-                    (typeof realm != 'undefined') ?
-                    ("SET search_path TO "+realm+"; " + queryObject)
-                    : queryObject;
+                queryString =
+                    (typeof realm !== 'undefined') ?
+                    ('SET search_path TO ' + realm + '; ' + queryObject) : queryObject;
                 debug(queryString);
 
                 client.query(queryString, options, function (err, result) {
@@ -126,20 +208,20 @@ exports.Query = function (realm) {
 
                 }
 
-                var queryString =
-                    (typeof realm == 'undefined')
-                    ? queryObject.toQuery().text
-                    : "SET search_path TO " + realm + "; " + queryObject.toQuery().text;
+                queryString =
+                    (typeof realm === 'undefined') ?
+                    queryObject.toQuery().text :
+                    'SET search_path TO ' + realm + '; ' + queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 
-                var queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2, offset, s) {
-                    return prepareValue(values[p2-1]);
+                queryString = queryString.replace(/(\$)([0-9]+)/g, function (str, p1, p2, offset, s) {
+                    return prepareValue(values[p2 - 1]);
                 });
 
                 debug(queryString);
 
-                client.query(queryString , function (err, result) {
+                client.query(queryString, function (err, result) {
 
                     client.end();
                     var cbfunc = (typeof cb === 'function');
@@ -236,89 +318,3 @@ exports.getTranslateQuery = function (langId, model, condition) {
 
     return query;
 };
-
-var prepareValue = function(val, seen) {
-    //debug(val);
-
-    if (val instanceof Buffer) {
-        return val;
-    }
-    if(val instanceof Date) {
-        return pgEscape.literal(dateToString(val));
-    }
-    if(Array.isArray(val)) {
-        return "'"+arrayString(val)+"'";
-    }
-    if(val === null || typeof val === 'undefined') {
-        return null;
-    }
-    if(typeof val === 'object') {
-        return prepareObject(val, seen);
-    }
-    if(typeof val === 'string'){
-        return pgEscape.literal(val.toString());
-    }
-    return val.toString();
-};
-
-function prepareObject(val, seen) {
-    if(val.toPostgres && typeof val.toPostgres === 'function') {
-        seen = seen || [];
-        if (seen.indexOf(val) !== -1) {
-            throw new Error('circular reference detected while preparing "' + val + '" for query');
-        }
-        seen.push(val);
-
-        return prepareValue(val.toPostgres(prepareValue), seen);
-    }
-    return JSON.stringify(val);
-}
-
-function dateToString(date) {
-    function pad(number, digits) {
-        number = ""+number;
-        while(number.length < digits)
-            number = "0"+number;
-        return number;
-    }
-
-    var offset = -date.getTimezoneOffset();
-    var ret = pad(date.getFullYear(), 4) + '-' +
-        pad(date.getMonth() + 1, 2) + '-' +
-        pad(date.getDate(), 2) + 'T' +
-        pad(date.getHours(), 2) + ':' +
-        pad(date.getMinutes(), 2) + ':' +
-        pad(date.getSeconds(), 2) + '.' +
-        pad(date.getMilliseconds(), 3);
-
-    if(offset < 0) {
-        ret += "-";
-        offset *= -1;
-    }
-    else
-        ret += "+";
-
-    return ret + pad(Math.floor(offset/60), 2) + ":" + pad(offset%60, 2);
-}
-
-function arrayString(val) {
-    var result = '{';
-    for (var i = 0 ; i < val.length; i++) {
-        if(i > 0) {
-            result = result + ',';
-        }
-        if(val[i] === null || typeof val[i] === 'undefined') {
-            result = result + 'NULL';
-        }
-        else if(Array.isArray(val[i])) {
-            result = result + arrayString(val[i]);
-        }
-        else
-        {
-            //result = result + JSON.stringify(prepareValue(val[i]));
-            result = result + JSON.stringify(val[i]);
-        }
-    }
-    result = result + '}';
-    return result;
-}

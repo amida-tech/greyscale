@@ -17,7 +17,7 @@ var Organization = sql.define({
     columns: columns
 });
 
-Organization.editCols = ['name','address','url','adminUserId','enforceApiSecurity','isActive','enableFeaturePolicy'];
+Organization.editCols = ['name', 'address', 'url', 'adminUserId', 'enforceApiSecurity', 'isActive', 'enableFeaturePolicy'];
 
 Organization.whereCol = columns;
 

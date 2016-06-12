@@ -37,15 +37,14 @@ module.exports = {
         req.query = _.extend(req.query, req.body);
         co(function* () {
 
-            var selectQuery =Log
-                    .select(
+            var selectQuery = Log
+                .select(
                     Log.star(),
-                    Log.userid.case([Log.userid.lt(0)],[config.pgConnect.adminSchema],req.params.realm).as('schema'),
-                    Log.userid.case([Log.userid.lt(0)],[sql.functions.ABS(Log.userid)],Log.userid).as('userId')
-                    )
-                    .from(Log)
-                    .where(Log.id.equals(Log.id))
-            ;
+                    Log.userid.case([Log.userid.lt(0)], [config.pgConnect.adminSchema], req.params.realm).as('schema'),
+                    Log.userid.case([Log.userid.lt(0)], [sql.functions.ABS(Log.userid)], Log.userid).as('userId')
+                )
+                .from(Log)
+                .where(Log.id.equals(Log.id));
             if (req.query.action) {
                 selectQuery = selectQuery.and(Log.action.in(req.query.action));
             }
@@ -70,6 +69,4 @@ module.exports = {
         });
     }
 
-
 };
-

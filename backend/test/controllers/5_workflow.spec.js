@@ -12,19 +12,19 @@ var request = require('supertest');
 var _ = require('underscore');
 
 var testEnv = {};
-testEnv.superAdmin   = config.testEntities.superAdmin;
-testEnv.admin        = config.testEntities.admin;
-testEnv.users        = config.testEntities.users;
+testEnv.superAdmin = config.testEntities.superAdmin;
+testEnv.admin = config.testEntities.admin;
+testEnv.users = config.testEntities.users;
 testEnv.organization = config.testEntities.organization;
 
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
+testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
 testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
 
 var token;
-var obj ={};
+var obj = {};
 var path = '/workflows';
 
 //testEnv.allUsers = ithelper.getAllUsersList(testEnv, ['superAdmin', 'admin', 'users']);
@@ -100,7 +100,7 @@ describe('Workflows:', function () {
             describe('Save test environment objects', function () {
                 it('Save from workflows ***', function (done) {
                     obj.product = insertItem;
-                    config.testEntities.obj = _.extend({},obj);
+                    config.testEntities.obj = _.extend({}, obj);
                     done();
                 });
             });
@@ -108,7 +108,7 @@ describe('Workflows:', function () {
     }
 
     function makeTests(user) {
-        it('Authorize user ' + user.firstName, function(done) {
+        it('Authorize user ' + user.firstName, function (done) {
             var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
             api
                 .get('/users/token')
@@ -123,8 +123,8 @@ describe('Workflows:', function () {
 
                     describe('Get test environment objects', function () {
                         it('Get to workflows ***', function (done) {
-                            if (_.isEmpty(obj)){
-                                obj = _.extend({},config.testEntities.obj);
+                            if (_.isEmpty(obj)) {
+                                obj = _.extend({}, config.testEntities.obj);
                                 console.log(obj);
                             }
                             done();

@@ -24,7 +24,7 @@ var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
-app = require('express')();
+var app = require('express')();
 
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
@@ -32,20 +32,21 @@ app = require('express')();
 app.on('start', function () {
 
     // MEMCHACHE
-    app.use(function(req,res,next){
-		debug('Request URL:', req.url);
+    app.use(function (req, res, next) {
+        debug('Request URL:', req.url);
         req.mcClient = mcClient;
         next();
     });
 
-    app.use('/:realm',function(req, res, next){
+    app.use('/:realm', function (req, res, next) {
         // realm not set
         var cpg = config.pgConnect;
-        co(function*(){
+        var schemas;
+        co(function* () {
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                try{
-                    var schemas = yield mc.get(req.mcClient, 'schemas');
-                }catch(e){
+                try {
+                    schemas = yield mc.get(req.mcClient, 'schemas');
+                } catch (e) {
                     throw new HttpError(500, e);
                 }
             }
@@ -53,37 +54,37 @@ app.on('start', function () {
             if (schemas) {
                 req.schemas = schemas.split(',');
             } else {
-                var schemas = yield thunkQuery(
-                    "SELECT pg_catalog.pg_namespace.nspname " +
-                    "FROM pg_catalog.pg_namespace " +
-                    "INNER JOIN pg_catalog.pg_user " +
-                    "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                    "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
+                schemas = yield thunkQuery(
+                    'SELECT pg_catalog.pg_namespace.nspname ' +
+                    'FROM pg_catalog.pg_namespace ' +
+                    'INNER JOIN pg_catalog.pg_user ' +
+                    'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
+                    'AND (pg_catalog.pg_user.usename = \'' + cpg.user + '\')'
                 );
                 req.schemas = [];
                 for (var i in schemas) {
-                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
+                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) === -1) {
                         req.schemas.push(schemas[i].nspname);
                     }
                 }
                 if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                    try{
-                        var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
-                    }catch(e){
+                    try {
+                        schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
+                    } catch (e) {
                         throw new HttpError(500, e);
                     }
                 }
             }
 
-            if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
-                throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
+            if (req.params.realm !== cpg.adminSchema && req.schemas.indexOf(req.params.realm) === -1) {
+                throw new HttpError(400, 'Namespace ' + req.params.realm + ' does not exist');
             }
             return req.params.realm;
-        }).then(function(data){
+        }).then(function (data) {
             var query = new Query(data);
             req.thunkQuery = thunkify(query);
             next();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     });
@@ -162,8 +163,6 @@ app.on('start', function () {
     //
     //});
 
-
-
     // Route requests to controllers/actions
     app.use(require('app/router'));
 
@@ -222,7 +221,7 @@ app.on('start', function () {
     var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
     var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
-	pg.defaults.poolSize = 100;
+    pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
 
         if (err) {
@@ -283,7 +282,6 @@ app.on('start', function () {
         require('app/socket/socket-controller.server').init(server);
     }
 
-
     //Connect to memchache server
     var memcache = require('memcache');
 
@@ -292,20 +290,17 @@ app.on('start', function () {
         config.mc.host
     );
 
-    mcClient.on('connect', function(){
+    mcClient.on('connect', function () {
         debug('mc connected');
         startServer();
     });
 
-    mcClient.on('error', function(e){
+    mcClient.on('error', function (e) {
         error('MEMCACHE ERROR');
         debug(e);
     });
 
     mcClient.connect();
-
-
-
 
 });
 

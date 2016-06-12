@@ -4,7 +4,6 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var homeDir = process.env.HOME;
 
-
 var sql = 'test/testdb.sql';
 
 module.exports = function (grunt) {
@@ -27,7 +26,6 @@ module.exports = function (grunt) {
     }
 
     // Define the configuration for all the tasks
-
 
     grunt.initConfig({
 
@@ -300,6 +298,9 @@ module.exports = function (grunt) {
         'mochaTest'
     ]);
 
+    grunt.registerTask('jsbeatifier-beautify', [
+        'jsbeautifier:beautify'
+    ]);
     /*
      * Default grunt task.
      * - Run the linter

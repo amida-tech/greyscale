@@ -39,7 +39,7 @@ module.exports = {
                     .or(Essence.fileName.equals(req.body.fileName))
                 )
             );
-            
+
             if (_.first(isExists)) {
                 throw new HttpError(403, 'record with this tableName or(and) fileName has already exist');
             }
@@ -67,14 +67,14 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             yield thunkQuery(
                 Essence.delete().where(Essence.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             // ToDo: add Bologger
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 

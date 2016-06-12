@@ -50,19 +50,15 @@ Comment.updateCols = [
     'commentType'
 ];
 
-Comment.commentTypes = [
-    {
-        value: 0,
-        name: 'CONTENT'
-    },
-    {
-        value: 1,
-        name: 'FORMAT'
-    },
-    {
-        value: 2,
-        name: 'STRUCTURE'
-    }
-];
+Comment.commentTypes = [{
+    value: 0,
+    name: 'CONTENT'
+}, {
+    value: 1,
+    name: 'FORMAT'
+}, {
+    value: 2,
+    name: 'STRUCTURE'
+}];
 
 module.exports = Comment;

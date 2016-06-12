@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION patch_20160510_01_attachments() RETURNS void AS
           || 'WITH ('
           || '  OIDS=FALSE'
           || ');'
-          || 'ALTER TABLE "Policies"'
+          || 'ALTER TABLE "Attachments"'
           || 'OWNER TO indaba;'; -- HAVE TO SET CORRECT DB USER
   	END LOOP;
 

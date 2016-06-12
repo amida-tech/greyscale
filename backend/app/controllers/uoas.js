@@ -129,54 +129,54 @@ module.exports = {
 
     csvImport: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-/*
-        Field	            Type            	            Comment
-        Id	                int NOT NULL AUTO_INCREMENT
-        gadmId0 	        int DEFAULT NULL	            for use with GADM shapefile
-        gadmId1 	        int DEFAULT NULL	            for use with GADM shapefile
-        gadmId2 	        int DEFAULT NULL	            for use with GADM shapefile
-        gadmId3 	        int DEFAULT NULL	            for use with GADM shapefile
-        gadmObjectId	    int DEFAULT NULL	            for use with GADM shapefile (only Global Shapefile)
-        ISO	                char(3)                         only for Country level UoA
-        ISO2	            char(2)                     	only for Country level UoA
-        nameISO 	        varchar(100)                 	only for Country level UoA
-        name	            varchar(100) NOT NULL	        Multilanguage
-        description	        varchar(255) DEFAULT NULL	    Multilanguage
-        shortName	        varchar(45) NOT NULL	        Multilanguage
-        HASC	            varchar(20) DEFAULT NULL	    (example RU.AD.OK)
-        unitOfAnalysisType	tinyint(4) NOT NULL	            see table UoA_type
-        Parent_Id	        int DEFAULT NULL	            Link to Parent UoA if exist
-                            Service fields		Below, service fields from old system - It can be changed and added later
-        ---                creatorId   	    NOT NULL DEFAULT '1'
-        ---                ownerId     	    NOT NULL DEFAULT '1'
-        visibility	        tinyint(4) NOT NULL DEFAULT '1'	1 = public; 2 = private;
-        status	            tinyint(4) NOT NULL DEFAULT '1' 1 = active; 2 = inactive; 3 = deleted;
-        ---                created	        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-        ---                updated	        timestamp NULL DEFAULT NULL
-        ---                deleted	        timestamp NULL DEFAULT NULL
-        langId              original language Id            default EN
-*/
+        /*
+                Field	            Type            	            Comment
+                Id	                int NOT NULL AUTO_INCREMENT
+                gadmId0 	        int DEFAULT NULL	            for use with GADM shapefile
+                gadmId1 	        int DEFAULT NULL	            for use with GADM shapefile
+                gadmId2 	        int DEFAULT NULL	            for use with GADM shapefile
+                gadmId3 	        int DEFAULT NULL	            for use with GADM shapefile
+                gadmObjectId	    int DEFAULT NULL	            for use with GADM shapefile (only Global Shapefile)
+                ISO	                char(3)                         only for Country level UoA
+                ISO2	            char(2)                     	only for Country level UoA
+                nameISO 	        varchar(100)                 	only for Country level UoA
+                name	            varchar(100) NOT NULL	        Multilanguage
+                description	        varchar(255) DEFAULT NULL	    Multilanguage
+                shortName	        varchar(45) NOT NULL	        Multilanguage
+                HASC	            varchar(20) DEFAULT NULL	    (example RU.AD.OK)
+                unitOfAnalysisType	tinyint(4) NOT NULL	            see table UoA_type
+                Parent_Id	        int DEFAULT NULL	            Link to Parent UoA if exist
+                                    Service fields		Below, service fields from old system - It can be changed and added later
+                ---                creatorId   	    NOT NULL DEFAULT '1'
+                ---                ownerId     	    NOT NULL DEFAULT '1'
+                visibility	        tinyint(4) NOT NULL DEFAULT '1'	1 = public; 2 = private;
+                status	            tinyint(4) NOT NULL DEFAULT '1' 1 = active; 2 = inactive; 3 = deleted;
+                ---                created	        timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                ---                updated	        timestamp NULL DEFAULT NULL
+                ---                deleted	        timestamp NULL DEFAULT NULL
+                langId              original language Id            default EN
+        */
 
         var csv = require('csv');
         var fs = require('fs');
 
-        var upload = function*(){
-            return yield new Promise(function(resolve, reject) {
-                if(req.files.file) {
+        var upload = function* () {
+            return yield new Promise(function (resolve, reject) {
+                if (req.files.file) {
                     fs.readFile(req.files.file.path, 'utf8', function (err, data) {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
-                        resolve(data.replace(new RegExp('[\'\"]','g'), '`'));
+                        resolve(data.replace(new RegExp('[\'\"]', 'g'), '`'));
                     });
-                }else{
-                    reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
+                } else {
+                    reject(new HttpError(403, 'Please, pass csv file in files[\'file\']'));
                 }
             });
         };
 
         var parser = function* (data) {
-            return yield new Promise(function(resolve, reject){
+            return yield new Promise(function (resolve, reject) {
                 csv.parse(data, function (err, data) {
                     if (err) {
                         reject(new HttpError(403, 'Cannot parse data from file'));
@@ -188,43 +188,42 @@ module.exports = {
 
         co(function* () {
             var result = [];
-            var ret;
+            var ret, parsed, doUpload;
+            var intOrNull = function (val) {
+                return isNaN(parseInt(val)) ? null : parseInt(val);
+            };
             try {
-                var doUpload = yield* upload();
-                var parsed = yield* parser(doUpload);
-
-                var intOrNull = function (val){
-                    return isNaN(parseInt(val)) ? null : parseInt(val);
-                };
+                doUpload = yield * upload();
+                parsed = yield * parser(doUpload);
                 if (parsed.length < 1) {
                     return result;
                 }
-            } catch(e) {
+            } catch (e) {
                 throw new HttpError(500, e);
             }
-            for (var i=0;i<parsed.length;i++) {
+            for (var i = 0; i < parsed.length; i++) {
                 if (i !== 0) { // skip first string
                     var newUoa = {
-                        parse_status   : 'skipped',
-                        name           : parsed[i][0],
-                        description    : parsed[i][1],
-                        shortName      : parsed[i][2],
-                        ISO            : parsed[i][3],
-                        ISO2           : parsed[i][4],
-                        nameISO        : parsed[i][5],
-                        unitOfAnalysisType : intOrNull(parsed[i][6]), // default `Country`
-                        visibility	   : intOrNull(parsed[i][7]), // 1 = public (default); 2 = private;
-                        status	       : intOrNull(parsed[i][8]), // 1 = active (default); 2 = inactive; 3 = deleted;
-                        langId         : intOrNull(parsed[i][9]), // default EN
-                        parentId	   : intOrNull(parsed[i][10]),
-                        gadmId0        : intOrNull(parsed[i][11]),
-                        gadmId1        : intOrNull(parsed[i][12]),
-                        gadmId2        : intOrNull(parsed[i][13]),
-                        gadmId3        : intOrNull(parsed[i][14]),
-                        gadmObjectId   : intOrNull(parsed[i][15]),
-                        HASC           : parsed[i][16],
-                        creatorId      : req.user.realmUserId, // add from realmUserId instead of user id
-                        ownerId        : req.user.realmUserId  // add from realmUserId instead of user id
+                        parse_status: 'skipped',
+                        name: parsed[i][0],
+                        description: parsed[i][1],
+                        shortName: parsed[i][2],
+                        ISO: parsed[i][3],
+                        ISO2: parsed[i][4],
+                        nameISO: parsed[i][5],
+                        unitOfAnalysisType: intOrNull(parsed[i][6]), // default `Country`
+                        visibility: intOrNull(parsed[i][7]), // 1 = public (default); 2 = private;
+                        status: intOrNull(parsed[i][8]), // 1 = active (default); 2 = inactive; 3 = deleted;
+                        langId: intOrNull(parsed[i][9]), // default EN
+                        parentId: intOrNull(parsed[i][10]),
+                        gadmId0: intOrNull(parsed[i][11]),
+                        gadmId1: intOrNull(parsed[i][12]),
+                        gadmId2: intOrNull(parsed[i][13]),
+                        gadmId3: intOrNull(parsed[i][14]),
+                        gadmObjectId: intOrNull(parsed[i][15]),
+                        HASC: parsed[i][16],
+                        creatorId: req.user.realmUserId, // add from realmUserId instead of user id
+                        ownerId: req.user.realmUserId // add from realmUserId instead of user id
                     };
 
                     newUoa.messages = [];
@@ -232,12 +231,12 @@ module.exports = {
                     var valid = true;
                     if (vl.isNull(newUoa.name)) {
                         newUoa.messages.push('`Name` must not be empty');
-                    }else{
+                    } else {
                         var isExist = yield thunkQuery(UnitOfAnalysis.select().where(UnitOfAnalysis.name.equals(newUoa.name)));
                         if (isExist[0]) {
                             newUoa.messages.push('Already exists');
                             valid = false;
-                        }else{
+                        } else {
                             // Validate and Set DEFAULT
                             // unitOfAnalysisType
                             if (!newUoa.unitOfAnalysisType) {
@@ -253,7 +252,7 @@ module.exports = {
                                 // check that specified type Unit of Analysis is exist
                                 ret = yield thunkQuery(UnitOfAnalysisType.select().where(UnitOfAnalysisType.id.equals(newUoa.unitOfAnalysisType)));
                                 if (!ret[0]) {
-                                    newUoa.messages.push('Target Type with Id `'+newUoa.unitOfAnalysisType.toString()+'` does not exist in database');
+                                    newUoa.messages.push('Target Type with Id `' + newUoa.unitOfAnalysisType.toString() + '` does not exist in database');
                                     valid = false;
                                 }
                             }
@@ -263,8 +262,8 @@ module.exports = {
                                 newUoa.visibility = 1;
                             } else {
                                 // check that specified visibility value is correct
-                                if ([1,2].indexOf(newUoa.visibility) === -1) {
-                                    newUoa.messages.push('Target Visibility `'+newUoa.visibility.toString()+'` does not correct (1 = public (default); 2 = private)');
+                                if ([1, 2].indexOf(newUoa.visibility) === -1) {
+                                    newUoa.messages.push('Target Visibility `' + newUoa.visibility.toString() + '` does not correct (1 = public (default); 2 = private)');
                                     valid = false;
                                 }
                             }
@@ -274,8 +273,8 @@ module.exports = {
                                 newUoa.status = 1;
                             } else {
                                 // check that specified status value is correct
-                                if ([1,2,3].indexOf(newUoa.status) === -1) {
-                                    newUoa.messages.push('Target Status `'+newUoa.status.toString()+'` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
+                                if ([1, 2, 3].indexOf(newUoa.status) === -1) {
+                                    newUoa.messages.push('Target Status `' + newUoa.status.toString() + '` does not correct (1 = active (default); 2 = inactive; 3 = deleted)');
                                     valid = false;
                                 }
                             }
@@ -293,7 +292,7 @@ module.exports = {
                                 // check that specified Language Id is exist
                                 ret = yield thunkQuery(Language.select().where(Language.id.equals(newUoa.langId)));
                                 if (!ret[0]) {
-                                    newUoa.messages.push('Language with Id `'+newUoa.langId.toString()+'` does not exist in database');
+                                    newUoa.messages.push('Language with Id `' + newUoa.langId.toString() + '` does not exist in database');
                                     valid = false;
                                 }
                             }
@@ -303,20 +302,27 @@ module.exports = {
                                 valid = false;
                             }
                             // ISO
-                            if (newUoa.ISO !== '' && (!vl.isAlpha(newUoa.ISO) || !vl.isLength(newUoa.ISO, {min:3, max:3}))) {
+                            if (newUoa.ISO !== '' && (!vl.isAlpha(newUoa.ISO) || !vl.isLength(newUoa.ISO, {
+                                    min: 3,
+                                    max: 3
+                                }))) {
                                 newUoa.messages.push('`ISO` must not be 3 alpha symbols');
                                 valid = false;
                             }
                             // ISO2
-                            if (newUoa.ISO2 !== '' && (!vl.isAlpha(newUoa.ISO2) || !vl.isLength(newUoa.ISO2, {min:2, max:2}))) {
+                            if (newUoa.ISO2 !== '' && (!vl.isAlpha(newUoa.ISO2) || !vl.isLength(newUoa.ISO2, {
+                                    min: 2,
+                                    max: 2
+                                }))) {
                                 newUoa.messages.push('`ISO2` must not be 2 alpha symbols');
                                 valid = false;
                             }
                             // If valid, then created
+                            var created;
                             if (valid) {
-                                try{
-                                    var created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
-                                }catch(e){
+                                try {
+                                    created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
+                                } catch (e) {
                                     newUoa.messages.push(e);
                                     valid = false;
                                 }

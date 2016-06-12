@@ -31,17 +31,17 @@ module.exports = {
     selectOne: function (req, res, next) { //TODO superadmin request
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             var data = yield thunkQuery(
                 Organization.select().from(Organization).where(Organization.id.equals(req.params.id))
             );
-            if(!data.length) {
+            if (!data.length) {
                 throw new HttpError(404, 'Not found');
             }
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.json(_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -69,36 +69,13 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
-            if (req.user.roleID == 1 && req.params.realm == config.pgConnect.adminSchema) {
-                var data = [];
+            var thunkQuery, data;
+            if (req.user.roleID === 1 && req.params.realm === config.pgConnect.adminSchema) {
+                data = [];
                 for (var i in req.schemas) {
-                    var thunkQuery = thunkify(new Query(req.schemas[i]));
+                    thunkQuery = thunkify(new Query(req.schemas[i]));
                     var org = yield thunkQuery(
                         Organization
-                            .select(
-                                Organization.star(),
-                                '(SELECT ' +
-                                '"Projects"."id" ' +
-                                'FROM "Projects"' +
-                                'WHERE ' +
-                                '"Projects"."organizationId" = "Organizations"."id"' +
-                                'LIMIT 1) as "projectId"'
-                            )
-                            .where(
-                                Organization.realm.equals(req.schemas[i])
-                            )
-                    );
-                    if (org.length) {
-                        data.push(org[0]);
-                    }
-                }
-                return data;
-
-            } else {
-                var thunkQuery = thunkify(new Query(req.params.realm));
-
-                var data = yield thunkQuery(
-                    Organization
                         .select(
                             Organization.star(),
                             '(SELECT ' +
@@ -108,7 +85,31 @@ module.exports = {
                             '"Projects"."organizationId" = "Organizations"."id"' +
                             'LIMIT 1) as "projectId"'
                         )
-                        .from(Organization),
+                        .where(
+                            Organization.realm.equals(req.schemas[i])
+                        )
+                    );
+                    if (org.length) {
+                        data.push(org[0]);
+                    }
+                }
+                return data;
+
+            } else {
+                thunkQuery = thunkify(new Query(req.params.realm));
+
+                data = yield thunkQuery(
+                    Organization
+                    .select(
+                        Organization.star(),
+                        '(SELECT ' +
+                        '"Projects"."id" ' +
+                        'FROM "Projects"' +
+                        'WHERE ' +
+                        '"Projects"."organizationId" = "Organizations"."id"' +
+                        'LIMIT 1) as "projectId"'
+                    )
+                    .from(Organization),
                     _.omit(req.query, 'offset', 'limit', 'order')
                 );
             }
@@ -124,14 +125,14 @@ module.exports = {
     editOne: function (req, res, next) {
         var clientThunkQuery = req.thunkQuery;
 
-        if (req.params.realm == config.pgConnect.adminSchema) {
+        if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
 
         co(function* () {
-            yield *checkOrgData(req);
+            yield * checkOrgData(req);
             var updateObj = _.pick(req.body, Organization.editCols);
-            if(Object.keys(updateObj).length){
+            if (Object.keys(updateObj).length) {
                 yield clientThunkQuery(
                     Organization
                     .update(updateObj)
@@ -155,27 +156,27 @@ module.exports = {
 
     insertOne: function (req, res, next) {
 
-        if (req.user.roleID != 1) {
+        if (req.user.roleID !== 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }
 
         var adminThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
         co(function* () {
-            yield *checkOrgData(req);
+            yield * checkOrgData(req);
 
             yield adminThunkQuery(pgEscape(
-                "SELECT clone_schema('%s','%s', true)"
-                ,config.pgConnect.sceletonSchema
-                ,req.body.realm
+                'SELECT clone_schema(\'%s\',\'%s\', true)',
+                config.pgConnect.sceletonSchema,
+                req.body.realm
             ));
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
 
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
-                try{ // reset schemas cache
+                try { // reset schemas cache
                     var schemas = yield mc.delete(req.mcClient, 'schemas');
-                }catch(e){
+                } catch (e) {
                     debug(JSON.stringify(e));
                     throw new HttpError(500, e);
                 }
@@ -203,12 +204,10 @@ module.exports = {
             // TODO creates project in background, may be need to disable in future
 
             var project = yield clientThunkQuery(
-                Project.insert(
-                    {
-                        organizationId: org[0].id,
-                        codeName: 'Org_' + org[0].id + '_project'
-                    }
-                )
+                Project.insert({
+                    organizationId: org[0].id,
+                    codeName: 'Org_' + org[0].id + '_project'
+                })
                 .returning(Project.id)
             );
             bologger.log({
@@ -217,7 +216,7 @@ module.exports = {
                 action: 'insert',
                 object: 'projects',
                 entity: project[0].id,
-                info: 'Add project to organization `'+org[0].id+'`'
+                info: 'Add project to organization `' + org[0].id + '`'
             });
             return org;
         }).then(function (data) {
@@ -237,23 +236,23 @@ module.exports = {
         var csv = require('csv');
         var fs = require('fs');
 
-        var upload = function*(){
-            return yield new Promise(function(resolve, reject) {
-                if(req.files.file) {
+        var upload = function* () {
+            return yield new Promise(function (resolve, reject) {
+                if (req.files.file) {
                     fs.readFile(req.files.file.path, 'utf8', function (err, data) {
                         if (err) {
                             reject(new HttpError(403, 'Cannot open uploaded file'));
                         }
-                        resolve(data.replace(new RegExp('[\'\"]','g'), '`'));
+                        resolve(data.replace(new RegExp('[\'\"]', 'g'), '`'));
                     });
-                }else{
-                    reject( new HttpError(403,'Please, pass csv file in files[\'file\']'));
+                } else {
+                    reject(new HttpError(403, 'Please, pass csv file in files[\'file\']'));
                 }
             });
         };
 
         var parser = function* (data) {
-            return yield new Promise(function(resolve, reject){
+            return yield new Promise(function (resolve, reject) {
                 csv.parse(data, function (err, data) {
                     if (err) {
                         reject(new HttpError(403, 'Cannot parse data from file'));
@@ -265,11 +264,11 @@ module.exports = {
 
         co(function* () {
             var org = yield thunkQuery(Organization.select().where(Organization.id.equals(req.params.id)));
-            if(!org[0]){
-                throw new HttpError(403, 'Organization with id = '+req.params.id+' does not exist');
+            if (!org[0]) {
+                throw new HttpError(403, 'Organization with id = ' + req.params.id + ' does not exist');
             }
 
-            if (req.user.roleID !== 1 && req.user.organizationId != req.params.id) {
+            if (req.user.roleID !== 1 && req.user.organizationId !== req.params.id) {
                 throw new HttpError(
                     403,
                     'You cannot add user to other organizations'
@@ -278,22 +277,22 @@ module.exports = {
 
             var result = [];
             try {
-                var doUpload = yield* upload();
-                var parsed = yield* parser(doUpload);
+                var doUpload = yield * upload();
+                var parsed = yield * parser(doUpload);
 
-                var prepareLevel = function (level){
+                var prepareLevel = function (level) {
                     level = parseInt(level);
-                    level = (isNaN(level) || level < 0 || level >  2) ? 0 : level;
+                    level = (isNaN(level) || level < 0 || level > 2) ? 0 : level;
                     return level;
                 };
-                var getStr = function (val){
+                var getStr = function (val) {
                     return (_.isString(val)) ? val.trim() : val;
                 };
-                var booleanValue = function (val){
+                var booleanValue = function (val) {
                     var result = false;
                     if (_.isString(val) && (val.trim().toUpperCase() === 'YES' || val.trim().toUpperCase() === 'TRUE')) {
                         result = true;
-                    } else if (_.isBoolean(val)){
+                    } else if (_.isBoolean(val)) {
                         result = val;
                     } else if (parseInt(val) === 1) {
                         result = true;
@@ -302,7 +301,7 @@ module.exports = {
                 };
 
                 for (var i in parsed) {
-                    if (parsed[i][0].substr(0,2) !== '//') { // skip comment string
+                    if (parsed[i][0].substr(0, 2) !== '//') { // skip comment string
                         var pass = crypto.randomBytes(5).toString('hex');
                         var roleID = (req.user.roleID === 1 && parsed[i][3]) ? 2 : 3; // 2 - client, 3 - user
                         var notify = booleanValue(parsed[i][12]);
@@ -310,35 +309,36 @@ module.exports = {
                         var existError = false;
 
                         var newUser = {
-                            parse_status   : 'skipped',
-                            email          : getStr(parsed[i][0]),
-                            firstName      : getStr(parsed[i][1]),
-                            lastName       : getStr(parsed[i][2]),
-                            roleID         : roleID,
-                            isActive       : booleanValue(parsed[i][4]),
-                            timezone       : getStr(parsed[i][5]),
-                            location       : getStr(parsed[i][6]),
-                            mobile         : getStr(parsed[i][7]),
-                            phone          : getStr(parsed[i][8]),
-                            address        : getStr(parsed[i][9]),
-                            lang           : getStr(parsed[i][10]),
-                            bio            : getStr(parsed[i][11]),
-                            notifyLevel    : 2, // default = 2
-                            organizationId : org[0].id
+                            parse_status: 'skipped',
+                            email: getStr(parsed[i][0]),
+                            firstName: getStr(parsed[i][1]),
+                            lastName: getStr(parsed[i][2]),
+                            roleID: roleID,
+                            isActive: booleanValue(parsed[i][4]),
+                            timezone: getStr(parsed[i][5]),
+                            location: getStr(parsed[i][6]),
+                            mobile: getStr(parsed[i][7]),
+                            phone: getStr(parsed[i][8]),
+                            address: getStr(parsed[i][9]),
+                            lang: getStr(parsed[i][10]),
+                            bio: getStr(parsed[i][11]),
+                            notifyLevel: 2, // default = 2
+                            organizationId: org[0].id
                         };
 
                         newUser.messages = [];
                         var valid = true;
                         if (!vl.isEmail(newUser.email)) {
                             newUser.messages.push('Email is not valid');
-                        }else{
+                        } else {
                             var isExist = yield thunkQuery(User.select().where(User.email.equals(newUser.email)));
                             if (isExist[0]) {
                                 newUser.messages.push('Already exists');
                                 valid = false;
-                            }else{
+                            } else {
                                 // Validate and Set DEFAULT
                                 // langId
+                                var ret;
                                 if (!newUser.lang) {
                                     // default EN
                                     ret = yield thunkQuery(Language.select().where(Language.code.equals('en')));
@@ -355,20 +355,21 @@ module.exports = {
                                     if (ret[0]) {
                                         newUser.langId = ret[0].id;
                                     } else {
-                                        newUser.messages.push('Language `'+newUser.lang+'` does not exist in database');
+                                        newUser.messages.push('Language `' + newUser.lang + '` does not exist in database');
                                         valid = false;
                                     }
                                 }
                                 // choose invite template
                                 var inviteTemplate = (newUser.isActive) ? 'orgInvite' : 'orgInvitePwd';
                                 // If valid, then created
+                                var created;
                                 if (valid) {
                                     newUser.salt = crypto.randomBytes(16).toString('hex');
                                     newUser.password = User.hashPassword(newUser.salt, pass);
                                     newUser.activationToken = crypto.randomBytes(32).toString('hex');
-                                    try{
-                                        var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
-                                    }catch(e){
+                                    try {
+                                        created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
+                                    } catch (e) {
                                         newUser.messages.push(e);
                                         valid = false;
                                     }
@@ -386,8 +387,7 @@ module.exports = {
                                     newUser.parse_status = 'Ok';
                                     newUser.message = 'Added';
                                     var essenceId = yield * common.getEssenceId(req, 'Users');
-                                    var note = yield * notifications.createNotification(req,
-                                        {
+                                    var note = yield * notifications.createNotification(req, {
                                             userFrom: req.user.realmUserId,
                                             userTo: newUser.id,
                                             body: 'Invite',
@@ -414,7 +414,7 @@ module.exports = {
                 }
                 return result;
 
-            } catch(e) {
+            } catch (e) {
                 throw e;
             }
 
@@ -422,11 +422,11 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     }
 };
 
-function* checkOrgData(req){
+function* checkOrgData(req) {
     var cpg = config.pgConnect;
 
     var clientThunkQuery = thunkify(new Query(req.params.realm));
@@ -438,14 +438,14 @@ function* checkOrgData(req){
         }
 
         var schemas = yield adminThunkQuery(pgEscape( // better to select from db instead of memcache
-            "SELECT pg_catalog.pg_namespace.nspname " +
-            "FROM pg_catalog.pg_namespace " +
-            "INNER JOIN pg_catalog.pg_user " +
-            "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-            "AND (pg_catalog.pg_user.usename = '%s')" +
-            "WHERE pg_catalog.pg_namespace.nspname = '%s'"
-            ,cpg.user
-            ,req.body.realm
+            'SELECT pg_catalog.pg_namespace.nspname ' +
+            'FROM pg_catalog.pg_namespace ' +
+            'INNER JOIN pg_catalog.pg_user ' +
+            'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
+            'AND (pg_catalog.pg_user.usename = \'%s\')' +
+            'WHERE pg_catalog.pg_namespace.nspname = \'%s\'',
+            cpg.user,
+            req.body.realm
         ));
 
         if (schemas.length) {
@@ -473,4 +473,3 @@ function* checkOrgData(req){
     //     }
     // }
 }
-
