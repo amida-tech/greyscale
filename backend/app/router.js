@@ -87,7 +87,7 @@ router.route('/:realm/v0.2/projects/:id/surveys')
 var surveys = require('app/controllers/surveys');
 
 router.route('/:realm/v0.2/surveys/parsedocx')
-    .post(/*authenticate('token').always,*/ surveys.parsePolicyDocx);
+    .post( /*authenticate('token').always,*/ surveys.parsePolicyDocx);
 
 router.route('/:realm/v0.2/surveys')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
@@ -274,8 +274,6 @@ router.route('/:realm/v0.2/products/:id/uoa/:uoaid')
 
 router.route('/:realm/v0.2/products/:id/move/:uoaid')
     .get(authenticate('token').always, products.productUOAmove);
-
-
 
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS

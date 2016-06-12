@@ -144,7 +144,7 @@ exports.getDiscussionEntry = getDiscussionEntry;
 var getCommentEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Comment, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Comment with id `'+parseInt(entryId).toString()+'` does not exist in comments');
+        throw new HttpError(403, 'Comment with id `' + parseInt(entryId).toString() + '` does not exist in comments');
     }
     return result[0];
 };
