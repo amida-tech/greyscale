@@ -15,6 +15,8 @@ var allUsers  = [];
 var token;
 var obj ={};
 var path = '/uploads';
+var numberOfRecords = 0;
+var rolesContent = [];
 
 var testTitle = 'Attachments: ';
 

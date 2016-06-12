@@ -1,9 +1,10 @@
 var config = require('config'),
     logger = require('app/logger'),
     util = require('util'),
-    Client = require('pg').Client;
+    Client = require('pg').Client,
     debug = require('debug')('debug_db_bootstrap');
-    debug.log = console.log.bind(console);
+
+debug.log = console.log.bind(console);
 
 var ClientPG = function () {
 

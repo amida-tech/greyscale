@@ -229,8 +229,9 @@ module.exports = {
                         var insertObj = _.pick(updateSurvey.questions[i], SurveyQuestion.table._initialConfig.columns);
                         insertObj.surveyId = req.params.id;
 
+                        var insertId;
                         try{
-                            var insertId = yield thunkQuery(SurveyQuestion.insert(insertObj).returning(SurveyQuestion.id));
+                            insertId = yield thunkQuery(SurveyQuestion.insert(insertObj).returning(SurveyQuestion.id));
                             updateSurvey.questions[i].status = 'Ok';
                             updateSurvey.questions[i].message = 'Added';
                             updateSurvey.questions[i].statusCode = 200;
@@ -557,6 +558,7 @@ function* checkSurveyData(req) {
 
 function* checkQuestionData(req, dataObj, isCreate) {
     var thunkQuery = req.thunkQuery;
+    var question;
     if (isCreate) {
         if (
             typeof dataObj.label === 'undefined' ||
@@ -565,7 +567,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
             throw new HttpError(403, 'label, surveyId(in params) and type fields are required');
         }
     } else {
-        var question = yield thunkQuery(
+        question = yield thunkQuery(
             SurveyQuestion.select().where(SurveyQuestion.id.equals(req.params.id))
         );
         if (!_.first(question)) {
@@ -612,9 +614,10 @@ function* checkQuestionData(req, dataObj, isCreate) {
                 ')'
             );
         }
-        if (!isCreate && (question.position != dataObj.position)) { // EDIT
+        if (!isCreate && (question.position !== dataObj.position)) { // EDIT
+            var q;
             if (question.position < dataObj.position) {
-                var q =
+                q =
                     'UPDATE "SurveyQuestions" SET "position" = "position"-1 ' +
                     'WHERE (' +
                     '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
@@ -622,7 +625,7 @@ function* checkQuestionData(req, dataObj, isCreate) {
                     'AND ("SurveyQuestions"."position" <= ' + dataObj.position + ')' +
                     ')';
             } else {
-                var q =
+                q =
                     'UPDATE "SurveyQuestions" SET "position" = "position"+1 ' +
                     'WHERE (' +
                     '("SurveyQuestions"."surveyId" = ' + surveyId + ') ' +
@@ -633,7 +636,5 @@ function* checkQuestionData(req, dataObj, isCreate) {
 
             yield thunkQuery(q);
         }
-
     }
-
 }

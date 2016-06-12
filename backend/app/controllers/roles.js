@@ -1,5 +1,6 @@
 var client = require('app/db_bootstrap'),
     _ = require('underscore'),
+    HttpError = require('app/error').HttpError,
     config = require('config'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),

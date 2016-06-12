@@ -10,14 +10,18 @@ var ioServer;
 exports.sendNotification = function (userId) {
     var clients = ioServer.sockets.sockets;
     for (var i in clients) {
-        if (clients[i].userId !== userId) continue;
+        if (clients[i].userId !== userId) {
+            continue;
+        }
         debug('send notification to user ' + clients[i].userId);
         clients[i].emit('something-new');
     }
 };
 
 exports.init = function (server) {
-    if (ioServer || !server) return;
+    if (ioServer || !server) {
+        return;
+    }
 
     ioServer = io.listen(server);
     ioServer.on('connection', function (socket) {

@@ -41,6 +41,7 @@ module.exports = {
 
         co( function* () {
 
+            var essence, model;
             if (!req.params.essenceId || !req.params.entityId) {
                 throw new HttpError(400, 'You should provide essence id and entity id');
             }
@@ -57,13 +58,13 @@ module.exports = {
             }
 
             try{
-                var essence = yield common.getEssence(req, req.params.essenceId);
+                essence = yield common.getEssence(req, req.params.essenceId);
             }catch(err){
                 throw err;
             }
 
             try{
-                var model = require('app/models/' + essence.fileName);
+                model = require('app/models/' + essence.fileName);
             }catch(err){
                 throw new HttpError(404, 'Cannot find essence model file (' + essence.fileName + ')');
             }
@@ -81,7 +82,7 @@ module.exports = {
             .where(
                 {
                     essenceId: req.params.essenceId,
-                    entityId: req.params.entityId,
+                    entityId: req.params.entityId
                 }
             )
             );
@@ -129,9 +130,10 @@ module.exports = {
 
     getAttachment: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var id;
         co(function* (){
             try{
-                var id = yield mc.get(req.mcClient, req.params.ticket);
+                id = yield mc.get(req.mcClient, req.params.ticket);
             }catch(e){
                 throw new HttpError(500, e);
             }
@@ -189,8 +191,9 @@ module.exports = {
                     throw new HttpError(400, 'Essence with id = ' + req.body.essenceId + 'does not exist');
                 }
 
+                var model;
                 try {
-                    var model = require('app/models/' + essence[0].fileName);
+                    model = require('app/models/' + essence[0].fileName);
                 } catch (err) {
                     throw new HttpError(400, 'Cannot load essence model file');
                 }
@@ -293,7 +296,7 @@ module.exports = {
             // TODO check right
 
             if (!req.params.essenceId || !req.params.entityId || !req.params.id) {
-                throw HttpError(400, 'You should provide attachment id, essence Id and entity Id');
+                throw new HttpError(400, 'You should provide attachment id, essence Id and entity Id');
             }
 
             var link = yield thunkQuery(
@@ -315,7 +318,7 @@ module.exports = {
                 attIndex = link[0].attachments.indexOf(parseInt(req.params.id));
             }
 
-            if (attIndex == -1) {
+            if (attIndex === -1) {
                 throw new HttpError(400, 'Entity does not link with this attachment id');
             }
 
@@ -361,10 +364,14 @@ module.exports = {
 
                     var awsResult = yield new Promise((resolve, reject) => {
                         s3.deleteObject(params, (err, data) => {
-                        if (err) resolve({error: err}); // an error occurred
-                else     resolve({error: null}); // successful response
-                });
-                });
+                            if (err) {
+                                resolve({error: err}); // an error occurred
+                            }
+                            else {
+                                resolve({error: null}); // successful response
+                            }
+                        });
+                    });
 
                     if (awsResult.error) {
                         data.warning = 'Cannot delete file from remote server';

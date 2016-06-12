@@ -115,7 +115,7 @@ function* createNotification (req, note, template) {
     if (!vl.isEmail(userTo.email)) {
         throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
     }
-    if (typeof note.notifyLevel == 'undefined'){
+    if (typeof note.notifyLevel === 'undefined'){
         note.notifyLevel = userTo.notifyLevel;
     }
     note.subject = note.subject || '';
@@ -663,7 +663,7 @@ function* getInviteNotification(req, userId, body) {
         'GROUP BY '+
             '"Notifications"."essenceId", '+
             '"Notifications"."entityId"';
-    result = yield thunkQuery(query);
+    var result = yield thunkQuery(query);
     if (!_.first(result)) {
         //throw new HttpError(403, 'Error find Invite notification for user id=`'+userId.toString()+'`');
         debug('Does not find Invite notification for user id=`'+userId.toString()+'`');
@@ -740,7 +740,7 @@ function notify(req, userTo, note, template) {
         if (!vl.isEmail(userTo.email)) {
             throw new HttpError(403, 'Email is not valid: ' + userTo.email); // just in case - I think, it is not possible
         }
-        if (typeof note.notifyLevel == 'undefined'){
+        if (typeof note.notifyLevel === 'undefined'){
             note.notifyLevel = userTo.notifyLevel;
         }
         note.subject = note.subject || '';

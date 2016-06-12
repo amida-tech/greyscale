@@ -113,7 +113,7 @@ router.route('/:realm/v0.2/survey_answers')
     .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveyAnswers.add);
 
 router.route('/:realm/v0.2/survey_answers/:productId/:UOAid')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa)
+    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.getByProdUoa);
 
 router.route('/:realm/v0.2/survey_answers/:id')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.selectOne)
@@ -288,7 +288,7 @@ router.route('/:realm/v0.2/organizations/:id')
     .put(authenticate('token').always, jsonParser, organizations.editOne);
 
 router.route('/:realm/v0.2/organizations/:id/products')
-    .get(authenticate('token').always, organizations.selectProducts)
+    .get(authenticate('token').always, organizations.selectProducts);
 
 router.route('/:realm/v0.2/organizations/:id/users_csv')
     .post(authenticate('token').always, jsonParser, organizations.csvUsers);

@@ -33,6 +33,34 @@ var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
 
+var isInt = function(val){
+    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
+};
+
+var setWhereInt = function(selectQuery, val, model, key){
+    if(val) {
+        if ( isInt(val)) {
+            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
+        }
+    }
+    return selectQuery;
+};
+
+var notify = function(req, note0, entryId, taskId, action, essenceName){
+    co(function* () {
+        // notify
+        var task = yield * common.getTask(req, taskId);
+        var userTo = yield * common.getUser(req, task.userId);
+        var note = _.extend(note0, {body: req.body.entry, action: action});
+        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
+        note = notifications.notify(req, userTo, note, 'discussion');
+    }).then(function (result) {
+        debug('Created notification for comment with id`'+ entryId+'`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
+
 module.exports = {
 
     select: function (req, res, next) {
@@ -394,7 +422,7 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag ) {
             retObject=null;
             throw new HttpError(403, 'It is not possible to post entry with "resolve" flag, because there are not found "return" task');
         }
-        retObject = _.extend(retObject, {discussionId: result[0].id})
+        retObject = _.extend(retObject, {discussionId: result[0].id});
     }
 
     return retObject;
@@ -406,10 +434,11 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
     var isNotAdmin = !auth.checkAdmin(user);
     var userId = user.id;
     var blindReview = (!!currentStep.blindReview);
+    var query;
 
     if (tag !== 'resolve') {
         // available all users for this survey
-        var query =
+        query =
             'SELECT ' +
             '"Tasks"."userId" as userid, ' +
             '"Tasks"."id" as taskid, ' +
@@ -619,7 +648,9 @@ function* checkNextEntry(req, id, checkOnly) {
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (_.first(result)) {
-        if (checkOnly) return false;
+        if (checkOnly) {
+            return false;
+        }
         throw new HttpError(403, 'Entry with id=`'+id+'` cannot be updated or deleted, there are have following entries');
     }
     return true;
@@ -672,11 +703,11 @@ function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
     if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id=`'+id+'` does not exist in Tasks'); // just in case - not possible case!
+        throw new HttpError(403, 'Task with id=`'+taskId+'` does not exist in Tasks'); // just in case - not possible case!
     }
     if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because Task stepId=`'+result[0].stepid
-            +'` does not equal currentStepId=`'+result[0].currentstepid+'`');
+        throw new HttpError(403, 'It is not possible to post entry with "'+tag+'" flag, because Task stepId=`'+result[0].stepid +
+            '` does not equal currentStepId=`'+result[0].currentstepid+'`');
     }
 
     var currentStep = yield * getCurrentStep(req, taskId);
@@ -691,6 +722,7 @@ function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
 
 function* getCurrentStep(req, taskId) {
     // get current step information
+    var result;
     query =
         'SELECT '+
         '"WorkflowSteps".* '+
@@ -707,13 +739,13 @@ function* getCurrentStep(req, taskId) {
 
 function* updateProductUOAStep(req, object) {
     var thunkQuery = req.thunkQuery;
-    var res = yield thunkQuery(ProductUOA.update({currentStepId: object.stepId})
+    var result = yield thunkQuery(ProductUOA.update({currentStepId: object.stepId})
         .where(ProductUOA.productId.equals(object.productId)
             .and(ProductUOA.UOAid.equals(object.uoaId))
         )
             .returning(ProductUOA.currentStepId)
     );
-    if (_.first(res)) {
+    if (_.first(result)) {
 
         // notify
         var essenceId = yield * common.getEssenceId(req, 'Tasks');
@@ -780,7 +812,7 @@ function* checkUpdateProductUOAStep(req, object) {
         pgEscape('"Tasks"."uoaId" = %s AND ', object.uoaId)+
         pgEscape('"Tasks"."productId" = %s', object.productId);
     var thunkQuery = req.thunkQuery;
-    result = yield thunkQuery(query);
+    var result = yield thunkQuery(query);
     if (!_.first(result)) {
         var res = yield thunkQuery(ProductUOA.update({currentStepId: object.stepId})
                 .where(ProductUOA.productId.equals(object.productId)
@@ -877,25 +909,13 @@ function* getUserToStep(req, productId, uoaId, userId) {
         pgEscape('"Tasks"."uoaId" = %s AND ', uoaId)+
         pgEscape('"Tasks"."userId" = %s', userId);
     var thunkQuery = req.thunkQuery;
-    result = yield thunkQuery(query);
+    var result = yield thunkQuery(query);
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find step for (productId, uoaId, userId)=('+productId.toString()+', '+uoaId.toString()+', '+userId.toString()+')');
     }
     return result[0];
 }
 
-var isInt = function(val){
-    return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
-};
-
-var setWhereInt = function(selectQuery, val, model, key){
-    if(val) {
-        if ( isInt(val)) {
-            selectQuery = selectQuery +pgEscape(' AND "%I"."%I" = %s', model, key, val);
-        }
-    }
-    return selectQuery;
-};
 
 function* checkOneId(req, val, model, key, keyName, modelName) {
     if (!val) {
@@ -948,21 +968,6 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
     }
     return result;
 }
-
-var notify = function(req, note0, entryId, taskId, action, essenceName){
-    co(function* () {
-        // notify
-        var task = yield * common.getTask(req, taskId);
-        var userTo = yield * common.getUser(req, task.userId);
-        var note = _.extend(note0, {body: req.body.entry, action: action});
-        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
-        note = notifications.notify(req, userTo, note, 'discussion');
-    }).then(function (result) {
-        debug('Created notification for comment with id`'+ entryId+'`');
-    }, function (err) {
-        error(JSON.stringify(err));
-    });
-};
 
 function* returnTaskIdIfReturnFlagsExists(req, taskId) {
     /*

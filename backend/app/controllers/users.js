@@ -167,7 +167,7 @@ module.exports = {
             var user = thunkQuery(
                 User.select(
                     User.star(),
-                    req.params.realm == config.pgConnect.adminSchema ? 'null' : groupQuery
+                    req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                 ),
                 _.omit(req.query, 'offset', 'limit', 'order')
             );
@@ -196,11 +196,11 @@ module.exports = {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
 
-            if (req.params.realm != config.pgConnect.adminSchema) {
+            if (req.params.realm !== config.pgConnect.adminSchema) {
                 throw new HttpError(400, 'Incorrect realm');
             }
 
-            if (req.user.roleID != 1) {
+            if (req.user.roleID !== 1) {
                 throw new HttpError(403, 'You cannot invite super admins');
             }
 
@@ -249,7 +249,7 @@ module.exports = {
             var essenceId = yield * common.getEssenceId(req, 'Users');
             var note = yield * notifications.createNotification(req,
                 {
-                    userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
+                    userFrom: req.user.realmUserId ? req.user.realmUserId : req.user.id,
                     userTo: _.first(user).id,
                     body: 'Superadmin Invite',
                     essenceId: essenceId,
@@ -327,8 +327,6 @@ module.exports = {
     selfOrganization: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var org = false;
-
             var org = yield thunkQuery(
                 Organization
                     .select(Organization.star())
@@ -387,13 +385,13 @@ module.exports = {
 
     selfOrganizationInvite: function (req, res, next) {
 
-        if (req.params.realm == config.pgConnect.adminSchema) {
+        if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
 
         co(function* () {
 
-            if (req.body.roleID == 1) {
+            if (req.body.roleID === 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
 
@@ -422,7 +420,7 @@ module.exports = {
                 throw new HttpError(404, 'Organization not found');
             }
 
-            var org = org[0];
+            org = org[0];
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -459,7 +457,7 @@ module.exports = {
                     info: 'Add new user (org invite)'
                 });
 
-                if (req.body.roleID == 2) { // invite admin
+                if (req.body.roleID === 2) { // invite admin
                     if (!org.adminUserId) {
                         yield thunkQuery(
                             Organization.update({adminUserId:newUserId}).where(Organization.id.equals(org.id))
@@ -575,7 +573,7 @@ module.exports = {
                 info: 'Delete user UOA'
             });
             res.status(204).end();
-        }, function(){
+        }, function(err){
             next(err);
         });
 
@@ -675,7 +673,7 @@ module.exports = {
                 User
                     .select(
                         User.star(),
-                        req.params.realm == config.pgConnect.adminSchema ? 'null' : groupQuery
+                        req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                     )
                     .where(User.id.equals(req.params.id))
             );
@@ -718,7 +716,7 @@ module.exports = {
                     info: 'Update user'
                 });
             }
-            if (req.params.realm != config.pgConnect.adminSchema) {
+            if (req.params.realm !== config.pgConnect.adminSchema) {
                 var userGroups4delete = yield thunkQuery(
                     UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
@@ -799,10 +797,11 @@ module.exports = {
     },
 
     selectSelf: function (req, res, next) {
-        if (req.user.roleID == 1) { //admin
-            var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+        var thunkQuery, q;
+        if (req.user.roleID === 1) { //admin
+            thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-            var q = User
+            q = User
                 .select(
                     User.star()
                 )
@@ -811,7 +810,7 @@ module.exports = {
                 )
                 .where(User.id.equals(req.user.id));
         } else {
-            var thunkQuery = thunkify(new Query(req.params.realm));
+            thunkQuery = thunkify(new Query(req.params.realm));
 
             var rightsReq =
                 'ARRAY(' +
@@ -835,7 +834,7 @@ module.exports = {
                 'LIMIT 1' +
                 ') as "projectId"';
 
-            var q = User
+            q = User
                 .select(
                     User.star(),
                     rightsReq,
@@ -912,17 +911,19 @@ module.exports = {
 
             var userArr = [];
 
-            if (req.params.realm == config.pgConnect.adminSchema) {
+            var clientThunkQuery, user;
+            if (req.params.realm === config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
                 // search in public at first (super admin forgot password)
-                var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+                user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+                clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
                 if (!user) {
+                    var curRealm;
                     for (var i in req.schemas) { // search in all schemas
-                        var clientThunkQuery = thunkify(new Query(req.schemas[i]));
-                        var user = yield clientThunkQuery(
+                        clientThunkQuery = thunkify(new Query(req.schemas[i]));
+                        user = yield clientThunkQuery(
                             User
                                 .select(
                                     User.star(),
@@ -942,7 +943,7 @@ module.exports = {
                         );
 
                         if (user.length) {
-                            var curRealm = req.schemas[i];
+                            curRealm = req.schemas[i];
                             userInRealm.push({
                                 realm: req.schemas[i],
                                 orgName: user[0].orgName
@@ -963,14 +964,14 @@ module.exports = {
                     user = userArr[0];
                     // set the right schema
                     req.params.realm = curRealm;
-                    var clientThunkQuery = thunkify(new Query(curRealm));
+                    clientThunkQuery = thunkify(new Query(curRealm));
                 }
 
 
             } else { // certain realm
-                var clientThunkQuery = thunkify(new Query(req.params.realm));
+                clientThunkQuery = thunkify(new Query(req.params.realm));
 
-                var user = yield clientThunkQuery(
+                user = yield clientThunkQuery(
                     User.select().where(User.email.equals(req.body.email))
                 );
 

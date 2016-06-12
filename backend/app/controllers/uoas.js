@@ -188,14 +188,13 @@ module.exports = {
 
         co(function* () {
             var result = [];
-            var ret;
+            var ret, parsed, doUpload;
+            var intOrNull = function (val){
+                return isNaN(parseInt(val)) ? null : parseInt(val);
+            };
             try {
-                var doUpload = yield* upload();
-                var parsed = yield* parser(doUpload);
-
-                var intOrNull = function (val){
-                    return isNaN(parseInt(val)) ? null : parseInt(val);
-                };
+                doUpload = yield* upload();
+                parsed = yield* parser(doUpload);
                 if (parsed.length < 1) {
                     return result;
                 }
@@ -313,9 +312,10 @@ module.exports = {
                                 valid = false;
                             }
                             // If valid, then created
+                            var created;
                             if (valid) {
                                 try{
-                                    var created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
+                                    created = yield thunkQuery(UnitOfAnalysis.insert(_.pick(newUoa, UnitOfAnalysis.whereCol)).returning(UnitOfAnalysis.id));
                                 }catch(e){
                                     newUoa.messages.push(e);
                                     valid = false;

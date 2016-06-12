@@ -61,35 +61,10 @@ var getTaskByStep = function* (req, stepId, uoaId) {
 };
 exports.getTaskByStep = getTaskByStep;
 
-var getUsersForStepByTask = function* (req, taskId) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield * getEntityById(req, taskId, Task, 'id');
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
-    }
-    var task = result[0];
-    // get group for step
-    var groups = yield * getGroupsForStep(req, task.stepId);
-
-    // get Users
-    var users = [];
-    for (var i in groups) {
-        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
-        for (var j in usersFromGroup) {
-            if (users.indexOf(usersFromGroup[j].userId ) === -1) {
-                users.push(usersFromGroup[j]);
-            }
-        }
-    }
-
-    return users;
-};
-exports.getUsersForStepByTask = getUsersForStepByTask;
-
 var getGroupsForStep = function* (req, stepId) {
     var thunkQuery = req.thunkQuery;
     // get group for step
-    result = yield thunkQuery(
+    var result = yield thunkQuery(
         WorkflowStepGroup.select(
             WorkflowStepGroup.star(),
             Group.title
@@ -102,7 +77,7 @@ var getGroupsForStep = function* (req, stepId) {
         )
     );
     if (!_.first(result)) {
-        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
+        throw new HttpError(403, 'Not found groups for step with id `'+stepId+'`');
     }
     return result;
 };
@@ -132,6 +107,31 @@ var getUsersFromGroup = function* (req, groupId) {
     return result;
 };
 exports.getUsersFromGroup = getUsersFromGroup;
+
+var getUsersForStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, taskId, Task, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
+    }
+    var task = result[0];
+    // get group for step
+    var groups = yield * getGroupsForStep(req, task.stepId);
+
+    // get Users
+    var users = [];
+    for (var i in groups) {
+        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
+        for (var j in usersFromGroup) {
+            if (users.indexOf(usersFromGroup[j].userId ) === -1) {
+                users.push(usersFromGroup[j]);
+            }
+        }
+    }
+
+    return users;
+};
+exports.getUsersForStepByTask = getUsersForStepByTask;
 
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');
@@ -252,8 +252,8 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
-    if (req.user.roleID == 3) { // simple user
-        if (curStep.task.userId != req.user.id) {
+    if (req.user.roleID === 3) { // simple user
+        if (curStep.task.userId !== req.user.id) {
             throw new HttpError(
                 403,
                 'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +

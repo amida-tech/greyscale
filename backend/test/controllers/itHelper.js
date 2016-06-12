@@ -14,7 +14,7 @@ var backendServerDomain = 'http://localhost'; // ToDo: to config
 var apiBase = backendServerDomain + ':' + config.port + '/' + config.pgConnect.adminSchema + '/v0.2';
 
 // make all users list
-ithelper = {
+var ithelper = {
     getAllUsersList: function (testEnv, keys) {
         var allUsers = [];
         if (keys.indexOf('superAdmin') !== -1){
@@ -366,9 +366,9 @@ ithelper = {
                             .set(
                                 'Authorization',
                                 'Basic ' + new Buffer(
-                                    usersArray[i].email
-                                    + ':'
-                                    + usersArray[i].password
+                                    usersArray[i].email +
+                                    ':' +
+                                    usersArray[i].password
                                 ).toString('base64')
                             )
                             .end(function (err, res) {

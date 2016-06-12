@@ -20,7 +20,7 @@ var Query = require('app/util').Query,
     _ = require('underscore'),
     co = require('co'),
     thunkify = require('thunkify');
-    thunkQuery = thunkify(query);
+var thunkQuery = thunkify(query);
 
 var Right = require('app/models/rights'),
     RoleRights = require('app/models/role_rights'),
@@ -58,12 +58,13 @@ passport.use(new BasicStrategy({
                 yield * checkUser(admin, password);
                 return admin;
             } else {
-                if (req.params.realm == 'public') {
-                    debug('Not superuser try to login to public:', user);
+                var user;
+                if (req.params.realm === 'public') {
+                    debug('Not superuser try to login to public:', email);
                     var userArr = [];
 
                     for (var i in req.schemas) {
-                        var user = yield * findUserInNamespace(req.schemas[i], email);
+                        user = yield * findUserInNamespace(req.schemas[i], email);
 
                         if (user[0]) {
                             userInNamespace.push({
@@ -79,7 +80,7 @@ passport.use(new BasicStrategy({
                         throw new HttpError(401, 101);
                     }
 
-                    if (userInNamespace.length == 1) {
+                    if (userInNamespace.length === 1) {
                         user = userArr[0];
                         yield * checkUser(user, password);
                         // set namespace to user namespace and go to users.token
@@ -90,7 +91,7 @@ passport.use(new BasicStrategy({
                     throw new HttpError(300, userInNamespace);
 
                 } else { // situation after found user in several schemas and set one of them
-                    var user = yield * findUserInNamespace(req.params.realm, email);
+                    user = yield * findUserInNamespace(req.params.realm, email);
                     if (!user.length) {
                         throw new HttpError(401, 101);
                     }
@@ -133,7 +134,7 @@ passport.use(new BasicStrategy({
             }
 
             if (!user.isActive) {
-                throw new HttpError(401, 'You have to activate your account')
+                throw new HttpError(401, 'You have to activate your account');
             }
         }
 
@@ -171,9 +172,10 @@ passport.use(new TokenStrategy({
 
         co(function* (){
 
+            var user;
             // we are looking for all tokens only in public schema
             try{
-                var user = yield* findToken(req, tokenBody);
+                user = yield* findToken(req, tokenBody);
             }catch(err){
                 throw new HttpError(500, 'Database error '+err);
             }
@@ -238,8 +240,9 @@ passport.use(new TokenStrategy({
             //debug('Token realm = ' + existToken[0].realm);
             //debug('Admin schema = ' + config.pgConnect.adminSchema);
 
-            if (existToken[0].realm == config.pgConnect.adminSchema) { // admin
-                var data =  yield admThunkQuery(
+            var clientThunkQuery, data;
+            if (existToken[0].realm === config.pgConnect.adminSchema) { // admin
+                data =  yield admThunkQuery(
                     User
                         .select(
                             User.star(),
@@ -257,7 +260,7 @@ passport.use(new TokenStrategy({
                 if (data[0]) { // user is ok
                     // add projectId from realm
                     if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
-                        var clientThunkQuery = thunkify(new Query(req.params.realm));
+                        clientThunkQuery = thunkify(new Query(req.params.realm));
                         var project =  yield clientThunkQuery(
                             Project
                                 .select(
@@ -275,9 +278,9 @@ passport.use(new TokenStrategy({
                     }
                 }
             } else {
-                if (existToken[0].realm == req.params.realm) {
-                    var clientThunkQuery = thunkify(new Query(req.params.realm));
-                    var data =  yield clientThunkQuery(
+                if (existToken[0].realm === req.params.realm) {
+                    clientThunkQuery = thunkify(new Query(req.params.realm));
+                    data =  yield clientThunkQuery(
                         User
                             .select(
                                 User.star(),

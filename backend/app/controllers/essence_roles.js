@@ -29,8 +29,9 @@ module.exports = {
                 );
                 if (essence[0]) {
                     debug(essence[0]);
+                    var Model;
                     try {
-                        var Model = require('app/models/' + essence[0].fileName);
+                        Model = require('app/models/' + essence[0].fileName);
                     }catch(e){
                         throw new HttpError(403, 'Cannot load model\'s file: ' + essence[0].fileName);
                     }

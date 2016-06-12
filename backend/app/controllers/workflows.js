@@ -233,7 +233,7 @@ module.exports = {
 
             var deleteIds = _.difference(relIds, passedIds);
 
-            for (var i in deleteIds) {
+            for (i in deleteIds) {
                 yield thunkQuery(WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(deleteIds[i])));
                 bologger.log({
                     req: req,
@@ -310,7 +310,7 @@ function* setCurrentStepToNull(req, productId) {
     var thunkQuery = req.thunkQuery;
     // update all currentStepId to NULL for specified productId (for every UOA)
 
-    result = yield thunkQuery(
+    var result = yield thunkQuery(
         ProductUOA
             .update({currentStepId: null})
             .where(ProductUOA.productId.equals(productId))

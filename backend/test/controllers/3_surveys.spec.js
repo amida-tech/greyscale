@@ -24,7 +24,11 @@ testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.ad
 testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
 
 var allUsers  = [];
-var token;
+var tokenSuperAdmin,
+    tokenAdmin,
+    tokenUser1,
+    tokenUser2,
+    tokenUser3;
 var obj ={};
 var path = '/surveys';
 var testTitle='Surveys: ';

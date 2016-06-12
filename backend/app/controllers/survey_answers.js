@@ -34,9 +34,9 @@ var
     bytes = require('bytes'),
     thunkQuery = thunkify(query);
 
-    AWS = require('aws-sdk');
+var AWS = require('aws-sdk');
     AWS.config.update(config.aws);
-    var s3 = new AWS.S3();
+var s3 = new AWS.S3();
 
 var debug = require('debug')('debug_survey_answers');
 debug.log = console.log.bind(console);
@@ -61,8 +61,8 @@ module.exports = {
                             'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
-                    .from(SurveyAnswer)
-                , _.omit(req.query)
+                    .from(SurveyAnswer),
+                _.omit(req.query)
             );
         }).then(function (data) {
             res.json(data);
@@ -75,12 +75,12 @@ module.exports = {
     getByProdUoa: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        var isLast = req.query.only && req.query.only == 'last';
+        var isLast = req.query.only && req.query.only === 'last';
 
         co(function* () {
             var condition = _.pick(req.params,['productId','UOAid']);
 
-            if(req.user.roleID == 3) {
+            if(req.user.roleID === 3) {
                 var user_tasks = yield thunkQuery(
                     Task.select()
                     .where(
@@ -99,7 +99,7 @@ module.exports = {
                 }
             }
 
-            if(req.user.roleID == 2){
+            if(req.user.roleID === 2){
                 var org = yield thunkQuery(
                     Product
                     .select(Organization.star())
@@ -120,17 +120,17 @@ module.exports = {
                     );
                 }
 
-                if (org[0].id != req.user.organizationId) {
+                if (org[0].id !== req.user.organizationId) {
                     throw new HttpError(
                         403,
                         'You cannot see answers from other organizations'
                     );
                 }
             }
-
+            var q;
             if (isLast) {
 
-                var q = pgEscape(
+                q = pgEscape(
                     'SELECT ' +
                     's.*, ' +
                     '(SELECT array_agg(row_to_json(att)) FROM (' +
@@ -161,7 +161,7 @@ module.exports = {
                 );
 
             } else {
-                var q = SurveyAnswer
+                q = SurveyAnswer
                     .select(
                         SurveyAnswer.star(),
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
@@ -176,7 +176,7 @@ module.exports = {
                         ') as att) as attachments'
                     )
                     .from(SurveyAnswer)
-                    .where(condition)
+                    .where(condition);
             }
 
             return yield thunkQuery(q, _.omit(req.query,['productId','UOAid']));
@@ -248,7 +248,7 @@ module.exports = {
     update: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* (){
-            if((typeof req.body.isResponse == 'undefined') || (typeof req.body.value == 'undefined')){
+            if((typeof req.body.isResponse === 'undefined') || (typeof req.body.value === 'undefined')){
                 throw new HttpError(400, 'You should pass isResponse and value parameters');
             }
 
@@ -288,7 +288,7 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (result.task.userId != req.user.id) {
+            if (result.task.userId !== req.user.id) {
                 throw new HttpError(
                     403,
                     'Task (id = '+ result.task.id +') on current workflow step assigned to another user ' +
@@ -300,10 +300,11 @@ module.exports = {
             //    throw new HttpError(403, 'You do not have permission to edit answers');
             //}
 
+            var updateObj;
             if (req.body.isResponse) {
-                var updateObj = {comments: req.body.value};
+                updateObj = {comments: req.body.value};
             } else {
-                var updateObj = {value: req.body.value};
+                updateObj = {value: req.body.value};
             }
 
             return yield thunkQuery(
@@ -477,7 +478,7 @@ function *addAnswer (req, dataObject) {
     if (!curStep.task) {
         throw new HttpError(403, 'Task is not defined');
     }
-    if (curStep.task.userId != req.user.id) {
+    if (curStep.task.userId !== req.user.id) {
         throw new HttpError(403, 'Task at this step assigned to another user');
     }
 
@@ -487,7 +488,7 @@ function *addAnswer (req, dataObject) {
             if (!dataObject.optionId && !dataObject.isResponse  && !req.query.autosave) {
                 throw new HttpError(403, 'You should provide optionId for this type of question');
             } else {
-                for (optIndex in dataObject.optionId) {
+                for (var optIndex in dataObject.optionId) {
                     var option = yield thunkQuery(
                         SurveyQuestionOption
                             .select()
@@ -536,8 +537,9 @@ function *addAnswer (req, dataObject) {
         dataObject.version = null;
     }
 
+    var answer;
     if (existsNullVer[0]) {
-        var answer = {id : existsNullVer[0].id};
+        answer = {id : existsNullVer[0].id};
         editFields.push('version');
         dataObject.updated = new Date();
         yield thunkQuery(
@@ -556,7 +558,7 @@ function *addAnswer (req, dataObject) {
     } else {
         dataObject.userId = req.user.realmUserId; // add from realmUserId instead of user id
         delete dataObject.id;
-        var answer = yield thunkQuery(
+        answer = yield thunkQuery(
             SurveyAnswer
                 .insert(_.pick(dataObject, SurveyAnswer.table._initialConfig.columns))
                 .returning(SurveyAnswer.id)

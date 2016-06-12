@@ -69,10 +69,11 @@ module.exports = {
     select: function (req, res, next) {
 
         co(function* () {
-            if (req.user.roleID == 1 && req.params.realm == config.pgConnect.adminSchema) {
-                var data = [];
+            var thunkQuery, data;
+            if (req.user.roleID === 1 && req.params.realm === config.pgConnect.adminSchema) {
+                data = [];
                 for (var i in req.schemas) {
-                    var thunkQuery = thunkify(new Query(req.schemas[i]));
+                    thunkQuery = thunkify(new Query(req.schemas[i]));
                     var org = yield thunkQuery(
                         Organization
                             .select(
@@ -95,9 +96,9 @@ module.exports = {
                 return data;
 
             } else {
-                var thunkQuery = thunkify(new Query(req.params.realm));
+                thunkQuery = thunkify(new Query(req.params.realm));
 
-                var data = yield thunkQuery(
+                data = yield thunkQuery(
                     Organization
                         .select(
                             Organization.star(),
@@ -124,7 +125,7 @@ module.exports = {
     editOne: function (req, res, next) {
         var clientThunkQuery = req.thunkQuery;
 
-        if (req.params.realm == config.pgConnect.adminSchema) {
+        if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
 
@@ -155,7 +156,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
 
-        if (req.user.roleID != 1) {
+        if (req.user.roleID !== 1) {
             throw new HttpError(403, 'Only super admin can create organizations');
         }
 
@@ -165,9 +166,9 @@ module.exports = {
             yield *checkOrgData(req);
 
             yield adminThunkQuery(pgEscape(
-                "SELECT clone_schema('%s','%s', true)"
-                ,config.pgConnect.sceletonSchema
-                ,req.body.realm
+                "SELECT clone_schema('%s','%s', true)",
+                config.pgConnect.sceletonSchema,
+                req.body.realm
             ));
 
             var clientThunkQuery = thunkify(new Query(req.body.realm));
@@ -269,7 +270,7 @@ module.exports = {
                 throw new HttpError(403, 'Organization with id = '+req.params.id+' does not exist');
             }
 
-            if (req.user.roleID !== 1 && req.user.organizationId != req.params.id) {
+            if (req.user.roleID !== 1 && req.user.organizationId !== req.params.id) {
                 throw new HttpError(
                     403,
                     'You cannot add user to other organizations'
@@ -339,6 +340,7 @@ module.exports = {
                             }else{
                                 // Validate and Set DEFAULT
                                 // langId
+                                var ret;
                                 if (!newUser.lang) {
                                     // default EN
                                     ret = yield thunkQuery(Language.select().where(Language.code.equals('en')));
@@ -362,12 +364,13 @@ module.exports = {
                                 // choose invite template
                                 var inviteTemplate = (newUser.isActive) ? 'orgInvite' : 'orgInvitePwd';
                                 // If valid, then created
+                                var created;
                                 if (valid) {
                                     newUser.salt = crypto.randomBytes(16).toString('hex');
                                     newUser.password = User.hashPassword(newUser.salt, pass);
                                     newUser.activationToken = crypto.randomBytes(32).toString('hex');
                                     try{
-                                        var created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
+                                        created = yield thunkQuery(User.insert(_.pick(newUser, User.whereCol)).returning(User.id));
                                     }catch(e){
                                         newUser.messages.push(e);
                                         valid = false;
@@ -422,7 +425,7 @@ module.exports = {
             res.json(data);
         }, function (err) {
             next(err);
-        })
+        });
     }
 };
 
@@ -443,9 +446,9 @@ function* checkOrgData(req){
             "INNER JOIN pg_catalog.pg_user " +
             "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
             "AND (pg_catalog.pg_user.usename = '%s')" +
-            "WHERE pg_catalog.pg_namespace.nspname = '%s'"
-            ,cpg.user
-            ,req.body.realm
+            "WHERE pg_catalog.pg_namespace.nspname = '%s'",
+            cpg.user,
+            req.body.realm
         ));
 
         if (schemas.length) {

@@ -24,7 +24,7 @@ var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
-app = require('express')();
+var app = require('express')();
 
 // Init mongoose connection and set event listeners
 //require('app/db_bootstrap')(app);
@@ -41,10 +41,11 @@ app.on('start', function () {
     app.use('/:realm',function(req, res, next){
         // realm not set
         var cpg = config.pgConnect;
+        var schemas;
         co(function*(){
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
                 try{
-                    var schemas = yield mc.get(req.mcClient, 'schemas');
+                    schemas = yield mc.get(req.mcClient, 'schemas');
                 }catch(e){
                     throw new HttpError(500, e);
                 }
@@ -53,7 +54,7 @@ app.on('start', function () {
             if (schemas) {
                 req.schemas = schemas.split(',');
             } else {
-                var schemas = yield thunkQuery(
+                schemas = yield thunkQuery(
                     "SELECT pg_catalog.pg_namespace.nspname " +
                     "FROM pg_catalog.pg_namespace " +
                     "INNER JOIN pg_catalog.pg_user " +
@@ -62,20 +63,20 @@ app.on('start', function () {
                 );
                 req.schemas = [];
                 for (var i in schemas) {
-                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) == -1) {
+                    if ([cpg.sceletonSchema, cpg.adminSchema].indexOf(schemas[i].nspname) === -1) {
                         req.schemas.push(schemas[i].nspname);
                     }
                 }
                 if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
                     try{
-                        var schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
+                        schemas = yield mc.set(req.mcClient, 'schemas', req.schemas, 60);
                     }catch(e){
                         throw new HttpError(500, e);
                     }
                 }
             }
 
-            if (req.params.realm != cpg.adminSchema && req.schemas.indexOf(req.params.realm) == -1) {
+            if (req.params.realm !== cpg.adminSchema && req.schemas.indexOf(req.params.realm) === -1) {
                 throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
             }
             return req.params.realm;

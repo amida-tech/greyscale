@@ -19,7 +19,7 @@ module.exports = {
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
                     "format('[%s]', " +
-                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " + 
+                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " +
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
                         "), ',')" +
@@ -51,7 +51,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
@@ -60,7 +60,9 @@ module.exports = {
                 title: req.body.title,
                 organizationId: req.params.organizationId
             };
-            if (typeof req.body.targetIds !== "undefined") viz.uoaIds = req.body.targetIds;
+            if (typeof req.body.targetIds !== "undefined") {
+                viz.uoaIds = req.body.targetIds;
+            }
             var result = yield thunkQuery(ComparativeVisualization.insert(viz).returning(ComparativeVisualization.id));
             console.log("VIZID", result[0].id);
 
@@ -84,7 +86,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID != 1 && (req.user.organizationId != req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
@@ -146,7 +148,7 @@ module.exports = {
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
                     "format('[%s]', " +
-                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " + 
+                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " +
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
                         "), ',')" +
@@ -449,7 +451,7 @@ function parseProductsString(productsString) {
     try {
         return JSON.parse(productsString);
     } catch (e) {
-        return []
+        return [];
     }
 }
 

@@ -1,4 +1,4 @@
-var 
+var
     _ = require('underscore'),
     config = require('config'),
     co = require('co'),
@@ -8,9 +8,9 @@ var
     thunkQuery = thunkify(query);
 
 
-expObj = {
+var expObj = {
     set: function(client, key, value, lifetime){
-        if (typeof lifetime == 'undefined') {
+        if (typeof lifetime === 'undefined') {
             lifetime = config.mc.lifetime;
         }
         return new Promise(function(resolve, reject){
@@ -20,8 +20,8 @@ expObj = {
                         reject(error);
                     }
                     resolve(result);
-                }
-                ,lifetime
+                },
+                lifetime
             );
         });
     },

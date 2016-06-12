@@ -55,7 +55,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function*(){
-            return data = yield thunkQuery(
+            return yield thunkQuery(
                 Project.delete().where(Project.id.equals(req.params.id))
             );
         }).then(function(data){
@@ -155,7 +155,7 @@ module.exports = {
         co(function* () {
             yield * checkProjectData(req);
             // patch for status
-            req.body = _extend(req.body, {status: 1});
+            req.body = _.extend(req.body, {status: 1});
             req.body = _.extend(req.body, {userAdminId: req.user.realmUserId}); // add from realmUserId instead of user id
             var result = yield thunkQuery(
                 Project
@@ -186,7 +186,7 @@ function* checkProjectData(req) {
     var thunkQuery = req.thunkQuery;
     var orgId = req.user.organizationId;
 
-    if(req.user.roleID == 1){
+    if(req.user.roleID === 1){
         orgId = req.body.organizationId;
     }
 
@@ -218,8 +218,8 @@ function* checkProjectData(req) {
         req.body.organizationId = orgId;
     }
 
-    if(typeof req.body.status != 'undefined'){
-        if (Project.statuses.indexOf(req.body.status) == -1) {
+    if(typeof req.body.status !== 'undefined'){
+        if (Project.statuses.indexOf(req.body.status) === -1) {
             throw new HttpError(403, 'Status can be only 1 (active) and 0 (inactive)');
         }
     }
