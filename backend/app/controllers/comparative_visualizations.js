@@ -18,11 +18,11 @@ module.exports = {
                 .select(
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
-                    "format('[%s]', " +
-                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " +
+                    'format(\'[%s]\', ' +
+                        'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
-                        "), ',')" +
+                        '), \',\')' +
                     ') AS products ',
                     '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )
@@ -60,11 +60,11 @@ module.exports = {
                 title: req.body.title,
                 organizationId: req.params.organizationId
             };
-            if (typeof req.body.targetIds !== "undefined") {
+            if (typeof req.body.targetIds !== 'undefined') {
                 viz.uoaIds = req.body.targetIds;
             }
             var result = yield thunkQuery(ComparativeVisualization.insert(viz).returning(ComparativeVisualization.id));
-            console.log("VIZID", result[0].id);
+            console.log('VIZID', result[0].id);
 
             // insert ComparativeVisualizationProducts
             var products = req.body.products || [];
@@ -115,7 +115,7 @@ module.exports = {
             // insert new ones
             (req.body.products || []).forEach(function (product) {
                 q += 'INSERT INTO "ComparativeVisualizationProducts" ("visualizationId", "productId", "indexId")' +
-                    "VALUES ('" + req.params.id + "', '" + product.productId + "', '" + product.indexId + "'); ";
+                    'VALUES (\'' + req.params.id + '\', \'' + product.productId + '\', \'' + product.indexId + '\'); ';
             });
             q += 'COMMIT; ';
             yield thunkQuery(q);
@@ -147,11 +147,11 @@ module.exports = {
                 .select(
                     ComparativeVisualization.id,
                     ComparativeVisualization.title,
-                    "format('[%s]', " +
-                        "string_agg(format('{ \"productId\": %s, \"indexId\": %s }', " +
+                    'format(\'[%s]\', ' +
+                        'string_agg(format(\'{ "productId": %s, "indexId": %s }\', ' +
                             '"ComparativeVisualizationProducts"."productId", ' +
                             '"ComparativeVisualizationProducts"."indexId" ' +
-                        "), ',')" +
+                        '), \',\')' +
                     ') AS products',
                     '"ComparativeVisualizations"."uoaIds" AS "targetIds"'
                 )

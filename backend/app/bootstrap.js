@@ -55,11 +55,11 @@ app.on('start', function () {
                 req.schemas = schemas.split(',');
             } else {
                 schemas = yield thunkQuery(
-                    "SELECT pg_catalog.pg_namespace.nspname " +
-                    "FROM pg_catalog.pg_namespace " +
-                    "INNER JOIN pg_catalog.pg_user " +
-                    "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-                    "AND (pg_catalog.pg_user.usename = '" + cpg.user + "')"
+                    'SELECT pg_catalog.pg_namespace.nspname ' +
+                    'FROM pg_catalog.pg_namespace ' +
+                    'INNER JOIN pg_catalog.pg_user ' +
+                    'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
+                    'AND (pg_catalog.pg_user.usename = \'' + cpg.user + '\')'
                 );
                 req.schemas = [];
                 for (var i in schemas) {
@@ -77,7 +77,7 @@ app.on('start', function () {
             }
 
             if (req.params.realm !== cpg.adminSchema && req.schemas.indexOf(req.params.realm) === -1) {
-                throw new HttpError(400, "Namespace " + req.params.realm + " does not exist");
+                throw new HttpError(400, 'Namespace ' + req.params.realm + ' does not exist');
             }
             return req.params.realm;
         }).then(function(data){

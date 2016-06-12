@@ -89,7 +89,7 @@ describe('Organizations:', function () {
                     if (err) {
                         return done(err);
                     }
-                    expect(res.body.activationToken).to.be.a("string");
+                    expect(res.body.activationToken).to.be.a('string');
 
                     activationToken = res.body.activationToken;
 

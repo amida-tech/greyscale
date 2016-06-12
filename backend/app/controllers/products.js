@@ -1650,8 +1650,8 @@ function* dumpProduct(req, productId) {
           '  "SurveyAnswers"."UOAid" AS "id", ' +
           '  "UnitOfAnalysis"."name", ' +
           '  "UnitOfAnalysis"."ISO2", ' +
-          "  format('{%s}', " +
-          "    string_agg(format('\"%s\":%s', " +
+          '  format(\'{%s}\', ' +
+          '    string_agg(format(\'"%s":%s\', ' +
           '      "SurveyQuestions".id, ' +
           // use optionId for multichoice questions, value otherwise
           '      CASE ' +
@@ -1659,7 +1659,7 @@ function* dumpProduct(req, productId) {
           '          THEN format(\'[%s]\', array_to_string("SurveyAnswers"."optionId", \',\')) ' +
           '        ELSE format(\'"%s"\', "SurveyAnswers"."value") ' +
           '      END ' +
-          "    ), ',') " +
+          '    ), \',\') ' +
           '  ) AS "questions" ' +
           'FROM ' +
           '  "SurveyQuestions" ' +
@@ -1739,8 +1739,8 @@ function* getSubindexes(req, productId) {
           '  "Subindexes"."id", ' +
           '  "Subindexes"."title", ' +
           '  "Subindexes"."divisor"::float, ' +
-          "  format('{%s}', " +
-          "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
+          '  format(\'{%s}\', ' +
+          '    string_agg(format(\'"%s":{"weight": %s, "type": "%s", "aggregateType": %s}\', ' +
           '      "SubindexWeights"."questionId", ' +
           '      "SubindexWeights"."weight", ' +
           '      "SubindexWeights"."type", ' +
@@ -1748,7 +1748,7 @@ function* getSubindexes(req, productId) {
           '        WHEN "SubindexWeights"."aggregateType" is null THEN \'null\' ' +
           '        ELSE format(\'"%s"\', "SubindexWeights"."aggregateType") ' +
           '      END ' +
-          "    ), ',') " +
+          '    ), \',\') ' +
           '  ) AS "weights" ' +
           'FROM ' +
           '  "Subindexes" ' +
@@ -1775,8 +1775,8 @@ function* getIndexes(req, productId) {
         '  "Indexes"."id", ' +
         '  "Indexes"."title", ' +
         '  "Indexes"."divisor"::float, ' +
-        "  format('{%s}', " +
-        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\", \"aggregateType\": %s}', " +
+        '  format(\'{%s}\', ' +
+        '    string_agg(format(\'"%s":{"weight": %s, "type": "%s", "aggregateType": %s}\', ' +
         '      "IndexQuestionWeights"."questionId", ' +
         '      "IndexQuestionWeights"."weight", ' +
         '      "IndexQuestionWeights"."type", ' +
@@ -1784,14 +1784,14 @@ function* getIndexes(req, productId) {
         '        WHEN "IndexQuestionWeights"."aggregateType" is null THEN \'null\' ' +
         '        ELSE format(\'"%s"\', "IndexQuestionWeights"."aggregateType") ' +
         '      END ' +
-        "    ), ',') " +
+        '    ), \',\') ' +
         '  ) AS "questionWeights", ' +
-        "  format('{%s}', " +
-        "    string_agg(format('\"%s\":{\"weight\": %s, \"type\": \"%s\"}', " +
+        '  format(\'{%s}\', ' +
+        '    string_agg(format(\'"%s":{"weight": %s, "type": "%s"}\', ' +
         '      "IndexSubindexWeights"."subindexId"::text, ' +
         '      "IndexSubindexWeights"."weight", ' +
         '      "IndexSubindexWeights"."type" ' +
-        "    ), ',') " +
+        '    ), \',\') ' +
         '  ) AS "subindexWeights" ' +
         'FROM ' +
         '  "Indexes" ' +
@@ -1851,7 +1851,7 @@ function* parseNumericalAnswer(raw, questionType) {
         // selected options
         parsed = raw.map(parseFloat);
     } else {
-        debug("Non-numerical question of type %d", questionType);
+        debug('Non-numerical question of type %d', questionType);
         parsed = parseFloat(raw);
     }
     return parsed;
@@ -1985,7 +1985,7 @@ function calcTerm(weights, vals, minsMaxes) {
         var val = vals[id];
 
         if (val && val.constructor === Array) {
-            if (weight.aggregateType === "average") { // average
+            if (weight.aggregateType === 'average') { // average
                 val = avg(val);
             } else { // sum
                 weight.aggregateType = 'sum';

@@ -166,7 +166,7 @@ module.exports = {
             yield *checkOrgData(req);
 
             yield adminThunkQuery(pgEscape(
-                "SELECT clone_schema('%s','%s', true)",
+                'SELECT clone_schema(\'%s\',\'%s\', true)',
                 config.pgConnect.sceletonSchema,
                 req.body.realm
             ));
@@ -441,12 +441,12 @@ function* checkOrgData(req){
         }
 
         var schemas = yield adminThunkQuery(pgEscape( // better to select from db instead of memcache
-            "SELECT pg_catalog.pg_namespace.nspname " +
-            "FROM pg_catalog.pg_namespace " +
-            "INNER JOIN pg_catalog.pg_user " +
-            "ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) " +
-            "AND (pg_catalog.pg_user.usename = '%s')" +
-            "WHERE pg_catalog.pg_namespace.nspname = '%s'",
+            'SELECT pg_catalog.pg_namespace.nspname ' +
+            'FROM pg_catalog.pg_namespace ' +
+            'INNER JOIN pg_catalog.pg_user ' +
+            'ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid) ' +
+            'AND (pg_catalog.pg_user.usename = \'%s\')' +
+            'WHERE pg_catalog.pg_namespace.nspname = \'%s\'',
             cpg.user,
             req.body.realm
         ));

@@ -19,7 +19,7 @@ var prepareValue = function(val, seen) {
         return pgEscape.literal(dateToString(val));
     }
     if(Array.isArray(val)) {
-        return "'"+arrayString(val)+"'";
+        return '\''+arrayString(val)+'\'';
     }
     if(val === null || typeof val === 'undefined') {
         return null;
@@ -48,9 +48,9 @@ function prepareObject(val, seen) {
 
 function dateToString(date) {
     function pad(number, digits) {
-        number = ""+number;
+        number = ''+number;
         while(number.length < digits) {
-            number = "0"+number;
+            number = '0'+number;
         }
         return number;
     }
@@ -65,13 +65,13 @@ function dateToString(date) {
         pad(date.getMilliseconds(), 3);
 
     if(offset < 0) {
-        ret += "-";
+        ret += '-';
         offset *= -1;
     }
     else {
-        ret += "+";
+        ret += '+';
     }
-    return ret + pad(Math.floor(offset/60), 2) + ":" + pad(offset%60, 2);
+    return ret + pad(Math.floor(offset/60), 2) + ':' + pad(offset%60, 2);
 }
 
 function arrayString(val) {
@@ -132,7 +132,7 @@ exports.Query = function (realm) {
 
                 queryString =
                     (typeof realm !== 'undefined') ?
-                    ("SET search_path TO "+realm+"; " + queryObject)
+                    ('SET search_path TO '+realm+'; ' + queryObject)
                     : queryObject;
                 debug(queryString);
 
@@ -217,7 +217,7 @@ exports.Query = function (realm) {
                 queryString =
                     (typeof realm === 'undefined') ?
                         queryObject.toQuery().text :
-                        "SET search_path TO " + realm + "; " + queryObject.toQuery().text;
+                        'SET search_path TO ' + realm + '; ' + queryObject.toQuery().text;
 
                 var values = queryObject.toQuery().values;
 
