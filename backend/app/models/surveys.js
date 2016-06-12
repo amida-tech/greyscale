@@ -13,7 +13,7 @@ var Survey = sql.define({
     ]
 });
 
-Survey.editCols = ['title','description','isDraft'];
+Survey.editCols = ['title', 'description', 'isDraft'];
 
 Survey.translate = [
     'title',

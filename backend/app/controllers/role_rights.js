@@ -87,11 +87,11 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 RoleRights.delete().where(_.pick(req.params, ['roleID', 'rightID']))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -101,7 +101,7 @@ module.exports = {
                 info: 'Delete right from role'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     }

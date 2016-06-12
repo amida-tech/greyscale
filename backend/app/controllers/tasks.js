@@ -51,54 +51,54 @@ module.exports = {
                 .select(
                     Task.star(),
                     'CASE ' +
-                        'WHEN '+
-                            '(' +
-                            'SELECT ' +
-                            '"Discussions"."id" ' +
-                                'FROM "Discussions" ' +
-                            'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                            'AND "Discussions"."isReturn" = true ' +
-                            'AND "Discussions"."isResolve" = false ' +
-                            'AND "Discussions"."activated" = true ' +
-                            'LIMIT 1' +
-                            ') IS NULL ' +
-                        'THEN FALSE ' +
-                        'ELSE TRUE ' +
+                    'WHEN ' +
+                    '(' +
+                    'SELECT ' +
+                    '"Discussions"."id" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
+                    ') IS NULL ' +
+                    'THEN FALSE ' +
+                    'ELSE TRUE ' +
                     'END as flagged',
-                    '( '+
-                        'SELECT count("Discussions"."id") ' +
-                            'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
+                    '( ' +
+                    'SELECT count("Discussions"."id") ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
                     ') as flaggedCount',
                     '(' +
-                        'SELECT ' +
-                        '"Discussions"."taskId" ' +
-                            'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
-                        'LIMIT 1' +
+                    'SELECT ' +
+                    '"Discussions"."taskId" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
                     ') as flaggedFrom',
                     'CASE ' +
-                        'WHEN ' +
-                            '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                            'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                        'THEN \'completed\' ' +
-                        'WHEN (' +
-                            '"' + curStepAlias + '"."position" IS NULL ' +
-                            'AND ("WorkflowSteps"."position" = 0) ' +
-                            'AND ("Products"."status" = 1)' +
-                        ')' +
-                        'OR (' +
-                            '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                            'AND ("Products"."status" = 1)' +
-                        ')' +
-                        'THEN \'current\' ' +
-                        'ELSE \'waiting\'' +
+                    'WHEN ' +
+                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
+                    'THEN \'completed\' ' +
+                    'WHEN (' +
+                    '"' + curStepAlias + '"."position" IS NULL ' +
+                    'AND ("WorkflowSteps"."position" = 0) ' +
+                    'AND ("Products"."status" = 1)' +
+                    ')' +
+                    'OR (' +
+                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                    'AND ("Products"."status" = 1)' +
+                    ')' +
+                    'THEN \'current\' ' +
+                    'ELSE \'waiting\'' +
                     'END as status '
                 )
                 .from(
@@ -110,7 +110,7 @@ module.exports = {
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(Task.productId)
-                            .and(ProductUOA.UOAid.equals(Task.uoaId))
+                        .and(ProductUOA.UOAid.equals(Task.uoaId))
                     )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(
@@ -133,11 +133,11 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 Task.delete().where(Task.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -147,7 +147,7 @@ module.exports = {
                 info: 'Delete task'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -179,7 +179,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
-            req.body = _.extend(req.body, {userId: req.user.realmUserId}); // add from realmUserId instead of user id
+            req.body = _.extend(req.body, {
+                userId: req.user.realmUserId
+            }); // add from realmUserId instead of user id
             var result = yield thunkQuery(
                 Task
                 .insert(

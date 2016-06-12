@@ -3,20 +3,19 @@ var expect = chai.expect;
 var config = require('../../config');
 var request = require('supertest');
 
-var superAdmin   = config.testEntities.superAdmin;
-var admin        = config.testEntities.admin;
-var users        = config.testEntities.users;
+var superAdmin = config.testEntities.superAdmin;
+var admin = config.testEntities.admin;
+var users = config.testEntities.users;
 var organization = config.testEntities.organization;
 
-var api_base          = 'http://localhost:' + config.port + '/';
-var api               = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
+var api_base = 'http://localhost:' + config.port + '/';
+var api = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
 var api_created_realm = request.agent(api_base + organization.realm + '/v0.2');
 
 var suToken;
 var admToken;
 var activationToken;
 var orgId;
-
 
 describe('Users:', function () {
 
@@ -44,7 +43,7 @@ describe('Users:', function () {
         //loginUserTest(users[i]);
     }
 
-    function inviteUserTest(user){
+    function inviteUserTest(user) {
         it('Invite usual user ' + user.firstName, function (done) {
             api_created_realm
                 .post('/users/self/organization/invite') // invite
@@ -71,7 +70,7 @@ describe('Users:', function () {
         });
     }
 
-    function loginUserTest(user){
+    function loginUserTest(user) {
         it('Authorize usual user ' + user.firstName, function (done) {
             api_created_realm
                 .get('/users/token')

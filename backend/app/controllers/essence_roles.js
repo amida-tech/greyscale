@@ -23,20 +23,21 @@ module.exports = {
         co(function* () {
             var q = EssenceRole.select(EssenceRole.star());
             var from = EssenceRole;
-            if(req.query.essenceId){
+            if (req.query.essenceId) {
                 var essence = yield thunkQuery(
                     Essence.select().where(Essence.id.equals(req.query.essenceId))
                 );
                 if (essence[0]) {
                     debug(essence[0]);
+                    var Model;
                     try {
-                        var Model = require('app/models/' + essence[0].fileName);
-                    }catch(e){
+                        Model = require('app/models/' + essence[0].fileName);
+                    } catch (e) {
                         throw new HttpError(403, 'Cannot load model\'s file: ' + essence[0].fileName);
                     }
                     from = from.leftJoin(Model).on(EssenceRole.entityId.equals(Model.id));
                     q = q.select('row_to_json("' + Model.table._name + '".*) as entity');
-                }else{
+                } else {
                     throw new HttpError(403, 'Entity type with id = ' + req.query.essenceId + ' does not exist');
                 }
             }
@@ -55,17 +56,17 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
-            var data =  yield thunkQuery(
+        co(function* () {
+            var data = yield thunkQuery(
                 EssenceRole.select().from(EssenceRole).where(EssenceRole.id.equals(req.params.id))
             );
             if (!_.first(data)) {
                 return next(new HttpError(404, 'Not found'));
             }
             return data;
-        }).then(function(data){
+        }).then(function (data) {
             res.json(_.first(data));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -85,13 +86,13 @@ module.exports = {
 
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 EssenceRole.delete().where(EssenceRole.id.equals(req.params.id))
             );
-        }).then(function() {
+        }).then(function () {
             res.status(204).end();
-        },function(err) {
+        }, function (err) {
             next(err);
         });
 

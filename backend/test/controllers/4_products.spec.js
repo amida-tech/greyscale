@@ -12,19 +12,19 @@ var request = require('supertest');
 var _ = require('underscore');
 
 var testEnv = {};
-testEnv.superAdmin   = config.testEntities.superAdmin;
-testEnv.admin        = config.testEntities.admin;
-testEnv.users        = config.testEntities.users;
+testEnv.superAdmin = config.testEntities.superAdmin;
+testEnv.admin = config.testEntities.admin;
+testEnv.users = config.testEntities.users;
 testEnv.organization = config.testEntities.organization;
 
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base          = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api               = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
+testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
 testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
 
 var token;
-var obj ={};
+var obj = {};
 var path = '/products';
 
 // make all users list
@@ -38,7 +38,7 @@ describe('Products:', function () {
         var insertItem = {
             title: 'Test product',
             description: 'Description of test product',
-            projectId: 2,  // todo get from user self
+            projectId: 2, // todo get from user self
             surveyId: obj.survey.id,
             status: Products.statuses[0]
         };
@@ -47,7 +47,6 @@ describe('Products:', function () {
             //it('Select: correctly sets the X-Total-Count header ', function (done) {
             //    ithelper.checkHeaderValue(testEnv.api_created_realm, path, token, 200, 'X-Total-Count', 0, done);
             //});
-
 
             it('Select: true number of records', function (done) {
                 ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
@@ -107,7 +106,7 @@ describe('Products:', function () {
             describe('Save test environment objects', function () {
                 it('Save from products ***', function (done) {
                     obj.product = insertItem;
-                    config.testEntities.obj = _.extend({},obj);
+                    config.testEntities.obj = _.extend({}, obj);
                     done();
                 });
             });
@@ -115,7 +114,7 @@ describe('Products:', function () {
     }
 
     function makeTests(user) {
-        it('Authorize user ' + user.firstName, function(done) {
+        it('Authorize user ' + user.firstName, function (done) {
             var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
             api
                 .get('/users/token')
@@ -130,8 +129,8 @@ describe('Products:', function () {
 
                     describe('Get test environment objects', function () {
                         it('Get to products ***', function (done) {
-                            if (_.isEmpty(obj)){
-                                obj = _.extend({},config.testEntities.obj);
+                            if (_.isEmpty(obj)) {
+                                obj = _.extend({}, config.testEntities.obj);
                             }
                             done();
                         });

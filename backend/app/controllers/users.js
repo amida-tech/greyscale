@@ -47,8 +47,8 @@ module.exports = {
         co(function* () {
             var needNewToken = true; // before false. Always new token
             var data = yield thunkQuery(Token.select().where({
-                userID : req.user.id,
-                realm  : req.params.realm
+                userID: req.user.id,
+                realm: req.params.realm
             }));
             if (!data.length) {
                 needNewToken = true;
@@ -60,9 +60,9 @@ module.exports = {
                 var token = yield thunkrandomBytes(32);
                 token = token.toString('hex');
                 var record = yield thunkQuery(Token.insert({
-                    userID : req.user.id,
-                    body   : token,
-                    realm  : req.params.realm
+                    userID: req.user.id,
+                    body: token,
+                    realm: req.params.realm
                 }).returning(Token.body));
                 bologger.log({
                     //req: req, Does not use req if you want to use public namespace TODO realm?
@@ -70,9 +70,9 @@ module.exports = {
                     action: 'insert',
                     object: 'token',
                     entities: {
-                        userID : req.user.id,
-                        body   : token,
-                        realm  : req.params.realm
+                        userID: req.user.id,
+                        body: token,
+                        realm: req.params.realm
                     },
                     quantity: 1,
                     info: 'Add new token'
@@ -119,7 +119,7 @@ module.exports = {
     },
 
     logout: function (req, res, next) {
-        co(function*(){
+        co(function* () {
             var id = req.params.id || req.user.id;
 
             if (!id) {
@@ -128,28 +128,28 @@ module.exports = {
 
             yield thunkQuery(
                 Token
-                    .delete()
-                    .where(
-                        Token.userID.equals(id)
-                        .and(Token.realm.equals(req.params.realm))
-                    )
+                .delete()
+                .where(
+                    Token.userID.equals(id)
+                    .and(Token.realm.equals(req.params.realm))
+                )
             );
 
-        }).then(function(){
+        }).then(function () {
             bologger.log({
                 //req: req, Does not use req if you want to use public namespace TODO realm?
                 user: req.user,
                 action: 'delete',
                 object: 'token',
                 entities: {
-                    userID : req.params.id || req.user.id,
-                    realm  : req.params.realm
+                    userID: req.params.id || req.user.id,
+                    realm: req.params.realm
                 },
                 quantity: 1,
                 info: 'Delete token'
             });
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -167,7 +167,7 @@ module.exports = {
             var user = thunkQuery(
                 User.select(
                     User.star(),
-                    req.params.realm == config.pgConnect.adminSchema ? 'null' : groupQuery
+                    req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
                 ),
                 _.omit(req.query, 'offset', 'limit', 'order')
             );
@@ -183,7 +183,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield *insertOne(req, res, next);
+            return yield * insertOne(req, res, next);
         }).then(function (data) {
             res.status(201).json(User.view(_.first(data)));
         }, function (err) {
@@ -196,11 +196,11 @@ module.exports = {
         var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
         co(function* () {
 
-            if (req.params.realm != config.pgConnect.adminSchema) {
+            if (req.params.realm !== config.pgConnect.adminSchema) {
                 throw new HttpError(400, 'Incorrect realm');
             }
 
-            if (req.user.roleID != 1) {
+            if (req.user.roleID !== 1) {
                 throw new HttpError(403, 'You cannot invite super admins');
             }
 
@@ -231,8 +231,8 @@ module.exports = {
                 'password': User.hashPassword(salt, pass),
                 'isActive': false,
                 'activationToken': activationToken,
-                'isAnonymous' : false,
-                'notifyLevel' : req.body.notifyLevel
+                'isAnonymous': false,
+                'notifyLevel': req.body.notifyLevel
             };
 
             var user = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -247,9 +247,8 @@ module.exports = {
             });
 
             var essenceId = yield * common.getEssenceId(req, 'Users');
-            var note = yield * notifications.createNotification(req,
-                {
-                    userFrom: req.user.realmUserId ? req.user.realmUserId : userId,
+            var note = yield * notifications.createNotification(req, {
+                    userFrom: req.user.realmUserId ? req.user.realmUserId : req.user.id,
                     userTo: _.first(user).id,
                     body: 'Superadmin Invite',
                     essenceId: essenceId,
@@ -327,13 +326,11 @@ module.exports = {
     selfOrganization: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            var org = false;
-
             var org = yield thunkQuery(
                 Organization
-                    .select(Organization.star())
-                    .from(Organization)
-                    .where(Organization.id.equals(req.user.organizationId))
+                .select(Organization.star())
+                .from(Organization)
+                .where(Organization.id.equals(req.user.organizationId))
             );
             org = _.first(org);
 
@@ -362,9 +359,9 @@ module.exports = {
             };
             var updated = yield thunkQuery(
                 Organization
-                    .update(data)
-                    .where(Organization.adminUserId.equals(req.user.id))
-                    .returning(Organization.id)
+                .update(data)
+                .where(Organization.adminUserId.equals(req.user.id))
+                .returning(Organization.id)
             );
             if (!_.first(updated)) {
                 throw new HttpError(404, 'Not found');
@@ -387,13 +384,13 @@ module.exports = {
 
     selfOrganizationInvite: function (req, res, next) {
 
-        if (req.params.realm == config.pgConnect.adminSchema) {
+        if (req.params.realm === config.pgConnect.adminSchema) {
             throw new HttpError(400, 'Incorrect realm');
         }
 
         co(function* () {
 
-            if (req.body.roleID == 1) {
+            if (req.body.roleID === 1) {
                 throw new HttpError(400, 'You cannot invite super admins');
             }
 
@@ -405,8 +402,8 @@ module.exports = {
                 throw new HttpError(400, 101);
             }
 
-            var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-            var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+            var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+            var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
             if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
                 throw new HttpError(400, 'User with this email has already registered');
@@ -418,11 +415,11 @@ module.exports = {
                 Organization.select().where(Organization.realm.equals(req.params.realm))
             );
 
-            if(!org[0]){
+            if (!org[0]) {
                 throw new HttpError(404, 'Organization not found');
             }
 
-            var org = org[0];
+            org = org[0];
 
             var firstName = isExistUser ? isExistUser.firstName : req.body.firstName;
             var lastName = isExistUser ? isExistUser.lastName : req.body.lastName;
@@ -443,8 +440,8 @@ module.exports = {
                     'isActive': false,
                     'activationToken': activationToken,
                     'organizationId': org.id,
-                    'isAnonymous' : req.body.isAnonymous ? true : false,
-                    'notifyLevel' : req.body.notifyLevel
+                    'isAnonymous': req.body.isAnonymous ? true : false,
+                    'notifyLevel': req.body.notifyLevel
                 };
 
                 var userId = yield thunkQuery(User.insert(newClient).returning(User.id));
@@ -459,18 +456,19 @@ module.exports = {
                     info: 'Add new user (org invite)'
                 });
 
-                if (req.body.roleID == 2) { // invite admin
+                if (req.body.roleID === 2) { // invite admin
                     if (!org.adminUserId) {
                         yield thunkQuery(
-                            Organization.update({adminUserId:newUserId}).where(Organization.id.equals(org.id))
+                            Organization.update({
+                                adminUserId: newUserId
+                            }).where(Organization.id.equals(org.id))
                         );
                     }
                 }
 
                 var essenceId = yield * common.getEssenceId(req, 'Users');
 
-                var note = yield * notifications.createNotification(req,
-                    {
+                var note = yield * notifications.createNotification(req, {
                         userFrom: newUserId,
                         userTo: newUserId,
                         body: 'Invite',
@@ -488,10 +486,9 @@ module.exports = {
                     'orgInvite'
                 );
 
-            }else {
+            } else {
                 newClient = isExistUser;
             }
-
 
             return newClient;
 
@@ -524,14 +521,14 @@ module.exports = {
     UOAadd: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 UserUOA.insert({
                     UserId: req.params.id,
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -545,7 +542,7 @@ module.exports = {
                 info: 'Add new user UOA'
             });
             res.status(201).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -554,14 +551,14 @@ module.exports = {
     UOAdelete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function*(){
+        co(function* () {
             return yield thunkQuery(
                 UserUOA.delete().where({
                     UserId: req.params.id,
                     UOAid: req.params.uoaid
                 })
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -575,7 +572,7 @@ module.exports = {
                 info: 'Delete user UOA'
             });
             res.status(204).end();
-        }, function(){
+        }, function (err) {
             next(err);
         });
 
@@ -673,11 +670,11 @@ module.exports = {
 
             var user = yield thunkQuery(
                 User
-                    .select(
-                        User.star(),
-                        req.params.realm == config.pgConnect.adminSchema ? 'null' : groupQuery
-                    )
-                    .where(User.id.equals(req.params.id))
+                .select(
+                    User.star(),
+                    req.params.realm === config.pgConnect.adminSchema ? 'null' : groupQuery
+                )
+                .where(User.id.equals(req.params.id))
             );
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
@@ -692,14 +689,14 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        co(function*(){
+        co(function* () {
             var updateObj = _.pick(req.body, User.whereCol);
             var user = yield thunkQuery(User.select(User.star()).from(User).where(User.id.equals(req.params.id)));
             if (!_.first(user)) {
                 throw new HttpError(404, 'Not found');
             }
 
-            if(updateObj.password){
+            if (updateObj.password) {
                 //new salt for old user if password changed
                 var salt = (!_.first(user).salt) ? crypto.randomBytes(16).toString('hex') : _.first(user).salt;
                 updateObj.salt = salt;
@@ -718,7 +715,7 @@ module.exports = {
                     info: 'Update user'
                 });
             }
-            if (req.params.realm != config.pgConnect.adminSchema) {
+            if (req.params.realm !== config.pgConnect.adminSchema) {
                 var userGroups4delete = yield thunkQuery(
                     UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
@@ -733,12 +730,10 @@ module.exports = {
                 });
                 var groupObjs = [];
                 for (var i in req.body.usergroupId) {
-                    groupObjs.push(
-                        {
-                            groupId : req.body.usergroupId[i],
-                            userId  : req.params.id
-                        }
-                    );
+                    groupObjs.push({
+                        groupId: req.body.usergroupId[i],
+                        userId: req.params.id
+                    });
                 }
                 if (groupObjs.length) {
                     yield thunkQuery(
@@ -756,9 +751,9 @@ module.exports = {
                 }
             }
 
-        }).then(function(){
+        }).then(function () {
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -767,10 +762,9 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function* (){
+        co(function* () {
             if (req.params.realm !== 'public') {
-                var adminUser = yield thunkQuery(Organization.
-                    select(Organization.adminUserId)
+                var adminUser = yield thunkQuery(Organization.select(Organization.adminUserId)
                     .from(Organization)
                     .where(Organization.realm.equals(req.params.realm))
                 );
@@ -782,7 +776,7 @@ module.exports = {
             return yield thunkQuery(
                 User.delete().where(User.id.equals(req.params.id))
             );
-        }).then(function(data){
+        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -792,17 +786,18 @@ module.exports = {
                 info: 'Delete user'
             });
             res.status(204).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
     },
 
     selectSelf: function (req, res, next) {
-        if (req.user.roleID == 1) { //admin
-            var thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+        var thunkQuery, q;
+        if (req.user.roleID === 1) { //admin
+            thunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
-            var q = User
+            q = User
                 .select(
                     User.star()
                 )
@@ -811,7 +806,7 @@ module.exports = {
                 )
                 .where(User.id.equals(req.user.id));
         } else {
-            var thunkQuery = thunkify(new Query(req.params.realm));
+            thunkQuery = thunkify(new Query(req.params.realm));
 
             var rightsReq =
                 'ARRAY(' +
@@ -835,7 +830,7 @@ module.exports = {
                 'LIMIT 1' +
                 ') as "projectId"';
 
-            var q = User
+            q = User
                 .select(
                     User.star(),
                     rightsReq,
@@ -845,15 +840,14 @@ module.exports = {
                 )
                 .from(
                     User
-                        .leftJoin(Organization)
-                        .on(User.organizationId.equals(Organization.id))
+                    .leftJoin(Organization)
+                    .on(User.organizationId.equals(Organization.id))
                 )
                 .where(User.id.equals(req.user.id));
 
-
         }
 
-        co(function* (){
+        co(function* () {
             return yield thunkQuery(q);
         }).then(function (data) {
             res.json(User.view(data[0]));
@@ -872,7 +866,7 @@ module.exports = {
                 throw new HttpError(404, 'Not found');
             }
             var updateObj;
-            if(req.body.password){
+            if (req.body.password) {
                 if (!User.validPassword(req.user.password, _.first(user).salt, req.body.currentPassword)) {
                     throw new HttpError(400, 'Wrong current password');
                 }
@@ -888,7 +882,7 @@ module.exports = {
 
             return yield thunkQuery(User.update(updateObj).where(User.id.equals(req.user.id)));
 
-        }).then(function(){
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -898,7 +892,7 @@ module.exports = {
                 info: 'Update user (self)'
             });
             res.status(202).end();
-        }, function(err){
+        }, function (err) {
             next(err);
         });
     },
@@ -912,37 +906,39 @@ module.exports = {
 
             var userArr = [];
 
-            if (req.params.realm == config.pgConnect.adminSchema) {
+            var clientThunkQuery, user;
+            if (req.params.realm === config.pgConnect.adminSchema) {
                 var userInRealm = [];
 
                 // search in public at first (super admin forgot password)
-                var user = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-                var clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
+                user = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+                clientThunkQuery = thunkify(new Query(config.pgConnect.adminSchema));
 
                 if (!user) {
+                    var curRealm;
                     for (var i in req.schemas) { // search in all schemas
-                        var clientThunkQuery = thunkify(new Query(req.schemas[i]));
-                        var user = yield clientThunkQuery(
+                        clientThunkQuery = thunkify(new Query(req.schemas[i]));
+                        user = yield clientThunkQuery(
                             User
-                                .select(
-                                    User.star(),
-                                    Role.name.as('role'),
-                                    Organization.name.as('orgName')
-                                )
-                                .from(
-                                    User
-                                        .leftJoin(Role)
-                                        .on(User.roleID.equals(Role.id))
-                                        .leftJoin(Organization)
-                                        .on(User.organizationId.equals(Organization.id))
-                                )
-                                .where(
-                                    sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
-                                )
+                            .select(
+                                User.star(),
+                                Role.name.as('role'),
+                                Organization.name.as('orgName')
+                            )
+                            .from(
+                                User
+                                .leftJoin(Role)
+                                .on(User.roleID.equals(Role.id))
+                                .leftJoin(Organization)
+                                .on(User.organizationId.equals(Organization.id))
+                            )
+                            .where(
+                                sql.functions.UPPER(User.email).equals(req.body.email.toUpperCase())
+                            )
                         );
 
                         if (user.length) {
-                            var curRealm = req.schemas[i];
+                            curRealm = req.schemas[i];
                             userInRealm.push({
                                 realm: req.schemas[i],
                                 orgName: user[0].orgName
@@ -963,14 +959,13 @@ module.exports = {
                     user = userArr[0];
                     // set the right schema
                     req.params.realm = curRealm;
-                    var clientThunkQuery = thunkify(new Query(curRealm));
+                    clientThunkQuery = thunkify(new Query(curRealm));
                 }
 
-
             } else { // certain realm
-                var clientThunkQuery = thunkify(new Query(req.params.realm));
+                clientThunkQuery = thunkify(new Query(req.params.realm));
 
-                var user = yield clientThunkQuery(
+                user = yield clientThunkQuery(
                     User.select().where(User.email.equals(req.body.email))
                 );
 
@@ -983,15 +978,15 @@ module.exports = {
             var token = yield thunkrandomBytes(32);
             token = token.toString('hex');
             var userToSave = {
-                resetPasswordToken : token,
-                resetPasswordExpires : Date.now() + 3600000
+                resetPasswordToken: token,
+                resetPasswordExpires: Date.now() + 3600000
             };
 
             var update = yield clientThunkQuery(
                 User
-                    .update(userToSave)
-                    .where(User.email.equals(req.body.email))
-                    .returning(User.resetPasswordToken)
+                .update(userToSave)
+                .where(User.email.equals(req.body.email))
+                .returning(User.resetPasswordToken)
             );
 
             req.thunkQuery = clientThunkQuery;
@@ -1011,9 +1006,8 @@ module.exports = {
 
                 var essenceId = yield * common.getEssenceId(req, 'Users');
                 var notifyLevel = 2; // always send eMail
-                var note = yield * notifications.createNotification(req,
-                    {
-                        userFrom: user.id,  // ToDo: userFrom???
+                var note = yield * notifications.createNotification(req, {
+                        userFrom: user.id, // ToDo: userFrom???
                         userTo: user.id,
                         realm: req.params.realm,
                         body: 'Indaba. Restore password',
@@ -1038,7 +1032,7 @@ module.exports = {
     checkRestoreToken: function (req, res, next) {
         thunkQuery = thunkify(new Query(req.params.realm));
 
-        co(function* (){
+        co(function* () {
             var user = yield thunkQuery(
                 User.select().where(
                     User.resetPasswordToken.equals(req.params.token)
@@ -1049,9 +1043,9 @@ module.exports = {
                 throw new HttpError(403, 'Token expired or does not exist');
             }
             return user;
-        }).then(function(user){
+        }).then(function (user) {
             res.json(User.view(_.first(user)));
-        }, function(err){
+        }, function (err) {
             next(err);
         });
 
@@ -1116,54 +1110,54 @@ module.exports = {
                     'row_to_json("Surveys".*) as survey',
                     'row_to_json("WorkflowSteps") as step',
                     'CASE ' +
-                        'WHEN '+
-                            '(' +
-                                'SELECT ' +
-                                    '"Discussions"."id" ' +
-                                    'FROM "Discussions" ' +
-                                'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                                'AND "Discussions"."isReturn" = true ' +
-                                'AND "Discussions"."isResolve" = false ' +
-                                'AND "Discussions"."activated" = true ' +
-                                'LIMIT 1' +
-                            ') IS NULL ' +
-                        'THEN FALSE ' +
-                        'ELSE TRUE ' +
+                    'WHEN ' +
+                    '(' +
+                    'SELECT ' +
+                    '"Discussions"."id" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
+                    ') IS NULL ' +
+                    'THEN FALSE ' +
+                    'ELSE TRUE ' +
                     'END as flagged',
-                    '( '+
-                        'SELECT count("Discussions"."id") ' +
-                            'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
+                    '( ' +
+                    'SELECT count("Discussions"."id") ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
                     ') as flaggedCount',
                     '(' +
-                        'SELECT ' +
-                            '"Discussions"."taskId" ' +
-                            'FROM "Discussions" ' +
-                        'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                        'AND "Discussions"."isReturn" = true ' +
-                        'AND "Discussions"."isResolve" = false ' +
-                        'AND "Discussions"."activated" = true ' +
-                        'LIMIT 1' +
+                    'SELECT ' +
+                    '"Discussions"."taskId" ' +
+                    'FROM "Discussions" ' +
+                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
+                    'AND "Discussions"."isReturn" = true ' +
+                    'AND "Discussions"."isResolve" = false ' +
+                    'AND "Discussions"."activated" = true ' +
+                    'LIMIT 1' +
                     ') as flaggedFrom',
                     'CASE ' +
-                        'WHEN ' +
-                            '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                            'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                        'THEN \'completed\' ' +
-                        'WHEN (' +
-                            '"' + curStepAlias + '"."position" IS NULL ' +
-                            'AND ("WorkflowSteps"."position" = 0) ' +
-                            'AND ("Products"."status" = 1)' +
-                        ')' +
-                        'OR (' +
-                            '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                            'AND ("Products"."status" = 1)' +
-                        ')' +
-                        'THEN \'current\' ' +
-                        'ELSE \'waiting\'' +
+                    'WHEN ' +
+                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
+                    'THEN \'completed\' ' +
+                    'WHEN (' +
+                    '"' + curStepAlias + '"."position" IS NULL ' +
+                    'AND ("WorkflowSteps"."position" = 0) ' +
+                    'AND ("Products"."status" = 1)' +
+                    ')' +
+                    'OR (' +
+                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                    'AND ("Products"."status" = 1)' +
+                    ')' +
+                    'THEN \'current\' ' +
+                    'ELSE \'waiting\'' +
                     'END as status '
                 )
                 .from(
@@ -1181,7 +1175,7 @@ module.exports = {
                     .leftJoin(ProductUOA)
                     .on(
                         ProductUOA.productId.equals(Task.productId)
-                            .and(ProductUOA.UOAid.equals(Task.uoaId))
+                        .and(ProductUOA.UOAid.equals(Task.uoaId))
                     )
                     .leftJoin(WorkflowStep.as(curStepAlias))
                     .on(
@@ -1195,9 +1189,9 @@ module.exports = {
                 ), req.query
             );
             return res;
-        }).then(function(data) {
+        }).then(function (data) {
             res.json(data);
-        }, function(err) {
+        }, function (err) {
             next(err);
         });
     }
@@ -1221,8 +1215,8 @@ function* insertOne(req, res, next) {
         throw new HttpError(400, 102);
     }
 
-    var isExistsAdmin = yield *common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
-    var isExistUser = yield *common.isExistsUserInRealm(req, req.params.realm, req.body.email);
+    var isExistsAdmin = yield * common.isExistsUserInRealm(req, config.pgConnect.adminSchema, req.body.email);
+    var isExistUser = yield * common.isExistsUserInRealm(req, req.params.realm, req.body.email);
 
     if ((isExistUser && isExistUser.isActive) || isExistsAdmin) {
         throw new HttpError(403, 'User with this email has already registered');
@@ -1239,7 +1233,9 @@ function* insertOne(req, res, next) {
         }
     }
 
-    var user = yield thunkQuery(User.insert(_.extend(req.body, {salt: salt})).returning(User.id));
+    var user = yield thunkQuery(User.insert(_.extend(req.body, {
+        salt: salt
+    })).returning(User.id));
     bologger.log({
         req: req,
         user: req.user,
@@ -1253,8 +1249,7 @@ function* insertOne(req, res, next) {
         user = _.first(user);
 
         var essenceId = yield * common.getEssenceId(req, 'Users');
-        var note = yield * notifications.createNotification(req,
-            {
+        var note = yield * notifications.createNotification(req, {
                 userFrom: req.user.realmUserId,
                 userTo: user.id,
                 body: 'Thank you for registering at Indaba',

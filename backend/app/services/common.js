@@ -45,7 +45,7 @@ var getTask = function* (req, taskId) {
     var thunkQuery = req.thunkQuery;
     var result = yield * getEntityById(req, taskId, Task, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
+        throw new HttpError(403, 'Task with id `' + parseInt(taskId).toString() + '` does not exist');
     }
     return result[0];
 };
@@ -56,54 +56,28 @@ var getTaskByStep = function* (req, stepId, uoaId) {
     var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId))));
     //getEntityById(req, stepId, Task, 'stepId');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Task with stepId `'+parseInt(stepId).toString()+'` does not exist');
+        throw new HttpError(403, 'Task with stepId `' + parseInt(stepId).toString() + '` does not exist');
     }
     return result[0];
 };
 exports.getTaskByStep = getTaskByStep;
 
-var getUsersForStepByTask = function* (req, taskId) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield * getEntityById(req, taskId, Task, 'id');
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id `'+parseInt(taskId).toString()+'` does not exist');
-    }
-    var task = result[0];
-    // get group for step
-    var groups = yield * getGroupsForStep(req, task.stepId);
-
-    // get Users
-    var users = [];
-    for (var i in groups) {
-        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
-        for (var j in usersFromGroup) {
-            if (users.indexOf(usersFromGroup[j].userId ) === -1) {
-                users.push(usersFromGroup[j]);
-            }
-        }
-    }
-
-    return users;
-};
-exports.getUsersForStepByTask = getUsersForStepByTask;
-
 var getGroupsForStep = function* (req, stepId) {
     var thunkQuery = req.thunkQuery;
     // get group for step
-    result = yield thunkQuery(
+    var result = yield thunkQuery(
         WorkflowStepGroup.select(
             WorkflowStepGroup.star(),
             Group.title
         )
-            .from(WorkflowStepGroup
-                .leftJoin(Group)
-                .on(WorkflowStepGroup.groupId.equals(Group.id))
+        .from(WorkflowStepGroup
+            .leftJoin(Group)
+            .on(WorkflowStepGroup.groupId.equals(Group.id))
         )
-            .where(WorkflowStepGroup.stepId.equals(stepId)
-        )
+        .where(WorkflowStepGroup.stepId.equals(stepId))
     );
     if (!_.first(result)) {
-        throw new HttpError(403, 'Not found groups for step with id `'+task.stepId+'`');
+        throw new HttpError(403, 'Not found groups for step with id `' + stepId + '`');
     }
     return result;
 };
@@ -119,25 +93,49 @@ var getUsersFromGroup = function* (req, groupId) {
             User.firstName,
             User.lastName
         )
-            .from(UserGroup
-                .leftJoin(User)
-                .on(UserGroup.userId.equals(User.id))
+        .from(UserGroup
+            .leftJoin(User)
+            .on(UserGroup.userId.equals(User.id))
         )
-            .where(UserGroup.groupId.equals(groupId)
-        )
+        .where(UserGroup.groupId.equals(groupId))
     );
 
     if (!_.first(result)) {
-        throw new HttpError(403, 'Not found users for group with id `'+groupId+'`');
+        throw new HttpError(403, 'Not found users for group with id `' + groupId + '`');
     }
     return result;
 };
 exports.getUsersFromGroup = getUsersFromGroup;
 
+var getUsersForStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield * getEntityById(req, taskId, Task, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Task with id `' + parseInt(taskId).toString() + '` does not exist');
+    }
+    var task = result[0];
+    // get group for step
+    var groups = yield * getGroupsForStep(req, task.stepId);
+
+    // get Users
+    var users = [];
+    for (var i in groups) {
+        var usersFromGroup = yield * getUsersFromGroup(req, groups[i].groupId);
+        for (var j in usersFromGroup) {
+            if (users.indexOf(usersFromGroup[j].userId) === -1) {
+                users.push(usersFromGroup[j]);
+            }
+        }
+    }
+
+    return users;
+};
+exports.getUsersForStepByTask = getUsersForStepByTask;
+
 var getDiscussionEntry = function* (req, entryId) {
     var result = yield * getEntityById(req, entryId, Discussion, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Entry with id `'+parseInt(entryId).toString()+'` does not exist in discussions');
+        throw new HttpError(403, 'Entry with id `' + parseInt(entryId).toString() + '` does not exist in discussions');
     }
     return result[0];
 };
@@ -155,17 +153,17 @@ exports.getCommentEntry = getCommentEntry;
 var getUser = function* (req, userId) {
     var result = yield * getEntityById(req, userId, User, 'id');
     if (!_.first(result)) {
-        throw new HttpError(403, 'User with id `'+parseInt(userId).toString()+'` does not exist');
+        throw new HttpError(403, 'User with id `' + parseInt(userId).toString() + '` does not exist');
     }
     return result[0];
 };
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) { // ToDo: use memcache
-    var thunkQuery = (req) ?  req.thunkQuery : global.thunkQuery;
+    var thunkQuery = (req) ? req.thunkQuery : global.thunkQuery;
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
-        throw new HttpError(403, 'Error find Essence for table name `'+essenceName+'`');
+        throw new HttpError(403, 'Error find Essence for table name `' + essenceName + '`');
     }
     return result[0].id;
 };
@@ -175,7 +173,7 @@ var getNotification = function* (req, notificationId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Notification.select().from(Notification).where(Notification.id.equals(notificationId)));
     if (!_.first(result)) {
-        throw new HttpError(403, 'Notification with id `'+parseInt(notificationId).toString()+'` does not exist');
+        throw new HttpError(403, 'Notification with id `' + parseInt(notificationId).toString() + '` does not exist');
     }
     return result[0];
 };
@@ -185,7 +183,7 @@ var getOrganization = function* (req, orgId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Organization.select().from(Organization).where(Organization.id.equals(orgId)));
     if (!_.first(result)) {
-        throw new HttpError(403, 'Organization with id `'+parseInt(orgId).toString()+'` does not exist');
+        throw new HttpError(403, 'Organization with id `' + parseInt(orgId).toString() + '` does not exist');
     }
     return result[0];
 };
@@ -196,23 +194,22 @@ var getEssence = function* (req, essenceId) {
     // get Essence info
     var result = yield thunkQuery(Essence.select().from(Essence).where(Essence.id.equals(essenceId)));
     if (!_.first(result)) {
-        throw new HttpError(403, 'Essence with id `'+parseInt(essenceId).toString()+'` does not exist');
+        throw new HttpError(403, 'Essence with id `' + parseInt(essenceId).toString() + '` does not exist');
     }
     return result[0];
 };
 exports.getEssence = getEssence;
-
 
 var isExistsUserInRealm = function* (req, realm, email) {
     var thunkQuery = thunkify(new Query(realm));
 
     var result = yield thunkQuery(
         User
-            .select()
-            .from(User)
-            .where(
-                sql.functions.UPPER(User.email).equals(email.toUpperCase())
-            )
+        .select()
+        .from(User)
+        .where(
+            sql.functions.UPPER(User.email).equals(email.toUpperCase())
+        )
     );
 
     return result[0] ? result[0] : false;
@@ -223,28 +220,28 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         ProductUOA
-            .select(
+        .select(
             WorkflowStep.star(),
             'row_to_json("Tasks".*) as task',
             'row_to_json("Surveys".*) as survey'
         )
-            .from(
+        .from(
             ProductUOA
-                .leftJoin(WorkflowStep)
-                .on(ProductUOA.currentStepId.equals(WorkflowStep.id))
-                .leftJoin(Task)
-                .on(
+            .leftJoin(WorkflowStep)
+            .on(ProductUOA.currentStepId.equals(WorkflowStep.id))
+            .leftJoin(Task)
+            .on(
                 Task.stepId.equals(WorkflowStep.id)
-                    .and(Task.uoaId.equals(ProductUOA.UOAid))
+                .and(Task.uoaId.equals(ProductUOA.UOAid))
             )
-                .leftJoin(Product)
-                .on(ProductUOA.productId.equals(Product.id))
-                .leftJoin(Survey)
-                .on(Product.surveyId.equals(Survey.id))
+            .leftJoin(Product)
+            .on(ProductUOA.productId.equals(Product.id))
+            .leftJoin(Survey)
+            .on(Product.surveyId.equals(Survey.id))
         )
-            .where(
+        .where(
             ProductUOA.productId.equals(productId)
-                .and(ProductUOA.UOAid.equals(uoaId))
+            .and(ProductUOA.UOAid.equals(uoaId))
         )
     );
 
@@ -262,12 +259,12 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
         throw new HttpError(403, 'Survey is not defined for this Product');
     }
 
-    if (req.user.roleID == 3) { // simple user
-        if (curStep.task.userId != req.user.id) {
+    if (req.user.roleID === 3) { // simple user
+        if (curStep.task.userId !== req.user.id) {
             throw new HttpError(
                 403,
                 'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
-                '(Task user id = '+ curStep.task.userId +', user id = '+ req.user.id +')'
+                '(Task user id = ' + curStep.task.userId + ', user id = ' + req.user.id + ')'
             );
         }
     }
@@ -280,17 +277,17 @@ var getMinNextStepPositionWithTask = function* (req, curStep, productId, uoaId) 
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
-            .select(
+        .select(
             sql.functions.MIN(WorkflowStep.position).as('minPosition')
         )
-            .from(WorkflowStep
-                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
+        .from(WorkflowStep
+            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
-            .where(
+        .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
-                .and(WorkflowStep.position.gt(curStep.position))
-                .and(Task.productId.equals(productId))
-                .and(Task.uoaId.equals(uoaId))
+            .and(WorkflowStep.position.gt(curStep.position))
+            .and(Task.productId.equals(productId))
+            .and(Task.uoaId.equals(uoaId))
         )
     );
     if (result[0]) {
@@ -305,14 +302,13 @@ var getLastStepPosition = function* (req, curStep) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
-            .select(
+        .select(
             sql.functions.MAX(WorkflowStep.position).as('lastPosition')
         )
-            .from(WorkflowStep
-        )
-            .where(
+        .from(WorkflowStep)
+        .where(
             WorkflowStep.workflowId.equals(curStep.workflowId)
-                .and(WorkflowStep.position.gt(curStep.position))
+            .and(WorkflowStep.position.gt(curStep.position))
         )
     );
     if (result[0]) {
@@ -327,16 +323,16 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         WorkflowStep
-            .select(
+        .select(
             WorkflowStep.id,
             Task.userId,
             Task.id.as('taskId')
         )
-            .from(WorkflowStep
-                .leftJoin(Task).on(Task.stepId.equals(WorkflowStep.id))
+        .from(WorkflowStep
+            .leftJoin(Task).on(Task.stepId.equals(WorkflowStep.id))
         )
-            .where(WorkflowStep.workflowId.equals(curStep.workflowId)
-                .and(WorkflowStep.position.equals(minNextStepPosition))
+        .where(WorkflowStep.workflowId.equals(curStep.workflowId)
+            .and(WorkflowStep.position.equals(minNextStepPosition))
         )
     );
     return result[0];
@@ -348,16 +344,16 @@ var getReturnStep = function* (req, taskId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(
         Discussion
-            .select(
+        .select(
             sql.functions.MIN(Task.stepId).as('minPosition')
         )
-            .from(Discussion
-                .join(Task).on(Task.id.equals(Discussion.returnTaskId))
+        .from(Discussion
+            .join(Task).on(Task.id.equals(Discussion.returnTaskId))
         )
-            .where(
+        .where(
             Discussion.activated.equals(false)
-                .and(Discussion.isReturn.equals(true))
-                .and(Discussion.taskId.equals(taskId))
+            .and(Discussion.isReturn.equals(true))
+            .and(Discussion.taskId.equals(taskId))
         )
     );
     if (result[0]) {

@@ -360,9 +360,11 @@
         "SELECT_QUESTION": "Question"
     },
     "PM_PRODUCT_DASHBOARD": {
+        "COUNT_COMPLETE": "Complete",
         "COUNT_DELAYED": "Delayed",
         "COUNT_FLAGGED": "Flagged",
-        "COUNT_ONTIME": "On Time",
+        "COUNT_LATE": "Late",
+        "COUNT_ONTRACK": "On Track",
         "COUNT_OVERDUE": "Overdue",
         "COUNT_STARTED": "Started",
         "COUNT_UOAS": "Subjects",

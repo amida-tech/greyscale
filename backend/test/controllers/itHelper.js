@@ -14,10 +14,10 @@ var backendServerDomain = 'http://localhost'; // ToDo: to config
 var apiBase = backendServerDomain + ':' + config.port + '/' + config.pgConnect.adminSchema + '/v0.2';
 
 // make all users list
-ithelper = {
+var ithelper = {
     getAllUsersList: function (testEnv, keys) {
         var allUsers = [];
-        if (keys.indexOf('superAdmin') !== -1){
+        if (keys.indexOf('superAdmin') !== -1) {
             allUsers.push( // superAdmin
                 {
                     firstName: testEnv.superAdmin.firstName || 'SuperAdmin',
@@ -51,7 +51,9 @@ ithelper = {
     getUser: function (allUsers, role, num) {
         var user = allUsers[0]; // first user - default
         if (role < 3) {
-            user = _.find(allUsers, {roleID : role});
+            user = _.find(allUsers, {
+                roleID: role
+            });
         } else {
             // ordinary users
             var j = 0;
@@ -68,7 +70,7 @@ ithelper = {
         return user;
     },
 
-    getUserId : function (api, get, token, status, obj, key, done) {
+    getUserId: function (api, get, token, status, obj, key, done) {
         api
             .get(get)
             .set('token', token)
@@ -82,9 +84,9 @@ ithelper = {
             });
     },
 
-    getEssenceId : function (api, get, essenceName, token, status, obj, key, done) {
+    getEssenceId: function (api, get, essenceName, token, status, obj, key, done) {
         api
-            .get(get+'?tableName='+essenceName)
+            .get(get + '?tableName=' + essenceName)
             .set('token', token)
             .expect(status)
             .end(function (err, res) {
@@ -96,7 +98,7 @@ ithelper = {
             });
     },
 
-    selectCount : function (api, get, token, status, numberOfRecords, done) {
+    selectCount: function (api, get, token, status, numberOfRecords, done) {
         api
             .get(get)
             .set('token', token)
@@ -111,7 +113,7 @@ ithelper = {
             });
     },
 
-    getCheckRights : function (api, get, token, status, errCode, message, done) {
+    getCheckRights: function (api, get, token, status, errCode, message, done) {
         api
             .get(get)
             .set('token', token)
@@ -126,7 +128,7 @@ ithelper = {
             });
     },
 
-    selectOneCheckField : function (api, get, token, status, index, name, value, done) {
+    selectOneCheckField: function (api, get, token, status, index, name, value, done) {
         api
             .get(get)
             .set('token', token)
@@ -136,7 +138,7 @@ ithelper = {
                     return done(err);
                 }
                 expect(res.body).to.exist;
-                if (index !== null && index >= 0 ) {
+                if (index !== null && index >= 0) {
                     expect(res.body[index][name]).to.equal(value);
                 } else {
                     expect(res.body[name]).to.equal(value);
@@ -145,7 +147,7 @@ ithelper = {
             });
     },
 
-    selectOneCheckFields : function (api, get, token, status, index, checkObj, done) {
+    selectOneCheckFields: function (api, get, token, status, index, checkObj, done) {
         api
             .get(get)
             .set('token', token)
@@ -157,7 +159,7 @@ ithelper = {
                 expect(res.body).to.exist;
 
                 for (var key in checkObj) {
-                    if (index !== null && index >= 0 ) {
+                    if (index !== null && index >= 0) {
                         expect(res.body[index][key]).to.equal(checkObj[key]);
                     } else {
                         expect(res.body[key]).to.equal(checkObj[key]);
@@ -167,7 +169,7 @@ ithelper = {
             });
     },
 
-    selectCheckAllRecords : function (api, get, token, status, checkArray, done) {
+    selectCheckAllRecords: function (api, get, token, status, checkArray, done) {
         api
             .get(get)
             .set('token', token)
@@ -187,7 +189,7 @@ ithelper = {
             });
     },
 
-    selectCheckAllRecords4Key : function (api, get, token, status, checkArray, resKey, done) {
+    selectCheckAllRecords4Key: function (api, get, token, status, checkArray, resKey, done) {
         api
             .get(get)
             .set('token', token)
@@ -207,7 +209,7 @@ ithelper = {
             });
     },
 
-    selectErrMessage : function (api, get, token,  status, errCode, message, done) {
+    selectErrMessage: function (api, get, token, status, errCode, message, done) {
         api
             .get(get)
             .set('token', token)
@@ -223,7 +225,7 @@ ithelper = {
             });
     },
 
-    insertOne : function (api, get, token, insertItem, status, obj, key, done) {
+    insertOne: function (api, get, token, insertItem, status, obj, key, done) {
         api
             .post(get)
             .set('token', token)
@@ -237,7 +239,7 @@ ithelper = {
                 done();
             });
     },
-    insertOneErr : function (api, get, token, insertItem, status, errCode, done) {
+    insertOneErr: function (api, get, token, insertItem, status, errCode, done) {
         api
             .post(get)
             .set('token', token)
@@ -251,7 +253,7 @@ ithelper = {
                 done();
             });
     },
-    insertOneErrMessage : function (api, get, token, insertItem, status, errCode, message, done) {
+    insertOneErrMessage: function (api, get, token, insertItem, status, errCode, message, done) {
         api
             .post(get)
             .set('token', token)
@@ -267,7 +269,7 @@ ithelper = {
                 done();
             });
     },
-    deleteOne : function (api, get, token, status, done) {
+    deleteOne: function (api, get, token, status, done) {
         api
             .delete(get)
             .set('token', token)
@@ -279,7 +281,7 @@ ithelper = {
                 done();
             });
     },
-    deleteOneErrMessage : function (api, get, token, status, errCode, message, done) {
+    deleteOneErrMessage: function (api, get, token, status, errCode, message, done) {
         api
             .delete(get)
             .set('token', token)
@@ -294,7 +296,7 @@ ithelper = {
                 done();
             });
     },
-    checkHeaderValue : function (api, get, token, status, headerName, headerValue, done) {
+    checkHeaderValue: function (api, get, token, status, headerName, headerValue, done) {
         api
             .get(get)
             .set('token', token)
@@ -308,7 +310,7 @@ ithelper = {
                 done();
             });
     },
-    updateOne : function (api, get, token, updateItem, status, done) {
+    updateOne: function (api, get, token, updateItem, status, done) {
         api
             .put(get)
             .set('token', token)
@@ -322,7 +324,7 @@ ithelper = {
             });
     },
 
-    updateOneErrMessage : function (api, get, token, updateItem, status, errCode, message, done) {
+    updateOneErrMessage: function (api, get, token, updateItem, status, errCode, message, done) {
         api
             .put(get)
             .set('token', token)
@@ -339,9 +341,9 @@ ithelper = {
             });
     },
 
-    doSql: function(scriptFile, realm, done) {
+    doSql: function (scriptFile, realm, done) {
         var cpg = config.pgConnect;
-        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser+' --set=schema='+realm;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.testuser + ' --set=schema=' + realm;
         exec('psql ' + connectStringPg + ' -d ' + cpg.database + ' -f ' + scriptFile, function (err, stdout, stderr) {
             if (err) {
                 //console.log('exec error: ' + err);
@@ -356,9 +358,9 @@ ithelper = {
         });
     },
 
-    getTokens: function(usersArray) {
+    getTokens: function (usersArray) {
         return new Promise((resolve, reject) => {
-            co(function* (){
+            co(function* () {
                 for (var i in usersArray) {
                     var token = yield new Promise((authRes, authRej) => {
                         request
@@ -366,9 +368,9 @@ ithelper = {
                             .set(
                                 'Authorization',
                                 'Basic ' + new Buffer(
-                                    usersArray[i].email
-                                    + ':'
-                                    + usersArray[i].password
+                                    usersArray[i].email +
+                                    ':' +
+                                    usersArray[i].password
                                 ).toString('base64')
                             )
                             .end(function (err, res) {

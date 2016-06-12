@@ -44,7 +44,6 @@ SurveyAnswer.translate = [
     'comments'
 ];
 
-
 SurveyAnswer.whereCol = columns;
 
 module.exports = SurveyAnswer;
