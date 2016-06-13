@@ -145,19 +145,20 @@ describe(testTitle, function () {
     before(function (done) {
         // authorize users
         // allUsers.concat(config.testEntities.users);
-        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
-        ithelper.getTokens(allUsers).then(
-            (res) => {
-                allUsers = res;
-                tokenSuperAdmin = ithelper.getUser(allUsers, 1).token;
-                tokenAdmin = ithelper.getUser(allUsers, 2).token;
-                tokenUser1 = ithelper.getUser(allUsers, 3, 1).token;
-                tokenUser2 = ithelper.getUser(allUsers, 3, 2).token;
-                tokenUser3 = ithelper.getUser(allUsers, 3, 3).token;
-                done();
-            },
-            (err) => done(err)
-        );
+        //allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        allUsers = config.allUsers;
+        //ithelper.getTokens(allUsers).then(
+        //    (res) => {
+        //        allUsers = res;
+        tokenSuperAdmin = ithelper.getUser(allUsers, 1).token;
+        tokenAdmin = ithelper.getUser(allUsers, 2).token;
+        tokenUser1 = ithelper.getUser(allUsers, 3, 1).token;
+        tokenUser2 = ithelper.getUser(allUsers, 3, 2).token;
+        tokenUser3 = ithelper.getUser(allUsers, 3, 3).token;
+        done();
+        //    },
+        //    (err) => done(err)
+        //);
     });
 
     function allTests() {
@@ -258,15 +259,6 @@ describe(testTitle, function () {
             */
         });
 
-        /*
-
-
-
-
-
-                    }
-                });
-        */
     }
 
     allTests();

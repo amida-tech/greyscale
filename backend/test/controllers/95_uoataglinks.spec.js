@@ -35,18 +35,20 @@ var testTitle = 'Subjects (Units of Analisys Tag links): ';
 
 describe(testTitle, function () {
 
-    before(function (done) {
-        // authorize users
-        // allUsers.concat(config.testEntities.users);
-        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
-        ithelper.getTokens(allUsers).then(
-            (res) => {
-                allUsers = res;
-                done();
-            },
-            (err) => done(err)
-        );
-    });
+    /*
+        before(function (done) {
+            // authorize users
+            // allUsers.concat(config.testEntities.users);
+            allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+            ithelper.getTokens(allUsers).then(
+                (res) => {
+                    allUsers = res;
+                    done();
+                },
+                (err) => done(err)
+            );
+        });
+    */
 
     function userTests(user) {
         describe(testTitle + 'All of tests for user `' + user.firstName + '`', function () {
@@ -170,6 +172,7 @@ describe(testTitle, function () {
     }
 
     it(testTitle + 'start', function (done) {
+        allUsers = config.allUsers;
         userTests(ithelper.getUser(allUsers, 1));
         adminTests(ithelper.getUser(allUsers, 1));
         userTests(ithelper.getUser(allUsers, 2));

@@ -412,7 +412,8 @@ describe(testTitle, function () {
     before(function (done) {
         // authorize users
         // allUsers.concat(config.testEntities.users);
-        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        //allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        allUsers = config.allUsers;
         ithelper.getTokens(allUsers).then(
             (res) => {
                 allUsers = res;
@@ -1159,13 +1160,11 @@ describe(testTitle, function () {
                 ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '?taskId=' + taskId[0] + '&order=entry', tokenAdmin, 200, discussionsByEntry, done);
             });
         });
-        /*
-                describe(testTitle+'Clean up', function () {
-                    it('Do clean up SQL script ', function (done) {
-                        ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
-                    });
-                });
-        */
+        describe(testTitle + 'Clean up', function () {
+            it('Do clean up SQL script ', function (done) {
+                ithelper.doSql('test/postDiscussions.sql', config.testEntities.organization.realm, done);
+            });
+        });
     }
 
     allTests();
