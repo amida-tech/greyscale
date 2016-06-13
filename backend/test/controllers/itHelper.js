@@ -57,7 +57,7 @@ var ithelper = {
         } else {
             // ordinary users
             var j = 0;
-            for (var i = 0; i < allUsers.length; i++) {
+            for (var i in allUsers) {
                 if (allUsers[i].roleID === role) {
                     j++;
                     if (num > 0 && num === j) {
