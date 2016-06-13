@@ -2824,6 +2824,7 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 43	Token	Token	token	realm
 44	UserUOA	UserUOA	user_uoa	UserId
 45	UserGroups	UserGroups	user_groups	UserId
+46	Policies	Policies	policies	section
 \.
 
 

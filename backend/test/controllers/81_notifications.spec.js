@@ -44,7 +44,8 @@ describe(testTitle, function () {
     before(function (done) {
         // authorize users
         // allUsers.concat(config.testEntities.users);
-        allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        //allUsers = ithelper.getAllUsersList(config.testEntities, ['superAdmin', 'admin', 'users']);
+        allUsers = config.allUsers;
         ithelper.getTokens(allUsers).then(
             (res) => {
                 allUsers = res;
