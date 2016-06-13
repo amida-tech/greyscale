@@ -223,6 +223,11 @@ var essencesContent = [{
     name: 'Policies',
     fileName: 'policies',
     nameField: 'section'
+}, {
+    tableName: 'Comments',
+    name: 'Comments',
+    fileName: 'comments',
+    nameField: 'id'
 }];
 var numberOfRecords = essencesContent.length;
 var testTitle = 'Essences: ';
