@@ -51,7 +51,7 @@ module.exports = {
 
     insertOne: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== parseInt(req.params.organizationId))) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
@@ -86,7 +86,7 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         co(function* () {
-            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== parseInt(req.params.organizationId))) {
                 throw new HttpError(400, 'You cannot save visualizations to other organizations');
             }
 
