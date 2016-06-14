@@ -126,8 +126,8 @@ angular.module('greyscaleApp')
         }
 
         function _resolveQuestionsFlags(survey, discussions) {
-            angular.forEach(survey.questions, function(question){
-                angular.forEach(discussions, function(message){
+            angular.forEach(survey.questions, function (question) {
+                angular.forEach(discussions, function (message) {
                     if (message.questionId === question.id && message.isReturn && !message.isResolve) {
                         question.flagResolve = question.flagResolve || {};
                         angular.extend(question.flagResolve, message);

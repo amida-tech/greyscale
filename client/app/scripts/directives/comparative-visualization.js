@@ -595,11 +595,8 @@ angular.module('greyscaleApp')
                         .domain(color.domain())
                         .range([0, axisHeight]);
                     // make sure domain ends displayed
-                    if (start === end) {
-                        var tickVals = [];
-                    } else {
-                        var tickVals = pos.ticks(5);
-                    }
+                    var tickVals = (start === end) ? [] : pos.ticks(5);
+
                     if (isFinite(start)) {
                         tickVals.push(start);
                     }

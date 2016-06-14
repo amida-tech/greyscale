@@ -39,7 +39,7 @@ angular.module('greyscaleApp')
                     autoUpload: false
                 });
 
-                uploader.onAfterAddingFile = function(item){
+                uploader.onAfterAddingFile = function (item) {
 
                     if ($scope.formName && $scope[$scope.formName].$$parentForm) {
                         $scope[$scope.formName].$$parentForm.$dirty = false;
@@ -51,7 +51,7 @@ angular.module('greyscaleApp')
                         name: item.file.name
                     };
 
-                    greyscaleUploadApi.getUrl(uploadData).then(function(response){
+                    greyscaleUploadApi.getUrl(uploadData).then(function (response) {
                         item.url = response.url;
                         item.key = response.key;
                         item.headers = {
@@ -66,7 +66,7 @@ angular.module('greyscaleApp')
                         var attachData = {
                             key: item.key
                         };
-                        greyscaleUploadApi.success(attachData).then(function(data){
+                        greyscaleUploadApi.success(attachData).then(function (data) {
                             $scope.model.push({
                                 id: data.id,
                                 filename: item.file.name,
