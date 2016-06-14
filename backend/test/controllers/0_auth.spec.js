@@ -23,9 +23,9 @@ var _ = require('underscore');
 var testEnv = {};
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + config.testEntities.organization.realm + '/v0.2');
 
 var allUsers = [];
 var testTitle = 'Authorize users: ';

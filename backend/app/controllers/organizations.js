@@ -309,6 +309,7 @@ module.exports = {
                         var existError = false;
 
                         var newUser = {
+                            // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                             parse_status: 'skipped',
                             email: getStr(parsed[i][0]),
                             firstName: getStr(parsed[i][1]),
@@ -384,6 +385,7 @@ module.exports = {
                                         info: 'Add user (bulk import)'
                                     });
                                     newUser.id = created[0].id;
+                                    // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                                     newUser.parse_status = 'Ok';
                                     newUser.message = 'Added';
                                     var essenceId = yield * common.getEssenceId(req, 'Users');

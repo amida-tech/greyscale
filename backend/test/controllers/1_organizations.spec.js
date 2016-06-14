@@ -13,9 +13,9 @@ var admin = config.testEntities.admin;
 var organization = config.testEntities.organization;
 var users = config.testEntities.users;
 
-var api_base = 'http://localhost:' + config.port + '/';
-var api = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
-var api_created_realm = request.agent(api_base + organization.realm + '/v0.2');
+var apiBase = 'http://localhost:' + config.port + '/';
+var api = request.agent(apiBase + config.pgConnect.adminSchema + '/v0.2');
+var apiCreatedRealm = request.agent(apiBase + organization.realm + '/v0.2');
 
 var suToken;
 var admToken;
@@ -61,7 +61,7 @@ describe('Organizations:', function () {
         });
 
         it('Checks for an organization in new realm as a super', function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .get('/organizations/' + orgId)
                 .set('token', suToken)
                 .expect(200)
@@ -79,7 +79,7 @@ describe('Organizations:', function () {
     describe('Invites an admin to organization', function () {
 
         it('Sends invitation to user', function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .post('/users/self/organization/invite/')
                 .set('token', suToken)
                 .send(admin)
@@ -98,7 +98,7 @@ describe('Organizations:', function () {
 
         it('Company admin checks activation token', function (done) {
             console.log(activationToken);
-            api_created_realm
+            apiCreatedRealm
                 .get('/users/activate/' + activationToken)
                 .expect(200)
                 .end(function (err, res) {
@@ -110,7 +110,7 @@ describe('Organizations:', function () {
         });
 
         it('Company admin fills an activation form and try to activate account', function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .post('/users/activate/' + activationToken)
                 .expect(200)
                 .send(admin)
@@ -123,7 +123,7 @@ describe('Organizations:', function () {
         });
 
         it('Company admin try to authorize', function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .get('/users/token')
                 .set(
                     'Authorization',

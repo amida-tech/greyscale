@@ -20,9 +20,9 @@ var _ = require('underscore');
 var testEnv = {};
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + config.testEntities.organization.realm + '/v0.2');
 
 var allUsers = [];
 var token;
@@ -247,11 +247,11 @@ describe(testTitle, function () {
     function userTests(user) {
         describe(testTitle + 'All of tests for user `' + user.firstName + '`', function () {
             it('Select true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, numberOfRecords, done);
             });
 
             it('Select initial content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '?order=id', user.token, 200, essencesContent, done);
+                ithelper.selectCheckAllRecords(testEnv.apiCreatedRealm, path + '?order=id', user.token, 200, essencesContent, done);
             });
         });
     }
@@ -260,7 +260,7 @@ describe(testTitle, function () {
         describe(testTitle + 'All of tests for admin `' + user.firstName + '`', function () {
             it('(Err) Create new Essence - "tableName, name, fileName and nameField fields are required"', function (done) {
                 ithelper.insertOneErrMessage(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path,
                     user.token, {},
                     400,
@@ -271,7 +271,7 @@ describe(testTitle, function () {
             });
             it('(Err) Create new Essence - "record with this tableName or(and) fileName has already exist"', function (done) {
                 ithelper.insertOneErrMessage(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path,
                     user.token, {
                         tableName: 'Logs',
@@ -287,7 +287,7 @@ describe(testTitle, function () {
             });
             it('(Err) Create new Essence - "Cannot find model file"', function (done) {
                 ithelper.insertOneErrMessage(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path,
                     user.token, {
                         tableName: 'Logs',
@@ -303,7 +303,7 @@ describe(testTitle, function () {
             });
             it('(Err) Create new Essence - "Essence does not have"', function (done) {
                 ithelper.insertOneErrMessage(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path,
                     user.token, {
                         tableName: 'Logs',
@@ -319,7 +319,7 @@ describe(testTitle, function () {
             });
             it('CRUD: Create new Essence - "Logs"', function (done) {
                 ithelper.insertOne(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path,
                     user.token, {
                         tableName: 'Logs',
@@ -342,7 +342,7 @@ describe(testTitle, function () {
             });
             it('CRUD: Get created Essence', function (done) {
                 ithelper.selectOneCheckFields(
-                    testEnv.api_created_realm,
+                    testEnv.apiCreatedRealm,
                     path + '?tableName=Logs',
                     user.token,
                     200,
@@ -356,18 +356,18 @@ describe(testTitle, function () {
                 );
             });
             it('CRUD: True number of records after insert', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, numberOfRecords, done);
             });
             it('Select new content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '?order=id', user.token, 200, essencesContent, done);
+                ithelper.selectCheckAllRecords(testEnv.apiCreatedRealm, path + '?order=id', user.token, 200, essencesContent, done);
             });
             it('Delete essence', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, user.token, 204, done);
+                ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + obj.id, user.token, 204, done);
                 essencesContent.splice(-1, 1);
                 numberOfRecords--;
             });
             it('Select content after deleting = initial content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '?order=id', user.token, 200, essencesContent, done);
+                ithelper.selectCheckAllRecords(testEnv.apiCreatedRealm, path + '?order=id', user.token, 200, essencesContent, done);
             });
         });
     }

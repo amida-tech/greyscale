@@ -81,7 +81,7 @@ module.exports = {
             var condition = _.pick(req.params, ['productId', 'UOAid']);
 
             if (req.user.roleID === 3) {
-                var user_tasks = yield thunkQuery(
+                var userTasks = yield thunkQuery(
                     Task.select()
                     .where({
                         uoaId: req.params.UOAid,
@@ -89,7 +89,7 @@ module.exports = {
                         userId: req.user.id
                     })
                 );
-                if (!user_tasks[0]) {
+                if (!userTasks[0]) {
                     throw new HttpError(
                         403,
                         'You should be owner at least of 1 task for this product and subject'

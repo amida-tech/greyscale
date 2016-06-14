@@ -19,9 +19,9 @@ testEnv.organization = config.testEntities.organization;
 
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + testEnv.organization.realm + '/v0.2');
 
 var allUsers = [];
 var tokenSuperAdmin,
@@ -178,76 +178,76 @@ describe(testTitle, function () {
 
         describe(testTitle + 'Select before testing', function () {
             it('True number of records (superAdmin) = 0', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenSuperAdmin, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenSuperAdmin, 200, 0, done);
             });
             it('True number of records (admin) = 0', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenAdmin, 200, 0, done);
             });
             it('True number of records (user1) = 0', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenUser1, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenUser1, 200, 0, done);
             });
         });
 
         describe(testTitle + 'CRUD', function () {
             it('Create new survey', function (done) {
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
+                ithelper.insertOne(testEnv.apiCreatedRealm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
             });
             it('True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 1, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenAdmin, 200, 1, done);
             });
             it('Get created survey', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 200, null, 'title', insertItem.title, done);
+                ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, 200, null, 'title', insertItem.title, done);
             });
             it('Update survey', function (done) {
-                ithelper.updateOne(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, updateItem, 202, done);
+                ithelper.updateOne(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, updateItem, 202, done);
             });
             it('Get updated survey', function (done) {
-                ithelper.selectOneCheckFields(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 200, null, updateItem, done);
+                ithelper.selectOneCheckFields(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, 200, null, updateItem, done);
             });
             it('Delete created/updated survey', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 204, done);
+                ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, 204, done);
             });
             it('True number of surveys after delete', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenAdmin, 200, 0, done);
             });
         });
 
         describe(testTitle + 'CRUD + Questions', function () {
             it('Create new survey with questions', function (done) {
                 insertItem.questions = surveyQuestions;
-                ithelper.insertOne(testEnv.api_created_realm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
+                ithelper.insertOne(testEnv.apiCreatedRealm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
             });
             it('True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 1, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenAdmin, 200, 1, done);
             });
             it('Get created survey', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 200, null, 'title', insertItem.title, done);
+                ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, 200, null, 'title', insertItem.title, done);
             });
             it('Number of questions (=5)', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions', tokenAdmin, 200, 5, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path + '/' + insertItem.id + '/questions', tokenAdmin, 200, 5, done);
             });
             it('Check question`s content', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
+                ithelper.selectCheckAllRecords(testEnv.apiCreatedRealm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
             });
             it('Create new question for survey', function (done) {
-                ithelper.insertOne(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions', tokenAdmin, insertQuestion, 201, insertQuestion, 'id', done);
+                ithelper.insertOne(testEnv.apiCreatedRealm, path + '/' + insertItem.id + '/questions', tokenAdmin, insertQuestion, 201, insertQuestion, 'id', done);
                 surveyQuestions.push(insertQuestion);
             });
             it('Check question`s content with new question', function (done) {
-                ithelper.selectCheckAllRecords(testEnv.api_created_realm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
+                ithelper.selectCheckAllRecords(testEnv.apiCreatedRealm, path + '/' + insertItem.id + '/questions?order=id', tokenAdmin, 200, surveyQuestions, done);
             });
             it('Create new question for survey', function (done) {
                 insertQuestion.label = insertQuestion.label + ' --- updated';
-                ithelper.updateOne(testEnv.api_created_realm, '/questions/' + insertQuestion.id, tokenAdmin, insertQuestion, 202, done);
+                ithelper.updateOne(testEnv.apiCreatedRealm, '/questions/' + insertQuestion.id, tokenAdmin, insertQuestion, 202, done);
             });
             it('Delete new question', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, '/questions/' + insertQuestion.id, tokenAdmin, 204, done);
+                ithelper.deleteOne(testEnv.apiCreatedRealm, '/questions/' + insertQuestion.id, tokenAdmin, 204, done);
             });
             it('Delete created/updated survey', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + insertItem.id, tokenAdmin, 204, done);
+                ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + insertItem.id, tokenAdmin, 204, done);
             });
             it('True number of surveys after delete', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, tokenAdmin, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, tokenAdmin, 200, 0, done);
             });
         });
 
