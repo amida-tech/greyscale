@@ -20,9 +20,9 @@ var _ = require('underscore');
 var testEnv = {};
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + config.testEntities.organization.realm + '/v0.2');
 
 var allUsers = [];
 var token;
@@ -53,10 +53,10 @@ describe(testTitle, function () {
     function userTests(user) {
         describe(testTitle + 'All of tests for user `' + user.firstName + '`', function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
-                ithelper.checkHeaderValue(testEnv.api_created_realm, path, user.token, 200, 'X-Total-Count', 0, done);
+                ithelper.checkHeaderValue(testEnv.apiCreatedRealm, path, user.token, 200, 'X-Total-Count', 0, done);
             });
             it('Select: True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, 0, done);
             });
         });
     }
@@ -69,7 +69,7 @@ describe(testTitle, function () {
                         uoaId: 999,
                         uoaTagId: 999
                     };
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, user.token, insertItem, 400, 401, 'Not found tag with specified Id', done);
+                    ithelper.insertOneErrMessage(testEnv.apiCreatedRealm, path, user.token, insertItem, 400, 401, 'Not found tag with specified Id', done);
                 });
             });
             describe(testTitle + 'Prepeare for following tests - 2 Class Types and 3 Tags  ', function () {
@@ -77,34 +77,34 @@ describe(testTitle, function () {
                     var insertItem = {
                         name: 'TestClasstype1'
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, pathClassTypes, user.token, insertItem, 201, obj, 'classTypeId1', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathClassTypes, user.token, insertItem, 201, obj, 'classTypeId1', done);
                 });
                 it('Create new UOA classtype (2)', function (done) {
                     var insertItem = {
                         name: 'TestClasstype2'
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, pathClassTypes, user.token, insertItem, 201, obj, 'classTypeId2', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathClassTypes, user.token, insertItem, 201, obj, 'classTypeId2', done);
                 });
                 it('Create new UOA tag (1) classtype (1)', function (done) {
                     var insertItem = {
                         name: 'TestTag1',
                         classTypeId: obj.classTypeId1
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, pathTags, user.token, insertItem, 201, obj, 'tagId1', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathTags, user.token, insertItem, 201, obj, 'tagId1', done);
                 });
                 it('Create new UOA tag (2) classtype (1)', function (done) {
                     var insertItem = {
                         name: 'TestTag2',
                         classTypeId: obj.classTypeId1
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, pathTags, user.token, insertItem, 201, obj, 'tagId2', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathTags, user.token, insertItem, 201, obj, 'tagId2', done);
                 });
                 it('Create new UOA tag (3) classtype (2)', function (done) {
                     var insertItem = {
                         name: 'TestTag3',
                         classTypeId: obj.classTypeId2
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, pathTags, user.token, insertItem, 201, obj, 'tagId3', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathTags, user.token, insertItem, 201, obj, 'tagId3', done);
                 });
             });
             describe(testTitle + 'Prepeare for following tests - UOA  ', function () {
@@ -113,7 +113,7 @@ describe(testTitle, function () {
                         name: 'UOA1',
                         unitOfAnalysisType: 1
                     }; // uoaType = default (1 Country)
-                    ithelper.insertOne(testEnv.api_created_realm, pathUoas, user.token, insertItem, 201, obj, 'uoaId', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, pathUoas, user.token, insertItem, 201, obj, 'uoaId', done);
                 });
             });
             describe(testTitle + 'Main tests', function () {
@@ -122,50 +122,50 @@ describe(testTitle, function () {
                         uoaId: obj.uoaId,
                         uoaTagId: obj.tagId1
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id1', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, path, user.token, insertItem, 201, obj, 'id1', done);
                 });
                 it('Create new UOA Tag link with Tag2 (classType1) - impossible create tag link with the same ClassType', function (done) {
                     var insertItem = {
                         uoaId: obj.uoaId,
                         uoaTagId: obj.tagId2
                     };
-                    ithelper.insertOneErrMessage(testEnv.api_created_realm, path, user.token, insertItem, 400, 401, 'Could not add tag with the same classification type', done);
+                    ithelper.insertOneErrMessage(testEnv.apiCreatedRealm, path, user.token, insertItem, 400, 401, 'Could not add tag with the same classification type', done);
                 });
                 it('Create new UOA Tag link with Tag3 (classType2)', function (done) {
                     var insertItem = {
                         uoaId: obj.uoaId,
                         uoaTagId: obj.tagId3
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id2', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, path, user.token, insertItem, 201, obj, 'id2', done);
                 });
                 it('Select UOA Tag links - true number of records', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, 2, done);
+                    ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, 2, done);
                 });
                 it('Delete created UOA Tag link with Tag1 (classType1)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id1, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + obj.id1, user.token, 204, done);
                 });
                 it('Delete created UOA Tag link with Tag3 (classType2)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id2, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + obj.id2, user.token, 204, done);
                 });
             });
             describe(testTitle + 'Delete all entities after tests completed', function () {
                 it('Delete created UOA', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathUoas + '/' + obj.uoaId, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathUoas + '/' + obj.uoaId, user.token, 204, done);
                 });
                 it('CRUD: Delete UOA tag (1)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathTags + '/' + obj.tagId1, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathTags + '/' + obj.tagId1, user.token, 204, done);
                 });
                 it('CRUD: Delete UOA tag (2)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathTags + '/' + obj.tagId2, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathTags + '/' + obj.tagId2, user.token, 204, done);
                 });
                 it('CRUD: Delete UOA tag (3)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathTags + '/' + obj.tagId3, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathTags + '/' + obj.tagId3, user.token, 204, done);
                 });
                 it('CRUD: Delete UOA classtype (1)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathClassTypes + '/' + obj.classTypeId1, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathClassTypes + '/' + obj.classTypeId1, user.token, 204, done);
                 });
                 it('CRUD: Delete UOA classtype (2)', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, pathClassTypes + '/' + obj.classTypeId2, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, pathClassTypes + '/' + obj.classTypeId2, user.token, 204, done);
                 });
             });
         });

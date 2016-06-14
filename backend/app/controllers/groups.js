@@ -17,7 +17,7 @@ module.exports = {
     selectByOrg: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== parseInt(req.params.organizationId))) {
                 throw new HttpError(400, 'You cannot view groups from other organizations');
             }
             var result = yield thunkQuery(
@@ -34,7 +34,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            if (req.user.roleID !== 1 && (req.user.organizationId !== req.params.organizationId)) {
+            if (req.user.roleID !== 1 && (req.user.organizationId !== parseInt(req.params.organizationId))) {
                 throw new HttpError(400, 'You cannot post groups to other organizations');
             }
             if (!req.body.title) {

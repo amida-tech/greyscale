@@ -7,6 +7,7 @@ var express = require('express'),
     router = express.Router(),
     bodyParser = require('body-parser'),
     jsonParser = bodyParser.json({
+        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
         limit: config.max_upload_filesize
     });
 

@@ -8,9 +8,9 @@ var admin = config.testEntities.admin;
 var users = config.testEntities.users;
 var organization = config.testEntities.organization;
 
-var api_base = 'http://localhost:' + config.port + '/';
-var api = request.agent(api_base + config.pgConnect.adminSchema + '/v0.2');
-var api_created_realm = request.agent(api_base + organization.realm + '/v0.2');
+var apiBase = 'http://localhost:' + config.port + '/';
+var api = request.agent(apiBase + config.pgConnect.adminSchema + '/v0.2');
+var apiCreatedRealm = request.agent(apiBase + organization.realm + '/v0.2');
 
 var suToken;
 var admToken;
@@ -45,7 +45,7 @@ describe('Users:', function () {
 
     function inviteUserTest(user) {
         it('Invite usual user ' + user.firstName, function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .post('/users/self/organization/invite') // invite
                 .send(user)
                 .set('token', admToken)
@@ -56,7 +56,7 @@ describe('Users:', function () {
                     }
                     expect(res.body.activationToken).to.exist;
 
-                    api_created_realm
+                    apiCreatedRealm
                         .post('/users/activate/' + res.body.activationToken) // and activate
                         .expect(200)
                         .send(user)
@@ -72,7 +72,7 @@ describe('Users:', function () {
 
     function loginUserTest(user) {
         it('Authorize usual user ' + user.firstName, function (done) {
-            api_created_realm
+            apiCreatedRealm
                 .get('/users/token')
                 .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))
                 .expect(200)

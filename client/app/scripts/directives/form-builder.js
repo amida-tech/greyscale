@@ -55,7 +55,7 @@ angular.module('greyscaleApp')
                             newQuestion.maxLength = parseInt(fo.max);
                         }
                         newQuestion.isWordmml = fo.min_max_length_units ? fo.min_max_length_units === 'words' : undefined;
-                        newQuestion.incOtherOpt = fo.include_other_option/* || fo.include_blank_option*/;
+                        newQuestion.incOtherOpt = fo.include_other_option /* || fo.include_blank_option*/ ;
                         newQuestion.units = fo.units;
                         newQuestion.intOnly = fo.integer_only;
                         newQuestion.value = fo.value;

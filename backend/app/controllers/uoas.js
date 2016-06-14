@@ -204,6 +204,7 @@ module.exports = {
             for (var i = 0; i < parsed.length; i++) {
                 if (i !== 0) { // skip first string
                     var newUoa = {
+                        // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                         parse_status: 'skipped',
                         name: parsed[i][0],
                         description: parsed[i][1],
@@ -330,6 +331,7 @@ module.exports = {
 
                             if (valid && created[0]) {
                                 newUoa.id = created[0].id;
+                                // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
                                 newUoa.parse_status = 'Ok';
                                 newUoa.messages.push('Added');
                                 bologger.log({
