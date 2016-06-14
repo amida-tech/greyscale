@@ -19,9 +19,9 @@ var _ = require('underscore');
 var testEnv = {};
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + config.testEntities.organization.realm + '/v0.2');
 
 var allUsers = [];
 var token;
@@ -49,14 +49,14 @@ describe(testTitle, function () {
     function userTests(user) {
         describe(testTitle + 'All of tests for user `' + user.firstName + '`', function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
-                ithelper.checkHeaderValue(testEnv.api_created_realm, path, user.token, 200, 'X-Total-Count', 1, done);
+                ithelper.checkHeaderValue(testEnv.apiCreatedRealm, path, user.token, 200, 'X-Total-Count', 1, done);
             });
             it('Select: true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, 1, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, 1, done);
             });
 
             it('Select: Country record is true', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/1', user.token, 200, null, 'name', 'Country', done);
+                ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/1', user.token, 200, null, 'name', 'Country', done);
             });
         });
     }
@@ -67,25 +67,25 @@ describe(testTitle, function () {
                 var insertItem = {
                     name: 'Test UOA type'
                 };
-                ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'id', done);
+                ithelper.insertOne(testEnv.apiCreatedRealm, path, user.token, insertItem, 201, obj, 'id', done);
             });
             it('CRUD: Get created UOA type', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, user.token, 200, null, 'name', 'Test UOA type', done);
+                ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + obj.id, user.token, 200, null, 'name', 'Test UOA type', done);
             });
             it('CRUD: Update UOA type', function (done) {
                 var updateItem = {
                     name: 'Test UOA type --- updated'
                 };
-                ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.id, user.token, updateItem, 202, done);
+                ithelper.updateOne(testEnv.apiCreatedRealm, path + '/' + obj.id, user.token, updateItem, 202, done);
             });
             it('CRUD: Get updated UOA type', function (done) {
-                ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.id, user.token, 200, null, 'name', 'Test UOA type --- updated', done);
+                ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + obj.id, user.token, 200, null, 'name', 'Test UOA type --- updated', done);
             });
             it('CRUD: Delete created/updated UOA type', function (done) {
-                ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.id, user.token, 204, done);
+                ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + obj.id, user.token, 204, done);
             });
             it('CRUD: True number of records after delete', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, 1, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, 1, done);
             });
         });
     }

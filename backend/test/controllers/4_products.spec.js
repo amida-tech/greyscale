@@ -19,9 +19,9 @@ testEnv.organization = config.testEntities.organization;
 
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + testEnv.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + testEnv.organization.realm + '/v0.2');
 
 var token;
 var obj = {};
@@ -49,14 +49,14 @@ describe('Products:', function () {
             //});
 
             it('Select: true number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 0, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, token, 200, 0, done);
             });
 
             if (user.roleID === 1) {
                 it('CRUD: Create new product', function (done) {
 
                     ithelper.insertOne(
-                        testEnv.api_created_realm,
+                        testEnv.apiCreatedRealm,
                         path,
                         token,
                         insertItem,
@@ -68,12 +68,12 @@ describe('Products:', function () {
                 });
 
                 it('CRUD: True number of records', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, token, 200, 1, done);
+                    ithelper.selectCount(testEnv.apiCreatedRealm, path, token, 200, 1, done);
                 });
 
                 it('CRUD: Get created product', function (done) {
                     ithelper.selectOneCheckFields(
-                        testEnv.api_created_realm,
+                        testEnv.apiCreatedRealm,
                         path + '/' + insertItem.id,
                         token,
                         200,
@@ -115,7 +115,7 @@ describe('Products:', function () {
 
     function makeTests(user) {
         it('Authorize user ' + user.firstName, function (done) {
-            var api = (user.roleID === 1) ? testEnv.api : testEnv.api_created_realm;
+            var api = (user.roleID === 1) ? testEnv.api : testEnv.apiCreatedRealm;
             api
                 .get('/users/token')
                 .set('Authorization', 'Basic ' + new Buffer(user.email + ':' + user.password).toString('base64'))

@@ -18,9 +18,9 @@ var _ = require('underscore');
 var testEnv = {};
 testEnv.backendServerDomain = 'http://localhost'; // ToDo: to config
 
-testEnv.api_base = testEnv.backendServerDomain + ':' + config.port + '/';
-testEnv.api = request.agent(testEnv.api_base + config.pgConnect.adminSchema + '/v0.2');
-testEnv.api_created_realm = request.agent(testEnv.api_base + config.testEntities.organization.realm + '/v0.2');
+testEnv.apiBase = testEnv.backendServerDomain + ':' + config.port + '/';
+testEnv.api = request.agent(testEnv.apiBase + config.pgConnect.adminSchema + '/v0.2');
+testEnv.apiCreatedRealm = request.agent(testEnv.apiBase + config.testEntities.organization.realm + '/v0.2');
 
 var allUsers = [];
 var token;
@@ -49,10 +49,10 @@ describe(testTitle, function () {
     function userTests(user) {
         describe(testTitle + 'All of tests for user `' + user.firstName + '`', function () {
             it('Select: correctly sets the X-Total-Count header ', function (done) {
-                ithelper.checkHeaderValue(testEnv.api_created_realm, path, user.token, 200, 'X-Total-Count', numberOfRecords, done);
+                ithelper.checkHeaderValue(testEnv.apiCreatedRealm, path, user.token, 200, 'X-Total-Count', numberOfRecords, done);
             });
             it('Select: True number of records', function (done) {
-                ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+                ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, numberOfRecords, done);
             });
         });
     }
@@ -64,13 +64,13 @@ describe(testTitle, function () {
                     var insertItem = {
                         name: 'Test UOA'
                     };
-                    ithelper.insertOneErr(testEnv.api_created_realm, path, user.token, insertItem, 400, '23502', done);
+                    ithelper.insertOneErr(testEnv.apiCreatedRealm, path, user.token, insertItem, 400, '23502', done);
                 });
                 it('Create new UOA tag without specifing `Name` - impossible', function (done) {
                     var insertItem = {
                         unitOfAnalysisType: 1
                     };
-                    ithelper.insertOneErr(testEnv.api_created_realm, path, user.token, insertItem, 400, '23502', done);
+                    ithelper.insertOneErr(testEnv.apiCreatedRealm, path, user.token, insertItem, 400, '23502', done);
                 });
             });
             describe(testTitle + 'CRUD', function () {
@@ -79,11 +79,11 @@ describe(testTitle, function () {
                         name: 'Test Subject New',
                         unitOfAnalysisType: 1
                     };
-                    ithelper.insertOne(testEnv.api_created_realm, path, user.token, insertItem, 201, obj, 'uoaId', done);
+                    ithelper.insertOne(testEnv.apiCreatedRealm, path, user.token, insertItem, 201, obj, 'uoaId', done);
                     numberOfRecords++;
                 });
                 it('True number of records', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+                    ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, numberOfRecords, done);
                 });
                 it('Create not unique UOA -impossible', function (done) {
                     //"e": "23502",
@@ -92,26 +92,26 @@ describe(testTitle, function () {
                         name: 'Test Subject New',
                         unitOfAnalysisType: 1
                     };
-                    ithelper.insertOneErr(testEnv.api_created_realm, path, user.token, insertItem, 400, '23505', done);
+                    ithelper.insertOneErr(testEnv.apiCreatedRealm, path, user.token, insertItem, 400, '23505', done);
                 });
                 it('Get created UOA', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, user.token, 200, null, 'name', 'Test Subject New', done);
+                    ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + obj.uoaId, user.token, 200, null, 'name', 'Test Subject New', done);
                 });
                 it('Update UOA', function (done) {
                     var updateItem = {
                         name: 'Test Subject'
                     };
-                    ithelper.updateOne(testEnv.api_created_realm, path + '/' + obj.uoaId, user.token, updateItem, 202, done);
+                    ithelper.updateOne(testEnv.apiCreatedRealm, path + '/' + obj.uoaId, user.token, updateItem, 202, done);
                 });
                 it('Get updated UOA', function (done) {
-                    ithelper.selectOneCheckField(testEnv.api_created_realm, path + '/' + obj.uoaId, user.token, 200, null, 'name', 'Test Subject', done);
+                    ithelper.selectOneCheckField(testEnv.apiCreatedRealm, path + '/' + obj.uoaId, user.token, 200, null, 'name', 'Test Subject', done);
                 });
                 it('Delete created/updated UOA', function (done) {
-                    ithelper.deleteOne(testEnv.api_created_realm, path + '/' + obj.uoaId, user.token, 204, done);
+                    ithelper.deleteOne(testEnv.apiCreatedRealm, path + '/' + obj.uoaId, user.token, 204, done);
                     numberOfRecords--;
                 });
                 it('True number of records after test is completed', function (done) {
-                    ithelper.selectCount(testEnv.api_created_realm, path, user.token, 200, numberOfRecords, done);
+                    ithelper.selectCount(testEnv.apiCreatedRealm, path, user.token, 200, numberOfRecords, done);
                 });
             });
         });
