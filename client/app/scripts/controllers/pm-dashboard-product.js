@@ -49,10 +49,6 @@ angular.module('greyscaleApp')
                 return o.subjectCompleted;
             }).length;
 
-            //$scope.model.count.overdue = _.filter(tasksData, function (task) {
-            //    return task.status !== 'completed' && new Date(task.endDate) < new Date();
-            //}).length;
-
             $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
         };
 
@@ -91,11 +87,7 @@ angular.module('greyscaleApp')
         }
 
         function _notifyUser(task) {
-            var sendData = {
-                //essenceId:
-                //entityId:
-            };
-            greyscaleModalsSrv.sendNotification(task.user, sendData);
+            greyscaleModalsSrv.sendNotification(task.user, {});
         }
 
         function _getData(productId) {
