@@ -268,7 +268,7 @@ module.exports = {
                 throw new HttpError(403, 'Organization with id = ' + req.params.id + ' does not exist');
             }
 
-            if (req.user.roleID !== 1 && req.user.organizationId !== req.params.id) {
+            if (req.user.roleID !== 1 && req.user.organizationId !== parseInt(req.params.id)) {
                 throw new HttpError(
                     403,
                     'You cannot add user to other organizations'
