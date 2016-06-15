@@ -17,7 +17,7 @@ module.exports = {
             var key = req.body.key;
             var path = req.params.realm;
             var params = {
-                Bucket: 'ntrlab-amida-indaba',
+                Bucket: config.awsBucket,
                 Key: path + '/' + key
             };
             var url = s3.getSignedUrl('getObject', params);
