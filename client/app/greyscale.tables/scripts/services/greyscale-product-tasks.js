@@ -107,7 +107,7 @@ angular.module('greyscale.tables')
                     id: task.stepId
                 });
                 task.user = _.find(_dicts.users, {
-                    id: task.userId
+                    id: task.userId[0]
                 });
             });
             _table.dataShare.tasks = tasks;

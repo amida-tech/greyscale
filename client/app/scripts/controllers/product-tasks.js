@@ -134,7 +134,7 @@ angular.module('greyscaleApp')
                         _saveTaskUser(taskViewModel, userViewModel.id)
                             .then(function (task) {
                                 taskViewModel.user = userViewModel;
-                                taskViewModel.userId = userViewModel.id;
+                                taskViewModel.userId = [userViewModel.id];
                                 taskViewModel.id = task.id;
                                 taskViewModel.startDate = task.startDate;
                                 taskViewModel.endDate = task.endDate;
@@ -210,7 +210,7 @@ angular.module('greyscaleApp')
                         return _removeTask(taskViewModel)
                             .then(function () {
                                 taskViewModel.user = undefined;
-                                taskViewModel.userId = undefined;
+                                taskViewModel.userId = [];
                                 delete(taskViewModel.id);
                                 delete(taskViewModel.startDate);
                                 delete(taskViewModel.endDate);
@@ -282,7 +282,7 @@ angular.module('greyscaleApp')
             }
 
             function _isAcceptableUser(task, user) {
-                return !task.user || task.userId !== user.id;
+                return !task.user || !~task.userId.indexOf(user.id);
             }
 
             function _getUserViewModel(ui) {
@@ -342,9 +342,9 @@ angular.module('greyscaleApp')
                 stepId: taskViewModel.stepId,
                 productId: productId,
                 startDate: taskViewModel.step.startDate,
-                endDate: taskViewModel.step.endDate
+                endDate: taskViewModel.step.endDate,
             };
-            saveTask.userId = userId;
+            saveTask.userId = [userId];
 
             var updateStorage = function () {
                 if (!task) {
@@ -424,7 +424,7 @@ angular.module('greyscaleApp')
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function (uoaId) {
                 var task = _findTask(uoaId, stepId);
-                if (task && task.userId && task.userId === userId) {
+                if (task && task.userId && ~task.userId.indexOf(userId)) {
                     return;
                 }
                 var saveTask = task ? angular.copy(task) : {
@@ -434,7 +434,7 @@ angular.module('greyscaleApp')
                     startDate: step.startDate,
                     endDate: step.endDate
                 };
-                saveTask.userId = userId;
+                saveTask.userId = [userId];
                 saveTasks.push(saveTask);
                 if (!task) {
                     newTasks.push(saveTask);
@@ -559,7 +559,7 @@ angular.module('greyscaleApp')
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
                     var user = task ? _.find(_dicts.users, {
-                        id: task.userId
+                        id: task.userId[0]
                     }) : undefined;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
@@ -567,7 +567,7 @@ angular.module('greyscaleApp')
                         stepId: step.id,
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
-                        userId: task ? task.userId : undefined,
+                        userId: task ? task.userId : [],
                         user: user,
                         step: step
                     });
