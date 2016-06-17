@@ -1,0 +1,5033 @@
+Thu, 16 Jun 2016 18:32:57 GMT error error: syntax error at or near "1"
+    at Connection.parseE (/home/sbabushkin/apps/greyscale/backend/node_modules/pg/lib/connection.js:534:11)
+    at Connection.parseMessage (/home/sbabushkin/apps/greyscale/backend/node_modules/pg/lib/connection.js:361:17)
+    at Socket.<anonymous> (/home/sbabushkin/apps/greyscale/backend/node_modules/pg/lib/connection.js:105:22)
+    at emitOne (events.js:77:13)
+    at Socket.emit (events.js:169:7)
+    at readableAddChunk (_stream_readable.js:146:16)
+    at Socket.Readable.push (_stream_readable.js:110:10)
+    at TCP.onread (net.js:523:20)
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+(node) warning: possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit.
+Trace
+    at IncomingMessage.addListener (events.js:239:17)
+    at IncomingMessage.Readable.on (_stream_readable.js:665:33)
+    at IncomingMessage.once (events.js:265:8)
+    at module.exports (/home/sbabushkin/apps/greyscale/backend/node_modules/raw-body/index.js:92:10)
+    at read (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/read.js:62:3)
+    at jsonParser (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/types/json.js:96:5)
+    at Layer.handle [as handle_request] (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/layer.js:82:5)
+    at next (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/route.js:100:13)
+    at complete (/home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:243:13)
+    at /home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:250:15
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+(node) warning: possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit.
+Trace
+    at IncomingMessage.addListener (events.js:239:17)
+    at IncomingMessage.Readable.on (_stream_readable.js:665:33)
+    at IncomingMessage.once (events.js:265:8)
+    at module.exports (/home/sbabushkin/apps/greyscale/backend/node_modules/raw-body/index.js:91:10)
+    at read (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/read.js:62:3)
+    at jsonParser (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/types/json.js:96:5)
+    at Layer.handle [as handle_request] (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/layer.js:82:5)
+    at next (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/route.js:100:13)
+    at complete (/home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:243:13)
+    at /home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:250:15
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+(node) warning: possible EventEmitter memory leak detected. 11 data listeners added. Use emitter.setMaxListeners() to increase limit.
+Trace
+    at IncomingMessage.addListener (events.js:239:17)
+    at IncomingMessage.Readable.on (_stream_readable.js:665:33)
+    at module.exports (/home/sbabushkin/apps/greyscale/backend/node_modules/raw-body/index.js:89:10)
+    at read (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/read.js:62:3)
+    at jsonParser (/home/sbabushkin/apps/greyscale/backend/node_modules/body-parser/lib/types/json.js:96:5)
+    at Layer.handle [as handle_request] (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/layer.js:82:5)
+    at next (/home/sbabushkin/apps/greyscale/backend/node_modules/express/lib/router/route.js:100:13)
+    at complete (/home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:243:13)
+    at /home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/middleware/authenticate.js:250:15
+    at pass (/home/sbabushkin/apps/greyscale/backend/node_modules/passport/lib/authenticator.js:427:14)
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
+Error listeners
+1
+Drain listeners
+1
