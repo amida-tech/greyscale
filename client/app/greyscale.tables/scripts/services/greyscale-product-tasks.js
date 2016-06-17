@@ -6,7 +6,13 @@ angular.module('greyscale.tables')
 
         var tns = 'PRODUCT_TASKS.';
 
-        var _dicts = {};
+        var _dicts = {
+            uoas: [],
+            users: [],
+            steps: [],
+            tasks: [],
+            groups: []
+        };
 
         var _cols = [{
             title: tns + 'UOA',
@@ -17,9 +23,10 @@ angular.module('greyscale.tables')
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+                'uib-popover-template="item.users[0] && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i><span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>.' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
                 '</span></span>'
         }, {
             title: tns + 'DEADLINE',
@@ -89,16 +96,20 @@ angular.module('greyscale.tables')
 
             return $q.all(reqs)
                 .then(function (data) {
-                    _dicts.uoas = data.uoas;
-                    _dicts.users = data.users;
-                    _dicts.steps = data.steps;
-                    _dicts.tasks = data.tasks;
+                    angular.extend(_dicts, {
+                        uoas: data.uoas,
+                        users: data.users,
+                        steps: data.steps,
+                        tasks: data.tasks,
+                        groups: []
+                    });
                     return _extendTasksWithRelations(data.tasks)
                         .then(_getCurrentTasks);
                 });
         }
 
         function _extendTasksWithRelations(tasks) {
+            var i, qty;
             angular.forEach(tasks, function (task) {
                 task.uoa = _.find(_dicts.uoas, {
                     id: task.uoaId
@@ -106,9 +117,33 @@ angular.module('greyscale.tables')
                 task.step = _.find(_dicts.steps, {
                     id: task.stepId
                 });
-                task.user = _.find(_dicts.users, {
-                    id: task.userId[0]
-                });
+                task.users = [];
+                if (task.userIds) {
+                    qty = task.userIds.length;
+                    for (i = 0; i < qty; i++) {
+                        task.users.push(_.find(_dicts.users, {
+                            id: task.userIds[i]
+                        }));
+                    }
+                }
+                task.groups = [];
+                if (task.groupIds) {
+                    qty = task.groupIds.length;
+                    for (i = 0; i < qty; i++) {
+                        task.groups.push(_.find(_dicts.groups, {
+                            id: task.userIds[i]
+                        }));
+
+                    }
+                }
+
+                //todo: remove userId usage after multi-user-group task assingment stable
+                if (!task.userIds || (task.userId && task.userIds.indexOf(task.userId) < 0)) {
+                    task.user = _.find(_dicts.users, {
+                        id: task.userId
+                    });
+                    task.users.unshift(task.user);
+                }
             });
             _table.dataShare.tasks = tasks;
             return $q.when(tasks);
