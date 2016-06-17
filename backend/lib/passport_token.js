@@ -1,6 +1,5 @@
 var passport = require('passport'),
-    util = require('util'),
-    logger = require('app/logger');
+    util = require('util');
 
 function Strategy(options, verify) {
     if (typeof options === 'function') {
