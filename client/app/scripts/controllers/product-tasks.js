@@ -1,7 +1,7 @@
 angular.module('greyscaleApp')
     .controller('ProductTasksCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, Organization,
         greyscaleProductWorkflowApi, greyscaleProductApi, greyscaleUserApi, greyscaleUtilsSrv, greyscaleUoaTypeApi,
-        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, $log) {
+        greyscaleGroupApi, greyscaleTaskApi, greyscaleModalsSrv, greyscaleSurveyApi, $log) {
 
         var tns = 'PRODUCTS.TASKS.TABLE.';
 
@@ -474,9 +474,7 @@ angular.module('greyscaleApp')
         ////////////////////  table-widget init /////////////////////
 
         function _initTasksTable(tableData) {
-
-            $log.debug(tableData);
-            var _cols = tableData.product.projectId ? [] : //hide subject in policy projects
+            var _cols = tableData.survey.policyId ? [] : //hide subject in policy projects
                 [{
                     title: tns + 'UOAS_HEADER',
                     show: true,
@@ -626,6 +624,7 @@ angular.module('greyscaleApp')
             var reqs = {
                 product: $q.when(product),
                 tasks: $q.when(tasks),
+                survey: $q.when(data.survey),
                 workflowSteps: greyscaleProductWorkflowApi.workflow(workflowId).stepsList(),
                 uoas: greyscaleProductApi.product(productId).uoasList(),
                 uoaTypes: greyscaleUoaTypeApi.list()
@@ -687,6 +686,7 @@ angular.module('greyscaleApp')
             var productId = product.id;
             var reqs = {
                 product: $q.when(product),
+                survey: greyscaleSurveyApi.get(product.surveyId),
                 tasks: greyscaleProductApi.product(productId).tasksList()
             };
             return $q.all(reqs);
