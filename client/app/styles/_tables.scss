@@ -126,6 +126,9 @@ table.table-col-fixed {
             opacity: 1;
             .counter {
                 top: 13px;
+                color: red;
+                background: #FFF;
+                border: 1px solid red;
             }
         }
         &.status-current {
@@ -146,7 +149,7 @@ table.table-col-fixed {
         }
         .counter {
             line-height: 15px;
-            min-width: 15px;
+            min-width: 16px;
             right: -3px;
             top: 14px;
             border-radius: 8px;

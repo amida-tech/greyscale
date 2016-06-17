@@ -21,27 +21,7 @@ angular.module('greyscale.tables')
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
                 '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i><span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
                 '</span></span>'
-                //}, {
-                //    title: tns + 'STEP',
-                //    field: 'step.title',
-                //    sortable: 'step.title'
         }, {
-            //    title: tns + 'STATUS',
-            //    field: 'status',
-            //    sortable: 'status',
-            //    cellTemplate: '<span class="task-status-{{option.value}}">{{option.name}}</span>',
-            //    dataFormat: 'option',
-            //    dataSet: {
-            //        getData: _getTaskStatuses,
-            //        keyField: 'value',
-            //        valField: 'name'
-            //    }
-            //}, {
-            //    title: tns + 'FLAGS',
-            //    field: 'flagged',
-            //    sortable: 'flagged',
-            //    cellTemplate: '<div ng-if="cell" class="text-center text-danger flagged-task"><i class="fa
-            // fa-flag"></i></div>' }, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
             cellTemplate: '<span ng-class="{\'text-danger\': ext.deadline(row).isOverdue }">{{ext.deadline(row).endDate|date}}</span>',
@@ -55,13 +35,9 @@ angular.module('greyscale.tables')
             cellTemplate: '{{cell|date:\'short\'}}'
         }, {
             show: true,
-            //dataFormat: 'action',
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
             cellTemplate: '<div class="text-right" ng-if="!row.subjectCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
-                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>',
-            //actions: [{
-            //    icon: 'fa-eye'
-            //}]
+                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
         }];
 
         var _table = {
@@ -83,17 +59,9 @@ angular.module('greyscale.tables')
                 //}
         };
 
-        //function _getTaskStatuses() {
-        //    return greyscaleGlobals.productTaskStatuses;
-        //}
-
         function _getProductId() {
             return _table.dataFilter.productId;
         }
-
-        //function _getOrganizationId() {
-        //    return _table.dataFilter.organizationId;
-        //}
 
         function _getData() {
 
@@ -107,7 +75,6 @@ angular.module('greyscale.tables')
         }
 
         function _getProductTasksData(product) {
-            //var organizationId = _getOrganizationId();
 
             if (!product.workflow) {
                 return $q.when([]);
@@ -155,13 +122,9 @@ angular.module('greyscale.tables')
                 var currentTask;
                 angular.forEach(uoaTasks, function (task) {
                     if (!currentTask && task.stepId === task.uoa.currentStepId) {
-                        //if (!currentTask && task.status === 'current') {
                         currentTask = _setCurrentTask(task, uoaTasks);
                     }
                 });
-                //if (!currentTask) {
-                //    currentTask = _setCurrentTask(uoaTasks[0], uoaTasks);
-                //}
                 if (!currentTask) {
                     currentTask = {
 
@@ -174,7 +137,6 @@ angular.module('greyscale.tables')
 
         function _setCurrentTask(task, uoaTasks) {
             var currentTask = _getTaskProgressData(task, uoaTasks);
-            //currentTask.started = !!currentTask.lastVersionDate;
             return currentTask;
         }
 
@@ -230,6 +192,12 @@ angular.module('greyscale.tables')
                         task.onTime = _isOnTime(progressTask);
                     }
                     progressTask.onTime = task.onTime;
+
+                    if (progressTask.active && progressTask.flaggedfrom) {
+                        task.onTime = progressTask.onTime = _isOnTime(_.find(uoaTasks, {
+                            id: progressTask.flaggedfrom
+                        }));
+                    }
                 }
             });
 
@@ -258,17 +226,7 @@ angular.module('greyscale.tables')
         }
 
         function _isOnTime(task) {
-            return (task.active && task.flagged) || new Date(task.endDate).setHours(23, 59, 59, 999) >= new Date();
-            //var shouldBeStarted = new Date(task.startDate) <= new Date().setHours(0, 0, 0, 0);
-            //var shouldBeEnded = new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date().setHours(23, 59, 59,
-            //    999);
-            //if (!shouldBeStarted) {
-            //    return true;
-            //}
-            //if (task.lastVersionDate) {
-            //    return new Date(task.endDate).setHours(23, 59, 59, 999) > new Date(task.lastVersionDate);
-            //}
-            //return !shouldBeEnded;
+            return new Date(task.endDate).setHours(23, 59, 59, 999) >= new Date();
         }
 
         function _getDeadlineInfo(task) {
@@ -282,7 +240,6 @@ angular.module('greyscale.tables')
                 }
             });
             info.isOverdue = !_isOnTime(info);
-            //return task.status !== 'completed' && new Date(task.endDate).setHours(23, 59, 59, 999) <= new Date();
             task.deadlineInfo = info;
             return info;
         }
