@@ -1,8 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupProductsCtrl', function ($scope, $state, $stateParams, greyscaleModalsSrv,
-        greyscaleProjectApi, greyscaleProjectProductsTbl, Organization) {
+    .controller('ProjectSetupProductsCtrl', function ($scope, greyscaleProjectProductsTbl, Organization) {
 
         var products = greyscaleProjectProductsTbl;
 

@@ -51,19 +51,18 @@ angular.module('greyscale.tables')
                 getData: _getSurveys,
                 keyField: 'id',
                 valField: 'title',
-                groupBy: function(item){
+                groupBy: function (item) {
                     return item.policyId ? 'Policies' : 'Surveys';
                 }
             },
             link: {
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
-                state: function(item){
-                    return item.policyId
-                        ? 'policy.edit({id: item.surveyId})'
-                        : 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
-                }
-                //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
+                state: function (item) {
+                        return item.policyId ? 'policy.edit({id: item.surveyId})' :
+                            'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
+                    }
+                    //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
         }, {
             field: 'workflow.name',
@@ -148,7 +147,7 @@ angular.module('greyscale.tables')
         function _getData() {
             var projectId = _getProjectId();
             if (!projectId) {
-                return $q.reject();
+                return $q.reject('');
             } else {
                 var req = {
                     surveys: greyscaleProjectApi.surveysList(projectId),
@@ -162,8 +161,10 @@ angular.module('greyscale.tables')
         }
 
         function _setPolicyId(products) {
-            angular.forEach(products, function(product){
-                var survey = _.find(_dicts.surveys, {id: product.surveyId});
+            angular.forEach(products, function (product) {
+                var survey = _.find(_dicts.surveys, {
+                    id: product.surveyId
+                });
                 if (survey) {
                     product.policyId = survey.policyId;
                 }
@@ -263,7 +264,7 @@ angular.module('greyscale.tables')
             var extendedProduct = angular.copy(product);
             var reqs = {
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
-                tasks: greyscaleProductApi.product(product.id).tasksList(),
+                tasks: greyscaleProductApi.product(product.id).tasksList()
             };
             if (product.workflow && product.workflow.id) {
                 reqs.workflowSteps = greyscaleProductWorkflowApi
@@ -312,10 +313,11 @@ angular.module('greyscale.tables')
         }
 
         function _getFormWarning(product) {
+            var warning;
             if (product.id && _planningNotFinish(product)) {
-                var warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
-                return warning;
+                warning = i18n.translate(tns + 'PLANNING_NOT_FINISH');
             }
+            return warning;
         }
 
         function _getStatusIcon(product) {

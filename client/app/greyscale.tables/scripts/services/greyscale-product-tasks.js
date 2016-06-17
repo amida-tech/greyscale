@@ -126,9 +126,7 @@ angular.module('greyscale.tables')
                     }
                 });
                 if (!currentTask) {
-                    currentTask = {
-
-                    };
+                    currentTask = {};
                 }
                 currentTasks.push(currentTask);
             });
@@ -230,18 +228,21 @@ angular.module('greyscale.tables')
         }
 
         function _getDeadlineInfo(task) {
-            if (task.deadlineInfo) {
-                return task.deadlineInfo;
-            }
-            var info = {};
-            angular.forEach(task.progress, function (progressTask) {
-                if (progressTask.endDate) {
-                    info.endDate = progressTask.endDate;
+            if (!task.deadlineInfo) {
+                var info = {},
+                    p, qty = task.progress.length;
+
+                for (p = 0; p < qty; p++) {
+                    if (task.progress[p].endDate) {
+                        info.endDate = task.progress[p].endDate;
+                    }
                 }
-            });
-            info.isOverdue = !_isOnTime(info);
-            task.deadlineInfo = info;
-            return info;
+
+                info.isOverdue = !_isOnTime(info);
+                task.deadlineInfo = info;
+            }
+
+            return task.deadlineInfo;
         }
 
         function _handleProgressBlockClick(e, scope) {

@@ -6,32 +6,6 @@
 angular.module('greyscale.rest')
     .factory('greyscaleUoaApi', function (greyscaleRestSrv) {
 
-        var _api = function () {
-            return greyscaleRestSrv().one('uoas');
-        };
-
-        function _uoa(params) {
-            return _api().get(params);
-        }
-
-        function _uoaOne(uoa) {
-            return _api().one(uoa.id + '').get({
-                langId: uoa.langId
-            });
-        }
-
-        function _addUoa(uoa) {
-            return _api().customPOST(uoa);
-        }
-
-        function _deleteUoa(uoaId) {
-            return _api().one(uoaId + '').remove();
-        }
-
-        function _updateUoa(uoa) {
-            return _api().one(uoa.id + '').customPUT(uoa);
-        }
-
         return {
             list: _uoa,
             get: _uoaOne,
@@ -39,4 +13,34 @@ angular.module('greyscale.rest')
             update: _updateUoa,
             delete: _deleteUoa
         };
+
+        function _api() {
+            return greyscaleRestSrv().one('uoas');
+        }
+
+        function _plain(resp) {
+            return (typeof resp.plain === 'function') ? resp.plain() : resp;
+        }
+
+        function _uoa(params) {
+            return _api().get(params).then(_plain);
+        }
+
+        function _uoaOne(uoa) {
+            return _api().one(uoa.id + '').get({
+                langId: uoa.langId
+            }).then(_plain);
+        }
+
+        function _addUoa(uoa) {
+            return _api().customPOST(uoa).then(_plain);
+        }
+
+        function _deleteUoa(uoaId) {
+            return _api().one(uoaId + '').remove().then(_plain);
+        }
+
+        function _updateUoa(uoa) {
+            return _api().one(uoa.id + '').customPUT(uoa).then(_plain);
+        }
     });
