@@ -3,7 +3,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 var config = require('config'),
-    logger = require('app/logger'),
     bodyParser = require('body-parser'),
     multer = require('multer'),
     passport = require('passport'),
@@ -93,25 +92,11 @@ app.on('start', function () {
     // keep above logger to avoid obscure crashes
     app.use(multer());
 
-    // Init logger
-    app.use(logger.initialize());
-
     // Init passport engine
     app.use(passport.initialize());
 
     // json pretty
     app.set('json spaces', 2);
-
-    // Parse JSON requests using body-parser
-    //app.use(bodyParser.json({limit: config.max_upload_filesize}));
-
-    // view engine
-    app.engine('ejs', require('ejs-locals'));
-    app.set('views', 'templates');
-    app.set('view engine', 'ejs');
-
-    //test
-    //app.use(require('app/util').mongoose_options2);
 
     // Set headers for CORS
     app.use(function (req, res, next) {
@@ -205,7 +190,7 @@ app.on('start', function () {
                 return;
             }
         }
-        logger.error(err.stack);
+        debug(err.stack);
         res.sendStatus(500);
     });
 
@@ -276,7 +261,7 @@ app.on('start', function () {
     function startServer() {
         // Start server
         var server = app.listen(process.env.PORT || config.port || 3000, function () {
-            logger.info(util.format('Listening on port %d', server.address().port));
+            debug('Listening on port ' + server.address().port);
         });
 
         require('app/socket/socket-controller.server').init(server);
