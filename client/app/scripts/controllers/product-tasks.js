@@ -104,9 +104,10 @@ angular.module('greyscaleApp')
         }
 
         function _initDropUser() {
+            var $dropUser = $('.drop-user');
             _destroyDropUser();
 
-            $('.drop-user').droppable({
+            $dropUser.droppable({
                 over: function (e, ui) {
                     var cellEl = $(e.target);
                     var userViewModel = _getUserViewModel(ui);
@@ -133,11 +134,15 @@ angular.module('greyscaleApp')
                         _cellLoadingState(cellEl, true);
                         _saveTaskUser(taskViewModel, userViewModel.id)
                             .then(function (task) {
-                                taskViewModel.user = userViewModel;
-                                taskViewModel.userId = [userViewModel.id];
-                                taskViewModel.id = task.id;
-                                taskViewModel.startDate = task.startDate;
-                                taskViewModel.endDate = task.endDate;
+                                angular.extend(taskViewModel, {
+                                    id: task.id,
+                                    userId: userViewModel.id,
+                                    userIds: [userViewModel.id],
+                                    groupIds: [],
+                                    user: userViewModel,
+                                    startDate: task.startDate,
+                                    endDate: task.endDate
+                                });
                             })
                             .finally(function () {
                                 _cellLoadingState(cellEl, false);
@@ -195,7 +200,7 @@ angular.module('greyscaleApp')
                 }
             });
 
-            $('.drop-user').on('click', '.unassign-user', function (e) {
+            $dropUser.on('click', '.unassign-user', function (e) {
                 e.stopPropagation();
                 var cellEl = $(e.target).closest('.drop-user');
                 var taskViewModel = _getTaskViewModel(cellEl);
@@ -210,7 +215,9 @@ angular.module('greyscaleApp')
                         return _removeTask(taskViewModel)
                             .then(function () {
                                 taskViewModel.user = undefined;
-                                taskViewModel.userId = [];
+                                taskViewModel.userId = null;
+                                taskViewModel.userIds = [];
+                                taskViewModel.groupIds = [];
                                 delete(taskViewModel.id);
                                 delete(taskViewModel.startDate);
                                 delete(taskViewModel.endDate);
@@ -222,7 +229,7 @@ angular.module('greyscaleApp')
                     });
             });
 
-            $('.drop-user').on('click', '.edit-task', function (e) {
+            $dropUser.on('click', '.edit-task', function (e) {
                 e.stopPropagation();
                 var cellEl = $(e.target).closest('.drop-user');
                 var taskViewModel = _getTaskViewModel(cellEl);
@@ -277,14 +284,6 @@ angular.module('greyscaleApp')
                 el.removeClass('bg-danger');
             }
 
-            function _isAcceptableGroup(step, user) {
-                return _.intersection(step.usergroupId, user.usergroupId).length;
-            }
-
-            function _isAcceptableUser(task, user) {
-                return !task.user || !~task.userId.indexOf(user.id);
-            }
-
             function _getUserViewModel(ui) {
                 return ui.draggable.scope().user;
             }
@@ -293,6 +292,15 @@ angular.module('greyscaleApp')
                 e = e.target || e;
                 return angular.element(e).scope().$$childHead.model;
             }
+        }
+
+        function _isAcceptableGroup(step, user) {
+            return _.intersection(step.usergroupId, user.usergroupId).length;
+        }
+
+        function _isAcceptableUser(task, user) {
+            return !task.user || (task.userIds && !~task.userIds.indexOf(user.id)) ||
+                (task.userId && task.userId !== user.id);
         }
 
         function _destroyDropUser() {
@@ -342,9 +350,13 @@ angular.module('greyscaleApp')
                 stepId: taskViewModel.stepId,
                 productId: productId,
                 startDate: taskViewModel.step.startDate,
-                endDate: taskViewModel.step.endDate,
+                endDate: taskViewModel.step.endDate
             };
-            saveTask.userId = [userId];
+            angular.extend(saveTask, {
+                userId: userId,
+                userIds: [userId],
+                groupIds: []
+            });
 
             var updateStorage = function () {
                 if (!task) {
@@ -424,9 +436,13 @@ angular.module('greyscaleApp')
             var newTasks = [];
             angular.forEach($scope.model.tasks.dataMap, function (uoaId) {
                 var task = _findTask(uoaId, stepId);
-                if (task && task.userId && ~task.userId.indexOf(userId)) {
+
+                if (!_isAcceptableUser(task, {
+                        id: userId
+                    })) {
                     return;
                 }
+
                 var saveTask = task ? angular.copy(task) : {
                     uoaId: uoaId,
                     stepId: stepId,
@@ -434,7 +450,11 @@ angular.module('greyscaleApp')
                     startDate: step.startDate,
                     endDate: step.endDate
                 };
-                saveTask.userId = [userId];
+                angular.extend(saveTask, {
+                    userId: userId,
+                    userIds: [userId],
+                    groupIds: []
+                });
                 saveTasks.push(saveTask);
                 if (!task) {
                     newTasks.push(saveTask);
@@ -559,15 +579,17 @@ angular.module('greyscaleApp')
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
                     var user = task ? _.find(_dicts.users, {
-                        id: task.userId[0]
-                    }) : undefined;
+                        id: task.userId
+                    }) : null;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
                         uoaId: uoa.id,
                         stepId: step.id,
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
-                        userId: task ? task.userId : [],
+                        userId: task ? task.userId : null,
+                        userIds: task ? task.userIds || [] : [],
+                        groupIds: task ? task.groupIds || [] : [],
                         user: user,
                         step: step
                     });
@@ -585,6 +607,8 @@ angular.module('greyscaleApp')
                     'stepId',
                     'uoaId',
                     'userId',
+                    'userIds',
+                    'groupIds',
                     'startDate',
                     'endDate'
                 ]));
@@ -610,7 +634,9 @@ angular.module('greyscaleApp')
         /////////////////////// data loading ///////////////////////
 
         function _loadTableData(data) {
-            var product = data.product;
+
+            var i, qty,
+                product = data.product;
             var tasks = data.tasks;
             if (!product.workflow) {
                 return $q.when({});
@@ -624,6 +650,13 @@ angular.module('greyscaleApp')
                 uoas: greyscaleProductApi.product(productId).uoasList(),
                 uoaTypes: greyscaleUoaTypeApi.list()
             };
+
+            qty = tasks.length;
+            for (i = 0; i < qty; i++) {
+                if (!tasks[i].userIds && tasks[i].userId) {
+                    tasks[i].userIds = [tasks[i].userId];
+                }
+            }
 
             return $q.all(reqs).then(function (promises) {
                 _dicts.uoaTypes = promises.uoaTypes;
