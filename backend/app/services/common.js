@@ -250,11 +250,11 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (curStep.task.userId !== req.user.id) {
+        if (!_.contains(curStep.task.userIds, req.user.id)) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
-                '(Task user id = ' + curStep.task.userId + ', user id = ' + req.user.id + ')'
+                'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
+                '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
             );
         }
     }
@@ -315,7 +315,6 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         WorkflowStep
         .select(
             WorkflowStep.id,
-            Task.userId,
             Task.id.as('taskId')
         )
         .from(WorkflowStep

@@ -12,7 +12,10 @@ var Task = sql.define({
         'productId',
         'startDate',
         'endDate',
-        'userId'
+        'userId',
+        'userIds',
+        'groupIds',
+        'langId'
     ]
 });
 
@@ -21,7 +24,9 @@ Task.editCols = [
     'description',
     'startDate',
     'endDate',
-    'userId'
+    'userId',
+    'userIds',
+    'groupIds'
 ];
 
 Task.translate = [

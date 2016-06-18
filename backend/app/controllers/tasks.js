@@ -179,17 +179,13 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
-            req.body = _.extend(req.body, {
-                userId: req.user.realmUserId
-            }); // add from realmUserId instead of user id
-            var result = yield thunkQuery(
+            return yield thunkQuery(
                 Task
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
                 .returning(Task.id)
             );
-            return result;
         }).then(function (data) {
             bologger.log({
                 req: req,
