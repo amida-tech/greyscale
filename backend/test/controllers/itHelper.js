@@ -202,7 +202,9 @@ var ithelper = {
 
                 for (var i = 0; i < checkArray.length; i++) {
                     for (var key in checkArray[i]) {
-                        expect(res.body[resKey][i][key]).to.equal(checkArray[i][key]);
+                        expect(res.body[resKey][i][key],
+                            resKey + '[' + i + '].' + key
+                        ).to.equal(checkArray[i][key]);
                     }
                 }
                 done();
