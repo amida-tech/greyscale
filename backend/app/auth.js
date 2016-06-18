@@ -193,11 +193,11 @@ passport.use(new TokenStrategy({
             //debug ('userId: ', user.id, ' realmUserId:', user.realmUserId, ' realm: ', req.params.realm);
 
             if (!user) {
-                req.debug(util.format('Authentication FAILED for token: %s', tokenBody));
+                debug(util.format('Authentication FAILED for token: %s', tokenBody));
                 return false;
             }
 
-            req.debug(util.format('Authentication OK for token: %s', tokenBody));
+            debug(util.format('Authentication OK for token: %s', tokenBody));
 
             var clientThunkQuery = thunkify(new Query(req.params.realm));
 
@@ -347,10 +347,10 @@ module.exports = {
                 success = req.user.role === role;
             }
             if (success) {
-                req.debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
+                debug(util.format('Authorization OK for: %s, as: %s', req.user.email, req.user.role));
                 next();
             } else {
-                req.debug(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
+                debug(util.format('Authorization FAILED for: %s, as: %s', req.user.email, req.user.role));
                 next(new HttpError(401, 'User\'s role has not permission for this action')); // Unauthorized.
             }
         };
