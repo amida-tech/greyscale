@@ -155,6 +155,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            req.body = yield * common.prepUsersForTask(req, req.body);
             return yield thunkQuery(
                 Task
                 .update(_.pick(req.body, Task.editCols))
@@ -179,17 +180,14 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
-            req.body = _.extend(req.body, {
-                userId: req.user.realmUserId
-            }); // add from realmUserId instead of user id
-            var result = yield thunkQuery(
+            req.body = yield * common.prepUsersForTask(req, req.body);
+            return yield thunkQuery(
                 Task
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
                 .returning(Task.id)
             );
-            return result;
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -213,11 +211,11 @@ function* checkTaskData(req) {
         if (
             typeof req.body.uoaId === 'undefined' ||
             typeof req.body.stepId === 'undefined' ||
-            typeof req.body.userId === 'undefined' ||
+            //typeof req.body.userId === 'undefined' ||
             typeof req.body.productId === 'undefined'
         ) {
 
-            throw new HttpError(403, 'uoaId, stepId, userId, productId and title fields are required');
+            throw new HttpError(403, 'uoaId, stepId, productId and title fields are required');
         }
     }
 

@@ -18,7 +18,6 @@ var client = require('app/db_bootstrap'),
     Project = require('app/models/projects'),
     Survey = require('app/models/surveys'),
     VError = require('verror'),
-    logger = require('app/logger'),
     vl = require('validator'),
     HttpError = require('app/error').HttpError,
     util = require('util'),
@@ -1183,7 +1182,7 @@ module.exports = {
                     )
                 )
                 .where(
-                    Task.userId.equals(req.user.id)
+                    Task.userIds.contains('{' + req.user.id + '}')
                     //.and(Project.status.equals(1))
                     .and(Product.status.equals(1))
                 ), req.query

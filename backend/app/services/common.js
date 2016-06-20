@@ -260,11 +260,11 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (curStep.task.userId !== req.user.id) {
+        if (!_.contains(curStep.task.userIds, req.user.id)) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
-                '(Task user id = ' + curStep.task.userId + ', user id = ' + req.user.id + ')'
+                'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
+                '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
             );
         }
     }
@@ -325,7 +325,6 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         WorkflowStep
         .select(
             WorkflowStep.id,
-            Task.userId,
             Task.id.as('taskId')
         )
         .from(WorkflowStep
@@ -363,3 +362,29 @@ var getReturnStep = function* (req, taskId) {
 
 };
 exports.getReturnStep = getReturnStep;
+
+var prepUsersForTask = function* (req, task) {
+
+    if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
+        throw new HttpError(403, 'userId or userIds or groupIds fields are required');
+    } else if (typeof task.groupIds === 'undefined' && (!Array.isArray(task.userIds) || typeof task.userIds === 'undefined')) {
+        // groupIds is empty and userIds empty or is not array -> use userId
+        task.userIds = new Array(task.userId);
+    }
+    // check & clean duplicated users
+    if (Array.isArray(task.userIds) && Array.isArray(task.groupIds)) {
+        // userIds and groupIds is not empty
+        for (var grp in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[grp]);
+            for (var j in usersFromGroup) {
+                var foundUserIndex = task.userIds.indexOf(usersFromGroup[j]);
+                if (foundUserIndex !== -1) {
+                    task.userIds.splice(foundUserIndex, 1);
+                }
+            }
+
+        }
+    }
+    return task;
+};
+exports.prepUsersForTask = prepUsersForTask;
