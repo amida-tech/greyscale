@@ -352,3 +352,29 @@ var getReturnStep = function* (req, taskId) {
 
 };
 exports.getReturnStep = getReturnStep;
+
+var prepUsersForTask = function* (req, task) {
+
+    if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
+        throw new HttpError(403, 'userId or userIds or groupIds fields are required');
+    } else if (typeof task.groupIds === 'undefined' && (!Array.isArray(task.userIds) || typeof task.userIds === 'undefined')) {
+        // groupIds is empty and userIds empty or is not array -> use userId
+        task.userIds = new Array(task.userId);
+    }
+    // check & clean duplicated users
+    if (Array.isArray(task.userIds) && Array.isArray(task.groupIds)) {
+        // userIds and groupIds is not empty
+        for (var grp in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[grp]);
+            for (var j in usersFromGroup) {
+                var foundUserIndex = task.userIds.indexOf(usersFromGroup[j]);
+                if (foundUserIndex !== -1) {
+                    task.userIds.splice(foundUserIndex, 1);
+                }
+            }
+
+        }
+    }
+    return task;
+};
+exports.prepUsersForTask = prepUsersForTask;

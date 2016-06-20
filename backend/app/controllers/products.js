@@ -373,6 +373,9 @@ module.exports = {
                 ) {
                     throw new HttpError(403, 'uoaId, stepId and productId fields are required');
                 }
+                req.body[i] = yield * common.prepUsersForTask(req, req.body[i]);
+
+/*
                 if (typeof req.body[i].userId === 'undefined' && typeof req.body[i].userIds === 'undefined' && typeof req.body[i].groupIds === 'undefined') {
                     throw new HttpError(403, 'userId or userIds or groupIds fields are required');
                 } else if (typeof req.body[i].groupIds === 'undefined' && (!Array.isArray(req.body[i].userIds) || typeof req.body[i].userIds === 'undefined')) {
@@ -393,6 +396,7 @@ module.exports = {
 
                     }
                 }
+*/
 
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
