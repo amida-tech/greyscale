@@ -121,7 +121,7 @@ angular.module('greyscale.tables')
                 uoaTasks = _.sortBy(uoaTasks, 'position');
                 var currentTask;
                 angular.forEach(uoaTasks, function (task) {
-                    if (!currentTask && task.stepId === task.uoa.currentStepId) {
+                    if (!currentTask && task.uoa && task.stepId === task.uoa.currentStepId) {
                         currentTask = _setCurrentTask(task, uoaTasks);
                     }
                 });
