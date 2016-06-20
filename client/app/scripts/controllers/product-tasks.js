@@ -202,7 +202,6 @@ angular.module('greyscaleApp')
                         return _removeTask(taskViewModel)
                             .then(function () {
                                 taskViewModel.user = undefined;
-                                taskViewModel.userId = null;
                                 taskViewModel.userIds = [];
                                 taskViewModel.groupIds = [];
                                 delete(taskViewModel.id);
@@ -286,8 +285,7 @@ angular.module('greyscaleApp')
         }
 
         function _isAcceptableUser(task, user) {
-            return !task.user || (task.userIds && !~task.userIds.indexOf(user.id)) ||
-                (task.userId && task.userId !== user.id);
+            return !task.user || (task.userIds && !~task.userIds.indexOf(user.id));
         }
 
         function _destroyDropUser() {
@@ -332,15 +330,13 @@ angular.module('greyscaleApp')
                 _uoaIds = assignParams.uoaIds,
                 _user = assignParams.userView,
                 i, qty, task, taskCopy,
-                userId = _user.id,
                 saveTasks = [],
                 newTasks = [],
                 step = _.find($scope.model.workflowSteps, {
                     id: _stepId
                 }),
                 userData = {
-                    userId: userId,
-                    userIds: [userId],
+                    userIds: [_user.id],
                     groupIds: []
                 },
                 taskData = {
@@ -404,7 +400,6 @@ angular.module('greyscaleApp')
                 taskViewModel = uoa.steps[stepId];
                 if (~uoaIds.indexOf(taskViewModel.uoaId)) {
                     angular.extend(taskViewModel, {
-                        userId: userViewModel.id,
                         userIds: [userViewModel.id],
                         groupIds: [],
                         user: userViewModel
@@ -413,7 +408,6 @@ angular.module('greyscaleApp')
                         if (uoa.id === newTaskList[t].uoaId && stepId === newTaskList[t].stepId) {
                             angular.extend(taskViewModel, {
                                 id: newTaskList[t].id,
-                                userId: userViewModel.id,
                                 userIds: newTaskList[t].userIds || [userViewModel.id],
                                 groupIds: [],
                                 user: userViewModel,
@@ -557,7 +551,7 @@ angular.module('greyscaleApp')
                     var task = _findTask(uoa.id, step.id);
                     var taskViewModel = uoa.steps[step.id] = {};
                     var user = task ? _.find(_dicts.users, {
-                        id: task.userId
+                        id: task.userIds[0]
                     }) : null;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
@@ -565,7 +559,6 @@ angular.module('greyscaleApp')
                         stepId: step.id,
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
-                        userId: task ? task.userId : null,
                         userIds: task ? task.userIds || [] : [],
                         groupIds: task ? task.groupIds || [] : [],
                         user: user,
@@ -584,7 +577,6 @@ angular.module('greyscaleApp')
                     'productId',
                     'stepId',
                     'uoaId',
-                    'userId',
                     'userIds',
                     'groupIds',
                     'startDate',
