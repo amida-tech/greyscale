@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -262,7 +262,7 @@ angular.module('greyscaleApp')
                         (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
 
-                    if ($scope.surveyData && $scope.surveyData.task.flagged) {
+                    if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
                         var flagged = 0;
                         var resolved = 0;
                         angular.forEach($scope.surveyData.survey.questions, function (question) {

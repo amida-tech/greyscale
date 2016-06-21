@@ -142,7 +142,6 @@ angular.module('greyscaleApp')
                         case 'radio':
                             body = '<div class="checkbox-list option-list" ng-class="field.listType">';
                             if (scope.field.options && scope.field.options.length > 0) {
-                                console.log(scope.field);
                                 body += '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
                                     'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
@@ -153,7 +152,7 @@ angular.module('greyscaleApp')
                                     '<label><input type="radio" ng-model="field.answer" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required" name="{{field.cid}}" gs-valid="field" ng-value="field.otherOption">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly" ' +
                                     translation + '></div>';
                             }
                             body += '</div>';
@@ -206,7 +205,8 @@ angular.module('greyscaleApp')
                             attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
 
-                        body = label + '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                        body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">'
+                            + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
@@ -223,7 +223,7 @@ angular.module('greyscaleApp')
 
                             if (scope.field.hasComments) {
                                 body += '<div class="required" translate="SURVEYS.ANSWER_COMMENT"></div>' +
-                                    '<textarea class="form-control" required="required" placeholder="{{\'SURVEYS.ANSWER_COMMENT\' | translate}}" ng-model="field.comment"' +
+                                    '<textarea class="form-control" required="required" placeholder="{{\'SURVEYS.ANSWER_COMMENT\' | translate}}" ng-model="field.comment" ' +
                                     ((flags.allowTranslate) ? ' translation="comments" ' : '') + ' ng-readonly="field.flags.readonly || isDisabled"></textarea>';
                             }
 
@@ -244,7 +244,7 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    elem.append(body);
+                    elem.append(label + body);
 
                     $compile(elem.contents())(scope);
 
