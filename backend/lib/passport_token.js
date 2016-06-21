@@ -1,6 +1,7 @@
 var passport = require('passport'),
-    util = require('util'),
-    logger = require('app/logger');
+    util = require('util');
+
+var debug = require('debug')('passport_token');
 
 function Strategy(options, verify) {
     if (typeof options === 'function') {
@@ -27,7 +28,7 @@ Strategy.prototype.authenticate = function (req, options) {
 
     if (!token) {
         var msg = 'Token not found when trying to authenticate';
-        req.debug(msg);
+        debug(msg);
         return this.fail(new Error(options.badRequestMessage || msg));
     }
 

@@ -2,7 +2,7 @@ var
     _ = require('underscore'),
     config = require('config'),
     common = require('app/services/common'),
-    logger = require('app/logger'),
+    debug = require('debug')('bologger'),
     vl = require('validator'),
     Essence = require('app/models/essences'),
     User = require('app/models/users'),
@@ -54,7 +54,7 @@ BoLogger.prototype.log = function (data) {
     }).then(function (data) {
         // next();
     }, function (err) {
-        logger.error(err);
+        debug(err);
     });
 
 };
