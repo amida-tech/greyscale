@@ -178,7 +178,7 @@ app.on('start', function () {
             case 'SyntaxError':
                 if (err.status === 400) {
                     var msg = 'Malformed JSON';
-                    req.debug(msg);
+                    debug(msg);
                     res.json(400, {
                         error: msg
                     }); // Bad request

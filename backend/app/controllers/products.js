@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     config = require('config'),
     common = require('app/services/common'),
+    productServ = require('app/services/products'),
     notifications = require('app/controllers/notifications'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
@@ -1450,12 +1451,15 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            return yield thunkQuery(
-                ProductUOA.delete().where({
-                    productId: req.params.id,
-                    UOAid: req.params.uoaid
-                })
-            );
+            // moved to services
+            return yield productServ.deleteProductUOA(req, req.params.id, req.params.uoaid);
+
+            //thunkQuery(
+            //    ProductUOA.delete().where({
+            //        productId: req.params.id,
+            //        UOAid: req.params.uoaid
+            //    })
+            //);
         }).then(function () {
             bologger.log({
                 req: req,
