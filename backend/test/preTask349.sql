@@ -1,14 +1,14 @@
 SET search_path TO :'schema';
 
-INSERT INTO "Users" VALUES ('3', '11', 'dummy1@mail.net', 'dummy1', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '12', 'dummy2@mail.net', 'dummy2', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '13', 'dummy3@mail.net', 'dummy3', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '14', 'dummy4@mail.net', 'dummy4', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '15', 'dummy5@mail.net', 'dummy5', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '16', 'dummy6@mail.net', 'dummy6', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '17', 'dummy7@mail.net', 'dummy7', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '18', 'dummy8@mail.net', 'dummy8', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
-INSERT INTO "Users" VALUES ('3', '19', 'dummy9@mail.net', 'dummy9', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, null, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '11', 'dummy1@mail.net', 'dummy1', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '12', 'dummy2@mail.net', 'dummy2', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '13', 'dummy3@mail.net', 'dummy3', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '14', 'dummy4@mail.net', 'dummy4', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '15', 'dummy5@mail.net', 'dummy5', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '16', 'dummy6@mail.net', 'dummy6', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '17', 'dummy7@mail.net', 'dummy7', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '18', 'dummy8@mail.net', 'dummy8', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
+INSERT INTO "Users" VALUES ('3', '19', 'dummy9@mail.net', 'dummy9', 'Test', ' ', null, null, null, null, '2016-06-19 16:00:24.154+03', null, null, null, 2, null, null, null, null, null, null, null, null, null, 'f', null, null);
 
 INSERT INTO "UnitOfAnalysis" ("id", "gadmId0", "gadmId1", "gadmId2", "gadmId3", "gadmObjectId", "ISO", "ISO2", "nameISO", "name", "description", "shortName", "HASC", "unitOfAnalysisType", "parentId", "creatorId", "ownerId", "visibility", "status", "created", "deleted", "langId", "updated") VALUES (66, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Russia', 'Russian Federation', 'Russia', NULL, 1, NULL, 2, 2, 1, 1, '2016-5-8 12:15:00.017', NULL, 1, NULL);
 INSERT INTO "Groups" ("id", "title", "organizationId", "langId") VALUES (2, 'All users', 2, NULL);
