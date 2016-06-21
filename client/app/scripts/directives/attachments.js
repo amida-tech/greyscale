@@ -55,7 +55,8 @@ angular.module('greyscaleApp')
                         item.url = response.url;
                         item.key = response.key;
                         item.headers = {
-                            'Content-Disposition': 'attachment; filename="' + item.file.name + '"'
+                            'Content-Disposition': 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(item.file.name),
+                            'Content-Type': item.file.type
                         };
                         item.upload();
                     });
