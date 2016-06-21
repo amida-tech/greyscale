@@ -3,8 +3,11 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     Survey = require('app/models/surveys'),
+    Policy = require('app/models/policies'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
+    AttachmentLink = require('app/models/attachment_links'),
+    Essence = require('app/models/essences'),
+    User = require('app/models/users'),
     SurveyQuestion = require('app/models/survey_questions'),
     SurveyQuestionOption = require('app/models/survey_question_options'),
     co = require('co'),
@@ -12,6 +15,8 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    mammoth = require('mammoth'),
+    cheerio = require('cheerio'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');
@@ -22,7 +27,29 @@ module.exports = {
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(Survey.select().from(Survey), _.omit(req.query));
+            return yield thunkQuery(
+                Survey
+                .select(
+                    Survey.star(),
+                    Policy.section, Policy.subsection, Policy.author, Policy.number,
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
+                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                    'FROM "AttachmentLinks" al ' +
+                    'JOIN "Attachments" a ' +
+                    'ON al."entityId" = "Policies"."id" ' +
+                    'JOIN "Essences" e ' +
+                    'ON e.id = al."essenceId" ' +
+                    'AND e."tableName" = \'Policies\' ' +
+                    'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments'
+                )
+                .from(
+                    Survey
+                    .leftJoin(Policy)
+                    .on(Survey.policyId.equals(Policy.id))
+                ),
+                _.omit(req.query)
+            );
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -30,13 +57,61 @@ module.exports = {
         });
     },
 
+    parsePolicyDocx: function (req, res, next) {
+        if (req.files.file) {
+            var file = req.files.file;
+            mammoth
+                .convertToHtml({
+                    path: file.path
+                })
+                .then(function (result) {
+
+                    if (result.messages.length) { // TODO handle errors
+                        //throw new HttpError(403, 'File convert error: ' + JSON.stringify(result.messages))
+                        //next();
+                    }
+
+                    var html = '<html>' + result.value + '</html>';
+                    var $ = cheerio.load(html);
+                    var obj = {};
+
+                    $('html').children().each(function (key, item) {
+                        if (item.name === 'h1') {
+                            var index = $(item).text().replace(new RegExp('[^a-zA-Z]', 'g'), '');
+                            var current = item;
+                            var content = '';
+
+                            while (['h1', 'table'].indexOf($(current).next()[0].name) === -1) {
+                                var nextItem = $(current).next()[0];
+                                content += $(nextItem).html();
+                                current = nextItem;
+                            }
+
+                            obj[index] = content;
+                        }
+                    });
+                    res.json(obj);
+                })
+                .done();
+
+        } else {
+            next(new HttpError(403, 'Please, provide a file'));
+        }
+    },
+
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var data = yield thunkQuery(
                 Survey
+                .from(
+                    Survey
+                    .leftJoin(Policy)
+                    .on(Survey.policyId.equals(Policy.id))
+                )
                 .select(
                     Survey.star(),
+                    Policy.section, Policy.subsection, Policy.author, Policy.number,
                     '(WITH sq AS ' +
                     '( ' +
                     'SELECT ' +
@@ -53,10 +128,20 @@ module.exports = {
                     'ORDER BY ' +
                     '"SurveyQuestions"."position" ' +
                     ') ' +
-                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)'
+                    'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)',
+                    '(SELECT array_agg(row_to_json(att)) FROM (' +
+                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                    'FROM "AttachmentLinks" al ' +
+                    'JOIN "Attachments" a ' +
+                    'ON al."entityId" = "Policies"."id" ' +
+                    'JOIN "Essences" e ' +
+                    'ON e.id = al."essenceId" ' +
+                    'AND e."tableName" = \'Policies\' ' +
+                    'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments'
                 )
                 .where(Survey.id.equals(req.params.id))
-                .group(Survey.id)
+                .group(Survey.id, Policy.id)
             );
             if (_.first(data)) {
                 return data;
@@ -112,7 +197,14 @@ module.exports = {
                     });
                 }
             }
+
+            var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
+
             yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
+
+            if (survey[0] && survey[0].policyId) {
+                yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
+            }
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -133,6 +225,7 @@ module.exports = {
         co(function* () {
             yield * checkSurveyData(req);
             var updateSurvey = req.body;
+
             updateSurvey = _.pick(updateSurvey, Survey.editCols);
 
             if (Object.keys(updateSurvey).length) {
@@ -149,6 +242,31 @@ module.exports = {
                     entity: req.params.id,
                     info: 'Update survey'
                 });
+            }
+
+            if (req.body.policyId !== null) {
+                var updatePolicy = _.pick(req.body, Policy.editCols);
+
+                if (Object.keys(updatePolicy).length) {
+                    yield thunkQuery(
+                        Policy
+                        .update(updatePolicy)
+                        .where(Policy.id.equals(req.body.policyId))
+                    );
+
+                    if (Array.isArray(req.body.attachments)) {
+                        yield * linkAttachments(req, req.body.policyId, req.body.attachments);
+                    }
+
+                    bologger.log({
+                        req: req,
+                        user: req.user,
+                        action: 'update',
+                        object: 'policies',
+                        entity: req.body.policyId,
+                        info: 'Update policy'
+                    });
+                }
             }
 
             var passedIds = [];
@@ -214,6 +332,7 @@ module.exports = {
                                     info: 'Update survey question'
                                 });
                             }
+
                             var deletedQuestionOptions = yield thunkQuery(
                                 SurveyQuestionOption.delete().where(SurveyQuestionOption.questionId.equals(updateSurvey.questions[i].id)).returning(SurveyQuestionOption.id)
                             );
@@ -275,8 +394,10 @@ module.exports = {
                     if (updateSurvey.questions[i].options && updateSurvey.questions[i].options.length && updateSurvey.questions[i].options[0]) {
                         var options = [];
                         for (var optionIndex in updateSurvey.questions[i].options) {
-                            options.push(updateSurvey.questions[i].options[optionIndex]);
-                            options[options.length - 1].questionId = updateSurvey.questions[i].id;
+                            if (updateSurvey.questions[i].options[optionIndex] !== null) {
+                                options.push(updateSurvey.questions[i].options[optionIndex]);
+                                options[options.length - 1].questionId = updateSurvey.questions[i].id;
+                            }
                         }
                         try {
                             yield thunkQuery(SurveyQuestionOption.insert(options));
@@ -370,6 +491,22 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
+
+            if (req.body.isPolicy) {
+                yield * checkPolicyData(req);
+
+                var policy = yield thunkQuery(
+                    Policy
+                    .insert(_.pick(req.body, Policy.table._initialConfig.columns))
+                    .returning(Policy.id)
+                );
+                req.body.policyId = policy[0].id;
+
+                if (Array.isArray(req.body.attachments)) {
+                    yield * linkAttachments(req, policy[0].id, req.body.attachments);
+                }
+
+            }
 
             var survey = yield thunkQuery(
                 Survey.insert(_.pick(req.body, Survey.table._initialConfig.columns)).returning(Survey.id)
@@ -540,21 +677,57 @@ function* addQuestion(req, dataObj) {
 
 function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
-    // if user is superadmin (roleId=1) get projectId from body and check it
-    // else get projectId from req.user.projectId
 
     if (!req.params.id) { // create
-        //if (req.user.roleID == 1) { // superadmin
-        //    var project = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-        //    if (!_.first(project)) {
-        //        throw new HttpError(403, 'Project with id = ' + req.body.projectId + ' does not exists');
-        //    }
-        //} else {
         req.body.projectId = req.user.projectId;
-        //}
 
         if (!req.body.title) {
             throw new HttpError(403, 'title field are required');
+        }
+    }
+}
+
+function* checkPolicyData(req) {
+    var thunkQuery = thunkify(new Query(req.params.realm));
+
+    if (!req.body.section || !req.body.subsection) {
+        throw new HttpError(403, 'section and subsection fields are required');
+    }
+
+    req.body.author = req.user.realmUserId;
+}
+
+function* linkAttachments(req, policyId, attachArr) {
+    var thunkQuery = req.thunkQuery;
+
+    var essence = yield thunkQuery(Essence.select().where(Essence.tableName.equals('Policies')));
+
+    if (Array.isArray(attachArr)) {
+
+        var link = yield thunkQuery(AttachmentLink.select().where({
+            essenceId: essence[0].id,
+            entityId: policyId
+        }));
+
+        if (link.length) {
+            yield thunkQuery(
+                AttachmentLink
+                .update({
+                    attachments: attachArr
+                })
+                .where({
+                    essenceId: essence[0].id,
+                    entityId: policyId
+                })
+            );
+        } else {
+            yield thunkQuery(
+                AttachmentLink.insert({
+                    essenceId: essence[0].id,
+                    entityId: policyId,
+                    attachments: attachArr
+                })
+            );
         }
     }
 }

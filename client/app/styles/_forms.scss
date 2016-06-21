@@ -57,7 +57,7 @@ upload-form,
 }
 
 .form-group .subtext {
-//    max-height: 3.5em;
+    //    max-height: 3.5em;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -97,4 +97,87 @@ option:disabled,
 select[disabled] > option,
 option.disabled {
     color: $grey-medium-light;
+}
+
+.attachments {
+    .panel-title {
+        font-size: $font-size-base;
+    }
+
+    .panel-body {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .row > div.file-attach {
+        margin-bottom: 3px;
+        padding-right: $grid-gutter-width;
+    }
+
+    .file-attach {
+        font-size: $font-size-sub;
+
+        .file-link {
+            i {
+                margin-right: 3px;
+            }
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: block;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+        .file-remove {
+            position: absolute;
+            right: floor($grid-gutter-width/2);
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+    }
+}
+
+.policy {
+    .policy-sections {
+        border-top: solid thin $grey-medium-light;
+        border-bottom: solid thin $grey-medium-light;
+        padding-top: 15px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+
+        .panel {
+            margin-bottom: 0;
+        }
+
+        .policy-upload {
+            margin: 0;
+        }
+    }
+}
+
+.policy-review {
+    .form-group {
+        margin-bottom: 0;
+        .control-label {
+            padding-top: 0;
+        }
+        .form-control-static {
+            padding-top: 0;
+            min-height: 1em;
+        }
+    }
+    .policy-sections {
+        padding-top: 15px;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+
+        .panel {
+            margin-bottom: 0;
+        }
+    }
 }

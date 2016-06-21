@@ -3,13 +3,14 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv) {
         var _associate = [];
         return {
             restrict: 'A',
             scope: {
                 model: '=gsMessage',
                 associate: '=',
+                options: '=',
                 remove: '&',
                 update: '&'
             },
@@ -45,11 +46,35 @@ angular.module('greyscaleApp')
 
                 $scope.cancel = _toggleEdit;
 
+                $scope.fullview = function () {
+                    greyscaleModalsSrv.fullScreenComment($scope.model);
+                };
+
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
                 }
 
                 _associate = $scope.associate;
+            },
+            link: function (scope, elem) {
+                scope.$watch('model', function () {
+
+                    var msgBody = (elem.find('.gs-message-body')),
+                        taText, fView;
+
+                    if (msgBody.length > 0) {
+                        taText = (msgBody.find('.ta-text'));
+                        fView = (msgBody.find('.gs-message-full-view'));
+                        if (msgBody.innerHeight() < taText.outerHeight()) {
+                            fView.show();
+                        } else {
+                            fView.hide();
+                        }
+                    }
+                    if (scope.model) {
+                        scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
+                    }
+                });
             }
         };
 
@@ -67,18 +92,8 @@ angular.module('greyscaleApp')
 
         }
 
-        //todo: replace with greyscaleUtilsSrv.getFullName in ntrlab-hcsc
         function _getUserName(userId) {
-            var _user = _getUser(userId),
-                _parts = [];
-
-            if (_user.firstName) {
-                _parts.push(_user.firstName);
-            }
-            if (_user.lastName) {
-                _parts.push(_user.lastName);
-            }
-            return _parts.join(' ');
+            return greyscaleUtilsSrv.getUserName(_getUser(userId));
         }
     });
 /* message object

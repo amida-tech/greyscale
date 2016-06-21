@@ -20,5 +20,5 @@ $BODY$
 LANGUAGE plpgsql;
 
 SELECT patch_20160425_01_survey_questions();
-DROP FUNCTION IF EXISTS patch_20160425_01_survey_questions();
+DROP FUNCTION IF EXISTS public.patch_20160425_01_survey_questions();
 

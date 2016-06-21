@@ -114,9 +114,11 @@ angular.module('greyscaleApp')
                         delete questions[i].cid;
                         scope.model.survey.questions.push(questions[i]);
                     }
+
                     scope.model.survey.questions.sort(function (a, b) {
                         return a.position - b.position;
                     });
+
                     scope.$emit(greyscaleGlobals.events.survey.builderFormSaved);
                     $timeout(function () {
                         scope.$apply();
@@ -125,7 +127,8 @@ angular.module('greyscaleApp')
 
                 function createFormBuilder() {
                     var data = [];
-                    var i, j;
+                    var i, j,
+                        policyQty = 0;
 
                     if (scope.model.survey && scope.model.survey.questions) {
                         for (i = 0; i < scope.model.survey.questions.length; i++) {
@@ -176,18 +179,21 @@ angular.module('greyscaleApp')
                                     id: question.options[j].id,
                                     label: question.options[j].label,
                                     value: question.options[j].value,
-                                    checked: question.options[j].isSelected,
+                                    checked: question.options[j].isSelected
                                 });
                             }
                         }
                     }
+
                     if (formbuilder) {
                         formbuilder.off('save');
                     }
+
                     if (window.Formbuilder) {
                         angular.extend(window.Formbuilder.options.dict, i18nData.translations.FORMBUILDER || {});
                         formbuilder = new window.Formbuilder({
                             selector: '#formbuilder',
+                            withPolicies: scope.model.survey.isPolicy,
                             bootstrapData: data
                         });
                         scope.saveFormbuilder = function () {
@@ -205,6 +211,24 @@ angular.module('greyscaleApp')
                     if (control.length) {
                         controlCopy = control.clone().html();
                         elem.find('.fb-form').after($compile(controlCopy)(scope));
+                    }
+
+                    if (scope.model.survey.isPolicy) {
+                        elem.find('.fb-policy-wrapper').remove();
+                        /*
+                                                var _policyBlocks = elem.find('.fb-policy-blocks');
+
+                                                _policyBlocks.before($compile(
+                                                    '<fb-policy ng-model="item" ng-repeat="item in model.policy.sections"></fb-policy>')(scope));
+
+                                                elem.find('.fb-policy-attachments-label').remove();
+                                                elem.find('.fb-btn-policy-attach').remove();
+                                                elem.find('.fb-btn-policy-upload').remove()
+                                                    .attr('disabled', 'disabled')
+                                                    .addClass('btn btn-default');
+                                                _policyBlocks.after($compile(
+                                                    '<attachments model="model.attachments" item-id="{{model.survey.policyId}}" essence-id="{{model.essenceId}}"></attachments>')(scope));
+                        */
                     }
                 }
 

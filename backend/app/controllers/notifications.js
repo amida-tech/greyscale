@@ -15,6 +15,7 @@ var
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
     Survey = require('app/models/surveys'),
+    Policy = require('app/models/policies'),
     Task = require('app/models/tasks'),
     UOA = require('app/models/uoas'),
     Notification = require('app/models/notifications'),
@@ -802,6 +803,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
     var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+    var policy = yield * common.getEntity(req, survey.policyId, Policy, 'id');
 
     note = _.extend(note, {
         userFrom: req.user.realmUserId,

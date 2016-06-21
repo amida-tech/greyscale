@@ -1,5 +1,5 @@
 <div translate-namespace="SURVEYS">
-    <div class="clearfix">
+    <div class="clearfix" ng-hide="surveyData.survey.policyId">
         <select class="pull-left" ng-model="model.lang"
                 ng-options="lang.id as lang.nativeName for lang in languages"></select>
 
@@ -21,7 +21,7 @@
             ng-if="!model.savedAt" translate="COMMON.NEVER"></span></p>
     </div>
 
-    <uib-accordion>
+    <uib-accordion ng-hide="surveyData.survey.policyId">
         <uib-accordion-group is-open="model.contentOpen">
             <uib-accordion-heading>
                 {{'SURVEYS.CONTENT' | translate}}
@@ -64,13 +64,15 @@
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
                             translate="SURVEYS.SAVE_DRAFT"></button>
 
-                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
+                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right"
+                            ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
                             ng-disabled="(surveyForm.$invalid || isLocked() || model.locked)"
                             translate="SURVEYS.SUBMIT">
                     </button>
 
-                    <button class="btn btn-primary pull-right" ng-show="surveyData.flags.allowTranslate && !model.translated"
+                    <button class="btn btn-primary pull-right"
+                            ng-show="surveyData.flags.allowTranslate && !model.translated"
                             disabled="disabled">
                         <span class="checkbox-inline"><label><input type="checkbox" ng-model="model.translated">
                             <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>

@@ -12,7 +12,7 @@
 
 angular.module('greyscaleApp')
     .controller('SurveyEditCtrl', function ($scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
-        Organization, greyscaleUtilsSrv, greyscaleGlobals) {
+        Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n) {
 
         var surveyId = $stateParams.surveyId === 'new' ? null : $stateParams.surveyId;
         var projectId;
@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
         $scope.model = {
             survey: {}
         };
-        $state.ext.surveyName = 'New survey';
+        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
 
         Organization.$lock = true;
 
@@ -36,7 +36,7 @@ angular.module('greyscaleApp')
                 $scope.model = {
                     survey: survey
                 };
-                $state.ext.surveyName = survey ? survey.title : 'New survey';
+                $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
                 if (projectId !== survey.projectId) {
                     Organization.$setBy('projectId', survey.projectId);
@@ -57,13 +57,7 @@ angular.module('greyscaleApp')
                     });
                 })
                 .catch(function (err) {
-                    if (err) {
-                        var msg = 'Survey update error';
-                        if (err.data && err.data.message) {
-                            msg += ': ' + err.data.message;
-                        }
-                        greyscaleUtilsSrv.errorMsg(msg);
-                    }
+                    greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
                 });
         }
 

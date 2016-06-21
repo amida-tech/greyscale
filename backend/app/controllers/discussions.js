@@ -102,9 +102,9 @@ module.exports = {
 
             if (req.query.filter === 'resolve') {
                 /*
-                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
-                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
-                */
+                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                 (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                 */
                 selectWhere = selectWhere + ' AND (' +
                     '("Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true) ' +
                     'OR ' +
@@ -180,7 +180,6 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
-
             // prepare for notify
             var userFrom = yield * common.getUser(req, req.user.id);
             // static blindReview
@@ -218,9 +217,68 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-
+            /*
+             if (isResolve) {
+             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+             }
+             */
             return _.first(result);
 
+            /* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
+
+             var newStep;
+             if (isReturn) {
+             newStep = yield * updateProductUOAStep(req, returnObject);
+             }
+             if (isResolve) {
+             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
+             newStep = yield * checkUpdateProductUOAStep(req, returnObject);
+             }
+             var essenceId = yield * common.getEssenceId(req, 'Discussions');
+             var userFrom = yield * common.getUser(req, req.user.id);
+             //var userTo = yield * common.getUser(req, req.body.userId);
+             // static blindReview
+             var productId = task.productId;
+             var uoaId = task.uoaId;
+             //var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+             var step4userTo = yield * common.getEntityById(req,req.body.stepId, WorkflowStep, 'id');
+             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+             if (step4userTo.blindReview) {
+             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             } else if (userFrom.isAnonymous) {
+             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             }
+             //
+             req.body.isReturn = (isReturn);
+             req.body.isResolve = (isResolve);
+             var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
+             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+             var note = yield * notifications.createNotification(req,
+             {
+             userFrom: req.user.realmUserId,
+             userFromName: userFromName,
+             userTo: userTo.id,
+             body: req.body.entry,
+             essenceId: essenceId,
+             entityId: entry.id,
+             discussionEntry:  req.body,
+             isReturn: (isReturn),
+             isResolve: (isResolve),
+             task: retTask,
+             survey: survey,
+             action: 'Add',
+             //notifyLevel: 2,
+             from: from,
+             to: {firstName : userTo.firstName, lastName: userTo.lastName},
+             config: config
+             },
+             'discussion'
+             );
+             return entry;
+             */
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -237,7 +295,6 @@ module.exports = {
             }); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
-
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
             var userFrom = yield * common.getUser(req, req.user.id);
@@ -279,6 +336,53 @@ module.exports = {
                 info: 'Update body of discussion`s entry'
             });
             return result;
+
+            /* no notification when update discussion entry - notification only when return-resolve
+             var entry = yield * common.getDiscussionEntry(req, req.params.id);
+             var essenceId = yield * common.getEssenceId(req, 'Discussions');
+             var userFrom = yield * common.getUser(req, req.user.id);
+             //var userTo = yield * common.getUser(req, entry.userId);
+             // static blindReview
+             var task = yield * common.getTask(req, entry.taskId);
+             var userTo = yield * common.getUser(req, task.userId);
+             var productId = task.productId;
+             var uoaId = task.uoaId;
+             var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
+             if (step4userTo.blindReview) {
+             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             } else if (userFrom.isAnonymous) {
+             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
+             }
+             //
+             var product = yield * common.getEntity(req, task.productId, Product, 'id');
+             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+             var note = yield * notifications.createNotification(req,
+             {
+             userFrom: req.user.realmUserId,
+             userFromName: userFromName,
+             userTo: entry.userId,
+             body: entry.entry,
+             essenceId: essenceId,
+             entityId: entry.id,
+             discussionEntry:  entry,
+             isReturn: entry.isReturn,
+             isResolve: entry.isResolve,
+             task: task,
+             survey: survey,
+             //notifyLevel: 2,
+             from: from,
+             to: {firstName : userTo.firstName, lastName: userTo.lastName},
+             action: 'Update',
+             config: config
+             },
+             'discussion'
+             );
+             return result;
+             */
 
         }).then(function (data) {
             res.status(202).end();
@@ -843,9 +947,9 @@ function* updateProductUOAStep(req, object) {
 
 function* checkUpdateProductUOAStep(req, object) {
     /*
-        After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
-        If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-        then change current step of survey to step from "return" Task.
+     After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
+     If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
+     then change current step of survey to step from "return" Task.
      */
     var query =
         'SELECT "Discussions"."questionId" ' +

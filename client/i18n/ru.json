@@ -13,11 +13,18 @@
     "BRAND": {
         "SLOGAN": "Превращение знаний в данные."
     },
+    "COMMENTS": {
+        "NO_MESSAGES": "",
+        "TAG_COMMENT": "",
+        "TITLE": "",
+        "TYPE": ""
+    },
     "COMMON": {
         "ADD": "Добавить",
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
+        "ATTACHMENTS": "",
         "BACK": "",
         "CANCEL": "Отмена",
         "CHARS": "",
@@ -31,6 +38,7 @@
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
+        "ID": "",
         "INFO": "Информация",
         "NEVER": "",
         "NO": "Нет",
@@ -51,6 +59,10 @@
         "VIEW": "Просмотр",
         "WORDS": "",
         "YES": "Да"
+    },
+    "CONTEXT_MENU": {
+        "COMMENT": "",
+        "TITLE": ""
     },
     "DASHBOARD": {
         "PROJECTS": "",
@@ -73,6 +85,7 @@
         "CHANGES_UNSAVED": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
+        "SURVEY_UPDATE_ERROR": "",
         "TASK_UNDEFINED": "",
         "TEST": "Тестовая ошибка"
     },
@@ -151,6 +164,11 @@
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
     },
     "GLOBALS": {
+        "COMMENTTYPES": {
+            "CONTENT": "",
+            "FORMAT": "",
+            "STRUCTURE": ""
+        },
         "NOTIFYLEVELS": {
             "INTERNAL": "",
             "INTERNAL_AND_EMAILS": "",
@@ -270,6 +288,11 @@
         "NOTIFICATIONS": "",
         "ORGANIZATIONS": "Организации",
         "PM_PRODUCT_DASHBOARD": "Панель проекта \"{{ext.productName}}\"",
+        "POLICY": {
+            "EDIT": "",
+            "REVIEW": "",
+            "TITLE": ""
+        },
         "PRODUCT_INDEXES": "",
         "PRODUCT_TASKS": "Задачи проекта \"{{ext.productName}}\"",
         "PROFILE": "Профиль",
@@ -323,6 +346,7 @@
         "ADDRESS": "Адрес",
         "ADMIN_USER": "Админ",
         "DELETE_CONFIRM": "Подтвердите удаление организации <b>{{organization.name}}</b>",
+        "ENABLE_FEATURE_POLICY": "",
         "IS_ACTIVE": "Активная",
         "NAME": "Название",
         "ORGANIZATION": "Организация",
@@ -351,6 +375,26 @@
         "NO_PRODUCTS": "Нет проектов",
         "NO_PROJECTS": "Нет проектов для управления",
         "PROJECT": "Проект"
+    },
+    "POLICY": {
+        "AUTHOR": "",
+        "NEW_POLICY": "",
+        "NUMBER": "",
+        "PUBLISH": "",
+        "QUESTIONS": "",
+        "SECTION": "",
+        "SECTION_0": "",
+        "SECTION_1": "",
+        "SECTION_2": "",
+        "SECTION_3": "",
+        "SECTION_4": "",
+        "SECTION_5": "",
+        "SECTION_6": "",
+        "SECTION_7": "",
+        "SUBSECTION": "",
+        "TEXT": "",
+        "TITLE": "",
+        "UPLOAD_TEXT": ""
     },
     "PRODUCTS": {
         "INDEXES": {
@@ -588,6 +632,7 @@
         "MAX": "",
         "MIN": "",
         "NAME": "Название",
+        "NEW_SURVEY": "",
         "NO_DATA": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",

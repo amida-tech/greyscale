@@ -37,7 +37,7 @@ angular.module('greyscaleApp')
             profile: greyscaleProfileSrv.getProfile(),
             languages: greyscaleLanguageApi.list(),
             essence: greyscaleEntityTypeApi.list({
-                name: 'Survey Answers'
+                tableName: 'SurveyAnswers'
             })
         };
 
@@ -56,8 +56,10 @@ angular.module('greyscaleApp')
                     resolveData: resp.scopeList ? _getResolveData(resp.scopeList) : null,
                     userId: resp.profile.id,
                     languages: resp.languages.plain(),
-                    essenceId: resp.essence[0] ? resp.essence[0].id : null,
-                    flags: {}
+                    essenceId: resp.essence[0] ? resp.essence[0].id : null
+                };
+                data.flags = {
+                    essenceId: data.essenceId
                 };
                 if (data.resolveData) {
                     data.discussions = greyscaleDiscussionApi.list({

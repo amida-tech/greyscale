@@ -16,6 +16,7 @@ var
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
+    Comment = require('app/models/comments'),
     Notification = require('app/models/notifications'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
@@ -139,6 +140,15 @@ var getDiscussionEntry = function* (req, entryId) {
     return result[0];
 };
 exports.getDiscussionEntry = getDiscussionEntry;
+
+var getCommentEntry = function* (req, entryId) {
+    var result = yield * getEntityById(req, entryId, Comment, 'id');
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Comment with id `' + parseInt(entryId).toString() + '` does not exist in comments');
+    }
+    return result[0];
+};
+exports.getCommentEntry = getCommentEntry;
 
 var getUser = function* (req, userId) {
     var result = yield * getEntityById(req, userId, User, 'id');

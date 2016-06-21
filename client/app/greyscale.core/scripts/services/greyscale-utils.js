@@ -17,7 +17,8 @@ angular.module('greyscale.core')
             parseURL: _parseURL,
             getApiBase: _getApiBase,
             capitalize: _capitalize,
-            countWords: _countWords
+            countWords: _countWords,
+            getUserName: _getUserName
         };
 
         function _decode(dict, key, code, name) {
@@ -144,11 +145,12 @@ angular.module('greyscale.core')
             return result;
         }
 
-        function _getApiBase() {
+        function _getApiBase(query) {
             var _realm = greyscaleRealmSrv.current();
             var host = [greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':');
             var path = [_realm, greyscaleEnv.apiVersion].join('/');
-            return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path;
+
+            return (greyscaleEnv.apiProtocol || 'http') + '://' + host + '/' + path + (query ? '/' + query : '');
         }
 
         function _capitalize(_str) {
@@ -157,5 +159,9 @@ angular.module('greyscale.core')
 
         function _countWords(str) {
             return (str ? str.split(/\s+/).length : 0);
+        }
+
+        function _getUserName(profile) {
+            return [profile.firstName, profile.lastName].join(' ');
         }
     });

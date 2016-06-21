@@ -46,7 +46,7 @@ angular.module('greyscaleApp')
                 return !o.onTime && o.status === 'current';
             }).length;
             $scope.model.count.complete = _.filter(tasksData, function (o) {
-                return o.subjectCompleted;
+                return o.status === 'completed';
             }).length;
 
             $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
@@ -76,7 +76,6 @@ angular.module('greyscaleApp')
         };
 
         function _moveNextStep(task) {
-            console.log('task before', task);
             greyscaleProductApi.product(task.productId).taskMove(task.uoaId)
                 .then(function () {
                     tasksTable.tableParams.reload();

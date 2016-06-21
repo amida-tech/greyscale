@@ -6,6 +6,8 @@ angular.module('greyscaleApp')
 
         var surveys = greyscaleProjectSurveysTbl;
 
+        surveys.mode = 'surveys';
+
         $scope.model = {
             surveys: surveys
         };
