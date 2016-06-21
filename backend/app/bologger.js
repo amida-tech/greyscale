@@ -44,7 +44,8 @@ BoLogger.prototype.log = function (data) {
         if (typeof data.entities === 'object') {
             data.entities = JSON.stringify(data.entities);
         }
-        var thunkQuery = (data.req) ? data.req.thunkQuery : global.thunkQuery;
+        var thunkQuery = (data.req) ? data.req.thunkQuery : thunkify(new Query(config.pgConnect.adminSchema));
+
         if (data.user) {
             data.userid = (data.user.roleID === 1) ? 0 - data.user.id : data.user.id; // if superuser - then user = -id
         }
