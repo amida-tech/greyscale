@@ -17,6 +17,7 @@ var client = require('app/db_bootstrap'),
     AttachmentLink = require('app/models/attachment_links'),
     thunkQuery = thunkify(query),
     crypto = require('crypto'),
+    utf8 = require('utf8'),
     AWS = require('aws-sdk');
 
 AWS.config.update(config.aws);
@@ -266,12 +267,20 @@ module.exports = {
 
             var path = req.params.realm;
             var key = path + '/' + crypto.randomBytes(16).toString('hex');
+
+            var filename = encodeURIComponent(req.body.name);
+
+
             var params = {
                 Bucket: config.awsBucket,
                 Key: key,
                 Expires: 3600000,
-                ContentType: req.body.type
+                ContentType: req.body.type,
+                ContentDisposition: "attachment; filename*=UTF-8''" + filename
             };
+
+            console.log(params);
+
             var url = s3.getSignedUrl('putObject', params);
 
             var attempt = {
