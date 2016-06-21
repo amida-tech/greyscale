@@ -154,6 +154,11 @@ module.exports = {
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
+            //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
+            var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
+            var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
+            var userTo = yield * common.getUser(req, taskTo.userId);
+
             var retTask = task;
             if (returnObject) {
                 var returnTaskId = null;
@@ -191,24 +196,22 @@ module.exports = {
             // static blindReview
             var productId = task.productId;
             var uoaId = task.uoaId;
-            //var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-            var step4userTo = yield * common.getEntityById(req, req.body.stepId, WorkflowStep, 'id');
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {
                 firstName: userFrom.firstName,
                 lastName: userFrom.lastName
             };
-            if (step4userTo.blindReview) {
-                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+            if (stepTo.blindReview) {
+                userFromName = stepTo.role + ' (' + stepTo.title + ')';
                 from = {
-                    firstName: step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
+                    firstName: stepTo.role,
+                    lastName: '(' + stepTo.title + ')'
                 };
             } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
                 from = {
-                    firstName: 'Anonymous -' + step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
+                    firstName: 'Anonymous -' + stepTo.role,
+                    lastName: '(' + stepTo.title + ')'
                 };
             }
 
@@ -217,7 +220,7 @@ module.exports = {
                 action: 'Comment added',
                 userFromName: userFromName,
                 from: from
-            }, result[0].id, task.id, 'Discussions', 'discussion');
+            }, result[0].id, taskTo.id, 'Comment added', 'Discussions');
 
             bologger.log({
                 req: req,
@@ -252,7 +255,10 @@ module.exports = {
             var userFrom = yield * common.getUser(req, req.user.id);
             // static blindReview
             var task = yield * common.getTask(req, entry.taskId);
-            var step4userTo = yield * common.getEntityById(req, task.stepId, WorkflowStep, 'id');
+            var userTo = yield * common.getUser(req, entry.userId);
+            var productId = task.productId;
+            var uoaId = task.uoaId;
+            var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {
                 firstName: userFrom.firstName,
@@ -276,7 +282,7 @@ module.exports = {
                 action: 'Comment updated',
                 userFromName: userFromName,
                 from: from
-            }, result[0].id, task.id, 'Discussions', 'discussion');
+            }, result[0].id, step4userTo.taskid, 'Comment updated', 'Discussions');
 
             bologger.log({
                 req: req,
@@ -923,7 +929,8 @@ function* getUserToStep(req, productId, uoaId, userId) {
     // get step information for userId
     query =
         'SELECT ' +
-        '"WorkflowSteps".* ' +
+        '"WorkflowSteps".*, ' +
+        '"Tasks"."id" as taskid ' +
         'FROM "Tasks" ' +
         'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
         'WHERE ' +

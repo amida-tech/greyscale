@@ -262,7 +262,7 @@ angular.module('greyscaleApp')
                         (!$scope.model.translated && flags.allowTranslate || $scope.model.translated && !flags.allowTranslate) &&
                         (flags.discussionParticipation && !flags.draftFlag);
 
-                    if ($scope.surveyData && $scope.surveyData.task.flagged) {
+                    if ($scope.surveyData && $scope.surveyData.task && $scope.surveyData.task.flagged) {
                         var flagged = 0;
                         var resolved = 0;
                         angular.forEach($scope.surveyData.survey.questions, function (question) {
@@ -590,6 +590,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
                     if (fld.type === 'bullet_points') {
@@ -598,6 +599,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (answer) {
                     fld.answerId = answer.id;
                     fld.langId = answer.langId || fld.langId;
@@ -697,6 +699,7 @@ angular.module('greyscaleApp')
                         fld.answer = answer.value;
                     }
                 }
+
                 if (fld.sub) {
                     loadRecursive(fld.sub, answers);
                 }
