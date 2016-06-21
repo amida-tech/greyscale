@@ -52,7 +52,7 @@ app.on('start', function () {
 
     var putToS3 = function (item, key) {
         return new Promise((resolve, reject) => {
-            var filename = utf8.encode(item.filename);
+            var filename = encodeURIComponent(item.filename);
             var params = {
                 Bucket: config.aws.bucket,
                 Key: key,
@@ -83,6 +83,7 @@ app.on('start', function () {
             'AND (pg_catalog.pg_user.usename = \''+ config.pgConnect.user +'\') ';
 
         var schemas = yield doQuery(sql);
+
 
         for (var index in schemas) {
             var namespace = schemas[index].nspname;
