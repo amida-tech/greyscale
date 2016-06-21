@@ -61,11 +61,11 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j]) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j]);
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j]);
+                    sentUsersId.push(usersFromGroup[j].userId);
                 }
             }
         }
@@ -419,7 +419,7 @@ module.exports = {
                     // notify
                     notify(req, {
                         body: 'Task created',
-                        action: 'Task created',
+                        action: 'Task created'
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
                     bologger.log({
