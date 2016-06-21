@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -590,6 +590,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
                     if (fld.type === 'bullet_points') {
@@ -598,6 +599,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (answer) {
                     fld.answerId = answer.id;
                     fld.langId = answer.langId || fld.langId;
@@ -697,6 +699,7 @@ angular.module('greyscaleApp')
                         fld.answer = answer.value;
                     }
                 }
+
                 if (fld.sub) {
                     loadRecursive(fld.sub, answers);
                 }

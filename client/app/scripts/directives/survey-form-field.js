@@ -20,7 +20,9 @@ angular.module('greyscaleApp')
                 };
 
                 if (scope.field) {
-                    var body = '';
+                    var body = '',
+                        label = '';
+
                     if (scope.field.sub) {
                         scope.sectionOpen = false;
                         scope.model = scope.field.sub;
@@ -32,8 +34,9 @@ angular.module('greyscaleApp')
                             '<p class="subtext section-description">{{field.description}}</p><div class="form-group" ' +
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
-                        var label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
+                        label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
+
                         if (!scope.field.flags.blindReview && !scope.field.flags.provideResponses) {
                             label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                         }
@@ -201,12 +204,12 @@ angular.module('greyscaleApp')
                             links = '<gs-links model="field.answerLinks" options="field.flags"></gs-links>';
                         }
 
-                        if (scope.field.canAttach && (scope.field.attachments.length > 0 || !scope.field.flags.readonly)) {
+                        if (scope.field.canAttach) {
                             attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
                         }
 
-                        body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">'
-                            + body + '</div>' + '<p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
+                        body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body +
+                            '</div><p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
                         if (flags.seeOthersResponses || flags.allowEdit) {
