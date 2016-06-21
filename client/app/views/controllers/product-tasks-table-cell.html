@@ -1,15 +1,28 @@
-<div ng-if="cell.user">
+<div ng-if="cell.users" ng-repeat="usr in cell.users">
     <div class="pull-right">
         <div class="unassign-user action"><i class="fa fa-trash"></i></div>
         <div class="edit-task action"><i class="fa fa-pencil"></i></div>
     </div>
     <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
-        <div><b>{{cell.user.firstName}} {{cell.user.lastName}}</b></div>
-        <small>{{cell.user.email}}</small>
+        <div><b>{{usr.fullName}}</b></div>
+        <small>{{usr.email}}</small>
     </a>
     <div ng-if="!ext.product.surveyId">
-        <div><b>{{cell.user.firstName}} {{cell.user.lastName}}</b></div>
-        <small>{{cell.user.email}}</small>
+        <div><b>{{user.fullName}}</b></div>
+        <small>{{user.email}}</small>
+    </div>
+    <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
+</div>
+<div ng-if="cell.users" ng-repeat="grp in cell.groups">
+    <div class="pull-right">
+        <div class="unassign-user action"><i class="fa fa-trash"></i></div>
+        <div class="edit-task action"><i class="fa fa-pencil"></i></div>
+    </div>
+    <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
+        <div><b>{{grp.title}}</b></div>
+    </a>
+    <div ng-if="!ext.product.surveyId">
+        <div><b>{{grp.title}}</b></div>
     </div>
     <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
 </div>

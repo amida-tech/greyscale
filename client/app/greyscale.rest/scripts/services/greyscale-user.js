@@ -5,7 +5,7 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleUserApi', function ($q, greyscaleRestSrv, greyscaleTokenSrv, greyscaleBase64Srv,
-        greyscaleRealmSrv, greyscaleGlobals) {
+        greyscaleRealmSrv, greyscaleGlobals, greyscaleUtilsSrv) {
 
         return {
             login: _login,
@@ -68,7 +68,16 @@ angular.module('greyscale.rest')
         }
 
         function _listUsers(params, realm) {
-            return userAPI(realm).get(params);
+            return userAPI(realm).get(params).then(function(resp){
+                var i,
+                    qty = resp.length;
+                
+                for(i=0; i<qty; i++) {
+                    resp[i].fullName = greyscaleUtilsSrv.getUserName(resp[i]);
+                }
+                
+                return resp.plain();
+            });
         }
 
         function _login(user, passwd) {

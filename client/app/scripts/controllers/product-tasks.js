@@ -14,7 +14,9 @@ angular.module('greyscaleApp')
             selectedRole: {}
         };
 
-        $scope.global = {};
+        $scope.global = {
+            isPolicy: false
+        };
 
         var _dicts = {};
         var _tasks = [];
@@ -75,40 +77,46 @@ angular.module('greyscaleApp')
         function _searchUsers() {
             var searchGroupId = $scope.model.selectedGroup ?
                 $scope.model.selectedGroup.id : null;
-            var searchText = $scope.model.searchText && $scope.model.searchText !== '' ?
-                $scope.model.searchText : null;
+
+            var regexp = $scope.model.searchText && $scope.model.searchText !== '' ?
+                new RegExp($scope.model.searchText, 'i') : null;
 
             $scope.model.usersSearchResult = _.filter($scope.model.users, function (user) {
                 var acceptGroup = searchGroupId && ~user.usergroupId.indexOf(searchGroupId);
-
                 var acceptText = false;
-                if (searchText) {
-                    if ((' ' + user.firstName).match(searchText)) {
-                        acceptText = true;
-                    }
-                    if ((' ' + user.lastName).match(searchText)) {
-                        acceptText = true;
-                    }
-                    if ((' ' + user.email).match(searchText)) {
-                        acceptText = true;
-                    }
+                if (regexp) {
+                    acceptText = ((' ' + user.fullName).match(regexp) !== null) ||
+                        ((' ' + user.email).match(regexp) !== null);
                 }
                 return acceptGroup || acceptText;
             });
+
+            $scope.model.filteredGroups = _filterGroups(regexp);
+
             $timeout(_initDragUser);
         }
 
+        function _filterGroups(regexp) {
+            if (regexp) {
+                return _.filter(_dicts.groups, function (grp) {
+                    return (grp.title).match(regexp);
+                });
+            } else {
+                return _dicts.groups;
+            }
+        }
+
         function _initDropUser() {
-            var $dropUser = $('.drop-user');
+            var $dropUser = $('.drop-item');
             _destroyDropUser();
 
             $dropUser.droppable({
                 over: function (e, ui) {
                     var cellEl = $(e.target);
-                    var userViewModel = _getUserViewModel(ui);
+                    var _assignItem = _getAssign(ui);
                     var taskViewModel = _getTaskViewModel(e);
-                    if (_isAcceptableGroup(taskViewModel.step, userViewModel)) {
-                        if (_isAcceptableUser(taskViewModel, userViewModel)) {
+                    if (_isAcceptableGroup(taskViewModel.step, _assignItem)) {
+                        if (_isAcceptableAssign(taskViewModel, _assignItem)) {
                             _indicateDropZone(cellEl);
                         }
                     } else {
@@ -121,16 +129,16 @@ angular.module('greyscaleApp')
                 },
                 drop: function (e, ui) {
                     var cellEl = $(e.target),
-                        userViewModel = _getUserViewModel(ui),
+                        _assignItem = _getAssign(ui),
                         taskViewModel = _getTaskViewModel(e),
                         assignParams = {
                             stepId: taskViewModel.stepId,
                             uoaIds: [taskViewModel.uoaId],
-                            userView: userViewModel
+                            item: _assignItem
                         };
 
-                    if (_isAcceptableGroup(taskViewModel.step, userViewModel) &&
-                        _isAcceptableUser(taskViewModel, userViewModel)) {
+                    if (_isAcceptableGroup(taskViewModel.step, _assignItem) &&
+                        _isAcceptableAssign(taskViewModel, _assignItem)) {
                         ui.helper.remove();
                         _cellLoadingState(cellEl, true);
                         _saveTasksAssignment(assignParams)
@@ -142,14 +150,14 @@ angular.module('greyscaleApp')
                 }
             });
 
-            $('.drop-user-bulk').droppable({
+            $('.drop-item-bulk').droppable({
                 over: function (e, ui) {
                     var cellEl = $(e.target);
-                    var userViewModel = _getUserViewModel(ui);
+                    var userViewModel = _getAssign(ui);
                     var check = {};
                     check.usergroupId = _getClassId(e, 'usergroup-id', true);
                     if (_isAcceptableGroup(check, userViewModel)) {
-                        if (_isAcceptableUser(check, userViewModel)) {
+                        if (_isAcceptableAssign(check, userViewModel)) {
                             _indicateDropZone(cellEl);
                         }
                     } else {
@@ -162,18 +170,18 @@ angular.module('greyscaleApp')
                 },
                 drop: function (e, ui) {
                     var cellEl = $(e.target),
-                        userViewModel = _getUserViewModel(ui),
+                        userViewModel = _getAssign(ui),
                         check = {
                             usergroupId: _getClassId(e, 'usergroup-id', true)
                         },
                         assignParams = {
                             stepId: _getClassId(e, 'step-id'),
                             uoaIds: $scope.model.tasks.dataMap,
-                            userView: userViewModel
+                            item: userViewModel
                         };
 
                     if (_isAcceptableGroup(check, userViewModel) &&
-                        _isAcceptableUser(check, userViewModel)) {
+                        _isAcceptableAssign(check, userViewModel)) {
                         ui.helper.remove();
                         _cellLoadingState(cellEl, true);
                         _saveTasksAssignment(assignParams)
@@ -187,7 +195,7 @@ angular.module('greyscaleApp')
 
             $dropUser.on('click', '.unassign-user', function (e) {
                 e.stopPropagation();
-                var cellEl = $(e.target).closest('.drop-user');
+                var cellEl = $(e.target).closest('.drop-item');
                 var taskViewModel = _getTaskViewModel(cellEl);
                 _cellLoadingState(cellEl, true);
                 greyscaleModalsSrv.confirm({
@@ -215,7 +223,7 @@ angular.module('greyscaleApp')
 
             $dropUser.on('click', '.edit-task', function (e) {
                 e.stopPropagation();
-                var cellEl = $(e.target).closest('.drop-user');
+                var cellEl = $(e.target).closest('.drop-item');
                 var taskViewModel = _getTaskViewModel(cellEl);
                 var task = _findTask(taskViewModel.uoaId, taskViewModel.stepId);
                 var editTask = angular.copy(task);
@@ -268,8 +276,8 @@ angular.module('greyscaleApp')
                 el.removeClass('bg-danger');
             }
 
-            function _getUserViewModel(ui) {
-                return ui.draggable.scope().user;
+            function _getAssign(ui) {
+                return ui.draggable.scope().item;
             }
 
             function _getTaskViewModel(e) {
@@ -278,47 +286,71 @@ angular.module('greyscaleApp')
             }
         }
 
-        function _isAcceptableGroup(step, user) {
-            return _.intersection(step.usergroupId, user.usergroupId).length;
+        function _isAcceptableGroup(step, assign) {
+            var res = false;
+            if (step && assign) {
+                switch (assign.type) {
+                case 'u':
+                    res = _.intersection(step.usergroupId, assign.usergroupId).length;
+                    break;
+                case 'g':
+                    res = _.intersection(step.usergroupId, [assign.id]).length;
+                    break;
+                }
+            }
+            return res;
         }
 
-        function _isAcceptableUser(task, user) {
-            return !task.user || (task.userIds && !~task.userIds.indexOf(user.id));
+        function _isAcceptableAssign(task, assign) {
+            var res = false;
+            if (task && assign) {
+                switch (assign.type) {
+                case 'u':
+                    res = !task.users || (task.userIds && !~task.userIds.indexOf(assign.id));
+                    break;
+                case 'g':
+                    res = !task.groups || (task.groupIds && !~task.groupIds.indexOf(assign.id));
+                    break;
+                }
+            }
+            return res;
         }
 
         function _destroyDropUser() {
-            $('.drop-user.ui-droppable').droppable('destroy');
-            $('.drop-user-bulk.ui-droppable').droppable('destroy');
+            $('.drop-item.ui-droppable').droppable('destroy');
+            $('.drop-item-bulk.ui-droppable').droppable('destroy');
         }
 
         function _initDragUser() {
+            var target,
+                _draggable = {
+                    cursor: 'move',
+                    revert: true,
+                    start: function (e) {
+                        target = $(e.target);
+                    },
+                    appendTo: 'body',
+                    helper: function (e) {
+                        var el = $(e.target).clone().detach();
+                        var wrap = $('<table class="table table-bordered"><tr></tr></table>');
+                        wrap.find('tr').append(el);
+                        return wrap;
+                    },
+                    drag: function () {
+                        target.css('opacity', 0.5);
+                    },
+                    stop: function () {
+                        target.css('opacity', 1);
+                    }
+                };
+
             _destroyDragUser();
 
-            var target;
-            $('.drag-user').draggable({
-                cursor: 'move',
-                revert: true,
-                start: function (e) {
-                    target = $(e.target);
-                },
-                appendTo: 'body',
-                helper: function (e) {
-                    var el = $(e.target).clone().detach();
-                    var wrap = $('<table class="table table-bordered"><tr></tr></table>');
-                    wrap.find('tr').append(el);
-                    return wrap;
-                },
-                drag: function () {
-                    target.css('opacity', 0.5);
-                },
-                stop: function () {
-                    target.css('opacity', 1);
-                }
-            });
+            $('.drag-item').draggable(_draggable);
         }
 
         function _destroyDragUser() {
-            $('.drag-user.ui-draggable').draggable('destroy');
+            $('.drag-item.ui-draggable').draggable('destroy');
         }
 
         ///////////////////// action handlers ////////////////////
@@ -326,32 +358,38 @@ angular.module('greyscaleApp')
         function _saveTasksAssignment(assignParams) {
             var _stepId = assignParams.stepId,
                 _uoaIds = assignParams.uoaIds,
-                _user = assignParams.userView,
+                _item = assignParams.item,
                 i, qty, task, taskCopy,
                 saveTasks = [],
                 newTasks = [],
                 step = _.find($scope.model.workflowSteps, {
                     id: _stepId
                 }),
-                userData = {
-                    userIds: [_user.id],
-                    groupIds: []
-                },
                 taskData = {
                     uoaId: null,
                     stepId: _stepId,
                     productId: productId,
                     startDate: step.startDate,
-                    endDate: step.endDate
+                    endDate: step.endDate,
+                    userIds: [],
+                    groupIds: []
+
                 };
 
             qty = _uoaIds.length;
 
             for (i = 0; i < qty; i++) {
                 task = _findTask(_uoaIds[i], _stepId);
-                if (_isAcceptableUser(task, _user)) {
-                    taskCopy = task ? angular.copy(task) : taskData;
-                    angular.extend(taskCopy, userData);
+                if (_isAcceptableAssign(task, _item)) {
+                    taskCopy = angular.extend(taskData, task || {});
+                    switch (_item.type) {
+                    case 'u':
+                        taskCopy.userIds.push(_item.id);
+                        break;
+                    case 'g':
+                        taskCopy.groupIds.push(_item.id);
+                        break;
+                    }
                     taskCopy.uoaId = _uoaIds[i];
                     if (!task) {
                         newTasks.push(taskCopy);
@@ -392,7 +430,7 @@ angular.module('greyscaleApp')
                 taskQty = newTaskList.length,
                 stepId = assignParams.stepId,
                 uoaIds = assignParams.uoaIds,
-                userViewModel = assignParams.userView;
+                userViewModel = assignParams.item;
 
             angular.forEach($scope.model.tasks.tableParams.data, function (uoa) {
                 taskViewModel = uoa.steps[stepId];
@@ -400,7 +438,8 @@ angular.module('greyscaleApp')
                     angular.extend(taskViewModel, {
                         userIds: [userViewModel.id],
                         groupIds: [],
-                        user: userViewModel
+                        user: userViewModel,
+                        users: [userViewModel]
                     });
                     for (t = 0; t < taskQty; t++) {
                         if (uoa.id === newTaskList[t].uoaId && stepId === newTaskList[t].stepId) {
@@ -409,6 +448,7 @@ angular.module('greyscaleApp')
                                 userIds: newTaskList[t].userIds || [userViewModel.id],
                                 groupIds: [],
                                 user: userViewModel,
+                                users: [userViewModel],
                                 startDate: newTaskList[t].startDate,
                                 endDate: newTaskList[t].endDate
                             });
@@ -468,7 +508,8 @@ angular.module('greyscaleApp')
         ////////////////////  table-widget init /////////////////////
 
         function _initTasksTable(tableData) {
-            var _cols = tableData.survey.policyId ? [] : //hide subject in policy projects
+            $scope.global.isPolicy = tableData.survey.policyId !== null;
+            var _cols = $scope.global.isPolicy ? [] : //hide subject in policy projects
                 [{
                     title: tns + 'UOAS_HEADER',
                     show: true,
@@ -495,19 +536,19 @@ angular.module('greyscaleApp')
         function _setStepColumns(table, tableData) {
             angular.forEach(tableData.workflowSteps || [], function (step) {
                 var groupsIdClass = step.usergroupId && step.usergroupId.length ?
-                    'usergroup-id-' + step.usergroupId.join('-') : '';
+                'usergroup-id-' + step.usergroupId.join('-') : '';
                 table.cols.push({
                     titleTemplate: '<b>{{ext.step.title}}</b>' +
-                        '<small class="weight-normal text-muted super-small">{{ext.groups}}</small>' +
-                        '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
+                    '<small class="weight-normal text-muted super-small">{{ext.groups}}</small>' +
+                    '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
                     titleTemplateExtData: {
                         step: step,
                         groups: _.map(step.groups, 'title').join(', ')
                     },
                     show: true,
-                    class: 'drop-zone drop-user-bulk ' + groupsIdClass + ' step-id-' + step.id,
+                    class: 'drop-zone drop-item-bulk ' + groupsIdClass + ' step-id-' + step.id,
                     field: 'steps.' + step.id,
-                    cellClass: 'drop-zone drop-user',
+                    cellClass: 'drop-zone drop-item',
                     cellTemplateUrl: 'views/controllers/product-tasks-table-cell.html',
                     cellTemplateExtData: {
                         product: tableData.product
@@ -521,7 +562,7 @@ angular.module('greyscaleApp')
                 .then(_loadProductTasks)
                 .then(_loadTableData)
                 .then(function (tableData) {
-                    if (tableData.product && tableData.product.policyId) {
+                    if (tableData.product && $scope.global.isPolicy) {
                         tableData.uoas = [tableData.uoas[0]];
                     }
                     $scope.model.workflowSteps = tableData.workflowSteps;
@@ -536,6 +577,7 @@ angular.module('greyscaleApp')
                 .then(function (data) {
                     $timeout(function () {
                         _initDropUser();
+                        _initDragUser();
                     });
                     return data;
                 });
@@ -548,20 +590,39 @@ angular.module('greyscaleApp')
             angular.forEach(tableData.uoas, function (uoa) {
                 uoa.steps = {};
                 angular.forEach(tableData.workflowSteps, function (step) {
-                    var task = _findTask(uoa.id, step.id);
-                    var taskViewModel = uoa.steps[step.id] = {};
-                    var user = task ? _.find(_dicts.users, {
-                        id: task.userIds[0]
-                    }) : null;
+                    var task = _findTask(uoa.id, step.id),
+                        taskViewModel = uoa.steps[step.id] = {},
+                        uIds = [],
+                        gIds = [],
+                        users = [],
+                        groups = [],
+                        i, qty;
+
+                    if (task) {
+                        uIds = task.userIds || [];
+                        gIds = task.groupIds || [];
+
+                        qty = uIds.length;
+                        for (i = 0; i < qty; i++) {
+                            users.push(_.find(_dicts.users, {id: uIds[i]}));
+                        }
+
+                        qty = gIds.length;
+                        for (i = 0; i < qty; i++) {
+                            groups.push(_.find(_dicts.groups, {id: gIds[i]}));
+                        }
+                    }
+
                     angular.extend(taskViewModel, {
                         id: task ? task.id : null,
                         uoaId: uoa.id,
                         stepId: step.id,
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
-                        userIds: task ? task.userIds || [] : [],
-                        groupIds: task ? task.groupIds || [] : [],
-                        user: user,
+                        userIds: uIds,
+                        groupIds: gIds,
+                        users: users,
+                        groups: groups,
                         step: step
                     });
                 });
@@ -646,8 +707,18 @@ angular.module('greyscaleApp')
             };
 
             return $q.all(reqs).then(function (promises) {
+                var i, qty;
+                qty = promises.users.length;
+                for (i = 0; i < qty; i++) {
+                    promises.users[i].type = 'u';
+                }
+                qty = promises.groups.length;
+                for (i = 0; i < qty; i++) {
+                    promises.groups[i].type = 'g';
+                }
                 _dicts.users = promises.users;
                 _dicts.groups = promises.groups;
+                $scope.model.filteredGroups = _filterGroups();
                 return true;
             });
 

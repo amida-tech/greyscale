@@ -5,7 +5,7 @@
     z-index: 2000;
 }
 
-.drag-user {
+.drag-item {
     cursor: move;
     &.ui-draggable-dragging {
         background: #fff;
@@ -14,7 +14,7 @@
     }
 }
 
-.drop-user {
+.drop-item {
     .text-muted {
         opacity: 0.4;
     }
@@ -36,6 +36,7 @@
     border-top-color: #efefef;
     vertical-align: top;
 }
+
 .expand-row {
     [class^="col-"] {
         margin-bottom: 0;
@@ -48,6 +49,7 @@
         }
     }
 }
+
 .column-hover {
     .on-hover-show {
         display: none;
@@ -64,21 +66,25 @@
         }
     }
 }
+
 .table-col-sm {
     th, td {
         min-width: 100px;
     }
 }
+
 .table-col-md {
     th, td {
         min-width: 200px;
     }
 }
+
 .table-col-lg {
     th, td {
         min-width: 400px;
     }
 }
+
 table.table-col-fixed {
     table-layout: fixed;
     &.table-col-sm {
@@ -104,7 +110,7 @@ table.table-col-fixed {
         display: inline-block;
         vertical-align: middle;
         width: 18px;
-        height:18px;
+        height: 18px;
         margin-right: 2px;
         background: #ddd;
         opacity: 0.5;
@@ -156,6 +162,7 @@ table.table-col-fixed {
         }
     }
 }
+
 .flagged-task {
     color: #ff0000;
 }
@@ -211,4 +218,3 @@ table.table-col-fixed {
         margin-top: 0;
     }
 }
-

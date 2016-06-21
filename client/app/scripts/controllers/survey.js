@@ -81,11 +81,11 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 _title = [];
                 if (resp.product) {
-                    data.product = resp.product.plain();
+                    data.product = resp.product;
                     _title.push(data.product.title);
                 }
                 if (resp.uoa) {
-                    data.uoa = resp.uoa.plain();
+                    data.uoa = resp.uoa;
                     _title.push(data.uoa.name);
                 }
                 if (resp.discussions) {
