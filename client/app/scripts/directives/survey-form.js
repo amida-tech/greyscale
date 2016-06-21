@@ -4,8 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
-        greyscaleAttachmentApi) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -607,6 +606,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
                     if (fld.type === 'bullet_points') {
@@ -615,6 +615,7 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
                 if (answer) {
                     fld.answerId = answer.id;
                     fld.langId = answer.langId || fld.langId;
@@ -719,20 +720,21 @@ angular.module('greyscaleApp')
                         fld.answer = answer.value;
                     }
                 }
+
                 if (fld.sub) {
                     loadRecursive(fld.sub, answers);
                 }
             }
 
         }
-
+        /* todo: remove if unused
         function loadAttachments(fld) {
             greyscaleAttachmentApi.list(fld.essenceId, fld.answerId)
                 .then(function (attachmentsV2) {
                     fld.attachments = fld.attachments.concat(attachmentsV2);
                 });
         }
-
+        */
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
