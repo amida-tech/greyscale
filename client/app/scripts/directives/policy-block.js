@@ -55,6 +55,12 @@ angular.module('greyscaleApp')
                         i = 0;
                     if (!item.isError) {
                         for (_sectionName in data) {
+                            if ($scope.policyData.sections.length <= i) {
+                                $scope.policyData.sections.push({
+                                    label: '',
+                                    description: ''
+                                });
+                            }
                             if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
                                 $scope.policyData.sections[i].label = _sectionName;
                                 $scope.policyData.sections[i].description = data[_sectionName];
@@ -83,5 +89,6 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _refreshPolicy(scope, data) {}
+        function _refreshPolicy(scope, data) {
+        }
     });
