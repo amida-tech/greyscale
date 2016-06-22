@@ -760,7 +760,7 @@ module.exports = function (grunt) {
                 secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
                 versionLabel: 'client-' + Date.now(),
                 s3: {
-                    bucket: 'amida-indaba'
+                    bucket: 'indaba-attachment-test'
                 }
             },
             dev: {
