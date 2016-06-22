@@ -56,6 +56,7 @@
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
         "UNASSIGN": "Unassign",
+        "UNASSIGNED": "Unassigned",
         "VIEW": "View",
         "WORDS": "word(s)",
         "YES": "Yes"
@@ -454,7 +455,7 @@
             "SELECT_USERGROUP": "Select User Group ...",
             "SELECT_USERGROUP_LABEL": "Search User By User Group",
             "TABLE": {
-                "DELETE_CONFIRM": "Please confirm deleting user <b>{{task.user.firstName}} {{task.user.lastName}}</b> from step <b>{{task.step.title}}</b>",
+                "DELETE_CONFIRM": "Please confirm deleting assigning <b>{{item.title || item.fullName}}</b> from step <b>{{task.step.title}}</b>",
                 "STEP": "Step",
                 "TASKS_UPDATE_ERROR": "Server error while updating tasks",
                 "TASK_PARAMS": "Task Parameters",

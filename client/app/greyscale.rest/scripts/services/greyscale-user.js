@@ -68,14 +68,14 @@ angular.module('greyscale.rest')
         }
 
         function _listUsers(params, realm) {
-            return userAPI(realm).get(params).then(function(resp){
+            return userAPI(realm).get(params).then(function (resp) {
                 var i,
                     qty = resp.length;
-                
-                for(i=0; i<qty; i++) {
+
+                for (i = 0; i < qty; i++) {
                     resp[i].fullName = greyscaleUtilsSrv.getUserName(resp[i]);
                 }
-                
+
                 return resp.plain();
             });
         }

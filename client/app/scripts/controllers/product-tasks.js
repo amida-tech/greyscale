@@ -208,6 +208,7 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.confirm({
                             message: tns + 'DELETE_CONFIRM',
                             task: taskViewModel,
+                            item: assignItem,
                             okType: 'danger',
                             okText: 'COMMON.DELETE'
                         })
@@ -227,36 +228,20 @@ angular.module('greyscaleApp')
                                 break;
                             }
 
-                            if (_task.userIds.length < 1 && _task.groupIds.length < 1) {
-                                res = _removeTask(taskViewModel)
-                                    .then(function () {
-                                        taskViewModel.users = [];
-                                        taskViewModel.groups = [];
-                                        taskViewModel.userIds = [];
-                                        taskViewModel.groupIds = [];
-                                        delete(taskViewModel.id);
-                                        delete(taskViewModel.startDate);
-                                        delete(taskViewModel.endDate);
-                                        delete(taskViewModel.endDate);
+                            return _updateTask(_task)
+                                .then(function (response) {
+                                    angular.extend(_task, response);
+                                    return response;
+                                })
+                                .then(function (resp) {
+                                    angular.extend(taskViewModel, {
+                                        userIds: _task.userIds,
+                                        groupIds: _task.groupIds,
+                                        users: _getTaskUsers(_task),
+                                        groups: _getTaskGroups(_task)
                                     });
-                            } else {
-                                res = _updateTask(_task)
-                                    .then(function (response) {
-                                        angular.extend(_task, response);
-                                        return response;
-                                    });
-                            }
-
-                            res.then(function () {
-                            angular.extend(taskViewModel, {
-                                    userIds: _task.userIds,
-                                    groupIds: _task.groupIds,
-                                    users: _getTaskUsers(_task),
-                                    groups: _getTaskGroups(_task)
+                                    return resp;
                                 });
-                            });
-
-                            return res;
                         })
                         .finally(function () {
                             _cellLoadingState(cellEl, false);
@@ -593,11 +578,11 @@ angular.module('greyscaleApp')
         function _setStepColumns(table, tableData) {
             angular.forEach(tableData.workflowSteps || [], function (step) {
                 var groupsIdClass = step.usergroupId && step.usergroupId.length ?
-                'usergroup-id-' + step.usergroupId.join('-') : '';
+                    'usergroup-id-' + step.usergroupId.join('-') : '';
                 table.cols.push({
                     titleTemplate: '<b>{{ext.step.title}}</b>' +
-                    '<small class="weight-normal text-muted super-small">{{ext.groups}}</small>' +
-                    '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
+                        '<small class="weight-normal text-muted super-small">{{ext.groups}}</small>' +
+                        '<small>{{ext.step.startDate|date:"shortDate"}} - {{ext.step.endDate|date:"shortDate"}}</small>',
                     titleTemplateExtData: {
                         step: step,
                         groups: _.map(step.groups, 'title').join(', ')
@@ -649,7 +634,9 @@ angular.module('greyscaleApp')
             if (task) {
                 qty = task.userIds.length;
                 for (i = 0; i < qty; i++) {
-                    res.push(_.find(_dicts.users, {id: task.userIds[i]}));
+                    res.push(_.find(_dicts.users, {
+                        id: task.userIds[i]
+                    }));
                 }
             }
             return res;
@@ -661,7 +648,9 @@ angular.module('greyscaleApp')
             if (task) {
                 qty = task.groupIds.length;
                 for (i = 0; i < qty; i++) {
-                    res.push(_.find(_dicts.groups, {id: task.groupIds[i]}));
+                    res.push(_.find(_dicts.groups, {
+                        id: task.groupIds[i]
+                    }));
                 }
             }
             return res;
