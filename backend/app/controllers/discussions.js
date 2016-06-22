@@ -157,7 +157,6 @@ module.exports = {
             //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
             var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
             var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
-            var userTo = yield * common.getUser(req, taskTo.userId);
 
             var retTask = task;
             if (returnObject) {
@@ -312,26 +311,23 @@ module.exports = {
             var userFrom = yield * common.getUser(req, req.user.id);
             // static blindReview
             var task = yield * common.getTask(req, entry.taskId);
-            var userTo = yield * common.getUser(req, entry.userId);
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+            var stepTo = yield * common.getEntity(req, entry.stepId, WorkflowStep, 'id');
             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
             var from = {
                 firstName: userFrom.firstName,
                 lastName: userFrom.lastName
             };
-            if (step4userTo.blindReview) {
-                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+            if (stepTo.blindReview) {
+                userFromName = stepTo.role + ' (' + stepTo.title + ')';
                 from = {
-                    firstName: step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
+                    firstName: stepTo.role,
+                    lastName: '(' + stepTo.title + ')'
                 };
             } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
                 from = {
-                    firstName: 'Anonymous -' + step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
+                    firstName: 'Anonymous -' + stepTo.role,
+                    lastName: '(' + stepTo.title + ')'
                 };
             }
             notify(req, {
@@ -339,7 +335,7 @@ module.exports = {
                 action: 'Comment updated',
                 userFromName: userFromName,
                 from: from
-            }, result[0].id, step4userTo.taskid, 'Comment updated', 'Discussions');
+            }, result[0].id, stepTo.taskid, 'Comment updated', 'Discussions');
 
             bologger.log({
                 req: req,
@@ -605,7 +601,6 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
         // available all users for this survey
         query =
             'SELECT ' +
-            '"Tasks"."userId" as userid, ' +
             '"Tasks"."userIds" as userids, ' +
             '"Tasks"."groupIds" as groupids, ' +
             '"Tasks"."id" as taskid, ' +
@@ -626,13 +621,14 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             'FROM ' +
             '"Tasks" ' +
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+            'INNER JOIN "Users" ON "Tasks"."userIds"[1] = "Users"."id" ' +
             'WHERE ' +
             pgEscape('"Tasks"."productId" = %s AND ', productId) +
             pgEscape('"Tasks"."uoaId" = %s ', uoaId);
         if (tag === 'return') {
-            query = query + pgEscape('AND "WorkflowSteps"."position" < %s', currentStep.position);
+            query = query + pgEscape('AND "WorkflowSteps"."position" < %s ', currentStep.position);
         }
+        query = query + 'ORDER BY "WorkflowSteps"."id"';
         return yield thunkQuery(query);
     } else { //if (tag === 'resolve')
         var resolve = null;
@@ -680,7 +676,6 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             // get resolve list
             query =
                 'SELECT ' +
-                '"Tasks"."userId" as userid, ' +
                 '"Tasks"."userIds" as userids, ' +
                 '"Tasks"."groupIds" as groupids, ' +
                 '"Tasks"."id" as taskid, ' +
@@ -702,7 +697,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'FROM "Discussions" ' +
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-                'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+                'INNER JOIN "Users" ON "Tasks"."userIds"[1] = "Users"."id" ' +
                 pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId) +
                 'AND "Discussions"."isReturn" = true ' +
                 'AND "Discussions"."isResolve" = false ' +
@@ -732,10 +727,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var i = 0; i < result.length; i++) {
             availList.push({
-                userId: result[i].userid,
                 userIds: result[i].userids,
                 groupIds: result[i].groupids,
-                //questionId: result[i].questionid,
                 firstName: result[i].firstName,
                 lastName: result[i].lastName,
                 taskId: result[i].taskid,
@@ -752,8 +745,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var ii = 0; ii < result.length; ii++) {
             returnList.push({
-                userId: result[ii].userid,
-                //questionId: result[i].questionid,
+                userIds: result[ii].userids,
+                groupIds: result[ii].groupids,
                 firstName: result[ii].firstName,
                 lastName: result[ii].lastName,
                 taskId: result[ii].taskid,
@@ -770,7 +763,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolveList.push({
-                userId: result[j].userid,
+                userIds: result[j].userids,
+                groupIds: result[j].groupids,
                 questionId: result[j].questionid,
                 firstName: result[j].firstName,
                 lastName: result[j].lastName,
@@ -1040,7 +1034,7 @@ function* getUserToStep(req, productId, uoaId, userId) {
         'WHERE ' +
         pgEscape('"Tasks"."productId" = %s AND ', productId) +
         pgEscape('"Tasks"."uoaId" = %s AND ', uoaId) +
-        pgEscape('"Tasks"."userId" = %s', userId);
+        pgEscape('"Tasks"."userIds"[1] = %s', userId);
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(query);
     if (!_.first(result)) {
