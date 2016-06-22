@@ -57,25 +57,22 @@ module.exports = function (grunt) {
                     timeout: '10000'
                 },
                 src: [
-                    //'test/**/*.spec.js'
                     'test/**/1*.spec.js',
                     'test/**/2_*.spec.js',
                     'test/**/0*.spec.js',
-                    //'test/**/3_*.spec.js',
-                    //'test/**/71*.spec.js',
-                    //'test/**/72*.spec.js',
-                    //'test/**/73*.spec.js',
-                    //'test/**/74*.spec.js',
-                    //'test/**/81*.spec.js',
+                    'test/**/3_*.spec.js',
+                    'test/**/71*.spec.js',
+                    'test/**/72*.spec.js',
+                    'test/**/73*.spec.js',
+                    'test/**/74*.spec.js',
+                    'test/**/81*.spec.js',
                     'test/**/82*.spec.js',
-                    //'test/**/83*.spec.js',
-                    //'test/**/91*.spec.js',
-                    //'test/**/92*.spec.js',
-                    //'test/**/93*.spec.js',
-                    //'test/**/94*.spec.js',
-                    //'test/**/95*.spec.js',
-                    //'test/**/99001_tasks_349.spec.js',
-                    'test/**/xxx*.spec.js'
+                    'test/**/83*.spec.js',
+                    'test/**/91*.spec.js',
+                    'test/**/92*.spec.js',
+                    'test/**/93*.spec.js',
+                    'test/**/94*.spec.js',
+                    'test/**/95*.spec.js',
                 ]
             }
         },
