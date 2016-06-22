@@ -293,7 +293,7 @@ module.exports = function (grunt) {
         'dropDatabase',
         'createDatabase',
         //'runTestServer',
-        //'express:test',
+        'express:test',
         'mochaTest'
     ]);
 
