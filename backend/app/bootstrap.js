@@ -14,7 +14,6 @@ var config = require('config'),
     query = new Query(),
     thunkify = require('thunkify'),
     _ = require('underscore'),
-    Language = require('app/models/languages'),
     thunkQuery = thunkify(query),
     mc = require('app/mc_helper'),
     co = require('co');
@@ -109,44 +108,6 @@ app.on('start', function () {
         res.header('Access-Control-Expose-Headers', 'X-Total-Count');
         next();
     });
-
-    //app.all('*', function (req, res, next) {
-    //    var acceptLanguage = require('accept-language');
-    //    co(function*(){
-    //        if (req.headers['accept-language'] === 'null') { // get 'null' if accept language not set
-    //            var data = yield thunkQuery(
-    //                Language.select().from(Language).where(Language.code.equals(config.defaultLang))
-    //            );
-    //
-    //            console.log(data);
-    //            req.lang = _.first(data);
-    //
-    //        } else {
-    //            var languages = {};
-    //            var data = yield thunkQuery(
-    //                Language.select().from(Language)
-    //            );
-    //
-    //            if(!data.length){
-    //                throw new HttpError(400, 'You do not have any language record in DB, please provide some');
-    //            }
-    //
-    //            for (var i in data) {
-    //                languages[data[i].code] = data[i];
-    //            }
-    //
-    //            acceptLanguage.languages(Object.keys(languages));
-    //            var code = acceptLanguage.get(req.headers['accept-language']);
-    //            req.lang = languages[code];
-    //
-    //        }
-    //    }).then(function(){
-    //        next();
-    //    }, function(err){
-    //        next(err);
-    //    });
-    //
-    //});
 
     // Route requests to controllers/actions
     app.use(require('app/router'));
