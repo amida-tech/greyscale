@@ -1,28 +1,19 @@
-<div ng-if="cell.users" ng-repeat="usr in cell.users">
-    <div class="pull-right">
-        <div class="unassign-user action"><i class="fa fa-trash"></i></div>
-        <div class="edit-task action"><i class="fa fa-pencil"></i></div>
-    </div>
+<div class="assign-item" ng-if="cell.users" ng-repeat="item in cell.users">
+    <div class="pull-right unassign-item action"><i class="fa fa-trash"></i></div>
     <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
-        <div><b>{{usr.fullName}}</b></div>
-        <small>{{usr.email}}</small>
+        <div><b>{{item.fullName}}</b></div>
+        <small>{{item.email}}</small>
     </a>
     <div ng-if="!ext.product.surveyId">
-        <div><b>{{user.fullName}}</b></div>
-        <small>{{user.email}}</small>
+        <div><b>{{item.fullName}}</b></div>
+        <small>{{item.email}}</small>
     </div>
-    <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
 </div>
-<div ng-if="cell.users" ng-repeat="grp in cell.groups">
-    <div class="pull-right">
-        <div class="unassign-user action"><i class="fa fa-trash"></i></div>
-        <div class="edit-task action"><i class="fa fa-pencil"></i></div>
-    </div>
-    <a ng-if="ext.product.surveyId" ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}">
-        <div><b>{{grp.title}}</b></div>
-    </a>
-    <div ng-if="!ext.product.surveyId">
-        <div><b>{{grp.title}}</b></div>
-    </div>
-    <br><small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
+<div class="assign-item" ng-if="cell.groups" ng-repeat="item in cell.groups">
+    <div class="pull-right unassign-item action"><i class="fa fa-trash"></i></div>
+    <a ng-if="ext.product.surveyId"
+       ng-href="/#survey/{{ext.product.surveyId}}/task/{{cell.id}}"><b>{{item.title}}</b></a>
+    <div ng-if="!ext.product.surveyId"><b>{{item.title}}</b></div>
 </div>
+<div class="pull-right edit-task action"><i class="fa fa-pencil"></i></div>
+<small>{{cell.startDate|date:'shortDate'}} - {{cell.endDate|date:'shortDate'}}</small>
