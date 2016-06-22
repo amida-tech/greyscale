@@ -6105,7 +6105,7 @@ LANGUAGE plpgsql;
 SELECT public.patch_20160603_01_attachmentLinks();
 DROP FUNCTION IF EXISTS public.patch_20160603_01_attachmentLinks();
 
-CREATE OR REPLACE FUNCTION public.patch_20160617-01-Tasks() RETURNS void AS
+CREATE OR REPLACE FUNCTION public.patch_20160617_01_Tasks() RETURNS void AS
 $BODY$
 DECLARE
     schema_name text;
@@ -6129,5 +6129,5 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
-SELECT public.patch_20160617-01-Tasks();
-DROP FUNCTION IF EXISTS public.patch_20160617-01-Tasks();
+SELECT public.patch_20160617_01_Tasks();
+DROP FUNCTION IF EXISTS public.patch_20160617_01_Tasks();

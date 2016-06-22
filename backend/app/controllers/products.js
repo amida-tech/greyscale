@@ -61,11 +61,11 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j]) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j]);
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j]);
+                    sentUsersId.push(usersFromGroup[j].userId);
                 }
             }
         }
@@ -375,29 +375,6 @@ module.exports = {
                 }
                 req.body[i] = yield * common.prepUsersForTask(req, req.body[i]);
 
-/*
-                if (typeof req.body[i].userId === 'undefined' && typeof req.body[i].userIds === 'undefined' && typeof req.body[i].groupIds === 'undefined') {
-                    throw new HttpError(403, 'userId or userIds or groupIds fields are required');
-                } else if (typeof req.body[i].groupIds === 'undefined' && (!Array.isArray(req.body[i].userIds) || typeof req.body[i].userIds === 'undefined')) {
-                    // groupIds is empty and userIds empty or is not array -> use userId
-                    req.body[i].userIds = new Array(req.body[i].userId);
-                }
-                // check & clean duplicated users
-                if (Array.isArray(req.body[i].userIds) && Array.isArray(req.body[i].groupIds)) {
-                    // userIds and groupIds is not empty
-                    for (var grp in req.body[i].groupIds) {
-                        var usersFromGroup = yield * common.getUsersFromGroup(req, req.body[i].groupIds[grp]);
-                        for (var j in usersFromGroup) {
-                            var foundUserIndex = req.body[i].userIds.indexOf(usersFromGroup[j]);
-                            if (foundUserIndex !== -1) {
-                                req.body[i].userIds.splice(foundUserIndex, 1);
-                            }
-                        }
-
-                    }
-                }
-*/
-
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
                         req.body[i],
@@ -428,6 +405,7 @@ module.exports = {
                         });
                     }
                 } else { // create
+                    yield * common.checkDuplicateTask(req, req.body[i].stepId, req.body[i].uoaId, req.body[i].productId);
                     var id = yield thunkQuery(
                         Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
                     );
@@ -441,7 +419,7 @@ module.exports = {
                     // notify
                     notify(req, {
                         body: 'Task created',
-                        action: 'Task created',
+                        action: 'Task created'
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
                     bologger.log({

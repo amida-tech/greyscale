@@ -797,7 +797,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
             entityId: entityId
         });
     }
-    var organization = yield * common.getEntity(req, orgId, Organization, 'id');
+    var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');

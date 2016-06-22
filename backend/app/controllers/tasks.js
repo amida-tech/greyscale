@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
+    common = require('app/services/common'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -214,9 +215,8 @@ function* checkTaskData(req) {
             //typeof req.body.userId === 'undefined' ||
             typeof req.body.productId === 'undefined'
         ) {
-
-            throw new HttpError(403, 'uoaId, stepId, productId and title fields are required');
+            throw new HttpError(403, 'uoaId, stepId and productId fields are required');
         }
+        yield * common.checkDuplicateTask(req, req.body.stepId, req.body.uoaId, req.body.productId);
     }
-
 }

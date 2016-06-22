@@ -182,7 +182,17 @@ var ithelper = {
 
                 for (var i = 0; i < checkArray.length; i++) {
                     for (var key in checkArray[i]) {
-                        expect(res.body[i][key]).to.equal(checkArray[i][key]);
+                        if (Array.isArray(checkArray[i][key])) {
+                            for (var j in checkArray[i][key]) {
+                                expect(res.body[i][key][j],
+                                    '[' + i + '].' + key +'[' + j + ']'
+                                ).to.equal(checkArray[i][key][j]);
+                            }
+                        } else {
+                            expect(res.body[i][key],
+                                '[' + i + '].' + key
+                            ).to.equal(checkArray[i][key]);
+                        }
                     }
                 }
                 done();
@@ -312,6 +322,21 @@ var ithelper = {
                 done();
             });
     },
+    update: function (api, get, token, updateItem, status, result, done) {
+        api
+            .put(get)
+            .set('token', token)
+            .send(updateItem)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                result.body = res.body;
+                done();
+            });
+    },
+
     updateOne: function (api, get, token, updateItem, status, done) {
         api
             .put(get)
@@ -359,6 +384,26 @@ var ithelper = {
             }
         });
     },
+
+    checkArrObjArr: function (arrChecked, arrExpected, done) {
+        for (var i = 0; i < arrExpected.length; i++) {
+            for (var key in arrExpected[i]) {
+                if (Array.isArray(arrExpected[i][key])) {
+                    for (var j in arrExpected[i][key]) {
+                        expect(arrChecked[i][key][j],
+                            '[' + i + '].' + key +'[' + j + ']'
+                        ).to.equal(arrExpected[i][key][j]);
+                    }
+                } else {
+                    expect(arrChecked[i][key],
+                        '[' + i + '].' + key
+                    ).to.equal(arrExpected[i][key]);
+                }
+            }
+        }
+        done();
+    },
+
 
     getTokens: function (usersArray) {
         return new Promise((resolve, reject) => {

@@ -62,6 +62,15 @@ var getTaskByStep = function* (req, stepId, uoaId) {
 };
 exports.getTaskByStep = getTaskByStep;
 
+var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    if (_.first(result)) {
+        throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
+    }
+};
+exports.checkDuplicateTask = checkDuplicateTask;
+
 var getGroupsForStep = function* (req, stepId) {
     var thunkQuery = req.thunkQuery;
     // get group for step
@@ -160,7 +169,7 @@ var getUser = function* (req, userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) { // ToDo: use memcache
-    var thunkQuery = (req) ? req.thunkQuery : global.thunkQuery;
+    var thunkQuery = (req) ? req.thunkQuery : thunkify(new Query(config.pgConnect.adminSchema));
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence for table name `' + essenceName + '`');
@@ -367,17 +376,17 @@ var prepUsersForTask = function* (req, task) {
 
     if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
         throw new HttpError(403, 'userId or userIds or groupIds fields are required');
-    } else if (typeof task.groupIds === 'undefined' && (!Array.isArray(task.userIds) || typeof task.userIds === 'undefined')) {
+    } else if (typeof task.groupIds === 'undefined' && (typeof task.userIds === 'undefined' || !Array.isArray(task.userIds))) {
         // groupIds is empty and userIds empty or is not array -> use userId
-        task.userIds = new Array(task.userId);
+        task.userIds = [task.userId];
     }
     // check & clean duplicated users
     if (Array.isArray(task.userIds) && Array.isArray(task.groupIds)) {
         // userIds and groupIds is not empty
         for (var grp in task.groupIds) {
-            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[grp]);
+            var usersFromGroup = yield * getUsersFromGroup(req, task.groupIds[grp]);
             for (var j in usersFromGroup) {
-                var foundUserIndex = task.userIds.indexOf(usersFromGroup[j]);
+                var foundUserIndex = task.userIds.indexOf(usersFromGroup[j].userId);
                 if (foundUserIndex !== -1) {
                     task.userIds.splice(foundUserIndex, 1);
                 }
