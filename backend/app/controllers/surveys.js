@@ -75,16 +75,23 @@ module.exports = {
                     var $ = cheerio.load(html);
                     var obj = {};
 
-                    $('html').children().each(function (key, item) {
-                        if (item.name === 'h1') {
-                            var index = $(item).text().replace(new RegExp('[^a-zA-Z]', 'g'), '');
+                    var endOfDoc = 'END';
+
+                    $('html').children().each(function(key, item) {
+                        if (item.name == 'h1') {
+                            var index = $(item).text().replace(new RegExp('[^a-zA-Z]', 'g'), '').toUpperCase();
                             var current = item;
+                            debug('Item: '+$(item).html());
                             var content = '';
 
-                            while (['h1', 'table'].indexOf($(current).next()[0].name) === -1) {
-                                var nextItem = $(current).next()[0];
-                                content += $(nextItem).html();
-                                current = nextItem;
+                            if (index === endOfDoc) {
+                                return false;
+                            } else {
+                                while ($(current).next() && ['h1'].indexOf($(current).next()[0].name) == -1) {
+                                    var nextItem = $(current).next()[0];
+                                    content += $(nextItem).html();
+                                    current = nextItem;
+                                }
                             }
 
                             obj[index] = content;
