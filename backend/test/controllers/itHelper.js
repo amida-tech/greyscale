@@ -212,9 +212,17 @@ var ithelper = {
 
                 for (var i = 0; i < checkArray.length; i++) {
                     for (var key in checkArray[i]) {
-                        expect(res.body[resKey][i][key],
-                            resKey + '[' + i + '].' + key
-                        ).to.equal(checkArray[i][key]);
+                        if (Array.isArray(checkArray[i][key])) {
+                            for (var j in checkArray[i][key]) {
+                                expect(res.body[resKey][i][key][j],
+                                    '[' + i + '].' + key +'[' + j + ']'
+                                ).to.equal(checkArray[i][key][j]);
+                            }
+                        } else {
+                            expect(res.body[resKey][i][key],
+                                resKey + '[' + i + '].' + key
+                            ).to.equal(checkArray[i][key]);
+                        }
                     }
                 }
                 done();
