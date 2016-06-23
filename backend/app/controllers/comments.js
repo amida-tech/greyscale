@@ -20,6 +20,7 @@ var
     Notification = require('app/models/notifications'),
     notifications = require('app/controllers/notifications'),
     User = require('app/models/users'),
+    Group = require('app/models/groups'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -69,30 +70,39 @@ function* checkString(val, keyName) {
     return val;
 }
 
-var notify = function (req, commentId, taskId, action, essenceName) {
+var notify = function (req, commentId, taskId, action, essenceName, templateName) {
     co(function* () {
+        var userTo, note, usersFromGroup;
+        var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
         var task = yield * common.getTask(req, taskId);
-        var userTo = yield * common.getUser(req, task.userId);
-        var note = yield * notifications.extendNote(req, {
-            body: req.body.entry,
-            action: action
-        }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-        note = notifications.notify(req, userTo, note, 'comment');
-        sentUsersId.push(userTo.id);
-        var users = yield * common.getUsersForStepByTask(req, taskId);
-        for (var i in users) {
-            if (sentUsersId.indexOf(users[i].userId) === -1) {
-                userTo = yield * common.getUser(req, users[i].userId);
+        for (i in task.userIds) {
+            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
+                userTo = yield * common.getUser(req, task.userIds[i]);
                 note = yield * notifications.extendNote(req, {
                     body: req.body.entry,
                     action: action
                 }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                note = notifications.notify(req, userTo, note, 'comment');
-                sentUsersId.push(users[i].userId);
+                notifications.notify(req, userTo, note, templateName);
+                sentUsersId.push(task.userIds[i]);
             }
         }
+        for (i in task.groupIds) {
+            usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
+            for (j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                    note = yield * notifications.extendNote(req, {
+                        body: req.body.entry,
+                        action: action
+                    }, userTo, essenceName, commentId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(usersFromGroup[j].userId);
+                }
+            }
+        }
+
         if (req.body.tags) {
             req.body.tags = JSON.parse(req.body.tags);
             for (i in req.body.tags.users) {
@@ -102,20 +112,20 @@ var notify = function (req, commentId, taskId, action, essenceName) {
                         body: req.body.entry,
                         action: action
                     }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                    note = notifications.notify(req, userTo, note, 'comment');
+                    note = notifications.notify(req, userTo, note, templateName);
                     sentUsersId.push(req.body.tags.users[i]);
                 }
             }
             for (i in req.body.tags.groups) {
-                var usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
-                for (var j in usersFromGroup) {
+                usersFromGroup = yield * common.getUsersFromGroup(req, req.body.tags.groups[i]);
+                for (j in usersFromGroup) {
                     if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
                         userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                         note = yield * notifications.extendNote(req, {
                             body: req.body.entry,
                             action: action
                         }, userTo, essenceName, commentId, userTo.organizationId, taskId);
-                        note = notifications.notify(req, userTo, note, 'comment');
+                        note = notifications.notify(req, userTo, note, templateName);
                         sentUsersId.push(usersFromGroup[j].userId);
                     }
                 }
@@ -129,38 +139,33 @@ var notify = function (req, commentId, taskId, action, essenceName) {
 };
 
 var getUsersAndGroups = function* (req, taskId) {
+    var userTo, groupTo;
     var users = [];
     var groups = [];
     var chkUsers = [];
     var chkGroups = [];
     var task = yield * common.getTask(req, taskId);
-    var taskAdmin = yield * common.getUser(req, task.userId);
-    users.push({
-        userId: taskAdmin.id,
-        firstName: taskAdmin.firstName,
-        lastName: taskAdmin.lastName,
-        email: taskAdmin.email
-    });
-    chkUsers.push(taskAdmin.id);
-    var stepUsers = yield * common.getUsersForStepByTask(req, taskId);
-    for (var i in stepUsers) {
-        if (chkUsers.indexOf(stepUsers[i].userId) === -1) {
-            chkUsers.push(stepUsers[i].userId);
+    var taskUsers = task.userIds;
+    for (var i in taskUsers) {
+        if (chkUsers.indexOf(taskUsers[i]) === -1) {
+            chkUsers.push(taskUsers[i]);
+            userTo = yield * common.getUser(req, taskUsers[i]);
             users.push({
-                userId: stepUsers[i].userId,
-                firstName: stepUsers[i].firstName,
-                lastName: stepUsers[i].lastName,
-                email: stepUsers[i].email
+                userId: userTo.id,
+                firstName: userTo.firstName,
+                lastName: userTo.lastName,
+                email: userTo.email
             });
         }
     }
-    var stepGroups = yield * common.getGroupsForStep(req, task.stepId);
-    for (i in stepGroups) {
-        if (chkGroups.indexOf(stepGroups[i].groupId) === -1) {
-            chkGroups.push(stepGroups[i].groupId);
+    var taskGroups = task.groupIds;
+    for (i in taskGroups) {
+        if (chkGroups.indexOf(taskGroups[i]) === -1) {
+            chkGroups.push(taskGroups[i]);
+            groupTo = yield * common.getEntity(req, taskGroups[i], Group, 'id');
             groups.push({
-                groupId: stepGroups[i].groupId,
-                title: stepGroups[i].title
+                groupId: groupTo.id,
+                title: groupTo.title
             });
         }
     }
@@ -248,18 +253,18 @@ module.exports = {
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            var userTo = yield * common.getUser(req, task.userId);
+            //var userTo = yield * common.getUser(req, task.userId); Todo remove
             var retTask = task;
             if (returnObject) {
                 retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                userTo = yield * common.getUser(req, retTask.userId);
+                //userTo = yield * common.getUser(req, retTask.userId); Todo remove
             }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
-            req.body = _.extend(req.body, {
-                userId: userTo.id
-            }); // add userId from task (for backward compability)
+            //req.body = _.extend(req.body, { Todo remove
+            //    userId: userTo.id
+            //}); // add userId from task (for backward compability)
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
@@ -281,7 +286,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
-            notify(req, result[0].id, task.id, 'Comment added', 'Comments');
+            notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
 
             bologger.log({
                 req: req,
@@ -317,7 +322,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
 
-            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments');
+            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
 
             bologger.log({
                 req: req,
@@ -340,7 +345,7 @@ module.exports = {
         co(function* () {
             var entry = yield * checkCanUpdate(req, req.params.id);
             req.body.entry = entry.entry;
-            notify(req, entry.id, entry.taskId, 'Comment deleted');
+            notify(req, entry.id, entry.taskId, 'Comment deleted', null, 'comment');
 
             yield thunkQuery(Comment.delete().where(Comment.id.equals(req.params.id)));
         }).then(function (data) {
