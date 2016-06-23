@@ -62,11 +62,11 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j]) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j]);
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j]);
+                    sentUsersId.push(usersFromGroup[j].userId);
                 }
             }
         }
@@ -228,68 +228,8 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-            /*
-             if (isResolve) {
-             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
-             }
-             */
             return _.first(result);
 
-            /* return to previous step - this action is make when survey move to the next step now (common.moveWorkflow)
-
-             var newStep;
-             if (isReturn) {
-             newStep = yield * updateProductUOAStep(req, returnObject);
-             }
-             if (isResolve) {
-             var returnTask = yield * updateReturnTask(req, returnObject.discussionId);
-             newStep = yield * checkUpdateProductUOAStep(req, returnObject);
-             }
-             var essenceId = yield * common.getEssenceId(req, 'Discussions');
-             var userFrom = yield * common.getUser(req, req.user.id);
-             //var userTo = yield * common.getUser(req, req.body.userId);
-             // static blindReview
-             var productId = task.productId;
-             var uoaId = task.uoaId;
-             //var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-             var step4userTo = yield * common.getEntityById(req,req.body.stepId, WorkflowStep, 'id');
-             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
-             if (step4userTo.blindReview) {
-             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
-             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-             } else if (userFrom.isAnonymous) {
-             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
-             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-             }
-             //
-             req.body.isReturn = (isReturn);
-             req.body.isResolve = (isResolve);
-             var product = yield * common.getEntity(req, retTask.productId, Product, 'id');
-             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-             var note = yield * notifications.createNotification(req,
-             {
-             userFrom: req.user.realmUserId,
-             userFromName: userFromName,
-             userTo: userTo.id,
-             body: req.body.entry,
-             essenceId: essenceId,
-             entityId: entry.id,
-             discussionEntry:  req.body,
-             isReturn: (isReturn),
-             isResolve: (isResolve),
-             task: retTask,
-             survey: survey,
-             action: 'Add',
-             //notifyLevel: 2,
-             from: from,
-             to: {firstName : userTo.firstName, lastName: userTo.lastName},
-             config: config
-             },
-             'discussion'
-             );
-             return entry;
-             */
         }).then(function (data) {
             res.status(201).json(data);
         }, function (err) {
@@ -346,53 +286,6 @@ module.exports = {
                 info: 'Update body of discussion`s entry'
             });
             return result;
-
-            /* no notification when update discussion entry - notification only when return-resolve
-             var entry = yield * common.getDiscussionEntry(req, req.params.id);
-             var essenceId = yield * common.getEssenceId(req, 'Discussions');
-             var userFrom = yield * common.getUser(req, req.user.id);
-             //var userTo = yield * common.getUser(req, entry.userId);
-             // static blindReview
-             var task = yield * common.getTask(req, entry.taskId);
-             var userTo = yield * common.getUser(req, task.userId);
-             var productId = task.productId;
-             var uoaId = task.uoaId;
-             var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-             var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-             var from = {firstName: userFrom.firstName, lastName: userFrom.lastName};
-             if (step4userTo.blindReview) {
-             userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
-             from = {firstName: step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-             } else if (userFrom.isAnonymous) {
-             userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
-             from = {firstName: 'Anonymous -' + step4userTo.role, lastName: '(' + step4userTo.title + ')'};
-             }
-             //
-             var product = yield * common.getEntity(req, task.productId, Product, 'id');
-             var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-             var note = yield * notifications.createNotification(req,
-             {
-             userFrom: req.user.realmUserId,
-             userFromName: userFromName,
-             userTo: entry.userId,
-             body: entry.entry,
-             essenceId: essenceId,
-             entityId: entry.id,
-             discussionEntry:  entry,
-             isReturn: entry.isReturn,
-             isResolve: entry.isResolve,
-             task: task,
-             survey: survey,
-             //notifyLevel: 2,
-             from: from,
-             to: {firstName : userTo.firstName, lastName: userTo.lastName},
-             action: 'Update',
-             config: config
-             },
-             'discussion'
-             );
-             return result;
-             */
 
         }).then(function (data) {
             res.status(202).end();
@@ -893,108 +786,6 @@ function* getCurrentStep(req, taskId) {
         throw new HttpError(403, 'Error find taskId=' + taskId.toString()); // just in case - I think, it is not possible case!
     }
     return result[0];
-}
-
-function* updateProductUOAStep(req, object) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(ProductUOA.update({
-            currentStepId: object.stepId
-        })
-        .where(ProductUOA.productId.equals(object.productId)
-            .and(ProductUOA.UOAid.equals(object.uoaId))
-        )
-        .returning(ProductUOA.currentStepId)
-    );
-    if (_.first(result)) {
-
-        // notify
-        var task = yield * common.getTask(req, parseInt(object.taskId));
-        notify(req, {
-            body: 'Task activated (flagged)',
-            action: 'Task activated (flagged)'
-        }, object.taskId, task.id, 'Tasks', 'activateTask');
-
-        bologger.log({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            entities: {
-                productId: object.productId,
-                uoaId: object.uoaId,
-                currentStepId: object.stepId
-            },
-            quantity: 1,
-            info: 'Update current step for survey'
-        });
-    } else {
-        bologger.error({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            info: 'Update current step for survey'
-        }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-    }
-}
-
-function* checkUpdateProductUOAStep(req, object) {
-    /*
-     After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
-     If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-     then change current step of survey to step from "return" Task.
-     */
-    var query =
-        'SELECT "Discussions"."questionId" ' +
-        'FROM "Discussions" ' +
-        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
-        'WHERE ' +
-        '"Discussions"."isResolve" <> "Discussions"."isReturn" AND ' +
-        pgEscape('"Tasks"."uoaId" = %s AND ', object.uoaId) +
-        pgEscape('"Tasks"."productId" = %s', object.productId);
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        var res = yield thunkQuery(ProductUOA.update({
-                currentStepId: object.stepId
-            })
-            .where(ProductUOA.productId.equals(object.productId)
-                .and(ProductUOA.UOAid.equals(object.uoaId))
-            )
-            .returning(ProductUOA.currentStepId)
-        );
-        if (_.first(res)) {
-
-            // notify
-            var task = yield * common.getTask(req, parseInt(object.taskId));
-            notify(req, {
-                body: 'Task activated (resolved)',
-                action: 'Task activated (resolved)'
-            }, object.taskId, task.id, 'Tasks', 'activateTask');
-
-            bologger.log({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                entities: {
-                    productId: object.productId,
-                    uoaId: object.uoaId,
-                    currentStepId: object.stepId
-                },
-                quantity: 1,
-                info: 'Update current step for survey (when resolving)'
-            });
-        } else {
-            bologger.error({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                info: 'Update current step for survey (when resolving)'
-            }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-        }
-    }
 }
 
 function* updateReturnTask(req, discussionId) {
