@@ -42,7 +42,40 @@ var
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_products');
+var error = require('debug')('error');
 debug.log = console.log.bind(console);
+
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+    co(function* () {
+        var userTo, note;
+        // notify
+        var sentUsersId = []; // array for excluding duplicate sending
+        var task = yield * common.getTask(req, taskId);
+        for (var i in task.userIds) {
+            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
+                userTo = yield * common.getUser(req, task.userIds[i]);
+                note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                notifications.notify(req, userTo, note, templateName);
+                sentUsersId.push(task.userIds[i]);
+            }
+        }
+        for (i in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
+            for (var j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(usersFromGroup[j].userId);
+                }
+            }
+        }
+    }).then(function (result) {
+        debug('Created notifications `' + note0.action + '`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
 
 var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
@@ -82,37 +115,11 @@ var moveWorkflow = function* (req, productId, UOAid) {
         yield * updateCurrentStep(req, step4Resolve, productId, UOAid);
 
         // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
-        //essenceId = yield * common.getEssenceId(req, 'Tasks');
         task = yield * common.getTaskByStep(req, step4Resolve, UOAid);
-        userTo = yield * common.getUser(req, task.userId);
-        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        product = yield * common.getEntity(req, task.productId, Product, 'id');
-        //uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        uoa = yield * common.getEntity(req, UOAid, UOA, 'id');
-        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req, {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'flags were resolved',
-                //essenceId: essenceId,
-                //entityId: nextStep.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                to: {
-                    firstName: userTo.firstName,
-                    lastName: userTo.lastName
-                },
-                config: config
-            },
-            'resolveFlag'
-        );
+        notify(req, {
+            body: 'flags were resolved',
+            action: 'flags were resolved'
+        }, null, task.id, '', 'activateTask');
         return;
 
     }
@@ -128,39 +135,15 @@ var moveWorkflow = function* (req, productId, UOAid) {
         });
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
-        //essenceId = yield * common.getEssenceId(req, 'Tasks');
         task = yield * common.getTaskByStep(req, returnStepId, UOAid);
-        userTo = yield * common.getUser(req, task.userId);
-        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        product = yield * common.getEntity(req, task.productId, Product, 'id');
-        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        note = yield * notifications.createNotification(req, {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'flags requiring resolution',
-                //essenceId: essenceId,
-                //entityId: nextStep.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                flags: {
-                    count: flagsCount
-                },
-                to: {
-                    firstName: userTo.firstName,
-                    lastName: userTo.lastName
-                },
-                config: config
-            },
-            'returnFlag'
-        );
+        notify(req, {
+            body: 'flags requiring resolution',
+            action: 'flags requiring resolution',
+            flags: {
+                count: flagsCount
+            }
+        }, null, task.id, '', 'returnFlag');
+
         return;
     }
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
@@ -179,36 +162,10 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         if (nextStep.taskId) {
             // notify
-            essenceId = yield * common.getEssenceId(req, 'Tasks');
-            task = yield * common.getTask(req, parseInt(nextStep.taskId));
-            userTo = yield * common.getUser(req, task.userId);
-            organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-            product = yield * common.getEntity(req, task.productId, Product, 'id');
-            uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-            step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-            survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            note = yield * notifications.createNotification(req, {
-                    userFrom: req.user.realmUserId,
-                    userTo: task.userId,
-                    body: 'Task activated (next step)',
-                    essenceId: essenceId,
-                    entityId: nextStep.taskId,
-                    task: task,
-                    product: product,
-                    uoa: uoa,
-                    step: step,
-                    survey: survey,
-                    user: userTo,
-                    organization: organization,
-                    date: new Date(),
-                    to: {
-                        firstName: userTo.firstName,
-                        lastName: userTo.lastName
-                    },
-                    config: config
-                },
-                'activateTask'
-            );
+            notify(req, {
+                body: 'Task activated (next step)',
+                action: 'Task activated (next step)',
+            }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
         }
 
     } else {
@@ -412,13 +369,13 @@ module.exports = {
                 if (
                     typeof req.body[i].uoaId === 'undefined' ||
                     typeof req.body[i].stepId === 'undefined' ||
-                    typeof req.body[i].userId === 'undefined' ||
+                    //typeof req.body[i].userId === 'undefined' ||
                     typeof req.body[i].productId === 'undefined'
                 ) {
-                    throw new HttpError(403, 'uoaId, stepId, userId and productId fields are required');
+                    throw new HttpError(403, 'uoaId, stepId and productId fields are required');
                 }
+                req.body[i] = yield * common.prepUsersForTask(req, req.body[i]);
 
-                var essenceId, userTo, task, uoa, step, survey, note, organization;
                 if (req.body[i].id) { // update
                     var updateObj = _.pick(
                         req.body[i],
@@ -427,38 +384,17 @@ module.exports = {
                     if (Object.keys(updateObj).length) {
                         var update = yield thunkQuery(Task.update(updateObj).where(Task.id.equals(req.body[i].id)));
                         updateObj.id = req.body[i].id;
-                        res.updated.push(req.body[i].id);
+                        res.updated.push({
+                            id: req.body[i].id,
+                            userIds: req.body[i].userIds,
+                            groupIds: req.body[i].groupIds
+                        });
 
                         // notify
-                        essenceId = yield * common.getEssenceId(req, 'Tasks');
-                        userTo = yield * common.getUser(req, req.body[i].userId);
-                        organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-                        task = yield * common.getTask(req, parseInt(req.body[i].id));
-                        uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-                        step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                        survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
-                        note = yield * notifications.createNotification(req, {
-                                userFrom: req.user.realmUserId,
-                                userTo: req.body[i].userId,
-                                body: 'Task updated',
-                                essenceId: essenceId,
-                                entityId: req.body[i].id,
-                                task: task,
-                                product: product[0],
-                                uoa: uoa,
-                                step: step,
-                                survey: survey,
-                                user: userTo,
-                                organization: organization,
-                                date: new Date(),
-                                to: {
-                                    firstName: userTo.firstName,
-                                    lastName: userTo.lastName
-                                },
-                                config: config
-                            },
-                            'assignTask'
-                        );
+                        notify(req, {
+                            body: 'Task updated',
+                            action: 'Task updated',
+                        }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
                         bologger.log({
                             req: req,
@@ -470,42 +406,22 @@ module.exports = {
                         });
                     }
                 } else { // create
+                    yield * common.checkDuplicateTask(req, req.body[i].stepId, req.body[i].uoaId, req.body[i].productId);
                     var id = yield thunkQuery(
                         Task.insert(_.pick(req.body[i], Task.table._initialConfig.columns)).returning(Task.id)
                     );
                     req.body[i].id = _.first(id).id;
-                    res.inserted.push(req.body[i].id);
+                    res.inserted.push({
+                        id: req.body[i].id,
+                        userIds: req.body[i].userIds,
+                        groupIds: req.body[i].groupIds
+                    });
 
                     // notify
-                    essenceId = yield * common.getEssenceId(req, 'Tasks');
-                    userTo = yield * common.getUser(req, req.body[i].userId);
-                    organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-                    task = yield * common.getTask(req, parseInt(req.body[i].id));
-                    uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-                    step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-                    survey = yield * common.getEntity(req, product[0].surveyId, Survey, 'id');
-                    note = yield * notifications.createNotification(req, {
-                            userFrom: req.user.realmUserId,
-                            userTo: req.body[i].userId,
-                            body: 'Task created',
-                            essenceId: essenceId,
-                            entityId: req.body[i].id,
-                            task: task,
-                            product: product[0],
-                            uoa: uoa,
-                            step: step,
-                            survey: survey,
-                            user: userTo,
-                            organization: organization,
-                            date: new Date(),
-                            to: {
-                                firstName: userTo.firstName,
-                                lastName: userTo.lastName
-                            },
-                            config: config
-                        },
-                        'assignTask'
-                    );
+                    notify(req, {
+                        body: 'Task created',
+                        action: 'Task created'
+                    }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
 
                     bologger.log({
                         req: req,
@@ -516,7 +432,6 @@ module.exports = {
                         info: 'Add new task for product `' + req.params.id + '`'
                     });
                 }
-
                 if (product[0].workflow) {
                     var firstStep = yield thunkQuery(
                         WorkflowStep
@@ -540,7 +455,7 @@ module.exports = {
                             })
                             .where(
                                 ProductUOA.productId.equals(product[0].id)
-                                .and(ProductUOA.UOAid.equals(uoa.id))
+                                .and(ProductUOA.UOAid.equals(req.body[i].uoaId))
                                 .and(ProductUOA.currentStepId.isNull())
                             )
                         );
@@ -1625,37 +1540,11 @@ function* updateCurrentStepId(req) {
             }
 
             // notify
-            //essenceId = yield * common.getEssenceId(req, 'Tasks');
-            var userTo = yield * common.getUser(req, minStepPositions[i].userId);
-            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
             var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
-            //product = yield * common.getEntity(req, task.productId, Product, 'id');
-            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-            //survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req, {
-                    userFrom: req.user.realmUserId,
-                    userTo: minStepPositions[i].userId,
-                    body: 'Task activated (project started)',
-                    essenceId: essenceId,
-                    entityId: task.id,
-                    task: task,
-                    product: product,
-                    uoa: uoa,
-                    step: step,
-                    survey: survey,
-                    user: userTo,
-                    organization: organization,
-                    date: new Date(),
-                    to: {
-                        firstName: userTo.firstName,
-                        lastName: userTo.lastName
-                    },
-                    config: config
-                },
-                'activateTask'
-            );
-
+            notify(req, {
+                body: 'Task activated (project started)',
+                action: 'Task activated (project started)'
+            }, task.id, task.id, 'Tasks', 'activateTask');
         }
     }
 
