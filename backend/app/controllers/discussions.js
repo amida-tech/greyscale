@@ -62,11 +62,11 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j]) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j]);
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
                     note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
                     notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j]);
+                    sentUsersId.push(usersFromGroup[j].userId);
                 }
             }
         }
@@ -116,9 +116,9 @@ module.exports = {
 
             if (req.query.filter === 'resolve') {
                 /*
-                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
-                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
-                */
+                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                 (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                 */
                 selectWhere = selectWhere + ' AND (' +
                     '("Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true) ' +
                     'OR ' +
@@ -189,7 +189,6 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
-
             // prepare for notify
             var userFrom = yield * common.getUser(req, req.user.id);
             // static blindReview
@@ -229,7 +228,6 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-
             return _.first(result);
 
         }).then(function (data) {
@@ -248,7 +246,6 @@ module.exports = {
             }); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
-
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
             var userFrom = yield * common.getUser(req, req.user.id);
@@ -789,108 +786,6 @@ function* getCurrentStep(req, taskId) {
         throw new HttpError(403, 'Error find taskId=' + taskId.toString()); // just in case - I think, it is not possible case!
     }
     return result[0];
-}
-
-function* updateProductUOAStep(req, object) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(ProductUOA.update({
-            currentStepId: object.stepId
-        })
-        .where(ProductUOA.productId.equals(object.productId)
-            .and(ProductUOA.UOAid.equals(object.uoaId))
-        )
-        .returning(ProductUOA.currentStepId)
-    );
-    if (_.first(result)) {
-
-        // notify
-        var task = yield * common.getTask(req, parseInt(object.taskId));
-        notify(req, {
-            body: 'Task activated (flagged)',
-            action: 'Task activated (flagged)'
-        }, object.taskId, task.id, 'Tasks', 'activateTask');
-
-        bologger.log({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            entities: {
-                productId: object.productId,
-                uoaId: object.uoaId,
-                currentStepId: object.stepId
-            },
-            quantity: 1,
-            info: 'Update current step for survey'
-        });
-    } else {
-        bologger.error({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            info: 'Update current step for survey'
-        }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-    }
-}
-
-function* checkUpdateProductUOAStep(req, object) {
-    /*
-        After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
-        If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-        then change current step of survey to step from "return" Task.
-     */
-    var query =
-        'SELECT "Discussions"."questionId" ' +
-        'FROM "Discussions" ' +
-        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
-        'WHERE ' +
-        '"Discussions"."isResolve" <> "Discussions"."isReturn" AND ' +
-        pgEscape('"Tasks"."uoaId" = %s AND ', object.uoaId) +
-        pgEscape('"Tasks"."productId" = %s', object.productId);
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        var res = yield thunkQuery(ProductUOA.update({
-                currentStepId: object.stepId
-            })
-            .where(ProductUOA.productId.equals(object.productId)
-                .and(ProductUOA.UOAid.equals(object.uoaId))
-            )
-            .returning(ProductUOA.currentStepId)
-        );
-        if (_.first(res)) {
-
-            // notify
-            var task = yield * common.getTask(req, parseInt(object.taskId));
-            notify(req, {
-                body: 'Task activated (resolved)',
-                action: 'Task activated (resolved)'
-            }, object.taskId, task.id, 'Tasks', 'activateTask');
-
-            bologger.log({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                entities: {
-                    productId: object.productId,
-                    uoaId: object.uoaId,
-                    currentStepId: object.stepId
-                },
-                quantity: 1,
-                info: 'Update current step for survey (when resolving)'
-            });
-        } else {
-            bologger.error({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                info: 'Update current step for survey (when resolving)'
-            }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-        }
-    }
 }
 
 function* updateReturnTask(req, discussionId) {
