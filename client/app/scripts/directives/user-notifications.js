@@ -1,20 +1,21 @@
 angular.module('greyscaleApp')
     .service('userNotificationsSrv', function () {
         var update;
-        var pub = {
+        return {
             setUpdate: function (method) {
                 update = method;
             },
             update: function () {
-                if (update) {
+                if (typeof update === 'function') {
                     update();
                 }
             }
         };
-        return pub;
     })
-    .directive('userNotifications', function (_, greyscaleProfileSrv,
-        greyscaleNotificationApi, Organization, greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv, $sce) {
+    .directive('userNotifications', function (_, greyscaleProfileSrv, greyscaleNotificationApi, Organization,
+        greyscaleWebSocketSrv, userNotificationsSrv, greyscaleGlobals, greyscaleRealmSrv, $sce) {
+        var wsEvents = greyscaleGlobals.events.webSocket;
+
         return {
             restrict: 'A',
             replace: true,
@@ -60,7 +61,7 @@ angular.module('greyscaleApp')
                         _accessLevel = greyscaleProfileSrv.getAccessLevelMask();
                         _realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
                         _getUnreadNotifications();
-                        greyscaleWebSocketSrv.on('something-new', _getUnreadNotifications);
+                        greyscaleWebSocketSrv.on(wsEvents.notify, _getUnreadNotifications);
                         userNotificationsSrv.setUpdate(_getUnreadNotifications, _realm);
                     });
 

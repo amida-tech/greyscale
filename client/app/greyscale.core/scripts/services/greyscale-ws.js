@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleWebSocketSrv', function (greyscaleProfileSrv, greyscaleEnv, $rootScope) {
+    .service('greyscaleWebSocketSrv', function (greyscaleProfileSrv, greyscaleEnv) {
         var socket;
 
         function _setUser() {

@@ -16,8 +16,12 @@ angular.module('greyscale.core')
                     builderFormSaved: 'form-changes-saved'
                 },
                 policy: {
-                    addComment: 'POLICY_ADD_COMMENT',
-
+                    addComment: 'POLICY_ADD_COMMENT'
+                },
+                webSocket: {
+                    notify: 'something-new',
+                    policyLocked: 'POLICY_LOCKED',
+                    policyUnlocked: 'POLICY_UNLOCKED'
                 }
             },
             projectStates: [{
