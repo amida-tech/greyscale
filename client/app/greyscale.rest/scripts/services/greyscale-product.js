@@ -155,7 +155,7 @@ angular.module('greyscale.rest')
         }
 
         function _plainResp(resp) {
-            return (typeof resp.plain === 'function') ? resp.plain() : resp;
+            return (resp && typeof resp.plain === 'function') ? resp.plain() : resp;
         }
 
         function _getTicket(productId) {

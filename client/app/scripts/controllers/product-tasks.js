@@ -810,12 +810,16 @@ angular.module('greyscaleApp')
         }
 
         function _loadProductTasks(product) {
-            var productId = product.id;
-            var reqs = {
-                product: $q.when(product),
-                survey: greyscaleSurveyApi.get(product.surveyId),
-                tasks: greyscaleProductApi.product(productId).tasksList()
-            };
+            var productId = product.id,
+                noSurvey = {
+                    id: null,
+                    policyId: null
+                },
+                reqs = {
+                    product: $q.when(product),
+                    survey: (product.surveyId !== null) ? greyscaleSurveyApi.get(product.surveyId) : $q.resolve(noSurvey),
+                    tasks: greyscaleProductApi.product(productId).tasksList()
+                };
             return $q.all(reqs);
         }
 
