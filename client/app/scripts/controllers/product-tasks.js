@@ -330,7 +330,7 @@ angular.module('greyscaleApp')
         }
 
         function _isAcceptableAssign(task, assign) {
-            var res = false;
+            var res = !task;
             if (task && assign) {
                 switch (assign.type) {
                 case 'u':
@@ -441,7 +441,7 @@ angular.module('greyscaleApp')
                 .then(function (response) {
                     if (response.inserted && response.inserted.length === newTasks.length) {
                         angular.forEach(newTasks, function (newTask, t) {
-                            newTask.id = response.inserted[t];
+                            newTask.id = response.inserted[t].id;
                         });
                     }
 
