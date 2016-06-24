@@ -16,7 +16,7 @@ angular.module('greyscaleApp')
                 scope.showVersion = function (field) {
                     greyscaleModalsSrv.showVersion({
                         field: field
-                    }).then(function (model) {});
+                    });
                 };
 
                 if (scope.field) {
@@ -136,7 +136,7 @@ angular.module('greyscaleApp')
                                     '<label><input type="checkbox" ng-model="field.otherOption.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div></label></div></span>' +
-                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly"' +
+                                    '<input type="text" class="form-control" ng-model="field.otherOption.value" ng-readonly="field.flags.readonly" ' +
                                     translation + '></div>';
                             }
                             body += '</div>';
@@ -179,7 +179,7 @@ angular.module('greyscaleApp')
                                 required: scope.field.required
                             };
 
-                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" validator="field"' +
+                            body = '<select-date data-id="' + scope.field.cid + '" result="field.answer" validator="field" ' +
                                 'form-field-value="' + scope.field.cid + '" options="field.options"></select-date>';
 
                             message += '<span ng-if ="field.ngModel.$error.date" translate="FORMS.WRONG_DATE_FORMAT"></span>';

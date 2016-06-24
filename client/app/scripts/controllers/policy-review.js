@@ -37,9 +37,11 @@ angular.module('greyscaleApp')
 
         if (taskId) {
             reqs.task = greyscaleTaskApi.get(taskId);
+/*
             reqs.scopeList = greyscaleCommentApi.scopeList({
                 taskId: taskId
             });
+            */
         }
 
         $q.all(reqs)
@@ -73,18 +75,18 @@ angular.module('greyscaleApp')
                         attachments: resp.survey.attachments || [],
                         attachmentsOptions: {
                             readonly: true
-                        },
-                        associate: resp.scopeList ? resp.scopeList.availList : []
+                        }//,
+//                        associate: resp.scopeList ? resp.scopeList.availList : []
                     },
                     task: resp.task
                 };
                 data.flags.essenceId = data.essenceId;
-
+/*
                 qty = data.policy.associate.length;
                 for (i = 0; i < qty; i++) {
                     data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
                 }
-
+*/
                 //greyscaleEntityTypeApi.getByFile('policies')
                 //    .then(function (essence) {
                 //        data.policy.essenceId = essence.id;
