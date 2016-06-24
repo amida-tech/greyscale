@@ -351,8 +351,8 @@ angular.module('greyscaleApp')
 
             for (i = 0; i < qty; i++) {
                 task = _findTask(_uoaIds[i], _stepId);
-                if (_isAcceptableUser(task, _user)) {
-                    taskCopy = task ? angular.copy(task) : taskData;
+                taskCopy = task ? angular.copy(task) : taskData;
+                if (_isAcceptableUser(taskCopy, _user)) {
                     angular.extend(taskCopy, userData);
                     taskCopy.uoaId = _uoaIds[i];
                     if (!task) {
