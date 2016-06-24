@@ -234,9 +234,9 @@ router.route('/:realm/v0.2/products')
     .post(authenticate('token').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
-    .put(authenticate('token').always, jsonParser, checkPermission('product_update', 'products'), products.updateOne)
-    .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
+    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
+    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
+    .delete(authenticate('token').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
