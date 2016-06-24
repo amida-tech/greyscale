@@ -377,7 +377,7 @@ angular.module('greyscaleApp')
                 .then(function (response) {
                     if (response.inserted && response.inserted.length === newTasks.length) {
                         angular.forEach(newTasks, function (newTask, t) {
-                            newTask.id = response.inserted[t];
+                            newTask.id = response.inserted[t].id;
                         });
                     }
                     updateStorage();
