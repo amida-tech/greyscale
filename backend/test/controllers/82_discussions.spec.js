@@ -60,28 +60,28 @@ var getUser4task2 = [{
     role: 'Role 1',
     stepId: 2,
     stepName: 'Step1',
-    userId: 3
+    userIds: [3]
 }, {
     firstName: 'User2',
     lastName: 'Test',
     role: 'Role 2',
     stepId: 3,
     stepName: 'Step 2',
-    userId: 4
+    userIds: [4]
 }, {
     firstName: 'Anonymous',
     lastName: '',
     role: 'Role 3',
     stepId: 4,
     stepName: 'Step 3',
-    userId: 5
+    userIds: [5]
 }, {
     firstName: 'Anonymous',
     lastName: '',
     role: 'Role 4',
     stepId: 5,
     stepName: 'Step 4',
-    userId: 2
+    userIds: [2]
 }];
 
 var getUser4task1 = [{
@@ -90,28 +90,28 @@ var getUser4task1 = [{
     role: 'Role 1',
     stepId: 2,
     stepName: 'Step1',
-    userId: 3
+    userIds: [3]
 }, {
     firstName: 'User2',
     lastName: 'Test',
     role: 'Role 2',
     stepId: 3,
     stepName: 'Step 2',
-    userId: 4
+    userIds: [4]
 }, {
     firstName: 'User3',
     lastName: 'Test',
     role: 'Role 3',
     stepId: 4,
     stepName: 'Step 3',
-    userId: 5
+    userIds: [5]
 }, {
     firstName: 'Test',
     lastName: 'Admin',
     role: 'Role 4',
     stepId: 5,
     stepName: 'Step 4',
-    userId: 2
+    userIds: [2]
 }];
 
 var getUser4survey = [{
@@ -138,28 +138,28 @@ var getUser4task1Anonymous = [{
     role: 'Role 1',
     stepId: 2,
     stepName: 'Step1',
-    userId: 3
+    userIds: [3]
 }, {
     firstName: 'User2',
     lastName: 'Test',
     role: 'Role 2',
     stepId: 3,
     stepName: 'Step 2',
-    userId: 4
+    userIds: [4]
 }, {
     firstName: 'Anonymous',
     lastName: '',
     role: 'Role 3',
     stepId: 4,
     stepName: 'Step 3',
-    userId: 5
+    userIds: [5]
 }, {
     firstName: 'Test',
     lastName: 'Admin',
     role: 'Role 4',
     stepId: 5,
     stepName: 'Step 4',
-    userId: 2
+    userIds: [2]
 }];
 
 var getUser4task2ReturnList = [{
@@ -168,7 +168,7 @@ var getUser4task2ReturnList = [{
     role: 'Role 1',
     stepId: 2,
     stepName: 'Step1',
-    userId: 3
+    userIds: [3]
 }];
 
 var getUser4task3ReturnList = [{
@@ -187,7 +187,7 @@ var getUser4task1ResolveList = [{
     role: 'Role 3',
     stepId: 4,
     stepName: 'Step 3',
-    userId: 5
+    userIds: [5]
 }];
 
 var getUser4task1RLSeq = [{

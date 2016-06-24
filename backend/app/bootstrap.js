@@ -223,6 +223,7 @@ app.on('start', function () {
         // Start server
         var server = app.listen(process.env.PORT || config.port || 3000, function () {
             debug('Listening on port ' + server.address().port);
+            console.log('starting server..'); // need for background test server
         });
 
         require('app/socket/socket-controller.server').init(server);

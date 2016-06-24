@@ -1,4 +1,4 @@
-lo--
+--
 -- PostgreSQL database dump
 --
 
@@ -1442,11 +1442,121 @@ CREATE TABLE "AnswerAttachments" (
     mimetype character varying,
     body bytea,
     created timestamp with time zone DEFAULT now() NOT NULL,
-    owner integer
+    owner integer,
+    "amazonKey" character varying
 );
 
 
 ALTER TABLE sceleton."AnswerAttachments" OWNER TO indaba;
+
+--
+-- Name: AttachmentAttempts; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+CREATE TABLE "AttachmentAttempts" (
+    key character varying NOT NULL,
+    filename character varying,
+    mimetype character varying,
+    size integer,
+    created timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE sceleton."AttachmentAttempts" OWNER TO indaba;
+
+--
+-- Name: AttachmentLinks; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+CREATE TABLE "AttachmentLinks" (
+    "essenceId" integer NOT NULL,
+    "entityId" integer NOT NULL,
+    attachments integer[]
+);
+
+
+ALTER TABLE sceleton."AttachmentLinks" OWNER TO indaba;
+
+--
+-- Name: Attachments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+CREATE TABLE "Attachments" (
+    id integer NOT NULL,
+    filename character varying,
+    size integer,
+    mimetype character varying,
+    body bytea,
+    created timestamp with time zone,
+    owner integer,
+    "amazonKey" character varying
+);
+
+
+ALTER TABLE sceleton."Attachments" OWNER TO indaba;
+
+--
+-- Name: Attachments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
+--
+
+CREATE SEQUENCE "Attachments_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE sceleton."Attachments_id_seq" OWNER TO indaba;
+
+--
+-- Name: Attachments_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indaba
+--
+
+ALTER SEQUENCE "Attachments_id_seq" OWNED BY "Attachments".id;
+
+
+--
+-- Name: Comments_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
+--
+
+CREATE SEQUENCE "Comments_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE sceleton."Comments_id_seq" OWNER TO indaba;
+
+--
+-- Name: Comments; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+CREATE TABLE "Comments" (
+    id integer DEFAULT nextval('"Comments_id_seq"'::regclass) NOT NULL,
+    "taskId" integer NOT NULL,
+    "questionId" integer NOT NULL,
+    "userId" integer,
+    entry text NOT NULL,
+    "isReturn" boolean DEFAULT false NOT NULL,
+    created timestamp(6) with time zone DEFAULT now() NOT NULL,
+    updated timestamp(6) with time zone,
+    "isResolve" boolean DEFAULT false NOT NULL,
+    "order" smallint DEFAULT 1 NOT NULL,
+    "returnTaskId" integer,
+    "userFromId" integer NOT NULL,
+    "stepId" integer NOT NULL,
+    "stepFromId" integer,
+    activated boolean DEFAULT false NOT NULL,
+    tags character varying,
+    range character varying,
+    "commentType" smallint
+);
+
+
+ALTER TABLE sceleton."Comments" OWNER TO indaba;
 
 --
 -- Name: Discussions_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
@@ -1470,7 +1580,7 @@ CREATE TABLE "Discussions" (
     id integer DEFAULT nextval('"Discussions_id_seq"'::regclass) NOT NULL,
     "taskId" integer NOT NULL,
     "questionId" integer NOT NULL,
-    "userId" integer NOT NULL,
+    "userId" integer,
     entry text NOT NULL,
     "isReturn" boolean DEFAULT false NOT NULL,
     created timestamp(6) with time zone DEFAULT now() NOT NULL,
@@ -1478,7 +1588,10 @@ CREATE TABLE "Discussions" (
     "isResolve" boolean DEFAULT false NOT NULL,
     "order" smallint DEFAULT 1 NOT NULL,
     "returnTaskId" integer,
-    "userFromId" integer NOT NULL
+    "userFromId" integer NOT NULL,
+    "stepId" integer NOT NULL,
+    "stepFromId" integer,
+    activated boolean DEFAULT false NOT NULL
 );
 
 
@@ -1689,7 +1802,7 @@ ALTER TABLE sceleton."Logs_id_seq" OWNER TO indaba;
 CREATE TABLE "Logs" (
     id integer DEFAULT nextval('"Logs_id_seq"'::regclass) NOT NULL,
     created timestamp(6) with time zone DEFAULT now(),
-    "userid" integer,
+    userid integer,
     action character varying,
     essence integer NOT NULL,
     entity integer,
@@ -1780,11 +1893,48 @@ CREATE TABLE "Organizations" (
     "enforceApiSecurity" smallint,
     "isActive" boolean,
     "langId" integer,
-    realm character varying(80)
+    realm character varying(80),
+    "enableFeaturePolicy" boolean DEFAULT false NOT NULL
 );
 
 
 ALTER TABLE sceleton."Organizations" OWNER TO indaba;
+
+--
+-- Name: Policies; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+CREATE TABLE "Policies" (
+    id integer NOT NULL,
+    section character varying,
+    subsection character varying,
+    author integer,
+    number character varying
+);
+
+
+ALTER TABLE sceleton."Policies" OWNER TO indaba;
+
+--
+-- Name: Policies_id_seq; Type: SEQUENCE; Schema: sceleton; Owner: indaba
+--
+
+CREATE SEQUENCE "Policies_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE sceleton."Policies_id_seq" OWNER TO indaba;
+
+--
+-- Name: Policies_id_seq; Type: SEQUENCE OWNED BY; Schema: sceleton; Owner: indaba
+--
+
+ALTER SEQUENCE "Policies_id_seq" OWNED BY "Policies".id;
+
 
 --
 -- Name: ProductUOA; Type: TABLE; Schema: sceleton; Owner: indaba; Tablespace:
@@ -2025,7 +2175,10 @@ CREATE TABLE "SurveyAnswers" (
     "isResponse" boolean DEFAULT false NOT NULL,
     "isAgree" boolean,
     comments character varying,
-    attachments integer[]
+    attachments integer[],
+    "answerComment" character varying,
+    links character varying[],
+    updated timestamp with time zone
 );
 
 
@@ -2101,7 +2254,9 @@ CREATE TABLE "SurveyQuestions" (
     links text,
     attachment boolean,
     "optionNumbering" character varying,
-    "langId" integer
+    "langId" integer,
+    "hasComments" boolean DEFAULT false NOT NULL,
+    "withLinks" boolean DEFAULT false
 );
 
 
@@ -2118,7 +2273,8 @@ CREATE TABLE "Surveys" (
     created timestamp with time zone DEFAULT now() NOT NULL,
     "projectId" integer,
     "isDraft" boolean DEFAULT false NOT NULL,
-    "langId" integer
+    "langId" integer,
+    "policyId" integer
 );
 
 
@@ -2153,7 +2309,9 @@ CREATE TABLE "Tasks" (
     "startDate" timestamp with time zone,
     "endDate" timestamp with time zone,
     "userId" integer,
-    "langId" integer
+    "langId" integer,
+    "userIds" integer[],
+    "groupIds" integer[]
 );
 
 
@@ -2206,7 +2364,7 @@ CREATE TABLE "UnitOfAnalysis" (
     description character varying(255),
     "shortName" character varying(45),
     "HASC" character varying(20),
-    "unitOfAnalysisType" smallint NOT NULL,
+    "unitOfAnalysisType" smallint,
     "parentId" integer,
     "creatorId" integer NOT NULL,
     "ownerId" integer NOT NULL,
@@ -2549,7 +2707,7 @@ CREATE TABLE "Users" (
     address character varying,
     lang character varying,
     bio text,
-    "notifyLevel" smallint,
+    "notifyLevel" smallint DEFAULT 2,
     timezone character varying,
     "lastActive" timestamp with time zone,
     affiliation character varying,
@@ -2774,11 +2932,29 @@ ALTER TABLE ONLY "Logs" ALTER COLUMN id SET DEFAULT nextval('"Logs_id_seq"'::reg
 ALTER TABLE ONLY "Rights" ALTER COLUMN id SET DEFAULT nextval('"Rights_id_seq"'::regclass);
 
 
+SET search_path = sceleton, pg_catalog;
+
+--
+-- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Attachments" ALTER COLUMN id SET DEFAULT nextval('"Attachments_id_seq"'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Policies" ALTER COLUMN id SET DEFAULT nextval('"Policies_id_seq"'::regclass);
+
+
+SET search_path = public, pg_catalog;
+
 --
 -- Name: Entities_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
 --
 
-SELECT pg_catalog.setval('"Entities_id_seq"', 57, true);
+SELECT pg_catalog.setval('"Entities_id_seq"', 58, true);
 
 
 --
@@ -2786,6 +2962,7 @@ SELECT pg_catalog.setval('"Entities_id_seq"', 57, true);
 --
 
 COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
+58	Comments	Comments	comments	id
 23	WorflowSteps	WorflowSteps	worflowSteps	title
 16	Surveys	Surveys	surveys	title
 17	SurveyQuestions	Survey Questions	survey_questions	label
@@ -2860,324 +3037,6 @@ SELECT pg_catalog.setval('"Languages_id_seq"', 13, true);
 --
 
 COPY "Logs" (id, created, userid, action, essence, entity, entities, quantity, info, error, result) FROM stdin;
-1127	2016-04-04 14:40:54.671252+03	348	insert	43	\N	{"userID":348,"body":"37d903cd3d2c0adc50493f7c24bfb56f52200a6de1261bd0da4e4dfb1ce6ab00","realm":"public"}	1	Add new token	f	\N
-1128	2016-04-04 15:05:06.457404+03	350	insert	43	\N	{"userID":350,"body":"e48ea9b21f0e1aef98709468e41a971c478df30b61c674964b7a185fb4f14f95","realm":"public"}	1	Add new token	f	\N
-1129	2016-04-04 15:06:34.556405+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1215	2016-04-05 13:12:59.670796+03	350	insert	43	\N	{"userID":350,"body":"c6aaea54cfce7cba7fb1da88e59017d37eeb53b55c2282fa88620cc12203a2cf","realm":"public"}	1	Add new token	f	\N
-1141	2016-04-04 16:48:07.920901+03	350	delete	15	354	\N	0	Delete user	f	\N
-1132	2016-04-04 16:02:24.952825+03	350	insert	43	\N	{"userID":350,"body":"e6f30ade91b04cfb2a49787534b4c7da6c46485720dcdd8d2e77bab63ddf41e0","realm":"google"}	1	Add new token	f	\N
-1133	2016-04-04 16:02:32.89689+03	350	insert	43	\N	{"userID":350,"body":"974f274b0839c9f21213e69802fb92048b8fe7846ddd7ca591e020c07588986c","realm":"public"}	1	Add new token	f	\N
-1134	2016-04-04 16:02:59.485753+03	350	delete	43	\N	{"userID":350,"realm":"yandex"}	1	Delete token	f	\N
-1142	2016-04-04 16:53:41.713558+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1144	2016-04-04 16:56:44.699562+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1221	2016-04-05 13:47:02.662544+03	350	insert	43	\N	{"userID":350,"body":"9ff6368a78972137e4ebedafa66f66a36e134160e77760bae7c423509e5a88fb","realm":"public"}	1	Add new token	f	\N
-1148	2016-04-04 17:01:16.200738+03	350	insert	43	\N	{"userID":350,"body":"f0e77ed8e91e98b5b00c16ec446ae1d34e1d942cb7182de05cdf9ef6e2cdd28c","realm":"google"}	1	Add new token	f	\N
-1149	2016-04-04 17:01:26.215923+03	350	insert	43	\N	{"userID":350,"body":"d545173a7fb5e6bb193eb2e2fb9ed8691d1385f7d7d94d645cb9ca77171a6b62","realm":"public"}	1	Add new token	f	\N
-1150	2016-04-04 17:02:10.70921+03	350	insert	43	\N	{"userID":350,"body":"162fbc865e7aa74263f56347736126ae6b6f87e60fb018496f72bd73753c3654","realm":"google"}	1	Add new token	f	\N
-1151	2016-04-04 17:02:21.914697+03	350	insert	43	\N	{"userID":350,"body":"478cd2a57e14ac708bc47d9bb72e781d86073e1879e5b0b2c6535126b6ee13b8","realm":"public"}	1	Add new token	f	\N
-1152	2016-04-04 17:02:50.161463+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1225	2016-04-05 14:26:19.014371+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1227	2016-04-05 15:17:41.938686+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1156	2016-04-05 09:26:52.348367+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1231	2016-04-05 15:29:17.676496+03	350	insert	43	\N	{"userID":350,"body":"b087c30832eebc3dcec30a2d2924dcc80ff30792ac69e710fe41f7e91e84b4e9","realm":"public"}	1	Add new token	f	\N
-1233	2016-04-05 15:30:02.421579+03	350	insert	43	\N	{"userID":350,"body":"b0b7d34f2775f0cc5767d042de14681a22bd658182fc5a63a4ff6b179922f0d1","realm":"public"}	1	Add new token	f	\N
-1159	2016-04-05 11:47:56.179954+03	350	insert	43	\N	{"userID":350,"body":"88657966e5ad480eaf74235b020e28634493876287ab182decde5d8f4d0580a4","realm":"google"}	1	Add new token	f	\N
-1235	2016-04-05 15:30:59.604659+03	350	insert	43	\N	{"userID":350,"body":"064767b5e4c85a5aa85904dd95393f15a7a339f47832563a9eef032f8794f24d","realm":"public"}	1	Add new token	f	\N
-1237	2016-04-05 15:31:31.857+03	350	insert	43	\N	{"userID":350,"body":"a98b7a9f71d1899ff504219e12cc3a8a28af7b5a4bd87832b8a23ae8580721e9","realm":"public"}	1	Add new token	f	\N
-1239	2016-04-05 15:31:36.163607+03	350	insert	43	\N	{"userID":350,"body":"577450453955a4b800cf9fd1bc43c88a24876af9877c0404a7a3dce6a8abe2e1","realm":"public"}	1	Add new token	f	\N
-1241	2016-04-05 15:32:12.431365+03	350	insert	43	\N	{"userID":350,"body":"97f0ce11c1006253aaf85806d12e1621556100e3015063e99c0404ccdc0d14ce","realm":"public"}	1	Add new token	f	\N
-1243	2016-04-05 15:47:59.289332+03	350	insert	43	\N	{"userID":350,"body":"d6c6807ac509851dd70296b5f79f4f1520dc6c6f663d2ee6ff402848a7473968","realm":"public"}	1	Add new token	f	\N
-1165	2016-04-05 11:50:03.058798+03	350	insert	43	\N	{"userID":350,"body":"b33af6c212e6dab4eb4a55b7fab0185efbe052a4359f6e0fadd9a0d599693798","realm":"public"}	1	Add new token	f	\N
-1166	2016-04-05 11:51:00.308926+03	350	insert	43	\N	{"userID":350,"body":"859fa6ffded8ece7d215bd3c3b95e56912d0f3b264104820245f737405d67c8f","realm":"google"}	1	Add new token	f	\N
-1167	2016-04-05 11:51:18.784843+03	350	insert	43	\N	{"userID":350,"body":"f1a3c4aabb8756b61edd2b391f770fec4dae175d24f69180187748a674595257","realm":"public"}	1	Add new token	f	\N
-1168	2016-04-05 11:51:30.346104+03	350	insert	43	\N	{"userID":350,"body":"84618736548247a2909fbf8e120b9051bd8835ce5d63cb731c9f4bd742624602","realm":"google"}	1	Add new token	f	\N
-1245	2016-04-05 17:55:21.745825+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1247	2016-04-05 18:09:04.34454+03	350	insert	43	\N	{"userID":350,"body":"4ed704d9b5c0c30caca476b01075c63cc89c2e2e01360728b1dce93ebfb0b487","realm":"public"}	1	Add new token	f	\N
-1171	2016-04-05 11:54:09.970071+03	350	insert	43	\N	{"userID":350,"body":"26fffdcb0d97b430ad4b38c7e11c93f6b954ddbaa21f77c7c550fe3d3665c037","realm":"public"}	1	Add new token	f	\N
-1257	2016-04-06 09:44:28.302778+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1179	2016-04-05 11:55:32.433041+03	350	insert	43	\N	{"userID":350,"body":"2b433f0ea8942ab5b726c43f5a3862afd7bb0dbff2aee12d27db75daea8fac27","realm":"google"}	1	Add new token	f	\N
-1180	2016-04-05 11:55:37.894356+03	350	insert	43	\N	{"userID":350,"body":"664bdb2e2a5f8a58534aeefa2265b5eac085be0a2380bddc02ff8ea71aab9e18","realm":"public"}	1	Add new token	f	\N
-1181	2016-04-05 11:56:16.489448+03	350	insert	43	\N	{"userID":350,"body":"2abcaf31512f0c53ef8f332ad0b6940642b77455652c38dc606a879fdff382f5","realm":"google"}	1	Add new token	f	\N
-1182	2016-04-05 11:56:23.961375+03	350	insert	43	\N	{"userID":350,"body":"a306015731d9949ea1300a0aef46806eb774f3a752cec0d216918c41ceee39fb","realm":"yahoo"}	1	Add new token	f	\N
-1183	2016-04-05 11:56:25.701607+03	350	insert	43	\N	{"userID":350,"body":"d9a2984badaf2fd736d21e9d0b41fd8d30d3afac609f6046358e24fb5263eeed","realm":"public"}	1	Add new token	f	\N
-1184	2016-04-05 11:56:26.300338+03	350	insert	43	\N	{"userID":350,"body":"863bc199acf973259197f48f2a745f3d811fa61f9af3b938130f757be82f4cf7","realm":"yahoo"}	1	Add new token	f	\N
-1185	2016-04-05 11:56:41.919366+03	350	insert	43	\N	{"userID":350,"body":"04b0bf45dc7b3e8b32b32e48e4c364f30e1e31ed17c558830e1e59e5572cdc29","realm":"public"}	1	Add new token	f	\N
-1220	2016-04-05 13:47:00.230274+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1222	2016-04-05 13:47:04.751028+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1224	2016-04-05 13:47:21.264928+03	350	insert	43	\N	{"userID":350,"body":"06c002c92e94c5039ba03d0ce7851663999efd2be0dffedeff54a493902278af","realm":"public"}	1	Add new token	f	\N
-1226	2016-04-05 14:26:20.699151+03	350	insert	43	\N	{"userID":350,"body":"6945cdd73d3a9c3a0668d9d5bb3dd41567bd40fc1947bb2efd531801423c7a4e","realm":"public"}	1	Add new token	f	\N
-1228	2016-04-05 15:22:51.182686+03	350	delete	43	\N	{"userID":350,"realm":"google"}	1	Delete token	f	\N
-1230	2016-04-05 15:29:15.985265+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1232	2016-04-05 15:30:00.599243+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1234	2016-04-05 15:30:57.663226+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1236	2016-04-05 15:31:30.525064+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1238	2016-04-05 15:31:34.848692+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1240	2016-04-05 15:32:11.091296+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1242	2016-04-05 15:47:57.923283+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1248	2016-04-05 20:29:59.521462+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1205	2016-04-05 12:28:00.217882+03	350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1256	2016-04-05 22:35:14.384495+03	-350	insert	43	\N	{"userID":350,"body":"027e69890fa1f20703cf76b497ee5b337795155777798d670fb41bba39b23465","realm":"public"}	1	Add new token	f	\N
-1258	2016-04-06 09:44:32.928048+03	2	insert	43	\N	{"userID":2,"body":"736a58011bb2619f4c878afd12e1e1729457d5537e74f8ce07c4a8a5ac762ac0","realm":"igiware"}	1	Add new token	f	\N
-1259	2016-04-06 09:55:36.455657+03	2	insert	43	\N	{"userID":2,"body":"1e90de0d3e9308d037b8393cb4f1813dd9cd9b60673688c755a3c099e0634f40","realm":"google"}	1	Add new token	f	\N
-1260	2016-04-06 10:08:58.052068+03	-350	insert	43	\N	{"userID":350,"body":"445ec12e35a1cb11e1d8ca3942bcf7a58b01259e8df89742570cf598c2f49a7b","realm":"public"}	1	Add new token	f	\N
-1261	2016-04-06 10:16:26.871176+03	2	insert	43	\N	{"userID":2,"body":"7c612e2d5a8a43c7189bdaf60de4e66dcb6d6680f98bbc57444f0346a5028a77","realm":"igiware"}	1	Add new token	f	\N
-1262	2016-04-06 10:18:19.078866+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1263	2016-04-06 10:18:20.570486+03	-350	insert	43	\N	{"userID":350,"body":"de68f0709bc94dd2cbb7d8fab89872c81cde1f5a2a8984fd8de5bbe933f9a9b9","realm":"public"}	1	Add new token	f	\N
-1264	2016-04-06 10:31:34.373567+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1265	2016-04-06 10:31:37.397137+03	-350	insert	43	\N	{"userID":350,"body":"6d7ea52260a4f1a9ee979a9cdd705e61cf8755a96d5bb2b7123e18a6fe03d8e9","realm":"public"}	1	Add new token	f	\N
-1266	2016-04-06 10:31:40.059459+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1267	2016-04-06 10:31:45.269336+03	2	insert	43	\N	{"userID":2,"body":"07c13fca47703b7e0ab05318533f468c32da508fcd706fce889e38facc73a802","realm":"google"}	1	Add new token	f	\N
-1268	2016-04-06 11:00:05.147545+03	-350	insert	43	\N	{"userID":350,"body":"c0e203ebf04cf30c83f2fc514b03b002db21ca2e0dbb16c177b69e3a3fdc5d69","realm":"public"}	1	Add new token	f	\N
-1269	2016-04-06 11:00:42.382351+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1270	2016-04-06 11:00:49.553219+03	2	insert	43	\N	{"userID":2,"body":"c8ebd1794217a0ae45aab3878298169313bd15919b854bd260d24beb636d9109","realm":"google"}	1	Add new token	f	\N
-1271	2016-04-06 11:01:01.999629+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1272	2016-04-06 11:01:51.267771+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1273	2016-04-06 11:01:53.192448+03	-350	insert	43	\N	{"userID":350,"body":"75d203052f3dd08fb2068398c1c7571857aeac82b78e9e034a92925de7339978","realm":"public"}	1	Add new token	f	\N
-1274	2016-04-06 11:02:00.197699+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1275	2016-04-06 11:02:04.955629+03	2	insert	43	\N	{"userID":2,"body":"b08dcdd2795fbf1320cea6ea3765d1a827c5968ab610336c9df0cbe3fe9fe5f1","realm":"google"}	1	Add new token	f	\N
-1276	2016-04-06 11:08:32.208466+03	2	insert	43	\N	{"userID":2,"body":"6cbd47d07dbda7fb1a61abab7e842f54489888897c12088065568b33f5e2cfba","realm":"igiware"}	1	Add new token	f	\N
-1277	2016-04-06 11:11:04.892503+03	2	insert	43	\N	{"userID":2,"body":"5364767cd01f60f6d3bf45452653570030f51c7b2efbb08d83ad73f96ec68f5f","realm":"google"}	1	Add new token	f	\N
-1278	2016-04-06 13:31:15.759245+03	2	insert	43	\N	{"userID":2,"body":"792b0e75753e8ac3294084b28b2e05e80fc1e6780607fe8d79bd7926bd7aab0d","realm":"igiware"}	1	Add new token	f	\N
-1279	2016-04-06 13:31:54.8946+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1280	2016-04-06 13:31:56.449985+03	-350	insert	43	\N	{"userID":350,"body":"2e75edcd7af1137b055b8df662e6e70209bd6aad991847a6fba02d231b0d1868","realm":"public"}	1	Add new token	f	\N
-1281	2016-04-06 13:58:51.831719+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1282	2016-04-06 13:58:57.680219+03	2	insert	43	\N	{"userID":2,"body":"04a15571b22e5ff274820fb092b141c61958d1c7d06c892b1d857763255b18d4","realm":"google"}	1	Add new token	f	\N
-1283	2016-04-06 14:04:44.0626+03	-350	insert	43	\N	{"userID":350,"body":"6fba57c5c0a54487ca676287c4e20434035b0a9cd542d99dac0b03c06d926a3b","realm":"public"}	1	Add new token	f	\N
-1284	2016-04-06 14:05:49.568464+03	2	insert	43	\N	{"userID":2,"body":"9712e0c6ac0db582b8c4de74925b2348a3ddec7783f053265a96688bd579932b","realm":"igiware"}	1	Add new token	f	\N
-1285	2016-04-06 14:06:00.731503+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1286	2016-04-06 14:10:22.107443+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1287	2016-04-06 14:10:27.194292+03	2	insert	43	\N	{"userID":2,"body":"018c0bdc1188abd904b8c6e7a5699e725b75ddf4d96c13e19f751cc57d276eb9","realm":"google"}	1	Add new token	f	\N
-1288	2016-04-06 14:25:31.209445+03	-350	insert	43	\N	{"userID":350,"body":"040c292d50fc56f6ca4cc335a1877b2a74b6df76cb1737aee033504f6cb39923","realm":"public"}	1	Add new token	f	\N
-1289	2016-04-06 16:52:56.412024+03	2	insert	43	\N	{"userID":2,"body":"40335877d73f326d4de8c86f3c353ae90ef94ba534ba612ec0827977281514d2","realm":"test3"}	1	Add new token	f	\N
-1290	2016-04-07 09:12:53.255615+03	2	insert	43	\N	{"userID":2,"body":"282597a91cca45bdc53c9c3e9e9948cff60383e35fbc56429dab0bab3bd3508d","realm":"igiware"}	1	Add new token	f	\N
-1291	2016-04-07 09:53:28.02989+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1292	2016-04-07 09:53:33.258336+03	2	insert	43	\N	{"userID":2,"body":"dcec8c21e9c93df1444051961e9a49303117d20934f0b50a938e070fca3aca9e","realm":"google"}	1	Add new token	f	\N
-1293	2016-04-07 10:05:13.179295+03	2	insert	43	\N	{"userID":2,"body":"74ddfaeff8dd94281aece9994228065f8693bcb6747107b843e8d0b751a6d337","realm":"igiware"}	1	Add new token	f	\N
-1294	2016-04-07 10:09:46.723372+03	-350	insert	43	\N	{"userID":350,"body":"1b126e987a327581e0ba98cd56689886e1212c780def6fa96ef11fe3981bb791","realm":"public"}	1	Add new token	f	\N
-1295	2016-04-07 10:10:30.644744+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1296	2016-04-07 10:10:38.452882+03	2	insert	43	\N	{"userID":2,"body":"b088763cb70f41ca71f6687021fdcf986bffe508a017c2c4fb572fb1cad81267","realm":"google"}	1	Add new token	f	\N
-1297	2016-04-07 11:00:25.862399+03	-350	insert	43	\N	{"userID":350,"body":"e7e9ded8716228e7e4aee28660652c8a2b9784b01acb8d581fbae0ae60f9c778","realm":"public"}	1	Add new token	f	\N
-1298	2016-04-07 11:13:49.508401+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1299	2016-04-07 11:13:54.582212+03	2	insert	43	\N	{"userID":2,"body":"6babb461fa7ca9817a7684e7007349f3f53ef15b1cf02bbd75c53060ed018251","realm":"google"}	1	Add new token	f	\N
-1300	2016-04-07 11:14:58.879089+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1301	2016-04-07 11:15:04.12006+03	3	insert	43	\N	{"userID":3,"body":"74489e08ef44a22ac3f9eb58cbf128a12c27414aceb4f3618532b442b0443a3f","realm":"google"}	1	Add new token	f	\N
-1302	2016-04-07 11:15:15.33056+03	2	insert	43	\N	{"userID":2,"body":"5244742509dcc438df7c846b6ec2a738919030277cb5eedba88475b01dbc26aa","realm":"igiware"}	1	Add new token	f	\N
-1303	2016-04-07 11:15:15.950122+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1304	2016-04-07 11:15:22.144996+03	2	insert	43	\N	{"userID":2,"body":"d3385c0687c3934423dc88d54db77ee4dce13a08b7e3f2b8390e4c11efca825f","realm":"google"}	1	Add new token	f	\N
-1305	2016-04-07 11:17:18.889414+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1306	2016-04-07 11:17:25.039804+03	2	insert	43	\N	{"userID":2,"body":"27e85c85cf5d403bcacfe2d3f151c1ecaaf7f962625ad7ba784add94d32065a1","realm":"google"}	1	Add new token	f	\N
-1307	2016-04-07 11:17:29.432581+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1308	2016-04-07 11:17:34.571211+03	3	insert	43	\N	{"userID":3,"body":"b9364990fad3498d343daae44527fbcbfc4167c960e0d3ff2e0b54900ded5577","realm":"google"}	1	Add new token	f	\N
-1309	2016-04-07 11:21:13.459876+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1310	2016-04-07 11:21:18.684638+03	3	insert	43	\N	{"userID":3,"body":"942b4c9381736a5698feeb57b0881ec2b99e4b6e0085cbc7990894b7a5a3ea43","realm":"google"}	1	Add new token	f	\N
-1311	2016-04-07 11:21:50.43291+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1312	2016-04-07 11:21:55.138989+03	2	insert	43	\N	{"userID":2,"body":"64420bdf246bb3e99d6a6f588a47b311719082467aa38f30688db29e15ec7d6b","realm":"google"}	1	Add new token	f	\N
-1313	2016-04-07 11:22:31.189796+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1314	2016-04-07 11:22:36.653812+03	3	insert	43	\N	{"userID":3,"body":"052db1dbbf222b1f9fac2f725fd3670077412ce633b33b698976f62f0812c6eb","realm":"google"}	1	Add new token	f	\N
-1315	2016-04-07 11:23:05.342014+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1316	2016-04-07 11:23:10.416036+03	2	insert	43	\N	{"userID":2,"body":"ff19b4afa7d2a3f79dacf3187f7d94998b2db44ce37a1dd2f9f110de3394f6b7","realm":"google"}	1	Add new token	f	\N
-1317	2016-04-07 11:35:07.570335+03	2	insert	43	\N	{"userID":2,"body":"699d139efe3dc851af365c1731b3bf5aa64145b8265c649ee8ebebdd0348c797","realm":"igiware"}	1	Add new token	f	\N
-1318	2016-04-07 11:39:43.308104+03	-350	insert	43	\N	{"userID":350,"body":"a2cb804641aae0b60d33a212b1a2cf9821b90de3fd9930377df02108c3fea578","realm":"public"}	1	Add new token	f	\N
-1319	2016-04-07 11:39:50.052388+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1320	2016-04-07 11:39:56.532466+03	2	insert	43	\N	{"userID":2,"body":"4320c098d03b74025451e95a72867c04a895dd76916ba093bfc21db38ab500c6","realm":"google"}	1	Add new token	f	\N
-1321	2016-04-07 11:40:08.480899+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1322	2016-04-07 11:40:13.541683+03	3	insert	43	\N	{"userID":3,"body":"9cd51830585425367d0f15b7908cfccec07ae0bb2bc0317ed0bd08629745e537","realm":"google"}	1	Add new token	f	\N
-1323	2016-04-07 11:42:47.060227+03	2	insert	43	\N	{"userID":2,"body":"2b44c3aeefa42bdb6a2560415f1943f4feb9cb0a37c455c33be8573f83e63aaf","realm":"igiware"}	1	Add new token	f	\N
-1324	2016-04-07 11:45:09.665534+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1325	2016-04-07 11:45:17.992125+03	2	insert	43	\N	{"userID":2,"body":"d76eac4403d612cdcccbfed099f4b75b89df854354e085ffb70ca3399d4c7c51","realm":"google"}	1	Add new token	f	\N
-1326	2016-04-07 11:45:35.104317+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1327	2016-04-07 11:47:51.549578+03	2	insert	43	\N	{"userID":2,"body":"adf50b2c2cb235444a273a1832468730b52fa0a10bc7d9452a0b0468d94b5090","realm":"igiware"}	1	Add new token	f	\N
-1328	2016-04-07 11:50:19.103853+03	5	insert	43	\N	{"userID":5,"body":"648011c6510db8ecd70f0050e0de912a7760842f276fdc4de6c506315fd99b3c","realm":"igiware"}	1	Add new token	f	\N
-1329	2016-04-07 11:50:32.539322+03	5	delete	43	\N	{"userID":5,"realm":"igiware"}	1	Delete token	f	\N
-1330	2016-04-07 11:54:35.549597+03	2	insert	43	\N	{"userID":2,"body":"a6c0b4748b162686a197aa57987d117693c01979b41e29970f22ab722f9db31e","realm":"google"}	1	Add new token	f	\N
-1331	2016-04-07 12:00:01.08877+03	2	insert	43	\N	{"userID":2,"body":"adf62d2d5c4a860e6120062d5dcf4362bcc44fdfa7883cddc9fbe0b300fd0ddb","realm":"igiware"}	1	Add new token	f	\N
-1332	2016-04-07 12:47:01.357566+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1333	2016-04-07 12:50:26.895631+03	2	insert	43	\N	{"userID":2,"body":"9e33df6574b3596b408cbb1126fd982850c86b04493c1c64dc7923fd8188377c","realm":"igiware"}	1	Add new token	f	\N
-1334	2016-04-07 13:10:09.040093+03	2	insert	43	\N	{"userID":2,"body":"c16a4ed686983c80dacbe43bcbfa64487fb6b5e25f7730db9cc7377360d29aa9","realm":"yandex"}	1	Add new token	f	\N
-1335	2016-04-07 13:20:02.935155+03	-350	insert	43	\N	{"userID":350,"body":"bde6665a874d6759fb1645ceccde9774ae0e1d2b103dd3863685e82eaac906e2","realm":"public"}	1	Add new token	f	\N
-1336	2016-04-07 13:22:12.166648+03	-348	update	15	348	\N	0	Password forgot	f	\N
-1337	2016-04-07 13:38:25.288624+03	2	insert	43	\N	{"userID":2,"body":"be3bf0a9ee768df3aca58a49307d340d5a2a0fb6538373cfccbafa57b63a2f43","realm":"igiware"}	1	Add new token	f	\N
-1338	2016-04-07 13:39:53.887146+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1339	2016-04-07 13:39:55.677388+03	-350	insert	43	\N	{"userID":350,"body":"605a1049ca7953eb2651fdcc1d52e3cfedfb498b016e4b5e4fefc062c341d024","realm":"public"}	1	Add new token	f	\N
-1340	2016-04-07 13:43:50.227477+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1341	2016-04-07 13:44:31.268244+03	5	update	15	5	\N	0	Reset password	f	\N
-1342	2016-04-07 13:55:33.999153+03	2	insert	43	\N	{"userID":2,"body":"6b9c399f1c8e5e5687509df5e681247038a3ed899b5fd1faf262a8f6b8faacc8","realm":"igiware"}	1	Add new token	f	\N
-1343	2016-04-07 14:15:20.825069+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1344	2016-04-07 14:15:26.364548+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1345	2016-04-07 14:15:34.732618+03	2	insert	43	\N	{"userID":2,"body":"51a4e0c61eba1735afffd19cf04a058062bcaf1fdc7541f907a960cd4e4e8394","realm":"igiware"}	1	Add new token	f	\N
-1346	2016-04-07 14:15:48.584941+03	-350	insert	43	\N	{"userID":350,"body":"9472af27bb6927385e22646bbcb97d4af2c34b5c504ad166d2cc5c5ffbd885e2","realm":"public"}	1	Add new token	f	\N
-1347	2016-04-07 14:15:48.974498+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1348	2016-04-07 14:15:59.822069+03	2	insert	43	\N	{"userID":2,"body":"42ee0d605a89762365f8e6c1decfdc54a2d304aa90e608ef8a5269ad923a219b","realm":"google"}	1	Add new token	f	\N
-1349	2016-04-07 14:16:04.287181+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1350	2016-04-07 14:16:11.1455+03	3	insert	43	\N	{"userID":3,"body":"51fcfc9355f893e09cd186d7a5a3d451a766a6b69c3a70ba346af2b93e905f23","realm":"igiware"}	1	Add new token	f	\N
-1351	2016-04-07 14:16:12.115694+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1352	2016-04-07 14:16:17.281605+03	2	insert	43	\N	{"userID":2,"body":"af4200775172e39993f82ee038712da10d1fc5969bc282b17e16457ef30ee404","realm":"google"}	1	Add new token	f	\N
-1353	2016-04-07 14:17:00.930038+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1354	2016-04-07 14:17:03.306448+03	-350	insert	43	\N	{"userID":350,"body":"2d8c49fbf3eb55899d1740054a5467e213d999847988499f8b5a4a7e625f5a7c","realm":"public"}	1	Add new token	f	\N
-1355	2016-04-07 14:18:21.656998+03	2	insert	43	\N	{"userID":2,"body":"2111260c9e8ac73d02f5cec7f3628fe0daf881b0f925353f432609124bfbd42c","realm":"igiware"}	1	Add new token	f	\N
-1356	2016-04-07 14:35:59.789187+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1357	2016-04-07 15:00:46.11142+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1358	2016-04-07 15:00:50.135063+03	2	insert	43	\N	{"userID":2,"body":"88bbcc7d40b2139e44379b5b97e56f1486062bbe7decc910480b07cf8ac27324","realm":"igiware"}	1	Add new token	f	\N
-1359	2016-04-07 15:03:51.347498+03	2	insert	43	\N	{"userID":2,"body":"3c8391158ca67f89716cc4c5c095e39a6033c0328b6f08aa33b49b7a8ea72b4f","realm":"google"}	1	Add new token	f	\N
-1360	2016-04-07 15:04:00.307072+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1361	2016-04-07 15:04:02.717879+03	-350	insert	43	\N	{"userID":350,"body":"de04db54b90486190650cf9e79c9d582a59386c337a15e772a4c530606297058","realm":"public"}	1	Add new token	f	\N
-1362	2016-04-07 15:06:36.011822+03	2	insert	43	\N	{"userID":2,"body":"f7a8ae55f1fb3b227ebdf8bfa374654a251f9598cd0a7d5bc04c6e4e3a50430f","realm":"igiware"}	1	Add new token	f	\N
-1363	2016-04-07 15:10:44.20729+03	3	delete	43	\N	{"userID":3,"realm":"igiware"}	1	Delete token	f	\N
-1364	2016-04-07 15:21:10.542182+03	-350	update	15	348	\N	0	Update user	f	\N
-1365	2016-04-07 15:21:25.223324+03	-350	update	15	350	\N	0	Update user	f	\N
-1366	2016-04-07 15:23:41.720035+03	-350	insert	15	355	\N	0	Add new superuser (invite)	f	\N
-1367	2016-04-07 15:24:15.386771+03	-350	update	15	350	\N	0	Update user	f	\N
-1368	2016-04-07 15:29:55.722555+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1369	2016-04-07 15:29:57.54235+03	-350	insert	43	\N	{"userID":350,"body":"da2b954b1b54e19de65567a2e89a5687f76f6a4225ceb7b5c63eb5e97c03d89f","realm":"public"}	1	Add new token	f	\N
-1370	2016-04-07 15:30:08.134203+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1371	2016-04-07 15:30:13.192939+03	2	insert	43	\N	{"userID":2,"body":"66e3d2b5aece0abe1f4dbd21e53b2863faa2c30d4e9b003df6e3d7ca8d974598","realm":"google"}	1	Add new token	f	\N
-1372	2016-04-07 15:32:31.792274+03	-350	insert	43	\N	{"userID":350,"body":"3e9183aab69d0cd8bffa4e8a0d14a3bb1fe8b4ff88228aac00ce7419d98570a1","realm":"public"}	1	Add new token	f	\N
-1373	2016-04-07 15:33:49.960464+03	2	insert	43	\N	{"userID":2,"body":"cf87ea44c22f3c713b79695846d8008c34aa83130de21d1ee3272f5b0ba10b60","realm":"igiware"}	1	Add new token	f	\N
-1374	2016-04-07 15:45:37.431064+03	-350	update	15	355	\N	0	Update user	f	\N
-1375	2016-04-07 15:47:10.173639+03	2	insert	43	\N	{"userID":2,"body":"81c172cd480dbc450c68bad7f6e3498a31769e6a70edc03f7b9aa07b7eb22a58","realm":"test3"}	1	Add new token	f	\N
-1376	2016-04-07 15:50:23.501499+03	2	insert	43	\N	{"userID":2,"body":"3d495be8f09302a96f1f145ef300d1d434907ebf10eb0ac5076d6c7bed17b6ec","realm":"igiware"}	1	Add new token	f	\N
-1377	2016-04-07 15:50:26.530246+03	2	insert	43	\N	{"userID":2,"body":"aebd4daa5edd731ff7dc4ece7473cf5040149c3871033176813b470ab58de2c2","realm":"test3"}	1	Add new token	f	\N
-1378	2016-04-07 15:50:29.501932+03	2	insert	43	\N	{"userID":2,"body":"4ea1b8194e17c5ca26239f80c620bf584915c7fe557df4828548646399b21eec","realm":"igiware"}	1	Add new token	f	\N
-1379	2016-04-07 15:50:32.368012+03	2	insert	43	\N	{"userID":2,"body":"a217a0e307798a0e8b4597f7101234c8723c67de5da5eaabd112adaeb6226136","realm":"test3"}	1	Add new token	f	\N
-1380	2016-04-07 15:50:37.007697+03	2	insert	43	\N	{"userID":2,"body":"87df1a2525d69c81e2a1996e9960851b51e9a5fb36b3ebd700bcc39657487e41","realm":"igiware"}	1	Add new token	f	\N
-1381	2016-04-07 15:50:40.874324+03	2	insert	43	\N	{"userID":2,"body":"f372d7f0d03a69cc0dd688d7fe38af469f3db6b3fa00bc0c61c786e41cb8faa8","realm":"test3"}	1	Add new token	f	\N
-1382	2016-04-07 15:59:23.519446+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1383	2016-04-07 15:59:25.087598+03	-350	insert	43	\N	{"userID":350,"body":"0279afb15a01ff5e02832d55459ca46b78a7bdcd4c15712d416f2215d1c75526","realm":"public"}	1	Add new token	f	\N
-1384	2016-04-07 16:02:30.477707+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1385	2016-04-07 16:02:31.997251+03	-350	insert	43	\N	{"userID":350,"body":"7a4f547839e4b415f4b134b0e1718765d656dbad64d67a119d78326f517129dc","realm":"public"}	1	Add new token	f	\N
-1386	2016-04-07 16:05:23.685191+03	2	insert	43	\N	{"userID":2,"body":"57efd6bf41dfc41b5f30b2def0a719f2c9eca7dd7137bf753adefaedc83f780c","realm":"igiware"}	1	Add new token	f	\N
-1387	2016-04-07 16:26:35.456736+03	-350	update	15	355	\N	0	Update user	f	\N
-1388	2016-04-07 21:15:55.215244+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1389	2016-04-07 21:16:02.39909+03	2	insert	43	\N	{"userID":2,"body":"83641073cd027669a80e4fba133ed617657d879cc2817444b08ed9fc2da55ef4","realm":"igiware"}	1	Add new token	f	\N
-1390	2016-04-07 21:18:10.687023+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1391	2016-04-07 21:18:17.554384+03	2	insert	43	\N	{"userID":2,"body":"d13d1000a5a5e81007d209c32548abce80be0596c9c20924bbb43ae6b6b4aeb8","realm":"igiware"}	1	Add new token	f	\N
-1392	2016-04-07 21:19:41.463278+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1393	2016-04-07 21:19:51.011395+03	2	insert	43	\N	{"userID":2,"body":"44342c747a9796ef0c3ffa23899590ad0ac0769aa0806fc719f4424f0112f44f","realm":"igiware"}	1	Add new token	f	\N
-1394	2016-04-07 21:22:46.283508+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1395	2016-04-07 21:22:53.638496+03	2	insert	43	\N	{"userID":2,"body":"b2bd1476e9a5acf13e9386ec148540e738b1b69e5d73554883fdbede343aec68","realm":"igiware"}	1	Add new token	f	\N
-1396	2016-04-07 21:26:05.499485+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1397	2016-04-07 21:26:42.375289+03	2	insert	43	\N	{"userID":2,"body":"e46bfd621012574b224bacbde5ce5ef497b6bb644b3dd53cc7a5bcdc0e5a46c0","realm":"igiware"}	1	Add new token	f	\N
-1398	2016-04-07 22:35:55.772202+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1399	2016-04-07 22:36:04.49414+03	3	insert	43	\N	{"userID":3,"body":"8e4d21b80f5d77a4b58717966f9dd127b914af0394bd22ba75b4c44a01ab9049","realm":"google"}	1	Add new token	f	\N
-1400	2016-04-07 22:38:18.813567+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1401	2016-04-07 22:38:29.694614+03	2	insert	43	\N	{"userID":2,"body":"83c898f6046d26db77f02c28368ddb540da052eba3333e6cb3475ff597591c13","realm":"google"}	1	Add new token	f	\N
-1402	2016-04-07 23:02:08.673726+03	-350	insert	43	\N	{"userID":350,"body":"c42f297018cbb144ee2256f956726b972ccf4016da975a7084b4adaaa52d884f","realm":"public"}	1	Add new token	f	\N
-1403	2016-04-08 08:48:33.81233+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1404	2016-04-08 09:39:11.816137+03	-350	update	15	348	\N	0	Update user	f	\N
-1405	2016-04-08 09:39:25.382214+03	-350	update	15	348	\N	0	Update user	f	\N
-1406	2016-04-08 09:51:29.95262+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1407	2016-04-08 09:58:24.391295+03	-350	insert	43	\N	{"userID":350,"body":"8823060c4beeeb560386b3aca3c1996e32ff0bb12c3c797dac191c3474d15d03","realm":"public"}	1	Add new token	f	\N
-1408	2016-04-08 09:59:16.336483+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1409	2016-04-08 09:59:23.55393+03	3	insert	43	\N	{"userID":3,"body":"8a848bd56b02453507c7d1b35056f975fab9941a8063c3bc19d93c58f1b9d379","realm":"google"}	1	Add new token	f	\N
-1410	2016-04-08 10:00:17.038125+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1411	2016-04-08 10:01:43.694379+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1412	2016-04-08 10:02:11.210503+03	-350	insert	43	\N	{"userID":350,"body":"c24685c2c9015559409ea5804d75f3fcec99d6f37acf3d65bae09cc2b8b40aac","realm":"public"}	1	Add new token	f	\N
-1413	2016-04-08 10:02:25.557369+03	-350	update	15	355	\N	0	Update user	f	\N
-1414	2016-04-08 10:02:33.188229+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1415	2016-04-08 10:02:39.317095+03	-355	insert	43	\N	{"userID":355,"body":"3d9effc07f1f8ba14f555ee4cf9b81d3e46214f481db5dc3f65aab15116c7781","realm":"public"}	1	Add new token	f	\N
-1416	2016-04-08 10:06:49.35682+03	2	insert	43	\N	{"userID":2,"body":"ec8d2127208902240bebb3b44453bf38a6d6c355bf96057188d4530e9f0bf882","realm":"igiware"}	1	Add new token	f	\N
-1417	2016-04-08 11:11:47.208105+03	-355	delete	43	\N	{"userID":355,"realm":"public"}	1	Delete token	f	\N
-1418	2016-04-08 11:11:52.193293+03	2	insert	43	\N	{"userID":2,"body":"975c5c2f92b3a936c5ef06c0a1d87e0f2053c76d3b2b7d02304527d2665d0fae","realm":"google"}	1	Add new token	f	\N
-1419	2016-04-08 11:25:03.772934+03	-350	insert	43	\N	{"userID":350,"body":"c1320bf4403a18000eb6ee56dc04247a70013b90445e4d6e12b8ea3a01f23f8f","realm":"public"}	1	Add new token	f	\N
-1420	2016-04-08 11:25:51.876742+03	-350	update	15	352	\N	0	Update user	f	\N
-1421	2016-04-08 11:28:39.337296+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1422	2016-04-08 11:28:50.773817+03	-352	insert	43	\N	{"userID":352,"body":"c705a16c345a242eef78486e31307560d8806ccf2a1a7ac38a70b8ec39417eb5","realm":"public"}	1	Add new token	f	\N
-1423	2016-04-08 12:02:05.646323+03	2	delete	43	\N	{"userID":2,"realm":"igiware"}	1	Delete token	f	\N
-1424	2016-04-08 12:27:52.65984+03	2	insert	43	\N	{"userID":2,"body":"d17111ca2a957e255700f89b6fcfc85944feb7910fcdac510bf03beb385e3ec5","realm":"igiware"}	1	Add new token	f	\N
-1425	2016-04-08 13:32:17.505648+03	-348	update	15	348	\N	0	Update user	f	\N
-1426	2016-04-08 13:34:21.067579+03	-348	update	15	348	\N	0	Update user	f	\N
-1427	2016-04-08 13:35:55.263244+03	-348	update	15	348	\N	0	Update user	f	\N
-1428	2016-04-08 13:47:02.87579+03	2	delete	43	\N	{"userID":2,"realm":"google"}	1	Delete token	f	\N
-1429	2016-04-08 13:47:04.210227+03	-350	insert	43	\N	{"userID":350,"body":"8ce24460123ce80ef7bbb3c5aa9d05f2cbbb90fc30ed9ffde3c8a874fd03ba44","realm":"public"}	1	Add new token	f	\N
-1430	2016-04-08 13:47:14.626353+03	-350	update	15	355	\N	0	Update user	f	\N
-1431	2016-04-10 18:30:55.929638+03	-352	update	15	352	\N	0	Update user	f	\N
-1432	2016-04-10 18:42:54.80381+03	-352	delete	43	\N	{"userID":352,"realm":"public"}	1	Delete token	f	\N
-1433	2016-04-10 18:43:11.565103+03	-352	insert	43	\N	{"userID":352,"body":"545758b1295f3bd3d77963360c3118af6a51dfaa1b0657a5f9ede4b583829eef","realm":"public"}	1	Add new token	f	\N
-1434	2016-04-10 18:43:50.967252+03	-352	delete	43	\N	{"userID":352,"realm":"public"}	1	Delete token	f	\N
-1435	2016-04-10 18:44:03.326051+03	-352	insert	43	\N	{"userID":352,"body":"a744a540a94a09dc2a6eeef472a84090e363183fc07be4bf27cba77eab8a11e2","realm":"public"}	1	Add new token	f	\N
-1436	2016-04-11 10:48:29.570619+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1437	2016-04-11 10:48:31.438947+03	-350	insert	43	\N	{"userID":350,"body":"d27f3458efeac851058852a1648fbf79aaffda6d6f1dca8a38c0f4f9b5345058","realm":"public"}	1	Add new token	f	\N
-1438	2016-04-11 10:48:50.35078+03	-350	update	15	355	\N	0	Update user	f	\N
-1439	2016-04-11 10:48:53.372231+03	-352	delete	43	\N	{"userID":352,"realm":"public"}	1	Delete token	f	\N
-1440	2016-04-11 10:49:02.292523+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1441	2016-04-11 10:49:10.666253+03	-355	insert	43	\N	{"userID":355,"body":"5b116bb1cda3930e65dae08f1fda33d84efcc59600d43c663eb5be186b913bb7","realm":"public"}	1	Add new token	f	\N
-1442	2016-04-11 10:49:19.25325+03	-352	insert	43	\N	{"userID":352,"body":"b856c08b80f957adfd000b296f18db34ef4cfc0b047a200277175214fc30aeaf","realm":"public"}	1	Add new token	f	\N
-1443	2016-04-11 10:49:45.738521+03	-355	delete	43	\N	{"userID":355,"realm":"public"}	1	Delete token	f	\N
-1444	2016-04-11 10:49:54.629737+03	5	insert	43	\N	{"userID":5,"body":"d9786218cb77e61734bf358992af7bd12fdcd59ccd2fb2a4f7108fae76d50dd6","realm":"google"}	1	Add new token	f	\N
-1445	2016-04-11 10:49:55.951676+03	-352	delete	43	\N	{"userID":352,"realm":"public"}	1	Delete token	f	\N
-1446	2016-04-11 10:50:08.430694+03	-352	insert	43	\N	{"userID":352,"body":"75eed0f952d6ab3f669902cc5c87d01c979e1865779360dedd15c540ad478fb2","realm":"public"}	1	Add new token	f	\N
-1447	2016-04-11 10:50:57.752883+03	5	delete	43	\N	{"userID":5,"realm":"google"}	1	Delete token	f	\N
-1448	2016-04-11 10:51:03.117068+03	3	insert	43	\N	{"userID":3,"body":"35471768c65e3addde53837f9030ee32371c8515bfce87a86ab42b6adeb9bd0f","realm":"google"}	1	Add new token	f	\N
-1449	2016-04-11 10:51:06.399746+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1450	2016-04-11 10:51:08.797406+03	-350	insert	43	\N	{"userID":350,"body":"866c481deeb971e19bc24caf68c08fe32353ba670ffd3199ef8c862833265ac6","realm":"public"}	1	Add new token	f	\N
-1451	2016-04-11 10:51:28.315635+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1452	2016-04-11 10:51:42.724314+03	3	insert	43	\N	{"userID":3,"body":"e6da6b24a0b16f1aeefb94be0c320bbfd30f11696c53af230e44dbefbb570e40","realm":"google"}	1	Add new token	f	\N
-1453	2016-04-11 10:51:46.566045+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1454	2016-04-11 10:51:48.454373+03	-350	insert	43	\N	{"userID":350,"body":"c890aacd023c90dec8be73a2d180a3447b851ba64059c838f4c21f46f6421231","realm":"public"}	1	Add new token	f	\N
-1455	2016-04-11 10:52:03.042174+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1456	2016-04-11 10:52:07.789833+03	3	insert	43	\N	{"userID":3,"body":"45f79b32827ee21c9cfeee9417a8d84f7fc7c3a993ee23734097a90b672e8f61","realm":"google"}	1	Add new token	f	\N
-1457	2016-04-11 10:53:21.048682+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1458	2016-04-11 10:53:50.085206+03	-355	insert	43	\N	{"userID":355,"body":"a5d2054fb7de33c1031e77265a030bdd3b95a01abf92fb71b463c91262fb9dfa","realm":"public"}	1	Add new token	f	\N
-1459	2016-04-11 10:53:53.027029+03	-355	delete	43	\N	{"userID":355,"realm":"public"}	1	Delete token	f	\N
-1460	2016-04-11 10:54:32.899357+03	-355	insert	43	\N	{"userID":355,"body":"9e7197a7577f71fe44195860f969655eb34fae73146d39ee58e2f61723689237","realm":"public"}	1	Add new token	f	\N
-1461	2016-04-11 10:54:56.107407+03	-355	delete	43	\N	{"userID":355,"realm":"public"}	1	Delete token	f	\N
-1462	2016-04-11 10:55:05.970675+03	-355	insert	43	\N	{"userID":355,"body":"13c5d02582210d59eeb8d20c8c0c569a1575de6ad74f6c6d8d2f5acdc962eea9","realm":"public"}	1	Add new token	f	\N
-1463	2016-04-11 10:55:42.443625+03	-355	delete	43	\N	{"userID":355,"realm":"public"}	1	Delete token	f	\N
-1464	2016-04-11 12:29:35.56493+03	-350	insert	43	\N	{"userID":350,"body":"359a5459856c2eaf2e9a1c67b5b4900641d7285f6bf9d2a854f1560e71025f3e","realm":"public"}	1	Add new token	f	\N
-1465	2016-04-11 12:32:12.371822+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1466	2016-04-11 12:32:31.201728+03	3	insert	43	\N	{"userID":3,"body":"c5f16244fc4d8f8052da5c56e2e0773a16e1ec2dd9d9f081c2604218fcd8ada7","realm":"igiware"}	1	Add new token	f	\N
-1467	2016-04-11 12:32:38.848621+03	2	insert	43	\N	{"userID":2,"body":"96a1810f611511e33968638e811971d36995c243275c260532b147a868d4125b","realm":"yandex"}	1	Add new token	f	\N
-1468	2016-04-11 13:07:25.84696+03	-348	update	15	348	\N	0	Password forgot	f	\N
-1469	2016-04-11 13:34:30.212883+03	9	update	15	9	\N	0	Reset password	f	\N
-1470	2016-04-11 14:27:27.456497+03	-350	insert	43	\N	{"userID":350,"body":"b740c982d7eef3ca43315c4dcc37fb132ea9c8e5b7a0a70269ff4de9a21620cd","realm":"public"}	1	Add new token	f	\N
-1471	2016-04-11 14:27:41.651761+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1472	2016-04-11 15:40:04.664463+03	10	insert	43	\N	{"userID":10,"body":"13e541114aa8364285c02143c09a0763f6a6209f7ad2526f5781c6708e2c8275","realm":"google"}	1	Add new token	f	\N
-1473	2016-04-11 15:40:33.045197+03	10	delete	43	\N	{"userID":10,"realm":"google"}	1	Delete token	f	\N
-1474	2016-04-11 15:42:36.141011+03	-352	delete	43	\N	{"userID":352,"realm":"public"}	1	Delete token	f	\N
-1475	2016-04-11 15:43:24.458807+03	11	insert	43	\N	{"userID":11,"body":"4bd32c6f51783f26e6356a120e5cb40c946072cf7b4eff0822dffce4462523aa","realm":"google"}	1	Add new token	f	\N
-1476	2016-04-11 15:43:59.18976+03	11	delete	43	\N	{"userID":11,"realm":"google"}	1	Delete token	f	\N
-1477	2016-04-11 15:44:16.611728+03	11	insert	43	\N	{"userID":11,"body":"dadde335aedc239ce9c764f40b5a720224259197d1d19e48a0d5dfe5b5cc48ab","realm":"google"}	1	Add new token	f	\N
-1478	2016-04-11 15:44:25.355927+03	11	delete	43	\N	{"userID":11,"realm":"google"}	1	Delete token	f	\N
-1479	2016-04-11 15:45:39.825828+03	11	update	15	11	\N	0	Reset password	f	\N
-1480	2016-04-11 15:50:25.76629+03	11	insert	43	\N	{"userID":11,"body":"87db363333c300daaf9294ee6c357353d1322ce9c7fce0657777df95c23b7cff","realm":"google"}	1	Add new token	f	\N
-1481	2016-04-11 15:50:36.446148+03	11	delete	43	\N	{"userID":11,"realm":"google"}	1	Delete token	f	\N
-1482	2016-04-11 15:50:51.973719+03	-350	insert	43	\N	{"userID":350,"body":"2e3561218984604eb7d2f85e17b276bd3cc618ed37c70e6f084b0e5eb4aa3d05","realm":"public"}	1	Add new token	f	\N
-1483	2016-04-11 15:50:57.500868+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1484	2016-04-11 15:51:32.700165+03	-350	insert	43	\N	{"userID":350,"body":"732a585118162baf18a2737f7991aa7ae1ee59e1d1907012f49631223126dc42","realm":"public"}	1	Add new token	f	\N
-1485	2016-04-11 15:52:36.317325+03	11	update	15	11	\N	0	Reset password	f	\N
-1486	2016-04-11 15:59:14.288574+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1487	2016-04-11 16:09:01.627796+03	-350	insert	43	\N	{"userID":350,"body":"3386b88d137485a65010bd4569799cbe12ac3dc6a2884c583184cd3c9f57e53d","realm":"public"}	1	Add new token	f	\N
-1488	2016-04-11 16:09:06.150546+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1489	2016-04-11 16:09:12.999345+03	3	insert	43	\N	{"userID":3,"body":"1a2984e66276d66bc849b57d4b641d2fc037b560057a14437a6e465ee472dbc5","realm":"google"}	1	Add new token	f	\N
-1490	2016-04-11 16:18:41.508153+03	9	update	15	9	\N	0	Reset password	f	\N
-1491	2016-04-11 16:39:53.269484+03	9	update	15	9	\N	0	Reset password	f	\N
-1492	2016-04-11 16:40:20.620399+03	-350	insert	43	\N	{"userID":350,"body":"4be199de4aca9ae1adfcd27720ed2f4e2993b9d299339c4ca434a610c9b1e782","realm":"public"}	1	Add new token	f	\N
-1493	2016-04-11 16:40:26.344812+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1494	2016-04-11 16:45:40.312471+03	9	update	15	9	\N	0	Reset password	f	\N
-1495	2016-04-11 16:46:03.357137+03	9	insert	43	\N	{"userID":9,"body":"3dbef2f7649bd85019a9b678e9eec265982af194dc878ef3aedfb6f44e847125","realm":"google"}	1	Add new token	f	\N
-1496	2016-04-11 16:48:01.408683+03	-350	insert	43	\N	{"userID":350,"body":"e1ac9c188238d8e1734d190f4438686d6bad446968720adaaaaeda666d032dce","realm":"public"}	1	Add new token	f	\N
-1497	2016-04-11 17:21:10.00345+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1498	2016-04-11 17:21:28.763372+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1499	2016-04-11 17:21:30.354764+03	-350	insert	43	\N	{"userID":350,"body":"45146c5f37f181323429a6ef4a21a694fdbca985cdb9549470cb011d8e760e71","realm":"public"}	1	Add new token	f	\N
-1500	2016-04-11 17:22:15.033788+03	3	insert	43	\N	{"userID":3,"body":"af18b7ffffc5419dd4b676900d593115e3e68c8dcf9e1f11faff63d2a8849b41","realm":"google"}	1	Add new token	f	\N
-1501	2016-04-12 07:57:04.392152+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1502	2016-04-12 10:52:53.35898+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1503	2016-04-12 10:52:55.375223+03	-350	insert	43	\N	{"userID":350,"body":"6a2fcf21f7de653b288e432daba1ba6db21fe9beebf112590cd58704da4365fb","realm":"public"}	1	Add new token	f	\N
-1504	2016-04-12 10:59:46.060072+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1505	2016-04-12 10:59:52.32799+03	3	insert	43	\N	{"userID":3,"body":"301e4cd856bac911c12907fa7dee47ec527a7f0ff665cf6f09345e09ca351ef5","realm":"google"}	1	Add new token	f	\N
-1506	2016-04-12 11:50:45.711171+03	-350	insert	43	\N	{"userID":350,"body":"b500837fd7e965f52e3f56eed82d88c5d2702ef57c9e7e70c6f1997bd028bad1","realm":"public"}	1	Add new token	f	\N
-1507	2016-04-12 15:02:42.486741+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1508	2016-04-12 15:02:50.164148+03	2	insert	43	\N	{"userID":2,"body":"f0a9e95d08b4b340fb16e452adb5b8e1632113e236becab9586f6f62c9550b6f","realm":"google"}	1	Add new token	f	\N
-1509	2016-04-13 12:25:01.441134+03	-350	update	15	350	\N	0	Password forgot	f	\N
-1510	2016-04-13 13:35:58.953492+03	3	delete	43	\N	{"userID":3,"realm":"google"}	1	Delete token	f	\N
-1511	2016-04-13 13:36:01.228818+03	-350	insert	43	\N	{"userID":350,"body":"8e12bdb64a3067307d06cd9a6c3c7ce85f4635b8e0d037eec8f860870e96ac93","realm":"public"}	1	Add new token	f	\N
-1512	2016-04-13 13:37:55.417895+03	-350	update	15	350	\N	0	Password forgot	f	\N
-1513	2016-04-13 13:39:21.770379+03	3	insert	43	\N	{"userID":3,"body":"1ce539d3ec75c3f3b7d8841f72a08af0fd31b6b61a471f52e32ea421dac6d0a0","realm":"google"}	1	Add new token	f	\N
-1514	2016-04-13 13:40:21.872722+03	-350	update	15	350	\N	0	Password forgot	f	\N
-1515	2016-04-13 13:41:40.814491+03	-350	update	15	350	\N	0	Password forgot	f	\N
-1516	2016-04-13 13:43:10.153152+03	-350	update	15	350	\N	0	Password forgot	f	\N
-1517	2016-04-13 14:36:48.14619+03	-350	delete	43	\N	{"userID":350,"realm":"public"}	1	Delete token	f	\N
-1518	2016-04-13 14:37:13.65272+03	-350	insert	43	\N	{"userID":350,"body":"f71923827f1c0af0139a52e0fdd30f2de9958087ef3ce9bc9bb59365aeb53ceb","realm":"public"}	1	Add new token	f	\N
 \.
 
 
@@ -3185,7 +3044,7 @@ COPY "Logs" (id, created, userid, action, essence, entity, entities, quantity, i
 -- Name: Logs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
 --
 
-SELECT pg_catalog.setval('"Logs_id_seq"', 1518, true);
+SELECT pg_catalog.setval('"Logs_id_seq"', 2406, true);
 
 
 --
@@ -3193,11 +3052,6 @@ SELECT pg_catalog.setval('"Logs_id_seq"', 1518, true);
 --
 
 COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "essenceId", "entityId", created, reading, sent, read, "notifyLevel", result, resent, note, "userFromName", "userToName") FROM stdin;
-4	350	350	Indaba. Restore password	su@mail.net	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/c75fb0cc3fab05f13428a51aecae6d1bb75d04873b5ce95a1b134832da940991">link</a>\n</p>	Indaba. Restore password	15	350	2016-04-13 12:25:01.468979+03	\N	2016-04-13 12:25:01.499+03	f	2	\N	\N	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/c75fb0cc3fab05f13428a51aecae6d1bb75d04873b5ce95a1b134832da940991">link</a>\n</p>	\N	\N
-5	350	350	Indaba. Restore password	su@mail.net	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/54c07d67cf666bc4ade3d82dd4cb6ba9bc073c50f951c5440f287fb4614f047a">link</a>\n</p>	Indaba. Restore password	15	350	2016-04-13 13:37:55.45191+03	\N	2016-04-13 13:37:55.47+03	f	2	\N	\N	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/54c07d67cf666bc4ade3d82dd4cb6ba9bc073c50f951c5440f287fb4614f047a">link</a>\n</p>	\N	\N
-6	350	350	Indaba. Restore password	su@mail.net	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/d76388acf324aca898350265a4a25894a91bc8b489db86e20358636ed0ea9c16">link</a>\n</p>	Indaba. Restore password	15	350	2016-04-13 13:40:21.911859+03	\N	2016-04-13 13:40:21.932+03	f	2	\N	\N	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/d76388acf324aca898350265a4a25894a91bc8b489db86e20358636ed0ea9c16">link</a>\n</p>	\N	\N
-7	350	350	Indaba. Restore password	su@mail.net	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/0f35ca22859336166ddb87879f419247c661230d0bd8be998668e549f7db64fe">link</a>\n</p>	Indaba. Restore password	15	350	2016-04-13 13:41:40.847477+03	\N	2016-04-13 13:41:40.886+03	f	2	\N	\N	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/0f35ca22859336166ddb87879f419247c661230d0bd8be998668e549f7db64fe">link</a>\n</p>	\N	\N
-8	350	350	Indaba. Restore password	su@mail.net	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/1f211bb6cfd964dce1a4f8adfb3335f55edb7a283646fe43d211ca983668a1b6">link</a>\n</p>	Indaba. Restore password	15	350	2016-04-13 13:43:10.18528+03	\N	2016-04-13 13:43:10.204+03	f	2	\N	\N	<p>Hello Test Super Admin!</p>\n\n<p>\n\tTo restore your password, please follow this\n\t<a href="http://indaba.ntrlab.ru/#/reset/public/1f211bb6cfd964dce1a4f8adfb3335f55edb7a283646fe43d211ca983668a1b6">link</a>\n</p>	\N	\N
 \.
 
 
@@ -3205,7 +3059,7 @@ COPY "Notifications" (id, "userFrom", "userTo", body, email, message, subject, "
 -- Name: Notifications_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
 --
 
-SELECT pg_catalog.setval('"Notifications_id_seq"', 8, true);
+SELECT pg_catalog.setval('"Notifications_id_seq"', 11, true);
 
 
 --
@@ -3228,9 +3082,11 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 127	product_delete	Can delete products	4
 16	rights_view_all	Can see list of all rights	\N
 18	rights_view_one	Can see one right	\N
+129	work	Have to work hard :)	\N
 17	rights_add_one	Can add rights	\N
 19	rights_delete_one	Can delete one right .	\N
 131	users_uoa	Can assign units of analysis to user	\N
+133	Bruce the mighty	fghftj	13
 134	users_invite	Can invite users	\N
 135	unitofanalysis_insert_one	\N	6
 136	unitofanalysis_update_one	\N	6
@@ -3276,28 +3132,6 @@ SELECT pg_catalog.setval('"Subindex_id_seq"', 1, true);
 --
 
 COPY "Token" ("userID", body, "issuedAt", realm) FROM stdin;
-112	36c9dc245543902db51338dd3a59a527c3a4d39f1d0c67df3bf1087342d4e99f	2016-03-30 13:40:51.610742	public
-140	210c894bb1ae1d48826584fb09a3ce3ec41653b4055867b19a5c1ab89afd547b	2016-04-03 11:53:55.033348	google
-9	3dbef2f7649bd85019a9b678e9eec265982af194dc878ef3aedfb6f44e847125	2016-04-11 16:46:03.268469	google
-2	f372d7f0d03a69cc0dd688d7fe38af469f3db6b3fa00bc0c61c786e41cb8faa8	2016-04-07 15:50:40.806584	test3
-2	f0a9e95d08b4b340fb16e452adb5b8e1632113e236becab9586f6f62c9550b6f	2016-04-12 15:02:50.090343	google
-214	40aeec5c6fc5386a3103a57d4e6a95c5ff6441c8c85a4f845cdc1c05625abf52	2016-03-25 18:06:07.484224	sceleton
-3	1ce539d3ec75c3f3b7d8841f72a08af0fd31b6b61a471f52e32ea421dac6d0a0	2016-04-13 13:39:21.706076	google
-350	f71923827f1c0af0139a52e0fdd30f2de9958087ef3ce9bc9bb59365aeb53ceb	2016-04-13 14:37:13.597287	public
-334	c719db2c1f34d359a32a515dd6e2685fbd02a20f40fc5591f6c0e9e293186444	2016-04-04 12:02:14.931699	google
-288	f1f12a7aa306ee60e1b151dba08276b75eaa49c78cc94f3fa32d2ce63a7098ad	2016-03-25 18:42:16.067433	sceleton
-125	4af63616ad4a30eb4925d0c7ebfa199f5aa8c35da3d1712a79ca0c8aa371bd59	2016-04-04 12:07:01.050702	google
-114	3fef0f3c591bc4b69fc0556989ed87f4094b497dd408adf21d2dc0311ab166c0	2016-03-25 19:46:05.488507	public
-258	6d271df121fa961b6ec2156083e79c47d33c0e4c417372c38d4fdd0c06c76079	2016-03-31 01:00:06.495825	yandex
-338	9a500022a62588c76610fd3f36cd41a176efeaf21becc33d2e97aa63e194d9b4	2016-03-31 20:40:23.368467	public
-335	5c2cefe75e3d0b81ed20f5bc239399840a1e9cd7e6b6f3b0e2cdf7b47d3e0c2d	2016-04-04 14:19:00.046598	public
-348	37d903cd3d2c0adc50493f7c24bfb56f52200a6de1261bd0da4e4dfb1ce6ab00	2016-04-04 14:40:54.545841	public
-2	d17111ca2a957e255700f89b6fcfc85944feb7910fcdac510bf03beb385e3ec5	2016-04-08 12:27:52.598277	igiware
-76	599d8a7baf376ee5c64db715c780b838f2dbe15ee52d2cc1fd8c541c39ede956	2016-03-28 16:59:52.854403	public
-336	f11832263dd7d5fbeb95473fd8998f3ce224df8c3a0c5be22ab4efcc5f344a04	2016-04-01 16:57:43.999568	public
-322	9cd2d400770cd4c3bb71900670f68f658606443a936405e086023f103712d263	2016-03-29 08:10:24.742154	sceleton
-3	c5f16244fc4d8f8052da5c56e2e0773a16e1ec2dd9d9f081c2604218fcd8ada7	2016-04-11 12:32:31.141068	igiware
-2	96a1810f611511e33968638e811971d36995c243275c260532b147a868d4125b	2016-04-11 12:32:38.814492	yandex
 \.
 
 
@@ -3334,7 +3168,7 @@ SELECT pg_catalog.setval('"UnitOfAnalysis_id_seq"', 268, true);
 --
 
 COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt) FROM stdin;
-1	350	test-su@mail.net	Test	SuperAdmin	d8c6eef7ff25452097a750b6ed8a80fe0e22a9003d51aacc99f194fd2c78fe62	\N	\N	1f211bb6cfd964dce1a4f8adfb3335f55edb7a283646fe43d211ca983668a1b6	1460547790071	2016-04-04 14:37:54.284+03	2016-04-13 14:37:14.142147	t	\N	\N	\N	\N	\N	\N	\N	0	\N	2016-04-13 14:37:14.136+03	\N	f	\N	f42d1a395d0ec925750be5dd44358c82
+1	350	su@mail.net	Test	Super Admin	2d97fa50e82fb50e883dfd491565f276349eed70dbf0ed0c188b051018ede809	\N	\N	222a0a146ea229e92ed7c992b10d05706affb0415680501f3bfbd04d21b7965c	1460733853978	2016-04-04 14:37:54.284+03	2016-06-21 22:56:18.714486	t	\N	\N	\N	\N	\N	\N	\N	0	\N	2016-06-21 22:56:18.71+03	\N	f	\N	\N
 \.
 
 
@@ -3384,7 +3218,7 @@ SELECT pg_catalog.setval('transportmodel_id_seq', 24, true);
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: indaba
 --
 
-SELECT pg_catalog.setval('user_id_seq', 355, true);
+SELECT pg_catalog.setval('user_id_seq', 360, true);
 
 
 SET search_path = sceleton, pg_catalog;
@@ -3424,7 +3258,7 @@ SELECT pg_catalog.setval('"AccessPermissions_id_seq"', 1, true);
 -- Data for Name: AnswerAttachments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner) FROM stdin;
+COPY "AnswerAttachments" (id, "answerId", filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
 \.
 
 
@@ -3436,10 +3270,56 @@ SELECT pg_catalog.setval('"AnswerAttachments_id_seq"', 1, true);
 
 
 --
+-- Data for Name: AttachmentAttempts; Type: TABLE DATA; Schema: sceleton; Owner: indaba
+--
+
+COPY "AttachmentAttempts" (key, filename, mimetype, size, created) FROM stdin;
+\.
+
+
+--
+-- Data for Name: AttachmentLinks; Type: TABLE DATA; Schema: sceleton; Owner: indaba
+--
+
+COPY "AttachmentLinks" ("essenceId", "entityId", attachments) FROM stdin;
+\.
+
+
+--
+-- Data for Name: Attachments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
+--
+
+COPY "Attachments" (id, filename, size, mimetype, body, created, owner, "amazonKey") FROM stdin;
+\.
+
+
+--
+-- Name: Attachments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
+--
+
+SELECT pg_catalog.setval('"Attachments_id_seq"', 1, false);
+
+
+--
+-- Data for Name: Comments; Type: TABLE DATA; Schema: sceleton; Owner: indaba
+--
+
+COPY "Comments" (id, "taskId", "questionId", "userId", entry, "isReturn", created, updated, "isResolve", "order", "returnTaskId", "userFromId", "stepId", "stepFromId", activated, tags, range, "commentType") FROM stdin;
+\.
+
+
+--
+-- Name: Comments_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
+--
+
+SELECT pg_catalog.setval('"Comments_id_seq"', 1, false);
+
+
+--
 -- Data for Name: Discussions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Discussions" (id, "taskId", "questionId", "userId", entry, "isReturn", created, updated, "isResolve", "order", "returnTaskId", "userFromId") FROM stdin;
+COPY "Discussions" (id, "taskId", "questionId", "userId", entry, "isReturn", created, updated, "isResolve", "order", "returnTaskId", "userFromId", "stepId", "stepFromId", activated) FROM stdin;
 \.
 
 
@@ -3454,7 +3334,7 @@ SELECT pg_catalog.setval('"Discussions_id_seq"', 1, true);
 -- Name: Entities_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
 --
 
-SELECT pg_catalog.setval('"Entities_id_seq"', 45, true);
+SELECT pg_catalog.setval('"Entities_id_seq"', 47, true);
 
 
 --
@@ -3507,6 +3387,8 @@ COPY "Essences" (id, "tableName", name, "fileName", "nameField") FROM stdin;
 43	Token	Token	token	realm
 44	UserUOA	UserUOA	user_uoa	UserId
 45	UserGroups	UserGroups	user_groups	UserId
+46	Policies	Policies	policies	section
+47	Comments	Comments	comments	id
 \.
 
 
@@ -3587,7 +3469,7 @@ SELECT pg_catalog.setval('"Languages_id_seq"', 13, true);
 -- Data for Name: Logs; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Logs" (id, created, "user", action, essence, entity, entities, quantity, info, error, result) FROM stdin;
+COPY "Logs" (id, created, userid, action, essence, entity, entities, quantity, info, error, result) FROM stdin;
 \.
 
 
@@ -3617,7 +3499,7 @@ SELECT pg_catalog.setval('"Notifications_id_seq"', 1, true);
 -- Data for Name: Organizations; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity", "isActive", "langId", realm) FROM stdin;
+COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity", "isActive", "langId", realm, "enableFeaturePolicy") FROM stdin;
 \.
 
 
@@ -3626,6 +3508,21 @@ COPY "Organizations" (id, name, address, "adminUserId", url, "enforceApiSecurity
 --
 
 SELECT pg_catalog.setval('"Organizations_id_seq"', 1, true);
+
+
+--
+-- Data for Name: Policies; Type: TABLE DATA; Schema: sceleton; Owner: indaba
+--
+
+COPY "Policies" (id, section, subsection, author, number) FROM stdin;
+\.
+
+
+--
+-- Name: Policies_id_seq; Type: SEQUENCE SET; Schema: sceleton; Owner: indaba
+--
+
+SELECT pg_catalog.setval('"Policies_id_seq"', 1, false);
 
 
 --
@@ -3686,9 +3583,11 @@ COPY "Rights" (id, action, description, "essenceId") FROM stdin;
 127	product_delete	Can delete products	4
 16	rights_view_all	Can see list of all rights	\N
 18	rights_view_one	Can see one right	\N
+129	work	Have to work hard :)	\N
 17	rights_add_one	Can add rights	\N
 19	rights_delete_one	Can delete one right .	\N
 131	users_uoa	Can assign units of analysis to user	\N
+133	Bruce the mighty	fghftj	13
 134	users_invite	Can invite users	\N
 135	unitofanalysis_insert_one	\N	6
 136	unitofanalysis_update_one	\N	6
@@ -3725,6 +3624,7 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 2	24
 2	26
 2	33
+2	129
 2	131
 2	132
 2	135
@@ -3744,6 +3644,7 @@ COPY "RolesRights" ("roleID", "rightID") FROM stdin;
 2	80
 2	81
 2	127
+2	133
 2	134
 \.
 
@@ -3782,7 +3683,7 @@ SELECT pg_catalog.setval('"SurveyAnswerVersions_id_seq"', 4, true);
 -- Data for Name: SurveyAnswers; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments) FROM stdin;
+COPY "SurveyAnswers" (id, "questionId", "userId", value, created, "productId", "UOAid", "wfStepId", version, "surveyId", "optionId", "langId", "isResponse", "isAgree", comments, attachments, "answerComment", links, updated) FROM stdin;
 \.
 
 
@@ -3805,7 +3706,7 @@ COPY "SurveyQuestionOptions" (id, "questionId", value, label, skip, "isSelected"
 -- Data for Name: SurveyQuestions; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId") FROM stdin;
+COPY "SurveyQuestions" (id, "surveyId", type, label, "isRequired", "position", description, skip, size, "minLength", "maxLength", "isWordmml", "incOtherOpt", units, "intOnly", value, qid, links, attachment, "optionNumbering", "langId", "hasComments", "withLinks") FROM stdin;
 \.
 
 
@@ -3820,7 +3721,7 @@ SELECT pg_catalog.setval('"SurveyQuestions_id_seq"', 1, true);
 -- Data for Name: Surveys; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId") FROM stdin;
+COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId", "policyId") FROM stdin;
 \.
 
 
@@ -3828,7 +3729,7 @@ COPY "Surveys" (id, title, description, created, "projectId", "isDraft", "langId
 -- Data for Name: Tasks; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId") FROM stdin;
+COPY "Tasks" (id, title, description, "uoaId", "stepId", created, "productId", "startDate", "endDate", "userId", "langId", "userIds", "groupIds") FROM stdin;
 \.
 
 
@@ -3951,7 +3852,7 @@ COPY "UserUOA" ("UserId", "UOAid") FROM stdin;
 -- Data for Name: Users; Type: TABLE DATA; Schema: sceleton; Owner: indaba
 --
 
-COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId") FROM stdin;
+COPY "Users" ("roleID", id, email, "firstName", "lastName", password, cell, birthday, "resetPasswordToken", "resetPasswordExpires", created, updated, "isActive", "activationToken", "organizationId", location, phone, address, lang, bio, "notifyLevel", timezone, "lastActive", affiliation, "isAnonymous", "langId", salt) FROM stdin;
 \.
 
 
@@ -4205,6 +4106,38 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
+-- Name: AttachmentAttempts_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+ALTER TABLE ONLY "AttachmentAttempts"
+    ADD CONSTRAINT "AttachmentAttempts_pkey" PRIMARY KEY (key);
+
+
+--
+-- Name: AttachmentLinks_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+ALTER TABLE ONLY "AttachmentLinks"
+    ADD CONSTRAINT "AttachmentLinks_pkey" PRIMARY KEY ("essenceId", "entityId");
+
+
+--
+-- Name: Attachments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+ALTER TABLE ONLY "Attachments"
+    ADD CONSTRAINT "Attachments_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Comments_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_pkey" PRIMARY KEY (id);
+
+
+--
 -- Name: Discussions_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
 --
 
@@ -4314,6 +4247,14 @@ ALTER TABLE ONLY "Organizations"
 
 ALTER TABLE ONLY "Organizations"
     ADD CONSTRAINT "Organizations_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Policies_pkey; Type: CONSTRAINT; Schema: sceleton; Owner: indaba; Tablespace:
+--
+
+ALTER TABLE ONLY "Policies"
+    ADD CONSTRAINT "Policies_pkey" PRIMARY KEY (id);
 
 
 --
@@ -4772,6 +4713,62 @@ ALTER TABLE ONLY "AnswerAttachments"
 
 
 --
+-- Name: AttachmentLinks_essenceId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "AttachmentLinks"
+    ADD CONSTRAINT "AttachmentLinks_essenceId_fkey" FOREIGN KEY ("essenceId") REFERENCES "Essences"(id);
+
+
+--
+-- Name: Comments_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+
+
+--
+-- Name: Comments_returnTaskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_returnTaskId_fkey" FOREIGN KEY ("returnTaskId") REFERENCES "Tasks"(id);
+
+
+--
+-- Name: Comments_stepFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_stepFromId_fkey" FOREIGN KEY ("stepFromId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- Name: Comments_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- Name: Comments_taskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Tasks"(id);
+
+
+--
+-- Name: Comments_userFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Comments"
+    ADD CONSTRAINT "Comments_userFromId_fkey" FOREIGN KEY ("userFromId") REFERENCES "Users"(id);
+
+
+--
 -- Name: Discussions_questionId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
 
@@ -4788,6 +4785,22 @@ ALTER TABLE ONLY "Discussions"
 
 
 --
+-- Name: Discussions_stepFromId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_stepFromId_fkey" FOREIGN KEY ("stepFromId") REFERENCES "WorkflowSteps"(id);
+
+
+--
+-- Name: Discussions_stepId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Discussions"
+    ADD CONSTRAINT "Discussions_stepId_fkey" FOREIGN KEY ("stepId") REFERENCES "WorkflowSteps"(id);
+
+
+--
 -- Name: Discussions_taskId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
 
@@ -4801,14 +4814,6 @@ ALTER TABLE ONLY "Discussions"
 
 ALTER TABLE ONLY "Discussions"
     ADD CONSTRAINT "Discussions_userFromId_fkey" FOREIGN KEY ("userFromId") REFERENCES "Users"(id);
-
-
---
--- Name: Discussions_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Discussions"
-    ADD CONSTRAINT "Discussions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
 
 
 --
@@ -4913,6 +4918,14 @@ ALTER TABLE ONLY "Organizations"
 
 ALTER TABLE ONLY "Organizations"
     ADD CONSTRAINT "Organizations_langId_fkey" FOREIGN KEY ("langId") REFERENCES "Languages"(id);
+
+
+--
+-- Name: Policies_author_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Policies"
+    ADD CONSTRAINT "Policies_author_fkey" FOREIGN KEY (author) REFERENCES "Users"(id);
 
 
 --
@@ -5124,6 +5137,14 @@ ALTER TABLE ONLY "Surveys"
 
 
 --
+-- Name: Surveys_policyId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
+--
+
+ALTER TABLE ONLY "Surveys"
+    ADD CONSTRAINT "Surveys_policyId_fkey" FOREIGN KEY ("policyId") REFERENCES "Policies"(id);
+
+
+--
 -- Name: Surveys_projectId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
 --
 
@@ -5161,14 +5182,6 @@ ALTER TABLE ONLY "Tasks"
 
 ALTER TABLE ONLY "Tasks"
     ADD CONSTRAINT "Tasks_uoaId_fkey" FOREIGN KEY ("uoaId") REFERENCES "UnitOfAnalysis"(id);
-
-
---
--- Name: Tasks_userId_fkey; Type: FK CONSTRAINT; Schema: sceleton; Owner: indaba
---
-
-ALTER TABLE ONLY "Tasks"
-    ADD CONSTRAINT "Tasks_userId_fkey" FOREIGN KEY ("userId") REFERENCES "Users"(id);
 
 
 --
@@ -5392,7 +5405,7 @@ ALTER TABLE ONLY "RolesRights"
 --
 
 ALTER TABLE ONLY "SurveyQuestionOptions"
-    ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id);
+    ADD CONSTRAINT "surveyQuestionOptions_questionId_fkey" FOREIGN KEY ("questionId") REFERENCES "SurveyQuestions"(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5403,6 +5416,16 @@ REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM postgres;
 GRANT ALL ON SCHEMA public TO postgres;
 GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- Name: sceleton; Type: ACL; Schema: -; Owner: indaba
+--
+
+REVOKE ALL ON SCHEMA sceleton FROM PUBLIC;
+REVOKE ALL ON SCHEMA sceleton FROM indaba;
+GRANT ALL ON SCHEMA sceleton TO indaba;
+GRANT ALL ON SCHEMA sceleton TO PUBLIC;
 
 
 --
