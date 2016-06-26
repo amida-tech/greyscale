@@ -1491,7 +1491,6 @@ function* updateCurrentStepId(req) {
             WorkflowStep
             .select(
                 WorkflowStep.id,
-                Task.userId,
                 Task.id.as('taskId')
             )
             .from(WorkflowStep
@@ -1504,7 +1503,6 @@ function* updateCurrentStepId(req) {
         );
         if (_.first(nextStep)) {
             minStepPositions[i].stepId = nextStep[0].id;
-            minStepPositions[i].userId = nextStep[0].userId;
             minStepPositions[i].taskId = nextStep[0].taskId;
 
             // update all currentStepId with min position step ID for specified productId for each subject
