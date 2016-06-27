@@ -7,12 +7,12 @@ angular.module('greyscaleApp')
         return {
             restrict: 'AE',
             scope: {
-                model: '=model',
+                field: '=',
                 options: '='
             },
             template: '<div class="panel attachments" ng-show="isVisible"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row">' +
-                '<attached-file attached-item="item" ng-repeat="item in model track by $index" readonly="options.readonly" remove-file="remove($index)"></attached-file>' +
+                '<attached-file attached-item="item" ng-repeat="item in field.attachments track by $index" readonly="options.readonly" remove-file="remove($index)"></attached-file>' +
                 '</div><form ng-show="!uploader.progress" class="row" name="{{formName}}"><input type="file" class="form-control input-file" ' +
                 'name="file" nv-file-select uploader="uploader" ng-if="!options.readonly"></form>' +
                 '<div class="progress" ng-if="uploader.progress">' +
@@ -20,15 +20,15 @@ angular.module('greyscaleApp')
                 '</div>' +
                 '</div></div>',
 
-            controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleAttachmentApi, greyscaleGlobals, greyscaleUploadApi) {
+            controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleGlobals,
+                greyscaleUploadApi) {
 
                 $scope.formName = 'f_' + new Date().getTime();
 
                 $scope.remove = removeAttach;
 
-                $scope.model = $scope.model || [];
-                $scope.isVisible = ($scope.model.length > 0 || !$scope.options.readonly);
+                $scope.field.attachments = $scope.field.attachments || [];
+                $scope.isVisible = ($scope.field.attachments.length > 0 || !$scope.options.readonly);
                 $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
@@ -55,7 +55,8 @@ angular.module('greyscaleApp')
                         item.url = response.url;
                         item.key = response.key;
                         item.headers = {
-                            'Content-Disposition': 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(item.file.name),
+                            'Content-Disposition': 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(
+                                item.file.name),
                             'Content-Type': item.file.type
                         };
                         item.upload();
@@ -68,7 +69,7 @@ angular.module('greyscaleApp')
                             key: item.key
                         };
                         greyscaleUploadApi.success(attachData).then(function (data) {
-                            $scope.model.push({
+                            $scope.field.attachments.push({
                                 id: data.id,
                                 filename: item.file.name,
                                 mimeType: item.file.mimetype
@@ -90,8 +91,14 @@ angular.module('greyscaleApp')
                 };
 
                 function removeAttach(idx) {
-                    var deleted = $scope.model.splice(idx, 1);
-                    greyscaleAttachmentApi.delete(deleted[0].id, $scope.options.essenceId, $scope.options.entityId)
+                    var item = $scope.field.attachments[idx],
+                        essenceId = $scope.field.essenceId,
+                        entityId = $scope.field.answerId;
+
+                    greyscaleUploadApi.remove(item.id, essenceId, entityId)
+                        .then(function () {
+                            return $scope.field.attachments.splice(idx, 1);
+                        })
                         .then(_modifyEvt)
                         .catch(function (err) {
                             greyscaleUtilsSrv.errorMsg(err, 'Delete attachment');

@@ -8,7 +8,8 @@ angular.module('greyscale.rest')
             getUrl: _getUrl,
             success: _success,
             getDownloadUrl: _getDownloadUrl,
-            getLink: _getLink
+            getLink: _getLink,
+            remove: _remove
         };
 
         function _api(realm) {
@@ -16,11 +17,11 @@ angular.module('greyscale.rest')
         }
 
         function _getUrl(data) {
-            return _api().one('upload_link').customPOST(data);
+            return _api().one('upload_link').customPOST(data).then(_preResp);
         }
 
         function _success(data, realm) {
-            return _api(realm).one('success').customPOST(data);
+            return _api(realm).one('success').customPOST(data).then(_preResp);
         }
 
         function _getDownloadUrl(attachId) {
@@ -32,6 +33,14 @@ angular.module('greyscale.rest')
         }
 
         function _preResp(resp) {
-            return resp.plain();
+            if (resp && typeof resp.plain === 'function') {
+                return resp.plain();
+            } else {
+                return resp;
+            }
+        }
+
+        function _remove(attachId, essenceId, entityId) {
+            return _api().one(attachId + '', essenceId + '').one(entityId + '').remove().then(_preResp);
         }
     });

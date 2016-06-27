@@ -627,7 +627,6 @@ angular.module('greyscaleApp')
                             fld.attachments[o].ver = 'v1';
                         }
                         //loadAttachments(fld);
-                        fld.flags.entityId = answer.id;
                     }
 
                     if (fld.hasComments) {
