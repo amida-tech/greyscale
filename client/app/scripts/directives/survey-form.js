@@ -627,7 +627,6 @@ angular.module('greyscaleApp')
                             fld.attachments[o].ver = 'v1';
                         }
                         //loadAttachments(fld);
-                        fld.flags.entityId = answer.id;
                     }
 
                     if (fld.hasComments) {
@@ -727,14 +726,7 @@ angular.module('greyscaleApp')
             }
 
         }
-        /* todo: remove if unused
-        function loadAttachments(fld) {
-            greyscaleAttachmentApi.list(fld.essenceId, fld.answerId)
-                .then(function (attachmentsV2) {
-                    fld.attachments = fld.attachments.concat(attachmentsV2);
-                });
-        }
-        */
+
         function saveAnswers(scope, isAuto) {
             isAuto = !!isAuto;
             var res = $q.resolve(isAuto);
