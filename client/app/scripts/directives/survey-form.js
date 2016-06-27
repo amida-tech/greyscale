@@ -606,7 +606,6 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
-                        fld.flags.entityId = answer.id;
                     }
 
                     if (fld.hasComments) {
