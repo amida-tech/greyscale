@@ -12,30 +12,23 @@ angular.module('greyscaleApp')
             },
             template: '<div class="panel attachments" ng-show="isVisible"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row"><attached-file attached-item="item" ' +
-                'ng-repeat="item in field.attachments track by $index" ' +
-                'readonly="options.readonly" remove-file="remove($index)"></attached-file>' +
-                '</div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
+                'ng-repeat="item in field.attachments track by $index" readonly="options.readonly" ' +
+                'remove-file="remove($index)"></attached-file></div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
                 '<input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ' +
-                'ng-if="!options.readonly"></form><div class="progress" ng-if="uploader.progress">' +
-                '<div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }"></div>' +
-                '</div></div></div>',
+                'ng-hide="options.readonly"></form><div class="progress" ng-if="uploader.progress">' +
+                '<div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }">' +
+                '</div></div></div></div>',
 
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleGlobals,
                 greyscaleUploadApi) {
 
-                $scope.isVisible = false;
-
-                $scope.formName = 'f_' + new Date().getTime();
-
                 $scope.field = $scope.field || {};
-                $scope.options = $scope.options || {};
-
                 $scope.field.attachments = $scope.field.attachments || [];
-
                 $scope.isVisible = ($scope.field.attachments.length > 0 || !$scope.options.readonly);
+                $scope.formName = 'f_' + new Date().getTime();
+                $scope.inProgress = [];
 
                 $scope.remove = removeAttach;
-                $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
                     withCredentials: false,
