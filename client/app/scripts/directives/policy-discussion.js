@@ -39,7 +39,8 @@ angular.module('greyscaleApp')
                                     groups: []
                                 },
                                 i, qty;
-                            qty = commentBody.tag.length;
+
+                            qty = commentBody.tag ? commentBody.tag.length : 0;
 
                             for (i = 0; i < qty; i++) {
                                 if (commentBody.tag[i].userId) {
