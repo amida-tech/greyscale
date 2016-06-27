@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers /*, greyscaleCommentApi*/ ) {
+        greyscaleUsers) {
 
         var data = {},
             _title = [],
@@ -17,9 +17,6 @@ angular.module('greyscaleApp')
                 languages: greyscaleLanguageApi.list(),
                 essence: greyscaleEntityTypeApi.list({
                     tableName: 'SurveyAnswers'
-                }),
-                policyEssence: greyscaleEntityTypeApi.list({
-                    tableName: 'Policies'
                 })
             };
 
@@ -37,10 +34,6 @@ angular.module('greyscaleApp')
 
         if (taskId) {
             reqs.task = greyscaleTaskApi.get(taskId);
-            reqs.scopeList = null;
-            /*greyscaleCommentApi.scopeList({
-                taskId: taskId
-            });*/
         }
 
         $q.all(reqs)
@@ -70,17 +63,10 @@ angular.module('greyscaleApp')
                         taskId: resp.task ? resp.task.id : null,
                         userId: resp.profile.id,
                         sections: [],
-                        attachments: resp.survey.attachments || [],
-                        associate: resp.scopeList ? resp.scopeList.availList : []
+                        attachments: resp.survey.attachments || []
                     },
                     task: resp.task
                 };
-                data.flags.essenceId = data.essenceId;
-
-                qty = data.policy.associate.length;
-                for (i = 0; i < qty; i++) {
-                    data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
-                }
 
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
                     data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
