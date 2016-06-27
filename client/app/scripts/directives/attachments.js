@@ -24,7 +24,7 @@ angular.module('greyscaleApp')
 
                 $scope.field = $scope.field || {};
                 $scope.field.attachments = $scope.field.attachments || [];
-                $scope.isVisible = ($scope.field.attachments.length > 0 || !$scope.options.readonly);
+                $scope.isVisible = ($scope.field.attachments.length > 0 || !$scope.options || !$scope.options.readonly);
                 $scope.formName = 'f_' + new Date().getTime();
                 $scope.inProgress = [];
 
