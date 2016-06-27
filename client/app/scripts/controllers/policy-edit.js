@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi, $log) {
+        greyscaleEntityTypeApi) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -29,11 +29,10 @@ angular.module('greyscaleApp')
                 authorName: '',
                 essenceId: -1,
                 options: {
-                    readonly: false,
+                    readonly: false
                 },
                 sections: [],
-                attachments: [],
-                attachmentsOptions: {}
+                attachments: []
             }
         };
 
@@ -43,7 +42,6 @@ angular.module('greyscaleApp')
             .then(function (essences) {
                 if (essences.length) {
                     $scope.model.policy.essenceId = essences[0].id;
-                    $scope.model.policy.attachmentsOptions.essenceId = essences[0].id;
                 }
             });
 
@@ -119,7 +117,7 @@ angular.module('greyscaleApp')
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
 
-                    $scope.model.policy.attachmentsOptions.entityId = survey.policyId;
+                    $scope.model.policy.answerId = survey.policyId;
 
                 }
                 $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;

@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers, greyscaleCommentApi, $log) {
+        greyscaleUsers /*, greyscaleCommentApi*/ ) {
 
         var data = {},
             _title = [],
@@ -37,16 +37,15 @@ angular.module('greyscaleApp')
 
         if (taskId) {
             reqs.task = greyscaleTaskApi.get(taskId);
-            reqs.scopeList = greyscaleCommentApi.scopeList({
+            reqs.scopeList = null;
+            /*greyscaleCommentApi.scopeList({
                 taskId: taskId
-            });
+            });*/
         }
 
         $q.all(reqs)
             .then(function (resp) {
                 var i, qty;
-
-                var policyEssenceId = resp.policyEssence[0] ? resp.policyEssence[0].id : null;
 
                 data = {
                     survey: resp.survey,
@@ -67,13 +66,11 @@ angular.module('greyscaleApp')
                             isPolicy: true
                         },
                         surveyId: resp.survey.id,
+                        answerId: resp.survey.id,
                         taskId: resp.task ? resp.task.id : null,
                         userId: resp.profile.id,
                         sections: [],
                         attachments: resp.survey.attachments || [],
-                        attachmentsOptions: {
-                            readonly: true
-                        },
                         associate: resp.scopeList ? resp.scopeList.availList : []
                     },
                     task: resp.task
@@ -84,19 +81,6 @@ angular.module('greyscaleApp')
                 for (i = 0; i < qty; i++) {
                     data.policy.associate[i].fullName = greyscaleUtilsSrv.getUserName(data.policy.associate[i]);
                 }
-
-                //greyscaleEntityTypeApi.getByFile('policies')
-                //    .then(function (essence) {
-                //        data.policy.essenceId = essence.id;
-                //        $log.debug('re-factor policy review attachments to S3');
-                //        /*
-                //        return greyscaleAttachmentApi.list(essence.id, data.policy.id);
-                //        */
-                //        return [];
-                //    })
-                //    .then(function (attachments) {
-                //        data.policy.attachments = attachments;
-                //    });
 
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
                     data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);

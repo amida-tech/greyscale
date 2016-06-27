@@ -18,7 +18,7 @@ angular.module('greyscaleApp')
                 });
             },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
-                greyscaleAttachmentApi, greyscaleGlobals) {
+                greyscaleGlobals) {
 
                 var _url = greyscaleUtilsSrv.getApiBase('surveys/parsedocx'),
                     _token = greyscaleTokenSrv();
