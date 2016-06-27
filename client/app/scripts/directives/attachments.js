@@ -12,8 +12,8 @@ angular.module('greyscaleApp')
             },
             template: '<div class="panel attachments" ng-show="isVisible"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row"><attached-file attached-item="item" ' +
-                'ng-repeat="item in field.attachments track by $index" remove-file="remove($index)"></attached-file>' +
-                '</div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
+                'ng-repeat="item in field.attachments track by $index" readonly="options.readonly" ' +
+                'remove-file="remove($index)"></attached-file></div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
                 '<input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader" ' +
                 'ng-hide="options.readonly"></form><div class="progress" ng-if="uploader.progress">' +
                 '<div class="progress-bar" role="progressbar" ng-style="{ \'width\': uploader.progress + \'%\' }">' +
