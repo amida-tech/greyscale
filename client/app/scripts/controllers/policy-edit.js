@@ -150,6 +150,9 @@ angular.module('greyscaleApp')
                 author: _policy.author,
                 attachments: _.map(_policy.attachments, 'id')
             });
+
+            _reinitPolicySections($scope.model.policy.sections);
+
             if (_survey.questions) {
                 _survey.questions = _survey.questions.concat($scope.model.policy.sections);
             } else {
@@ -202,6 +205,18 @@ angular.module('greyscaleApp')
                     surveyId: surveyId,
                     label: 'POLICY.SECTION_' + q,
                     description: ''
+                });
+            }
+        }
+
+        function _reinitPolicySections(sections) {
+            var i,
+                qty = sections.length;
+
+            for(i=0; i<qty; i++) {
+                angular.extend(sections[i], {
+                    type: policyIdx,
+                    surveyId: surveyId
                 });
             }
         }
