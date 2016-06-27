@@ -10,7 +10,7 @@ angular.module('greyscaleApp')
                 field: '=',
                 options: '='
             },
-            template: '<div class="panel attachments" ng-show="isVisible"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
+            template: '<div class="panel attachments" ng-show="(field.attachments.length > 0 || !options.readonly)"><p translate="SURVEYS.ATTACHMENTS" class="panel-title"></p>' +
                 '<div class="panel-body"><div class="row"><attached-file attached-item="item" ' +
                 'ng-repeat="item in field.attachments track by $index" readonly="options.readonly" ' +
                 'remove-file="remove($index)"></attached-file></div><form ng-show="!uploader.progress" class="row" name="{{formName}}">' +
@@ -22,9 +22,6 @@ angular.module('greyscaleApp')
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleGlobals,
                 greyscaleUploadApi) {
 
-                $scope.field = $scope.field || {};
-                $scope.field.attachments = $scope.field.attachments || [];
-                $scope.isVisible = ($scope.field.attachments.length > 0 || !$scope.options || !$scope.options.readonly);
                 $scope.formName = 'f_' + new Date().getTime();
                 $scope.inProgress = [];
 
