@@ -1,0 +1,24 @@
+indaba-backend:
+  image: "amidatech/greyscale-backend:dev"
+  environment:
+    INDABA_PG_DB: indaba
+    AUTH_SALT: nMsDo)_1fh
+    RDS_TESTUSER: test
+  ports:
+  - "3005:3005"
+  links:
+  - "memcached"
+
+memcached:
+  image: "memcached:latest"
+  expose:
+  - "11211"
+
+indaba-frontend:
+  image: "amidatech/greyscale-client:dev"
+  links:
+  - "indaba-backend"
+  environment:
+    INDABA_URL: http://indaba-backend:3005
+  ports:
+  - "80:80"
