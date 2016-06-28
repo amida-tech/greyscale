@@ -3,6 +3,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     common = require('app/services/common'),
+    taskServ = require('app/services/tasks'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -51,56 +52,10 @@ module.exports = {
                 Task
                 .select(
                     Task.star(),
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN ' +
-                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                    'THEN \'completed\' ' +
-                    'WHEN (' +
-                    '"' + curStepAlias + '"."position" IS NULL ' +
-                    'AND ("WorkflowSteps"."position" = 0) ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'OR (' +
-                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'THEN \'current\' ' +
-                    'ELSE \'waiting\'' +
-                    'END as status '
+                    taskServ.taskStatus.flaggedColumn(),
+                    taskServ.taskStatus.flaggedCountColumn(),
+                    taskServ.taskStatus.flaggedFromColumn(),
+                    taskServ.taskStatus.statusColumn(curStepAlias)
                 )
                 .from(
                     Task
