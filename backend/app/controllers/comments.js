@@ -139,7 +139,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
 };
 
 var getUsersAndGroups = function* (req, taskId) {
-    var userTo, groupTo;
+    var userTo, groupTo, usersFromGroup;
     var users = [];
     var groups = [];
     var chkUsers = [];
@@ -167,6 +167,19 @@ var getUsersAndGroups = function* (req, taskId) {
                 groupId: groupTo.id,
                 title: groupTo.title
             });
+            usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
+            for (var j in usersFromGroup) {
+                if (chkUsers.indexOf(usersFromGroup[j].userId) === -1) {
+                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                    users.push({
+                        userId: userTo.id,
+                        firstName: userTo.firstName,
+                        lastName: userTo.lastName,
+                        email: userTo.email
+                    });
+                    chkUsers.push(usersFromGroup[j].userId);
+                }
+            }
         }
     }
 
