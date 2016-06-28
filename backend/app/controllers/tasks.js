@@ -45,40 +45,16 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
-            var curStepAlias = 'curStep';
-            var task = yield thunkQuery(
-                Task
-                .select(
-                    Task.star(),
-                    taskServ.taskStatus.flaggedColumn(),
-                    taskServ.taskStatus.flaggedCountColumn(),
-                    taskServ.taskStatus.flaggedFromColumn(),
-                    taskServ.taskStatus.statusColumn(curStepAlias)
-                )
-                .from(
-                    Task
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(Task.id.equals(req.params.id))
-            );
-            if (!_.first(task)) {
-                throw new HttpError(403, 'Not found');
+            var isPolicy = yield taskServ.isPolicy(req, req.params.id);
+            if (isPolicy) {
+                var usersIds =  yield taskServ.getUsersIds(req, req.params.id);
+                var task = yield taskServ.getTaskPolicy(req);
+                task.userStatuses = yield taskServ.getTaskUserStatuses(req, 'Comments', usersIds, req.params.id);
+                return task;
+            } else {
+                return yield taskServ.getTaskSurvey(req);
             }
-            return _.first(task);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

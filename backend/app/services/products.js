@@ -5,7 +5,7 @@ var
     co = require('co'),
     HttpError = require('app/error').HttpError;
 
-exportObject = {
+var exportObject = {
     deleteProductUOA: function (req, productId, UOAid) {
         var thunkQuery = req.thunkQuery;
         return new Promise((resolve, reject) => {
@@ -27,6 +27,6 @@ exportObject = {
             });
         });
     }
-}
+};
 
 module.exports = exportObject;
