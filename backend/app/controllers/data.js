@@ -84,7 +84,7 @@ var createTables = function (schema, req, res, next) {
             console.log('schema initialized');
             populateTables(schema, req, res, next);
         } else {
-            console.log('error on schema initialization: '+schema);
+            console.log('error on schema initialization: ' + schema);
             console.log(JSON.stringify(err));
         }
     });
@@ -114,7 +114,7 @@ var populateTables = function (schema, req, res, next) {
             } else
                 console.log('user creation skipped');
         } else {
-            console.log('error on schema data population for schema: '+schema);
+            console.log('error on schema data population for schema: ' + schema);
             console.log(JSON.stringify(err));
         }
     });

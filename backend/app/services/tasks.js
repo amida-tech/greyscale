@@ -4,7 +4,7 @@ var
     co = require('co'),
     HttpError = require('app/error').HttpError;
 
-var exportObject =  {
+var exportObject = {
     getByProductUOA: function (req, productId, uoaId) {
         var thunkQuery = req.thunkQuery;
         return new Promise((resolve, reject) => {
@@ -25,4 +25,3 @@ var exportObject =  {
 };
 
 module.exports = exportObject;
-

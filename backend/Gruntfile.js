@@ -143,61 +143,6 @@ module.exports = function (grunt) {
             }
         },
 
-        copy: {
-            dev: {
-                src: 'dev-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            stage: {
-                src: 'staging-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            prod: {
-                src: 'prod-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-        },
-
-        // Compress the EBS Dockerrun file
-        compress: {
-            main: {
-                options: {
-                    archive: 'latest-backend.zip'
-                },
-                src: 'Dockerrun.aws.json'
-            }
-        },
-
-        // Tasks for Elastic Beanstalk deployment
-        awsebtdeploy: {
-            options: {
-                region: 'us-west-2',
-                applicationName: 'indaba',
-                sourceBundle: 'latest-backend.zip',
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                versionLabel: 'backend-' + Date.now(),
-                s3: {
-                    bucket: 'amida-indaba'
-                }
-            },
-            dev: {
-                options: {
-                    environmentName: 'indaba-backend-memcached-dev',
-                }
-            },
-            stage: {
-                options: {
-                    environmentName: 'indaba-backend-memcached-stage',
-                }
-            },
-            prod: {
-                options: {
-                    environmentName: 'indaba-backend-prod',
-                }
-            }
-        }
-
     });
 
     // Postgres helper tasks for testing
@@ -262,29 +207,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildDockerMac', [
         'dock:osx:build'
-    ]);
-
-    /*
-     * Used for deploying the dev version of Indaba
-     * to Elastic Beanstalk via Jenkins
-     * - Copy the dev-Dockerrun file to Dockerrun.aws.json
-     * - Zip the Dockerrun
-     * - Run the EBS deploy grunt task
-     */
-    grunt.registerTask('ebsDev', [
-        'copy:dev',
-        'compress',
-        'awsebtdeploy:dev'
-    ]);
-    grunt.registerTask('ebsStage', [
-        'copy:stage',
-        'compress',
-        'awsebtdeploy:stage'
-    ]);
-    grunt.registerTask('ebsProd', [
-        'copy:prod',
-        'compress',
-        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('test', [
