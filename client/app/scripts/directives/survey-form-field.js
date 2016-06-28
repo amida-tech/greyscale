@@ -21,7 +21,14 @@ angular.module('greyscaleApp')
 
                 if (scope.field) {
                     var body = '',
-                        label = '';
+                        label = '',
+                        commonPart = '',
+                        translation = '',
+                        attach = '',
+                        borders,
+                        links = '',
+                        message = '',
+                        flags = scope.field.flags;
 
                     if (scope.field.sub) {
                         scope.sectionOpen = false;
@@ -34,10 +41,13 @@ angular.module('greyscaleApp')
                             '<p class="subtext section-description">{{field.description}}</p><div class="form-group" ' +
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
+                        flags = scope.field.flags;
+                        flags.readonly = !flags.allowEdit && !flags.writeToAnswers;
+
                         label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
 
-                        if (!scope.field.flags.blindReview && !scope.field.flags.provideResponses) {
+                        if (!flags.blindReview && !flags.provideResponses && !flags.isPolicy) {
                             label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                         }
 
@@ -47,16 +57,10 @@ angular.module('greyscaleApp')
                                 '</div>';
                         }
 
-                        scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
+                        commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
-
-                        var borders = getBorders(scope.field);
-                        var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
-                        var links = '';
-                        var attach = '';
-                        var flags = scope.field.flags;
-                        var translation = '';
+                        borders = getBorders(scope.field);
+                        message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
 
                         if (flags.allowTranslate) {
                             translation = ' translation';
@@ -219,7 +223,7 @@ angular.module('greyscaleApp')
                                 '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
                                 '{{resp.comments}}</span></div></div></div>';
                         }
-
+                        
                         if (flags.provideResponses || scope.field.hasComments) {
                             body = '<div class="field-wrapped">' + (flags.provideResponses ? '<div class="wrapper"></div>' : '') + body + '</div>';
                             body += '<div class="field-comment">';

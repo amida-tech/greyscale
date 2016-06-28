@@ -13,8 +13,9 @@ angular.module('greyscaleApp')
         var surveyParams = {};
         var currentUserId, currentStepId;
         var provideResponses = false;
-        var surveyAnswers = [];
-        var flags = {};
+        var surveyAnswers = [],
+            coAnswers = {},
+            flags = {};
 
         return {
             restrict: 'E',
@@ -347,6 +348,7 @@ angular.module('greyscaleApp')
             currentStepId = task.stepId;
             provideResponses = flags.provideResponses;
 
+            flags.isPolicy = !!scope.surveyData.policy;
             isReadonly = isReadonlyFlags(flags);
 
             scope.model.formReadonly = isReadonly;
@@ -542,6 +544,7 @@ angular.module('greyscaleApp')
                     recentAnswers = {};
                     responses = {};
                     surveyAnswers = {};
+                    coAnswers = {};
 
                     for (v = 0; v < qty; v++) {
                         qId = fldNamePrefix + _answers[v].questionId;
@@ -551,6 +554,7 @@ angular.module('greyscaleApp')
                         if (!surveyAnswers[qId]) {
                             surveyAnswers[qId] = [];
                         }
+
                         if (!responses[qId]) {
                             responses[qId] = [];
                         }
@@ -559,6 +563,9 @@ angular.module('greyscaleApp')
                             responses[qId].push(_answers[v]);
                         } else if (_answers[v].version) {
                             surveyAnswers[qId].push(_answers[v]);
+                            if (scope.surveyData.collaborators.indexOf(_answers[v].userId) >-1) {
+                                coAnswers[qId].push(_answers[v]);
+                            }
                         }
 
                         answer = recentAnswers[qId];
@@ -610,9 +617,14 @@ angular.module('greyscaleApp')
                 if (surveyAnswers[fld.cid]) {
                     fld.prevAnswers = surveyAnswers[fld.cid];
                     if (fld.type === 'bullet_points') {
-                        for (var i = 0; i < fld.prevAnswers.length; i++) {
-                            fld.prevAnswers[i].value = JSON.parse(fld.prevAnswers[i].value);
-                        }
+                        _bulletsDeserialize(fld.prevAnswers);
+                    }
+                }
+
+                if (coAnswers[fld.cid]) {
+                    fld.coAnswers = coAnswers[fld.cid];
+                    if (fld.type === 'bullet_points') {
+                        _bulletsDeserialize(fld.coAnswers);
                     }
                 }
 
@@ -626,7 +638,6 @@ angular.module('greyscaleApp')
                         for (o = 0; o < oQty; o++) {
                             fld.attachments[o].ver = 'v1';
                         }
-                        //loadAttachments(fld);
                     }
 
                     if (fld.hasComments) {
@@ -725,6 +736,15 @@ angular.module('greyscaleApp')
                 }
             }
 
+        }
+
+        function _bulletsDeserialize(bullets) {
+            var i,
+                qty = bullets.length;
+
+            for (i=0; i<qty; i++) {
+                bullets[i].value = JSON.parse(bullets[i].value);
+            }
         }
 
         function saveAnswers(scope, isAuto) {
