@@ -7,12 +7,12 @@ angular.module('greyscale.rest')
             GreyscaleRestBase.apply(this, arguments);
         };
 
-        GroupApi.prototype = new GreyscaleRestBase;
+        GroupApi.prototype = new GreyscaleRestBase();
         GroupApi.prototype.list = _list;
         GroupApi.prototype.add = _add;
         GroupApi.prototype.update = _update;
         GroupApi.prototype.delete = _delete;
-        
+
         function _userGroupAPI() {
             return GroupApi.prototype._api().one('groups');
         }
