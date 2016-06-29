@@ -1,0 +1,28 @@
+{
+  "config": {
+    "target": "http://127.0.0.1:3005",
+    "phases": [
+      {
+        "duration": 60,
+        "arrivalRate": 10
+      }
+    ],
+    "defaults": {
+      "headers": {
+        "content-type": "application/json",
+        "token": "token"
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "get": "/public/v0.2/users/self/tasks"
+    },
+    {
+      "post": "/public/v0.2/survey_answers",
+      "json": {
+        "value": 1
+      }
+    }
+  ]
+}
