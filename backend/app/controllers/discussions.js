@@ -218,7 +218,7 @@ module.exports = {
                 action: 'Comment added',
                 userFromName: userFromName,
                 from: from
-            }, result[0].id, taskTo.id, 'Comment added', 'Discussions');
+            }, result[0].id, taskTo.id, 'Comment added', 'discussion');
 
             bologger.log({
                 req: req,
@@ -275,7 +275,7 @@ module.exports = {
                 action: 'Comment updated',
                 userFromName: userFromName,
                 from: from
-            }, result[0].id, stepTo.taskid, 'Comment updated', 'Discussions');
+            }, result[0].id, stepTo.taskid, 'Comment updated', 'discussion');
 
             bologger.log({
                 req: req,
