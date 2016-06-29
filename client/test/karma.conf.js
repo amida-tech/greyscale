@@ -58,7 +58,6 @@ module.exports = function(config) {
       'bower_components/plotly.js/plotly.js',
       'bower_components/restangular/dist/restangular.js',
       'bower_components/socket.io-client/socket.io.js',
-      'bower_components/angular-messages/angular-messages.js',
       'bower_components/rangy/rangy-core.js',
       'bower_components/rangy/rangy-classapplier.js',
       'bower_components/rangy/rangy-highlighter.js',
