@@ -370,7 +370,8 @@
         "COUNT_STARTED": "",
         "COUNT_UOAS": "",
         "DEADLINE": "",
-        "DOWNLOAD_DATA": "Загрузить данные"
+        "DOWNLOAD_DATA": "Загрузить данные",
+        "INFO_TITLE": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "Нет проектов",

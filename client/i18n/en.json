@@ -370,7 +370,8 @@
         "COUNT_STARTED": "Started",
         "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
-        "DOWNLOAD_DATA": "Download Data"
+        "DOWNLOAD_DATA": "Download Data",
+        "INFO_TITLE": "Project Details"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",

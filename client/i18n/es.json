@@ -370,7 +370,8 @@
         "COUNT_STARTED": "",
         "COUNT_UOAS": "",
         "DEADLINE": "",
-        "DOWNLOAD_DATA": ""
+        "DOWNLOAD_DATA": "",
+        "INFO_TITLE": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "",

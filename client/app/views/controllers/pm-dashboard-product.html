@@ -1,52 +1,102 @@
 <div translate-namespace="PM_PRODUCT_DASHBOARD">
 
-<div class="row">
-    <div class="col-md-10">
+    <div class="row">
+        <div class="col-md-10">
 
-        <table class="indicators-table">
-            <tr class="indicator-header">
-                <td>
-                    <span translate=".COUNT_UOAS"></span><br>
-                </td>
-                <td>
-                    <span translate=".COUNT_ONTRACK"></span> / <span translate=".COUNT_LATE"></span>
-                </td>
-                <td>
-                    <span translate=".COUNT_FLAGGED">flagged</span>
-                </td>
-                <td>
-                    <span translate=".COUNT_COMPLETE">complete</span>
-                </td>
-            </tr>
+            <table class="indicators-table">
+                <tr class="indicator-header">
+                    <td>
+                        <span translate=".COUNT_UOAS"></span><br>
+                    </td>
+                    <td>
+                        <span translate=".COUNT_ONTRACK"></span> / <span translate=".COUNT_LATE"></span>
+                    </td>
+                    <td>
+                        <span translate=".COUNT_FLAGGED">flagged</span>
+                    </td>
+                    <td>
+                        <span translate=".COUNT_COMPLETE">complete</span>
+                    </td>
+                </tr>
 
-            <tr class="indicator-values">
-                <td>
-                    &nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;
-                </td>
-                <td>
-                    &nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;
-                </td>
-                <td>
-                    &nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;
-                </td>
-                <td>
-                    &nbsp;<strong>{{model.count.complete}}</strong>&nbsp;
-                </td>
-            </tr>
+                <tr class="indicator-values">
+                    <td>
+                        &nbsp;<strong>{{model.count.uoas}}</strong>&nbsp;
+                    </td>
+                    <td>
+                        &nbsp;<strong>{{model.count.onTime}} / {{model.count.late}}</strong>&nbsp;
+                    </td>
+                    <td>
+                        &nbsp;<strong>{{model.count.flagged}}</strong>&nbsp;
+                    </td>
+                    <td>
+                        &nbsp;<strong>{{model.count.complete}}</strong>&nbsp;
+                    </td>
+                </tr>
 
-        </table>
+            </table>
 
+        </div>
+        <div class="col-md-2 text-right">
+            <a ng-href="{{model.downloadHref}}"
+               ng-click="download($event)"
+               target="_self"
+               download="export.csv"
+               class="btn btn-primary"><i class="fa fa-download"></i><span translate=".DOWNLOAD_DATA"></span></a>
+        </div>
     </div>
-    <div class="col-md-2 text-right">
-        <a ng-href="{{model.downloadHref}}"
-           ng-click="download($event)"
-           target="_self"
-           download="export.csv"
-           class="btn btn-primary"><i class="fa fa-download"></i> <span translate=".DOWNLOAD_DATA"></span></a>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="widget">
+                <div class="widget-header">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <i class="fa fa-info-circle" ng-class="icon"></i>
+                            <span  translate=".INFO_TITLE"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-table" translate-namespace="PRODUCTS.TABLE">
+                    <table class="table table-responsive panel">
+                        <tr>
+                            <th class="header" translate=".DESCRIPTION"></th>
+                            <th class="header" translate=".SURVEY"></th>
+                            <th class="header" translate=".WORKFLOW"></th>
+                            <th class="header" translate=".SETTINGS"></th>
+                        </tr>
+                        <tr>
+                            <td>{{model.product.description}}</td>
+                            <td>
+                                <a ng-if="model.product.surveyId"
+                                   ui-sref="projects.setup.surveys.edit({projectId: model.product.projectId, surveyId: model.product.surveyId})">
+                                    {{model.survey.title}}
+                                    <small>
+                                        (<span ng-show="model.survey.isDraft" translate="SURVEYS.IS_DRAFT">
+                                        </span><span ng-show="!model.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)
+                                    </small>
+                                </a>
+                            </td>
+                            <td>
+                                <a ng-click="editProductWorkflow();">
+                                    {{model.product.workflow.name}}
+                                    <span ng-if="!model.product.workflow.id" class="action" translate=".CREATE_WORKFLOW"></span>
+                                </a>
+                            </td>
+                            <td>
+                                <a  class="action action-info" ng-click="editProductTasks();" translate=".TASKS"></a>
+
+                                <a class="action action-" title="{{'COMMON.EDIT' | translate}}" ng-click="editProduct();"><i class="fa fa-pencil"></i></a>
+                                <a class="action action-" title="{{'COMMON.DELETE' | translate}}" ng-click="removeProduct();"><i class="fa fa-trash"></i></a>
+                                <a class="action action-" title="{{'PM_PRODUCT_DASHBOARD.DOWNLOAD_DATA' | translate}}" ng-href="{{model.downloadHref}}"
+                                   ng-click="download($event);" target="_self" download="export.csv"><i class="fa fa-download"></i></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
-
-<widget-table model="model.tasksTable"></widget-table>
-
+    <widget-table model="model.tasksTable"></widget-table>
 </div>
