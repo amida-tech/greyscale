@@ -16,13 +16,24 @@
   },
   "scenarios": [
     {
-      "get": "/public/v0.2/users/self/tasks"
-    },
-    {
-      "post": "/public/v0.2/survey_answers",
-      "json": {
-        "value": 1
-      }
+      "flow": [
+        {
+          "get": {
+            "url": "/public/v0.2/users/self/tasks"
+          }
+        },
+        {
+          "think": 1
+        },
+        {
+          "post": {
+            "url": "/public/v0.2/survey_answers",
+            "json": {
+              "value": 1
+            }
+          }
+        }
+      ]
     }
   ]
 }
