@@ -3,7 +3,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 var config = require('config'),
-    bodyParser = require('body-parser'),
     multer = require('multer'),
     passport = require('passport'),
     util = require('util'),
@@ -13,7 +12,6 @@ var config = require('config'),
     Query = require('app/util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    _ = require('underscore'),
     thunkQuery = thunkify(query),
     mc = require('app/mc_helper'),
     co = require('co');
@@ -23,9 +21,6 @@ var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
 var app = require('express')();
-
-// Init mongoose connection and set event listeners
-//require('app/db_bootstrap')(app);
 
 app.on('start', function () {
 
