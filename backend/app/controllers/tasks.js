@@ -50,7 +50,14 @@ module.exports = {
             if (isPolicy) {
                 var usersIds =  yield taskServ.getUsersIds(req, req.params.id);
                 var task = yield taskServ.getTaskPolicy(req);
-                task.userStatuses = yield taskServ.getTaskUserStatuses(req, 'Comments', usersIds, req.params.id);
+                task.userStatuses = yield taskServ.getTaskUsersStatuses(req, 'Comments', usersIds, req.params.id);
+                task.userStatuses = taskServ.getNamedStatuses(task.userStatuses, 'status');
+                var userStatus = _.find(task.userStatuses, function(item){
+                    return (item.userId === req.user.id);
+                });
+                if (userStatus) {
+                    task.userStatus = userStatus.status;
+                }
                 return task;
             } else {
                 return yield taskServ.getTaskSurvey(req);
