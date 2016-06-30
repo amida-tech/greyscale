@@ -13,7 +13,7 @@ var
     HttpError = require('app/error').HttpError,
     pgEscape = require('pg-escape');
 
-var exportObject =  {
+var exportObject = {
     getByProductUOA: function (req, productId, uoaId) {
         var thunkQuery = req.thunkQuery;
         return new Promise((resolve, reject) => {
@@ -586,4 +586,3 @@ var exportObject =  {
     }
 };
 module.exports = exportObject;
-
