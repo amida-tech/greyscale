@@ -3,7 +3,7 @@ var
     auth = require('app/auth'),
     config = require('config'),
     common = require('app/services/common'),
-    taskServ = require('app/services/tasks'),
+    sTask = require('app/services/tasks'),
     BoLogger = require('app/bologger'),
     Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
@@ -351,8 +351,9 @@ module.exports = {
     getUsers: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oTask = new sTask(req);
             var taskId = yield * checkOneId(req, req.params.taskId, Task, 'id', 'taskId', 'Task');
-            var usersAndGroups =  yield taskServ.getUsersAndGroups(req, taskId);
+            var usersAndGroups =  yield oTask.getUsersAndGroups(taskId);
             return {
                 users: usersAndGroups.users,
                 groups: usersAndGroups.groups,

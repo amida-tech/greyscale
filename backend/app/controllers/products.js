@@ -2,7 +2,7 @@ var
     _ = require('underscore'),
     config = require('config'),
     common = require('app/services/common'),
-    taskServ = require('app/services/tasks'),
+    sTask = require('app/services/tasks'),
     productServ = require('app/services/products'),
     notifications = require('app/controllers/notifications'),
     crypto = require('crypto'),
@@ -250,7 +250,8 @@ module.exports = {
 
     tasks: function (req, res, next) {
         co(function* () {
-            return yield taskServ.getProductTasks(req);
+            var oTask = new sTask(req);
+            return yield oTask.getProductTasks();
         }).then(function (data) {
             res.json(data);
         }, function (err) {

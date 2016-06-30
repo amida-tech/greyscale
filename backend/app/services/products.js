@@ -1,7 +1,7 @@
 var
     _ = require('underscore'),
     ProductUOA = require('app/models/product_uoa'),
-    taskServ = require('app/services/tasks'),
+    sTask = require('app/services/tasks'),
     co = require('co'),
     HttpError = require('app/error').HttpError;
 
@@ -10,7 +10,8 @@ var exportObject = {
         var thunkQuery = req.thunkQuery;
         return new Promise((resolve, reject) => {
             co(function* () {
-                var tasks = yield taskServ.getByProductUOA(req, productId, UOAid);
+                var oTask = new sTask(req);
+                var tasks = yield oTask.getByProductUOA(productId, UOAid);
                 if (tasks.length) {
                     throw new HttpError(403, 'You cannot delete this target, because there are already some tasks in it');
                 }

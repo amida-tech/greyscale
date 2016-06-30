@@ -3,7 +3,7 @@ var client = require('app/db_bootstrap'),
     crypto = require('crypto'),
     config = require('config'),
     common = require('app/services/common'),
-    taskServ = require('app/services/tasks'),
+    sTask = require('app/services/tasks'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     User = require('app/models/users'),
@@ -1093,7 +1093,8 @@ module.exports = {
 
     tasks: function (req, res, next) {
         co(function* () {
-            return yield taskServ.getSelfTasks(req);
+            var oTask = new sTask(req);
+            return yield oTask.getSelfTasks();
         }).then(function (data) {
             res.json(data);
         }, function (err) {

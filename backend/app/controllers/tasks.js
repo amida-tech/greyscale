@@ -3,7 +3,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     common = require('app/services/common'),
-    taskServ = require('app/services/tasks'),
+    sTask = require('app/services/tasks'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -46,12 +46,13 @@ module.exports = {
 
     selectOne: function (req, res, next) {
         co(function* () {
-            var isPolicy = yield taskServ.isPolicy(req, req.params.id);
+            var oTask = new sTask(req);
+            var isPolicy = yield oTask.isPolicy(req.params.id);
             if (isPolicy) {
-                var usersIds =  yield taskServ.getUsersIds(req, req.params.id);
-                var task = yield taskServ.getTaskPolicy(req);
-                task.userStatuses = yield taskServ.getTaskUsersStatuses(req, 'Comments', usersIds, req.params.id);
-                task.userStatuses = taskServ.getNamedStatuses(task.userStatuses, 'status');
+                var usersIds =  yield oTask.getUsersIds(req.params.id);
+                var task = yield oTask.getTaskPolicy();
+                task.userStatuses = yield oTask.getTaskUsersStatuses('Comments', usersIds, req.params.id);
+                task.userStatuses = oTask.getNamedStatuses(task.userStatuses, 'status');
                 var userStatus = _.find(task.userStatuses, function(item){
                     return (item.userId === req.user.id);
                 });
@@ -60,7 +61,7 @@ module.exports = {
                 }
                 return task;
             } else {
-                return yield taskServ.getTaskSurvey(req);
+                return yield oTask.getTaskSurvey();
             }
         }).then(function (data) {
             res.json(data);
