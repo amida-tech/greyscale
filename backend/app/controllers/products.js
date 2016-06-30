@@ -44,6 +44,42 @@ var
 var debug = require('debug')('debug_products');
 debug.log = console.log.bind(console);
 
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
+    co(function* () {
+        var userTo, note;
+        // notify
+        var sentUsersId = []; // array for excluding duplicate sending
+        var task = yield * common.getTask(req, taskId);
+        for (var i in task.userIds) {
+            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
+                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                    userTo = yield * common.getUser(req, task.userIds[i]);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(task.userIds[i]);
+                }
+            }
+        }
+        for (i in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
+            for (var j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        notifications.notify(req, userTo, note, templateName);
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+        }
+    }).then(function (result) {
+        debug('Created notifications `' + note0.action + '`');
+    }, function (err) {
+        error(JSON.stringify(err));
+    });
+};
+
 var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
