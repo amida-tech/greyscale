@@ -270,13 +270,12 @@ module.exports = {
 
             var filename = encodeURIComponent(req.body.name);
 
-
             var params = {
                 Bucket: config.awsBucket,
                 Key: key,
                 Expires: 3600000,
                 ContentType: req.body.type,
-                ContentDisposition: "attachment; filename*=UTF-8''" + filename
+                ContentDisposition: 'attachment; filename*=UTF-8\'\'' + filename
             };
 
             console.log(params);
