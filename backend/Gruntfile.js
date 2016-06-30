@@ -251,9 +251,9 @@ module.exports = function (grunt) {
     grunt.registerTask('bckpDb', function () {
         var done = this.async();
         var cpg = require('./config').pgConnect;
-        var dbToCopy = 'indaba_clean'; // cpg.database;
+        var dbToCopy = 'indaba_hb'; // cpg.database;
         var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + dbToCopy;
-        var filename = sql; // test/testdb.sql
+        var filename = 'test/indaba-hcsc-dump-2706.sql';
         console.log(connectStringPg);
         exec('pg_dump ' + connectStringPg + ' > ' + filename, function (err) {
             if (err !== null) {
