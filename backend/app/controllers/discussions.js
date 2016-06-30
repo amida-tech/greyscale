@@ -53,20 +53,24 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         var task = yield * common.getTask(req, taskId);
         for (var i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
-                userTo = yield * common.getUser(req, task.userIds[i]);
-                note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                notifications.notify(req, userTo, note, templateName);
-                sentUsersId.push(task.userIds[i]);
+                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                    userTo = yield * common.getUser(req, task.userIds[i]);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(task.userIds[i]);
+                }
             }
         }
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
                 if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                    notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j].userId);
+                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        notifications.notify(req, userTo, note, templateName);
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
                 }
             }
         }
@@ -189,36 +193,38 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
-            // prepare for notify
-            var userFrom = yield * common.getUser(req, req.user.id);
-            // static blindReview
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {
-                firstName: userFrom.firstName,
-                lastName: userFrom.lastName
-            };
-            if (stepTo.blindReview) {
-                userFromName = stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
+            if (!isReturn && !isResolve) { // notify only ordinary entries
+                // prepare for notify
+                var userFrom = yield * common.getUser(req, req.user.id);
+                // static blindReview
+                var productId = task.productId;
+                var uoaId = task.uoaId;
+                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+                var from = {
+                    firstName: userFrom.firstName,
+                    lastName: userFrom.lastName
                 };
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: 'Anonymous -' + stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
-                };
-            }
+                if (stepTo.blindReview) {
+                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                } else if (userFrom.isAnonymous) {
+                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: 'Anonymous -' + stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                }
 
-            notify(req, {
-                body: req.body.entry,
-                action: 'Comment added',
-                userFromName: userFromName,
-                from: from
-            }, result[0].id, taskTo.id, 'Comment added', 'discussion');
+                notify(req, {
+                    body: req.body.entry,
+                    action: 'Comment added',
+                    userFromName: userFromName,
+                    from: from
+                }, result[0].id, taskTo.id, 'Discussions', 'discussion');
+            }
 
             bologger.log({
                 req: req,
@@ -248,35 +254,36 @@ module.exports = {
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
-            var userFrom = yield * common.getUser(req, req.user.id);
-            // static blindReview
-            var task = yield * common.getTask(req, entry.taskId);
-            var stepTo = yield * common.getEntity(req, entry.stepId, WorkflowStep, 'id');
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {
-                firstName: userFrom.firstName,
-                lastName: userFrom.lastName
-            };
-            if (stepTo.blindReview) {
-                userFromName = stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
+            if (!entry.isReturn && !entry.isResolve) { // // notify only ordinary entries
+                var userFrom = yield * common.getUser(req, req.user.id);
+                // static blindReview
+                var task = yield * common.getTask(req, entry.taskId);
+                var stepTo = yield * common.getEntity(req, entry.stepId, WorkflowStep, 'id');
+                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+                var from = {
+                    firstName: userFrom.firstName,
+                    lastName: userFrom.lastName
                 };
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: 'Anonymous -' + stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
-                };
+                if (stepTo.blindReview) {
+                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                } else if (userFrom.isAnonymous) {
+                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: 'Anonymous -' + stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                }
+                notify(req, {
+                    body: req.body.entry,
+                    action: 'Comment updated',
+                    userFromName: userFromName,
+                    from: from
+                }, result[0].id, stepTo.taskid, 'Discussions', 'discussion');
             }
-            notify(req, {
-                body: req.body.entry,
-                action: 'Comment updated',
-                userFromName: userFromName,
-                from: from
-            }, result[0].id, stepTo.taskid, 'Comment updated', 'discussion');
-
             bologger.log({
                 req: req,
                 user: req.user,
