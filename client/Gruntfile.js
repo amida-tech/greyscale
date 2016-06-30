@@ -741,45 +741,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Compress the EBS Dockerrun file
-        compress: {
-            main: {
-                options: {
-                    archive: 'latest-client.zip'
-                },
-                src: 'Dockerrun.aws.json'
-            }
-        },
-
-        // Tasks for Elastic Beanstalk deployment
-        awsebtdeploy: {
-            options: {
-                region: 'us-west-2',
-                applicationName: 'Indaba',
-                sourceBundle: 'latest-client.zip',
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                versionLabel: 'client-' + Date.now(),
-                s3: {
-                    bucket: 'indaba-attachment-test'
-                }
-            },
-            dev: {
-                options: {
-                    environmentName: 'indaba-dev',
-                }
-            },
-            stage: {
-                options: {
-                    environmentName: 'indaba-stage',
-                }
-            },
-            prod: {
-                options: {
-                    environmentName: 'indaba-prod',
-                }
-            }
-        }
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
@@ -862,22 +823,6 @@ module.exports = function (grunt) {
         'ngconstant:env',
         'vanillaConfig:env',
         'build'
-    ]);
-
-    grunt.registerTask('ebsDev', [
-        'copy:dev',
-        'compress',
-        'awsebtdeploy:dev'
-    ]);
-    grunt.registerTask('ebsStage', [
-        'copy:stage',
-        'compress',
-        'awsebtdeploy:stage'
-    ]);
-    grunt.registerTask('ebsProd', [
-        'copy:prod',
-        'compress',
-        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('brushIt', [
