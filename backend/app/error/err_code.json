@@ -1,9 +1,9 @@
 {
   "101": "Invalid e-mail",
-  "102": "Password should be more then 6 symbols",
-  "103": "Account with this e-mail already exist",
+  "102": "Password should be more than 6 symbols",
+  "103": "Account with this e-mail already exists",
   "104": "Unsupported account type",
   "105": "Invalid password",
   "106": "Role allready has this right",
-  "107": "Entity with this label has allready exists"
+  "107": "Entity with this label already exists"
 }

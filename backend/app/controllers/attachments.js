@@ -161,17 +161,16 @@ module.exports = {
             if (!req.body.type || !req.body.size || !req.body.name) {
                 throw new HttpError(400, 'You should provide file name, size and type');
             }
-
             var key = req.params.realm + '/' + crypto.randomBytes(16).toString('hex');
             var url = oAttachment.getAWSUploadLink(key, req.body.type, req.body.name);
+
             var attempt = {
                 key: key,
                 filename: req.body.name,
                 mimetype: req.body.type,
                 size: req.body.size
             };
-            var newAttempt = yield oAttachment.addAttempt(attempt);
-            console.log(newAttempt);
+            yield oAttachment.addAttempt(attempt);
             return {
                 url: url,
                 key: key
