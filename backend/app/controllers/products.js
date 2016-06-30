@@ -745,7 +745,7 @@ module.exports = {
                             if (answer.optionNumbering === 'lower-latin') {
                                 return String.fromCharCode(97 + optionIndex); // 97 -> 'a';
                             } else if (answer.optionNumbering === 'upper-latin') {
-                                return String.fromCharCode(65 + optionIndex); // 97 -> 'A';
+                                return String.fromCharCode(65 + optionIndex); // 65 -> 'A';
                             } else { // decimal
                                 return optionIndex + 1; // 1-index
                             }
