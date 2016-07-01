@@ -136,9 +136,6 @@ router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
 router.route('/:realm/v0.2/uploads/:id/ticket')
     .get(authenticate('token').always, attachments.getTicket);
 
-router.route('/:realm/v0.2/uploads/get/:ticket')
-    .get(attachments.getAttachment);
-
 router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
     .delete(authenticate('token').always, attachments.delete);
 

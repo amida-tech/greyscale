@@ -186,6 +186,7 @@ angular.module('greyscale.core')
             }],
             adminSchema: 'public',
             tokenTTLsec: 300,
+            autosaveSec: 15,
             setRolesId: _setRolesId,
             widgetTableDefaults: {
                 pageLength: 0

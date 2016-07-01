@@ -137,6 +137,7 @@ angular.module('greyscaleApp')
                     if (message.questionId === question.id && message.isResolve && !message.isReturn && !message.activated) {
                         question.flagResolve = question.flagResolve || {};
                         question.flagResolve.draft = message;
+                        question.flagResolve.lastEntry = message.entry;
                     }
                 });
             });
