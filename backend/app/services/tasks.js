@@ -79,8 +79,23 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             var isPolicy = yield self.isPolicyProduct(req.params.id);
             if (isPolicy) {
-                //var usersIds =  yield self.getUsersIds(req.params.id);
+                var taskUsersIds =  yield self.getTaskUsersIdsByProduct(req.params.id);
                 var tasks = yield self.getProductTasksExt('Comments');
+                var tasksUsersStatuses = yield self.getTaskUsersStatuses('Comments', taskUsersIds.userIds);
+                tasks = _.each(tasks, function (task) {
+                    var usersStatus = [];
+                    _.each(tasksUsersStatuses, function(userStatus){
+                        if (userStatus.taskId === task.id) {
+                            if (_.find(taskUsersIds.taskUserIds, function(item){
+                                    return (item.taskId === userStatus.taskId && item.userId === userStatus.userId);
+                                })) {
+                                usersStatus.push(_.omit(userStatus, 'taskId'));
+                            }
+                        }
+                    });
+                    usersStatus = self.getNamedStatuses(usersStatus, 'status');
+                    task.userStatuses = usersStatus;
+                });
                 return tasks;
             } else {
                 return yield self.getProductTasksExt('Discussions');
@@ -267,7 +282,10 @@ var exportObject = function  (req, realm) {
         var self = this;
         return co(function* () {
             var userArraysAlias = 'userArrays';
+            var whereClause = taskId ? pgEscape('WHERE ("Tasks"."id" = %s) ', taskId) : '';
+            var taskColumn = taskId ? '' : '"Tasks"."id" as "taskId", ';
             return yield thunkQuery('SELECT ' +
+                taskColumn +
                 pgEscape('"%s"."userId", ', userArraysAlias) +
                 self.taskUserStatus.flaggedColumn(commentDiscussion, userArraysAlias) + ', ' +
                 self.taskUserStatus.approvedColumn('SurveyAnswers', userArraysAlias) + ', ' +
@@ -275,7 +293,7 @@ var exportObject = function  (req, realm) {
                 self.taskUserStatus.draftColumn('SurveyAnswers', userArraysAlias) +
                 'FROM "Tasks", ' +
                 pgEscape('(SELECT unnest(\'{%s}\'::int[]) as "userId") as "%s" ', users, userArraysAlias) +
-                pgEscape('WHERE ("Tasks"."id" = %s) ', taskId)
+                whereClause
             );
         });
     };
@@ -299,6 +317,214 @@ var exportObject = function  (req, realm) {
                 'AND ("Surveys"."policyId" IS NOT NULL)'
             );
         });
+    };
+    this.getNamedStatuses = function (detailStatuses, status) {
+        return _.each(detailStatuses, function(item, i, arr){
+            item = this.getNamedItemStatus(item, status);
+        }, this);
+    };
+    this.getNamedItemStatus = function (item, status) {
+        if (item.flagged) {
+            item[status] = 'flagged';
+        } else if (item.approved) {
+            item[status] = 'approved';
+        } else if (item.late) {
+            item[status] = 'late';
+        } else if (item.draft) {
+            item[status] = 'started';
+        } else {
+            item[status] = 'pending';
+        }
+        delete item.flagged;
+        delete item.approved;
+        delete item.late;
+        delete item.draft;
+        return item;
+    };
+    this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
+        tasks = _.each(tasks, function(item, i, arr){
+            for (var i in statuses) {
+                if (statuses.indexOf(item.id) === -1) {
+                    statuses[i] = this.getNamedItemStatus(statuses[i], statusName);
+                    item[statusName] = statuses[i][statusName];
+                }
+            }
+        }, this);
+        return tasks;
+    };
+    this.getUsersAndGroups = function (taskId) {
+        return co(function* () {
+            var userTo, groupTo, usersFromGroup;
+            var users = [];
+            var groups = [];
+            var chkUsers = [];
+            var chkGroups = [];
+            var task = yield * common.getTask(req, taskId);
+            var taskUsers = task.userIds;
+            for (var i in taskUsers) {
+                if (chkUsers.indexOf(taskUsers[i]) === -1) {
+                    chkUsers.push(taskUsers[i]);
+                    userTo = yield * common.getUser(req, taskUsers[i]);
+                    users.push({
+                        userId: userTo.id,
+                        firstName: userTo.firstName,
+                        lastName: userTo.lastName,
+                        email: userTo.email
+                    });
+                }
+            }
+            var taskGroups = task.groupIds;
+            for (i in taskGroups) {
+                if (chkGroups.indexOf(taskGroups[i]) === -1) {
+                    chkGroups.push(taskGroups[i]);
+                    groupTo = yield * common.getEntity(req, taskGroups[i], Group, 'id');
+                    groups.push({
+                        groupId: groupTo.id,
+                        title: groupTo.title
+                    });
+                    usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
+                    for (var j in usersFromGroup) {
+                        if (chkUsers.indexOf(usersFromGroup[j].userId) === -1) {
+                            userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                            users.push({
+                                userId: userTo.id,
+                                firstName: userTo.firstName,
+                                lastName: userTo.lastName,
+                                email: userTo.email
+                            });
+                            chkUsers.push(usersFromGroup[j].userId);
+                        }
+                    }
+                }
+            }
+
+            return {
+                users: users,
+                groups: groups
+            };
+        });
+    };
+    this.getUsersIdsByTask = function (taskId) {
+        return co(function* () {
+            var usersFromGroup;
+            var users = [];
+            var task = yield * common.getTask(req, taskId);
+            var taskUsers = task.userIds;
+            for (var i in taskUsers) {
+                if (users.indexOf(taskUsers[i]) === -1) {
+                    users.push(taskUsers[i]);
+                }
+            }
+            var taskGroups = task.groupIds;
+            for (i in taskGroups) {
+                usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
+                for (var j in usersFromGroup) {
+                    if (users.indexOf(usersFromGroup[j].userId) === -1) {
+                        users.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+            return users;
+        });
+    };
+    this.getTaskUsersIdsByProduct = function (productId) {
+        var self = this;
+        return co(function* () {
+            var userIds = [];
+            var taskUserIds = [];
+            var query = 'SELECT DISTINCT' +
+                '"Tasks"."id" as "taskId", ' +
+                '"Users"."id" as "userId" ' +
+                'FROM "Tasks" ' +
+                'INNER JOIN "UserGroups" ON ("Tasks"."groupIds" @> ARRAY["UserGroups"."groupId"]) ' +
+                'INNER JOIN "Users" ON ("UserGroups"."userId" = "Users"."id") ' +
+                'INNER JOIN "Products" ON ("Products"."id" = "Tasks"."productId") ' +
+                pgEscape('WHERE ("Products"."id" = %s) ', productId) +
+                'UNION ' +
+                'SELECT DISTINCT' +
+                '"Tasks"."id" as "taskId", ' +
+                '"Users"."id" as "userId" ' +
+                'FROM "Tasks" ' +
+                'INNER JOIN "Users" ON ("Tasks"."userIds" @> ARRAY["Users"."id"]) ' +
+                'INNER JOIN "Products" ON ("Products"."id" = "Tasks"."productId") ' +
+                pgEscape('WHERE ("Products"."id" = %s) ', productId);
+            var taskUsers = yield thunkQuery(query);
+            if (_.first(taskUsers)) {
+                _.each(taskUsers, function(item){
+                    taskUserIds.push({
+                        taskId: item.taskId,
+                        userId: item.userId
+                    });
+                    if (userIds.indexOf(item.userId) === -1) {
+                        userIds.push(item.userId);
+                    }
+                });
+            }
+            return {
+                taskUserIds: taskUserIds,
+                userIds: userIds
+            };
+        });
+    };
+    this.taskStatus = {
+        flaggedColumn : function (commentDiscussion) {
+            return 'CASE ' +
+                'WHEN ' +
+                '(' +
+                'SELECT ' +
+                pgEscape('"%s"."id" ', commentDiscussion) +
+                pgEscape('FROM "%s" ', commentDiscussion) +
+                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
+                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
+                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                'LIMIT 1' +
+                ') IS NULL ' +
+                'THEN FALSE ' +
+                'ELSE TRUE ' +
+                'END as "flagged"';
+        },
+        flaggedCountColumn : function (commentDiscussion) {
+            return '( ' +
+                pgEscape('SELECT count("%s"."id") ', commentDiscussion) +
+                pgEscape('FROM "%s" ', commentDiscussion) +
+                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
+                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
+                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ') as "flaggedCount"';
+        },
+        flaggedFromColumn : function (commentDiscussion) {
+            return '(' +
+                'SELECT ' +
+                pgEscape('"%s"."taskId" ', commentDiscussion) +
+                pgEscape('FROM "%s" ', commentDiscussion) +
+                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
+                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
+                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                'LIMIT 1' +
+                ') as "flaggedFrom"';
+        },
+        statusColumn : function (curStepAlias) {
+            return 'CASE ' +
+                'WHEN ' +
+                '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
+                'OR ("ProductUOA"."isComplete" = TRUE) ' +
+                'THEN \'completed\' ' +
+                'WHEN (' +
+                '"' + curStepAlias + '"."position" IS NULL ' +
+                'AND ("WorkflowSteps"."position" = 0) ' +
+                'AND ("Products"."status" = 1)' +
+                ')' +
+                'OR (' +
+                '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
+                'AND ("Products"."status" = 1)' +
+                ')' +
+                'THEN \'current\' ' +
+                'ELSE \'waiting\'' +
+                'END as "status" ';
+        }
     };
     this.taskUserStatus = {
         flaggedColumn : function (commentDiscussion, userArraysAlias) {
@@ -369,175 +595,6 @@ var exportObject = function  (req, realm) {
                 'ELSE TRUE ' +
                 'END as "draft" ';
         }
-    };
-    this.getNamedStatuses = function (detailStatuses, status) {
-        return _.each(detailStatuses, function(item, i, arr){
-            item = this.getNamedItemStatus(item, status);
-        }, this);
-    };
-    this.getNamedItemStatus = function (item, status) {
-        if (item.flagged) {
-            item[status] = 'flagged';
-        } else if (item.approved) {
-            item[status] = 'approved';
-        } else if (item.late) {
-            item[status] = 'late';
-        } else if (item.draft) {
-            item[status] = 'started';
-        } else {
-            item[status] = 'pending';
-        }
-        delete item.flagged;
-        delete item.approved;
-        delete item.late;
-        delete item.draft;
-        return item;
-    };
-    this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
-        tasks = _.each(tasks, function(item, i, arr){
-            for (var i in statuses) {
-                if (statuses.indexOf(item.id) === -1) {
-                    statuses[i] = this.getNamedItemStatus(statuses[i], statusName);
-                    item[statusName] = statuses[i][statusName];
-                }
-            }
-        }, this);
-        return tasks;
-    };
-    this.taskStatus = {
-        flaggedColumn : function (commentDiscussion) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."id" ', commentDiscussion) +
-                pgEscape('FROM "%s" ', commentDiscussion) +
-                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
-                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "flagged"';
-        },
-        flaggedCountColumn : function (commentDiscussion) {
-            return '( ' +
-                pgEscape('SELECT count("%s"."id") ', commentDiscussion) +
-                pgEscape('FROM "%s" ', commentDiscussion) +
-                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
-                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
-                ') as "flaggedCount"';
-        },
-        flaggedFromColumn : function (commentDiscussion) {
-            return '(' +
-                'SELECT ' +
-                pgEscape('"%s"."taskId" ', commentDiscussion) +
-                pgEscape('FROM "%s" ', commentDiscussion) +
-                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
-                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
-                'LIMIT 1' +
-                ') as "flaggedFrom"';
-        },
-        statusColumn : function (curStepAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                'THEN \'completed\' ' +
-                'WHEN (' +
-                '"' + curStepAlias + '"."position" IS NULL ' +
-                'AND ("WorkflowSteps"."position" = 0) ' +
-                'AND ("Products"."status" = 1)' +
-                ')' +
-                'OR (' +
-                '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                'AND ("Products"."status" = 1)' +
-                ')' +
-                'THEN \'current\' ' +
-                'ELSE \'waiting\'' +
-                'END as "status" ';
-        }
-    };
-    this.getUsersAndGroups = function (taskId) {
-        return co(function* () {
-            var userTo, groupTo, usersFromGroup;
-            var users = [];
-            var groups = [];
-            var chkUsers = [];
-            var chkGroups = [];
-            var task = yield * common.getTask(req, taskId);
-            var taskUsers = task.userIds;
-            for (var i in taskUsers) {
-                if (chkUsers.indexOf(taskUsers[i]) === -1) {
-                    chkUsers.push(taskUsers[i]);
-                    userTo = yield * common.getUser(req, taskUsers[i]);
-                    users.push({
-                        userId: userTo.id,
-                        firstName: userTo.firstName,
-                        lastName: userTo.lastName,
-                        email: userTo.email
-                    });
-                }
-            }
-            var taskGroups = task.groupIds;
-            for (i in taskGroups) {
-                if (chkGroups.indexOf(taskGroups[i]) === -1) {
-                    chkGroups.push(taskGroups[i]);
-                    groupTo = yield * common.getEntity(req, taskGroups[i], Group, 'id');
-                    groups.push({
-                        groupId: groupTo.id,
-                        title: groupTo.title
-                    });
-                    usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
-                    for (var j in usersFromGroup) {
-                        if (chkUsers.indexOf(usersFromGroup[j].userId) === -1) {
-                            userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                            users.push({
-                                userId: userTo.id,
-                                firstName: userTo.firstName,
-                                lastName: userTo.lastName,
-                                email: userTo.email
-                            });
-                            chkUsers.push(usersFromGroup[j].userId);
-                        }
-                    }
-                }
-            }
-
-            return {
-                users: users,
-                groups: groups
-            };
-        });
-    };
-    this.getUsersIds = function (taskId) {
-        return co(function* () {
-            var usersFromGroup;
-            var users = [];
-            var task = yield * common.getTask(req, taskId);
-            var taskUsers = task.userIds;
-            for (var i in taskUsers) {
-                if (users.indexOf(taskUsers[i]) === -1) {
-                    users.push(taskUsers[i]);
-                }
-            }
-            var taskGroups = task.groupIds;
-            for (i in taskGroups) {
-                usersFromGroup = yield * common.getUsersFromGroup(req, taskGroups[i]);
-                for (var j in usersFromGroup) {
-                    if (users.indexOf(usersFromGroup[j].userId) === -1) {
-                        users.push(usersFromGroup[j].userId);
-                    }
-                }
-            }
-            return users;
-        });
     };
 };
 module.exports = exportObject;

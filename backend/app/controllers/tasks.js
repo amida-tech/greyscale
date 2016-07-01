@@ -49,7 +49,7 @@ module.exports = {
             var oTask = new sTask(req);
             var isPolicy = yield oTask.isPolicy(req.params.id);
             if (isPolicy) {
-                var usersIds =  yield oTask.getUsersIds(req.params.id);
+                var usersIds =  yield oTask.getUsersIdsByTask(req.params.id);
                 var task = yield oTask.getTaskPolicy();
                 task.userStatuses = yield oTask.getTaskUsersStatuses('Comments', usersIds, req.params.id);
                 task.userStatuses = oTask.getNamedStatuses(task.userStatuses, 'status');
