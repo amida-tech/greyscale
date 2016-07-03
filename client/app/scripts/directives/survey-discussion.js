@@ -42,7 +42,6 @@ angular.module('greyscaleApp')
                     var body = angular.copy($scope.model.msg);
                     angular.extend(body, $scope.surveyParams);
 
-                    //return;
                     greyscaleDiscussionApi.add(body)
                         .then(function (resp) {
                             if ($scope.model.questions[body.questionId]) {
@@ -52,6 +51,9 @@ angular.module('greyscaleApp')
                             }
                             if (typeof $scope.onSend === 'function') {
                                 $scope.onSend(body);
+                            }
+                            if (body.isReturn && $scope.surveyData.task.flagged) {
+                                _setResolveModeDisabling($scope);
                             }
                         })
                         .catch(greyscaleUtilsSrv.errorMsg)
@@ -116,6 +118,8 @@ angular.module('greyscaleApp')
                                     $scope.model.questions[message.questionId].isOpen = false;
                                 }
                             }
+
+                            _setResolveModeDisabling($scope);
                         });
                 };
 
@@ -216,7 +220,7 @@ angular.module('greyscaleApp')
                     qty = resp.messages.length;
                     for (i = 0; i < qty; i++) {
                         msg = resp.messages[i];
-                        if (scope.model.questions[msg.questionId]) {
+                        if (scope.model.questions[msg.questionId] && !_msgIsResolving(msg)) {
                             scope.model.questions[msg.questionId].items.push(msg);
                         }
                         if (!msg.activated && msg.isReturn && !msg.resolved) {
@@ -232,8 +236,32 @@ angular.module('greyscaleApp')
 
                     }
 
+                    if (data.task.flagged) {
+                        _setResolveModeDisabling(scope);
+                    }
+
                 });
             }
+        }
+
+        function _msgIsResolving(msg) {
+            return !msg.activated && msg.isResolve && !msg.isReturn;
+        }
+
+        function _setResolveModeDisabling(scope) {
+            if (!scope.surveyData.task.flagged) {
+                return;
+            }
+            var isDisabled = false;
+            var questions = scope.model.questions.list;
+            angular.forEach(questions, function (question) {
+                angular.forEach(question.items, function (discuss) {
+                    if (!discuss.activated && discuss.isReturn) {
+                        isDisabled = true;
+                    }
+                });
+            });
+            scope.surveyData.resolveModeIsDisabled = isDisabled;
         }
 
     });
