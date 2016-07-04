@@ -195,3 +195,9 @@
 .flagged-survey .flag-question .flag {
     display: block;
 }
+
+.co-answers-wrapper {
+    .radio, .checkbox {
+        margin: 0;
+    }
+}

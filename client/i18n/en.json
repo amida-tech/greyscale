@@ -635,6 +635,7 @@
         "NAME": "Name",
         "NEW_SURVEY": "New survey",
         "NO_DATA": "No data",
+        "NO_OPTIONS_WAS_SELECTED": "no option was selected",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
         "PRINT_QUESTIONS": "Print questions only",

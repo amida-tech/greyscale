@@ -3,9 +3,77 @@
         <i class="fa" ng-class="{'fa-plus': model.collapsed, 'fa-minus':!model.collapsed}"></i>
         <span translate="SURVEYS.RESPONSES"></span>
     </a>
-    <div uib-collapse="model.collapsed" class="panel-body">
-        <div ng-repeat="answer in field.coAnswers">
-            <span>{{getAuthor(answer.userId)}}</span>
+    <div uib-collapse="model.collapsed" class="panel-body" ng-switch="field.type">
+        <div ng-switch-when="radio">
+            <table class="table table-responsive" ng-include="'gs-co-answers-check.html'"></table>
+        </div>
+        <div ng-switch-when="checkboxes">
+            <table class="table table-responsive" ng-include="'gs-co-answers-check.html'"></table>
+        </div>
+        <div ng-switch-when="dropdown">
+            <table class="table table-responsive" ng-include="'gs-co-answers-dropdown.html'"></table>
+        </div>
+        <div ng-switch-when="bullet_points">
+            <table class="table table-responsive" ng-include="'gs-co-answers-bullets.html'"></table>
+        </div>
+        <div ng-switch-when="date">
+            <table class="table table-responsive" ng-include="'gs-co-answers-date.html'"></table>
+        </div>
+        <div ng-switch-default>
+            <table class="table table-responsive" ng-include="'gs-co-answers-text.html'"></table>
         </div>
     </div>
 </div>
+
+<script type="text/ng-template" id="gs-co-answers-text.html">
+    <tr ng-repeat="answer in field.coAnswers">
+        <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
+        <td>{{answer.value}}</td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="gs-co-answers-date.html">
+    <tr ng-repeat="answer in field.coAnswers">
+        <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
+        <td>{{answer.value | date :'yyyy/MM/dd'}}</td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="gs-co-answers-bullets.html">
+    <tr ng-repeat="answer in field.coAnswers">
+        <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
+        <td>{{getBulletsText(answer.value)}}</td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="gs-co-answers-dropdown.html">
+    <tr ng-repeat="answer in field.coAnswers">
+        <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
+        <td>{{getDropdownText(answer)}}</td>
+    </tr>
+</script>
+
+<script type="text/ng-template" id="gs-co-answers-check.html">
+    <tr>
+        <th></th>
+        <th ng-repeat="option in field.options">{{option.label}}</th>
+        <th ng-if="field.withOther" translate="FORMBUILDER.OTHER"></th>
+    </tr>
+    <tr ng-repeat="answer in field.coAnswers">
+        <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
+        <td ng-repeat="option in field.options">
+            <div ng-class="{'checkbox': field.type === 'checkboxes', 'radio': field.type === 'radio'}">
+                <label><input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="isChecked(answer, option)" disabled>
+                    <div class="chk-box"></div>
+                </label>
+            </div>
+        </td>
+        <td ng-if="field.withOther">
+            <div ng-class="{'checkbox': field.type === 'checkboxes', 'radio': field.type='radio'}">
+                <label><input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="(answer.value)" disabled>
+                    <i class="chk-box"></i><span class="survey-option">{{answer.value}}</span>
+                </label>
+            </div>
+        </td>
+    </tr>
+</script>
