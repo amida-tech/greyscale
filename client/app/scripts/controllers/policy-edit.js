@@ -210,7 +210,7 @@ angular.module('greyscaleApp')
             var i,
                 qty = sections.length;
 
-            for(i=0; i<qty; i++) {
+            for (i = 0; i < qty; i++) {
                 angular.extend(sections[i], {
                     type: policyIdx,
                     surveyId: surveyId

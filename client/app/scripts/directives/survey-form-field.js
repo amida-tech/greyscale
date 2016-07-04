@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout, $anchorScroll) {
+    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout,
+        $anchorScroll) {
 
         return {
             restrict: 'AE',
@@ -81,7 +82,8 @@ angular.module('greyscaleApp')
                                 body += '</textarea>';
                             }
 
-                            message = i18n.translate('SURVEYS.CURRENT_COUNT') + ': {{field.length}} {{field.lengthMeasure}}';
+                            message = i18n.translate('SURVEYS.CURRENT_COUNT') +
+                                ': {{field.length}} {{field.lengthMeasure}}';
                             break;
 
                         case 'section_break':
@@ -107,7 +109,8 @@ angular.module('greyscaleApp')
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-valid="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
-                            message += '<span ng-show="field.answer">' + i18n.translate('COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
+                            message += '<span ng-show="field.answer">' + i18n.translate(
+                                'COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
 
                             break;
 
@@ -216,6 +219,10 @@ angular.module('greyscaleApp')
                             '</div><p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
+                        if (flags.isPolicy) {
+                            body += '<div gs-co-answers field="field"></div>';
+                        }
+
                         if (flags.seeOthersResponses || flags.allowEdit) {
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
@@ -223,7 +230,7 @@ angular.module('greyscaleApp')
                                 '<i class="fa"  ng-class="{ \'fa-check\': resp.isAgree, \'fa-ban\': resp.isAgree === false, \'fa-times\': resp.isAgree === null}"></i> ' +
                                 '{{resp.comments}}</span></div></div></div>';
                         }
-                        
+
                         if (flags.provideResponses || scope.field.hasComments) {
                             body = '<div class="field-wrapped">' + (flags.provideResponses ? '<div class="wrapper"></div>' : '') + body + '</div>';
                             body += '<div class="field-comment">';
@@ -247,7 +254,6 @@ angular.module('greyscaleApp')
                                     '</div>';
                             }
                             body += '</div>';
-
                         }
                     }
 
@@ -274,7 +280,8 @@ angular.module('greyscaleApp')
             var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
             var numericTypes = ['number', 'scale'];
 
-            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
+            if (angular.isNumber(field.minLength) && angular.isNumber(
+                    field.maxLength) && field.maxLength < field.minLength) {
                 field.maxLength = null;
             }
             field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));

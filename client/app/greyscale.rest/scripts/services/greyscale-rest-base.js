@@ -4,11 +4,11 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('GreyscaleRestBase', function(greyscaleRestSrv){
+    .factory('GreyscaleRestBase', function (greyscaleRestSrv) {
 
         var GsRestBase = function () {};
 
-        GsRestBase.prototype._prepareResp = function(resp) {
+        GsRestBase.prototype._prepareResp = function (resp) {
             if (resp && typeof resp.plain === 'function') {
                 return resp.plain();
             } else {
@@ -16,7 +16,7 @@ angular.module('greyscale.rest')
             }
         };
 
-        GsRestBase.prototype._api = function(realm) {
+        GsRestBase.prototype._api = function (realm) {
             return greyscaleRestSrv({}, realm);
         };
 

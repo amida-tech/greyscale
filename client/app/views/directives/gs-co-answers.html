@@ -1,3 +1,11 @@
-<div class="co-answers-wrapper">
-
+<div class="co-answers-wrapper panel" ng-show="field.coAnswers.length>0">
+    <a class="action-primary" ng-click="model.collapsed = !model.collapsed">
+        <i class="fa" ng-class="{'fa-plus': model.collapsed, 'fa-minus':!model.collapsed}"></i>
+        <span translate="SURVEYS.RESPONSES"></span>
+    </a>
+    <div uib-collapse="model.collapsed" class="panel-body">
+        <div ng-repeat="answer in field.coAnswers">
+            <span>{{getAuthor(answer.userId)}}</span>
+        </div>
+    </div>
 </div>

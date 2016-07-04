@@ -66,7 +66,8 @@ angular.module('greyscaleApp')
                         attachments: resp.survey.attachments || []
                     },
                     task: resp.task,
-                    collaborators: [],
+                    collaboratorIds: [],
+                    collaborators: {},
                     user: _user
                 };
 
@@ -79,13 +80,13 @@ angular.module('greyscaleApp')
                 _title = [data.survey.title];
                 return data;
             })
-            .then(function(_data){
+            .then(function (_data) {
                 return greyscaleUsers.get(_data.survey.author).then(function (profile) {
                     _data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
                     return _data;
                 });
             })
-            .then(function(_data){
+            .then(function (_data) {
                 var _user = _data.user;
 
                 return greyscaleGroupApi.list(_user.organizationId).then(function (groups) {
@@ -98,13 +99,22 @@ angular.module('greyscaleApp')
                             members = members.concat(groups[i].userIds);
                         }
                     }
-                    _data.collaborators = _.uniq(members);
+                    _data.collaboratorIds = _.uniq(members);
+
+                    greyscaleUsers.get(_data.collaboratorIds)
+                        .then(function (users) {
+                            var _u, _qty = users.length;
+
+                            for (_u = 0; _u < _qty; _u++) {
+                                _data.collaborators[users[_u].id] = _.pick(users[_u], ['id', 'firstName', 'lastName']);
+                                _data.collaborators[users[_u].id].fullName = greyscaleUtilsSrv.getUserName(users[_u]);
+                            }
+                        });
 
                     return _data;
                 });
             })
             .finally(function () {
-                $log.debug('collaborators ',data.collaborators);
                 $scope.model.title = _title.join(' - ');
                 $scope.model.surveyData = data;
                 $scope.model.showDiscuss = true;

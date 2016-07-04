@@ -169,6 +169,10 @@ angular.module('greyscaleApp')
                 function updateForm(data) {
 
                     if (data) {
+                        if (!data.collaborators) {
+                            data.collaborators = [];
+                        }
+
                         if (data.languages) {
                             initLanguage(scope);
                         }
@@ -197,14 +201,14 @@ angular.module('greyscaleApp')
                     angular.forEach(scope.surveyData.survey.questions, function (question) {
                         if (question.flagResolve) {
                             question.flagResolve.draft = question.flagResolve.draft || {
-                                    entry: '',
-                                    isResolve: true,
-                                    activated: false,
-                                    isReturn: false,
-                                    questionId: question.id,
-                                    taskId: scope.surveyData.task.id,
-                                    stepId: scope.surveyData.resolveData.stepId
-                                };
+                                entry: '',
+                                isResolve: true,
+                                activated: false,
+                                isReturn: false,
+                                questionId: question.id,
+                                taskId: scope.surveyData.task.id,
+                                stepId: scope.surveyData.resolveData.stepId
+                            };
                             flagged++;
                             if (question.flagResolve.draft.entry !== '') {
                                 commented++;
@@ -291,7 +295,7 @@ angular.module('greyscaleApp')
         function isReadonlyFlags(_flags) {
             if (_flags.isPolicy && _flags.hasVersion) {
                 angular.extend(_flags, {
-                    allowEdit:false,
+                    allowEdit: false,
                     writeToAnswers: false,
                     provideResponses: false
                 });
@@ -418,7 +422,8 @@ angular.module('greyscaleApp')
                                     langId: scope.model.lang,
                                     essenceId: scope.surveyData.essenceId,
                                     withLinks: field.withLinks,
-                                    flagResolve: field.flagResolve
+                                    flagResolve: field.flagResolve,
+                                    collaborators: scope.surveyData.collaborators
                                 });
 
                                 if (['radio', 'checkboxes', 'dropdown'].indexOf(type) !== -1) {
@@ -565,10 +570,12 @@ angular.module('greyscaleApp')
                             _addValToKey(responses, qId, _answers[v]);
                         } else if (_answers[v].version) {
                             _addValToKey(surveyAnswers, qId, _answers[v]);
-
+                            /*
                             if (_answers[v].userId === currentUserId ) {
                                 flags.hasVersion = true; //todo: proceed flagged logic
-                            } else if (scope.surveyData.collaborators.indexOf(_answers[v].userId) > -1) {
+                            } else
+                            */
+                            if (scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
                                 _addValToKey(coAnswers, qId, _answers[v]);
                             }
                         }
@@ -594,6 +601,7 @@ angular.module('greyscaleApp')
                     isReadonly = isReadonlyFlags(flags);
                     scope.model.formReadonly = isReadonly;
 
+                    $log.debug('coAnswers', coAnswers);
                     loadRecursive(scope.fields, recentAnswers, responses);
                 })
                 .finally(scope.unlock);
@@ -896,11 +904,11 @@ angular.module('greyscaleApp')
 
         function hasChanges(field) {
             return (field.answer ||
-            field.type === 'checkboxes' ||
-            field.isAgree ||
-            field.comment ||
-            field.canAttach && field.attachments.length ||
-            field.withLinks && field.answerLinks.length);
+                field.type === 'checkboxes' ||
+                field.isAgree ||
+                field.comment ||
+                field.canAttach && field.attachments.length ||
+                field.withLinks && field.answerLinks.length);
         }
 
         function _printRenderBlank(printable) {
