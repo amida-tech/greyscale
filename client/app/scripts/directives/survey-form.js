@@ -19,7 +19,8 @@ angular.module('greyscaleApp')
         var provideResponses = false;
         var surveyAnswers = [],
             coAnswers = {},
-            flags = {};
+            flags = {},
+            resolveSaving;
 
         return {
             restrict: 'E',
@@ -36,6 +37,7 @@ angular.module('greyscaleApp')
 
                 scope.$on('$destroy', function () {
                     $interval.cancel(scope.autosave);
+                    $interval.cancel(resolveSaving);
                 });
 
                 scope.printRenderBlank = _printRenderBlank;
@@ -57,6 +59,11 @@ angular.module('greyscaleApp')
                         }
                     } else {
                         _p = saveAnswers(scope)
+                            .then(function (saveRes) {
+                                return resolve ? _saveChangedResolveComments().then(function () {
+                                    return saveRes;
+                                }) : saveRes;
+                            })
                             .then(function (res) {
                                 return (!flags.isPolicy) ? goNextStep(res, resolve) : res;
                             });
@@ -85,13 +92,14 @@ angular.module('greyscaleApp')
                     }
                 };
 
-                scope.autosave = $interval(_autosave, 15000);
+                scope.autosave = $interval(_autosave, greyscaleGlobals.autosaveSec * 1000);
+                resolveSaving = $interval(_saveChangedResolveComments, greyscaleGlobals.autosaveSec * 1000);
 
                 function _autosave() {
                     var res = $q.resolve('nop'),
                         formDirty = scope.$$childTail.surveyForm && scope.$$childTail.surveyForm.$dirty || false;
 
-                    if (formDirty) {
+                    if (formDirty && !isReadonly) {
                         res = saveAnswers(scope, true)
                             .then(function (saveSuccess) {
                                 greyscaleUtilsSrv.successMsg('SURVEYS.AUTOSAVE_SUCCESS');
@@ -213,33 +221,42 @@ angular.module('greyscaleApp')
                             if (question.flagResolve.draft.entry !== '') {
                                 commented++;
                             }
-                            if (question.flagResolve.lastEntry === undefined || question.flagResolve.draft.entry !== question.flagResolve.lastEntry) {
-                                question.flagResolve.lastEntry = question.flagResolve.draft.entry;
-                                _saveFlagCommentDraft(question);
-                            }
                         }
                     });
                     return flagged > 0 && commented === flagged;
                 }
 
-                function _saveFlagCommentDraft(question) {
-                    if (_saveFlagCommentDraft.timer) {
-                        $timeout.cancel(_saveFlagCommentDraft.timer);
+                function _saveFlagCommentDraft(fResolve) {
+                    var draft = fResolve.draft;
+
+                    if (draft.id) {
+                        return greyscaleDiscussionApi.update(draft.id, draft);
+                    } else {
+                        return greyscaleDiscussionApi.add(draft).then(function (data) {
+                            draft.id = data.id;
+                        });
                     }
-                    var draft = question.flagResolve.draft;
-                    if (draft.entry === '') {
-                        //show error
-                        return;
-                    }
-                    _saveFlagCommentDraft.timer = $timeout(function () {
-                        if (!draft.id && draft.entry !== '') {
-                            greyscaleDiscussionApi.add(draft).then(function (data) {
-                                question.flagResolve.draft.id = data.id;
-                            });
-                        } else if (draft.id && draft.entry !== '') {
-                            greyscaleDiscussionApi.update(draft.id, draft);
+                }
+
+                function _saveChangedResolveComments() {
+                    var q,
+                        qty = (scope.surveyData.survey && scope.surveyData.survey.questions) ? scope.surveyData.survey.questions.length : 0,
+                        fResolve,
+                        reqs = [];
+
+                    for (q = 0; q < qty; q++) {
+                        fResolve = scope.surveyData.survey.questions[q].flagResolve;
+                        if (fResolve) {
+                            if (fResolve.draft.entry && fResolve.draft.entry !== fResolve.lastEntry) {
+                                fResolve.lastEntry = fResolve.draft.entry;
+                                $log.debug('saving', fResolve);
+                                reqs.push(_saveFlagCommentDraft(fResolve));
+                            }
+
                         }
-                    }, 500);
+                    }
+
+                    return $q.all(reqs);
                 }
 
                 scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
