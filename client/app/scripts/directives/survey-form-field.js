@@ -42,7 +42,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.flagResolve) {
-                            label += '<div class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
+                            label += '<div ng-hide="isDisabled" class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
                                 '<input class="form-control" ng-model="field.flagResolve.draft.entry" placeholder="{{\'SURVEYS.RESOLVE_COMMENT\' | translate}}"/>' +
                                 '</div>';
                         }

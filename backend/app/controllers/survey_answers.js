@@ -83,11 +83,11 @@ module.exports = {
             if (req.user.roleID === 3) {
                 var userTasks = yield thunkQuery(
                     Task.select()
-                    .where({
-                        uoaId: req.params.UOAid,
-                        productId: req.params.productId,
-                        userId: req.user.id // Todo 338
-                    })
+                    .where(
+                        Task.uoaId.equals(req.params.UOAid)
+                        .and(Task.productId.equals(req.params.productId))
+                        .and(Task.userIds.contains('{' + req.user.id + '}'))
+                    )
                 );
                 if (!userTasks[0]) {
                     throw new HttpError(

@@ -23,9 +23,9 @@ angular.module('greyscale.tables')
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-                'uib-popover-template="item.users[0] && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>.' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
                 '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
                 '</span></span>'
         }, {
@@ -136,13 +136,11 @@ angular.module('greyscale.tables')
 
                     }
                 }
-
-                //todo: remove userId usage after multi-user-group task assingment stable
-                if (!task.userIds || (task.userId && task.userIds.indexOf(task.userId) < 0)) {
+                if (task.userIds && task.userIds.length) {
                     task.user = _.find(_dicts.users, {
-                        id: task.userId
+                        id: task.userIds[0]
                     });
-                    task.users.unshift(task.user);
+                    //task.users.unshift(task.user);
                 }
             });
             _table.dataShare.tasks = tasks;
