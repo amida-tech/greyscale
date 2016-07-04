@@ -3,6 +3,7 @@ var
     auth = require('app/auth'),
     config = require('config'),
     common = require('app/services/common'),
+    sTask = require('app/services/tasks'),
     BoLogger = require('app/bologger'),
     Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
@@ -136,45 +137,6 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
     }, function (err) {
         error(JSON.stringify(err));
     });
-};
-
-var getUsersAndGroups = function* (req, taskId) {
-    var userTo, groupTo;
-    var users = [];
-    var groups = [];
-    var chkUsers = [];
-    var chkGroups = [];
-    var task = yield * common.getTask(req, taskId);
-    var taskUsers = task.userIds;
-    for (var i in taskUsers) {
-        if (chkUsers.indexOf(taskUsers[i]) === -1) {
-            chkUsers.push(taskUsers[i]);
-            userTo = yield * common.getUser(req, taskUsers[i]);
-            users.push({
-                userId: userTo.id,
-                firstName: userTo.firstName,
-                lastName: userTo.lastName,
-                email: userTo.email
-            });
-        }
-    }
-    var taskGroups = task.groupIds;
-    for (i in taskGroups) {
-        if (chkGroups.indexOf(taskGroups[i]) === -1) {
-            chkGroups.push(taskGroups[i]);
-            groupTo = yield * common.getEntity(req, taskGroups[i], Group, 'id');
-            groups.push({
-                groupId: groupTo.id,
-                title: groupTo.title
-            });
-        }
-    }
-
-    return {
-        users: users,
-        groups: groups,
-        commentTypes: Comment.commentTypes
-    };
 };
 
 module.exports = {
@@ -389,8 +351,14 @@ module.exports = {
     getUsers: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oTask = new sTask(req);
             var taskId = yield * checkOneId(req, req.params.taskId, Task, 'id', 'taskId', 'Task');
-            return yield * getUsersAndGroups(req, taskId);
+            var usersAndGroups =  yield oTask.getUsersAndGroups(taskId);
+            return {
+                users: usersAndGroups.users,
+                groups: usersAndGroups.groups,
+                commentTypes: Comment.commentTypes
+            };
         }).then(function (data) {
             res.json(data);
         }, function (err) {

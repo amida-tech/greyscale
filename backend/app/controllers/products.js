@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     config = require('config'),
     common = require('app/services/common'),
+    sTask = require('app/services/tasks'),
     productServ = require('app/services/products'),
     notifications = require('app/controllers/notifications'),
     crypto = require('crypto'),
@@ -53,20 +54,24 @@ var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
         var task = yield * common.getTask(req, taskId);
         for (var i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
-                userTo = yield * common.getUser(req, task.userIds[i]);
-                note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                notifications.notify(req, userTo, note, templateName);
-                sentUsersId.push(task.userIds[i]);
+                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                    userTo = yield * common.getUser(req, task.userIds[i]);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(task.userIds[i]);
+                }
             }
         }
         for (i in task.groupIds) {
             var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
             for (var j in usersFromGroup) {
                 if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
-                    userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                    notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(usersFromGroup[j].userId);
+                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        notifications.notify(req, userTo, note, templateName);
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
                 }
             }
         }
@@ -248,84 +253,9 @@ module.exports = {
     },
 
     tasks: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         co(function* () {
-            var curStepAlias = 'curStep';
-            return yield thunkQuery(
-                Task
-                .select(
-                    Task.star(),
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                    'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                    'END as status ',
-                    WorkflowStep.position,
-                    '(' +
-                    'SELECT max("SurveyAnswers"."created") ' +
-                    'FROM "SurveyAnswers" ' +
-                    'WHERE ' +
-                    '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    ') as "lastVersionDate"'
-                )
-                .from(
-                    Task
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(UOA)
-                    .on(Task.uoaId.equals(UOA.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(Task.productId.equals(req.params.id))
-            );
+            var oTask = new sTask(req);
+            return yield oTask.getProductTasks();
         }).then(function (data) {
             res.json(data);
         }, function (err) {

@@ -52,7 +52,7 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 data = {
                     survey: resp.survey,
-                    task: resp.task ? resp.task.plain() : null,
+                    task: resp.task,
                     resolveData: resp.scopeList ? _getResolveData(resp.scopeList) : null,
                     userId: resp.profile.id,
                     languages: resp.languages.plain(),
@@ -137,6 +137,7 @@ angular.module('greyscaleApp')
                     if (message.questionId === question.id && message.isResolve && !message.isReturn && !message.activated) {
                         question.flagResolve = question.flagResolve || {};
                         question.flagResolve.draft = message;
+                        question.flagResolve.lastEntry = message.entry;
                     }
                 });
             });

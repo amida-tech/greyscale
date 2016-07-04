@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers) {
+        greyscaleUsers, greyscaleGroupApi, $log) {
 
         var data = {},
             _title = [],
@@ -38,11 +38,11 @@ angular.module('greyscaleApp')
 
         $q.all(reqs)
             .then(function (resp) {
-                var i, qty;
+                var _user = resp.profile;
 
                 data = {
                     survey: resp.survey,
-                    userId: resp.profile.id,
+                    userId: _user.id,
                     languages: resp.languages.plain(),
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {
@@ -61,11 +61,14 @@ angular.module('greyscaleApp')
                         surveyId: resp.survey.id,
                         answerId: resp.survey.id,
                         taskId: resp.task ? resp.task.id : null,
-                        userId: resp.profile.id,
+                        userId: _user.id,
                         sections: [],
                         attachments: resp.survey.attachments || []
                     },
-                    task: resp.task
+                    task: resp.task,
+                    collaboratorIds: [],
+                    collaborators: {},
+                    user: _user
                 };
 
                 greyscaleUsers.get(data.survey.author).then(function (profile) {
@@ -75,6 +78,41 @@ angular.module('greyscaleApp')
                 _separatePolicy(data);
 
                 _title = [data.survey.title];
+                return data;
+            })
+            .then(function (_data) {
+                return greyscaleUsers.get(_data.survey.author).then(function (profile) {
+                    _data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
+                    return _data;
+                });
+            })
+            .then(function (_data) {
+                var _user = _data.user;
+
+                return greyscaleGroupApi.list(_user.organizationId).then(function (groups) {
+                    var i,
+                        qty = groups.length,
+                        members = [];
+
+                    for (i = 0; i < qty; i++) {
+                        if (_user.usergroupId.indexOf(groups[i].id) > -1) {
+                            members = members.concat(groups[i].userIds);
+                        }
+                    }
+                    _data.collaboratorIds = _.uniq(members);
+
+                    greyscaleUsers.get(_data.collaboratorIds)
+                        .then(function (users) {
+                            var _u, _qty = users.length;
+
+                            for (_u = 0; _u < _qty; _u++) {
+                                _data.collaborators[users[_u].id] = _.pick(users[_u], ['id', 'firstName', 'lastName']);
+                                _data.collaborators[users[_u].id].fullName = greyscaleUtilsSrv.getUserName(users[_u]);
+                            }
+                        });
+
+                    return _data;
+                });
             })
             .finally(function () {
                 $scope.model.title = _title.join(' - ');

@@ -1,9 +1,9 @@
 indaba-backend:
-  image: "amidatech/greyscale-backend:dev"
+  image: "amidatech/greyscale-backend:${INDABA_ENV}"
   environment:
-    INDABA_PG_DB: indaba
+    INDABA_PG_DB: ${INDABA_PG_DB}
     AUTH_SALT: nMsDo)_1fh
-    RDS_TESTUSER: test
+    RDS_TESTUSER: ${RDS_TESTUSER}
   ports:
   - "3005:3005"
   links:
@@ -15,7 +15,7 @@ memcached:
   - "11211"
 
 indaba-frontend:
-  image: "amidatech/greyscale-client:dev"
+  image: "amidatech/greyscale-client:${INDABA_ENV}"
   links:
   - "indaba-backend"
   environment:

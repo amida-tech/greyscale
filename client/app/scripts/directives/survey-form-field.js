@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout, $anchorScroll) {
+    .directive('surveyFormField', function ($compile, i18n, greyscaleModalsSrv, $log, $location, $timeout,
+        $anchorScroll) {
 
         return {
             restrict: 'AE',
@@ -21,7 +22,14 @@ angular.module('greyscaleApp')
 
                 if (scope.field) {
                     var body = '',
-                        label = '';
+                        label = '',
+                        commonPart = '',
+                        translation = '',
+                        attach = '',
+                        borders,
+                        links = '',
+                        message = '',
+                        flags = scope.field.flags;
 
                     if (scope.field.sub) {
                         scope.sectionOpen = false;
@@ -34,29 +42,26 @@ angular.module('greyscaleApp')
                             '<p class="subtext section-description">{{field.description}}</p><div class="form-group" ' +
                             'ng-repeat="fld in model" survey-form-field="fld"></div></uib-accordion-group></uib-accordion>';
                     } else {
+                        flags = scope.field.flags;
+                        flags.readonly = !flags.allowEdit && !flags.writeToAnswers;
+
                         label = '<label id="{{field.cid}}" class="' + (scope.field.required ? 'required' : '') +
                             '">{{field.qid}}. {{field.label}}</label><p class="subtext field-description">{{field.description}}</p>';
 
-                        if (!scope.field.flags.blindReview && !scope.field.flags.provideResponses) {
+                        if (!flags.blindReview && !flags.provideResponses && !flags.isPolicy) {
                             label = '<a class="fa fa-users version-button" ng-click="showVersion(field)" title="{{\'SURVEYS.VERSION\' | translate}}"></a> ' + label;
                         }
 
                         if (scope.field.flagResolve) {
-                            label += '<div class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
+                            label += '<div ng-hide="isDisabled" class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
                                 '<input class="form-control" ng-model="field.flagResolve.draft.entry" placeholder="{{\'SURVEYS.RESOLVE_COMMENT\' | translate}}"/>' +
                                 '</div>';
                         }
 
-                        scope.field.flags.readonly = !scope.field.flags.allowEdit && !scope.field.flags.writeToAnswers;
+                        commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
 
-                        var commonPart = ' name="{{field.cid}}" class="form-control" ng-model="field.answer" ng-required="{{field.required}}" ng-readonly="field.flags.readonly || isDisabled" ';
-
-                        var borders = getBorders(scope.field);
-                        var message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
-                        var links = '';
-                        var attach = '';
-                        var flags = scope.field.flags;
-                        var translation = '';
+                        borders = getBorders(scope.field);
+                        message = '<span ng-if ="field.ngModel.$error.required" translate="FORMS.FIELD_REQUIRED"></span>';
 
                         if (flags.allowTranslate) {
                             translation = ' translation';
@@ -77,7 +82,8 @@ angular.module('greyscaleApp')
                                 body += '</textarea>';
                             }
 
-                            message = i18n.translate('SURVEYS.CURRENT_COUNT') + ': {{field.length}} {{field.lengthMeasure}}';
+                            message = i18n.translate('SURVEYS.CURRENT_COUNT') +
+                                ': {{field.length}} {{field.lengthMeasure}}';
                             break;
 
                         case 'section_break':
@@ -103,7 +109,8 @@ angular.module('greyscaleApp')
                                 ' min="{{field.minLength}}" max="{{field.maxLength}}" gs-valid="field">' +
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
-                            message += '<span ng-show="field.answer">' + i18n.translate('COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
+                            message += '<span ng-show="field.answer">' + i18n.translate(
+                                'COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
 
                             break;
 
@@ -212,6 +219,10 @@ angular.module('greyscaleApp')
                             '</div><p class="subtext"><span class="pull-right" ng-class="{error:field.ngModel.$invalid }">' +
                             message + '</span><span class="pull-left">' + borders + '</span></p>' + links + attach;
 
+                        if (flags.isPolicy) {
+                            body += '<div gs-co-answers field="field"></div>';
+                        }
+
                         if (flags.seeOthersResponses || flags.allowEdit) {
                             body += '<div class="field-responses" ng-class="{ \'hidden\': !field.responses || !field.responses.length  }">' +
                                 '<div translate="SURVEYS.RESPONSES"></div><div ng-repeat="resp in field.responses">' +
@@ -243,7 +254,6 @@ angular.module('greyscaleApp')
                                     '</div>';
                             }
                             body += '</div>';
-
                         }
                     }
 
@@ -270,7 +280,8 @@ angular.module('greyscaleApp')
             var supportedTypes = ['number', 'paragraph', 'text', 'scale'];
             var numericTypes = ['number', 'scale'];
 
-            if (angular.isNumber(field.minLength) && angular.isNumber(field.maxLength) && field.maxLength < field.minLength) {
+            if (angular.isNumber(field.minLength) && angular.isNumber(
+                    field.maxLength) && field.maxLength < field.minLength) {
                 field.maxLength = null;
             }
             field.lengthMeasure = i18n.translate('COMMON.' + (field.inWords ? 'WORDS' : 'CHARS'));

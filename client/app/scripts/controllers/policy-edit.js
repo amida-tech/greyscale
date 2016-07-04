@@ -72,11 +72,7 @@ angular.module('greyscaleApp')
             $scope.saveFormbuilder();
         };
 
-        $scope.cancel = function () {
-            $state.go('projects.setup.surveys', {
-                projectId: projectId
-            });
-        };
+        $scope.cancel = _goPolicyList;
 
         $scope.publish = _publish;
 
@@ -165,10 +161,7 @@ angular.module('greyscaleApp')
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;
                     }
-
-                    $state.go('policy', {
-                        projectId: projectId
-                    });
+                    _goPolicyList();
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
@@ -190,6 +183,10 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
+        function _goPolicyList() {
+            $state.go('policy');
+        }
 
         function _publish() {
             $scope.model.survey.isDraft = false;
@@ -213,7 +210,7 @@ angular.module('greyscaleApp')
             var i,
                 qty = sections.length;
 
-            for(i=0; i<qty; i++) {
+            for (i = 0; i < qty; i++) {
                 angular.extend(sections[i], {
                     type: policyIdx,
                     surveyId: surveyId
