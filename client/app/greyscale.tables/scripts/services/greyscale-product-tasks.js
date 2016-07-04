@@ -137,10 +137,19 @@ angular.module('greyscale.tables')
                     }
                 }
                 if (task.userIds && task.userIds.length) {
-                    task.user = _.find(_dicts.users, {
-                        id: task.userIds[0]
-                    });
-                    //task.users.unshift(task.user);
+                    task.user = [];
+                    for (i = 0; i < task.userIds.length; i++) {
+                        var user = _.find(_dicts.users, {
+                            id: task.userIds[i]
+                        });
+                        task.user.push(user);
+                        if (!task.userStatuses) {
+                            continue;
+                        }
+                        user.status = _.find(task.userStatuses, {
+                            userId: task.userIds[i]
+                        }).status;
+                    }
                 }
             });
             _table.dataShare.tasks = tasks;
