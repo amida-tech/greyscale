@@ -18,6 +18,8 @@ angular.module('greyscaleApp')
             icon: 'fa-briefcase'
         }];
 
+        $scope.activeTab = 0;
+
         $scope.go = function (state, params, options) {
             $state.go(_parentState + '.' + state, params || {}, options || {});
         };
@@ -39,9 +41,9 @@ angular.module('greyscaleApp')
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState + '.', '');
 
-            angular.forEach($scope.tabs, function (tab,index) {
+            angular.forEach($scope.tabs, function (tab, index) {
                 if (tab.state === activeState) {
-                    tab.active = index;
+                    $scope.activeTab = index;
                 }
             });
         }
