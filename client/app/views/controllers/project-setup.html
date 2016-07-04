@@ -1,4 +1,4 @@
-<uib-tabset active="tab.active">
+<uib-tabset active="activeTab">
     <uib-tab ng-click="go(tab.state)" ng-repeat="tab in tabs track by $index" index="$index">
         <uib-tab-heading>
             <i class="fa {{::tab.icon}}"></i> {{::tab.title|translate}}
