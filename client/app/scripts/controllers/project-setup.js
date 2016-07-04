@@ -39,7 +39,9 @@ angular.module('greyscaleApp')
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState + '.', '');
             angular.forEach($scope.tabs, function (tab) {
-                tab.active = (tab.state === activeState);
+                if (tab.state === activeState) {
+                    tab.active = index;
+                }
             });
         }
 
