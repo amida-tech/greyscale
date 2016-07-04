@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .controller('ProjectSetupCtrl', function ($q, $scope, $state, $log) {
+    .controller('ProjectSetupCtrl', function ($q, $scope, $state) {
 
         var _parentState = 'projects.setup';
 
