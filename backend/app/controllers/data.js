@@ -76,7 +76,7 @@ module.exports = {
 
 var createTables = function (schema, req, res, next) {
     //set the schema with a global replace
-    var schemaSql = fs.readFileSync('db_dump/schema.def.sql').toString().replace(/CLIENT_SCHEMA/g, schema);
+    var schemaSql = fs.readFileSync('db_setup/schema.def.sql').toString().replace(/CLIENT_SCHEMA/g, schema);
 
     //create the tables
     query(schemaSql, function (err, resp) {
@@ -92,7 +92,7 @@ var createTables = function (schema, req, res, next) {
 
 var populateTables = function (schema, req, res, next) {
     //set the schema with a global replace	
-    var dat = fs.readFileSync('db_dump/base_data.sql').toString().replace(/CLIENT_SCHEMA/g, schema);
+    var dat = fs.readFileSync('db_setup/base_data.sql').toString().replace(/CLIENT_SCHEMA/g, schema);
     //populate the tables
     query(dat, function (err, resp) {
         if (!err) {

@@ -161,56 +161,12 @@ app.on('start', function () {
 
     var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
-    var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
+    var sql = fs.readFileSync('db_setup/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
     pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
 
         if (err) {
-            //If the DB already exists then do not attempt to connect to postgres.
-            //This avoids problems where the user performing the connection may not have access
-            //to the postgres admin database.  Odds are high however if they do not have access
-            //to the admin database they also will not have access to create new databases.
-
-            //we failed to connect to the database, so attempt to connect to
-            //the admin database
-            pg.connect(pgConString + '/postgres', function (err, client, done) {
-                if (err) {
-                    error(err);
-                    return;
-                }
-                debug('Attempting to create database.');
-                // Create the DB if it is not there
-                client.query('CREATE DATABASE ' + pgDbName, function (err) {
-                    if (err) {
-                        error(err);
-                    }
-                    client.end();
-
-                    // Load the schema if it is not there
-                    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-                        if (err) {
-                            error(err);
-                            return;
-                        }
-                        client.query(sql, function (err) {
-                            if (err) {
-                                error('Schema already initialized');
-                            }
-                            client.end();
-                        });
-                    });
-
-                });
-            });
-        } else {
-            //database already exists so try to initialize the schema.
-            client.query(sql, function (err) {
-                if (err) {
-                    error(err);
-                    debug('Schema already initialized');
-                }
-                client.end();
-            });
+            debug("Could not connect to the database.");
         }
     });
 
