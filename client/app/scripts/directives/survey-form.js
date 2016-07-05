@@ -575,7 +575,8 @@ angular.module('greyscaleApp')
                         coAnswerRestrict = {
                             groupBy: 'userId',
                             orderBy: 'version'
-                        };
+                        },
+                        isAuthor;
 
                     recentAnswers = {};
                     responses = {};
@@ -600,9 +601,10 @@ angular.module('greyscaleApp')
                         }
 
                         answer = recentAnswers[qId];
+                        isAuthor = (_answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId);
 
-                        if (!_answers[v].version && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
-                            !flags.isPolicy && (!answer || answer.version < _answers[v].version)) {
+                        if (!_answers[v].version && isAuthor ||
+                            (!flags.isPolicy || isAuthor) && (!answer || answer.version < _answers[v].version)) {
 
                             recentAnswers[qId] = _answers[v];
 

@@ -192,12 +192,23 @@
         display: none;
     }
 }
+
 .flagged-survey .flag-question .flag {
     display: block;
 }
 
 .co-answers-wrapper {
+    &.panel {
+        margin-bottom: 0;
+    }
     .radio, .checkbox {
         margin: 0;
+    }
+    .table {
+        margin-bottom: 0;
+    }
+    .panel-body {
+        border-radius: 7px;
+        border: thin solid $grey-light;
     }
 }
