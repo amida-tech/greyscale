@@ -163,7 +163,6 @@ app.on('start', function () {
 
     pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-
         if (err) {
             debug("Could not connect to the database.");
         }
