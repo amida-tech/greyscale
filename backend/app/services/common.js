@@ -20,6 +20,7 @@ var
     Notification = require('app/models/notifications'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
+    sTask = require('app/services/tasks'),
     co = require('co'),
     sql = require('sql'),
     Query = require('app/util').Query,
@@ -269,11 +270,13 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (!_.contains(curStep.task.userIds, req.user.id)) {
+        var oTask = new sTask(req);
+        var usersIds =  yield oTask.getUsersIdsByTask(curStep.task.id);
+        if (!_.contains(usersIds, req.user.id)) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
-                '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
+                'Task(id=' + curStep.task.id + ') on current workflow step does not assigned to current user ' +
+                '(Task user ids = ' + usersIds + ', user id = ' + req.user.id + ')'
             );
         }
     }
