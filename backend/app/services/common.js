@@ -259,7 +259,7 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (!_.contains(curStep.task.userIds, req.user.id)) {
+        if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
             throw new HttpError(
                 403,
                 'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
