@@ -86,7 +86,7 @@ module.exports = {
                     .where(
                         Task.uoaId.equals(req.params.UOAid)
                         .and(Task.productId.equals(req.params.productId))
-                        .and(Task.userIds.contains('{' + req.user.id + '}'))
+                        .and(Task.userIds.contains('{' + req.user.id + '}')) // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
                     )
                 );
                 if (!userTasks[0]) {
@@ -286,7 +286,7 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (!_.contains(result.task.userIds, req.user.id)) {
+            if (!_.contains(result.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
                 throw new HttpError(
                     403,
                     'Task(id=' + result.task.id + ') on current workflow step does not assigned to current user ' +
@@ -480,7 +480,7 @@ function* addAnswer(req, dataObject) {
     if (!curStep.task) {
         throw new HttpError(403, 'Task is not defined');
     }
-    if (!_.contains(curStep.task.userIds, req.user.id)) {
+    if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
         throw new HttpError(
             403,
             'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
