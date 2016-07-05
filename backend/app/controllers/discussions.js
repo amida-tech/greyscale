@@ -181,35 +181,36 @@ module.exports = {
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
 
-            // prepare for notify
-            var userFrom = yield * common.getUser(req, req.user.id);
-            // static blindReview
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {
-                firstName: userFrom.firstName,
-                lastName: userFrom.lastName
-            };
-            if (stepTo.blindReview) {
-                userFromName = stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
+            if (!isReturn && !isResolve) { // // notify only ordinary entries
+                // prepare for notify
+                var userFrom = yield * common.getUser(req, req.user.id);
+                // static blindReview
+                var productId = task.productId;
+                var uoaId = task.uoaId;
+                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+                var from = {
+                    firstName: userFrom.firstName,
+                    lastName: userFrom.lastName
                 };
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
-                from = {
-                    firstName: 'Anonymous -' + stepTo.role,
-                    lastName: '(' + stepTo.title + ')'
-                };
+                if (stepTo.blindReview) {
+                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                } else if (userFrom.isAnonymous) {
+                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
+                    from = {
+                        firstName: 'Anonymous -' + stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
+                    };
+                }
+
+                notify(req, {
+                    userFromName: userFromName,
+                    from: from
+                }, result[0].id, taskTo.id, 'Comment added', 'Discussions');
             }
-
-            notify(req, {
-                userFromName: userFromName,
-                from: from
-            }, result[0].id, taskTo.id, 'Comment added', 'Discussions');
-
             bologger.log({
                 req: req,
                 user: req.user,
@@ -240,36 +241,37 @@ module.exports = {
 
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
-            var userFrom = yield * common.getUser(req, req.user.id);
-            // static blindReview
-            var task = yield * common.getTask(req, entry.taskId);
-            var userTo = yield * common.getUser(req, entry.userId);
-            var productId = task.productId;
-            var uoaId = task.uoaId;
-            var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
-            var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
-            var from = {
-                firstName: userFrom.firstName,
-                lastName: userFrom.lastName
-            };
-            if (step4userTo.blindReview) {
-                userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {
-                    firstName: step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
+            if (!entry.isReturn && !entry.isResolve) { // // notify only ordinary entries
+                var userFrom = yield * common.getUser(req, req.user.id);
+                // static blindReview
+                var task = yield * common.getTask(req, entry.taskId);
+                var userTo = yield * common.getUser(req, entry.userId);
+                var productId = task.productId;
+                var uoaId = task.uoaId;
+                var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+                var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
+                var from = {
+                    firstName: userFrom.firstName,
+                    lastName: userFrom.lastName
                 };
-            } else if (userFrom.isAnonymous) {
-                userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
-                from = {
-                    firstName: 'Anonymous -' + step4userTo.role,
-                    lastName: '(' + step4userTo.title + ')'
-                };
+                if (step4userTo.blindReview) {
+                    userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                    from = {
+                        firstName: step4userTo.role,
+                        lastName: '(' + step4userTo.title + ')'
+                    };
+                } else if (userFrom.isAnonymous) {
+                    userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                    from = {
+                        firstName: 'Anonymous -' + step4userTo.role,
+                        lastName: '(' + step4userTo.title + ')'
+                    };
+                }
+                notify(req, {
+                    userFromName: userFromName,
+                    from: from
+                }, result[0].id, step4userTo.taskid, 'Comment updated', 'Discussions');
             }
-            notify(req, {
-                userFromName: userFromName,
-                from: from
-            }, result[0].id, step4userTo.taskid, 'Comment updated', 'Discussions');
-
             bologger.log({
                 req: req,
                 user: req.user,
