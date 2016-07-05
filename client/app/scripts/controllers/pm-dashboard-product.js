@@ -119,8 +119,8 @@ angular.module('greyscaleApp')
                 });
         }
 
-        function _notifyUser(task) {
-            greyscaleModalsSrv.sendNotification(task.user, {});
+        function _notifyUser(user) {
+            greyscaleModalsSrv.sendNotification(user, {});
         }
 
         function _getData(productId) {

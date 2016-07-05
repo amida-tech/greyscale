@@ -1,31 +1,29 @@
-<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" class="row" ng-cloak>
-    <div class="col-md-12">
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td><b translate=".ROLE"></b><b>: {{row.step.role}}</b></td>
-                    <td><b translate=".STATUS"></b></td>
-                    <td>
-                        <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted" title="{{(row.last ? 'PRODUCT_TASKS.FORCE_COMPLETE' : 'PRODUCT_TASKS.FORCE_NEXT_STEP') | translate}}">
-                            <i ng-show="!row.last" class="fa fa-fast-forward"></i>
-                            <i ng-show="row.last" class="fa fa-check"></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr ng-repeat="user in row.user track by $index ">
-                    <td>
-                        {{user.firstName}} {{user.lastName}} <small>({{user.email}})</small>
-                    </td>
-                    <td>
-                        {{user.status}}
-                    </td>
-                    <td>
-                        <a ng-click="ext.notifyUser(user)" title="{{'PRODUCT_TASKS.NOTIFY_USER' | translate}}"><i class="fa fa-envelope-o"></i></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" class="table-inner-container" ng-cloak>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td class="no-top-border"><b translate=".ROLE"></b><b>: {{row.step.role}}</b></td>
+                <td class="no-top-border" ng-if="row.userStatuses"><b translate=".STATUS"></b></td>
+                <td class="no-top-border text-right">
+                    <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted" title="{{(row.last ? 'PRODUCT_TASKS.FORCE_COMPLETE' : 'PRODUCT_TASKS.FORCE_NEXT_STEP') | translate}}">
+                        <i ng-show="!row.last" class="fa fa-fast-forward"></i>
+                        <i ng-show="row.last" class="fa fa-check"></i>
+                    </a>
+                </td>
+            </tr>
+            <tr ng-repeat="user in row.user track by $index ">
+                <td>
+                    {{user.firstName}} {{user.lastName}} <small>({{user.email}})</small>
+                </td>
+                <td ng-if="user.status">
+                    {{user.status}}
+                </td>
+                <td class="text-right">
+                    <a ng-click="ext.notifyUser(user)" title="{{'PRODUCT_TASKS.NOTIFY_USER' | translate}}"><i class="fa fa-envelope-o"></i></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 <div ng-if="row.subjectCompleted">
     <small translate="PRODUCT_TASKS.UOA_COMPLETED"></small>
