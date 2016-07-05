@@ -128,6 +128,20 @@ var ithelper = {
             });
     },
 
+    anyRequest: function (api, token, body, status, response, done) {
+        api
+            .set('token', token)
+            .send(body)
+            .expect(status)
+            .end(function (err, res) {
+                if (err) {
+                    return done(err);
+                }
+                response.body = res.body;
+                done();
+            });
+    },
+
     selectOneCheckField: function (api, get, token, status, index, name, value, done) {
         api
             .get(get)
