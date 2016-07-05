@@ -10,7 +10,7 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-task.html'
         }, {
-            title: tns + 'SURVEY',
+            title: tns + 'SURVEY_POLICY',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-survey.html'
 

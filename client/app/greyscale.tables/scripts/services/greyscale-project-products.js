@@ -41,18 +41,18 @@ angular.module('greyscale.tables')
             dataFormat: 'textarea'
         }, {
             field: 'surveyId',
-            title: tns + 'SURVEY',
+            title: tns + 'SURVEY_POLICY',
             show: true,
             sortable: 'surveyId',
             dataFormat: 'option',
-            cellTemplate: '<span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
+            cellTemplate: '<i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
             //dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
                 valField: 'title',
                 groupBy: function (item) {
-                    return item.policyId ? 'Policies' : 'Surveys';
+                    return i18n.translate(tns + (item.policyId ?  'POLICIES' : 'SURVEYS'));
                 }
             },
             link: {
