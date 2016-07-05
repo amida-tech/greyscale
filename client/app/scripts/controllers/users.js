@@ -11,6 +11,7 @@ angular.module('greyscaleApp')
 
         var _states = ['List', 'Groups', 'Import'];
         $scope.tabs = [];
+        $scope.activeTab = 0;
 
         $scope.tabsModel = {};
 
@@ -53,8 +54,10 @@ angular.module('greyscaleApp')
 
         function _setActiveTab(state) {
             var activeState = state.name.replace(_parentState, '');
-            angular.forEach($scope.tabs, function (tab) {
-                tab.active = (tab.state === activeState);
+            angular.forEach($scope.tabs, function (tab, index) {
+                if (tab.state === activeState) {
+                    $scope.activeTab = index;
+                }
             });
         }
 

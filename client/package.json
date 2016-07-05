@@ -8,7 +8,7 @@
     "url": "https://github.com/amida-tech/greyscale.git"
   },
   "devDependencies": {
-    "autoprefixer-core": "~6.0.1",
+    "autoprefixer": "^6.0.1",
     "grunt": "~1.0.1",
     "grunt-angular-templates": "~1.0.4",
     "grunt-concurrent": "~2.3.0",

@@ -571,7 +571,12 @@ angular.module('greyscaleApp')
                 .then(function (_answers) {
                     var v, answer, qId,
                         qty = _answers.length,
-                        answDate;
+                        answDate,
+                        coAnswerRestrict = {
+                            groupBy: 'userId',
+                            orderBy: 'version'
+                        },
+                        isAuthor;
 
                     recentAnswers = {};
                     responses = {};
@@ -587,22 +592,20 @@ angular.module('greyscaleApp')
                             _addValToKey(responses, qId, _answers[v]);
                         } else if (_answers[v].version) {
                             _addValToKey(surveyAnswers, qId, _answers[v]);
-                            /*
-                            if (_answers[v].userId === currentUserId ) {
-                                flags.hasVersion = true; //todo: proceed flagged logic
-                            } else
-                            */
-                            if (scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
-                                _addValToKey(coAnswers, qId, _answers[v]);
+
+                            if (_answers[v].userId === currentUserId) {
+                                flags.hasVersion = true;
+                            } else if (scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                                _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }
 
                         answer = recentAnswers[qId];
+                        isAuthor = (_answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId);
 
-                        if (!answer ||
-                            _answers[v].version === null && _answers[v].userId === currentUserId && _answers[v].wfStepId === currentStepId ||
-                            answer.version < _answers[v].version
-                        ) {
+                        if (!_answers[v].version && isAuthor ||
+                            (!flags.isPolicy || isAuthor) && (!answer || answer.version < _answers[v].version)) {
+
                             recentAnswers[qId] = _answers[v];
 
                             if (recentAnswers[qId]) {
@@ -618,27 +621,41 @@ angular.module('greyscaleApp')
                     isReadonly = isReadonlyFlags(flags);
                     scope.model.formReadonly = isReadonly;
 
-                    $log.debug('coAnswers', coAnswers);
                     loadRecursive(scope.fields, recentAnswers, responses);
                 })
                 .finally(scope.unlock);
         }
 
-        function _addValToKey(obj, key, val) {
+        function _addValToKey(obj, key, val, restrict) {
+            var filterInd = -1,
+                filter = {};
+
             if (!obj[key]) {
                 obj[key] = [];
             }
-            obj[key].push(val);
+
+            if (restrict) {
+                filter[restrict.groupBy] = val[restrict.groupBy];
+                filterInd = _.findIndex(obj[key], filter);
+            }
+
+            if (~filterInd) {
+                if (obj[key][filterInd][restrict.orderBy] < val[restrict.orderBy]) {
+                    obj[key][filterInd] = val;
+                }
+            } else {
+                obj[key].push(val);
+            }
         }
 
         function loadRecursive(fields, answers, responses) {
             var f, fld, answer, o, oQty, response, rr,
                 fQty = (fields) ? fields.length : 0;
-
-            if (!answers) {
-                return;
-            }
-
+            /*
+             if (!answers) {
+             return;
+             }
+             */
             for (f = 0; f < fQty; f++) {
                 fld = fields[f];
                 answer = answers[fld.cid];
@@ -783,7 +800,9 @@ angular.module('greyscaleApp')
                 qty = bullets.length;
 
             for (i = 0; i < qty; i++) {
-                bullets[i].value = JSON.parse(bullets[i].value);
+                if (bullets[i].value.constructor === String) {
+                    bullets[i].value = JSON.parse(bullets[i].value);
+                }
             }
         }
 
@@ -830,7 +849,10 @@ angular.module('greyscaleApp')
                         //                        return isAuto;
                     })
                     .finally(scope.unlock);
+            } else if (!formDirty) {
+                res = $q.resolve(false);
             }
+
             return res;
         }
 
