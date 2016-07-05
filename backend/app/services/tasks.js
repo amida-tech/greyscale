@@ -166,8 +166,13 @@ var exportObject = function  (req, realm) {
             'FROM "Tasks" ' +
             'INNER JOIN "UserGroups" ON ("Tasks"."groupIds" @> ARRAY["UserGroups"."groupId"]) ' +
             'INNER JOIN "Users" ON ("UserGroups"."userId" = "Users"."id") ' +
-            pgEscape('WHERE ("Tasks"."userIds" @> \'{%s}\') ', userId) +
-            pgEscape('OR ("Users"."id" = %s) ', userId);
+            pgEscape('WHERE ("Users"."id" = %s) ', userId) +
+            'UNION ' +
+            'SELECT DISTINCT' +
+            '"Tasks"."id" ' +
+            'FROM "Tasks" ' +
+            pgEscape('WHERE ("Tasks"."userIds" @> \'{%s}\') ', userId);
+
             var taskIds = yield thunkQuery(query);
             if (_.first(taskIds)) {
                 _.each(taskIds, function(item){
