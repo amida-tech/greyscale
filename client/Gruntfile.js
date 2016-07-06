@@ -36,9 +36,13 @@ module.exports = function (grunt) {
     };
 
     if (process.platform === 'darwin') {
-        dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
-        dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
-        dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        try {
+            dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+            dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+            dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     var i18nConfig = {
