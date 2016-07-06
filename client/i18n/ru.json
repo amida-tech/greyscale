@@ -333,7 +333,8 @@
         },
         "VISUALIZATION": "Визуализация",
         "VISUALIZATIONS": "",
-        "WORKFLOW_STEPS": "Процессы"
+        "WORKFLOW_STEPS": "Процессы",
+        "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "",
@@ -797,5 +798,12 @@
         "HEADER": "Шаги рабочих процессов",
         "ITEM": "Шаг процесса",
         "TITLE": "Название"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "SAVE_WORKFLOW_TEMPLATE": "",
+        "TITLE": "",
+        "WORKFLOW_TEMPLATES": ""
     }
 }
