@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
         return {
             template: '<p class="input-group"><input type="text" class="form-control {{class}}" id="{{dataId}}" name="{{dataId}}" ' +
                 'uib-datepicker-popup ng-model="result" gs-valid="validator" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
-                'datepicker-options="{{model.dateOptions}}" ng-required="{{model.required}}" required="{{model.required}}" ' +
+                'datepicker-options="model.dateOptions" ng-required="{{model.required}}" required="{{model.required}}" ' +
                 '{{embedded}} ng-readonly="{{model.readonly}}"' +
                 'close-text="{{model.closeText}}" placeholder="{{model.placeholder}}"/><span class="input-group-btn">' +
                 '<button type="button" class="btn btn-default" ng-click="open($event)" ng-disabled="{{model.disabled}}">' +
