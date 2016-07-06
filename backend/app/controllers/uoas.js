@@ -25,26 +25,25 @@ debug.log = console.log.bind(console);
 
 module.exports = {
 
-    selectOrigLanguage: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
-            var uoa = thunkQuery(UnitOfAnalysis.select(), _.omit(req.query, 'offset', 'limit', 'order'));
-            return yield [_counter, uoa];
-        }).then(function (data) {
-            res.set('X-Total-Count', _.first(data[0]).counter);
-            res.json(_.last(data));
-        }, function (err) {
-            next(err);
-        });
-    },
-
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysis.select(UnitOfAnalysis.count('counter')));
-            var langId = yield * detectLanguage(req);
-            var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis), _.omit(req.query, 'offset', 'limit', 'order'));
+            //var langId = yield * detectLanguage(req);
+            //var uoa = thunkQuery(getTranslateQuery(langId, UnitOfAnalysis), _.omit(req.query, 'offset', 'limit', 'order'));
+            var uoa = thunkQuery(
+                UnitOfAnalysis
+                    .select(
+                    UnitOfAnalysis.star()
+                )
+                    .from(
+                    UnitOfAnalysis
+                        .leftJoin(UnitOfAnalysisType)
+                        .on(UnitOfAnalysis.unitOfAnalysisType.equals(UnitOfAnalysisType.id))
+                )
+                .where(UnitOfAnalysisType.name.notEquals(config.pgConnect.policyUoaType))
+                ,_.omit(req.query, 'offset', 'limit', 'order')
+            );
             return yield [_counter, uoa];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -57,7 +56,11 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysis, UnitOfAnalysis.id.equals(req.params.id)));
+            return yield thunkQuery(
+                UnitOfAnalysis
+                .select()
+                .where(UnitOfAnalysis.id.equals(req.params.id))
+            );
         }).then(function (data) {
             res.json(_.first(data));
         }, function (err) {
