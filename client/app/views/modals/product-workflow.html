@@ -1,10 +1,11 @@
 <modal-form-header>
-    <span translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+    <span ng-if="!modalParams.title" translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+    <span ng-if="modalParams.title">{{modalParams.title | translate}}</span>
 </modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
     <div class="row">
 
-        <div class="col-md-7">
+        <div class="col-md-{{ workflowTemplateMode ? 12 : 7 }}">
             <form name="model.dataForm" class="form">
                 <div class="form-group">
                     <label translate=".TITLE"></label>
@@ -37,7 +38,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-md-5">
+        <div ng-if="!workflowTemplateMode" class="col-md-5">
             <div style="height:200px; overflow: auto">
                 <widget-table model="model.workflowTemplates"></widget-table>
             </div>
@@ -47,9 +48,8 @@
     <widget-table model="model.productWorkflow"></widget-table>
 </div>
 <div class="modal-footer">
-    <a class="btn">Save As Template</a>
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()"
-            translate="COMMON.SAVE_AND_CONTINUE"></button>
+    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()"
+            ng-click="save()">{{ workflowTemplateMode ? 'COMMON.SAVE' : 'COMMON.SAVE_AND_CONTINUE' | translate }}</button>
 </div>
 

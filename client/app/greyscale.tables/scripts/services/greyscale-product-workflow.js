@@ -92,6 +92,10 @@ angular.module('greyscale.tables')
             }
         };
 
+        var _table = {
+            dataFilter: {}
+        };
+
         var recDescr = [{
             dataFormat: 'action',
             actions: [{
@@ -102,6 +106,7 @@ angular.module('greyscale.tables')
         }, {
             cellTemplateUrl: 'views/modals/product-workflow-row-form.html',
             cellTemplateExtData: {
+                dataFilter: _table.dataFilter,
                 formFields: formFields,
                 getFreeGroups: function (groups) {
                     return _.filter(_dicts.groups, function (o) {
@@ -130,19 +135,18 @@ angular.module('greyscale.tables')
             }]
         }];
 
-        var _table = {
+        angular.extend(_table, {
             title: tns + 'PRODUCT_WORKFLOW_STEPS',
             //icon: 'fa-fast-forward',
             cols: recDescr,
             classes: 'hidden-head',
             dataPromise: _getData,
             dragSortable: true,
-            dataFilter: {},
             add: {
                 icon: 'fa-plus',
                 handler: _addWorkflowStep
             }
-        };
+        });
 
         function _getGroups() {
             return _dicts.groups;
@@ -219,7 +223,9 @@ angular.module('greyscale.tables')
                 groups: [],
                 surveyAccess: 'writeToAnswers'
             });
+            console.log(_table.tableParams.data);
             $timeout(function () {
+                _table.refreshDataMap();
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
                 if (!lastRow.length) {
                     return;
@@ -231,6 +237,7 @@ angular.module('greyscale.tables')
                 }
                 viewport.scrollTop(rowTop);
             });
+
         }
 
         function _deleteWorkflowStep(delStep) {
@@ -245,6 +252,9 @@ angular.module('greyscale.tables')
             var promise = $q.when([]);
             if (workflowId) {
                 promise = greyscaleProductWorkflowApi.workflow(workflowId).stepsList();
+            } else {
+                // workflow templates
+                promise = $q.when(_table.dataFilter.product.steps || []);
             }
             return promise;
         }

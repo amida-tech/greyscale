@@ -2,25 +2,28 @@
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance,
-    product, Organization,
+    product, modalParams, Organization,
     greyscaleProductWorkflowTbl,
     greyscaleApplyWorkflowTemplatesTbl) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
-    var workflowTemplates = greyscaleApplyWorkflowTemplatesTbl;
-    
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
     productWorkflow.dataFilter.organizationId = Organization.id;
     productWorkflow.dataFilter.product = product;
 
-
+    $scope.modalParams = angular.copy(modalParams);
     $scope.model = {
         product: angular.copy(product),
-        productWorkflow: productWorkflow,
-        workflowTemplates: workflowTemplates
+        productWorkflow: productWorkflow
     };
+
+    var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
+
+    if (!workflowTemplateMode) {
+        $scope.model.workflowTemplates = greyscaleApplyWorkflowTemplatesTbl;
+    }
 
     $scope.close = function () {
         $uibModalInstance.dismiss();
@@ -43,9 +46,8 @@ angular.module('greyscaleApp')
         var valid = 0;
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
-                step.role &&
-                step.startDate &&
-                step.endDate &&
+                step.role && step.role !== '' &&
+                (workflowTemplateMode || (step.startDate && step.endDate)) &&
                 step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
