@@ -18,8 +18,7 @@ angular.module('greyscale.tables')
         var _dicts = {};
 
         var _fields = [{
-            field: 'title',
-            cellTemplate: '<a ng-click="ext.applyWorkflowTemplate(row)" title="{{\'COMMON.APPLY\'|translate}}"><i class="fa fa-download"></i></a>&nbsp;&nbsp;{{row.title}}',
+            cellTemplate: '<a ng-click="ext.applyWorkflowTemplate(row)" title="{{\'COMMON.APPLY\'|translate}}"><i class="fa fa-download"></i></a>&nbsp;&nbsp;<span title="{{row.workflow.description}}">{{row.workflow.name}}</span>',
             cellTemplateExtData: {
                 applyWorkflowTemplate: _applyWorkflowTemplate,
             },
@@ -75,6 +74,7 @@ angular.module('greyscale.tables')
             return $q.all(reqs)
                 .then(function (promises) {
                     greyscaleUtilsSrv.prepareFields(promises.workflowTemplates, _fields);
+                    console.log(promises);
                     return promises.workflowTemplates;
                 })
                 .catch(errorHandler);

@@ -802,8 +802,9 @@
     "WORKFLOW_TEMPLATES": {
         "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.title}}</b>",
         "DESCRIPTION": "Description",
-        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow Template",
+        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
         "TITLE": "Title",
+        "WORKFLOW_TEMPLATE": "Workflow Template",
         "WORKFLOW_TEMPLATES": "Workflow Templates"
     }
 }

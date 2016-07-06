@@ -18,12 +18,12 @@ angular.module('greyscale.tables')
         var _dicts = {};
 
         var _fields = [{
-            field: 'title',
-            sortable: 'title',
+            field: 'workflow.name',
+            sortable: 'workflow.name',
             title: tns + 'TITLE',
             show: true
         }, {
-            field: 'description',
+            field: 'workflow.description',
             title: tns + 'DESCRIPTION',
             show: true
         }, {
@@ -51,8 +51,20 @@ angular.module('greyscale.tables')
             }
         };
 
-        function _editWorkflowTemplate() {
+        function _editWorkflowTemplate(template) {
             var action = 'adding';
+
+            var modalParams = {
+                title: tns + 'WORKFLOW_TEMPLATE'
+            };
+
+            greyscaleModalsSrv.productWorkflow(template || {}, modalParams)
+                .then(function (data) {
+                    console.log(data);
+                    // return _saveWorkflowAndSteps(product, data);
+                })
+                .then(reloadTable);
+
             // _table.dataFilter.formRecord = workflowTemplate;
             // return greyscaleModalsSrv.editRec(organization, _table)
             //     .then(function (newRec) {
@@ -80,10 +92,10 @@ angular.module('greyscale.tables')
                 okText: 'COMMON.DELETE'
             }).then(function () {
                 greyscaleWorkflowTemplateApi.delete(rec.id)
-                .then(reloadTable)
-                .catch(function (err) {
-                    errorHandler(err, 'deleting');
-                });
+                    .then(reloadTable)
+                    .catch(function (err) {
+                        errorHandler(err, 'deleting');
+                    });
             });
         }
 

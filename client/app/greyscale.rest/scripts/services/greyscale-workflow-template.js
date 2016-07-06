@@ -27,23 +27,65 @@ angular.module('greyscale.rest')
             return _api().get(params).then(_postProc)
                 .catch(function () {
                     return [{
-                        id: 1,
-                        title: 'fake template 1'
+                        workflow: {
+                            name: 'fake template 1',
+                            description: 'this is a fake template number 1'
+                        },
+                        steps: [{
+                            allowEdit: false,
+                            allowTranslate: false,
+                            blindReview: false,
+                            discussionParticipation: true,
+                            position: 0,
+                            provideResponses: false,
+                            seeOthersResponses: false,
+                            role: 'fake role 1',
+                            title: 'fake step 1',
+                            usergroupId: [5],
+                            writeToAnswers: true
+                        }, {
+                            allowEdit: false,
+                            allowTranslate: false,
+                            blindReview: false,
+                            discussionParticipation: true,
+                            position: 1,
+                            provideResponses: false,
+                            seeOthersResponses: false,
+                            role: 'fake role 2',
+                            title: 'fake step 2',
+                            usergroupId: [6],
+                            writeToAnswers: true
+                        }]
                     }, {
-                        id: 2,
-                        title: 'fake template 2'
-                    }, {
-                        id: 3,
-                        title: 'fake template 3'
-                    }, {
-                        id: 4,
-                        title: 'fake template 4'
-                    }, {
-                        id: 5,
-                        title: 'fake template 5'
-                    }, {
-                        id: 6,
-                        title: 'fake template 6'
+                        workflow: {
+                            name: 'fake template 2',
+                            description: 'this is a fake template number 2'
+                        },
+                        steps: [{
+                            allowEdit: false,
+                            allowTranslate: false,
+                            blindReview: false,
+                            discussionParticipation: true,
+                            position: 0,
+                            provideResponses: false,
+                            seeOthersResponses: false,
+                            role: 'fake role 1',
+                            title: 'fake step 1',
+                            usergroupId: [1],
+                            writeToAnswers: true
+                        }, {
+                            allowEdit: false,
+                            allowTranslate: false,
+                            blindReview: false,
+                            discussionParticipation: true,
+                            position: 1,
+                            provideResponses: false,
+                            seeOthersResponses: false,
+                            role: 'fake role 2',
+                            title: 'fake step 2',
+                            usergroupId: [1],
+                            writeToAnswers: true
+                        }]
                     }];
                 });
         }
