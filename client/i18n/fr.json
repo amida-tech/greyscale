@@ -326,7 +326,8 @@
         },
         "VISUALIZATION": "",
         "VISUALIZATIONS": "",
-        "WORKFLOW_STEPS": ""
+        "WORKFLOW_STEPS": "",
+        "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "",
@@ -780,5 +781,12 @@
         "HEADER": "",
         "ITEM": "",
         "TITLE": ""
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "SAVE_WORKFLOW_TEMPLATE": "",
+        "TITLE": "",
+        "WORKFLOW_TEMPLATES": ""
     }
 }

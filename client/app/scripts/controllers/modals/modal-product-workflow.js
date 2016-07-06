@@ -3,10 +3,13 @@ angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance,
     product, Organization,
-    greyscaleProductWorkflowTbl) {
+    greyscaleProductWorkflowTbl,
+    greyscaleApplyWorkflowTemplatesTbl) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
+    var workflowTemplates = greyscaleApplyWorkflowTemplatesTbl;
+    
     var workflowId = product.workflow ? product.workflow.id : undefined;
     productWorkflow.dataFilter.workflowId = workflowId;
     productWorkflow.dataFilter.organizationId = Organization.id;
@@ -15,7 +18,8 @@ angular.module('greyscaleApp')
 
     $scope.model = {
         product: angular.copy(product),
-        productWorkflow: productWorkflow
+        productWorkflow: productWorkflow,
+        workflowTemplates: workflowTemplates
     };
 
     $scope.close = function () {

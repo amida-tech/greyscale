@@ -326,7 +326,8 @@
         },
         "VISUALIZATION": "Visualization",
         "VISUALIZATIONS": "Visualizations",
-        "WORKFLOW_STEPS": "Workflow Steps"
+        "WORKFLOW_STEPS": "Workflow Steps",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
@@ -780,5 +781,12 @@
         "HEADER": "Workflow Steps",
         "ITEM": "Workflow Step",
         "TITLE": "Title"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.title}}</b>",
+        "DESCRIPTION": "Description",
+        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow Template",
+        "TITLE": "Title",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     }
 }

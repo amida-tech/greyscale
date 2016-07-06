@@ -134,6 +134,7 @@ angular.module('greyscale.tables')
             title: tns + 'PRODUCT_WORKFLOW_STEPS',
             //icon: 'fa-fast-forward',
             cols: recDescr,
+            classes: 'hidden-head',
             dataPromise: _getData,
             dragSortable: true,
             dataFilter: {},
