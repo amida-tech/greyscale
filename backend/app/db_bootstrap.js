@@ -1,4 +1,4 @@
-var config = require('config'),
+var config = require('../config'),
     util = require('util'),
     Client = require('pg').Client,
     debug = require('debug')('debug_db_bootstrap');

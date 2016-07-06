@@ -2,19 +2,21 @@ if (process.env.NODE_ENV === 'production') {
     require('newrelic');
 }
 
-var config = require('config'),
+var config = require('../config'),
     multer = require('multer'),
     passport = require('passport'),
     util = require('util'),
     pg = require('pg'),
     fs = require('fs'),
-    HttpError = require('app/error').HttpError,
-    Query = require('app/util').Query,
+    HttpError = require('./error').HttpError,
+    Query = require('./util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query),
-    mc = require('app/mc_helper'),
-    co = require('co');
+    mc = require('./mc_helper'),
+    co = require('co'),
+    router = require('./router');
+
 
 var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
@@ -105,7 +107,7 @@ app.on('start', function () {
     });
 
     // Route requests to controllers/actions
-    app.use(require('app/router'));
+    app.use(router);
 
     // Error number
     app.use(function (err, req, res, next) {
@@ -175,7 +177,7 @@ app.on('start', function () {
             console.log('starting server..'); // need for background test server
         });
 
-        require('app/socket/socket-controller.server').init(server);
+        require('./socket/socket-controller.server').init(server);
     }
 
     //Connect to memchache server

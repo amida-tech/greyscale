@@ -1,13 +1,13 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('config'),
-    Language = require('app/models/languages'),
+    config = require('../../config'),
+    Language = require('../models/languages'),
     co = require('co'),
-    Query = require('app/util').Query,
-    getTranslateQuery = require('app/util').getTranslateQuery,
+    Query = require('../util').Query,
+    getTranslateQuery = require('../util').getTranslateQuery,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 module.exports = {

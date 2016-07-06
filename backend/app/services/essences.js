@@ -1,9 +1,9 @@
 var
     _ = require('underscore'),
-    Essence = require('app/models/attachments'),
-    config = require('config'),
+    Essence = require('../models/attachments'),
+    config = require('../../config'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     thunkify = require('thunkify');
 
 var exportObject = function  (req, realm) {
@@ -22,7 +22,7 @@ var exportObject = function  (req, realm) {
 
     this.getEssenceModel = function (filename) {
         try {
-            var model = require('app/models/' + filename);
+            var model = require('../models/' + filename);
             return model;
         } catch (err) {
             return false;

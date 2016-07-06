@@ -1,9 +1,9 @@
 var express = require('express'),
-    authenticate = require('app/auth').authenticate,
-    authorize = require('app/auth').authorize,
-    checkRight = require('app/auth').checkRight,
-    checkPermission = require('app/auth').checkPermission,
-    config = require('config'),
+    authenticate = require('./auth').authenticate,
+    authorize = require('./auth').authorize,
+    checkRight = require('./auth').checkRight,
+    checkPermission = require('./auth').checkPermission,
+    config = require('../config'),
     router = express.Router(),
     bodyParser = require('body-parser'),
     jsonParser = bodyParser.json({
@@ -14,7 +14,7 @@ var express = require('express'),
 //----------------------------------------------------------------------------------------------------------------------
 //    ROLES
 //----------------------------------------------------------------------------------------------------------------------
-var roles = require('app/controllers/roles');
+var roles = require('./controllers/roles');
 
 router.route('/:realm/v0.2/roles')
     .get(authenticate('token').ifPossible, roles.select)
@@ -28,7 +28,7 @@ router.route('/:realm/v0.2/roles/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    RIGHTS
 //----------------------------------------------------------------------------------------------------------------------
-var rights = require('app/controllers/rights');
+var rights = require('./controllers/rights');
 
 router.route('/:realm/v0.2/rights')
     .get(authenticate('token').always, checkRight('rights_view_all'), rights.select)
@@ -42,7 +42,7 @@ router.route('/:realm/v0.2/rights/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    ROLE RIGHTS
 //----------------------------------------------------------------------------------------------------------------------
-var roleRights = require('app/controllers/role_rights');
+var roleRights = require('./controllers/role_rights');
 
 router.route('/:realm/v0.2/roles/:roleID/rights')
     .get(authenticate('token').always, checkRight('role_rights_view_one'), roleRights.select);
@@ -54,7 +54,7 @@ router.route('/:realm/v0.2/roles/:roleID/rights/:rightID')
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCES
 //----------------------------------------------------------------------------------------------------------------------
-var essences = require('app/controllers/essences');
+var essences = require('./controllers/essences');
 
 router.route('/:realm/v0.2/essences')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.select)
@@ -65,7 +65,7 @@ router.route('/:realm/v0.2/essences/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    PROJECTS
 //----------------------------------------------------------------------------------------------------------------------
-var projects = require('app/controllers/projects');
+var projects = require('./controllers/projects');
 
 router.route('/:realm/v0.2/projects')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
@@ -85,7 +85,7 @@ router.route('/:realm/v0.2/projects/:id/surveys')
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
-var surveys = require('app/controllers/surveys');
+var surveys = require('./controllers/surveys');
 
 router.route('/:realm/v0.2/surveys')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
@@ -107,7 +107,7 @@ router.route('/:realm/v0.2/questions/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    SURVEY ANSWERS
 //----------------------------------------------------------------------------------------------------------------------
-var surveyAnswers = require('app/controllers/survey_answers');
+var surveyAnswers = require('./controllers/survey_answers');
 
 router.route('/:realm/v0.2/survey_answers')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveyAnswers.select)
@@ -125,7 +125,7 @@ router.route('/:realm/v0.2/survey_answers/:id')
 //    ATTACHMENTS (universal mechanism)
 //----------------------------------------------------------------------------------------------------------------------
 
-var attachments = require('app/controllers/attachments');
+var attachments = require('./controllers/attachments');
 
 router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
     .put(authenticate('token').always, jsonParser, attachments.links);
@@ -145,7 +145,7 @@ router.route('/:realm/v0.2/uploads/success')
 //----------------------------------------------------------------------------------------------------------------------
 //    ESSENCE_ROLES
 //----------------------------------------------------------------------------------------------------------------------
-var essenceRoles = require('app/controllers/essence_roles');
+var essenceRoles = require('./controllers/essence_roles');
 
 router.route('/:realm/v0.2/essence_roles')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ essenceRoles.select)
@@ -159,7 +159,7 @@ router.route('/:realm/v0.2/essence_roles/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    ACCESS_MATRICES
 //-----------------------------------------------s-----------------------------------------------------------------------
-var accessMatrices = require('app/controllers/access_matrices');
+var accessMatrices = require('./controllers/access_matrices');
 
 router.route('/:realm/v0.2/access_matrices')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ accessMatrices.select)
@@ -180,7 +180,7 @@ router.route('/:realm/v0.2/access_permissions/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    LANGUAGES
 //----------------------------------------------------------------------------------------------------------------------
-var languages = require('app/controllers/languages');
+var languages = require('./controllers/languages');
 
 router.route('/:realm/v0.2/languages')
     .get( /*authenticate('token').always, */ languages.select)
@@ -194,7 +194,7 @@ router.route('/:realm/v0.2/languages/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    TASKS
 //----------------------------------------------------------------------------------------------------------------------
-var tasks = require('app/controllers/tasks');
+var tasks = require('./controllers/tasks');
 
 router.route('/:realm/v0.2/tasks')
     .get(authenticate('token').always, tasks.select)
@@ -208,7 +208,7 @@ router.route('/:realm/v0.2/tasks/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
-var translations = require('app/controllers/translations');
+var translations = require('./controllers/translations');
 router.route('/:realm/v0.2/translations')
     .get(authenticate('token').always, translations.select)
     .post(authenticate('token').always, jsonParser, translations.insertOne);
@@ -225,7 +225,7 @@ router.route('/:realm/v0.2/translations/:essenceId/:entityId')
 //----------------------------------------------------------------------------------------------------------------------
 //    PRODUCTS
 //----------------------------------------------------------------------------------------------------------------------
-var products = require('app/controllers/products');
+var products = require('./controllers/products');
 router.route('/:realm/v0.2/products')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ products.select)
     .post(authenticate('token').always, jsonParser, products.insertOne);
@@ -273,8 +273,8 @@ router.route('/:realm/v0.2/products/:id/move/:uoaid')
 //----------------------------------------------------------------------------------------------------------------------
 //    ORGANIZATIONS
 //----------------------------------------------------------------------------------------------------------------------
-var users = require('app/controllers/users');
-var organizations = require('app/controllers/organizations');
+var users = require('./controllers/users');
+var organizations = require('./controllers/organizations');
 
 router.route('/:realm/v0.2/organizations')
     .get(authenticate('token').always, organizations.select)
@@ -358,7 +358,7 @@ router.route('/:realm/v0.2/users/:id/uoa/:uoaid')
 //    GROUPS
 //----------------------------------------------------------------------------------------------------------------------
 
-var groups = require('app/controllers/groups');
+var groups = require('./controllers/groups');
 
 router.route('/:realm/v0.2/organizations/:organizationId/groups')
     .get(authenticate('token').always, groups.selectByOrg)
@@ -372,7 +372,7 @@ router.route('/:realm/v0.2/groups/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    COUNTRIES
 //----------------------------------------------------------------------------------------------------------------------
-var countries = require('app/controllers/countries');
+var countries = require('./controllers/countries');
 
 router.route('/:realm/v0.2/countries')
     .get(authenticate('token').always, countries.select)
@@ -385,7 +385,7 @@ router.route('/:realm/v0.2/countries/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    WORKFLOWS
 //----------------------------------------------------------------------------------------------------------------------
-var workflows = require('app/controllers/workflows');
+var workflows = require('./controllers/workflows');
 
 router.route('/:realm/v0.2/workflows')
     .get(authenticate('token').always, workflows.select)
@@ -413,7 +413,7 @@ router.route('/:realm/v0.2/workflows/:id/steps')
 //----------------------------------------------------------------------------------------------------------------------
 //    DISCUSSIONS
 //----------------------------------------------------------------------------------------------------------------------
-var discussions = require('app/controllers/discussions');
+var discussions = require('./controllers/discussions');
 
 router.route('/:realm/v0.2/discussions')
     .get(authenticate('token').always, discussions.select)
@@ -431,7 +431,7 @@ router.route('/:realm/v0.2/discussions/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS
 //----------------------------------------------------------------------------------------------------------------------
-var notifications = require('app/controllers/notifications');
+var notifications = require('./controllers/notifications');
 
 router.route('/:realm/v0.2/notifications')
     .get(authenticate('token').always, notifications.select)
@@ -456,7 +456,7 @@ router.route('/:realm/v0.2/notifications/delete')
 //----------------------------------------------------------------------------------------------------------------------
 //    Units of Analysis
 //----------------------------------------------------------------------------------------------------------------------
-var UnitOfAnalysis = require('app/controllers/uoas');
+var UnitOfAnalysis = require('./controllers/uoas');
 
 router.route('/:realm/v0.2/uoas')
     .get(authenticate('token').always, UnitOfAnalysis.select)
@@ -473,7 +473,7 @@ router.route('/:realm/v0.2/import_uoas_csv')
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis Types
 //----------------------------------------------------------------------------------------------------------------------
-var UnitOfAnalysisType = require('app/controllers/uoatypes');
+var UnitOfAnalysisType = require('./controllers/uoatypes');
 
 router.route('/:realm/v0.2/uoatypes')
     .get(authenticate('token').always, UnitOfAnalysisType.select)
@@ -487,7 +487,7 @@ router.route('/:realm/v0.2/uoatypes/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis Classification Types
 //----------------------------------------------------------------------------------------------------------------------
-var UnitOfAnalysisClassType = require('app/controllers/uoaclasstypes');
+var UnitOfAnalysisClassType = require('./controllers/uoaclasstypes');
 
 router.route('/:realm/v0.2/uoaclasstypes')
     .get(authenticate('token').always, UnitOfAnalysisClassType.select)
@@ -501,7 +501,7 @@ router.route('/:realm/v0.2/uoaclasstypes/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis Tags
 //----------------------------------------------------------------------------------------------------------------------
-var UnitOfAnalysisTag = require('app/controllers/uoatags');
+var UnitOfAnalysisTag = require('./controllers/uoatags');
 
 router.route('/:realm/v0.2/uoatags')
     .get(authenticate('token').always, UnitOfAnalysisTag.select)
@@ -515,7 +515,7 @@ router.route('/:realm/v0.2/uoatags/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    Unit of Analysis to Tags Link
 //----------------------------------------------------------------------------------------------------------------------
-var UnitOfAnalysisTagLink = require('app/controllers/uoataglinks');
+var UnitOfAnalysisTagLink = require('./controllers/uoataglinks');
 
 router.route('/:realm/v0.2/uoataglinks')
     .get(authenticate('token').always, UnitOfAnalysisTagLink.select)
@@ -527,8 +527,8 @@ router.route('/:realm/v0.2/uoataglinks/:id')
 //----------------------------------------------------------------------------------------------------------------------
 //    Visualizations
 //----------------------------------------------------------------------------------------------------------------------
-var Visualization = require('app/controllers/visualizations');
-var ComparativeVisualization = require('app/controllers/comparative_visualizations');
+var Visualization = require('./controllers/visualizations');
+var ComparativeVisualization = require('./controllers/comparative_visualizations');
 
 router.route('/:realm/v0.2/organizations/:organizationId/visualizations')
     .get(authenticate('token').always, Visualization.select)
@@ -563,7 +563,7 @@ router.route('/:realm/v0.2/organizations/:organizationId/comparative_visualizati
 //----------------------------------------------------------------------------------------------------------------------
 //    Data Export
 //----------------------------------------------------------------------------------------------------------------------
-var DataExport = require('app/controllers/data_export');
+var DataExport = require('./controllers/data_export');
 
 router.route('/:realm/v0.2/data-api/datasets')
     .get(DataExport.authenticate, DataExport.select);
@@ -576,7 +576,7 @@ module.exports = router;
 //----------------------------------------------------------------------------------------------------------------------
 //    LOGS
 //----------------------------------------------------------------------------------------------------------------------
-var logs = require('app/controllers/logs');
+var logs = require('./controllers/logs');
 
 router.route('/:realm/v0.2/logs')
     .get(authenticate('token').always, logs.select);

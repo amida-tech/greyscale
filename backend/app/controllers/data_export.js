@@ -1,14 +1,14 @@
-var Product = require('app/models/products'),
-    Project = require('app/models/projects'),
-    DataApiKey = require('app/models/data_api_keys'),
-    products = require('app/controllers/products'),
+var Product = require('../models/products'),
+    Project = require('../models/projects'),
+    DataApiKey = require('../models/data_api_keys'),
+    products = require('../controllers/products'),
     co = require('co'),
     _ = require('underscore'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query),
-    HttpError = require('app/error').HttpError;
+    HttpError = require('../error').HttpError;
 
 module.exports = {
     // simple api key auth

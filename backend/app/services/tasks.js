@@ -1,8 +1,8 @@
 var
     _ = require('underscore'),
-    Task = require('app/models/tasks'),
+    Task = require('../models/tasks'),
     co = require('co'),
-    HttpError = require('app/error').HttpError;
+    HttpError = require('../error').HttpError;
 
 var exportObject = {
     getByProductUOA: function (req, productId, uoaId) {

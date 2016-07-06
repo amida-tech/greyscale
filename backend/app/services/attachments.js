@@ -1,13 +1,13 @@
 var
     _ = require('underscore'),
-    Attachment = require('app/models/attachments'),
-    AttachmentAttempts = require('app/models/attachment_attempts'),
-    AttachmentLink = require('app/models/attachment_links'),
-    config = require('config'),
+    Attachment = require('../models/attachments'),
+    AttachmentAttempts = require('../models/attachment_attempts'),
+    AttachmentLink = require('../models/attachment_links'),
+    config = require('../../config'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     AWS = require('aws-sdk');
     AWS.config.update(config.aws);
     var s3 = new AWS.S3();

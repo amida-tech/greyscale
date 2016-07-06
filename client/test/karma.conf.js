@@ -24,8 +24,8 @@ module.exports = function(config) {
     // list of files / patterns to load in the browser
     files: [
       // bower:js
-      'bower_components/jquery/jquery.js',
       'bower_components/ie8-node-enum/index.js',
+      'bower_components/jquery/jquery.js',
       'bower_components/jquery-ui/ui/jquery-ui.js',
       'bower_components/jquery.scrollWindowTo/index.js',
       'bower_components/underscore/underscore.js',

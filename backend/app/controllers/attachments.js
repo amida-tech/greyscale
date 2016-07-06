@@ -1,14 +1,14 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('config'),
-    BoLogger = require('app/bologger'),
+    config = require('../../config'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     co = require('co'),
     fs = require('fs'),
-    common = require('app/services/common'),
-    sAttachment = require('app/services/attachments'),
-    sEssence = require('app/services/essences'),
+    common = require('../services/common'),
+    sAttachment = require('../services/attachments'),
+    sEssence = require('../services/essences'),
     crypto = require('crypto');
 
 

@@ -1,18 +1,18 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('config'),
-    BoLogger = require('app/bologger'),
+    config = require('../../config'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    AccessMatrix = require('app/models/access_matrices'),
-    AccessPermission = require('app/models/access_permissions'),
-    Right = require('app/models/rights'),
-    Role = require('app/models/roles');
+    AccessMatrix = require('../models/access_matrices'),
+    AccessPermission = require('../models/access_permissions'),
+    Right = require('../models/rights'),
+    Role = require('../models/roles');
 
 var co = require('co');
-var Query = require('app/util').Query,
+var Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_access_matrices');

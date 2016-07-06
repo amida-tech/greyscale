@@ -12,10 +12,6 @@ stdio = [process.stdin, process.stdout, process.stderr];
 
 var opt = {
   cwd: __dirname,
-  env: (function () {
-    process.env.NODE_PATH = '.'; // Enables require() calls relative to the cwd
-    return process.env;
-  }()),
   stdio: stdio
 };
 

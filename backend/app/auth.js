@@ -1,20 +1,20 @@
 var passport = require('passport'),
     BasicStrategy = require('passport-http').BasicStrategy,
-    TokenStrategy = require('lib/passport_token'),
-    client = require('app/db_bootstrap'),
-    User = require('app/models/users'),
-    Role = require('app/models/roles'),
-    Token = require('app/models/token'),
-    Project = require('app/models/projects'),
-    Organization = require('app/models/organizations'),
-    EssenceRoles = require('app/models/essence_roles'),
-    AccessPermission = require('app/models/access_permissions'),
-    Essences = require('app/models/essences'),
-    HttpError = require('app/error').HttpError,
+    TokenStrategy = require('../lib/passport_token'),
+    client = require('./db_bootstrap'),
+    User = require('./models/users'),
+    Role = require('./models/roles'),
+    Token = require('./models/token'),
+    Project = require('./models/projects'),
+    Organization = require('./models/organizations'),
+    EssenceRoles = require('./models/essence_roles'),
+    AccessPermission = require('./models/access_permissions'),
+    Essences = require('./models/essences'),
+    HttpError = require('./error').HttpError,
     util = require('util'),
-    config = require('config');
+    config = require('../config');
 
-var Query = require('app/util').Query,
+var Query = require('./util').Query,
     query = new Query(),
     sql = require('sql'),
     _ = require('underscore'),
@@ -22,8 +22,8 @@ var Query = require('app/util').Query,
     thunkify = require('thunkify');
 var thunkQuery = thunkify(query);
 
-var Right = require('app/models/rights'),
-    RoleRights = require('app/models/role_rights'),
+var Right = require('./models/rights'),
+    RoleRights = require('./models/role_rights'),
     UserRights = false;
 
 var requestRights = 'ARRAY(' +
@@ -393,7 +393,7 @@ module.exports = {
 
                 var model;
                 try {
-                    model = require('app/models/' + Essence.fileName);
+                    model = require('./models/' + Essence.fileName);
                 } catch (err) {
                     throw new HttpError(403, 'Cannot find model file: ' + Essence.fileName);
                 }
