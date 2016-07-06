@@ -1182,7 +1182,7 @@ module.exports = {
                     )
                 )
                 .where(
-                    Task.userId.equals(req.user.id)
+                    Task.userIds.contains('{' + req.user.id + '}')
                     //.and(Project.status.equals(1))
                     .and(Product.status.equals(1))
                 ), req.query

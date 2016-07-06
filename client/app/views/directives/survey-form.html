@@ -6,7 +6,7 @@
         &nbsp;&nbsp;
         <span uib-dropdown>
             <a uib-dropdown-toggle><span translate=".PRINT_SURVEY"></span> <span class="caret"></span></a>
-            <ul class="uib-dropdown-menu">
+            <ul uib-dropdown-menu class="dropdown-menu">
                 <li><a print-area="survey-form" print-css-mode="open-collapsible hide-inputs"><span
                     translate=".PRINT_QUESTIONS"></span></a></li>
                 <li><a print-area="survey-form" print-css-mode="open-collapsible clean-inputs"
@@ -44,7 +44,7 @@
                 </div>
                 <div class="form-group"
                      ng-repeat="fld in fields"
-                     survey-form-field="fld" field-disabled="surveyData.disabledFields"></div>
+                     survey-form-field="fld" field-disabled="surveyData.disabledFields || surveyData.resolveModeIsDisabled"></div>
             </div>
             <div>
                 <button class="btn btn-default pull-left" ng-click="back()" translate="COMMON.BACK"></button>
@@ -64,9 +64,9 @@
                             ng-disabled="(isLocked() || model.formReadonly || model.locked)"
                             translate="SURVEYS.SAVE_DRAFT"></button>
 
-                    <button ng-if="!surveyData.task.flagged" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
+                    <button ng-if="!surveyData.task.flagged || surveyData.resolveModeIsDisabled" class="btn btn-primary pull-right" ng-hide="surveyData.flags.allowTranslate && !model.translated"
                             ng-click="save()"
-                            ng-disabled="(surveyForm.$invalid || isLocked() || model.locked)"
+                            ng-disabled="surveyData.resolveModeIsDisabled ? false : surveyForm.$invalid || isLocked() || model.locked"
                             translate="SURVEYS.SUBMIT">
                     </button>
 
@@ -76,7 +76,7 @@
                             <i class="chk-box"></i>{{"SURVEYS.TRANSLATED" | translate}}</label></span>
                     </button>
 
-                    <button ng-if="surveyData.task.flagged"
+                    <button ng-if="surveyData.task.flagged && !surveyData.resolveModeIsDisabled"
                             class="btn btn-primary pull-right"
                             ng-disabled="!allFlagsCommented() || model.locked"
                             ng-click="save(true)"

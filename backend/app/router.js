@@ -133,9 +133,6 @@ router.route('/:realm/v0.2/uploads/links/:essenceId/:entityId')
 router.route('/:realm/v0.2/uploads/:id/ticket')
     .get(authenticate('token').always, attachments.getTicket);
 
-router.route('/:realm/v0.2/uploads/get/:ticket')
-    .get(attachments.getAttachment);
-
 router.route('/:realm/v0.2/uploads/:id/:essenceId/:entityId')
     .delete(authenticate('token').always, attachments.delete);
 
@@ -234,9 +231,9 @@ router.route('/:realm/v0.2/products')
     .post(authenticate('token').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('token').always, checkPermission('product_select', 'products'), products.selectOne)
-    .put(authenticate('token').always, jsonParser, checkPermission('product_update', 'products'), products.updateOne)
-    .delete(authenticate('token').always, checkPermission('product_delete', 'products'), products.delete);
+    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
+    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
+    .delete(authenticate('token').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
     .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)

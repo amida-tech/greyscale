@@ -48,6 +48,7 @@ module.exports = function (grunt) {
                     node_env: 'test',
                     // jscs:enable
                     script: 'app.js',
+                    //debug: true,
                     port: 3006
                 }
             }
@@ -60,7 +61,22 @@ module.exports = function (grunt) {
                     timeout: '10000'
                 },
                 src: [
-                    'test/**/*.spec.js'
+                    'test/**/1*.spec.js',
+                    'test/**/2_*.spec.js',
+                    'test/**/0*.spec.js',
+                    'test/**/3_*.spec.js',
+                    'test/**/71*.spec.js',
+                    'test/**/72*.spec.js',
+                    'test/**/73*.spec.js',
+                    'test/**/74*.spec.js',
+                    'test/**/81*.spec.js',
+                    'test/**/82*.spec.js',
+                    'test/**/83*.spec.js',
+                    'test/**/91*.spec.js',
+                    'test/**/92*.spec.js',
+                    'test/**/93*.spec.js',
+                    'test/**/94*.spec.js',
+                    'test/**/95*.spec.js',
                 ]
             }
         },
@@ -184,8 +200,9 @@ module.exports = function (grunt) {
     grunt.registerTask('bckpDb', function () {
         var done = this.async();
         var cpg = require('./config').pgConnect;
-        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + cpg.database;
-        var filename = sql;
+        var dbToCopy = 'indaba_hb'; // cpg.database;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + dbToCopy;
+        var filename = 'test/indaba-hcsc-dump-2706.sql';
         console.log(connectStringPg);
         exec('pg_dump ' + connectStringPg + ' > ' + filename, function (err) {
             if (err !== null) {

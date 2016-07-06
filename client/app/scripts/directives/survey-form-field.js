@@ -42,7 +42,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.flagResolve) {
-                            label += '<div class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
+                            label += '<div ng-hide="isDisabled" class="question-flag-resolving"><i class="fa fa-flag text-danger"></i> {{field.flagResolve.entry}}' +
                                 '<input class="form-control" ng-model="field.flagResolve.draft.entry" placeholder="{{\'SURVEYS.RESOLVE_COMMENT\' | translate}}"/>' +
                                 '</div>';
                         }
@@ -205,7 +205,7 @@ angular.module('greyscaleApp')
                         }
 
                         if (scope.field.canAttach) {
-                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" answer-id="{{field.answerId}}" options="field.flags"></attachments>';
+                            attach = '<attachments ng-if="!isDisabled" model="field.attachments" field="field" options="field.flags"></attachments>';
                         }
 
                         body = '<div class="survey-form-field-input" survey-form-field-type="' + scope.field.type + '">' + body +

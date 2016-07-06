@@ -45,19 +45,37 @@ var setWhereInt = function (selectQuery, val, model, key) {
     return selectQuery;
 };
 
-var notify = function (req, note0, entryId, taskId, action, essenceName) {
+var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
     co(function* () {
+        var userTo, note;
         // notify
+        var sentUsersId = []; // array for excluding duplicate sending
         var task = yield * common.getTask(req, taskId);
-        var userTo = yield * common.getUser(req, task.userId);
-        var note = _.extend(note0, {
-            body: req.body.entry,
-            action: action
-        });
-        note = yield * notifications.extendNote(req, note, userTo, essenceName, entryId, userTo.organizationId, taskId);
-        note = notifications.notify(req, userTo, note, 'discussion');
+        for (var i in task.userIds) {
+            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
+                if (req.user.id !== task.userIds[i]) { // don't send self notification
+                    userTo = yield * common.getUser(req, task.userIds[i]);
+                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                    notifications.notify(req, userTo, note, templateName);
+                    sentUsersId.push(task.userIds[i]);
+                }
+            }
+        }
+        for (i in task.groupIds) {
+            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
+            for (var j in usersFromGroup) {
+                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
+                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
+                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
+                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+                        notifications.notify(req, userTo, note, templateName);
+                        sentUsersId.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+        }
     }).then(function (result) {
-        debug('Created notification for comment with id`' + entryId + '`');
+        debug('Created notifications `' + note0.action + '`');
     }, function (err) {
         error(JSON.stringify(err));
     });
@@ -102,9 +120,9 @@ module.exports = {
 
             if (req.query.filter === 'resolve') {
                 /*
-                it should filter results to get actual messages without history - returning flag messages and draft resolving messages
-                (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
-                */
+                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
+                 (isReturn && !isResolve && activated) || (isResolve && !isReturn && !activated)
+                 */
                 selectWhere = selectWhere + ' AND (' +
                     '("Discussions"."isReturn" = true AND "Discussions"."isResolve" = false AND "Discussions"."activated" = true) ' +
                     'OR ' +
@@ -143,7 +161,6 @@ module.exports = {
             //var currentStep = yield * common.getCurrentStepExt(req, task.productId, task.uoaId); // ??? could user commented ???
             var stepTo = yield * common.getEntity(req, req.body.stepId, WorkflowStep, 'id');
             var taskTo = yield * common.getTaskByStep(req, stepTo.id, task.uoaId);
-            var userTo = yield * common.getUser(req, taskTo.userId);
 
             var retTask = task;
             if (returnObject) {
@@ -161,15 +178,11 @@ module.exports = {
                     }); // use returnTaskId from previous return flags
                 } else {
                     retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                    userTo = yield * common.getUser(req, retTask.userId);
                 }
             }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
-            req.body = _.extend(req.body, {
-                userId: userTo.id
-            }); // add userId from task (for backward compability)
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
@@ -180,8 +193,7 @@ module.exports = {
             }
             req.body = _.pick(req.body, Discussion.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Discussion.insert(req.body).returning(Discussion.id));
-
-            if (!isReturn && !isResolve) { // // notify only ordinary entries
+            if (!isReturn && !isResolve) { // notify only ordinary entries
                 // prepare for notify
                 var userFrom = yield * common.getUser(req, req.user.id);
                 // static blindReview
@@ -207,10 +219,13 @@ module.exports = {
                 }
 
                 notify(req, {
+                    body: req.body.entry,
+                    action: 'Comment added',
                     userFromName: userFromName,
                     from: from
-                }, result[0].id, taskTo.id, 'Comment added', 'Discussions');
+                }, result[0].id, taskTo.id, 'Discussions', 'discussion');
             }
+
             bologger.log({
                 req: req,
                 user: req.user,
@@ -219,7 +234,6 @@ module.exports = {
                 entity: result[0].id,
                 info: 'Add discussion`s entry'
             });
-
             return _.first(result);
 
         }).then(function (data) {
@@ -238,39 +252,37 @@ module.exports = {
             }); // update `updated`
             req.body = _.pick(req.body, Discussion.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Discussion.update(req.body).where(Discussion.id.equals(req.params.id)).returning(Discussion.id));
-
             // prepare for notify
             var entry = yield * common.getDiscussionEntry(req, req.params.id);
             if (!entry.isReturn && !entry.isResolve) { // // notify only ordinary entries
                 var userFrom = yield * common.getUser(req, req.user.id);
                 // static blindReview
                 var task = yield * common.getTask(req, entry.taskId);
-                var userTo = yield * common.getUser(req, entry.userId);
-                var productId = task.productId;
-                var uoaId = task.uoaId;
-                var step4userTo = yield * getUserToStep(req, productId, uoaId, userTo.id);
+                var stepTo = yield * common.getEntity(req, entry.stepId, WorkflowStep, 'id');
                 var userFromName = userFrom.firstName + ' ' + userFrom.lastName;
                 var from = {
                     firstName: userFrom.firstName,
                     lastName: userFrom.lastName
                 };
-                if (step4userTo.blindReview) {
-                    userFromName = step4userTo.role + ' (' + step4userTo.title + ')';
+                if (stepTo.blindReview) {
+                    userFromName = stepTo.role + ' (' + stepTo.title + ')';
                     from = {
-                        firstName: step4userTo.role,
-                        lastName: '(' + step4userTo.title + ')'
+                        firstName: stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
                     };
                 } else if (userFrom.isAnonymous) {
-                    userFromName = 'Anonymous -' + step4userTo.role + ' (' + step4userTo.title + ')';
+                    userFromName = 'Anonymous -' + stepTo.role + ' (' + stepTo.title + ')';
                     from = {
-                        firstName: 'Anonymous -' + step4userTo.role,
-                        lastName: '(' + step4userTo.title + ')'
+                        firstName: 'Anonymous -' + stepTo.role,
+                        lastName: '(' + stepTo.title + ')'
                     };
                 }
                 notify(req, {
+                    body: req.body.entry,
+                    action: 'Comment updated',
                     userFromName: userFromName,
                     from: from
-                }, result[0].id, step4userTo.taskid, 'Comment updated', 'Discussions');
+                }, result[0].id, stepTo.taskid, 'Discussions', 'discussion');
             }
             bologger.log({
                 req: req,
@@ -352,6 +364,8 @@ module.exports = {
                 for (var i = 0; i < result.length; i++) {
                     userList.push({
                         userId: result[i].userid,
+                        userIds: result[i].userids,
+                        groupIds: result[i].groupids,
                         firstName: result[i].firstName,
                         lastName: result[i].lastName,
                         stepId: result[i].stepid,
@@ -375,8 +389,9 @@ function* checkInsert(req) {
     var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
     var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
     var entry = yield * checkString(req.body.entry, 'Entry');
-    // check if return or resolve entry already exist for question
-    var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
+    if (req.body.isReturn || req.body.isResolve) {// check if return or resolve entry already exist for question
+        var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
+    }
     // get next order for entry
     var nextOrder = yield * getNextOrder(req, taskId, questionId);
     req.body = _.extend(req.body, {
@@ -437,6 +452,8 @@ function* checkUserId(req, user, stepId, taskId, currentStep, tag) {
         if (result[i].stepid === parseInt(stepId)) {
             retObject = {
                 userId: result[i].userid,
+                userIds: result[i].userids,
+                groupIds: result[i].groupids,
                 userName: result[i].username,
                 taskId: result[i].taskid,
                 taskName: result[i].taskname,
@@ -485,7 +502,8 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
         // available all users for this survey
         query =
             'SELECT ' +
-            '"Tasks"."userId" as userid, ' +
+            '"Tasks"."userIds" as userids, ' +
+            '"Tasks"."groupIds" as groupids, ' +
             '"Tasks"."id" as taskid, ' +
             '"Tasks"."title" as taskname, ' +
             '"Tasks"."stepId" as stepid, ' +
@@ -504,13 +522,14 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             'FROM ' +
             '"Tasks" ' +
             'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-            'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+            'INNER JOIN "Users" ON "Tasks"."userIds"[1] = "Users"."id" ' +
             'WHERE ' +
             pgEscape('"Tasks"."productId" = %s AND ', productId) +
             pgEscape('"Tasks"."uoaId" = %s ', uoaId);
         if (tag === 'return') {
-            query = query + pgEscape('AND "WorkflowSteps"."position" < %s', currentStep.position);
+            query = query + pgEscape('AND "WorkflowSteps"."position" < %s ', currentStep.position);
         }
+        query = query + 'ORDER BY "WorkflowSteps"."id"';
         return yield thunkQuery(query);
     } else { //if (tag === 'resolve')
         var resolve = null;
@@ -558,7 +577,8 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
             // get resolve list
             query =
                 'SELECT ' +
-                '"Tasks"."userId" as userid, ' +
+                '"Tasks"."userIds" as userids, ' +
+                '"Tasks"."groupIds" as groupids, ' +
                 '"Tasks"."id" as taskid, ' +
                 '"Tasks"."title" as taskname, ' +
                 '"Tasks"."stepId" as stepid, ' +
@@ -578,7 +598,7 @@ function* getUserList(req, user, taskId, productId, uoaId, currentStep, tag) {
                 'FROM "Discussions" ' +
                 'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
                 'INNER JOIN "WorkflowSteps" ON "Tasks"."stepId" = "WorkflowSteps"."id" ' +
-                'INNER JOIN "Users" ON "Tasks"."userId" = "Users"."id" ' +
+                'INNER JOIN "Users" ON "Tasks"."userIds"[1] = "Users"."id" ' +
                 pgEscape('WHERE "Discussions"."returnTaskId" = %s ', taskId) +
                 'AND "Discussions"."isReturn" = true ' +
                 'AND "Discussions"."isResolve" = false ' +
@@ -608,8 +628,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var i = 0; i < result.length; i++) {
             availList.push({
-                userId: result[i].userid,
-                //questionId: result[i].questionid,
+                userIds: result[i].userids,
+                groupIds: result[i].groupids,
                 firstName: result[i].firstName,
                 lastName: result[i].lastName,
                 taskId: result[i].taskid,
@@ -626,8 +646,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var ii = 0; ii < result.length; ii++) {
             returnList.push({
-                userId: result[ii].userid,
-                //questionId: result[i].questionid,
+                userIds: result[ii].userids,
+                groupIds: result[ii].groupids,
                 firstName: result[ii].firstName,
                 lastName: result[ii].lastName,
                 taskId: result[ii].taskid,
@@ -644,7 +664,8 @@ function* getAvailableUsers(req) {
     if (_.first(result)) {
         for (var j = 0; j < result.length; j++) {
             resolveList.push({
-                userId: result[j].userid,
+                userIds: result[j].userids,
+                groupIds: result[j].groupids,
                 questionId: result[j].questionid,
                 firstName: result[j].firstName,
                 lastName: result[j].lastName,
@@ -775,158 +796,6 @@ function* getCurrentStep(req, taskId) {
     return result[0];
 }
 
-function* updateProductUOAStep(req, object) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(ProductUOA.update({
-            currentStepId: object.stepId
-        })
-        .where(ProductUOA.productId.equals(object.productId)
-            .and(ProductUOA.UOAid.equals(object.uoaId))
-        )
-        .returning(ProductUOA.currentStepId)
-    );
-    if (_.first(result)) {
-
-        // notify
-        var essenceId = yield * common.getEssenceId(req, 'Tasks');
-        var task = yield * common.getTask(req, parseInt(object.taskId));
-        var userTo = yield * common.getUser(req, task.userId);
-        var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-        var product = yield * common.getEntity(req, task.productId, Product, 'id');
-        var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-        var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-        var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-        var note = yield * notifications.createNotification(req, {
-                userFrom: req.user.realmUserId,
-                userTo: task.userId,
-                body: 'Task activated (flagged)',
-                essenceId: essenceId,
-                entityId: object.taskId,
-                task: task,
-                product: product,
-                uoa: uoa,
-                step: step,
-                survey: survey,
-                user: userTo,
-                organization: organization,
-                date: new Date(),
-                to: {
-                    firstName: userTo.firstName,
-                    lastName: userTo.lastName
-                },
-                config: config
-            },
-            'activateTask'
-        );
-
-        bologger.log({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            entities: {
-                productId: object.productId,
-                uoaId: object.uoaId,
-                currentStepId: object.stepId
-            },
-            quantity: 1,
-            info: 'Update current step for survey'
-        });
-    } else {
-        bologger.error({
-            req: req,
-            action: 'update',
-            object: 'productUOA',
-            entity: null,
-            info: 'Update current step for survey'
-        }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-    }
-}
-
-function* checkUpdateProductUOAStep(req, object) {
-    /*
-        After adding "resolve" entry - it's need to check posibility to change current step (table ProductUOA).
-        If all record in table Discussions for current surveys (unique Product-UoA) have isReturn==isResolve (both true - i.e. "resolve" or both false - i.e. not "returning")
-        then change current step of survey to step from "return" Task.
-     */
-    var query =
-        'SELECT "Discussions"."questionId" ' +
-        'FROM "Discussions" ' +
-        'INNER JOIN "Tasks" ON "Discussions"."taskId" = "Tasks"."id" ' +
-        'WHERE ' +
-        '"Discussions"."isResolve" <> "Discussions"."isReturn" AND ' +
-        pgEscape('"Tasks"."uoaId" = %s AND ', object.uoaId) +
-        pgEscape('"Tasks"."productId" = %s', object.productId);
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        var res = yield thunkQuery(ProductUOA.update({
-                currentStepId: object.stepId
-            })
-            .where(ProductUOA.productId.equals(object.productId)
-                .and(ProductUOA.UOAid.equals(object.uoaId))
-            )
-            .returning(ProductUOA.currentStepId)
-        );
-        if (_.first(res)) {
-
-            // notify
-            var essenceId = yield * common.getEssenceId(req, 'Tasks');
-            var task = yield * common.getTask(req, parseInt(object.taskId));
-            var userTo = yield * common.getUser(req, task.userId);
-            var organization = yield * common.getEntity(req, userTo.organizationId, Organization, 'id');
-            var product = yield * common.getEntity(req, task.productId, Product, 'id');
-            var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
-            var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
-            var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-            var note = yield * notifications.createNotification(req, {
-                    userFrom: req.user.realmUserId,
-                    userTo: task.userId,
-                    body: 'Task activated (resolved)',
-                    essenceId: essenceId,
-                    entityId: object.taskId,
-                    task: task,
-                    product: product,
-                    uoa: uoa,
-                    step: step,
-                    survey: survey,
-                    user: userTo,
-                    organization: organization,
-                    date: new Date(),
-                    to: {
-                        firstName: userTo.firstName,
-                        lastName: userTo.lastName
-                    },
-                    config: config
-                },
-                'activateTask'
-            );
-
-            bologger.log({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                entities: {
-                    productId: object.productId,
-                    uoaId: object.uoaId,
-                    currentStepId: object.stepId
-                },
-                quantity: 1,
-                info: 'Update current step for survey (when resolving)'
-            });
-        } else {
-            bologger.error({
-                req: req,
-                action: 'update',
-                object: 'productUOA',
-                entity: null,
-                info: 'Update current step for survey (when resolving)'
-            }, 'Couldn`t find survey for (productId, uoaId) = (' + object.productId.toString() + ', ' + object.uoaId.toString() + ')');
-        }
-    }
-}
-
 function* updateReturnTask(req, discussionId) {
     var thunkQuery = req.thunkQuery;
     var res = yield thunkQuery(Discussion.update({
@@ -964,7 +833,7 @@ function* getUserToStep(req, productId, uoaId, userId) {
         'WHERE ' +
         pgEscape('"Tasks"."productId" = %s AND ', productId) +
         pgEscape('"Tasks"."uoaId" = %s AND ', uoaId) +
-        pgEscape('"Tasks"."userId" = %s', userId);
+        pgEscape('"Tasks"."userIds"[1] = %s', userId);
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(query);
     if (!_.first(result)) {

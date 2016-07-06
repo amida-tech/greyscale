@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $log) {
 
         var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var fldNamePrefix = 'fld';
@@ -240,6 +240,7 @@ angular.module('greyscaleApp')
                         if (fResolve) {
                             if (fResolve.draft.entry && fResolve.draft.entry !== fResolve.lastEntry) {
                                 fResolve.lastEntry = fResolve.draft.entry;
+                                $log.debug('saving', fResolve);
                                 reqs.push(_saveFlagCommentDraft(fResolve));
                             }
 
@@ -622,7 +623,6 @@ angular.module('greyscaleApp')
 
                     if (fld.canAttach) {
                         fld.attachments = answer.attachments || [];
-                        fld.flags.entityId = answer.id;
                     }
 
                     if (fld.hasComments) {
