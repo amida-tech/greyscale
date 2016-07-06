@@ -12,13 +12,7 @@ angular.module('greyscaleApp')
                 options: '=?',
                 associate: '=?'
             },
-            template: '<uib-accordion><uib-accordion-group is-open="sectionOpen"><uib-accordion-heading>' +
-                '<span translate="{{model.label}}"></span><i class="fa pull-right" ng-class="{\'fa-caret-up\': sectionOpen, ' +
-                '\'fa-caret-down\': !sectionOpen}"></i></uib-accordion-heading>' +
-                '<text-angular ng-model="model.description" ng-hide="options.readonly"></text-angular>' +
-                '<div gs-context-menu="contextMenu" qid="{{model.qid}}" class="gs-contextmenu-wrapper dropdown">' +
-                '<div id="{{model.qid}}" class="section-text ta-text" ng-show="options.readonly" ng-bind-html="model.description"></div></div>' +
-                '</uib-accordion-group></uib-accordion>',
+            templateUrl: 'views/directives/fb-policy.html',
             link: function (scope, elem, attrs, ngModel) {
                 var _policy, _associate;
 
@@ -34,7 +28,7 @@ angular.module('greyscaleApp')
                         var _comment = {
                             section: scope.model,
                             quote: data.range.cloneRange().toString(),
-                            range: data.selection //greyscaleSelection.get(document.getElementById(scope.model.qid))
+                            range: data.selection
                         };
                         $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
                     }

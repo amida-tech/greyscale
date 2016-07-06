@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers, greyscaleGroupApi, greyscaleCommentApi, $log) {
+        greyscaleUsers, greyscaleGroupApi, greyscaleCommentApi) {
 
         var data = {},
             _title = [],
@@ -106,8 +106,7 @@ angular.module('greyscaleApp')
                                 var _u, _qty = commentData.users.length;
 
                                 for (_u = 0; _u < _qty; _u++) {
-                                    _data.collaborators[commentData.users[_u].userId] = _.pick(commentData.users[_u],
-                                        ['userId', 'firstName', 'lastName']);
+                                    _data.collaborators[commentData.users[_u].userId] = _.pick(commentData.users[_u], ['userId', 'firstName', 'lastName']);
                                     _data.collaborators[commentData.users[_u].userId].fullName = greyscaleUtilsSrv.getUserName(
                                         commentData.users[_u]);
                                 }
