@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyReviewCtrl', function (_, $scope, $state, $stateParams, $q, greyscaleSurveyApi, greyscaleTaskApi,
         greyscaleProfileSrv, greyscaleLanguageApi, greyscaleEntityTypeApi, greyscaleGlobals, greyscaleUtilsSrv,
-        greyscaleUsers, greyscaleGroupApi, $log) {
+        greyscaleUsers, greyscaleGroupApi, greyscaleCommentApi, $log) {
 
         var data = {},
             _title = [],
@@ -100,17 +100,19 @@ angular.module('greyscaleApp')
                         }
                     }
                     _data.collaboratorIds = _.uniq(members);
+                    if (_data.task) {
+                        greyscaleCommentApi.getUsers(_data.task.id)
+                            .then(function (commentData) {
+                                var _u, _qty = commentData.users.length;
 
-                    greyscaleUsers.get(_data.collaboratorIds)
-                        .then(function (users) {
-                            var _u, _qty = users.length;
-
-                            for (_u = 0; _u < _qty; _u++) {
-                                _data.collaborators[users[_u].id] = _.pick(users[_u], ['id', 'firstName', 'lastName']);
-                                _data.collaborators[users[_u].id].fullName = greyscaleUtilsSrv.getUserName(users[_u]);
-                            }
-                        });
-
+                                for (_u = 0; _u < _qty; _u++) {
+                                    _data.collaborators[commentData.users[_u].userId] = _.pick(commentData.users[_u],
+                                        ['userId', 'firstName', 'lastName']);
+                                    _data.collaborators[commentData.users[_u].userId].fullName = greyscaleUtilsSrv.getUserName(
+                                        commentData.users[_u]);
+                                }
+                            });
+                    }
                     return _data;
                 });
             })
