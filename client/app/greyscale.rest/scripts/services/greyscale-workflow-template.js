@@ -8,6 +8,7 @@ angular.module('greyscale.rest')
         return {
             list: _list,
             add: _add,
+            update: _update,
             remove: _remove
         };
 
@@ -19,6 +20,10 @@ angular.module('greyscale.rest')
             return _api().customPUT(workflowTemplate).then(_postProc);
         }
 
+        function _update(workflowTemplate) {
+            return _api().one(workflowTemplate.id + '').customPOST(workflowTemplate).then(_postProc);
+        }
+
         function _remove(id) {
             return _api().one(id + '').remove().then(_postProc);
         }
@@ -27,6 +32,7 @@ angular.module('greyscale.rest')
             return _api().get(params).then(_postProc)
                 .catch(function () {
                     return [{
+                        id: 1,
                         workflow: {
                             name: 'fake template 1',
                             description: 'this is a fake template number 1'
@@ -57,6 +63,7 @@ angular.module('greyscale.rest')
                             writeToAnswers: true
                         }]
                     }, {
+                        id: 2,
                         workflow: {
                             name: 'fake template 2',
                             description: 'this is a fake template number 2'

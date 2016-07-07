@@ -4,7 +4,8 @@ angular.module('greyscaleApp')
     $uibModalInstance,
     product, modalParams, Organization,
     greyscaleProductWorkflowTbl,
-    greyscaleApplyWorkflowTemplatesTbl) {
+    greyscaleWorkflowTemplateApi,
+    greyscaleUtilsSrv) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
@@ -22,7 +23,9 @@ angular.module('greyscaleApp')
     var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
 
     if (!workflowTemplateMode) {
-        $scope.model.workflowTemplates = greyscaleApplyWorkflowTemplatesTbl;
+        _refreshTemplatesList();
+    } else {
+        productWorkflow.dataFilter.workflowTemplateMode = true;
     }
 
     $scope.close = function () {
@@ -35,11 +38,19 @@ angular.module('greyscaleApp')
             workflow: $scope.model.product.workflow || {},
             steps: steps
         };
-        resolveData.workflow.productId = product.id;
+        if (workflowTemplateMode) {
+            resolveData.id = product.id;
+        } else {
+            resolveData.workflow.productId = product.id;
+        }
         $uibModalInstance.close(resolveData);
     };
 
     $scope.validWorkflowSteps = _validateWorkflowSteps;
+
+    $scope.applyWorkflowTemplate = _applyWorkflowTemplate;
+
+    $scope.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
 
     function _validateWorkflowSteps() {
         var steps = _getSteps();
@@ -85,4 +96,72 @@ angular.module('greyscaleApp')
         });
         return steps;
     }
+
+    function _getGroup(id) {
+        return _.find(productWorkflow._dicts.groups, {id: id});
+    }
+
+    function _setSteps(steps) {
+        productWorkflow.tableParams.data.splice(0);
+        angular.forEach(steps, function(step){
+            var item = _.pick(step, [
+                'role',
+                'title',
+                'discussionParticipation', 'seeOthersResponses',
+                'blindReview'
+            ]);
+            item.groups = _.map(step.usergroupId, _getGroup);
+            if (step.writeToAnswers === false) {
+                item.surveyAccess = 'noWriteToAnswers';
+            } else if (step.writeToAnswers === true) {
+                item.surveyAccess = 'writeToAnswers';
+            } else {
+                angular.forEach(permissionFields, function(perm){
+                    if (step[perm]) {
+                        item.surveyAccess = perm;
+                    }
+                });
+            }
+
+            productWorkflow.tableParams.data.push(item);
+        });
+        productWorkflow.refreshDataMap();
+    }
+
+    function _refreshTemplatesList() {
+        $scope.model.selectedTemplate = undefined;
+        greyscaleWorkflowTemplateApi.list()
+        .then(function(data){
+            $scope.model.workflowTemplates = data;
+        })
+        .catch(greyscaleUtilsSrv.errorMsg);
+    }
+
+    function _applyWorkflowTemplate() {
+        var template = $scope.model.selectedTemplate;
+        $scope.model.product.workflow.name = template.workflow.name;
+        $scope.model.product.workflow.description = template.workflow.description;
+
+        _setSteps(template.steps);
+        $scope.model.selectedTemplate = undefined;
+    }
+
+    function _saveCurrentWorkflowAsTemplate() {
+        var template = {
+            workflow: {
+                name: $scope.model.product.workflow.name,
+                description: $scope.model.product.workflow.description,
+            },
+            steps: _getSteps()
+        };
+        angular.forEach(template.steps, function(step, i){
+            delete(template.steps[i].startDate);
+            delete(template.steps[i].endDate);
+            delete(template.steps[i].id);
+        });
+        greyscaleWorkflowTemplateApi.add(template)
+            .then(_refreshTemplatesList)
+            .catch(greyscaleUtilsSrv.errorMsg)
+    }
+
 });

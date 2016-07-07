@@ -176,18 +176,14 @@ angular.module('greyscale.tables')
 
             var workflowId = _getWorkflowId();
             var organizationId = _getOrganizationId();
-            var roleFilter = {
-                isSystem: false
-            };
             var req = {
                 steps: _getWorkStepsPromise(workflowId),
-                roles: greyscaleRoleApi.list(roleFilter),
                 groups: greyscaleGroupApi.list(organizationId)
             };
 
             return $q.all(req).then(function (promises) {
-                _dicts.roles = promises.roles;
                 _dicts.groups = promises.groups;
+                _table._dicts = _dicts;
                 return _prepareSteps(promises.steps);
             });
 
@@ -223,7 +219,6 @@ angular.module('greyscale.tables')
                 groups: [],
                 surveyAccess: 'writeToAnswers'
             });
-            console.log(_table.tableParams.data);
             $timeout(function () {
                 _table.refreshDataMap();
                 var lastRow = _table.el.find('tbody td:not(.expand-row)').last();
@@ -244,6 +239,7 @@ angular.module('greyscale.tables')
             angular.forEach(_table.tableParams.data, function (item, i) {
                 if (angular.equals(item, delStep)) {
                     _table.tableParams.data.splice(i, 1);
+                    _table.refreshDataMap();
                 }
             });
         }
@@ -261,12 +257,12 @@ angular.module('greyscale.tables')
 
         function _getOrderHandleTooltip() {
             var product = _getProduct();
-            return product.status !== 0 ? tns + 'SORT_DISABLED' : '';
+            return (!product.projectId || product.status === 0) ? tns + 'SORT_ENABLED' : tns + 'SORT_DISABLED';
         }
 
         function _getOrderHandleClass() {
             var product = _getProduct();
-            var cl = product.status !== 0 ? 'disabled' : 'drag-sortable';
+            var cl = (!product.projectId || product.status === 0) ? 'drag-sortable' : 'disabled';
             return cl;
         }
 

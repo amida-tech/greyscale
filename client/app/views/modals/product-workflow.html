@@ -38,9 +38,20 @@
                 </div>
             </form>
         </div>
-        <div ng-if="!workflowTemplateMode" class="col-md-5">
-            <div style="height:200px; overflow: auto">
-                <widget-table model="model.workflowTemplates"></widget-table>
+        <div ng-if="!workflowTemplateMode" class="col-md-5 text-right">
+            <label translate=".WORKFLOW_TEMPLATES"></label>
+            <div class="form-group">
+                <div class="input-group">
+                    <select class="form-control" ng-model="model.selectedTemplate" ng-options="tpl as tpl.workflow.name for tpl in model.workflowTemplates">
+                        <option value="" translate=".LOAD_FROM_WORKFLOW_TEMPLATE"></option>
+                    </select>
+                    <a class="input-group-addon btn btn-default" ng-disabled="!model.selectedTemplate" ng-click="applyWorkflowTemplate()" translate="COMMON.APPLY"></a>
+                </div>
+            </div>
+            <div class="form-group">
+                <br>
+                <br>
+                <a ng-click="saveAsTemplate()" translate=".SAVE_AS_TEMPLATE">Save</a>
             </div>
         </div>
     </div>
