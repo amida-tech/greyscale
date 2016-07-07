@@ -242,7 +242,7 @@ module.exports = {
                     Product
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
-                )
+                ), req.query
             );
         }).then(function (data) {
             res.json(data);
