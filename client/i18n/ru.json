@@ -32,6 +32,7 @@
         "CONFIRM": "Подтвердить",
         "CONFIRMATION": "Подтверждение",
         "CONTINUE": "Продолжить",
+        "COPY": "",
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
@@ -55,6 +56,7 @@
         "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
+        "THE_COPY": "",
         "UNASSIGN": "Отмена назначения",
         "UNASSIGNED": "",
         "VIEW": "Просмотр",
@@ -326,7 +328,8 @@
         },
         "VISUALIZATION": "Визуализация",
         "VISUALIZATIONS": "",
-        "WORKFLOW_STEPS": "Процессы"
+        "WORKFLOW_STEPS": "Процессы",
+        "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "",
@@ -486,6 +489,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -502,6 +507,7 @@
                 "ROLE": "Роль",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "SORT_DISABLED": "",
+                "SORT_ENABLED": "",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг",
                 "WRITE_ACCESS_READ": "Чтение",
@@ -509,7 +515,8 @@
             },
             "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
-            "TITLE_REQUIRED": "Название обязательно"
+            "TITLE_REQUIRED": "Название обязательно",
+            "WORKFLOW_TEMPLATES": ""
         }
     },
     "PRODUCT_TASKS": {
@@ -782,5 +789,13 @@
         "HEADER": "Шаги рабочих процессов",
         "ITEM": "Шаг процесса",
         "TITLE": "Название"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "SAVE_WORKFLOW_TEMPLATE": "",
+        "TITLE": "",
+        "WORKFLOW_TEMPLATE": "",
+        "WORKFLOW_TEMPLATES": ""
     }
 }

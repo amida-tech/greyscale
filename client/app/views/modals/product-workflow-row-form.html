@@ -1,27 +1,27 @@
 <form style="padding: 0 15px;" translate-namespace="PRODUCTS.WORKFLOW.STEPS">
     <div class="row">
-        <div class="col-md-3 form-group">
+        <div class="col-md-{{ !ext.dataFilter.workflowTemplateMode ? 3 : 6 }} form-group">
             <label translate="{{ext.formFields.title.title}}"></label>
             <span modal-form-rec="row"
                     modal-form-field="ext.formFields.title" embedded="true"
                     modal-form-field-model="row.title">
             </span>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-{{ !ext.dataFilter.workflowTemplateMode ? 3 : 6 }}">
             <label translate="{{ext.formFields.role.title}}"></label>
             <span modal-form-rec="row"
                   modal-form-field="ext.formFields.role" embedded="true"
                   modal-form-field-model="row.role">
             </span>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
             <label translate="{{ext.formFields.startDate.title}}"></label>
             <span modal-form-rec="row"
                   modal-form-field="ext.formFields.startDate" embedded="true"
                   modal-form-field-model="row.startDate">
             </span>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
             <label translate="{{ext.formFields.endDate.title}}"></label>
             <span modal-form-rec="row"
                   modal-form-field="ext.formFields.endDate" embedded="true"
