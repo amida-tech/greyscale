@@ -2,8 +2,8 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, $timeout, greyscaleUtilsSrv, greyscaleTokenSrv, greyscaleTaskApi, Organization, greyscaleModalsSrv,
-        greyscaleProjectProductsTbl, greyscaleSurveyApi) {
+        greyscaleProductApi, greyscaleProductTasksTbl, $timeout, greyscaleUtilsSrv, greyscaleTokenSrv, Organization,
+        greyscaleModalsSrv, greyscaleProjectProductsTbl, greyscaleSurveyApi) {
 
         var productId = $stateParams.productId;
 
