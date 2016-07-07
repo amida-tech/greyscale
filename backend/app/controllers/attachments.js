@@ -1,5 +1,4 @@
-var client = require('app/db_bootstrap'),
-    _ = require('underscore'),
+var _ = require('underscore'),
     config = require('config'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
