@@ -23,7 +23,8 @@ Product.statuses = [
     4 //'CANCELLED'
 ];
 
-Product.editCols = ['title', 'description', 'projectId', 'matrixId', 'surveyId', 'status'];
+Product.editCols = ['title', 'description', 'projectId', 'surveyId', 'status'];
+Product.whereCol = [ 'projectId', 'surveyId', 'status'];
 
 Product.translate = [
     'title',
