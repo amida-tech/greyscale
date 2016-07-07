@@ -22,17 +22,7 @@ angular.module('greyscaleApp')
                     description: ''
                 };
 
-                scope.contextMenu = [{
-                    title: 'CONTEXT_MENU.COMMENT',
-                    action: function (data) {
-                        var _comment = {
-                            section: scope.model,
-                            quote: data.range.cloneRange().toString(),
-                            range: data.selection
-                        };
-                        $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
-                    }
-                }];
+                _setContextMenu();
 
                 scope.$watch(attrs.ngModel, _setModel);
                 scope.$watch('associate', _setAssociate);
@@ -42,6 +32,25 @@ angular.module('greyscaleApp')
                         _policy = ngModel.$viewValue;
                         _policy.qid = _policy.qid || ('Q' + _policy.id);
                         scope.model = _policy;
+                        _setContextMenu();
+                    }
+                }
+
+                function _setContextMenu() {
+                    if (scope.model.canComment) {
+                        scope.contextMenu = [{
+                            title: 'CONTEXT_MENU.COMMENT',
+                            action: function (data) {
+                                var _comment = {
+                                    section: scope.model,
+                                    quote: data.range.cloneRange().toString(),
+                                    range: data.selection
+                                };
+                                $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
+                            }
+                        }];
+                    } else {
+                        scope.contextMenu = null;
                     }
                 }
 

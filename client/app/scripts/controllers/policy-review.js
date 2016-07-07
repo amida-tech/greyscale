@@ -25,7 +25,7 @@ angular.module('greyscaleApp')
             id: surveyId,
             title: '',
             surveyData: null,
-            showDiscuss: false
+            isTaskMode: !!taskId
         };
 
         if (!$scope.model.id) {
@@ -38,7 +38,8 @@ angular.module('greyscaleApp')
 
         $q.all(reqs)
             .then(function (resp) {
-                var _user = resp.profile;
+                var _user = resp.profile,
+                    g, qty;
 
                 data = {
                     survey: resp.survey,
@@ -65,16 +66,23 @@ angular.module('greyscaleApp')
                         sections: [],
                         attachments: resp.survey.attachments || []
                     },
-                    task: resp.task,
                     collaboratorIds: [],
                     collaborators: {},
                     user: _user
                 };
 
-                greyscaleUsers.get(data.survey.author).then(function (profile) {
-                    data.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
-                });
+                if (resp.task) {
+                    $scope.model.isTaskMode = !!~resp.task.userIds.indexOf(_user.id);
+                    qty = _user.usergroupId.length;
+                    for (g = 0; !$scope.model.isTaskMode && g < qty; g++) {
+                        $scope.model.isTaskMode = $scope.model.isTaskMode ||
+                            !!~resp.task.groupIds.indexOf(_user.usergroupId[g]);
+                    }
 
+                    if ($scope.model.isTaskMode) {
+                        data.task = resp.task;
+                    }
+                }
                 _separatePolicy(data);
 
                 _title = [data.survey.title];
@@ -118,7 +126,6 @@ angular.module('greyscaleApp')
             .finally(function () {
                 $scope.model.title = _title.join(' - ');
                 $scope.model.surveyData = data;
-                $scope.model.showDiscuss = true;
                 $scope.loading = false;
             });
 
@@ -131,6 +138,7 @@ angular.module('greyscaleApp')
                 qty = _survey.questions.length;
 
             for (q = 0; q < qty; q++) {
+                _survey.questions[q].canComment = $scope.model.isTaskMode;
                 if (_survey.questions[q].type === policyIdx) {
                     _sections.push(_survey.questions[q]);
                 } else {
