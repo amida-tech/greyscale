@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscale.tables')
-    .factory('greyscaleWorkflowTemplatesTbl', function ($q,
+    .factory('greyscaleWorkflowTemplatesTbl', function ($q, i18n,
         greyscaleUtilsSrv,
         greyscaleWorkflowTemplateApi,
         greyscaleUserApi,
@@ -18,6 +18,9 @@ angular.module('greyscale.tables')
         var _dicts = {};
 
         var _fields = [{
+            field: 'id',
+            show: false
+        }, {
             field: 'workflow.name',
             sortable: 'workflow.name',
             title: tns + 'TITLE',
@@ -30,6 +33,10 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             actions: [{
+                icon: 'fa-clone',
+                tooltip: 'COMMON.COPY',
+                handler: _copyWorkflowTemplate
+            }, {
                 icon: 'fa-pencil',
                 tooltip: 'COMMON.EDIT',
                 handler: _editWorkflowTemplate
@@ -41,6 +48,7 @@ angular.module('greyscale.tables')
         }];
 
         var _table = {
+            formTitle: tns + 'WORKFLOW_TEMPLATE',
             title: tns + 'WORKFLOW_TEMPLATES',
             icon: 'fa-road',
             cols: _fields,
@@ -52,7 +60,7 @@ angular.module('greyscale.tables')
         };
 
         function _editWorkflowTemplate(template) {
-            var action = 'adding';
+            var action = template && template.id ? 'editing' : 'adding';
 
             var modalParams = {
                 title: tns + 'WORKFLOW_TEMPLATE'
@@ -60,28 +68,24 @@ angular.module('greyscale.tables')
 
             greyscaleModalsSrv.productWorkflow(template || {}, modalParams)
                 .then(function (data) {
-                    console.log(data);
-                    // return _saveWorkflowAndSteps(product, data);
+                    _saveWorkflowTemplate(action, data);
+                });
+
+        }
+
+        function _copyWorkflowTemplate(template) {
+            template.id = undefined;
+            template.workflow.name += i18n.translate('COMMON.THE_COPY');
+            _saveWorkflowTemplate('copy', template);
+        }
+
+        function _saveWorkflowTemplate(action, template) {
+            var method = template.id ? 'update' : 'add';
+            greyscaleWorkflowTemplateApi[method](template)
+                .catch(function (err) {
+                    errorHandler(err, action);
                 })
                 .then(reloadTable);
-
-            // _table.dataFilter.formRecord = workflowTemplate;
-            // return greyscaleModalsSrv.editRec(organization, _table)
-            //     .then(function (newRec) {
-            //         if (newRec.id) {
-            //             action = 'editing';
-            //             return greyscaleOrganizationApi.update(newRec, organization.realm);
-            //         } else {
-            //             return greyscaleOrganizationApi.add(newRec, 'public');
-            //         }
-            //     })
-            //     .then(reloadTable)
-            //     .catch(function (err) {
-            //         errorHandler(err, action);
-            //     })
-            //     .finally(function () {
-            //         delete(_table.dataFilter.formRecord);
-            //     });
         }
 
         function _delRecord(rec) {

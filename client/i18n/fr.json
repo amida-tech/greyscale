@@ -32,6 +32,7 @@
         "CONFIRM": "",
         "CONFIRMATION": "",
         "CONTINUE": "",
+        "COPY": "",
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
@@ -55,6 +56,7 @@
         "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "",
         "SUBMIT": "",
+        "THE_COPY": "",
         "UNASSIGN": "",
         "UNASSIGNED": "",
         "VIEW": "",
@@ -494,6 +496,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",
@@ -510,6 +514,7 @@
                 "ROLE": "",
                 "SEE_OTHERS_RESPONSES": "",
                 "SORT_DISABLED": "",
+                "SORT_ENABLED": "",
                 "START_DATE": "",
                 "TITLE": "",
                 "WRITE_ACCESS_READ": "",
@@ -517,7 +522,8 @@
             },
             "STEPS_FOR": "",
             "TITLE": "",
-            "TITLE_REQUIRED": ""
+            "TITLE_REQUIRED": "",
+            "WORKFLOW_TEMPLATES": ""
         }
     },
     "PRODUCT_TASKS": {
