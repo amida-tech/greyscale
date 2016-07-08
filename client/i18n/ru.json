@@ -380,6 +380,7 @@
         "PROJECT": "Проект"
     },
     "POLICY": {
+        "APPROVE": "",
         "AUTHOR": "",
         "NEW_POLICY": "",
         "NUMBER": "",
