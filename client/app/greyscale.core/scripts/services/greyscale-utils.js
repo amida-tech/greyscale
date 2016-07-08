@@ -54,7 +54,7 @@ angular.module('greyscale.core')
 
         function _addMsg(msg, prefix, type) {
             var _msg = prefix ? i18n.translate(prefix) + ': ' : '';
-            var msgText = '';
+            var msgText = 'Service Not Available';
             if (msg) {
                 if (msg.data) {
                     if (msg.data.message) {
