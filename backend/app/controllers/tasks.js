@@ -1,16 +1,11 @@
-var
+const
     _ = require('underscore'),
     BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     common = require('../services/common'),
     Product = require('../models/products'),
-    Project = require('../models/projects'),
-    Workflow = require('../models/workflows'),
-    EssenceRole = require('../models/essence_roles'),
     WorkflowStep = require('../models/workflow_steps'),
-    UOA = require('../models/uoas'),
     Task = require('../models/tasks'),
-    Survey = require('../models/surveys'),
     co = require('co'),
     Query = require('../util').Query,
     query = new Query(),
