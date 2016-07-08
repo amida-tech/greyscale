@@ -46,7 +46,9 @@ angular.module('greyscaleApp')
                 }
             });
 
-        greyscaleProductApi.getList({ surveyId: surveyId }).then(function (products) {
+        greyscaleProductApi.getList({
+            surveyId: surveyId
+        }).then(function (products) {
             if (!products || !products.length) {
                 return;
             }
