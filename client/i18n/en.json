@@ -32,6 +32,7 @@
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
+        "COPY": "Copy",
         "CREATE": "Create",
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
@@ -49,12 +50,14 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
         "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "THE_COPY": "Copy",
         "UNASSIGN": "Unassign",
         "UNASSIGNED": "Unassigned",
         "VIEW": "View",
@@ -326,7 +329,8 @@
         },
         "VISUALIZATION": "Visualization",
         "VISUALIZATIONS": "Visualizations",
-        "WORKFLOW_STEPS": "Workflow Steps"
+        "WORKFLOW_STEPS": "Workflow Steps",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
@@ -487,6 +491,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
+            "SAVE_AS_TEMPLATE": "Save Current Workflow As Template",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -503,6 +509,7 @@
                 "ROLE": "Role",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
+                "SORT_ENABLED": "Drag by this handle to reorder steps list",
                 "START_DATE": "Start Date",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
@@ -510,7 +517,8 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
-            "TITLE_REQUIRED": "Title is required."
+            "TITLE_REQUIRED": "Title is required.",
+            "WORKFLOW_TEMPLATES": "Workflow Templates"
         }
     },
     "PRODUCT_TASKS": {
@@ -783,5 +791,14 @@
         "HEADER": "Workflow Steps",
         "ITEM": "Workflow Step",
         "TITLE": "Title"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.workflow.name}}</b>",
+        "DESCRIPTION": "Description",
+        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
+        "STEPS": "Steps",
+        "TITLE": "Title",
+        "WORKFLOW_TEMPLATE": "Workflow Template",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     }
 }
