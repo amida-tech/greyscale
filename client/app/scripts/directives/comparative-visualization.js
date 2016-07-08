@@ -181,14 +181,12 @@ angular.module('greyscaleApp')
                                 .update(dataset.id, dataset)
                                 .then(function () {
 
-                                    var setField = function (field) {
-                                        scope.datasources.datasets[i][field] = dataset[field];
-                                    };
-
                                     for (var i = 0; i < scope.datasources.datasets.length; i++) {
                                         if (scope.datasources.datasets[i].id === dataset.id) {
                                             // editable fields
-                                            ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol'].forEach(setField);
+                                            ['title', 'uoaCol', 'uoaType', 'yearCol', 'dataCol'].forEach(function (field) {
+                                                scope.datasources.datasets[i][field] = dataset[field];
+                                            });
 
                                             // clear cached data
                                             if (dataset.id in scope.datasetsData) {
