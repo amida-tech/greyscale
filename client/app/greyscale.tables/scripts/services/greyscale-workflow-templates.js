@@ -75,7 +75,7 @@ angular.module('greyscale.tables')
 
         function _copyWorkflowTemplate(template) {
             template.id = undefined;
-            template.workflow.name += i18n.translate('COMMON.THE_COPY');
+            template.workflow.name += ' ' + i18n.translate('COMMON.THE_COPY');
             _saveWorkflowTemplate('copy', template);
         }
 
@@ -95,7 +95,7 @@ angular.module('greyscale.tables')
                 okType: 'danger',
                 okText: 'COMMON.DELETE'
             }).then(function () {
-                greyscaleWorkflowTemplateApi.delete(rec.id)
+                greyscaleWorkflowTemplateApi.remove(rec.id)
                     .then(reloadTable)
                     .catch(function (err) {
                         errorHandler(err, 'deleting');

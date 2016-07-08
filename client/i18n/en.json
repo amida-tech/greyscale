@@ -50,6 +50,7 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
@@ -791,7 +792,7 @@
         "TITLE": "Title"
     },
     "WORKFLOW_TEMPLATES": {
-        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.title}}</b>",
+        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.workflow.name}}</b>",
         "DESCRIPTION": "Description",
         "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
         "TITLE": "Title",
