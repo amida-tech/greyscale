@@ -52,7 +52,7 @@ angular.module('greyscale.tables')
                 keyField: 'id',
                 valField: 'title',
                 groupBy: function (item) {
-                    return i18n.translate(tns + (item.policyId ?  'POLICIES' : 'SURVEYS'));
+                    return i18n.translate(tns + (item.policyId ? 'POLICIES' : 'SURVEYS'));
                 }
             },
             link: {
