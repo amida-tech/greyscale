@@ -130,7 +130,7 @@ module.exports = {
             return yield thunkQuery(
                 Task.delete().where(Task.id.equals(req.params.id))
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
