@@ -391,6 +391,7 @@
         "PROJECT": "Project"
     },
     "POLICY": {
+        "APPROVE": "Aprove",
         "AUTHOR": "Author",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
