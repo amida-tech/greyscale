@@ -2,10 +2,8 @@ text-angular {
     position: relative;
 }
 [text-angular-toolbar] {
+    height: 25px;
     position: relative;
-    top: 0;
-}
-[text-angular-toolbar].fixed > .ta-editor {
-    margin-top: 24px;
+    z-index: 1;
 }
 
