@@ -1,4 +1,5 @@
 var sWorkflowTemplate = require('app/services/workflow_templates'),
+    _ = require('underscore'),
     HttpError = require('app/error').HttpError,
     co = require('co');
 
@@ -6,7 +7,13 @@ module.exports = {
     select: function (req, res, next) {
         var oWorkflowTemplate = new sWorkflowTemplate(req);
         oWorkflowTemplate.getList().then(
-            (data) => res.json(data),
+            (data) => {
+                var result = [];
+                for (var i in data) {
+                    result.push(_.extend({id : data[i].id}, data[i].body));
+                }
+                res.json(result);
+            },
             (err) => next(err)
         );
     },
@@ -18,7 +25,7 @@ module.exports = {
             if (!item) {
                 throw new HttpError(404, 'Not found');
             }
-            return item;
+            return _.extend({id : item.id}, item.body);
         }).then(
             (data) => res.json(data),
             (err) => next(err)
