@@ -244,8 +244,6 @@ module.exports = {
         }, function (err) {
             next(err);
         });
-    },
-
-
+    }
 
 };
