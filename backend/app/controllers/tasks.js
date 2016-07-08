@@ -154,7 +154,7 @@ module.exports = {
                 .update(_.pick(req.body, Task.editCols))
                 .where(Task.id.equals(req.params.id))
             );
-        }).then(function (data) {
+        }).then(function () {
             bologger.log({
                 req: req,
                 user: req.user,
