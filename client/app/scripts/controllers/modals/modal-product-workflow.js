@@ -1,7 +1,7 @@
 'use strict';
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
-    $uibModalInstance,
+    $uibModalInstance, i18n,
     product, modalParams, Organization,
     greyscaleProductWorkflowTbl,
     greyscaleWorkflowTemplateApi,
@@ -128,11 +128,11 @@ angular.module('greyscaleApp')
         productWorkflow.refreshDataMap();
     }
 
-    function _refreshTemplatesList() {
-        $scope.model.selectedTemplate = undefined;
+    function _refreshTemplatesList(currentTemplateId) {
         greyscaleWorkflowTemplateApi.list()
         .then(function(data){
             $scope.model.workflowTemplates = data;
+            $scope.model.selectedTemplate = currentTemplateId ? _.find(data, {id: currentTemplateId}) : undefined;
         })
         .catch(greyscaleUtilsSrv.errorMsg);
     }
@@ -149,7 +149,7 @@ angular.module('greyscaleApp')
     function _saveCurrentWorkflowAsTemplate() {
         var template = {
             workflow: {
-                name: $scope.model.product.workflow.name,
+                name: $scope.model.product.workflow.name + ' ' + i18n.translate('COMMON.SAVED'),
                 description: $scope.model.product.workflow.description,
             },
             steps: _getSteps()
@@ -160,7 +160,9 @@ angular.module('greyscaleApp')
             delete(template.steps[i].id);
         });
         greyscaleWorkflowTemplateApi.add(template)
-            .then(_refreshTemplatesList)
+            .then(function(data) {
+                _refreshTemplatesList(data.id);
+            })
             .catch(greyscaleUtilsSrv.errorMsg)
     }
 

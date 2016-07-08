@@ -17,11 +17,11 @@ angular.module('greyscale.rest')
         }
 
         function _add(workflowTemplate) {
-            return _api().customPUT(workflowTemplate).then(_postProc);
+            return _api().customPOST(workflowTemplate).then(_postProc);
         }
 
         function _update(workflowTemplate) {
-            return _api().one(workflowTemplate.id + '').customPOST(workflowTemplate).then(_postProc);
+            return _api().one(workflowTemplate.id + '').customPUT(workflowTemplate).then(_postProc);
         }
 
         function _remove(id) {
