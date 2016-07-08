@@ -23,12 +23,9 @@ module.exports = {
                 Task
                 .select(
                     Task.star()
-                    //'row_to_json("Workflows".*) as workflow'
                 )
                 .from(
                     Task
-                    //.leftJoin(Workflow)
-                    //.on(Product.id.equals(Workflow.productId))
                 )
             );
         }).then(function (data) {
