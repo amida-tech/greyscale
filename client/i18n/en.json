@@ -795,6 +795,7 @@
         "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.workflow.name}}</b>",
         "DESCRIPTION": "Description",
         "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
+        "STEPS": "Steps",
         "TITLE": "Title",
         "WORKFLOW_TEMPLATE": "Workflow Template",
         "WORKFLOW_TEMPLATES": "Workflow Templates"

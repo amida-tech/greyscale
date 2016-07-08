@@ -30,6 +30,13 @@ angular.module('greyscale.tables')
             title: tns + 'DESCRIPTION',
             show: true
         }, {
+            title: tns + 'STEPS',
+            show: true,
+            cellTemplate: '<small class="text-muted">{{ext.getSteps(row)}}</small>',
+            cellTemplateExtData: {
+                getSteps: _getSteps
+            }
+        }, {
             show: true,
             dataFormat: 'action',
             actions: [{
@@ -52,6 +59,9 @@ angular.module('greyscale.tables')
             title: tns + 'WORKFLOW_TEMPLATES',
             icon: 'fa-road',
             cols: _fields,
+            sorting: {
+                id: 'asc'
+            },
             dataPromise: getData,
             dataFilter: {},
             add: {
@@ -127,6 +137,12 @@ angular.module('greyscale.tables')
             }
             msg += ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
+        }
+
+        function _getSteps(template) {
+            return _.map(template.steps, function (o) {
+                return o.title;
+            }).join(', ');
         }
 
         return _table;
