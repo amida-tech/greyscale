@@ -139,8 +139,9 @@ angular.module('greyscaleApp')
 
     function _applyWorkflowTemplate() {
         var template = $scope.model.selectedTemplate;
-        $scope.model.product.workflow.name = template.workflow.name;
-        $scope.model.product.workflow.description = template.workflow.description;
+        var workflow = $scope.model.product.workflow = $scope.model.product.workflow || {};
+        workflow.name = template.workflow.name;
+        workflow.description = template.workflow.description;
 
         _setSteps(template.steps);
         $scope.model.selectedTemplate = undefined;
