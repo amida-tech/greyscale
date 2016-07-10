@@ -135,7 +135,7 @@ var exportObject = function  (req, realm) {
             Key: key,
             Expires: 3600000, // TODO move to config ??
             ContentType: type,
-            ContentDisposition: "attachment; filename*=UTF-8''" + encodeURIComponent(name)
+            ContentDisposition: 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(name)
         };
         return s3.getSignedUrl('putObject', params);
     };
