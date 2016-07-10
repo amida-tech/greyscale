@@ -14,6 +14,8 @@ var
     sql = require('sql'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -28,13 +30,73 @@ var exportObject = function  (req, realm) {
             return thunkQuery(Attachment.select().from(Attachment), req.query);
         });
     };
+    this.deleteTask = function (taskId) {
+        return co(function* () {
+            yield thunkQuery(
+                Task.delete().where(Task.id.equals(taskId))
+            );
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'tasks',
+                entity: taskId,
+                info: 'Delete task'
+            });
+        });
+    };
+    this.deleteTasks = function (productId, uoaId) {
+        return co(function* () {
+            var query = Task.delete()
+                .where(
+                Task.productId.equals(productId)
+                    .and(Task.userIds.equals('{}'))
+                    .and(Task.groupIds.equals('{}'))
+            );
+            if (uoaId) {
+                query = query.and(Task.uoaId.equals(uoaId));
+            }
+
+            yield thunkQuery(query);
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'tasks',
+                entity: null,
+                entities: {
+                    productId: productId,
+                    uoaId: uoaId
+                },
+                quantity: 1,
+                info: 'Delete all tasks for product `' + productId + '` subject `' + (uoaId ? uoaId : 'ALL') + '`'
+            });
+        });
+    };
     this.getByProductUOA = function (productId, uoaId) {
         return co(function* () {
             return yield thunkQuery(
-                Task.select().where({
-                    productId: productId,
-                    uoaId: uoaId
-                })
+                Task.select()
+                    .where(
+                    Task.productId.equals(productId)
+                    .and(Task.uoaId.equals(uoaId))
+                    .and(Task.userIds.notEquals('{}')
+                        .or(Task.groupIds.notEquals('{}'))
+                    )
+                )
+            );
+        });
+    };
+    this.getByProductAllUoas = function (productId) {
+        return co(function* () {
+            return yield thunkQuery(
+                Task.select()
+                    .where(
+                    Task.productId.equals(productId)
+                    .and(Task.userIds.notEquals('{}')
+                        .or(Task.groupIds.notEquals('{}'))
+                    )
+                )
             );
         });
     };
