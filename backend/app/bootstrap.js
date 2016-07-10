@@ -17,7 +17,6 @@ var config = require('../config'),
     co = require('co'),
     router = require('./router');
 
-
 var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);

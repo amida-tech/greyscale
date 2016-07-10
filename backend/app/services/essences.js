@@ -6,7 +6,7 @@ var
     Query = require('../util').Query,
     thunkify = require('thunkify');
 
-var exportObject = function  (req, realm) {
+var exportObject = function (req, realm) {
 
     var thunkQuery;
 

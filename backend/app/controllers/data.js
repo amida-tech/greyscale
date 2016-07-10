@@ -93,7 +93,7 @@ module.exports = {
             });
             if (!data.length) {
                 console.log('populating');
-                    //if response is 0 then the tables need to be populated
+                //if response is 0 then the tables need to be populated
                 populateTables(schemaName, req, res, next);
                 return 1;
             } else {

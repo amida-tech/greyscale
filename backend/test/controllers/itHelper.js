@@ -199,7 +199,7 @@ var ithelper = {
                         if (Array.isArray(checkArray[i][key])) {
                             for (var j in checkArray[i][key]) {
                                 expect(res.body[i][key][j],
-                                    '[' + i + '].' + key +'[' + j + ']'
+                                    '[' + i + '].' + key + '[' + j + ']'
                                 ).to.equal(checkArray[i][key][j]);
                             }
                         } else {
@@ -229,7 +229,7 @@ var ithelper = {
                         if (Array.isArray(checkArray[i][key])) {
                             for (var j in checkArray[i][key]) {
                                 expect(res.body[resKey][i][key][j],
-                                    '[' + i + '].' + key +'[' + j + ']'
+                                    '[' + i + '].' + key + '[' + j + ']'
                                 ).to.equal(checkArray[i][key][j]);
                             }
                         } else {
@@ -413,7 +413,7 @@ var ithelper = {
                 if (Array.isArray(arrExpected[i][key])) {
                     for (var j in arrExpected[i][key]) {
                         expect(arrChecked[i][key][j],
-                            '[' + i + '].' + key +'[' + j + ']'
+                            '[' + i + '].' + key + '[' + j + ']'
                         ).to.equal(arrExpected[i][key][j]);
                     }
                 } else {
@@ -425,7 +425,6 @@ var ithelper = {
         }
         done();
     },
-
 
     getTokens: function (usersArray) {
         return new Promise((resolve, reject) => {

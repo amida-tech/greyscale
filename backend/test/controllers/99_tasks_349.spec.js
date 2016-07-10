@@ -44,14 +44,14 @@ var step2Id = 3;
 var step3Id = 4;
 
 var insertItem = {
-    uoaId : uoaId,
-    stepId : step1Id,
-    productId : productId,
-    userId :user1Id
+    uoaId: uoaId,
+    stepId: step1Id,
+    productId: productId,
+    userId: user1Id
 };
 var updateItem = {};
 var result = {};
-var tasks =[];
+var tasks = [];
 var tasksForCheck = [];
 var taskColumnsForCheck = [
     'userIds',
@@ -67,16 +67,18 @@ var surveyQuestions4Check = _.each(surveyQuestions, function (item, i, array) {
 var path = '/tasks';
 var testTitle = 'Tasks (issue 349): ';
 var pathProducts = '/products/' + productId + '/tasks';
-var level = function(l1, l2, l3) {
+var level = function (l1, l2, l3) {
     if (l3) {
-        return l1+'.'+l2+'.'+l3+' ';
+        return l1 + '.' + l2 + '.' + l3 + ' ';
     } else if (l2) {
-        return l1+'.'+l2+' ';
+        return l1 + '.' + l2 + ' ';
     } else {
-        return l1+' ';
+        return l1 + ' ';
     }
 };
-var l1= 0, l2= 0, l3=0;
+var l1 = 0,
+    l2 = 0,
+    l3 = 0;
 
 describe(testTitle, function () {
 
@@ -98,12 +100,12 @@ describe(testTitle, function () {
             });
         });
         describe(testTitle + 'Prepare for test', function () {
-                        it('Do prepare SQL script ', function (done) {
-                            ithelper.doSql('test/preTask349.sql', config.testEntities.organization.realm, done);
-                        });
+            it('Do prepare SQL script ', function (done) {
+                ithelper.doSql('test/preTask349.sql', config.testEntities.organization.realm, done);
+            });
         });
 
-        describe(level(++l1)+testTitle + ' /tasks  ', function () {
+        describe(level(++l1) + testTitle + ' /tasks  ', function () {
             it(level(l1, ++l2) + 'Assign scalar userId (post /tasks)', function (done) {
                 ithelper.insertOne(testEnv.apiCreatedRealm, path, tokenAdmin, insertItem, 201, insertItem, 'id', done);
             });
@@ -125,7 +127,7 @@ describe(testTitle, function () {
             });
         });
         describe(level(++l1) + testTitle + ' put /products/:id/tasks  ', function () {
-            l2=0;
+            l2 = 0;
             it(level(l1, ++l2) + 'Assign 2 new tasks', function (done) {
                 tasks = [{
                     uoaId: uoaId,
@@ -135,8 +137,7 @@ describe(testTitle, function () {
                         user1Id,
                         user2Id
                     ]
-                },
-                {
+                }, {
                     uoaId: uoaId,
                     stepId: step2Id,
                     productId: productId,
@@ -153,18 +154,17 @@ describe(testTitle, function () {
                         user1Id,
                         user2Id
                     ]
-                },
-                {
+                }, {
                     userIds: [
                         user3Id
                     ]
 
                 }];
-                ithelper.checkArrObjArr(result.body.inserted, inserted,  done);
+                ithelper.checkArrObjArr(result.body.inserted, inserted, done);
             });
             it(level(l1, ++l2) + 'Check updated', function (done) {
                 var updated = [];
-                ithelper.checkArrObjArr(result.body.updated, updated,  done);
+                ithelper.checkArrObjArr(result.body.updated, updated, done);
             });
             it(level(l1, ++l2) + '(Error) Add duplicate task', function (done) {
                 var taskDuplicate = {
@@ -187,7 +187,7 @@ describe(testTitle, function () {
             });
         });
         describe(level(++l1) + testTitle + ' assign groups  ', function () {
-            l2=0;
+            l2 = 0;
             it(level(l1, ++l2) + 'Assign `All dummies` group', function (done) {
                 tasks = [{
                     uoaId: uoaId,
@@ -209,7 +209,7 @@ describe(testTitle, function () {
                     userIds: [],
                     groupIds: [3]
                 }];
-                ithelper.checkArrObjArr(result.body.updated, updated,  done);
+                ithelper.checkArrObjArr(result.body.updated, updated, done);
             });
             it(level(l1, ++l2) + 'Assign `Dummy 1-4` & `Dummy 5-9` groups and  dummy users: 3, 4, 5, 6, 7', function (done) {
                 tasks[0].userIds = [13, 14, 15, 16, 17];
@@ -221,7 +221,7 @@ describe(testTitle, function () {
                     userIds: [],
                     groupIds: [4, 5]
                 }];
-                ithelper.checkArrObjArr(result.body.updated, updated,  done);
+                ithelper.checkArrObjArr(result.body.updated, updated, done);
             });
             it(level(l1, ++l2) + 'Assign `Dummy 3-7` group and  dummy users: 1-9', function (done) {
                 tasks[0].userIds = [11, 12, 13, 14, 15, 16, 17, 18, 19];
@@ -233,7 +233,7 @@ describe(testTitle, function () {
                     userIds: [11, 12, 18, 19],
                     groupIds: [6]
                 }];
-                ithelper.checkArrObjArr(result.body.updated, updated,  done);
+                ithelper.checkArrObjArr(result.body.updated, updated, done);
             });
         });
 

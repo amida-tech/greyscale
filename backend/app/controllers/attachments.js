@@ -11,7 +11,6 @@ var client = require('../db_bootstrap'),
     SEssence = require('../services/essences'),
     crypto = require('crypto');
 
-
 module.exports = {
     select: function (req, res, next) {
         var oAttachment = new SAttachment(req);
@@ -247,7 +246,5 @@ module.exports = {
             next(err);
         });
     },
-
-
 
 };
