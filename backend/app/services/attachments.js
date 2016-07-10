@@ -14,10 +14,12 @@ var
 
 var exportObject = function  (req, realm) {
 
+    var thunkQuery;
+
     if (realm) {
-        var thunkQuery = thunkify(new Query(realm));
+        thunkQuery = thunkify(new Query(realm));
     } else {
-        var thunkQuery = req.thunkQuery;
+        thunkQuery = req.thunkQuery;
     }
 
     this.getList = function () {

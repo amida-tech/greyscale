@@ -26,6 +26,14 @@ var app = require('express')();
 
 app.on('start', function () {
 
+    //Connect to memchache server
+    var memcache = require('memcache');
+
+    var mcClient = new memcache.Client(
+        config.mc.port,
+        config.mc.host
+    );
+
     // MEMCHACHE
     app.use(function (req, res, next) {
         debug('Request URL:', req.url);
@@ -179,14 +187,6 @@ app.on('start', function () {
 
         require('./socket/socket-controller.server').init(server);
     }
-
-    //Connect to memchache server
-    var memcache = require('memcache');
-
-    var mcClient = new memcache.Client(
-        config.mc.port,
-        config.mc.host
-    );
 
     mcClient.on('connect', function () {
         debug('mc connected');
