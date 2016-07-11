@@ -239,7 +239,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepId: task.stepId
             }); // add stepId from task (don't use stepId from body - use stepId only for current task)
-            if (!isReturn && !isResolve) {
+            if (!isReturn && !isResolve && !req.query.autosave) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
