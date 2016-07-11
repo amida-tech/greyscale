@@ -213,6 +213,9 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
+             //return only activated comments and draft comments for current user
+            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
+
             if (req.query.filter === 'resolve') {
                 /*
                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
@@ -271,7 +274,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepId: task.stepId
             }); // add stepId from task (don't use stepId from body - use stepId only for current task)
-            if (!isReturn && !isResolve) {
+            if (!isReturn && !isResolve && !req.query.autosave) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
