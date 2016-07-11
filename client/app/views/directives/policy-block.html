@@ -47,7 +47,7 @@
         </div>
     </div>
     <div class="policy-sections">
-        <div class="policy-upload row" ng-hide="policyData.options.readonly">
+        <div class="policy-upload row" ng-hide="policyData.options.readonly || !policyData.options.canImport">
             <div class="col-sm-12">
                 <label translate="POLICY.TEXT"></label>
                 <p class="subtext" translate="POLICY.UPLOAD_TEXT"></p>
