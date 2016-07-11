@@ -175,6 +175,13 @@
             "INTERNAL_AND_EMAILS": "Internal Notifications And Emails",
             "OFF": "Off"
         },
+        "POLICYUSERSTATUSES": {
+            "APPROVED": "Approved",
+            "DELAYED": "Delayed",
+            "FLAGGED": "Flagged",
+            "LATE": "Late",
+            "PENDING": "Pending"
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
             "COMPLETED": "Completed",
