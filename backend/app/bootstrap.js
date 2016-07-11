@@ -93,7 +93,7 @@ app.on('start', function () {
             return;
         }
         var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
-        var policyUoaName = config.pgConnect.policyUoaName || '<Policy>';
+        var policyUoaName = config.pgConnect.policyUoaName || '_Policy_';
         var policyUoaId, policyUoaTypeId;
         co(function* () {
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {

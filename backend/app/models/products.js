@@ -15,13 +15,13 @@ var Product = sql.define({
     columns: columns
 });
 
-Product.statuses = [
-    0, //'PLANNING'
-    1, //'STARTED'
-    2, //'SUSPENDED'
-    3, //'COMPLETED'
-    4 //'CANCELLED'
-];
+Product.statuses = {
+    0: 'Planning',
+    1: 'Started',
+    2: 'Suspended',
+    3: 'Completed',
+    4: 'Cancelled'
+};
 
 Product.editCols = ['title', 'description', 'projectId', 'surveyId', 'status'];
 Product.whereCol = [ 'projectId', 'surveyId', 'status'];
