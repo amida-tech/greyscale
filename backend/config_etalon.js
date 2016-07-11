@@ -17,7 +17,7 @@ var environments = {
             adminSchema: 'public',
             sceletonSchema: 'sceleton',
             policyUoaType: 'Policy',
-            policyUoaName: '<Policy>'
+            policyUoaName: '_Policy_'
         },
         mc: { // memcache
             host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',

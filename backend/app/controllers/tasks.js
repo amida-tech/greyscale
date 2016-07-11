@@ -72,20 +72,10 @@ module.exports = {
 
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-
         co(function* () {
-            return yield thunkQuery(
-                Task.delete().where(Task.id.equals(req.params.id))
-            );
+            var oTask = new sTask(req);
+            return yield oTask.deleteTask(req.params.id);
         }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'delete',
-                object: 'tasks',
-                entity: req.params.id,
-                info: 'Delete task'
-            });
             res.status(204).end();
         }, function (err) {
             next(err);
