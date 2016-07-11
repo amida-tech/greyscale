@@ -150,7 +150,8 @@ app.on('start', function () {
                     policyUoaId = yield thunkQuery(Uoa
                             .select(Uoa.id)
                             .from(Uoa)
-                            .where(Uoa.unitOfAnalysisType.equals(policyUoaTypeId))
+                            .where(Uoa.name.equals(policyUoaName))
+                            .and(Uoa.unitOfAnalysisType.equals(policyUoaTypeId))
                     );
                     if (_.first(policyUoaId)) {
                         debug('Policy virtual subject exist');
