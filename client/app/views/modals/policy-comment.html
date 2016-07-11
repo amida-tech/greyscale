@@ -16,7 +16,7 @@
             </div>
             <div class="form-group col-sm-6">
                 <label for="person" class="control-label" translate="COMMENTS.TAG_COMMENT"></label>
-                <select id="person" ng-model="model.tag" class="form-control" multiple
+                <select id="person" ng-model="model.tag" class="form-control" multiple="multiple" required="required"
                         ng-options="tag as (tag.fullName || tag.title) for tag in model.tags"></select>
             </div>
         </div>
