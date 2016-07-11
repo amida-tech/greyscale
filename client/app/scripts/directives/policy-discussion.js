@@ -25,50 +25,64 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
-                    var _newComment = {};
                     angular.extend(data, {
                         comment: data.quote ? '<blockquote>' + data.quote + '</blockquote><br/>' : '',
                         tags: $scope.model.associate.tags,
                         commentTypes: $scope.model.commentTypes
                     });
 
-                    greyscaleModalsSrv.policyComment(data, {})
-                        .then(function (commentBody) {
-                            var _tag = {
-                                    users: [],
-                                    groups: []
-                                },
-                                i, qty;
+                    greyscaleModalsSrv.policyComment(data, {}).then(function (commentBody) {
+                        save(commentBody);
+                    }).catch(function (data) {
+                        if (data.model) {
+                            save(data.model, true);
+                        } else {
+                            greyscaleUtilsSrv.errorMsg(data);
+                        }
+                    });
+                });
 
-                            qty = commentBody.tag ? commentBody.tag.length : 0;
+                function save(commentBody, auto) {
+                    var _tag = {
+                            users: [],
+                            groups: []
+                        },
+                        i, qty;
 
-                            for (i = 0; i < qty; i++) {
-                                if (commentBody.tag[i].userId) {
-                                    _tag.users.push(commentBody.tag[i].userId);
-                                } else if (commentBody.tag[i].groupId) {
-                                    _tag.groups.push(commentBody.tag[i].groupId);
-                                }
-                            }
-                            _newComment = {
-                                userFromId: $scope.policy.userId,
-                                taskId: $scope.policy.taskId,
-                                stepId: null,
-                                questionId: commentBody.section.id,
-                                entry: commentBody.comment,
-                                range: commentBody.range,
-                                tags: _tag,
-                                commentType: commentBody.type
-                            };
-                            return _newComment;
-                        })
-                        .then(greyscaleCommentApi.add)
-                        .then(function (result) {
+                    qty = commentBody.tag ? commentBody.tag.length : 0;
+
+                    for (i = 0; i < qty; i++) {
+                        if (commentBody.tag[i].userId) {
+                            _tag.users.push(commentBody.tag[i].userId);
+                        } else if (commentBody.tag[i].groupId) {
+                            _tag.groups.push(commentBody.tag[i].groupId);
+                        }
+                    }
+                    var _newComment = {
+                        userFromId: $scope.policy.userId,
+                        taskId: $scope.policy.taskId,
+                        stepId: null,
+                        questionId: commentBody.section.id,
+                        entry: commentBody.comment,
+                        range: commentBody.range,
+                        tags: _tag,
+                        commentType: commentBody.type
+                    };
+
+                    if (auto) {
+                        greyscaleCommentApi.autoSave(_newComment).then(function (result) {
                             angular.extend(_newComment, result);
                             _newComment.activated = true;
                             $scope.model.items.unshift(_newComment);
-                        })
-                        .catch(greyscaleUtilsSrv.errorMsg);
-                });
+                        });
+                    } else {
+                        greyscaleCommentApi.add(_newComment).then(function (result) {
+                            angular.extend(_newComment, result);
+                            _newComment.activated = true;
+                            $scope.model.items.unshift(_newComment);
+                        });
+                    }
+                }
             }
         };
 

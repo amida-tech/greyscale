@@ -10,6 +10,7 @@ angular.module('greyscale.rest')
             scopeList: _scope,
             get: _get,
             add: _add,
+            autoSave: _autoSave,
             update: _update,
             remove: _remove,
             getUsers: _users
@@ -44,6 +45,12 @@ angular.module('greyscale.rest')
 
         function _add(data) {
             return _api().customPOST(data).then(_response);
+        }
+
+        function _autoSave(data) {
+            return _api().customPOST(data, null, {
+                autosave: true
+            }).then(_response);
         }
 
         function _update(id, data) {
