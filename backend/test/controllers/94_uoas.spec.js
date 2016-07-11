@@ -27,7 +27,7 @@ var token;
 var obj = {};
 var path = '/uoas';
 var numberOfRecords = 0;
-var testTitle = 'Subjects (Units of Analisys): ';
+var testTitle = 'Subjects (Units of Analysis): ';
 
 describe(testTitle, function () {
 
