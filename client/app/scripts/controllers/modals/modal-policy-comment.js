@@ -8,10 +8,11 @@ angular.module('greyscaleApp')
     
     
     $scope.$on('modal.closing', function (event, reason, closed) {
-        if (!reason || !reason.model) {
-            event.preventDefault();
-            $uibModalInstance.dismiss({ reason: reason, model: $scope.model });
+        if (closed || (reason && reason.model)) {
+            return;
         }
+        event.preventDefault();
+        $uibModalInstance.dismiss({ reason: reason, model: $scope.model });
     });
     
     if (extData) {
