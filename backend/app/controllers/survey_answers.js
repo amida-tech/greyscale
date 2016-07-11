@@ -1,35 +1,35 @@
 var
     _ = require('underscore'),
-    BoLogger = require('app/bologger'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Survey = require('app/models/surveys'),
-    Essence = require('app/models/essences'),
-    SurveyAnswer = require('app/models/survey_answers'),
-    AnswerAttachment = require('app/models/answer_attachments'),
-    AttachmentLink = require('app/models/attachment_links'),
-    SurveyQuestion = require('app/models/survey_questions'),
-    SurveyQuestionOption = require('app/models/survey_question_options'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    Workflow = require('app/models/workflows'),
-    UOA = require('app/models/uoas'),
-    Task = require('app/models/tasks'),
-    Product = require('app/models/products'),
-    Project = require('app/models/projects'),
-    Organization = require('app/models/organizations'),
-    ProductUOA = require('app/models/product_uoa'),
-    User = require('app/models/users'),
+    Survey = require('../models/surveys'),
+    Essence = require('../models/essences'),
+    SurveyAnswer = require('../models/survey_answers'),
+    AnswerAttachment = require('../models/answer_attachments'),
+    AttachmentLink = require('../models/attachment_links'),
+    SurveyQuestion = require('../models/survey_questions'),
+    SurveyQuestionOption = require('../models/survey_question_options'),
+    WorkflowStep = require('../models/workflow_steps'),
+    Workflow = require('../models/workflows'),
+    UOA = require('../models/uoas'),
+    Task = require('../models/tasks'),
+    Product = require('../models/products'),
+    Project = require('../models/projects'),
+    Organization = require('../models/organizations'),
+    ProductUOA = require('../models/product_uoa'),
+    User = require('../models/users'),
     co = require('co'),
     sql = require('sql'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     fs = require('fs'),
     crypto = require('crypto'),
-    config = require('config'),
-    common = require('app/services/common'),
-    notifications = require('app/controllers/notifications'),
-    mc = require('app/mc_helper'),
+    config = require('../../config'),
+    common = require('../services/common'),
+    notifications = require('../controllers/notifications'),
+    mc = require('../mc_helper'),
     pgEscape = require('pg-escape'),
     bytes = require('bytes'),
     thunkQuery = thunkify(query);
@@ -83,11 +83,11 @@ module.exports = {
             if (req.user.roleID === 3) {
                 var userTasks = yield thunkQuery(
                     Task.select()
-                    .where({
-                        uoaId: req.params.UOAid,
-                        productId: req.params.productId,
-                        userId: req.user.id
-                    })
+                    .where(
+                        Task.uoaId.equals(req.params.UOAid)
+                        .and(Task.productId.equals(req.params.productId))
+                        .and(Task.userIds.contains('{' + req.user.id + '}')) // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+                    )
                 );
                 if (!userTasks[0]) {
                     throw new HttpError(
@@ -286,11 +286,11 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (result.task.userId !== req.user.id) {
+            if (!_.contains(result.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
                 throw new HttpError(
                     403,
-                    'Task (id = ' + result.task.id + ') on current workflow step assigned to another user ' +
-                    '(task user id = ' + result.task.userId + ', user id = ' + req.user.id + ')'
+                    'Task(id=' + result.task.id + ') on current workflow step does not assigned to current user ' +
+                    '(Task user ids = ' + result.task.userIds + ', user id = ' + req.user.id + ')'
                 );
             }
 
@@ -480,8 +480,12 @@ function* addAnswer(req, dataObject) {
     if (!curStep.task) {
         throw new HttpError(403, 'Task is not defined');
     }
-    if (curStep.task.userId !== req.user.id) {
-        throw new HttpError(403, 'Task at this step assigned to another user');
+    if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+        throw new HttpError(
+            403,
+            'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
+            '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
+        );
     }
 
     if (SurveyQuestion.multiSelectTypes.indexOf(_.first(question).type) !== -1) { // question with options

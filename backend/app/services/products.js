@@ -1,11 +1,11 @@
 var
     _ = require('underscore'),
-    ProductUOA = require('app/models/product_uoa'),
-    taskServ = require('app/services/tasks'),
+    ProductUOA = require('../models/product_uoa'),
+    taskServ = require('../services/tasks'),
     co = require('co'),
-    HttpError = require('app/error').HttpError;
+    HttpError = require('../error').HttpError;
 
-exportObject = {
+var exportObject = {
     deleteProductUOA: function (req, productId, UOAid) {
         var thunkQuery = req.thunkQuery;
         return new Promise((resolve, reject) => {
@@ -27,6 +27,6 @@ exportObject = {
             });
         });
     }
-}
+};
 
 module.exports = exportObject;

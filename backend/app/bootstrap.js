@@ -2,21 +2,20 @@ if (process.env.NODE_ENV === 'production') {
     require('newrelic');
 }
 
-var config = require('config'),
-    bodyParser = require('body-parser'),
+var config = require('../config'),
     multer = require('multer'),
     passport = require('passport'),
     util = require('util'),
     pg = require('pg'),
     fs = require('fs'),
-    HttpError = require('app/error').HttpError,
-    Query = require('app/util').Query,
+    HttpError = require('./error').HttpError,
+    Query = require('./util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    _ = require('underscore'),
     thunkQuery = thunkify(query),
-    mc = require('app/mc_helper'),
-    co = require('co');
+    mc = require('./mc_helper'),
+    co = require('co'),
+    router = require('./router');
 
 var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
@@ -24,10 +23,15 @@ debug.log = console.log.bind(console);
 
 var app = require('express')();
 
-// Init mongoose connection and set event listeners
-//require('app/db_bootstrap')(app);
-
 app.on('start', function () {
+
+    //Connect to memchache server
+    var memcache = require('memcache');
+
+    var mcClient = new memcache.Client(
+        config.mc.port,
+        config.mc.host
+    );
 
     // MEMCHACHE
     app.use(function (req, res, next) {
@@ -110,7 +114,7 @@ app.on('start', function () {
     });
 
     // Route requests to controllers/actions
-    app.use(require('app/router'));
+    app.use(router);
 
     // Error number
     app.use(function (err, req, res, next) {
@@ -166,56 +170,10 @@ app.on('start', function () {
 
     var pgConString = 'postgres://' + pgUser + ':' + pgPassword + '@' + pgHost + ':' + pgPort;
 
-    var sql = fs.readFileSync('db_dump/schema.sql').toString().replace(/POSTGRES_USER/g, pgUser);
     pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-
         if (err) {
-            //If the DB already exists then do not attempt to connect to postgres.
-            //This avoids problems where the user performing the connection may not have access
-            //to the postgres admin database.  Odds are high however if they do not have access
-            //to the admin database they also will not have access to create new databases.
-
-            //we failed to connect to the database, so attempt to connect to
-            //the admin database
-            pg.connect(pgConString + '/postgres', function (err, client, done) {
-                if (err) {
-                    error(err);
-                    return;
-                }
-                debug('Attempting to create database.');
-                // Create the DB if it is not there
-                client.query('CREATE DATABASE ' + pgDbName, function (err) {
-                    if (err) {
-                        error(err);
-                    }
-                    client.end();
-
-                    // Load the schema if it is not there
-                    pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
-                        if (err) {
-                            error(err);
-                            return;
-                        }
-                        client.query(sql, function (err) {
-                            if (err) {
-                                error('Schema already initialized');
-                            }
-                            client.end();
-                        });
-                    });
-
-                });
-            });
-        } else {
-            //database already exists so try to initialize the schema.
-            client.query(sql, function (err) {
-                if (err) {
-                    error(err);
-                    debug('Schema already initialized');
-                }
-                client.end();
-            });
+            debug('Could not connect to the database.');
         }
     });
 
@@ -223,18 +181,11 @@ app.on('start', function () {
         // Start server
         var server = app.listen(process.env.PORT || config.port || 3000, function () {
             debug('Listening on port ' + server.address().port);
+            console.log('starting server..'); // need for background test server
         });
 
-        require('app/socket/socket-controller.server').init(server);
+        require('./socket/socket-controller.server').init(server);
     }
-
-    //Connect to memchache server
-    var memcache = require('memcache');
-
-    var mcClient = new memcache.Client(
-        config.mc.port,
-        config.mc.host
-    );
 
     mcClient.on('connect', function () {
         debug('mc connected');

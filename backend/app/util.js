@@ -1,9 +1,9 @@
 var
-    HttpError = require('app/error').HttpError,
+    HttpError = require('./error').HttpError,
     moment = require('moment'),
     _ = require('underscore'),
-    ClientPG = require('app/db_bootstrap'),
-    config = require('config'),
+    ClientPG = require('./db_bootstrap'),
+    config = require('../config'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_util');
@@ -252,11 +252,11 @@ exports.Query = function (realm) {
 
 exports.detectLanguage = function* (req) {
     var acceptLanguage = require('accept-language'),
-        Query = require('app/util').Query;
+        Query = require('./util').Query;
     var query = new Query(),
         thunkify = require('thunkify'),
         _ = require('underscore'),
-        Language = require('app/models/languages'),
+        Language = require('./models/languages'),
         thunkQuery = thunkify(query);
 
     var languages = {};
@@ -276,9 +276,9 @@ exports.detectLanguage = function* (req) {
 
 exports.getTranslateQuery = function (langId, model, condition) {
 
-    var Language = require('app/models/languages'),
-        Essence = require('app/models/essences'),
-        Translation = require('app/models/translations');
+    var Language = require('./models/languages'),
+        Essence = require('./models/essences'),
+        Translation = require('./models/translations');
 
     var query = model;
     var from = model;

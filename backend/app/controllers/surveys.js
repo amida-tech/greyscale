@@ -1,17 +1,17 @@
 var
     _ = require('underscore'),
-    BoLogger = require('app/bologger'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Survey = require('app/models/surveys'),
-    Product = require('app/models/products'),
-    Project = require('app/models/projects'),
-    SurveyQuestion = require('app/models/survey_questions'),
-    SurveyQuestionOption = require('app/models/survey_question_options'),
+    Survey = require('../models/surveys'),
+    Product = require('../models/products'),
+    Project = require('../models/projects'),
+    SurveyQuestion = require('../models/survey_questions'),
+    SurveyQuestionOption = require('../models/survey_question_options'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');

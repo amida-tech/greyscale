@@ -1,9 +1,9 @@
 var _ = require('underscore'),
-    HttpError = require('app/error').HttpError,
-    AnswerAttachment = require('app/models/answer_attachments'),
-    SurveyAnswer = require('app/models/survey_answers'),
+    HttpError = require('../error').HttpError,
+    AnswerAttachment = require('../models/answer_attachments'),
+    SurveyAnswer = require('../models/survey_answers'),
 
-    config = require('config'),
+    config = require('../../config'),
     crypto = require('crypto'),
     co = require('co'),
     AWS = require('aws-sdk');

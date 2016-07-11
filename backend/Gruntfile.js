@@ -20,9 +20,13 @@ module.exports = function (grunt) {
     };
 
     if (process.platform === 'darwin') {
-        dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
-        dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
-        dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        try {
+            dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+            dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+            dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     // Define the configuration for all the tasks
@@ -44,6 +48,7 @@ module.exports = function (grunt) {
                     node_env: 'test',
                     // jscs:enable
                     script: 'app.js',
+                    //debug: true,
                     port: 3006
                 }
             }
@@ -56,7 +61,22 @@ module.exports = function (grunt) {
                     timeout: '10000'
                 },
                 src: [
-                    'test/**/*.spec.js'
+                    'test/**/1*.spec.js',
+                    'test/**/2_*.spec.js',
+                    'test/**/0*.spec.js',
+                    'test/**/3_*.spec.js',
+                    'test/**/71*.spec.js',
+                    'test/**/72*.spec.js',
+                    'test/**/73*.spec.js',
+                    'test/**/74*.spec.js',
+                    'test/**/81*.spec.js',
+                    'test/**/82*.spec.js',
+                    'test/**/83*.spec.js',
+                    'test/**/91*.spec.js',
+                    'test/**/92*.spec.js',
+                    'test/**/93*.spec.js',
+                    'test/**/94*.spec.js',
+                    'test/**/95*.spec.js',
                 ]
             }
         },
@@ -143,61 +163,6 @@ module.exports = function (grunt) {
             }
         },
 
-        copy: {
-            dev: {
-                src: 'dev-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            stage: {
-                src: 'staging-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            prod: {
-                src: 'prod-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-        },
-
-        // Compress the EBS Dockerrun file
-        compress: {
-            main: {
-                options: {
-                    archive: 'latest-backend.zip'
-                },
-                src: 'Dockerrun.aws.json'
-            }
-        },
-
-        // Tasks for Elastic Beanstalk deployment
-        awsebtdeploy: {
-            options: {
-                region: 'us-west-2',
-                applicationName: 'indaba',
-                sourceBundle: 'latest-backend.zip',
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                versionLabel: 'backend-' + Date.now(),
-                s3: {
-                    bucket: 'amida-indaba'
-                }
-            },
-            dev: {
-                options: {
-                    environmentName: 'indaba-backend-memcached-dev',
-                }
-            },
-            stage: {
-                options: {
-                    environmentName: 'indaba-backend-memcached-stage',
-                }
-            },
-            prod: {
-                options: {
-                    environmentName: 'indaba-backend-prod',
-                }
-            }
-        }
-
     });
 
     // Postgres helper tasks for testing
@@ -235,8 +200,9 @@ module.exports = function (grunt) {
     grunt.registerTask('bckpDb', function () {
         var done = this.async();
         var cpg = require('./config').pgConnect;
-        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + cpg.database;
-        var filename = sql;
+        var dbToCopy = 'indaba_hb'; // cpg.database;
+        var connectStringPg = ' -h ' + cpg.host + ' -U ' + cpg.user + ' -W ' + dbToCopy;
+        var filename = 'test/indaba-hcsc-dump-2706.sql';
         console.log(connectStringPg);
         exec('pg_dump ' + connectStringPg + ' > ' + filename, function (err) {
             if (err !== null) {
@@ -262,29 +228,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('buildDockerMac', [
         'dock:osx:build'
-    ]);
-
-    /*
-     * Used for deploying the dev version of Indaba
-     * to Elastic Beanstalk via Jenkins
-     * - Copy the dev-Dockerrun file to Dockerrun.aws.json
-     * - Zip the Dockerrun
-     * - Run the EBS deploy grunt task
-     */
-    grunt.registerTask('ebsDev', [
-        'copy:dev',
-        'compress',
-        'awsebtdeploy:dev'
-    ]);
-    grunt.registerTask('ebsStage', [
-        'copy:stage',
-        'compress',
-        'awsebtdeploy:stage'
-    ]);
-    grunt.registerTask('ebsProd', [
-        'copy:prod',
-        'compress',
-        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('test', [
