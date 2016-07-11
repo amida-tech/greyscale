@@ -7,14 +7,13 @@ var client = require('../db_bootstrap'),
     co = require('co'),
     fs = require('fs'),
     common = require('../services/common'),
-    sAttachment = require('../services/attachments'),
-    sEssence = require('../services/essences'),
+    SAttachment = require('../services/attachments'),
+    SEssence = require('../services/essences'),
     crypto = require('crypto');
-
 
 module.exports = {
     select: function (req, res, next) {
-        var oAttachment = new sAttachment(req);
+        var oAttachment = new SAttachment(req);
         oAttachment.getList().then(
             (data) => res.json(data),
             (err) => next(err)
@@ -22,8 +21,8 @@ module.exports = {
     },
 
     links: function (req, res, next) {
-        var oAttachment = new sAttachment(req);
-        var oEssence = new sEssence(req);
+        var oAttachment = new SAttachment(req);
+        var oEssence = new SEssence(req);
         co(function* () {
             if (!req.params.essenceId || !req.params.entityId) {
                 throw new HttpError(400, 'You should provide essence id and entity id');
@@ -64,7 +63,7 @@ module.exports = {
     },
 
     getTicket: function (req, res, next) {
-        var oAttachment = new sAttachment(req);
+        var oAttachment = new SAttachment(req);
         co(function* () {
             var attachment = yield oAttachment.getById(req.params.id);
             if (!attachment[0]) {
@@ -87,8 +86,8 @@ module.exports = {
     },
 
     uploadSuccess: function (req, res, next) {
-        var oAttachment = new sAttachment(req);
-        var oEssence = new sEssence(req);
+        var oAttachment = new SAttachment(req);
+        var oEssence = new SEssence(req);
         co(function* () {
             if (!req.body.key) {
                 throw new HttpError(400, 'You should provide key');
@@ -156,7 +155,7 @@ module.exports = {
     },
 
     getUploadLink: function (req, res, next) {
-        var oAttachment = new sAttachment(req);
+        var oAttachment = new SAttachment(req);
         co(function* () {
             if (!req.body.type || !req.body.size || !req.body.name) {
                 throw new HttpError(400, 'You should provide file name, size and type');
@@ -184,18 +183,19 @@ module.exports = {
     },
 
     delete: function (req, res, next) { // TODO check right
-        var oAttachment = new sAttachment(req);
+        var oAttachment = new SAttachment(req);
         co(function* () {
             if (!req.params.essenceId || !req.params.entityId || !req.params.id) {
                 throw new HttpError(400, 'You should provide attachment id, essence Id and entity Id');
             }
 
             var attachment = yield oAttachment.getById(req.params.id);
+            var records;
 
             if (!attachment.length) {
                 throw new HttpError(404, 'Attachment with id = ' + req.params.id + ' does not exist');
             } else {
-                var records = yield oAttachment.getLinksContainAttachment(req.params.id);
+                records = yield oAttachment.getLinksContainAttachment(req.params.id);
                 if (!records.length) {
                     yield oAttachment.remove(req.params.id);
                     return;
@@ -227,7 +227,7 @@ module.exports = {
             }
 
             // check for another records with this attachment id
-            var records = yield oAttachment.getLinksContainAttachment(req.params.id);
+            records = yield oAttachment.getLinksContainAttachment(req.params.id);
             if (!records.length) {
                 yield oAttachment.remove(req.params.id);
             }
@@ -246,7 +246,5 @@ module.exports = {
             next(err);
         });
     },
-
-
 
 };

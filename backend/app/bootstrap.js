@@ -17,7 +17,6 @@ var config = require('../config'),
     co = require('co'),
     router = require('./router');
 
-
 var debug = require('debug')('debug_bootstrap');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
@@ -25,6 +24,14 @@ debug.log = console.log.bind(console);
 var app = require('express')();
 
 app.on('start', function () {
+
+    //Connect to memchache server
+    var memcache = require('memcache');
+
+    var mcClient = new memcache.Client(
+        config.mc.port,
+        config.mc.host
+    );
 
     // MEMCHACHE
     app.use(function (req, res, next) {
@@ -166,7 +173,7 @@ app.on('start', function () {
     pg.defaults.poolSize = 100;
     pg.connect(pgConString + '/' + pgDbName, function (err, client, done) {
         if (err) {
-            debug("Could not connect to the database.");
+            debug('Could not connect to the database.');
         }
     });
 
@@ -179,14 +186,6 @@ app.on('start', function () {
 
         require('./socket/socket-controller.server').init(server);
     }
-
-    //Connect to memchache server
-    var memcache = require('memcache');
-
-    var mcClient = new memcache.Client(
-        config.mc.port,
-        config.mc.host
-    );
 
     mcClient.on('connect', function () {
         debug('mc connected');

@@ -9,15 +9,17 @@ var
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     AWS = require('aws-sdk');
-    AWS.config.update(config.aws);
-    var s3 = new AWS.S3();
+AWS.config.update(config.aws);
+var s3 = new AWS.S3();
 
-var exportObject = function  (req, realm) {
+var exportObject = function (req, realm) {
+
+    var thunkQuery;
 
     if (realm) {
-        var thunkQuery = thunkify(new Query(realm));
+        thunkQuery = thunkify(new Query(realm));
     } else {
-        var thunkQuery = req.thunkQuery;
+        thunkQuery = req.thunkQuery;
     }
 
     this.getList = function () {
@@ -42,29 +44,29 @@ var exportObject = function  (req, realm) {
 
             yield thunkQuery(
                 AttachmentLink
-                    .update({
-                        attachments: attArr
-                    }).where(
+                .update({
+                    attachments: attArr
+                }).where(
                     AttachmentLink.essenceId.equals(essenceId)
-                        .and(AttachmentLink.entityId.equals(entityId))
+                    .and(AttachmentLink.entityId.equals(entityId))
                 )
             );
         });
     };
 
     this.removeLink = function (essenceId, entityId) {
-        return co(function* (){
+        return co(function* () {
             yield thunkQuery(
                 AttachmentLink.delete().where(
                     AttachmentLink.essenceId.equals(essenceId)
-                        .and(AttachmentLink.entityId.equals(entityId))
+                    .and(AttachmentLink.entityId.equals(entityId))
                 )
             );
         });
     };
 
     this.addLink = function (oLink) {
-        return co(function* (){
+        return co(function* () {
             yield thunkQuery(AttachmentLink.insert(oLink));
         });
 
@@ -74,28 +76,28 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             return yield thunkQuery(
                 AttachmentLink
-                    .select()
-                    .where(
-                        AttachmentLink.essenceId.equals(essenceId)
-                            .and(AttachmentLink.entityId.equals(entityId))
-                    )
+                .select()
+                .where(
+                    AttachmentLink.essenceId.equals(essenceId)
+                    .and(AttachmentLink.entityId.equals(entityId))
+                )
             );
         });
     };
 
-    this.getById = function(id) {
+    this.getById = function (id) {
         return co(function* () {
             return yield thunkQuery(Attachment.select().where(Attachment.id.equals(id)));
         });
     };
 
-    this.add = function(oAttachment) {
-        return co(function* (){
+    this.add = function (oAttachment) {
+        return co(function* () {
             return yield thunkQuery(Attachment.insert(oAttachment).returning(Attachment.id));
         });
     };
 
-    this.remove = function(id) {
+    this.remove = function (id) {
         var self = this;
         return co(function* () {
             var attachment = yield self.getById(id);
@@ -133,7 +135,7 @@ var exportObject = function  (req, realm) {
             Key: key,
             Expires: 3600000, // TODO move to config ??
             ContentType: type,
-            ContentDisposition: "attachment; filename*=UTF-8''" + encodeURIComponent(name)
+            ContentDisposition: 'attachment; filename*=UTF-8\'\'' + encodeURIComponent(name)
         };
         return s3.getSignedUrl('putObject', params);
     };

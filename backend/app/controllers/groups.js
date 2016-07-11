@@ -26,13 +26,13 @@ module.exports = {
                     Group.star(),
                     'array_agg("UserGroups"."userId") as "userIds"'
                 )
-                    .from(
+                .from(
                     Group
                     .leftJoin(UserGroup)
                     .on(Group.id.equals(UserGroup.groupId))
                 )
-                    .where(Group.organizationId.equals(req.params.organizationId))
-                    .group(Group.id)
+                .where(Group.organizationId.equals(req.params.organizationId))
+                .group(Group.id)
             );
             return result;
         }).then(function (data) {
