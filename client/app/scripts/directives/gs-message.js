@@ -124,12 +124,12 @@ angular.module('greyscaleApp')
             }
             return user;
 
-    }
-    
-    function _getUserName(userId) {
-        return greyscaleUtilsSrv.getUserName(_getUser(userId));
-    }
-});
+        }
+
+        function _getUserName(userId) {
+            return greyscaleUtilsSrv.getUserName(_getUser(userId));
+        }
+    });
 /* message object
  {
  "id": 2,
