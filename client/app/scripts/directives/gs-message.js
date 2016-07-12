@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout, 
-        greyscaleProfileSrv) {
+        greyscaleProfileSrv, greyscaleCommentApi) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -57,6 +57,7 @@ angular.module('greyscaleApp')
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     $scope.model.isHidden = !$scope.model.isHidden;
+                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, !$scope.model.isHidden);
                 };
                 
                 $scope.highlightSource = _highlightSource;
@@ -124,12 +125,12 @@ angular.module('greyscaleApp')
             }
             return user;
 
-        }
-
-        function _getUserName(userId) {
-            return greyscaleUtilsSrv.getUserName(_getUser(userId));
-        }
-    });
+    }
+    
+    function _getUserName(userId) {
+        return greyscaleUtilsSrv.getUserName(_getUser(userId));
+    }
+});
 /* message object
  {
  "id": 2,
