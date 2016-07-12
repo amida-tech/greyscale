@@ -3,6 +3,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     common = require('app/services/common'),
+    sTask = require('app/services/tasks'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -44,86 +45,24 @@ module.exports = {
     },
 
     selectOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
-            var curStepAlias = 'curStep';
-            var task = yield thunkQuery(
-                Task
-                .select(
-                    Task.star(),
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN ' +
-                    '("' + curStepAlias + '"."position" > "WorkflowSteps"."position") ' +
-                    'OR ("ProductUOA"."isComplete" = TRUE) ' +
-                    'THEN \'completed\' ' +
-                    'WHEN (' +
-                    '"' + curStepAlias + '"."position" IS NULL ' +
-                    'AND ("WorkflowSteps"."position" = 0) ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'OR (' +
-                    '"' + curStepAlias + '"."position" = "WorkflowSteps"."position" ' +
-                    'AND ("Products"."status" = 1)' +
-                    ')' +
-                    'THEN \'current\' ' +
-                    'ELSE \'waiting\'' +
-                    'END as status '
-                )
-                .from(
-                    Task
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(Task.id.equals(req.params.id))
-            );
-            if (!_.first(task)) {
-                throw new HttpError(403, 'Not found');
+            var oTask = new sTask(req);
+            var isPolicy = yield oTask.isPolicy(req.params.id);
+            if (isPolicy) {
+                var usersIds =  yield oTask.getUsersIdsByTask(req.params.id);
+                var task = yield oTask.getTaskPolicy();
+                task.userStatuses = yield oTask.getTaskUsersStatuses('Comments', usersIds, req.params.id);
+                task.userStatuses = oTask.getNamedStatuses(task.userStatuses, 'status');
+                var userStatus = _.find(task.userStatuses, function(item){
+                    return (item.userId === req.user.id);
+                });
+                if (userStatus) {
+                    task.userStatus = userStatus.status;
+                }
+                return task;
+            } else {
+                return yield oTask.getTaskSurvey();
             }
-            return _.first(task);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

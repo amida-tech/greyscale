@@ -175,6 +175,13 @@
             "INTERNAL_AND_EMAILS": "",
             "OFF": ""
         },
+        "POLICYUSERSTATUSES": {
+            "APPROVED": "",
+            "DELAYED": "",
+            "FLAGGED": "",
+            "LATE": "",
+            "PENDING": ""
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "Отменен",
             "COMPLETED": "Завершен",
@@ -371,7 +378,8 @@
         "COUNT_STARTED": "",
         "COUNT_UOAS": "",
         "DEADLINE": "",
-        "DOWNLOAD_DATA": "Загрузить данные"
+        "DOWNLOAD_DATA": "Загрузить данные",
+        "INFO_TITLE": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "Нет проектов",
@@ -640,6 +648,7 @@
         "NAME": "Название",
         "NEW_SURVEY": "",
         "NO_DATA": "",
+        "NO_OPTIONS_WAS_SELECTED": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",

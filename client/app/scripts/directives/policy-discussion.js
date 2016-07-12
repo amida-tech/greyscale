@@ -21,14 +21,16 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.model = {
                     items: [],
-                    associate: []
+                    associate: [],
+                    flag: true
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
                     angular.extend(data, {
                         comment: data.quote ? '<blockquote>' + data.quote + '</blockquote><br/>' : '',
                         tags: $scope.model.associate.tags,
-                        commentTypes: $scope.model.commentTypes
+                        commentTypes: $scope.model.commentTypes,
+                        flag: false
                     });
 
                     greyscaleModalsSrv.policyComment(data, {}).then(function (commentBody) {

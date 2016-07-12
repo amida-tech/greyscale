@@ -182,7 +182,7 @@ angular.module('greyscale.tables')
 
         function _editProduct(product) {
             var op = 'editing';
-            _loadProductExtendedData(product)
+            return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
                     var _editTable = angular.copy(_table);
                     if (extendedProduct) {
@@ -207,7 +207,7 @@ angular.module('greyscale.tables')
         }
 
         function _removeProduct(product) {
-            greyscaleModalsSrv.confirm({
+            return greyscaleModalsSrv.confirm({
                 message: tns + 'DELETE_CONFIRM',
                 product: product,
                 okType: 'danger',
@@ -222,7 +222,9 @@ angular.module('greyscale.tables')
         }
 
         function _reload() {
-            _table.tableParams.reload();
+            if (_table.tableParams) {
+                _table.tableParams.reload();
+            }
         }
 
         function _editProductUoas(product) {
@@ -230,7 +232,7 @@ angular.module('greyscale.tables')
         }
 
         function _editProductWorkflow(product) {
-            greyscaleModalsSrv.productWorkflow(product)
+            return greyscaleModalsSrv.productWorkflow(product)
                 .then(function (data) {
                     return _saveWorkflowAndSteps(product, data);
                 })
@@ -361,6 +363,18 @@ angular.module('greyscale.tables')
             var msg = _table.formTitle + ' ' + operation + ' error';
             greyscaleUtilsSrv.errorMsg(err, msg);
         }
+
+        _table.methods = {
+            editProductTasks: _editProductTasks,
+            editProduct: _editProduct,
+            removeProduct: _removeProduct,
+            editProductWorkflow: _editProductWorkflow,
+            fillSurvey: function (projectId) {
+                return greyscaleProjectApi.surveysList(projectId).then(function (surveys) {
+                    _dicts.surveys = surveys;
+                });
+            }
+        };
 
         return _table;
     });

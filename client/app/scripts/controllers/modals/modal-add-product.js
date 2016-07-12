@@ -16,7 +16,6 @@ angular.module('greyscaleApp')
         if (!product) { return null; }
         greyscaleProductApi.product(product.id).indexesList().then(function (indexes) {
             $scope.model.indexes = indexes;
-            console.log(indexes);
         });
     });
 

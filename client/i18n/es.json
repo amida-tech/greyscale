@@ -175,6 +175,13 @@
             "INTERNAL_AND_EMAILS": "",
             "OFF": ""
         },
+        "POLICYUSERSTATUSES": {
+            "APPROVED": "",
+            "DELAYED": "",
+            "FLAGGED": "",
+            "LATE": "",
+            "PENDING": ""
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "",
             "COMPLETED": "",
@@ -371,7 +378,8 @@
         "COUNT_STARTED": "",
         "COUNT_UOAS": "",
         "DEADLINE": "",
-        "DOWNLOAD_DATA": ""
+        "DOWNLOAD_DATA": "",
+        "INFO_TITLE": ""
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "",
@@ -640,6 +648,7 @@
         "NAME": "",
         "NEW_SURVEY": "",
         "NO_DATA": "",
+        "NO_OPTIONS_WAS_SELECTED": "",
         "PRINT_ALL": "",
         "PRINT_BLANK": "",
         "PRINT_QUESTIONS": "",

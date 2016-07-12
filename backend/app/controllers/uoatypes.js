@@ -19,26 +19,17 @@ var client = require('app/db_bootstrap'),
 
 module.exports = {
 
-    selectOrigLanguage: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var uoaType = thunkQuery(UnitOfAnalysisType.select(), req.query);
-            return yield [_counter, uoaType];
-        }).then(function (data) {
-            res.set('X-Total-Count', _.first(data[0]).counter);
-            res.json(_.last(data));
-        }, function (err) {
-            next(err);
-        });
-    },
-
     select: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var _counter = thunkQuery(UnitOfAnalysisType.select(UnitOfAnalysisType.count('counter')), _.omit(req.query, 'offset', 'limit', 'order'));
-            var langId = yield * detectLanguage(req);
-            var uoaType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType));
+            //var langId = yield * detectLanguage(req);
+            //var uoaType = thunkQuery(getTranslateQuery(langId, UnitOfAnalysisType));
+            var uoaType = thunkQuery(
+                UnitOfAnalysisType
+                .select()
+                .where(UnitOfAnalysisType.name.notEquals(config.pgConnect.policyUoaType))
+            );
             return yield [_counter, uoaType];
         }).then(function (data) {
             res.set('X-Total-Count', _.first(data[0]).counter);
@@ -51,7 +42,12 @@ module.exports = {
     selectOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id)));
+            //return yield thunkQuery(getTranslateQuery(req.query.langId, UnitOfAnalysisType, UnitOfAnalysisType.id.equals(req.params.id)));
+            return yield thunkQuery(
+                UnitOfAnalysisType
+                .select()
+                .where(UnitOfAnalysisType.id.equals(req.params.id))
+            );
         }).then(function (data) {
             res.json(_.first(data));
         }, function (err) {

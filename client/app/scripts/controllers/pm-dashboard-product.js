@@ -2,7 +2,8 @@
 
 angular.module('greyscaleApp')
     .controller('PmDashboardProductCtrl', function (_, $q, $scope, $state, $stateParams,
-        greyscaleProductApi, greyscaleProductTasksTbl, $timeout, greyscaleUtilsSrv, greyscaleTokenSrv, greyscaleTaskApi, Organization, greyscaleModalsSrv) {
+        greyscaleProductApi, greyscaleProductTasksTbl, $timeout, greyscaleUtilsSrv, greyscaleTokenSrv, Organization,
+        greyscaleModalsSrv, greyscaleProjectProductsTbl, greyscaleSurveyApi) {
 
         var productId = $stateParams.productId;
 
@@ -22,11 +23,19 @@ angular.module('greyscaleApp')
             count: {}
         };
 
-        greyscaleProductApi.get(productId)
-            .then(function (product) {
-                $state.ext.productName = product.title;
-                return product;
-            });
+        greyscaleProductApi.get(productId).then(function (product) {
+            $scope.model.product = product;
+
+            if (product.surveyId) {
+                greyscaleSurveyApi.get(product.surveyId).then(function (survey) {
+                    $scope.model.survey = survey;
+                });
+            }
+            greyscaleProjectProductsTbl.methods.fillSurvey(product.projectId);
+
+            $state.ext.productName = product.title;
+            return product;
+        });
 
         Organization.$lock = true;
 
@@ -52,10 +61,9 @@ angular.module('greyscaleApp')
             $scope.model.count.delayed = $scope.model.count.uoas - $scope.model.count.onTime;
         };
 
-        _getData(productId)
-            .then(function (data) {
-                $scope.model.tasks = data.tasks;
-            });
+        _getData(productId).then(function (data) {
+            $scope.model.tasks = data.tasks;
+        });
 
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
@@ -75,6 +83,32 @@ angular.module('greyscaleApp')
             }
         };
 
+        $scope.editProductTasks = function () {
+            greyscaleProjectProductsTbl.methods.editProductTasks($scope.model.product);
+        };
+
+        $scope.editProduct = function () {
+            greyscaleProjectProductsTbl.methods.editProduct($scope.model.product).then(function (product) {
+                if (product) {
+                    $scope.model.product = product;
+                }
+            });
+        };
+
+        $scope.removeProduct = function () {
+            greyscaleProjectProductsTbl.methods.removeProduct($scope.model.product).then(function () {
+                $state.go('main');
+            });
+        };
+
+        $scope.editProductWorkflow = function () {
+            greyscaleProjectProductsTbl.methods.editProductWorkflow($scope.model.product).then(function (product) {
+                if (product) {
+                    $scope.model.product = product;
+                }
+            });
+        };
+
         function _moveNextStep(task) {
             var params = {
                 force: true
@@ -88,8 +122,8 @@ angular.module('greyscaleApp')
                 });
         }
 
-        function _notifyUser(task) {
-            greyscaleModalsSrv.sendNotification(task.user, {});
+        function _notifyUser(user) {
+            greyscaleModalsSrv.sendNotification(user, {});
         }
 
         function _getData(productId) {
@@ -111,5 +145,4 @@ angular.module('greyscaleApp')
             });
             return flaggedSurveys.length;
         }
-
     });
