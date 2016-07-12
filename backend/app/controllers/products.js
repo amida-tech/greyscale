@@ -507,7 +507,7 @@ module.exports = {
                 '"Users"."id" as "ownerId", concat("Users"."firstName",\' \', "Users"."lastName") as "ownerName", ' +
                 //'"Roles"."name" as "ownerRole", ' +
                 '"Surveys"."title" as "surveyTitle", ' +
-                '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId",' +
+                '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId", "SurveyQuestions"."optionNumbering" as "optionNumbering", ' +
                 '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
 
                 'FROM "Tasks" ' +
@@ -557,8 +557,8 @@ module.exports = {
             var questionCounter = 1;
             // for attachments
             var attachmentIds = new Set();
-            // for question options
-            var optionIds = new Set();
+            // for question options (ids of multichoice questions)
+            var optionQuestionIds = new Set();
             answers = answers.map(function (answer) {
                 // parse out answer text and value, with logic varying by answer type
                 if (answer.questionTypeId === SurveyQuestion.bulletPointsType) {
@@ -570,9 +570,7 @@ module.exports = {
                     }
                 } else if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
                     // text/value to be stored later, after answer option has been retrieved
-                    (answer.answerOptions || []).forEach(function (optionId) {
-                        optionIds.add(optionId);
-                    });
+                    optionQuestionIds.add(answer.questionId);
                 } else {
                     answer.answerText = answer.answerValue;
                     answer.answerValue = '';
@@ -627,23 +625,51 @@ module.exports = {
             var questionOptionsArr = yield thunkQuery(
                 SurveyQuestionOption.select(
                     SurveyQuestionOption.id,
+                    SurveyQuestionOption.questionId,
                     SurveyQuestionOption.value,
                     SurveyQuestionOption.label
-                ).where(SurveyQuestionOption.id.in(Array.from(optionIds)))
+                ).where(SurveyQuestionOption.questionId.in(Array.from(optionQuestionIds)))
             );
+            // indexed by question id then option id
             var questionOptions = {};
-            questionOptionsArr.forEach(function (questionOption) {
-                questionOptions[questionOption.id] = questionOption;
+            questionOptionsArr.forEach(function (option) {
+                if (!(option.questionId in questionOptions)) {
+                    questionOptions[option.questionId] = {};
+                }
+                questionOptions[option.questionId][option.id] = option;
             });
+            // assign question option ordinals based on ID order (how they're displayed in client)
+            for (var questionId in questionOptions) {
+                if (questionOptions.hasOwnProperty(questionId)) {
+                    var optionIds = _.sortBy(Object.keys(questionOptions[questionId]), function (id) {
+                        return parseInt(id);
+                    });
+                    for (var i = 0; i < optionIds.length; i++) {
+                        questionOptions[questionId][optionIds[i]].index = i;
+                    }
+                }
+            }
             answers = answers.map(function (answer) {
                 if (SurveyQuestion.multiSelectTypes.indexOf(answer.questionTypeId) >= 0) {
                     var options = (answer.answerOptions || []).map(function (optionId) {
-                        return questionOptions[optionId] || {};
+                        return questionOptions[answer.questionId][optionId] || {};
                     });
                     answer.answerText = _.pluck(options, 'label').join(',');
                     answer.answerValue = _.pluck(options, 'value').filter(function (value) {
                         return value;
                     }).join(',');
+                    if (answer.optionNumbering && answer.optionNumbering !== 'none') {
+                        answer.optionIndex = _.pluck(options, 'index').map(function (optionIndex) {
+                            // passed to list-style-type CSS in client
+                            if (answer.optionNumbering === 'lower-latin') {
+                                return String.fromCharCode(97 + optionIndex); // 97 -> 'a';
+                            } else if (answer.optionNumbering === 'upper-latin') {
+                                return String.fromCharCode(65 + optionIndex); // 65 -> 'A';
+                            } else { // decimal
+                                return optionIndex + 1; // 1-index
+                            }
+                        }).join(',');
+                    }
                 }
                 return answer;
             });
@@ -669,7 +695,8 @@ module.exports = {
                 'answerValue': 'AnsValue',
                 'links': 'AnsLinks',
                 'attachments': 'AnsAttach',
-                'comments': 'AnsComment'
+                'comments': 'AnsComment',
+                'optionIndex': 'OptIndex'
             };
 
             // only show relevant keys and order them as we want
@@ -690,6 +717,7 @@ module.exports = {
                 'ownerName',
                 'answerText',
                 'answerValue',
+                'optionIndex',
                 'links',
                 'attachments',
                 'comments'
