@@ -224,12 +224,8 @@ module.exports = {
         co(function* () {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
-            var returnObject = yield * checkInsert(req);
+            yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            var retTask = task;
-            if (returnObject) {
-                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-            }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -239,7 +235,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepId: task.stepId
             }); // add stepId from task (don't use stepId from body - use stepId only for current task)
-            if (!isReturn && !isResolve && !req.query.autosave) {
+            if (!req.query.autosave) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
@@ -254,8 +250,9 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+            if (req.body.activated && !isResolve) {
+                notify(req, result[0].id, task.id, isReturn ? 'Flagged comment added' : 'Comment added', 'Comments', 'comment');
+            }
 
             bologger.log({
                 req: req,
@@ -289,10 +286,11 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
-            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
+            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId, Comment.isReturn, Comment.isResolve));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+            if (!result[0].isResolve) {
+                notify(req, result[0].id, result[0].taskId, result[0].isReturn ? 'Flagged comment updated' : 'Comment updated', 'Comments', 'comment');
+            }
 
             bologger.log({
                 req: req,
@@ -442,15 +440,14 @@ function* checkInsert(req) {
     // if comment`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
+        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
         req.body = _.extend(req.body, {
-            returnTaskId: returnObject.taskId
+            returnTaskId: taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
+        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
-    return returnObject;
 }
 
 function* checkUpdate(req) {
