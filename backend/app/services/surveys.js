@@ -53,7 +53,8 @@ var exportObject = function  (req, realm) {
                     )
                     .select(
                         Survey.star(),
-                        Policy.section, Policy.subsection, Policy.author, Policy.editor, Policy.number,
+                        Policy.section, Policy.subsection, Policy.author,
+                        Policy.editor, Policy.startEdit, Policy.number,
                         '(WITH sq AS ' +
                         '( ' +
                         'SELECT ' +
