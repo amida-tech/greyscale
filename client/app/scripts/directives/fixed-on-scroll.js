@@ -24,7 +24,7 @@ angular.module('greyscaleApp')
                 }, 200);
                 scope.$on('$destroy', function () {
                     w.off('scroll resize', _setParams);
-                    $interval.clear(timer);
+                    $interval.cancel(timer);
                 });
 
                 function _setParams() {
