@@ -61,6 +61,10 @@ angular.module('greyscale.rest')
 
         function _hide(taskId, filter, show) {
             //filter values - 'all', 'flagged', commentId
-            return _api().one('hidden').put({ taskId: taskId, filter: filter, hide: !show, })
+            return _api().one('hidden').put({
+                taskId: taskId,
+                filter: filter,
+                hide: !show,
+            })
         }
     });

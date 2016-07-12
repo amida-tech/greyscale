@@ -126,7 +126,7 @@ angular.module('greyscaleApp')
             return user;
 
     }
-    
+
     function _getUserName(userId) {
         return greyscaleUtilsSrv.getUserName(_getUser(userId));
     }

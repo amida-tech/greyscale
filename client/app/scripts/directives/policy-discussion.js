@@ -36,42 +36,42 @@ angular.module('greyscaleApp')
                     });
 
                     greyscaleModalsSrv.policyComment(data, {})
-                            .then(function (commentBody) {
-                                var _tag = {
+                        .then(function (commentBody) {
+                            var _tag = {
                                     users: [],
                                     groups: []
                                 },
-                                    i, qty;
+                                i, qty;
 
-                                qty = commentBody.tag ? commentBody.tag.length : 0;
+                            qty = commentBody.tag ? commentBody.tag.length : 0;
 
-                                for (i = 0; i < qty; i++) {
-                                    if (commentBody.tag[i].userId) {
-                                        _tag.users.push(commentBody.tag[i].userId);
-                                    } else if (commentBody.tag[i].groupId) {
-                                        _tag.groups.push(commentBody.tag[i].groupId);
-                                    }
+                            for (i = 0; i < qty; i++) {
+                                if (commentBody.tag[i].userId) {
+                                    _tag.users.push(commentBody.tag[i].userId);
+                                } else if (commentBody.tag[i].groupId) {
+                                    _tag.groups.push(commentBody.tag[i].groupId);
                                 }
-                                _newComment = {
-                                    userFromId: $scope.policy.userId,
-                                    taskId: $scope.policy.taskId,
-                                    stepId: null,
-                                    questionId: commentBody.section.id,
-                                    entry: commentBody.comment,
-                                    range: commentBody.range,
-                                    tags: _tag,
-                                    commentType: commentBody.type,
-                                    isReturn: commentBody.flag
-                                };
-                                return _newComment;
-                            })
-                            .then(greyscaleCommentApi.add)
-                            .then(function (result) {
-                                angular.extend(_newComment, result);
-                                _newComment.activated = true;
-                                $scope.model.items.unshift(_newComment);
-                            })
-                            .catch(greyscaleUtilsSrv.errorMsg);
+                            }
+                            _newComment = {
+                                userFromId: $scope.policy.userId,
+                                taskId: $scope.policy.taskId,
+                                stepId: null,
+                                questionId: commentBody.section.id,
+                                entry: commentBody.comment,
+                                range: commentBody.range,
+                                tags: _tag,
+                                commentType: commentBody.type,
+                                isReturn: commentBody.flag
+                            };
+                            return _newComment;
+                        })
+                        .then(greyscaleCommentApi.add)
+                        .then(function (result) {
+                            angular.extend(_newComment, result);
+                            _newComment.activated = true;
+                            $scope.model.items.unshift(_newComment);
+                        })
+                        .catch(greyscaleUtilsSrv.errorMsg);
                 });
 
                 $scope.hideComments = function (filter) {
@@ -124,7 +124,7 @@ angular.module('greyscaleApp')
                     qty = resp.tags.commentTypes.length;
                     for (i = 0; i < qty; i++) {
                         resp.tags.commentTypes[i].name =
-                                i18n.translate('GLOBALS.COMMENTTYPES.' + resp.tags.commentTypes[i].name);
+                            i18n.translate('GLOBALS.COMMENTTYPES.' + resp.tags.commentTypes[i].name);
                     }
                     scope.model.commentTypes = resp.tags.commentTypes;
 
