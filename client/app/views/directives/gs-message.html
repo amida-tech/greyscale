@@ -1,9 +1,12 @@
 <span class="gs-message-from">
+    <a ng-if="isAdmin();" ng-click="toggleComment();">
+        <i class="fa" ng-class="{ 'fa-eye-slash': !model.isHidden, 'fa-eye': model.isHidden }"></i>
+    </a>
     {{getUserName()}}
     <i class="fa fa-flag pull-right" ng-show="model.isReturn"
        ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
 </span>
-<div class="gs-message-body-warpper">
+<div ng-if="!model.isHidden" class="gs-message-body-warpper">
     <div class="gs-message-body" ng-hide="isEdit">
         <div class="ta-text" ng-bind-html="model.entry"></div>
         <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>

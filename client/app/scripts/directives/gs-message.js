@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout, 
+        greyscaleProfileSrv) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -23,6 +24,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
+                };
 
                 $scope.edit = function () {
                     $scope.entry = $scope.model.entry;
@@ -50,6 +54,11 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
+                $scope.toggleComment = function () {
+                    //hide $scope.model
+                    $scope.model.isHidden = !$scope.model.isHidden;
+                };
+                
                 $scope.highlightSource = _highlightSource;
 
                 function _toggleEdit() {
@@ -115,12 +124,12 @@ angular.module('greyscaleApp')
             }
             return user;
 
-        }
-
-        function _getUserName(userId) {
-            return greyscaleUtilsSrv.getUserName(_getUser(userId));
-        }
-    });
+    }
+    
+    function _getUserName(userId) {
+        return greyscaleUtilsSrv.getUserName(_getUser(userId));
+    }
+});
 /* message object
  {
  "id": 2,
