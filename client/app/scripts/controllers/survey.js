@@ -52,7 +52,7 @@ angular.module('greyscaleApp')
             .then(function (resp) {
                 data = {
                     survey: resp.survey,
-                    task: resp.task ? resp.task.plain() : null,
+                    task: resp.task,
                     resolveData: resp.scopeList ? _getResolveData(resp.scopeList) : null,
                     userId: resp.profile.id,
                     languages: resp.languages.plain(),

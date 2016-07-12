@@ -1,18 +1,25 @@
-<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" class="row" ng-cloak>
-    <div class="col-md-2">
-        <b translate=".ROLE"></b>:<br>
-        {{row.step.role}}
+<div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" ng-cloak>
+    <div class="row">
+        <div class="col-md-4"><b translate=".ROLE"></b><b>: {{row.step.role}}</b></div>
+        <div class="col-md-2"><b translate=".STATUS"></b></div>
+        <div class="col-md-1">
+            <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted"
+               title="{{(row.last ? 'PRODUCT_TASKS.FORCE_COMPLETE' : 'PRODUCT_TASKS.FORCE_NEXT_STEP') | translate}}">
+                <i ng-show="!row.last" class="fa fa-fast-forward"></i>
+                <i ng-show="row.last" class="fa fa-check"></i>
+            </a>
+        </div>
     </div>
-    <div class="col-md-6">
-        <b translate=".USER"></b>:<br>
-        {{row.user.firstName}} {{row.user.lastName}} <small>({{row.user.email}})</small>
-    </div>
-    <div class="col-md-4">
-        <a ng-click="ext.notifyUser(row)"><i class="fa fa-envelope-o"></i> <span translate=".NOTIFY_USER"></span></a> <br>
-        <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted">
-            <span ng-show="!row.last"><i class="fa fa-fast-forward"></i> <span translate=".FORCE_NEXT_STEP"></span></span>
-            <span ng-show="row.last"><i class="fa fa-check"></i> <span translate=".FORCE_COMPLETE"></span></span>
-        </a>
+    <div class="row" ng-repeat="user in row.user track by $index">
+        <div class="col-md-4">{{user.fullName}}
+            <small>({{user.email}})</small>
+        </div>
+        <div class="col-md-2">{{user.status}}</div>
+        <div class="col-md-1">
+            <a ng-click="ext.notifyUser(user)" title="{{'PRODUCT_TASKS.NOTIFY_USER' | translate}}">
+                <i class="fa fa-envelope-o"></i>
+            </a>
+        </div>
     </div>
 </div>
 <div ng-if="row.subjectCompleted">

@@ -59,11 +59,7 @@ angular.module('greyscale.tables')
             },
             classes: 'table-hover',
             rowClass: 'action-expand-row',
-            //expandedRowShow: true,
             dataPromise: _getData
-                //delegateClick: {
-                //    '.progress-block': _handleProgressBlockClick
-                //}
         };
 
         function _getProductId() {
@@ -84,7 +80,7 @@ angular.module('greyscale.tables')
         function _getProductTasksData(product) {
 
             if (!product.workflow) {
-                return $q.when([]);
+                return [];
             }
 
             var reqs = {
@@ -103,13 +99,14 @@ angular.module('greyscale.tables')
                         tasks: data.tasks,
                         groups: []
                     });
-                    return _extendTasksWithRelations(data.tasks)
-                        .then(_getCurrentTasks);
-                });
+                    return _extendTasksWithRelations(data.tasks);
+                })
+                .then(_getCurrentTasks);
         }
 
         function _extendTasksWithRelations(tasks) {
-            var i, qty;
+            var i, qty, user;
+
             angular.forEach(tasks, function (task) {
                 task.uoa = _.find(_dicts.uoas, {
                     id: task.uoaId
@@ -136,15 +133,20 @@ angular.module('greyscale.tables')
 
                     }
                 }
-                if (task.userIds && task.userIds.length) {
-                    task.user = _.find(_dicts.users, {
-                        id: task.userIds[0]
-                    });
-                    //task.users.unshift(task.user);
+                task.user = [];
+                if (task.userStatuses) {
+                    qty = task.userStatuses.length;
+                    for (i = 0; i < qty; i++) {
+                        user = angular.extend({}, _.find(_dicts.users, {
+                            id: task.userStatuses[i].userId
+                        }));
+                        user.status = task.userStatuses[i].status;
+                        task.user.push(user);
+                    }
                 }
             });
             _table.dataShare.tasks = tasks;
-            return $q.when(tasks);
+            return tasks;
         }
 
         function _getCurrentTasks(tasks) {
@@ -155,7 +157,7 @@ angular.module('greyscale.tables')
                 var currentTask;
                 angular.forEach(uoaTasks, function (task) {
                     if (!currentTask && task.uoa && task.stepId === task.uoa.currentStepId) {
-                        currentTask = _setCurrentTask(task, uoaTasks);
+                        currentTask = _getTaskProgressData(task, uoaTasks);
                     }
                 });
                 if (!currentTask) {
@@ -164,11 +166,6 @@ angular.module('greyscale.tables')
                 currentTasks.push(currentTask);
             });
             return $q.when(currentTasks);
-        }
-
-        function _setCurrentTask(task, uoaTasks) {
-            var currentTask = _getTaskProgressData(task, uoaTasks);
-            return currentTask;
         }
 
         function _getTaskProgressData(task, uoaTasks) {
@@ -276,10 +273,6 @@ angular.module('greyscale.tables')
             }
 
             return task.deadlineInfo;
-        }
-
-        function _handleProgressBlockClick(e, scope) {
-            greyscaleModalsSrv.productTask(scope.row, scope.item);
         }
 
         return _table;

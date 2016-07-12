@@ -12,9 +12,7 @@ angular.module('greyscaleApp')
                 gsContextMenu: '=',
                 qid: '@'
             },
-            template: '<ng-transclude></ng-transclude><ul data-toggle="dropdown" id="{{model.menuId}}" class="dropdown-menu" role="menu">' +
-                '<li class="dropdown-header" translate="CONTEXT_MENU.TITLE"></li><li class="divider"></li>' +
-                '<li ng-repeat="item in gsContextMenu"><a translate="{{item.title}}" ng-click="item.action(model.data)"></a></li></ul>',
+            templateUrl: 'views/directives/gs-context-menu.html',
             link: function (scope, elem) {
                 scope.model = {
                     menuId: 'mnu_' + new Date().getTime(),
@@ -25,10 +23,9 @@ angular.module('greyscaleApp')
                 };
 
                 elem.on('mousedown', function (evt) {
-                    window.getSelection().collapse(true);
                     var _parent = evt.target.parentNode ? evt.target.parentNode.parentNode : null;
                     if (!_parent || _parent.id !== scope.model.menuId) {
-                        window.getSelection().collapse(true);
+                        window.getSelection().collapse(evt.target.parentNode, 0);
                     }
                 });
 
