@@ -38,16 +38,13 @@ checkbox-list {
     .gs-message-from {
         font-weight: bold;
     }
-    .gs-message-body-warpper {
+    .gs-message-body-wrapper {
 
         .gs-message-body {
             position: relative;
             max-height: 7em;
             overflow: hidden;
             .ta-text {
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                padding: 5px;
                 background-color: #fff;
             }
 
