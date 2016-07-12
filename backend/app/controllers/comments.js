@@ -178,10 +178,13 @@ module.exports = {
              //return only activated comments and draft comments for current user
             selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
 
-            if (!auth.checkAdmin(req.user) || !(req.query.hidden === 'true')) {
+            if (!(req.query.hidden === 'true')) {
                 // show only unhidden comments
                 selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
-            }
+            } else if(!auth.checkAdmin(req.user)) {
+                // specified hidden parameters for ordinary user show only self comments (include hidden)
+                selectWhere = selectWhere + pgEscape(' AND ("Comments"."isHidden" = false OR "Comments"."userFromId" = %s ) ', req.user.id);
+            } // if admin - show all hidden comments
 
             if (req.query.filter === 'resolve') {
                 /*
