@@ -175,6 +175,14 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
+             //return only activated comments and draft comments for current user
+            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
+
+            if (!auth.checkAdmin(req.user) || !(req.query.hidden === 'true')) {
+                // show only unhidden comments
+                selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
+            }
+
             if (req.query.filter === 'resolve') {
                 /*
                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
@@ -358,6 +366,55 @@ module.exports = {
             };
         }).then(function (data) {
             res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+    hideUnhide: function (req, res, next) {
+        // put /comments/hidden?taskId=<id>&hide=true|false&filter='all'|'flagged'|<id>
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // parse query
+            var hide = req.query.hide ? (req.query.hide !== 'false') : true;
+            var isAdmin = auth.checkAdmin(req.user);
+            var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
+            var query = Comment
+                .update({
+                    isHidden: hide,
+                    userHideId: req.user.id,
+                    hiddenAt: new Date()
+                })
+                .where(Comment.taskId.equals(taskId))
+                .and(Comment.activated.equals(true))
+                .returning(Comment.id, Comment.isHidden, Comment.userHideId, Comment.hiddenAt);
+
+            if (!isAdmin) {
+                // hide/unhide only self comments
+                query = query.and(Comment.userFromId.equals(req.user.id));
+            }
+            if (req.query.filter && req.query.filter.toUpperCase() === 'FLAGGED') {
+                // hide/unhide only flagged
+                query = query.and(Comment.isReturn.equals(true));
+            } else if (req.query.filter && parseInt(req.query.filter) > 0) {
+                // hide/unhide specified comment
+                query = query.and(Comment.id.equals(parseInt(req.query.filter)));
+            } // else hide/unhide all comments for specified task
+
+            var result = yield thunkQuery(query);
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Comments',
+                    entities: result,
+                    quantity: result.length,
+                    info: 'Hide/unhide comment(s)'
+                });
+            }
+            return result;
+        }).then(function (data) {
+            res.status(202).end();
         }, function (err) {
             next(err);
         });
