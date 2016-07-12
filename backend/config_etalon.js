@@ -15,7 +15,9 @@ var environments = {
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
-            sceletonSchema: 'sceleton'
+            sceletonSchema: 'sceleton',
+            policyUoaType: 'Policy',
+            policyUoaName: '<Policy>'
         },
         mc: { // memcache
             host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
@@ -110,7 +112,9 @@ var environments = {
             host: process.env.RDS_HOSTNAME || process.env.INDABA_PG_HOSTNAME || 'localhost',
             port: 5432,
             adminSchema: 'public',
-            sceletonSchema: 'sceleton'
+            sceletonSchema: 'sceleton',
+            policyUoaType: 'Policy',
+            policyUoaName: '<Policy>'
         },
         mc: { // memcache
             host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',

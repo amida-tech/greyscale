@@ -1,10 +1,18 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleTaskApi', function (greyscaleRestSrv, $q) {
+    .factory('greyscaleTaskApi', function (greyscaleRestSrv) {
 
         function api() {
             return greyscaleRestSrv().one('tasks');
+        }
+
+        function _prepareResp(resp) {
+            if (resp && typeof resp.plain === 'function') {
+                return resp.plain();
+            } else {
+                return resp;
+            }
         }
 
         function userAPI() {
@@ -20,23 +28,23 @@ angular.module('greyscale.rest')
         }
 
         function _myList(params) {
-            return myTasks().get(params);
+            return myTasks().get(params).then(_prepareResp);
         }
 
         function _del(taskId) {
-            return api().one(taskId + '').remove();
+            return api().one(taskId + '').remove().then(_prepareResp);
         }
 
         function _add(task) {
-            return api().customPOST(task);
+            return api().customPOST(task).then(_prepareResp);
         }
 
         function _update(taskId, task) {
-            return api().one(taskId + '').customPUT(task);
+            return api().one(taskId + '').customPUT(task).then(_prepareResp);
         }
 
         function _getTask(taskId) {
-            return api().one(taskId + '').get();
+            return api().one(taskId + '').get().then(_prepareResp);
         }
 
         return {

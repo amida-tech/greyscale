@@ -371,7 +371,8 @@
         "COUNT_STARTED": "Started",
         "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
-        "DOWNLOAD_DATA": "Download Data"
+        "DOWNLOAD_DATA": "Download Data",
+        "INFO_TITLE": "Project Details"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",
@@ -640,6 +641,7 @@
         "NAME": "Name",
         "NEW_SURVEY": "New survey",
         "NO_DATA": "No data",
+        "NO_OPTIONS_WAS_SELECTED": "no option was selected",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
         "PRINT_QUESTIONS": "Print questions only",
