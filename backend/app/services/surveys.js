@@ -89,11 +89,18 @@ var exportObject = function  (req, realm) {
         });
     };
 
-    this.setEditor = function (id, userId) { // for safety, have to do separate update method
+    this.updateOne = function (id, oSurvey) {
         return co(function* () {
-            return yield thunkQuery(Policy.update({editor: userId}).where(Policy.id.equals(id)));
+            oSurvey = _.pick(oSurvey, Survey.editCols);
+            if (Object.keys(oSurvey).length) {
+                yield thunkQuery(Survey.update(oSurvey).where(Survey.id.equals(id)));
+                return true;
+            }
+            return false;
         });
     };
+
+
 }
 
 module.exports = exportObject;

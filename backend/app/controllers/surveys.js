@@ -47,7 +47,6 @@ module.exports = {
                         throw new HttpError(403, '"forEdit" query parameter available only for policies');
                     }
                     item.locked = true;
-                    console.log(item.editor);
                     if (!item.editor) {
                         yield oPolicy.setEditor(item.policyId, req.user.id);
                         item.editor = req.user.id;
@@ -183,18 +182,12 @@ module.exports = {
 
     editOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oSurvey = new sSurvey(req);
+        var oPolicy = new sPolicy(req);
         co(function* () {
             yield * checkSurveyData(req);
-            var updateSurvey = req.body;
-
-            updateSurvey = _.pick(updateSurvey, Survey.editCols);
-
-            if (Object.keys(updateSurvey).length) {
-                yield thunkQuery(
-                    Survey
-                    .update(updateSurvey)
-                    .where(Survey.id.equals(req.params.id))
-                );
+            var isUpdated = yield oSurvey.updateOne(req.params.id, req.body);
+            if (isUpdated) {
                 bologger.log({
                     req: req,
                     user: req.user,
@@ -205,16 +198,9 @@ module.exports = {
                 });
             }
 
-            if (req.body.policyId !== null) {
-                var updatePolicy = _.pick(req.body, Policy.editCols);
-
-                if (Object.keys(updatePolicy).length) {
-                    yield thunkQuery(
-                        Policy
-                        .update(updatePolicy)
-                        .where(Policy.id.equals(req.body.policyId))
-                    );
-
+            if (req.body.policyId) {
+                var isPolicyUpdated = yield oPolicy.updateOne(req.body.policyId, req.body);
+                if (isPolicyUpdated) {
                     if (Array.isArray(req.body.attachments)) {
                         yield * linkAttachments(req, req.body.policyId, req.body.attachments);
                     }

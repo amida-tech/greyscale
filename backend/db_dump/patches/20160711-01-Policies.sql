@@ -13,6 +13,7 @@ BEGIN
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 		EXECUTE
             'ALTER TABLE "Policies" ' ||
+            'ADD COLUMN "startEdit" timestamp with time zone, ' ||
             'ADD COLUMN "editor" integer , ' ||
             'ADD CONSTRAINT "Policies_editor_fkey" FOREIGN KEY ("editor") ' ||
             'REFERENCES "Users" (id) MATCH SIMPLE ' ||
