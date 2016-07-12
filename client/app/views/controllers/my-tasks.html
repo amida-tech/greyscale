@@ -18,7 +18,9 @@
 </div>
 
 <script type="text/ng-template" id="my-tasks-cell-task.html">
-    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i><br>
+    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i>
+    <i class="fa fa-check text-success" ng-show="row.approved"></i>
+    <br>
     <small>{{row.step.description}}</small>
 </script>
 
