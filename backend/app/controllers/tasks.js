@@ -17,17 +17,8 @@ const
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
-            return yield thunkQuery(
-                Task
-                .select(
-                    Task.star()
-                )
-                .from(
-                    Task
-                )
-            );
+           return yield Task.all(req);
         }).then(function (data) {
             res.json(data);
         }, function (err) {

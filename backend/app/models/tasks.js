@@ -34,4 +34,8 @@ Task.translate = [
     'description'
 ];
 
+Task.all = function * (req) {
+    return yield req.thunkQuery(Task.select(Task.star()).from(Task));
+};
+
 module.exports = Task;
