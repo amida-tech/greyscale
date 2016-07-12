@@ -409,12 +409,11 @@ var exportObject = function  (req, realm) {
         return item;
     };
     this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
-        tasks = _.each(tasks, function(item, i, arr){
-            for (var i in statuses) {
-                if (statuses.indexOf(item.id) === -1) {
-                    statuses[i] = this.getNamedItemStatus(statuses[i], statusName);
-                    item[statusName] = statuses[i][statusName];
-                }
+        tasks = _.each(tasks, function(item){
+            var status = _.findWhere(statuses, {id: item.id});
+            if (typeof status !== 'undefined') {
+                status = this.getNamedItemStatus(status, statusName);
+                item[statusName] = status[statusName];
             }
         }, this);
         return tasks;
