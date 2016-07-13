@@ -40,10 +40,10 @@ angular.module('greyscaleApp')
                     var topOffset = el[0].getBoundingClientRect().top;
                     if (topOffset >= options.padding) {
                         topOffset = 0;
-                        el.removeClass('fixed-on-scroll');
+                        el.removeClass('is-fixed-on-scroll');
                     } else {
                         topOffset = -topOffset + options.padding;
-                        el.addClass('fixed-on-scroll');
+                        el.addClass('is-fixed-on-scroll');
                     }
                     fixedEl.css('top', topOffset);
                 }
