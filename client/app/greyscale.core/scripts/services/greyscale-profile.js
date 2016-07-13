@@ -50,7 +50,7 @@ angular.module('greyscale.core')
         };
 
         this.getUserName = function () {
-            greyscaleUtilsSrv.getUserName(_profile);
+
         };
 
         this._setAccessLevel = function (profile) {

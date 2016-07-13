@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsCoAnswers', function () {
+    .directive('gsCoAnswers', function ($log) {
         return {
             restrict: 'AE',
             scope: {
@@ -38,7 +38,7 @@ angular.module('greyscaleApp')
                         _res = _.find($scope.field.options, {
                             id: answer.optionId[0]
                         });
-                        _res = _res ? _res.label : null;
+                        _res = _res.label;
                     }
 
                     if (_res === null) {
