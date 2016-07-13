@@ -71,12 +71,24 @@ function* checkString(val, keyName) {
     return val;
 }
 
-var notify = function (req, commentId, taskId, action, essenceName, templateName) {
+var notify = function (req, commentId, taskId, action, essenceName, templateName, authorId) {
     co(function* () {
         var userTo, note, usersFromGroup;
         var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
+
+        // if authorId specified - send notification to author
+        if (authorId){
+            userTo = yield * common.getUser(req, authorId);
+            note = yield * notifications.extendNote(req, {
+                body: req.body.entry,
+                action: action
+            }, userTo, essenceName, commentId, userTo.organizationId, taskId);
+            notifications.notify(req, userTo, note, templateName);
+            sentUsersId.push(authorId);
+        }
+
 /* don't notify users assigned to task - ONLY tagged
         var task = yield * common.getTask(req, taskId);
         for (i in task.userIds) {
@@ -253,7 +265,12 @@ module.exports = {
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
             if (req.body.activated && !isResolve) {
-                notify(req, result[0].id, task.id, isReturn ? 'Flagged comment added' : 'Comment added', 'Comments', 'comment');
+                if (isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(req, task.id);
+                    notify(req, result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+                }
             }
 
             bologger.log({
@@ -291,7 +308,12 @@ module.exports = {
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId, Comment.isReturn, Comment.isResolve));
 
             if (!result[0].isResolve) {
-                notify(req, result[0].id, result[0].taskId, result[0].isReturn ? 'Flagged comment updated' : 'Comment updated', 'Comments', 'comment');
+                if (result[0].isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(task.id);
+                    notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+                }
             }
 
             bologger.log({
