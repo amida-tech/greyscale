@@ -1,11 +1,11 @@
 <div>
     <div>
         <a ng-click="hideComments('all');">
-            <i class="fa fa-eye-slash"></i> Hide all
+            <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL"></span>
+        </a><br />
+        <a ng-click="hideComments('flagged');">
+            <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL_FLAGGED"></span>
         </a>
-        <!--<a ng-click="hideComments('flagged');">
-            <i class="fa fa-eye-slash"></i> Hide all flagged
-        </a>-->
     </div>
     <div gs-message="msg" associate="model.associate" options="policy.options" ng-repeat="msg in model.items"></div>
     <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>

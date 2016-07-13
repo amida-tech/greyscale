@@ -76,6 +76,9 @@ angular.module('greyscaleApp')
 
                 $scope.hideComments = function (filter) {
                     for (var i = 0; i < $scope.model.items.length; i++) {
+                        if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
+                            continue;
+                        }
                         $scope.model.items[i].isHidden = true;
                     }
                     greyscaleCommentApi.hide($scope.policy.taskId, filter);
