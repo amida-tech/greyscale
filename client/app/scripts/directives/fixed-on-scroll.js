@@ -6,6 +6,7 @@ angular.module('greyscaleApp')
             restrict: 'A',
             link: function (scope, el, attr) {
                 var options = angular.extend({
+                    fitHeight: false,
                     padding: 0
                 }, scope.$eval(attr.fixedOnScroll) || {});
 
@@ -16,12 +17,15 @@ angular.module('greyscaleApp')
                 $timeout(_setParams);
 
                 w.on('scroll resize', _setParams);
-                var height;
-                var timer = $interval(function () {
-                    if (height !== fixedEl.height()) {
-                        _setHeight();
-                    }
-                }, 200);
+
+                if (options.fitHeight) {
+                    var height;
+                    var timer = $interval(function () {
+                        if (height !== fixedEl.height()) {
+                            _setHeight();
+                        }
+                    }, 200);
+                }
                 scope.$on('$destroy', function () {
                     w.off('scroll resize', _setParams);
                     $interval.cancel(timer);
@@ -36,8 +40,10 @@ angular.module('greyscaleApp')
                     var topOffset = el[0].getBoundingClientRect().top;
                     if (topOffset >= options.padding) {
                         topOffset = 0;
+                        el.removeClass('is-fixed-on-scroll');
                     } else {
                         topOffset = -topOffset + options.padding;
+                        el.addClass('is-fixed-on-scroll');
                     }
                     fixedEl.css('top', topOffset);
                 }
@@ -47,6 +53,9 @@ angular.module('greyscaleApp')
                 }
 
                 function _setHeight() {
+                    if (!options.fitHeight) {
+                        return;
+                    }
                     var botOffset = fixedEl[0].getBoundingClientRect().bottom;
                     var topOffset = fixedEl[0].getBoundingClientRect().top;
                     fixedEl.height(window.innerHeight - topOffset - options.padding);
