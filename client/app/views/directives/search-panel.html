@@ -2,19 +2,22 @@
     <form class="well well-sm" ng-submit="search('right')">
         <div class="input-group">
             <div class="input-group-btn" ng-if="gotResult">
+                <span class="btn btn-default search-btn search-info search-empty" ng-if="empty" translate="SEARCH.NOT_FOUND"></span>
                 <button type="button" class="btn btn-default search-btn"
                         title="{{'SEARCH.PREV' | translate}}"
+                        ng-if="!empty"
                         ng-disabled="isFirst" ng-click="prev()"><span class="fa fa-angle-left"></span></button>
-                <span class="btn btn-default search-btn search-info" ng-show="gotResult">{{info}}</span>
-                <button type="button" class="btn btn-default search-btn"
+                <span class="btn btn-default search-btn search-info" ng-if="!empty">{{info}}</span>
+                <button type="button" class="btn btn-default search-btn search-next"
+                        ng-if="!empty"
                         title="{{'SEARCH.NEXT' | translate}}"
                         ng-disabled="isLast" ng-click="next()"><span class="fa fa-angle-right"></span></button>
             </div>
             <input type="text" class="form-control" ng-model="searchText" />
             <div class="input-group-btn">
-                <button type="button" class="btn btn-default search-btn"
+                <button type="button" class="btn btn-default search-btn search-clear"
                         title="{{'SEARCH.CLEAR' | translate}}"
-                        ng-show="gotResult" ng-click="clear()">&times;</button>
+                        ng-show="searchText" ng-click="clear()">&times;</button>
                 <button class="btn btn-default search-btn" translate="SEARCH.SEARCH" ng-disabled="!searchText"></button>
                 <button type="button" class="btn btn-default search-btn dropdown-toggle"
                         ng-disabled="!searchText"

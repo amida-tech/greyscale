@@ -144,6 +144,7 @@ div.disabled {
     }
     input {
         height: 27pt;
+        padding-right: 35px;
     }
     .search-btn {
         border: 1px solid #ccc !important;
@@ -155,6 +156,22 @@ div.disabled {
                 cursor: default;
                 box-shadow: none;
             }
+            border-left: 0 !important;
+            border-right: 0 !important;
+        }
+        &.search-next {
+            border-right: 0 !important;
+        }
+        &.search-empty, &.search-clear {
+            color: $brand-danger;
+        }
+        &.search-clear {
+            position: absolute;
+            right: 100%;
+            z-index: 5;
+            border: 0px !important;
+            font-size: 19px;
+            padding: 5px 10px 3px;
         }
     }
 }

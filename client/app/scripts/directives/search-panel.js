@@ -33,7 +33,8 @@ angular.module('greyscaleApp')
 
                 function _onFinish() {
                     result = $('em.hilitor');
-                    scope.gotResult = !!result.length;
+                    scope.gotResult = true;
+                    scope.empty = !result.length
                     _controlResult();
                 }
 
