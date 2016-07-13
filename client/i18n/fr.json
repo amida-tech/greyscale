@@ -627,6 +627,7 @@
         "CLEAR": "",
         "EACH_WORD": "",
         "NEXT": "",
+        "NOT_FOUND": "",
         "PREV": "",
         "SEARCH": ""
     },
