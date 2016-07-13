@@ -77,6 +77,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
         var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
+/* don't notify users assigned to task - ONLY tagged
         var task = yield * common.getTask(req, taskId);
         for (i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
@@ -103,6 +104,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
                 }
             }
         }
+*/
 
         if (req.body.tags) {
             req.body.tags = JSON.parse(req.body.tags);
