@@ -8,14 +8,7 @@ angular.module('greyscaleApp')
             restrict: 'E',
             templateUrl: 'views/directives/policy-block.html',
             scope: {
-                policyData: '=?'
-            },
-            link: function (scope) {
-                scope.$watch('policyData', function (data) {
-                    if (data) {
-                        _refreshPolicy(scope, data);
-                    }
-                });
+                policyData: '='
             },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
                 greyscaleGlobals) {
@@ -67,6 +60,9 @@ angular.module('greyscaleApp')
                                 i++;
                             }
                         }
+                        if ($scope.policyData.sections.length > i) {
+                            $scope.policyData.sections.splice(i);
+                        }
                         _modifyEvt();
                     }
 
@@ -88,6 +84,4 @@ angular.module('greyscaleApp')
 
             }
         };
-
-        function _refreshPolicy(scope, data) {}
     });
