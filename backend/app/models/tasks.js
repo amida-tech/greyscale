@@ -34,6 +34,7 @@ Task.translate = [
 ];
 
 //TODO: Figure out how to dynamically determine schema when querying without relying on entire req object.
+// Would also be nice if the model had these methods exposed via prototypical inheritance.
 
 Task.all = function (schemaQuery) {
   return schemaQuery(this.select(this.star()).from(this));
@@ -41,15 +42,19 @@ Task.all = function (schemaQuery) {
 
 Task.getById = function (schemaQuery, id) {
   return schemaQuery(this.select().where(this.id.equals(id)));
-}
+};
 
 Task.destroy = function (schemaQuery, id) {
   return schemaQuery(this.delete().where(this.id.equals(id)));
-}
+};
+
+Task.updateOne = function (schemaQuery, task, id) {
+  return schemaQuery(this.update(_.pick(task, this.editCols)).where(this.id.equals(id)));
+};
 
 Task.create = function (schemaQuery, task) {
   return schemaQuery(this.insert(_.pick(task, this.table._initialConfig.columns)).returning(this.id));
-}
+};
 
 
 

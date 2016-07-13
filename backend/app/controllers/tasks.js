@@ -10,6 +10,7 @@ const
     thunkify = require('thunkify'),
     HttpError = require('../error').HttpError,
     ProductUOA = require('../models/product_uoa');
+
 module.exports = {
     //Don't think this is even being used.
     select: function (req, res, next) {
@@ -133,14 +134,9 @@ module.exports = {
     },
 
     updateOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         co(function* () {
-            req.body = yield * common.prepUsersForTask(req, req.body);
-            return yield thunkQuery(
-                Task
-                .update(_.pick(req.body, Task.editCols))
-                .where(Task.id.equals(req.params.id))
-            );
+            let validatedParams = yield * common.prepUsersForTask(req, req.body);
+            return yield Task.updateOne(req.thunkQuery, validatedParams, req.params.id);
         }).then(function () {
           //TODO: refactor this into a service ( see above )
             bologger.log({
