@@ -1,35 +1,64 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('fixedOnScroll', function () {
+    .directive('fixedOnScroll', function ($timeout, $interval) {
         return {
             restrict: 'A',
             link: function (scope, el, attr) {
-
-                var pos = el.css('position');
-                if (!~['relative', 'absolute', 'fixed'].indexOf(pos)) {
-                    el.css('position', 'relative');
-                }
+                var options = angular.extend({
+                    fitHeight: false,
+                    padding: 0
+                }, scope.$eval(attr.fixedOnScroll) || {});
 
                 var w = angular.element(window);
+                var fixedEl = angular.element(el.children()[0]);
 
-                var origY = el.offset().top;
-                var origTop = parseInt(el.css('top')) || 0;
-                var topPadding = parseInt(attr.topPadding) || 0;
+                _setParams();
+                $timeout(_setParams);
 
-                w.on('scroll', _onScroll);
+                w.on('scroll resize', _setParams);
 
+                if (options.fitHeight) {
+                    var height;
+                    var timer = $interval(function () {
+                        if (height !== fixedEl.height()) {
+                            _setHeight();
+                        }
+                    }, 200);
+                }
                 scope.$on('$destroy', function () {
-                    w.off('scroll', _onScroll);
+                    w.off('scroll resize', _setParams);
+                    $interval.cancel(timer);
                 });
 
-                function _onScroll(e) {
-                    var scrollTop = w.scrollTop();
-                    if (scrollTop === origTop) {
-                        el.css('top', origTop);
-                    } else if (scrollTop > (origY - topPadding)) {
-                        el.css('top', origTop + (scrollTop - origY + topPadding));
+                function _setParams() {
+                    _setTop();
+                    _setHeight();
+                }
+
+                function _setTop() {
+                    var topOffset = el[0].getBoundingClientRect().top;
+                    if (topOffset >= options.padding) {
+                        topOffset = 0;
+                        el.removeClass('is-fixed-on-scroll');
+                    } else {
+                        topOffset = -topOffset + options.padding;
+                        el.addClass('is-fixed-on-scroll');
                     }
+                    fixedEl.css('top', topOffset);
+                }
+
+                function _getFixedElHeight() {
+                    return fixedEl.height();
+                }
+
+                function _setHeight() {
+                    if (!options.fitHeight) {
+                        return;
+                    }
+                    var botOffset = fixedEl[0].getBoundingClientRect().bottom;
+                    var topOffset = fixedEl[0].getBoundingClientRect().top;
+                    fixedEl.height(window.innerHeight - topOffset - options.padding);
                 }
             }
         };
