@@ -392,15 +392,15 @@ var exportObject = function  (req, realm) {
     };
     this.getNamedItemStatus = function (item, status) {
         if (item.flagged) {
-            item[status] = 'Flagged';
+            item[status] = 'flagged';
         } else if (item.approved) {
-            item[status] = 'Approved';
+            item[status] = 'approved';
         } else if (item.late) {
-            item[status] = 'Late';
+            item[status] = 'late';
         } else if (item.draft) {
-            item[status] = 'Started';
+            item[status] = 'started';
         } else {
-            item[status] = 'Pending';
+            item[status] = 'pending';
         }
         delete item.flagged;
         delete item.approved;
