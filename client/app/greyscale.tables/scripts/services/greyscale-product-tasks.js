@@ -2,9 +2,10 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q, $sce, greyscaleProductApi, greyscaleProductWorkflowApi,
-        greyscaleUserApi, greyscaleGroupApi, greyscaleModalsSrv) {
+        greyscaleUserApi, greyscaleGlobals, greyscaleGroupApi, greyscaleModalsSrv) {
 
         var tns = 'PRODUCT_TASKS.';
+        var userStatuses = greyscaleGlobals.policyUserStatuses;
 
         var _dicts = {
             uoas: [],
@@ -22,12 +23,12 @@ angular.module('greyscale.tables')
             title: tns + 'PROGRESS',
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
-                '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
-                'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
-                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
-                '</span></span>'
+            '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
+            'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+            'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
+            '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
+            '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+            '</span></span>'
         }, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
@@ -44,7 +45,7 @@ angular.module('greyscale.tables')
             show: true,
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
             cellTemplate: '<div class="text-right" ng-if="!row.subjectCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
-                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
+            '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
         }];
 
         var _table = {
@@ -105,7 +106,7 @@ angular.module('greyscale.tables')
         }
 
         function _extendTasksWithRelations(tasks) {
-            var i, qty, user;
+            var i, qty, user, userStatus;
 
             angular.forEach(tasks, function (task) {
                 task.uoa = _.find(_dicts.uoas, {
@@ -140,7 +141,8 @@ angular.module('greyscale.tables')
                         user = angular.extend({}, _.find(_dicts.users, {
                             id: task.userStatuses[i].userId
                         }));
-                        user.status = task.userStatuses[i].status;
+                        userStatus = _.find(userStatuses, {value: task.userStatuses[i].status});
+                        user.status = userStatus ? userStatus.name : task.userStatuses[i].status;
                         task.user.push(user);
                     }
                 }
@@ -176,8 +178,8 @@ angular.module('greyscale.tables')
 
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
-                    stepId: step.id
-                }) || {};
+                        stepId: step.id
+                    }) || {};
                 stepTask.flagClass = '';
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {
