@@ -24,3 +24,4 @@ indaba-frontend:
     INDABA_URL: http://indaba-backend:3005
   ports:
   - "80:80"
+  - "443:443"
