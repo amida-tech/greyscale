@@ -124,14 +124,7 @@ app.on('start', function () {
             next(err);
         }
     });
-
-    app.use(function(err, req, res, next) {
-        if (process.env.NODE_ENV === 'development') {
-            console.log(req);
-        }
-        next();
-    });
-
+    
     // Setup error handlers
     app.use(function (err, req, res, next) {
         error(JSON.stringify(err));

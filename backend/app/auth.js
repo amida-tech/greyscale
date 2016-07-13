@@ -46,6 +46,10 @@ passport.use(new BasicStrategy({
     },
     function (req, email, password, done) {
         //var thunkQuery = req.thunkQuery;
+        console.log("Auth API request headers: ", JSON.stringify(req.headers));
+        console.log("Auth API request body: ", JSON.stringify(req.body));
+        console.log("Auth API request params:", JSON.stringify(req.params));
+        console.log("Auth API request route:", JSON.stringify(req.route));
         co(function* () {
 
             var userInNamespace = [];
