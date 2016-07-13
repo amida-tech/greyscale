@@ -27,11 +27,6 @@ angular.module('greyscaleApp')
 
                 $scope.model = $scope.model || [];
 
-                var search = new Hilitor();
-                $scope.search = _search;
-                $scope.searchClean = _searchClean;
-
-
                 $scope.inProgress = [];
 
                 var uploader = $scope.uploader = new FileUploader({
@@ -87,24 +82,9 @@ angular.module('greyscaleApp')
                     greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
                 };
 
-
-                $scope.search = _search;
-
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
                 }
-
-                function _search(e) {
-                    e.preventDefault();
-                    var text = $scope.searchText;
-                    search.apply($element.find('.section-text'), text);
-                    console.log('dd');
-                }
-
-                function _searchClean() {
-                    search.remove();
-                }
-
             }
         };
 
