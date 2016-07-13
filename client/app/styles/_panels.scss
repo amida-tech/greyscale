@@ -127,3 +127,15 @@ div.disabled {
     white-space: pre-wrap;
     word-wrap: break-word;
 }
+
+.search-block {
+    .well {
+        z-index: 1;
+    }
+    &.fixed-on-scroll {
+        .well {
+            box-shadow: 0 0 15px #ccc;
+        }
+    }
+
+}
