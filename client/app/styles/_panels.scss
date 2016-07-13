@@ -127,14 +127,38 @@ div.disabled {
     word-wrap: break-word;
 }
 
-.search-block {
+.search-panel {
     .well {
         z-index: 1;
+        overflow-y: visible;
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+            float: left;
+        }
     }
-    &.fixed-on-scroll {
+    &.is-fixed-on-scroll {
         .well {
             box-shadow: 0 0 15px #ccc;
         }
     }
+    input {
+        height: 27pt;
+    }
+    .search-btn {
+        border: 1px solid #ccc !important;
+        background: transparent !important;
+        color: #444;
+        &.search-info {
+            color: #999;
+            &:hover, &:active {
+                cursor: default;
+                box-shadow: none;
+            }
+        }
+    }
+}
 
+em.hilitor.current {
+    border: 1px dotted #ccc;
 }

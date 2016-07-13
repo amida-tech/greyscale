@@ -9,11 +9,13 @@
         </rd-widget>
     </div>
     <div class="col-sm-5" ng-show="model.isTaskMode">
-        <rd-widget ng-show="model.title">
-            <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
-            <rd-widget-body classes="group-discussion">
-                <policy-discussion policy="model.surveyData.policy"></policy-discussion>
-            </rd-widget-body>
-        </rd-widget>
+        <div fixed-on-scroll="{fitHeight: true}">
+            <rd-widget ng-show="model.title" >
+                <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
+                <rd-widget-body classes="group-discussion">
+                    <policy-discussion policy="model.surveyData.policy"></policy-discussion>
+                </rd-widget-body>
+            </rd-widget>
+        </div>
     </div>
 </div>

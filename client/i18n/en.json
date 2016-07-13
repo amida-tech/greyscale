@@ -623,6 +623,13 @@
         "ROLE_RIGHT": "Role Right",
         "ROLE_RIGHTS": "Role Rights"
     },
+    "SEARCH": {
+        "CLEAR": "Clear",
+        "EACH_WORD": "Search Each Word",
+        "NEXT": "Next",
+        "PREV": "Previous",
+        "SEARCH": "Search"
+    },
     "SURVEYS": {
         "ABOVE": "above",
         "AGREE": "Agree",

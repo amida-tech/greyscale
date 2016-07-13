@@ -623,6 +623,13 @@
         "ROLE_RIGHT": "",
         "ROLE_RIGHTS": ""
     },
+    "SEARCH": {
+        "CLEAR": "",
+        "EACH_WORD": "",
+        "NEXT": "",
+        "PREV": "",
+        "SEARCH": ""
+    },
     "SURVEYS": {
         "ABOVE": "",
         "AGREE": "",
