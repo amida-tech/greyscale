@@ -50,6 +50,8 @@ passport.use(new BasicStrategy({
         console.log("Auth API request body: ", JSON.stringify(req.body));
         console.log("Auth API request params:", JSON.stringify(req.params));
         console.log("Auth API request route:", JSON.stringify(req.route));
+        console.log("Auth email:", email);
+        console.log("Auth password:", password);
         co(function* () {
 
             var userInNamespace = [];
