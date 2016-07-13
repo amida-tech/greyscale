@@ -1,14 +1,7 @@
-var sql = require('sql');
+const sql = require('sql');
 const _ = require("underscore");
-const Product = require('./products');
-const WorkflowStep = require('./workflow_steps');
-const ProductUOA = require('./product_uoa');
-const Query = require('../util').Query;
-const query = new Query();
-const thunkify = require('thunkify');
-const thunkQuery = thunkify(query);
 
-var Task = sql.define({
+const Task = sql.define({
     name: 'Tasks',
     columns: [
         'id',
