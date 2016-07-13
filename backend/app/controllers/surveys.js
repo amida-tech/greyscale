@@ -19,7 +19,7 @@ var
     cheerio = require('cheerio'),
     sSurvey = require('app/services/surveys'),
     sPolicy = require('app/services/policies'),
-    thunkQuery = thunkify(query);
+    sProduct = require('app/services/products');
 
 var debug = require('debug')('debug_surveys');
 debug.log = console.log.bind(console);
@@ -113,14 +113,12 @@ module.exports = {
         }
     },
 
-
-
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oProduct = new sProduct(req);
+        var oSurvey = new sSurvey(req);
         co(function* () {
-            var products = yield thunkQuery(
-                Product.select().where(Product.surveyId.equals(req.params.id))
-            );
+            var products = yield oProduct.getProductsBySurvey(req.params.id);
             if (_.first(products)) {
                 throw new HttpError(403, 'This survey has already linked with some product(s), you cannot delete it');
             }
@@ -158,13 +156,8 @@ module.exports = {
                 }
             }
 
-            var survey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.params.id)));
+            yield oSurvey.deleteOne(req.params.id);
 
-            yield thunkQuery(Survey.delete().where(Survey.id.equals(req.params.id)));
-
-            if (survey[0] && survey[0].policyId) {
-                yield thunkQuery(Policy.delete().where(Policy.id.equals(survey[0].policyId)));
-            }
         }).then(function (data) {
             bologger.log({
                 req: req,

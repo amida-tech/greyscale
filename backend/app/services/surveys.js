@@ -1,6 +1,7 @@
 var
     _ = require('underscore'),
     Policy = require('app/models/policies'),
+    sPolicy = require('app/services/policies'),
     Survey = require('app/models/surveys'),
     co = require('co'),
     HttpError = require('app/error').HttpError;
@@ -101,7 +102,21 @@ var exportObject = function  (req, realm) {
         });
     };
 
-
+    this.deleteOne = function (id) {
+        var self = this;
+        var oPolicy = new sPolicy(req);
+        return co(function* () {
+            var survey = yield self.getById(id);
+            // TODO delete survey questions, delete survey answers. What if answers already exists??
+            if (survey) {
+                yield thunkQuery(Survey.delete().where(Survey.id.equals(id)));
+                if (survey.policyId) {
+                    // Delete policy
+                    yield oPolicy.deleteOne(survey.policyId);
+                }
+            }
+        });
+    }
 }
 
 module.exports = exportObject;

@@ -1,6 +1,8 @@
 var
     _ = require('underscore'),
     Policy = require('app/models/policies'),
+    sAttachment = require('app/services/attachments'),
+    sEssence = require('app/services/essences'),
     co = require('co'),
     HttpError = require('app/error').HttpError,
     sUser = require('./users');
@@ -61,6 +63,19 @@ var exportObject = function  (req, realm) {
             }
 
             return false;
+        });
+    };
+
+    this.deleteOne = function (id) {
+        var oEssence = new sEssence(req);
+        var oAttachment = new sAttachment(req);
+        return co(function* () {
+            var essence = yield oEssence.getByTableName('Policies');
+            if (essence) {
+                 yield oAttachment.deleteEntityAttachments(essence.id, id);
+            }
+
+            yield thunkQuery(Policy.delete().where(Policy.id.equals(id)));
         });
     };
 }
