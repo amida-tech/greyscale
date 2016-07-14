@@ -24,12 +24,12 @@ angular.module('greyscale.tables')
             title: tns + 'PROGRESS',
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
-            '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-            'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
-            'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-            '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
-            '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
-            '</span></span>'
+                '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
+                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+                'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+                '</span></span>'
         }, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
@@ -46,7 +46,7 @@ angular.module('greyscale.tables')
             show: true,
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
             cellTemplate: '<div class="text-right" ng-if="!row.subjectCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
-            '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
+                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
         }];
 
         var _table = {
@@ -107,7 +107,7 @@ angular.module('greyscale.tables')
         }
 
         function _extendTasksWithRelations(tasks) {
-            var i, qty, user, userStatus;
+            var i, qty, user, userStatus, status;
 
             angular.forEach(tasks, function (task) {
                 task.uoa = _.find(_dicts.uoas, {
@@ -136,21 +136,20 @@ angular.module('greyscale.tables')
                     }
                 }
                 task.user = [];
-                if (task.userStatuses) {
-                    qty = task.userStatuses.length;
-                    for (i = 0; i < qty; i++) {
-                        user = angular.extend({}, _.find(_dicts.users, {
-                            id: task.userStatuses[i].userId
-                        }));
-                        userStatus = _.find(userStatuses, {value: task.userStatuses[i].status});
-                        user.status = userStatus ? userStatus.name : task.userStatuses[i].status;
-                        task.user.push(user);
-                    }
-                } else {
+                for (i = 0; i < task.userIds.length; i++) {
                     user = angular.extend({}, _.find(_dicts.users, {
-                        id: task.userIds[0]
+                        id: task.userIds[i]
                     }));
-                    userStatus = _.find(taskStatuses, {value: task.status});
+                    if (task.userStatuses) {
+                        status = _.find(task.userStatuses, {
+                            userId: task.userIds[i]
+                        }).status;
+                    } else {
+                        status = task.status;
+                    }
+                    userStatus = _.find(taskStatuses, {
+                        value: status
+                    });
                     user.status = userStatus ? userStatus.name : task.status;
                     task.user.push(user);
                 }
@@ -186,8 +185,8 @@ angular.module('greyscale.tables')
 
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
-                        stepId: step.id
-                    }) || {};
+                    stepId: step.id
+                }) || {};
                 stepTask.flagClass = '';
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {
