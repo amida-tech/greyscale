@@ -2,10 +2,11 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q, $sce, greyscaleProductApi, greyscaleProductWorkflowApi,
-        greyscaleUserApi, greyscaleGlobals, greyscaleGroupApi, greyscaleModalsSrv) {
+        greyscaleUserApi, greyscaleGlobals) {
 
         var tns = 'PRODUCT_TASKS.';
-        var userStatuses = greyscaleGlobals.policyUserStatuses;
+        var userStatuses = greyscaleGlobals.policyUserStatuses,
+            taskStatuses = greyscaleGlobals.productTaskStatuses;
 
         var _dicts = {
             uoas: [],
@@ -145,6 +146,13 @@ angular.module('greyscale.tables')
                         user.status = userStatus ? userStatus.name : task.userStatuses[i].status;
                         task.user.push(user);
                     }
+                } else {
+                    user = angular.extend({}, _.find(_dicts.users, {
+                        id: task.userIds[0]
+                    }));
+                    userStatus = _.find(taskStatuses, {value: task.status});
+                    user.status = userStatus ? userStatus.name : task.status;
+                    task.user.push(user);
                 }
             });
             _table.dataShare.tasks = tasks;
