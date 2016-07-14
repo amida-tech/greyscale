@@ -130,7 +130,6 @@ div.disabled {
 
 .search-panel {
     .well {
-        z-index: 1;
         overflow-y: visible;
         .dropdown-menu {
             right: 0;
@@ -141,6 +140,7 @@ div.disabled {
     &.is-fixed-on-scroll {
         .well {
             box-shadow: 0 0 15px #ccc;
+            z-index: 10;
         }
     }
     input {
@@ -157,14 +157,17 @@ div.disabled {
                 cursor: default;
                 box-shadow: none;
             }
-            border-left: 0 !important;
-            border-right: 0 !important;
+            border-left-width: 0 !important;
+            border-right-width: 0 !important;
         }
         &.search-next {
             border-right: 0 !important;
         }
         &.search-empty, &.search-clear {
             color: $brand-danger;
+        }
+        &.search-empty {
+            border-left-width: 1px !important;
         }
         &.search-clear {
             position: absolute;
