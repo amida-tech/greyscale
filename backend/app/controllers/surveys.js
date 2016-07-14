@@ -33,15 +33,20 @@ module.exports = {
                     Survey.star(),
                     Policy.section, Policy.subsection, Policy.author, Policy.number,
                     '(SELECT array_agg(row_to_json(att)) FROM (' +
-                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                    'FROM "AttachmentLinks" al ' +
-                    'JOIN "Attachments" a ' +
-                    'ON al."entityId" = "Policies"."id" ' +
-                    'JOIN "Essences" e ' +
-                    'ON e.id = al."essenceId" ' +
-                    'AND e."tableName" = \'Policies\' ' +
-                    'WHERE a."id" = ANY(al."attachments")' +
-                    ') as att) as attachments'
+                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                        'FROM "AttachmentLinks" al ' +
+                        'JOIN "Attachments" a ' +
+                        'ON al."entityId" = "Policies"."id" ' +
+                        'JOIN "Essences" e ' +
+                        'ON e.id = al."essenceId" ' +
+                        'AND e."tableName" = \'Policies\' ' +
+                        'WHERE a."id" = ANY(al."attachments")' +
+                    ') as att) as attachments',
+                    '(' +
+                        'SELECT array_agg("Products"."id") ' +
+                        'FROM "Products" ' +
+                        'WHERE "Products"."surveyId" = "Surveys"."id"' +
+                    ') as products'
                 )
                 .from(
                     Survey

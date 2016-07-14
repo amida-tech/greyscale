@@ -135,7 +135,7 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             if (!req.params.id) { // create
                 if (!req.body.projectId) {
-                    throw new HttpError(403, 'Project id fields are required');
+                    throw new HttpError(403, 'Project id is required');
                 }
             }
 
@@ -152,6 +152,12 @@ var exportObject = function  (req, realm) {
                 var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
                 if (!_.first(isExistSurvey)) {
                     throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
+                }
+                if (req.body.policyId) {
+                    var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.body.surveyId)));
+                    if (products.length) {
+                        throw new HttpError(403, 'Policy cannot be assigned to multiple projects');
+                    }
                 }
             }
 
