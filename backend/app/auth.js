@@ -116,14 +116,14 @@ passport.use(new BasicStrategy({
         });
 
         function* checkIsAdmin(email) {
-
+            console.log("User email:", email);
             var user = yield thunkQuery(
                 User.select().where(
                     sql.functions.UPPER(User.email).equals(email.toUpperCase())
                     .and(User.roleID.equals(1))
                 )
             );
-
+            console.log("User found:", user);
             if (user.length) {
                 return user[0];
             } else {
