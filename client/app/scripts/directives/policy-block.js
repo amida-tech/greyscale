@@ -45,8 +45,9 @@ angular.module('greyscaleApp')
 
                 uploader.onCompleteItem = function (item, data) {
                     var _sectionName,
-                        i = 0, qty;
-                    
+                        i = 0,
+                        qty;
+
                     if (!item.isError) {
                         qty = $scope.policyData.sections.length;
                         for (_sectionName in data) {
