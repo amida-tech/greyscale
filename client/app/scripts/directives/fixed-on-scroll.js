@@ -4,6 +4,9 @@ angular.module('greyscaleApp')
     .directive('fixedOnScroll', function ($timeout, $interval) {
         return {
             restrict: 'A',
+            scope: {
+                active: '='
+            },
             link: function (scope, el, attr) {
                 var options = angular.extend({
                     fitHeight: false,
@@ -26,9 +29,13 @@ angular.module('greyscaleApp')
                         }
                     }, 200);
                 }
+
+                var stopWatchActive = scope.$watch('active', _setParams);
+
                 scope.$on('$destroy', function () {
                     w.off('scroll resize', _setParams);
                     $interval.cancel(timer);
+                    stopWatchActive();
                 });
 
                 function _setParams() {
@@ -37,14 +44,21 @@ angular.module('greyscaleApp')
                 }
 
                 function _setTop() {
-                    var topOffset = el[0].getBoundingClientRect().top;
-                    if (topOffset >= options.padding) {
+                    var topOffset;
+                    if (scope.active === undefined || scope.active) {
+                        topOffset = el[0].getBoundingClientRect().top;
+                        if (topOffset >= options.padding) {
+                            topOffset = 0;
+                            el.removeClass('is-fixed-on-scroll');
+                        } else {
+                            topOffset = -topOffset + options.padding;
+                            el.addClass('is-fixed-on-scroll');
+                        }
+                    } else {
                         topOffset = 0;
                         el.removeClass('is-fixed-on-scroll');
-                    } else {
-                        topOffset = -topOffset + options.padding;
-                        el.addClass('is-fixed-on-scroll');
                     }
+
                     fixedEl.css('top', topOffset);
                 }
 
