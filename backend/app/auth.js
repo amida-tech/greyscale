@@ -46,12 +46,6 @@ passport.use(new BasicStrategy({
     },
     function (req, email, password, done) {
         //var thunkQuery = req.thunkQuery;
-        console.log("Auth API request headers: ", JSON.stringify(req.headers));
-        console.log("Auth API request body: ", JSON.stringify(req.body));
-        console.log("Auth API request params:", JSON.stringify(req.params));
-        console.log("Auth API request route:", JSON.stringify(req.route));
-        console.log("Auth email:", email);
-        console.log("Auth password:", password);
         co(function* () {
 
             var userInNamespace = [];
@@ -116,14 +110,12 @@ passport.use(new BasicStrategy({
         });
 
         function* checkIsAdmin(email) {
-            console.log("User email:", email);
             var user = yield thunkQuery(
                 User.select().where(
                     sql.functions.UPPER(User.email).equals(email.toUpperCase())
                     .and(User.roleID.equals(1))
                 )
             );
-            console.log("User found:", user);
             if (user.length) {
                 return user[0];
             } else {

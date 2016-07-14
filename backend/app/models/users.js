@@ -91,9 +91,6 @@ User.hashPassword = function (salt, password) {
 };
 
 User.validPassword = function (pas, salt, checkpas) {
-    console.log(pas);
-    console.log(salt);
-    console.log(checkpas);
     return pas === this.hashPassword(salt, checkpas);
 };
 
