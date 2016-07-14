@@ -106,7 +106,7 @@ angular.module('greyscaleApp')
                             _questions.push(survey.questions[q]);
                         }
                     }
-                    _policiesGenerate(_sections);
+
                     survey.questions = _questions;
                     $scope.model.survey = survey;
                     $scope.model.policy.sections = _sections;

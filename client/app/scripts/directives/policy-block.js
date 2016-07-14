@@ -45,8 +45,10 @@ angular.module('greyscaleApp')
 
                 uploader.onCompleteItem = function (item, data) {
                     var _sectionName,
-                        i = 0;
+                        i = 0, qty;
+                    
                     if (!item.isError) {
+                        qty = $scope.policyData.sections.length;
                         for (_sectionName in data) {
                             if ($scope.policyData.sections.length <= i) {
                                 $scope.policyData.sections.push({
@@ -60,8 +62,9 @@ angular.module('greyscaleApp')
                                 i++;
                             }
                         }
-                        if ($scope.policyData.sections.length > i) {
-                            $scope.policyData.sections.splice(i);
+
+                        for (; i < qty; i++) {
+                            $scope.policyData.sections[i].deleted = true;
                         }
                         _modifyEvt();
                     }
