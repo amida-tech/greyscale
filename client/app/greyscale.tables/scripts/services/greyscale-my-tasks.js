@@ -1,10 +1,9 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function (_, greyscaleTaskApi, greyscaleProfileSrv, greyscaleGlobals) {
+    .factory('greyscaleMyTasksTbl', function (_, greyscaleTaskApi, greyscaleGlobals) {
 
         var tns = 'MY_TASKS.',
-            _userId,
             _userStatuses = greyscaleGlobals.policy.userStatuses;
 
         var resDescr = [{
@@ -29,10 +28,6 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
-
-        greyscaleProfileSrv.getProfile().then(function (_profile) {
-            _userId = _profile.id;
-        });
 
         return {
             title: tns + 'TITLE',
