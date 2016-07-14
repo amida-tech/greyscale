@@ -273,7 +273,8 @@ angular.module('greyscaleApp')
                     translated: true,
                     locked: false,
                     savedAt: NaN,
-                    isPolicy: false
+                    isPolicy: false,
+                    snsTitle: 'SURVEYS.SUBMIT'
                 };
 
                 $scope.goField = function (elemId) {
@@ -383,6 +384,9 @@ angular.module('greyscaleApp')
             provideResponses = flags.provideResponses;
 
             flags.isPolicy = !!scope.surveyData.policy;
+            if (flags.isPolicy) {
+                scope.model.snsTitle = 'POLICY.APPROVE';
+            }
             scope.model.translated = !flags.allowTranslate;
 
             for (q = 0; q < qQty; q++) {
@@ -595,8 +599,7 @@ angular.module('greyscaleApp')
 
                             if (_answers[v].userId === currentUserId) {
                                 flags.hasVersion = true;
-                            } else if (scope.surveyData.collaboratorIds &&
-                                scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                            } else if (scope.surveyData.collaboratorIds && scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }
