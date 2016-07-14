@@ -7,7 +7,6 @@ angular.module('greyscaleApp')
             templateUrl: 'views/directives/search-panel.html',
             link: function (scope, el, attr) {
                 var options = angular.extend({
-                    selector: 'body',
                     btnSearch: 'COMMON.SEARCH'
                 }, scope.$eval(attr.searchPanel));
 
@@ -16,6 +15,7 @@ angular.module('greyscaleApp')
                     colors: ['#ff6']
                 });
 
+                scope.empty = true;
                 scope.gotResult = false;
 
                 scope.search = _search;
@@ -26,7 +26,8 @@ angular.module('greyscaleApp')
                 function _search(matchType) {
                     var text = scope.searchText;
                     search.setMatchType(matchType);
-                    search.apply(angular.element(options.selector), text);
+                    var selector = scope.$eval(attr.searchSelector);
+                    search.apply($(selector || 'body'), text);
                 }
 
                 var current, result;
@@ -34,7 +35,7 @@ angular.module('greyscaleApp')
                 function _onFinish() {
                     result = $('em.hilitor');
                     scope.gotResult = true;
-                    scope.empty = !result.length
+                    scope.empty = !result.length;
                     _controlResult();
                 }
 
