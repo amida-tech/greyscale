@@ -16,7 +16,7 @@ angular.module('greyscale.wysiwyg', ['textAngular'])
              ],
              */
             taOptions.toolbar = [
-                ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
+                ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p'],
                 ['bold', 'italics', 'underline', 'strikeThrough', 'ul', 'ol', 'redo', 'undo', 'clear']
             ];
 
@@ -32,7 +32,7 @@ angular.module('greyscale.wysiwyg', ['textAngular'])
                 },
                 activeState: _isRed
             });
-            taOptions.toolbar[0].push('redColor');
+            taOptions.toolbar[1].unshift('redColor');
             return taOptions;
 
             function _isRed(elem) {

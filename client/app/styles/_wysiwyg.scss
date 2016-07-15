@@ -7,10 +7,14 @@
         white-space: pre-wrap;
         word-wrap: normal;
         background-color: transparent;
-        table {
-            @extend .table;
-            @extend .table-bordered;
-            @extend .table-condensed;
-        }
+    }
+    table {
+        @extend .table;
+        @extend .table-bordered;
+        @extend .table-condensed;
+    }
+    blockquote,
+    .blockquote {
+        font: inherit;
     }
 }
