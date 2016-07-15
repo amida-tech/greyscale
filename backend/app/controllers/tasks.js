@@ -4,6 +4,7 @@ var
     bologger = new BoLogger(),
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
+    sTaskUserState = require('app/services/taskuserstates'),
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -70,12 +71,30 @@ module.exports = {
         });
     },
 
+    start: function (req, res, next) {
+        co(function* () {
+            // TaskUserStates - start task for user
+            var oTaskUserState = new sTaskUserState(req);
+            yield oTaskUserState.start(req.params.id, req.user.id);
+        }).then(function () {
+            res.status(200).end();
+        }, function (err) {
+            next(err);
+        });
+    },
+
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oTask = new sTask(req);
+        var oTaskUserState = new sTaskUserState(req);
         co(function* () {
-            var oTask = new sTask(req);
-            return yield oTask.deleteTask(req.params.id);
-        }).then(function (data) {
+
+            yield oTask.deleteTask(req.params.id);
+
+            // modify initial TaskUserStates
+            yield oTaskUserState.remove(req.params.id);
+
+        }).then(function () {
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -84,14 +103,17 @@ module.exports = {
 
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oTask = new sTask(req);
+        var oTaskUserState = new sTaskUserState(req);
+        var usersIds, step; // for use with TaskUserStates
+
         co(function* () {
             req.body = yield * common.prepUsersForTask(req, req.body);
-            return yield thunkQuery(
+            yield thunkQuery(
                 Task
                 .update(_.pick(req.body, Task.editCols))
                 .where(Task.id.equals(req.params.id))
             );
-        }).then(function (data) {
             bologger.log({
                 req: req,
                 user: req.user,
@@ -100,6 +122,13 @@ module.exports = {
                 entity: req.params.id,
                 info: 'Update task'
             });
+
+            // modify initial TaskUserStates
+            usersIds =  yield oTask.getUsersIdsByTask(req.params.id);
+            step = yield * common.getStepByTask(req, req.params.id);
+            yield oTaskUserState.modify(req.params.id, usersIds, step.endDate);
+
+        }).then(function () {
             res.status(202).end();
         }, function (err) {
             next(err);

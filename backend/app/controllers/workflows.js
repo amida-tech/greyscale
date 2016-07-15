@@ -3,11 +3,14 @@ var client = require('app/db_bootstrap'),
     config = require('config'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
+    sTask = require('app/services/tasks'),
+    sTaskUserState = require('app/services/taskuserstates'),
     Workflow = require('app/models/workflows'),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
     WorkflowStep = require('app/models/workflow_steps'),
     WorkflowStepGroup = require('app/models/workflow_step_groups'),
+    Task = require('app/models/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
     query = new Query(),
@@ -140,6 +143,8 @@ module.exports = {
 
     stepsUpdate: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oTask = new sTask(req);
+        var oTaskUserState = new sTaskUserState(req);
         co(function* () {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
@@ -159,6 +164,7 @@ module.exports = {
             var passedIds = [];
             var updatedIds = [];
             var insertIds = [];
+            var usersIds, tasks;
 
             for (var i in req.body) {
                 var updateObj = _.pick(req.body[i], WorkflowStep.editCols);
@@ -179,6 +185,17 @@ module.exports = {
                             entity: req.body[i].id,
                             info: 'Update workflow step'
                         });
+
+                        // set TaskUserStates if endDate changed
+                        tasks = yield thunkQuery(Task.select().where(Task.stepId.equals(req.body[i].id)));
+                        if (tasks && tasks.length > 0) {
+                            // if task for this step already exist
+                            for (var i in tasks) {
+                                usersIds = yield oTask.getUsersIdsByTask(tasks[i].id);
+                                yield oTaskUserState.updateEndDate(tasks[i].id, usersIds, new Date(req.body[i].endDate));
+                            }
+                        }
+
                         yield thunkQuery(
                             WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
                         );

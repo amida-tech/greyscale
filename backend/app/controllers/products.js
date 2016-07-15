@@ -4,6 +4,7 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sProduct = require('app/services/products'),
+    sTaskUserState = require('app/services/taskuserstates'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -230,6 +231,9 @@ module.exports = {
     editTasks: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var oProduct = new sProduct(req);
+        var oTask = new sTask(req);
+        var oTaskUserState = new sTaskUserState(req);
+        var usersIds, step; // for use with TaskUserStates
 
         co(function* () {
             var product = yield thunkQuery(
@@ -284,13 +288,6 @@ module.exports = {
                             userIds: req.body[i].userIds,
                             groupIds: req.body[i].groupIds
                         });
-
-                        // notify
-                        oProduct.notify({
-                            body: 'Task updated',
-                            action: 'Task updated',
-                        }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
-
                         bologger.log({
                             req: req,
                             user: req.user,
@@ -299,6 +296,18 @@ module.exports = {
                             entity: req.body[i].id,
                             info: 'Update task for product `' + req.params.id + '`'
                         });
+
+                        // modify initial TaskUserStates
+                        usersIds =  yield oTask.getUsersIdsByTask(req.body[i].id);
+                        step = yield * common.getStepByTask(req, req.body[i].id);
+                        yield oTaskUserState.modify(req.body[i].id, usersIds, step.endDate);
+
+                        // notify
+                        oProduct.notify({
+                            body: 'Task updated',
+                            action: 'Task updated',
+                        }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
+
                     }
                 } else { // create
                     yield * common.checkDuplicateTask(req, req.body[i].stepId, req.body[i].uoaId, req.body[i].productId);
@@ -311,13 +320,6 @@ module.exports = {
                         userIds: req.body[i].userIds,
                         groupIds: req.body[i].groupIds
                     });
-
-                    // notify
-                    oProduct.notify({
-                        body: 'Task created',
-                        action: 'Task created'
-                    }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
-
                     bologger.log({
                         req: req,
                         user: req.user,
@@ -326,6 +328,18 @@ module.exports = {
                         entity: req.body[i].id,
                         info: 'Add new task for product `' + req.params.id + '`'
                     });
+
+                    // add initial TaskUserStates
+                    usersIds =  yield oTask.getUsersIdsByTask(req.body[i].id);
+                    step = yield * common.getStepByTask(req, req.body[i].id);
+                    yield oTaskUserState.add(req.body[i].id, usersIds, step.endDate);
+
+                    // notify
+                    oProduct.notify({
+                        body: 'Task created',
+                        action: 'Task created'
+                    }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
+
                 }
                 if (product[0].workflow) {
                     var firstStep = yield thunkQuery(

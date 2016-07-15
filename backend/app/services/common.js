@@ -65,6 +65,22 @@ var getTaskByStep = function* (req, stepId, uoaId) {
 };
 exports.getTaskByStep = getTaskByStep;
 
+var getStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Task
+            .select(WorkflowStep.star())
+            .from(Task
+                .leftJoin(WorkflowStep).on(WorkflowStep.id.equals(Task.stepId)))
+            .where(Task.id.equals(taskId))
+    );
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Step for taskId `' + parseInt(taskId).toString() + '` not found');
+    }
+    return result[0];
+};
+exports.getStepByTask = getStepByTask;
+
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));

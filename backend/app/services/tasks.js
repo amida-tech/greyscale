@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     common = require('app/services/common'),
     Task = require('app/models/tasks'),
+    TaskUserState = require('app/models/taskuserstates'),
     Survey = require('app/models/surveys'),
     Product = require('app/models/products'),
     Group = require('app/models/groups'),
@@ -16,6 +17,7 @@ var
     HttpError = require('app/error').HttpError,
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
+    sTaskUserState = require('app/services/taskuserstates'),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -24,6 +26,7 @@ var exportObject = function  (req, realm) {
     if (!realm) {
         thunkQuery = req.thunkQuery;
     }
+    var oTaskUserState = new sTaskUserState(req);
 
     this.getList = function () {
         return co(function* () {
@@ -346,74 +349,32 @@ var exportObject = function  (req, realm) {
         return this.getTaskExt('Comments', 'curStep');
     };
     this.getTaskUsersStatuses = function (commentDiscussion, users, taskId) {
-        var self = this;
-        return co(function* () {
-            var userArraysAlias = 'userArrays';
-            var whereClause = taskId ? pgEscape('WHERE ("Tasks"."id" = %s) ', taskId) : '';
-            var taskColumn = taskId ? '' : '"Tasks"."id" as "taskId", ';
-            return yield thunkQuery('SELECT ' +
-                taskColumn +
-                pgEscape('"%s"."userId", ', userArraysAlias) +
-                self.taskUserStatus.flaggedColumn(commentDiscussion, userArraysAlias) + ', ' +
-                self.taskUserStatus.approvedColumn('SurveyAnswers', userArraysAlias) + ', ' +
-                self.taskUserStatus.lateColumn('WorkflowSteps') + ', ' +
-                self.taskUserStatus.draftColumn('SurveyAnswers', userArraysAlias) +
-                'FROM "Tasks", ' +
-                pgEscape('(SELECT unnest(\'{%s}\'::int[]) as "userId") as "%s" ', users, userArraysAlias) +
-                whereClause
-            );
-        });
+
+        // get all TaskUserStates for lists of users and tasks
+        var tasks = taskId ? [taskId] : null;
+        return oTaskUserState.getByLists(tasks, users);
+
     };
     this.getTasksUserStatus = function (commentDiscussion, userId, tasks) {
-        var self = this;
-        return co(function* () {
-            var userAlias = 'userAlias';
-            return yield thunkQuery('SELECT ' +
-                '"Tasks"."id" as "id", ' +
-                pgEscape('"%s"."userId", ', userAlias) +
-                self.taskUserStatus.flaggedColumn(commentDiscussion, userAlias) + ', ' +
-                self.taskUserStatus.approvedColumn('SurveyAnswers', userAlias) + ', ' +
-                self.taskUserStatus.lateColumn('WorkflowSteps') + ', ' +
-                self.taskUserStatus.draftColumn('SurveyAnswers', userAlias) +
-                'FROM "Tasks" ' +
-                'INNER JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
-                'INNER JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id"), ' +
-                pgEscape('(SELECT %s as "userId") as "%s" ', userId, userAlias) +
-                pgEscape('WHERE (ARRAY["Tasks"."id"] <@ \'{%s}\') ', tasks) +
-                'AND ("Products"."status" = 1) ' +
-                'AND ("Surveys"."policyId" IS NOT NULL)'
-            );
-        });
+
+        // get all TaskUserStates for lists of users and tasks
+        return oTaskUserState.getByLists(tasks, [userId]);
+
     };
     this.getNamedStatuses = function (detailStatuses, status) {
         return _.each(detailStatuses, function(item, i, arr){
-            item = this.getNamedItemStatus(item, status);
+            //item = this.getNamedItemStatus(item, status);
+            item[status] = TaskUserState.getStatus(item.stateId);
+            arr[i] = _.pick(item, ['userId', status])
         }, this);
-    };
-    this.getNamedItemStatus = function (item, status) {
-        if (item.flagged) {
-            item[status] = 'flagged';
-        } else if (item.approved) {
-            item[status] = 'approved';
-        } else if (item.late) {
-            item[status] = 'late';
-        } else if (item.draft) {
-            item[status] = 'started';
-        } else {
-            item[status] = 'pending';
-        }
-        delete item.flagged;
-        delete item.approved;
-        delete item.late;
-        delete item.draft;
-        return item;
     };
     this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
         tasks = _.each(tasks, function(item){
-            var status = _.findWhere(statuses, {id: item.id});
+            var status = _.findWhere(statuses, {taskId: item.id});
             if (typeof status !== 'undefined') {
-                status = this.getNamedItemStatus(status, statusName);
-                item[statusName] = status[statusName];
+                //status = this.getNamedItemStatus(status, statusName);
+                //item[statusName] = status[statusName];
+                item[statusName] = TaskUserState.getStatus(status.stateId);
             }
         }, this);
         return tasks;
@@ -590,76 +551,6 @@ var exportObject = function  (req, realm) {
                 'THEN \'current\' ' +
                 'ELSE \'waiting\'' +
                 'END as "status" ';
-        }
-    };
-    this.taskUserStatus = {
-        flaggedColumn : function (commentDiscussion, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userFromId" ', commentDiscussion) +
-                pgEscape('FROM "%s" ', commentDiscussion) +
-                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
-                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."userFromId" = "%s"."userId" ', commentDiscussion, userArraysAlias) +
-                pgEscape('AND "Tasks"."id" = "%s"."taskId" ', commentDiscussion) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "flagged" ';
-        },
-        approvedColumn : function (surveyAnswer, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userId" ', surveyAnswer) +
-                pgEscape('FROM "%s" ', surveyAnswer) +
-                pgEscape('WHERE "%s"."version" IS NOT NULL ', surveyAnswer) +
-                pgEscape('AND "%s"."productId" = "Tasks"."productId" ', surveyAnswer) +
-                pgEscape('AND "%s"."UOAid" = "Tasks"."uoaId" ', surveyAnswer) +
-                pgEscape('AND "%s"."userId" = "%s"."userId" ', surveyAnswer, userArraysAlias) +
-                pgEscape('AND "%s"."wfStepId" = "Tasks"."stepId" ', surveyAnswer) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "approved" ';
-        },
-        lateColumn : function (wfSteps) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."id" ', wfSteps) +
-                pgEscape('FROM "%s" ', wfSteps) +
-                pgEscape('WHERE "%s"."endDate" < now() ', wfSteps) +
-                pgEscape('AND "%s"."id" = "Tasks"."stepId" ', wfSteps) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "late" ';
-        },
-        draftColumn : function (surveyAnswer, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userId" ', surveyAnswer) +
-                pgEscape('FROM "%s" ', surveyAnswer) +
-                pgEscape('WHERE "%s"."productId" = "Tasks"."productId" ', surveyAnswer) +
-                pgEscape('AND "%s"."UOAid" = "Tasks"."uoaId" ', surveyAnswer) +
-                pgEscape('AND "%s"."userId" = "%s"."userId" ', surveyAnswer, userArraysAlias) +
-                pgEscape('AND "%s"."wfStepId" = "Tasks"."stepId" ', surveyAnswer) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "draft" ';
         }
     };
 };
