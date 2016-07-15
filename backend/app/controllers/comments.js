@@ -215,18 +215,13 @@ module.exports = {
             var isResolve = req.body.isResolve;
             var returnObject = yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            //var userTo = yield * common.getUser(req, task.userId); Todo remove
             var retTask = task;
             if (returnObject) {
                 retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-                //userTo = yield * common.getUser(req, retTask.userId); Todo remove
             }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
-            //req.body = _.extend(req.body, { Todo remove
-            //    userId: userTo.id
-            //}); // add userId from task (for backward compability)
             req.body = _.extend(req.body, {
                 stepFromId: task.stepId
             }); // add stepFromId from task (for future use)
@@ -248,6 +243,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
+            // ToDo: flag and resolve may be draft? Then don't notify
             notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
 
             bologger.log({
@@ -284,6 +280,7 @@ module.exports = {
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
 
+            // ToDo: flag and resolve may be draft? Then don't notify
             notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
 
             bologger.log({
@@ -371,10 +368,11 @@ module.exports = {
 function* checkInsert(req) {
     var questionId = yield * checkOneId(req, req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
     var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
-    //var stepId = yield * checkOneId(req, req.body.stepId, WorkflowStep, 'id', 'stepId', 'WorkflowStep');
     var entry = yield * checkString(req.body.entry, 'Entry');
     // check if return or resolve entry already exist for question
+/* it is possible to flag or resolve multiple times for each question (policy section)
     var duplicateEntry = yield * checkDuplicateEntry(req, taskId, questionId, req.body.isReturn, req.body.isResolve);
+*/
     // get next order for entry
     var nextOrder = yield * getNextOrder(req, taskId, questionId);
     req.body = _.extend(req.body, {
@@ -735,12 +733,14 @@ function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
             '` does not equal currentStepId=`' + result[0].currentstepid + '`');
     }
 
+/*
     var currentStep = yield * getCurrentStep(req, taskId);
     if (tag === 'return') {
         if (!currentStep.position || currentStep.position === 0) {
             throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because there are not previous steps');
         }
     }
+*/
 
     return yield * checkUserId(req, user, stepId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
 }

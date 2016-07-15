@@ -4,7 +4,10 @@
         <div class="card" ng-repeat="task in model.tasks">
             <p><i class="fa fa-flag text-danger pull-right" ng-if="task.flagged"></i> {{task.step.title}}</p>
             <p>
-                <a ng-href="#/survey/{{task.survey.id}}/task/{{task.id}}">
+                <a ui-sref="survey({id:task.survey.id, taskId:task.id})" ng-hide="task.survey.policyId">
+                    {{task.survey.title}}
+                </a>
+                <a ui-sref="policy.review({id:task.survey.id, taskId:task.id})" ng-show="task.survey.policyId">
                     {{task.survey.title}}
                 </a>
             </p>

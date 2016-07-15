@@ -803,7 +803,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');
     var step = yield * common.getEntity(req, task.stepId, WorkflowStep, 'id');
     var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-    var policy = yield * common.getEntity(req, survey.policyId, Policy, 'id');
+    //var policy = yield * common.getEntity(req, survey.policyId, Policy, 'id');
 
     note = _.extend(note, {
         userFrom: req.user.realmUserId,
