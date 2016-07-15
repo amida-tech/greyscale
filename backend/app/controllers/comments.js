@@ -71,12 +71,25 @@ function* checkString(val, keyName) {
     return val;
 }
 
-var notify = function (req, commentId, taskId, action, essenceName, templateName) {
+var notify = function (req, commentId, taskId, action, essenceName, templateName, authorId) {
     co(function* () {
         var userTo, note, usersFromGroup;
         var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
+
+        // if authorId specified - send notification to author
+        if (authorId){
+            userTo = yield * common.getUser(req, authorId);
+            note = yield * notifications.extendNote(req, {
+                body: req.body.entry,
+                action: action
+            }, userTo, essenceName, commentId, userTo.organizationId, taskId);
+            notifications.notify(req, userTo, note, templateName);
+            sentUsersId.push(authorId);
+        }
+
+/* don't notify users assigned to task - ONLY tagged
         var task = yield * common.getTask(req, taskId);
         for (i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
@@ -103,6 +116,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
                 }
             }
         }
+*/
 
         if (req.body.tags) {
             req.body.tags = JSON.parse(req.body.tags);
@@ -175,6 +189,17 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
 
+             //return only activated comments and draft comments for current user
+            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
+
+            if (!(req.query.hidden === 'true')) {
+                // show only unhidden comments
+                selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
+            } else if(!auth.checkAdmin(req.user)) {
+                // specified hidden parameters for ordinary user show only self comments (include hidden)
+                selectWhere = selectWhere + pgEscape(' AND ("Comments"."isHidden" = false OR "Comments"."userFromId" = %s ) ', req.user.id);
+            } // if admin - show all hidden comments
+
             if (req.query.filter === 'resolve') {
                 /*
                 it should filter results to get actual messages without history - returning flag messages and draft resolving messages
@@ -213,12 +238,8 @@ module.exports = {
         co(function* () {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
-            var returnObject = yield * checkInsert(req);
+            yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            var retTask = task;
-            if (returnObject) {
-                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-            }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -228,7 +249,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepId: task.stepId
             }); // add stepId from task (don't use stepId from body - use stepId only for current task)
-            if (!isReturn && !isResolve) {
+            if (!req.query.autosave) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
@@ -243,8 +264,14 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+            if (req.body.activated && !isResolve) {
+                if (isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(req, task.id);
+                    notify(req, result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+                }
+            }
 
             bologger.log({
                 req: req,
@@ -278,10 +305,16 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
-            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
+            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId, Comment.isReturn, Comment.isResolve));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+            if (!result[0].isResolve) {
+                if (result[0].isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(task.id);
+                    notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+                }
+            }
 
             bologger.log({
                 req: req,
@@ -361,6 +394,55 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+    hideUnhide: function (req, res, next) {
+        // put /comments/hidden?taskId=<id>&hide=true|false&filter='all'|'flagged'|<id>
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // parse query
+            var hide = req.query.hide ? (req.query.hide !== 'false') : true;
+            var isAdmin = auth.checkAdmin(req.user);
+            var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
+            var query = Comment
+                .update({
+                    isHidden: hide,
+                    userHideId: req.user.id,
+                    hiddenAt: new Date()
+                })
+                .where(Comment.taskId.equals(taskId))
+                .and(Comment.activated.equals(true))
+                .returning(Comment.id, Comment.isHidden, Comment.userHideId, Comment.hiddenAt);
+
+            if (!isAdmin) {
+                // hide/unhide only self comments
+                query = query.and(Comment.userFromId.equals(req.user.id));
+            }
+            if (req.query.filter && req.query.filter.toUpperCase() === 'FLAGGED') {
+                // hide/unhide only flagged
+                query = query.and(Comment.isReturn.equals(true));
+            } else if (req.query.filter && parseInt(req.query.filter) > 0) {
+                // hide/unhide specified comment
+                query = query.and(Comment.id.equals(parseInt(req.query.filter)));
+            } // else hide/unhide all comments for specified task
+
+            var result = yield thunkQuery(query);
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Comments',
+                    entities: result,
+                    quantity: result.length,
+                    info: 'Hide/unhide comment(s)'
+                });
+            }
+            return result;
+        }).then(function (data) {
+            res.status(202).end();
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
@@ -382,15 +464,14 @@ function* checkInsert(req) {
     // if comment`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
+        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
         req.body = _.extend(req.body, {
-            returnTaskId: returnObject.taskId
+            returnTaskId: taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
+        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
-    return returnObject;
 }
 
 function* checkUpdate(req) {

@@ -15,6 +15,7 @@ var
     UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
+    Policy = require('app/models/policies'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
     Comment = require('app/models/comments'),
@@ -424,3 +425,22 @@ var getPolicyUoaId = function* (req) {
     return policyUoaId[0].id;
 };
 exports.getPolicyUoaId = getPolicyUoaId;
+
+var getPolicyAuthorIdByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var policyAuthorId = yield thunkQuery(Task
+            .select(Policy.author)
+            .from(
+            Task
+                .leftJoin(Product)
+                .on(Product.id.equals(Task.productId))
+                .leftJoin(Survey)
+                .on(Survey.id.equals(Product.surveyId))
+                .leftJoin(Policy)
+                .on(Policy.id.equals(Survey.policyId))
+        )
+            .where(Task.id.equals(taskId))
+    );
+    return _.first(policyAuthorId) ? policyAuthorId[0].author : null;
+};
+exports.getPolicyAuthorIdByTask = getPolicyAuthorIdByTask;
