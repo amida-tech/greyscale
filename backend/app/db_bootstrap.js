@@ -1,6 +1,6 @@
 var config = require('config'),
     util = require('util'),
-    Client = require('pg').Client,
+    pg = require('pg'),
     debug = require('debug')('debug_db_bootstrap');
 
 debug.log = console.log.bind(console);
@@ -23,4 +23,10 @@ var ClientPG = function () {
     return client;
 };
 
-module.exports = ClientPG;
+// const pool = pg.connect(config.pgConnect, function(err, client, done) {
+//   if (err) {
+//       return debug("Could not instantiate a connection pool to the PostgreSQL server. Error: ", err)
+//   }
+// });
+
+module.exports = pg;
