@@ -11,6 +11,7 @@ var ClientPG = function () {
 
     client.on('error', function (err) {
         debug(util.format('Connection error: %s', err));
+        client.end();
     });
 
     client.on('drain', client.end.bind(client));
