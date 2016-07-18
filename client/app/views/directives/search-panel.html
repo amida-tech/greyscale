@@ -1,5 +1,5 @@
 <div class="search-panel" fixed-on-scroll active="!!searchText">
-    <form class="well well-sm" ng-submit="search('right')">
+    <form class="well well-sm" ng-submit="search()">
         <div class="input-group">
             <div class="input-group-btn" ng-if="gotResult">
                 <span class="btn btn-default search-btn search-info search-empty" ng-if="empty" translate="SEARCH.NOT_FOUND"></span>
@@ -19,14 +19,6 @@
                         title="{{'SEARCH.CLEAR' | translate}}"
                         ng-show="searchText" ng-click="clear()">&times;</button>
                 <button class="btn btn-default search-btn" translate="SEARCH.SEARCH" ng-disabled="!searchText"></button>
-                <button type="button" class="btn btn-default search-btn dropdown-toggle"
-                        ng-disabled="!searchText"
-                        data-toggle="dropdown"><span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a ng-click="search('open')" translate="SEARCH.EACH_WORD"></a></li>
-                </ul>
-
             </div>
         </div>
 
