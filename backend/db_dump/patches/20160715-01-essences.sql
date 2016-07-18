@@ -15,7 +15,7 @@ BEGIN
 		LOOP
 		EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 
-		EXECUTE 'UPDATE "Essences" SET "tableName"=''WorfklowSteps'' WHERE ("name"=''WorkflowSteps'');';
+		EXECUTE 'UPDATE "Essences" SET "tableName"=''WorkflowSteps'' WHERE ("name"=''WorkflowSteps'');';
 
     END LOOP;
 
