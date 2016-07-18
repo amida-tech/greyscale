@@ -28,7 +28,7 @@ angular.module('greyscale.tables')
                 'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
                 '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
-                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\' && item.flaggedCount">{{item.flaggedCount}}</span>' +
                 '</span></span>'
         }, {
             title: tns + 'DEADLINE',
@@ -144,12 +144,15 @@ angular.module('greyscale.tables')
                         status = _.find(task.userStatuses, {
                             userId: task.userIds[i]
                         }).status;
+                        userStatus = _.find(userStatuses, {
+                            value: status
+                        });
                     } else {
-                        status = task.status;
+                        userStatus = _.find(taskStatuses, {
+                            value: task.status
+                        });
                     }
-                    userStatus = _.find(taskStatuses, {
-                        value: status
-                    });
+
                     user.status = userStatus ? userStatus.name : task.status;
                     task.user.push(user);
                 }
@@ -215,7 +218,7 @@ angular.module('greyscale.tables')
                         'user',
                         'endDate',
                         'startDate',
-                        'flaggedcount',
+                        'flaggedCount',
                         'flagClass',
                         'flaggedfrom',
                         'flaggedto'
