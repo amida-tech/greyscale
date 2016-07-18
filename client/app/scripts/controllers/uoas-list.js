@@ -28,6 +28,14 @@ angular.module('greyscaleApp')
             uoaClassTypes: greyscaleUoaClassTypesTbl
         };
 
+        var stopUpdateUoaTypes = $scope.$on('update-uoaTypes', function (e, data) {
+            $scope.model.uoas.update.uoaTypes(data.uoaTypes);
+        });
+
+        $scope.$on('$destroy', function () {
+            stopUpdateUoaTypes();
+        });
+
         $scope.selectUoa = function (uoa) {
             if (typeof uoa !== 'undefined') {
                 $scope.model.uoaTagLinks.query = {
