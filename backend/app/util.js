@@ -92,10 +92,6 @@ function arrayString(val) {
     return result;
 }
 
-pg.connect(config.pgConnect, function(err, client, done){
-
-});
-
 exports.Query = function (realm) {
     if (typeof realm === 'undefined') {
         realm = config.pgConnect.adminSchema;
@@ -112,7 +108,7 @@ exports.Query = function (realm) {
 
         pg.connect(config.pgConnect, function (err, client, done) {
             if (err) {
-                return console.error('could not connect to postgres', err);
+                return console.error('Could not fetch client from pool: ', err);
             }
 
             doQuery(queryObject, client, done, options, cb);
