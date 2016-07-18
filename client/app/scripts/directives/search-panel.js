@@ -10,11 +10,6 @@ angular.module('greyscaleApp')
                     btnSearch: 'COMMON.SEARCH'
                 }, scope.$eval(attr.searchPanel));
 
-                var search = new window.Hilitor({
-                    onFinish: _onFinish,
-                    colors: ['#ff6']
-                });
-
                 scope.empty = true;
                 scope.gotResult = false;
 
@@ -23,17 +18,27 @@ angular.module('greyscaleApp')
                 scope.prev = _prev;
                 scope.clear = _clear;
 
-                function _search(matchType) {
-                    var text = scope.searchText;
-                    search.setMatchType(matchType);
+                function _getContainers() {
                     var selector = scope.$eval(attr.searchSelector);
-                    search.apply($(selector || 'body'), text);
+                    if (!selector) {
+                        throw new Error('searchPanel required selector option');
+                    }
+                    return $(selector);
+                }
+
+                function _search() {
+                    var input = scope.searchText;
+                    var containers = _getContainers();
+                    containers.each(function (i, el) {
+                        _mark(el, input);
+                    });
+                    $timeout(_onFinish);
                 }
 
                 var current, result;
 
                 function _onFinish() {
-                    result = $('em.hilitor');
+                    result = $('mark:not(.secondary)');
                     scope.gotResult = true;
                     scope.empty = !result.length;
                     _controlResult();
@@ -51,9 +56,9 @@ angular.module('greyscaleApp')
                     scope.isFirst = index === 0;
                     scope.isLast = index === (result.length - 1);
                     scope.info = (current + 1) + ' / ' + result.length;
-                    $('.hilitor.current').removeClass('current');
+                    $('mark.active').removeClass('active');
                     var item = $(result[index]);
-                    item.addClass('current');
+                    item.addClass('active');
                     $timeout(function () {
                         item.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
                         $timeout(function () {
@@ -82,10 +87,72 @@ angular.module('greyscaleApp')
                 }
 
                 function _clear() {
-                    search.remove();
+                    _unmark();
                     scope.searchText = '';
                     scope.gotResult = false;
                 }
+
+                function _unmark() {
+                    var containers = _getContainers();
+                    containers.each(function (i, el) {
+                        if (el.origHtml) {
+                            el.innerHTML = el.origHtml;
+                        }
+                    });
+                }
+
+                function _mark(el, text) {
+                    if (!el.origHtml) {
+                        el.origHtml = el.innerHTML;
+                    }
+                    el.innerHTML = el.origHtml;
+
+                    $(el).find('.Apple-converted-space').replaceWith(' ');
+
+                    var htmlContent = $(el).html();
+
+                    var textWords = text.split(' ');
+                    var nrWords = textWords.length;
+                    var startTag = '<mark>';
+                    var endTag = '</mark>';
+                    var regex, i;
+
+                    if (nrWords === 1) {
+                        regex = new RegExp(text + '(?=[^>]*?(<|$))', 'gi');
+                    } else {
+                        regex = textWords[0] + '(?=[^>]*?(<|$))';
+                        for (i = 1; i < nrWords; i++) {
+                            regex += '(?: ?)(?:<[^>]*?>)?(?: ?)' + textWords[i] + '(?=[^>]*?(<|$))';
+                        }
+                        regex = new RegExp(regex, 'gi');
+                    }
+
+                    var matches = null,
+                        positions = [],
+                        found = [],
+                        addFoundChar = [];
+
+                    while (matches = regex.exec(htmlContent), matches) {
+                        var match = matches[0].replace(/>/g, '><mark class="secondary">');
+                        match = match.replace(/<(?!mark>)/g, '</mark><');
+                        found.push(match);
+                        addFoundChar.push(match.length - matches[0].length);
+                        positions.push(matches.index);
+                    }
+
+                    var addNrChars = 0;
+                    var newHtmlContent = htmlContent;
+                    for (i = 0; i < positions.length; i++) {
+                        var contentBefore = newHtmlContent.substr(0, positions[i] + addNrChars);
+                        var valueAndTags = startTag + found[i] + endTag;
+                        var contentAfter = newHtmlContent.substr(positions[i] + addNrChars + found[i].length - addFoundChar[i]);
+                        addNrChars += startTag.length + endTag.length + addFoundChar[i];
+                        newHtmlContent = contentBefore + valueAndTags + contentAfter;
+                    }
+
+                    $(el).html(newHtmlContent);
+                }
+
             }
         };
     });
