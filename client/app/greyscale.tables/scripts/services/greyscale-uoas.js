@@ -139,6 +139,9 @@ angular.module('greyscale.tables')
                 id: 'asc'
             },
             cols: resDescr,
+            update: {
+                uoaTypes: _updateUoaTypes
+            },
             dataPromise: _getData,
             add: {
                 handler: _addUoa
@@ -189,6 +192,10 @@ angular.module('greyscale.tables')
                     return promises.uoas;
                 });
             });
+        }
+
+        function _updateUoaTypes(uoaTypes) {
+            dicts.uoaTypes = uoaTypes;
         }
 
         function _delRecord(uoa) {
