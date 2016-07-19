@@ -60,20 +60,29 @@ module.exports = {
     parsePolicyDocx: function (req, res, next) {
         if (req.files.file) {
             var file = req.files.file;
+            var options = {
+                styleMap: [
+                    "u  => u"
+                ]
+            };
+                //
             mammoth
-                .convertToHtml({
-                    path: file.path
-                })
+                .convertToHtml(
+                    {path: file.path},
+                    options
+                )
                 .then(function (result) {
-
-                    if (result.messages.length) { // TODO handle errors
-                        //throw new HttpError(403, 'File convert error: ' + JSON.stringify(result.messages))
-                        //next();
+                    result.value = result.value.replace('<font>','<font color="#FF0000">');
+                    res.json(result);
+                    return;
+                    var obj = {headers: {}, sections: {}};
+                    if (result.messages.length) {
+                        obj.errors = result.messages; // TODO handle errors
                     }
 
                     var html = '<html>' + result.value + '</html>';
                     var $ = cheerio.load(html);
-                    var obj = {headers: {}, sections: {}};
+
                     var endOfDoc = 'END';
 
                     var tables = $('html').find('table');
