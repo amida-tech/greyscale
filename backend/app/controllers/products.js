@@ -1043,7 +1043,17 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function* () { // ToDo: Delete project (product) if subjects exists?
+        co(function* () {
+            var oProduct = new sProduct(req);
+            var oTask = new sTask(req);
+            var tasks = yield oTask.getByProductAllUoas(req.params.id);
+            // remove all subjects
+            if (tasks.length) {
+                throw new HttpError(403, 'You cannot delete project, because there are already some tasks assigned to project');
+            }
+            yield oTask.deleteTasks(req.params.id);
+            yield oProduct.deleteProductAllUoas(req.params.id);
+            // ToDo: Check workflow exist before delete
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
@@ -1072,6 +1082,15 @@ module.exports = {
             var product = yield * common.getEntity(req, req.params.id, Product, 'id');
             var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
             var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+
+            if ((newSurvey && newSurvey.policyId) &&                                        // new survey is policy
+                // AND
+                (!oldSurvey || (oldSurvey && oldSurvey.policyId !== newSurvey.policyId))    // old survey is empty or old policy not equal new policy
+            ) {
+                // check one project - one policy
+                yield oProduct.checkMultipleProjects(req.body.surveyId, newSurvey.policyId);
+            }
+
             if (
                 ((oldSurvey && !oldSurvey.policyId) && (!newSurvey || (newSurvey && newSurvey.policyId))) ||    // old  survey is not policy AND new survey is empty or policy (S -> 0 or S -> P)
                                                                                                                 // OR
@@ -1081,7 +1100,7 @@ module.exports = {
                 var tasks = yield oTask.getByProductAllUoas(product.id);
                 // 1. remove all subjects
                 if (tasks.length) {
-                    throw new HttpError(403, 'You cannot change survey (remove all targets), because there are already some tasks assigned to product');
+                    throw new HttpError(403, 'You cannot change survey (remove all targets), because there are already some tasks assigned to project');
                 }
                 yield oTask.deleteTasks(product.id);
                 yield oProduct.deleteProductAllUoas(product.id);
@@ -1113,10 +1132,14 @@ module.exports = {
         co(function* () {
             var oProduct = new sProduct(req);
             yield oProduct.checkProductData();
+            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+            if (newSurvey && newSurvey.policyId) {                                        // new survey is policy
+                // check one project - one policy
+                yield oProduct.checkMultipleProjects(req.body.surveyId, newSurvey.policyId);
+            }
             var productId = yield oProduct.insertProduct();
             if (productId) {
                 var policyUoaId = yield * common.getPolicyUoaId(req);
-                var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
                 if (newSurvey && newSurvey.policyId) {  // new survey is policy
                     // add virtual subject for product (add record to productUoa)
                     yield oProduct.addProductUoa(productId, policyUoaId);

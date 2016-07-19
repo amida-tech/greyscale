@@ -153,18 +153,22 @@ var exportObject = function  (req, realm) {
                 if (!_.first(isExistSurvey)) {
                     throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
                 }
-                if (req.body.policyId) {
-                    var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(req.body.surveyId)));
-                    if (products.length) {
-                        throw new HttpError(403, 'Policy cannot be assigned to multiple projects');
-                    }
-                }
             }
 
             if (req.body.projectId) {
                 var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
                 if (!_.first(isExistProject)) {
                     throw new HttpError(403, 'Project with this id does not exist');
+                }
+            }
+        });
+    };
+    this.checkMultipleProjects = function(surveyId, policyId) {
+        return co(function* () {
+            if (policyId) {
+                var products = yield thunkQuery(Product.select().where(Product.surveyId.equals(surveyId)));
+                if (products.length) {
+                    throw new HttpError(403, 'Policy cannot be assigned to multiple projects');
                 }
             }
         });
