@@ -143,7 +143,10 @@ angular.module('greyscale.tables')
                     if (task.userStatuses) {
                         status = _.find(task.userStatuses, {
                             userId: task.userIds[i]
-                        }).status;
+                        });
+                        if (status) {
+                            status = status.status;
+                        }
                         userStatus = _.find(userStatuses, {
                             value: status
                         });
