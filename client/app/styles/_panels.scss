@@ -35,7 +35,26 @@ checkbox-list {
 
     .gs-message-body {
         max-height: 5em;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-all;
+        &:hover {
+            max-height: none;
+        }
+    }
+
+    .gs-message-body-edit {
+        &.gs-message-body {
+            height: 0;
+            max-height: none;
+            overflow: auto;
+        }
+        span {
+            display: none;
+        }
     }
 }
 

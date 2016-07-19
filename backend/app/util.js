@@ -2,7 +2,7 @@ var
     HttpError = require('./error').HttpError,
     moment = require('moment'),
     _ = require('underscore'),
-    ClientPG = require('./db_bootstrap'),
+    pg = require('pg'),
     config = require('../config'),
     pgEscape = require('pg-escape');
 
@@ -98,7 +98,7 @@ exports.Query = function (realm) {
     }
 
     return function (queryObject, options, cb) {
-        var client = new ClientPG();
+       // var client = new ClientPG();
 
         if (arguments.length === 2) {
             cb = options;
@@ -106,12 +106,12 @@ exports.Query = function (realm) {
 
         var arlen = arguments.length;
 
-        client.connect(function (err) {
+        pg.connect(config.pgConnect, function (err, client, done) {
             if (err) {
-                return console.error('could not connect to postgres', err);
+                return console.error('Could not fetch client from pool: ', err);
             }
 
-            doQuery(queryObject, options, cb);
+            doQuery(queryObject, client, done, options, cb);
         });
 
         function doFields(rows, fieldsArray) {
@@ -121,7 +121,7 @@ exports.Query = function (realm) {
             return rows;
         }
 
-        function doQuery(queryObject, options, cb) {
+        function doQuery(queryObject, client, done, options, cb) {
             var queryString;
             if (typeof queryObject === 'string') {
 
@@ -131,7 +131,7 @@ exports.Query = function (realm) {
                 debug(queryString);
 
                 client.query(queryString, options, function (err, result) {
-                    client.end();
+                    done();
                     var cbfunc = (typeof cb === 'function');
 
                     if (options.fields) {
@@ -223,7 +223,7 @@ exports.Query = function (realm) {
 
                 client.query(queryString, function (err, result) {
 
-                    client.end();
+                    done();
                     var cbfunc = (typeof cb === 'function');
 
                     if (err) {
