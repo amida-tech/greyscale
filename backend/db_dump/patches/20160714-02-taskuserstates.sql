@@ -9,7 +9,6 @@ BEGIN
 		INNER JOIN pg_catalog.pg_user
 		ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid)
 		AND ((pg_catalog.pg_user.usename = 'indaba') -- HAVE TO SET CORRECT DB USER
-			OR (pg_catalog.pg_namespace.nspname = 'public')
 		)
 
 		LOOP
