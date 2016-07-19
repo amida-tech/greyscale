@@ -504,7 +504,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 'LIMIT 1' +
                 ') IS NULL ' +
                 'THEN FALSE ' +
@@ -518,7 +518,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 ') as "flaggedCount"';
         },
         flaggedFromColumn : function (commentDiscussion) {
@@ -529,7 +529,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 'LIMIT 1' +
                 ') as "flaggedFrom"';
         },
