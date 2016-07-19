@@ -1,21 +1,22 @@
 var
     _ = require('underscore'),
-    BoLogger = require('app/bologger'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Product = require('app/models/products'),
-    Project = require('app/models/projects'),
-    Workflow = require('app/models/workflows'),
-    EssenceRole = require('app/models/essence_roles'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    UOA = require('app/models/uoas'),
-    Task = require('app/models/tasks'),
-    Survey = require('app/models/surveys'),
+    common = require('../services/common'),
+    Product = require('../models/products'),
+    Project = require('../models/projects'),
+    Workflow = require('../models/workflows'),
+    EssenceRole = require('../models/essence_roles'),
+    WorkflowStep = require('../models/workflow_steps'),
+    UOA = require('../models/uoas'),
+    Task = require('../models/tasks'),
+    Survey = require('../models/surveys'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
-    ProductUOA = require('app/models/product_uoa'),
+    HttpError = require('../error').HttpError,
+    ProductUOA = require('../models/product_uoa'),
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -155,6 +156,7 @@ module.exports = {
     updateOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            req.body = yield * common.prepUsersForTask(req, req.body);
             return yield thunkQuery(
                 Task
                 .update(_.pick(req.body, Task.editCols))
@@ -179,17 +181,14 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkTaskData(req);
-            req.body = _.extend(req.body, {
-                userId: req.user.realmUserId
-            }); // add from realmUserId instead of user id
-            var result = yield thunkQuery(
+            req.body = yield * common.prepUsersForTask(req, req.body);
+            return yield thunkQuery(
                 Task
                 .insert(
                     _.pick(req.body, Task.table._initialConfig.columns)
                 )
                 .returning(Task.id)
             );
-            return result;
         }).then(function (data) {
             bologger.log({
                 req: req,
@@ -213,12 +212,11 @@ function* checkTaskData(req) {
         if (
             typeof req.body.uoaId === 'undefined' ||
             typeof req.body.stepId === 'undefined' ||
-            typeof req.body.userId === 'undefined' ||
+            //typeof req.body.userId === 'undefined' ||
             typeof req.body.productId === 'undefined'
         ) {
-
-            throw new HttpError(403, 'uoaId, stepId, userId, productId and title fields are required');
+            throw new HttpError(403, 'uoaId, stepId and productId fields are required');
         }
+        yield * common.checkDuplicateTask(req, req.body.stepId, req.body.uoaId, req.body.productId);
     }
-
 }

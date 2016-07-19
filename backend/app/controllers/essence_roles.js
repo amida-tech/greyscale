@@ -1,16 +1,16 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('config'),
-    EssenceRole = require('app/models/essence_roles'),
-    Essence = require('app/models/essences'),
-    Role = require('app/models/roles'),
-    User = require('app/models/users');
+    config = require('../../config'),
+    EssenceRole = require('../models/essence_roles'),
+    Essence = require('../models/essences'),
+    Role = require('../models/roles'),
+    User = require('../models/users');
 
 var co = require('co');
-var Query = require('app/util').Query,
+var Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_essence_roles');
@@ -31,7 +31,7 @@ module.exports = {
                     debug(essence[0]);
                     var Model;
                     try {
-                        Model = require('app/models/' + essence[0].fileName);
+                        Model = require('../models/' + essence[0].fileName);
                     } catch (e) {
                         throw new HttpError(403, 'Cannot load model\'s file: ' + essence[0].fileName);
                     }
@@ -122,7 +122,7 @@ function* checkData(req) {
 
     var model;
     try {
-        model = require('app/models/' + _.first(existEssence).fileName);
+        model = require('../models/' + _.first(existEssence).fileName);
     } catch (err) {
         throw new HttpError(403, 'Cannot find model file: ' + _.first(existEssence).fileName);
     }

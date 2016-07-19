@@ -1,12 +1,13 @@
 var _ = require('underscore'),
-    Group = require('app/models/groups'),
+    Group = require('../models/groups'),
+    UserGroup = require('../models/user_groups'),
     vl = require('validator'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     util = require('util'),
     async = require('async'),
-    BoLogger = require('app/bologger'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     co = require('co'),
     thunkify = require('thunkify'),
@@ -21,7 +22,17 @@ module.exports = {
                 throw new HttpError(400, 'You cannot view groups from other organizations');
             }
             var result = yield thunkQuery(
-                Group.select().where(Group.organizationId.equals(req.params.organizationId))
+                Group.select(
+                    Group.star(),
+                    'array_agg("UserGroups"."userId") as "userIds"'
+                )
+                .from(
+                    Group
+                    .leftJoin(UserGroup)
+                    .on(Group.id.equals(UserGroup.groupId))
+                )
+                .where(Group.organizationId.equals(req.params.organizationId))
+                .group(Group.id)
             );
             return result;
         }).then(function (data) {

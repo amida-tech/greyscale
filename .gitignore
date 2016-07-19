@@ -5,6 +5,6 @@ backend/node_modules_/
 backend/node_modules/pg/build/Release/obj/binding/binding.tlog/link.command.1.tlog
 backend/node_modules/
 backend/.idea/
-backend/db_dump/local/
+backend/db_setup/local/
 npm-debug.log
 *.DS_Store

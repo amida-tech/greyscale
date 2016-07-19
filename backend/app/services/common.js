@@ -1,30 +1,30 @@
 var
     _ = require('underscore'),
-    config = require('config'),
-    Product = require('app/models/products'),
-    ProductUOA = require('app/models/product_uoa'),
-    Project = require('app/models/projects'),
-    Workflow = require('app/models/workflows'),
-    Essence = require('app/models/essences'),
-    EssenceRole = require('app/models/essence_roles'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    WorkflowStepGroup = require('app/models/workflow_step_groups'),
-    Group = require('app/models/groups'),
-    UserGroup = require('app/models/user_groups'),
-    UOA = require('app/models/uoas'),
-    Task = require('app/models/tasks'),
-    Survey = require('app/models/surveys'),
-    SurveyQuestion = require('app/models/survey_questions'),
-    Discussion = require('app/models/discussions'),
-    Notification = require('app/models/notifications'),
-    Organization = require('app/models/organizations'),
-    User = require('app/models/users'),
+    config = require('../../config'),
+    Product = require('../models/products'),
+    ProductUOA = require('../models/product_uoa'),
+    Project = require('../models/projects'),
+    Workflow = require('../models/workflows'),
+    Essence = require('../models/essences'),
+    EssenceRole = require('../models/essence_roles'),
+    WorkflowStep = require('../models/workflow_steps'),
+    WorkflowStepGroup = require('../models/workflow_step_groups'),
+    Group = require('../models/groups'),
+    UserGroup = require('../models/user_groups'),
+    UOA = require('../models/uoas'),
+    Task = require('../models/tasks'),
+    Survey = require('../models/surveys'),
+    SurveyQuestion = require('../models/survey_questions'),
+    Discussion = require('../models/discussions'),
+    Notification = require('../models/notifications'),
+    Organization = require('../models/organizations'),
+    User = require('../models/users'),
     co = require('co'),
     sql = require('sql'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 var getEntityById = function* (req, id, model, key) {
@@ -55,11 +55,20 @@ var getTaskByStep = function* (req, stepId, uoaId) {
     var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId))));
     //getEntityById(req, stepId, Task, 'stepId');
     if (!_.first(result)) {
-        throw new HttpError(403, 'Task with stepId `' + parseInt(stepId).toString() + '` and uoaId `' + parseInt(uoaId).toString() +'` does not exist');
+        throw new HttpError(403, 'Task with stepId `' + parseInt(stepId).toString() + '` and uoaId `' + parseInt(uoaId).toString() + '` does not exist');
     }
     return result[0];
 };
 exports.getTaskByStep = getTaskByStep;
+
+var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
+    if (_.first(result)) {
+        throw new HttpError(403, 'Couldn`t add task with the same uoaId, stepId and productId');
+    }
+};
+exports.checkDuplicateTask = checkDuplicateTask;
 
 var getGroupsForStep = function* (req, stepId) {
     var thunkQuery = req.thunkQuery;
@@ -150,7 +159,7 @@ var getUser = function* (req, userId) {
 exports.getUser = getUser;
 
 var getEssenceId = function* (req, essenceName) { // ToDo: use memcache
-    var thunkQuery = (req) ? req.thunkQuery : global.thunkQuery;
+    var thunkQuery = (req) ? req.thunkQuery : thunkify(new Query(config.pgConnect.adminSchema));
     var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(essenceName.toUpperCase())]));
     if (!_.first(result)) {
         throw new HttpError(403, 'Error find Essence for table name `' + essenceName + '`');
@@ -250,11 +259,11 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (curStep.task.userId !== req.user.id) {
+        if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') at this step assigned to another user ' +
-                '(Task user id = ' + curStep.task.userId + ', user id = ' + req.user.id + ')'
+                'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
+                '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
             );
         }
     }
@@ -315,7 +324,6 @@ var getNextStep = function* (req, minNextStepPosition, curStep) {
         WorkflowStep
         .select(
             WorkflowStep.id,
-            Task.userId,
             Task.id.as('taskId')
         )
         .from(WorkflowStep
@@ -353,3 +361,29 @@ var getReturnStep = function* (req, taskId) {
 
 };
 exports.getReturnStep = getReturnStep;
+
+var prepUsersForTask = function* (req, task) {
+
+    if (typeof task.userId === 'undefined' && typeof task.userIds === 'undefined' && typeof task.groupIds === 'undefined') {
+        throw new HttpError(403, 'userId or userIds or groupIds fields are required');
+    } else if (typeof task.groupIds === 'undefined' && (typeof task.userIds === 'undefined' || !Array.isArray(task.userIds))) {
+        // groupIds is empty and userIds empty or is not array -> use userId
+        task.userIds = [task.userId];
+    }
+    // check & clean duplicated users
+    if (Array.isArray(task.userIds) && Array.isArray(task.groupIds)) {
+        // userIds and groupIds is not empty
+        for (var grp in task.groupIds) {
+            var usersFromGroup = yield * getUsersFromGroup(req, task.groupIds[grp]);
+            for (var j in usersFromGroup) {
+                var foundUserIndex = task.userIds.indexOf(usersFromGroup[j].userId);
+                if (foundUserIndex !== -1) {
+                    task.userIds.splice(foundUserIndex, 1);
+                }
+            }
+
+        }
+    }
+    return task;
+};
+exports.prepUsersForTask = prepUsersForTask;

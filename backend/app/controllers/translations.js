@@ -1,16 +1,16 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    config = require('config'),
-    BoLogger = require('app/bologger'),
+    config = require('../../config'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    Translations = require('app/models/translations'),
-    Essence = require('app/models/essences'),
-    Language = require('app/models/languages'),
+    Translations = require('../models/translations'),
+    Essence = require('../models/essences'),
+    Language = require('../models/languages'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     thunkQuery = thunkify(query);
 
 module.exports = {
@@ -147,7 +147,7 @@ module.exports = {
 
             var model;
             try {
-                model = require('app/models/' + EssenceOne.fileName);
+                model = require('../models/' + EssenceOne.fileName);
             } catch (err) {
                 throw new HttpError(403, 'Cannot find model file: ' + EssenceOne.fileName);
             }

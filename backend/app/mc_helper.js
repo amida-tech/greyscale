@@ -1,8 +1,8 @@
 var
     _ = require('underscore'),
-    config = require('config'),
+    config = require('../config'),
     co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('./util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query);

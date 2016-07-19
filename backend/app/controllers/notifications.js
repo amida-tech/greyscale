@@ -2,36 +2,36 @@ var
     _ = require('underscore'),
     ejs = require('ejs'),
     fs = require('fs'),
-    config = require('config'),
-    common = require('app/services/common'),
-    auth = require('app/auth'),
-    BoLogger = require('app/bologger'),
+    config = require('../../config'),
+    common = require('../services/common'),
+    auth = require('../auth'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
-    HttpError = require('app/error').HttpError,
+    HttpError = require('../error').HttpError,
     vl = require('validator'),
-    Essence = require('app/models/essences'),
-    Product = require('app/models/products'),
-    Organization = require('app/models/organizations'),
-    Workflow = require('app/models/workflows'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    Survey = require('app/models/surveys'),
-    Task = require('app/models/tasks'),
-    UOA = require('app/models/uoas'),
-    Notification = require('app/models/notifications'),
-    User = require('app/models/users'),
+    Essence = require('../models/essences'),
+    Product = require('../models/products'),
+    Organization = require('../models/organizations'),
+    Workflow = require('../models/workflows'),
+    WorkflowStep = require('../models/workflow_steps'),
+    Survey = require('../models/surveys'),
+    Task = require('../models/tasks'),
+    UOA = require('../models/uoas'),
+    Notification = require('../models/notifications'),
+    User = require('../models/users'),
     co = require('co'),
     thunkify = require('thunkify'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkQuery = thunkify(query),
-    Emailer = require('lib/mailer'),
+    Emailer = require('../../lib/mailer'),
     pgEscape = require('pg-escape');
 
 var debug = require('debug')('debug_notifications');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
-var socketController = require('app/socket/socket-controller.server');
+var socketController = require('../socket/socket-controller.server');
 
 var isInt = function (val) {
     return _.isNumber(parseInt(val)) && !_.isNaN(parseInt(val));
@@ -628,7 +628,7 @@ function* checkInsert(req, note) {
         var essence = yield * common.getEssence(req, essenceId);
         var model;
         try {
-            model = require('app/models/' + essence.fileName);
+            model = require('../models/' + essence.fileName);
         } catch (err) {
             throw new HttpError(403, 'Cannot find model file: ' + essence.fileName);
         }
@@ -796,7 +796,7 @@ function* extendNote(req, note, userTo, essenceName, entityId, orgId, taskId) {
             entityId: entityId
         });
     }
-    var organization = yield * common.getEntity(req, orgId, Organization, 'id');
+    var organization = yield * common.getEntity(req, orgId ? orgId : req.user.organizationId, Organization, 'id');
     var task = yield * common.getTask(req, taskId);
     var product = yield * common.getEntity(req, task.productId, Product, 'id');
     var uoa = yield * common.getEntity(req, task.uoaId, UOA, 'id');

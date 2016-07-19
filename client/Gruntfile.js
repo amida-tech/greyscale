@@ -36,9 +36,13 @@ module.exports = function (grunt) {
     };
 
     if (process.platform === 'darwin') {
-        dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
-        dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
-        dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        try {
+            dockerConfig.ca = fs.readFileSync(homeDir + '/.docker/machine/certs/ca.pem');
+            dockerConfig.cert = fs.readFileSync(homeDir + '/.docker/machine/certs/cert.pem');
+            dockerConfig.key = fs.readFileSync(homeDir + '/.docker/machine/certs/key.pem');
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     var i18nConfig = {
@@ -218,8 +222,7 @@ module.exports = function (grunt) {
         // Make sure code styles are up to par
         jscs: {
             options: {
-                config: '../.jscsrc',
-                verbose: true
+                config: '../.jscsrc'
             },
             all: {
                 src: [
@@ -251,7 +254,8 @@ module.exports = function (grunt) {
                     '<%= yeoman.app %>/greyscale.mock/{,**/}*.js'
                 ],
                 options: {
-                    config: '../.jsbeautifyrc'
+                    config: '../.jsbeautifyrc',
+                    verbose: true
                 }
             },
             check: {
@@ -291,7 +295,7 @@ module.exports = function (grunt) {
         postcss: {
             options: {
                 processors: [
-                    require('autoprefixer-core')({
+                    require('autoprefixer')({
                         browsers: ['last 1 version']
                     })
                 ]
@@ -572,22 +576,12 @@ module.exports = function (grunt) {
                 src: '**/*.*'
             },
             docker: {
+                files: [
+                    {src: ['greyscale-env.js'], dest: 'app/greyscale.core/scripts/config/'},
+                    {src: ['greyscale-env-m.js'], dest: 'app/m/config.js'}
+                ],
                 expand: true,
-                cwd: '',
-                dest: 'app/greyscale.core/scripts/config/',
-                src: 'greyscale-env.js'
-            },
-            dev: {
-                src: 'dev-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            stage: {
-                src: 'staging-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
-            },
-            prod: {
-                src: 'prod-Dockerrun.aws.json',
-                dest: 'Dockerrun.aws.json',
+                cwd: ''
             },
         },
 
@@ -736,45 +730,6 @@ module.exports = function (grunt) {
             }
         },
 
-        // Compress the EBS Dockerrun file
-        compress: {
-            main: {
-                options: {
-                    archive: 'latest-client.zip'
-                },
-                src: 'Dockerrun.aws.json'
-            }
-        },
-
-        // Tasks for Elastic Beanstalk deployment
-        awsebtdeploy: {
-            options: {
-                region: 'us-west-2',
-                applicationName: 'Indaba',
-                sourceBundle: 'latest-client.zip',
-                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-                versionLabel: 'client-' + Date.now(),
-                s3: {
-                    bucket: 'indaba-attachment-test'
-                }
-            },
-            dev: {
-                options: {
-                    environmentName: 'indaba-dev',
-                }
-            },
-            stage: {
-                options: {
-                    environmentName: 'indaba-stage',
-                }
-            },
-            prod: {
-                options: {
-                    environmentName: 'indaba-prod',
-                }
-            }
-        }
     });
 
     grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
@@ -857,22 +812,6 @@ module.exports = function (grunt) {
         'ngconstant:env',
         'vanillaConfig:env',
         'build'
-    ]);
-
-    grunt.registerTask('ebsDev', [
-        'copy:dev',
-        'compress',
-        'awsebtdeploy:dev'
-    ]);
-    grunt.registerTask('ebsStage', [
-        'copy:stage',
-        'compress',
-        'awsebtdeploy:stage'
-    ]);
-    grunt.registerTask('ebsProd', [
-        'copy:prod',
-        'compress',
-        'awsebtdeploy:prod'
     ]);
 
     grunt.registerTask('brushIt', [

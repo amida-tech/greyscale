@@ -1,14 +1,14 @@
-var client = require('app/db_bootstrap'),
+var client = require('../db_bootstrap'),
     _ = require('underscore'),
-    HttpError = require('app/error').HttpError,
-    config = require('config'),
-    BoLogger = require('app/bologger'),
+    HttpError = require('../error').HttpError,
+    config = require('../../config'),
+    BoLogger = require('../bologger'),
     bologger = new BoLogger(),
     // tables
-    Role = require('app/models/roles');
+    Role = require('../models/roles');
 
 var co = require('co'),
-    Query = require('app/util').Query,
+    Query = require('../util').Query,
     query = new Query(),
     thunkify = require('thunkify'),
     thunkQuery = thunkify(query);

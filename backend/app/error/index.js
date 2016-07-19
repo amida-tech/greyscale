@@ -1,6 +1,6 @@
 var util = require('util'),
     http = require('http'),
-    errCode = require('app/error/err_code');
+    errCode = require('./err_code');
 
 function HttpError(status, err) {
     Error.apply(this, arguments);

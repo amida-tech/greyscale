@@ -1,15 +1,15 @@
 var
     _ = require('underscore'),
-    config = require('config'),
-    common = require('app/services/common'),
+    config = require('../config'),
+    common = require('./services/common'),
     debug = require('debug')('bologger'),
     vl = require('validator'),
-    Essence = require('app/models/essences'),
-    User = require('app/models/users'),
-    Log = require('app/models/logs'),
+    Essence = require('./models/essences'),
+    User = require('./models/users'),
+    Log = require('./models/logs'),
     co = require('co'),
     thunkify = require('thunkify'),
-    Query = require('app/util').Query,
+    Query = require('./util').Query,
     sql = require('sql'),
     query = new Query(),
     thunkQuery = thunkify(query);
@@ -44,7 +44,8 @@ BoLogger.prototype.log = function (data) {
         if (typeof data.entities === 'object') {
             data.entities = JSON.stringify(data.entities);
         }
-        var thunkQuery = (data.req) ? data.req.thunkQuery : global.thunkQuery;
+        var thunkQuery = (data.req) ? data.req.thunkQuery : thunkify(new Query(config.pgConnect.adminSchema));
+
         if (data.user) {
             data.userid = (data.user.roleID === 1) ? 0 - data.user.id : data.user.id; // if superuser - then user = -id
         }

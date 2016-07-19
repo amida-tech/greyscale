@@ -6,6 +6,36 @@ angular.module('greyscaleApp')
             restrict: 'E',
             templateUrl: 'views/directives/comparative-visualization.html',
             link: function (scope, element, attrs) {
+
+                // VISUALIZATION
+                var layout = {
+                    vPadding: 10,
+                    hPadding: 10,
+                    targets: {
+                        hPadding: 12.5,
+                        vPadding: 12.5,
+                        width: 35,
+                        height: 35
+                    },
+                    targetLabels: {
+                        fontSize: 12,
+                        height: 75,
+                        vPadding: 5
+                    },
+                    productLabels: {
+                        fontSize: 12,
+                        hPadding: 5,
+                        width: 125
+                    },
+                    axis: {
+                        colorWidth: 20,
+                        innerPadding: 5,
+                        minHeight: 150,
+                        fontSize: 12
+                    },
+                    colors: ['#DB3340', '#20DA9B'] // 2 only
+                };
+
                 scope.allData = [];
                 // loading existing viz
                 scope.savedVisualization = false;
@@ -400,35 +430,6 @@ angular.module('greyscaleApp')
                         .get(vizId)
                         .then(_loadConfiguration);
                 }
-
-                // VISUALIZATION
-                var layout = {
-                    vPadding: 10,
-                    hPadding: 10,
-                    targets: {
-                        hPadding: 12.5,
-                        vPadding: 12.5,
-                        width: 35,
-                        height: 35
-                    },
-                    targetLabels: {
-                        fontSize: 12,
-                        height: 75,
-                        vPadding: 5
-                    },
-                    productLabels: {
-                        fontSize: 12,
-                        hPadding: 5,
-                        width: 125
-                    },
-                    axis: {
-                        colorWidth: 20,
-                        innerPadding: 5,
-                        minHeight: 150,
-                        fontSize: 12
-                    },
-                    colors: ['#DB3340', '#20DA9B'] // 2 only
-                };
 
                 function _preprocessData(productIndexes) {
                     var l = layout.targets;
