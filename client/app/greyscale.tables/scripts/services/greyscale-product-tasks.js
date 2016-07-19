@@ -148,12 +148,13 @@ angular.module('greyscale.tables')
                             value: status
                         });
                     } else {
+                        status = task.status;
                         userStatus = _.find(taskStatuses, {
-                            value: task.status
+                            value: status
                         });
                     }
 
-                    user.status = userStatus ? userStatus.name : task.status;
+                    user.status = userStatus ? userStatus.name : status;
                     task.user.push(user);
                 }
             });
