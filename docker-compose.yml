@@ -6,6 +6,7 @@ indaba-backend:
     RDS_HOSTNAME: ${RDS_HOSTNAME}
     RDS_TESTUSER: ${RDS_TESTUSER}
     INDABA_PG_DB: ${INDABA_PG_DB}
+    AUTH_SALT:    ${AUTH_SALT}
   ports:
   - "3005:3005"
   links:

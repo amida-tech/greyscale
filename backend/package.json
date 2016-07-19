@@ -65,7 +65,7 @@
     "node": "~5.0.0"
   },
   "scripts": {
-    "start": "node --harmony app/bootstrap.js",
+    "start": "node --harmony app.js",
     "test": "grunt test",
     "lint": "./node_modules/.bin/eslint --ext .js app"
   }
