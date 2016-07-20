@@ -4,25 +4,16 @@
 'use strict';
 angular.module('greyscaleApp')
     .controller('PolicyCommentFormCtrl', function ($scope, $uibModalInstance, formData, extData) {
-    $scope.model = angular.copy(formData);
-    
-    
-    $scope.$on('modal.closing', function (event, reason, closed) {
-        if (closed || (reason && reason.model)) {
-            return;
-        }
-        event.preventDefault();
-        $uibModalInstance.dismiss({ reason: reason, model: $scope.model });
-    });
-    
+    $scope.model = formData;
+
     if (extData) {
         $scope.view = angular.copy(extData);
     }
-    
+
     $scope.close = function () {
-        $uibModalInstance.dismiss();
+        $uibModalInstance.dismiss('close');
     };
-    
+
     $scope.save = function () {
         $uibModalInstance.close($scope.model);
     };

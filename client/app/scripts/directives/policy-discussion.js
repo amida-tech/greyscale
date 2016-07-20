@@ -33,15 +33,17 @@ angular.module('greyscaleApp')
                         flag: false
                     });
 
-                    greyscaleModalsSrv.policyComment(data, {}).then(function (commentBody) {
-                        save(commentBody);
-                    }).catch(function (data) {
-                        if (data.model) {
-                            save(data.model, true);
-                        } else {
-                            greyscaleUtilsSrv.errorMsg(data);
-                        }
-                    });
+                    greyscaleModalsSrv.policyComment(data, {})
+                        .then(function (commentBody) {
+                            save(commentBody);
+                        })
+                        .catch(function (reason) {
+                            if (reason === 'backdrop click') {
+                                save(data, true);
+                            } else {
+                                return $q.reject(reason);
+                            }
+                        });
                 });
 
                 function save(commentBody, auto) {
