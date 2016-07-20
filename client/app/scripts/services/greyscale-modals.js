@@ -275,6 +275,7 @@ angular.module('greyscaleApp')
                 controller: 'PolicyCommentFormCtrl',
                 size: 'lg',
                 windowClass: 'modal fade in',
+                backdrop: 'static',
                 resolve: {
                     formData: model,
                     extData: options
