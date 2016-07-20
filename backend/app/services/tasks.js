@@ -19,6 +19,7 @@ var
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     sTaskUserState = require('app/services/taskuserstates'),
+    sProduct = require('app/services/products'),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -28,6 +29,7 @@ var exportObject = function  (req, realm) {
         thunkQuery = req.thunkQuery;
     }
     var oTaskUserState = new sTaskUserState(req);
+    var oProduct = new sProduct(req);
 
     this.getList = function () {
         return co(function* () {
@@ -432,6 +434,26 @@ var exportObject = function  (req, realm) {
             };
         });
     };
+    this.getUsersIds = function (userIds, groupIds) {
+        return co(function* () {
+            var usersFromGroup;
+            var users = [];
+            for (var i in userIds) {
+                if (users.indexOf(userIds[i]) === -1) {
+                    users.push(userIds[i]);
+                }
+            }
+            for (i in groupIds) {
+                usersFromGroup = yield * common.getUsersFromGroup(req, groupIds[i]);
+                for (var j in usersFromGroup) {
+                    if (users.indexOf(usersFromGroup[j].userId) === -1) {
+                        users.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+            return users;
+        });
+    };
     this.getUsersIdsByTask = function (taskId) {
         return co(function* () {
             var usersFromGroup;
@@ -553,6 +575,99 @@ var exportObject = function  (req, realm) {
                 'ELSE \'waiting\'' +
                 'END as "status" ';
         }
+    };
+    this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {
+        var self = this;
+        return co(function* () {
+            var userId = newUserToGroups.length > 0 ? newUserToGroups[0].userId : delUserFromGroups.length > 0 ? delUserFromGroups[0].userId : null;
+            var users=[], i, j;
+            // get all groups for removing user
+            var delGroups = _.map(delUserFromGroups, function(item){return item.groupId;});
+            var newGroups = _.map(newUserToGroups, function(item){return item.groupId;});
+            // get all noncompleted tasks, where groupIds contain groups for deleting (from these groups user was removed)
+            var delTasks = [], tasks;
+            for (i in delGroups) {
+                tasks = yield self.getTasksByGroup(delGroups[i]);
+                for (j in tasks) {
+                    if (typeof _.findWhere(delTasks, {id: tasks[j].id}) === 'undefined') {
+                        delTasks.push(tasks[j]);
+                    }
+                }
+            }
+            if (_.first(delTasks)) {
+                for (i in delTasks) {
+                    // check if user was assigned to this task not only in deleted Groups
+                    users = yield self.getUsersIds(delTasks[i].userIds, _.difference(delTasks[i].groupIds, delGroups)); // get all users for task without groups from which user was excluded
+                    if (users.indexOf(userId) === -1) {
+                        // user was assigned to this task ONLY in deleted Groups
+                        yield oTaskUserState.remove([delTasks[i].id], [userId]);
+                    }
+                }
+            }
+
+            // get all noncompleted tasks, where groupIds contain groups for adding (to these groups user was added)
+            var newTasks = [];
+            for (i in newGroups) {
+                tasks = yield self.getTasksByGroup(newGroups[i]);
+                for (j in tasks) {
+                    if (typeof _.findWhere(newTasks, {id: tasks[j].id}) === 'undefined') {
+                        newTasks.push(tasks[j]);
+                    }
+                }
+            }
+            if (_.first(newTasks)) {
+                for (i in newTasks) {
+                    // check if user realy new user for this task
+                    users = yield self.getUsersIds(newTasks[i].userIds, _.difference(newTasks[i].groupIds, newGroups)); // get all users for task before new groups extend
+                    if (users.indexOf(userId) === -1) {
+                        // user is realy new user - was not assign to task before
+                        // modify user in TaskUserState (add or update)
+                        var step = yield * common.getStepByTask(req, newTasks[i].id);
+                        var taskUserState = yield oTaskUserState.upsert(newTasks[i].id, userId, step.endDate);
+                        if (!taskUserState) {
+                            // notify about assign
+                            oProduct.notifyOneUser(userId, {
+                                body: 'Task updated (added new user to assigned group(s))',
+                                action: 'Task updated (added new user to assigned group(s))'
+                            }, newTasks[i].id, newTasks[i].id, 'Tasks', 'assignTask');
+                            if (newTasks[i].stepId === newTasks[i].currentStepId) {
+                                // current step is active
+                                // notify about activation
+                                oProduct.notifyOneUser(userId, {
+                                    body: 'Task activated (for new user in assigned group(s))',
+                                    action: 'Task activated (for new user in assigned group(s))'
+                                }, newTasks[i].id, newTasks[i].id, 'Tasks', 'activateTask');
+                            }
+                        }
+
+                    }
+                }
+            }
+        });
+    };
+    this.getTasksByGroup = function (groupId) {
+        var self = this;
+        return co(function* () {
+            return yield thunkQuery(Task
+                .select(
+                    Task.id,
+                    Task.userIds,
+                    Task.groupIds,
+                    Task.stepId,
+                    ProductUOA.currentStepId
+            )
+                .from(
+                Task
+                    .leftJoin(ProductUOA)
+                    .on(Task.productId.equals(ProductUOA.productId)
+                        .and(Task.uoaId.equals(ProductUOA.UOAid))
+                )
+            )
+                .where(Task.groupIds.contains('{' + groupId + '}')
+                    .and(ProductUOA.isComplete.notEquals(true))
+            )
+            );
+        });
     };
 };
 module.exports = exportObject;

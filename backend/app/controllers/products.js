@@ -134,7 +134,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
             // notify
             oProduct.notify({
                 body: 'Task activated (next step)',
-                action: 'Task activated (next step)',
+                action: 'Task activated (next step)'
             }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
         }
 

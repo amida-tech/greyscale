@@ -126,7 +126,23 @@ var exportObject = function  (req, realm) {
             }
         });
     };
-    this.get = function (taskId, userId) {
+    this.upsert = function (taskId, userId, endDate) {
+        // Upserting task user states.
+        // if exist  - update
+        // if not exist - add
+        // Don't remove !!!
+        var self = this;
+        return co(function* () {
+            var user = yield self.get(taskId, userId, true);
+            if (user) {
+                yield self.update(taskId, [userId], endDate);
+            } else {
+                yield self.add(taskId, [userId], endDate);
+            }
+            return user;
+        });
+    };
+    this.get = function (taskId, userId, noCheckError) {
         return co(function* () {
             // get taskUserState
             var taskUserState = yield thunkQuery(TaskUserState
@@ -134,11 +150,11 @@ var exportObject = function  (req, realm) {
                     .where(TaskUserState.taskId.equals(taskId))
                     .and(TaskUserState.userId.equals(userId))
             );
-            if (!_.first(taskUserState)) {
+            if (!_.first(taskUserState) && !noCheckError) {
                 // backend server logic error - it does not possible
                 throw new HttpError(403, 'Server error: Not found taskUserState for taskId `'+taskId+'` userId `'+userId+'` - something wrong when assigning task to users and groups!');
             }
-            return taskUserState[0];
+            return _.first(taskUserState) ? taskUserState[0] : null;
         });
     };
     this.getByLists = function (tasks, users) {
