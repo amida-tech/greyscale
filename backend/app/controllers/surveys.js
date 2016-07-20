@@ -65,19 +65,16 @@ module.exports = {
                     "u  => u"
                 ]
             };
-                //
             mammoth
                 .convertToHtml(
                     {path: file.path},
                     options
                 )
                 .then(function (result) {
-                    result.value = result.value.replace('<font>','<font color="#FF0000">');
-                    res.json(result);
-                    return;
+
                     var obj = {headers: {}, sections: {}};
                     if (result.messages.length) {
-                        obj.errors = result.messages; // TODO handle errors
+                        obj.errors = result.messages;
                     }
 
                     var html = '<html>' + result.value + '</html>';
@@ -110,10 +107,11 @@ module.exports = {
                                     current = nextItem;
                                 }
                             }
-
+                            content = content.split('\t').join('&nbsp;&nbsp;&nbsp;&nbsp;');
                             obj.sections[index] = content;
                         }
                     });
+
                     res.json(obj);
                 })
                 .done();
