@@ -47,7 +47,7 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             var late = (endDate < new Date());
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
-            query = TaskUserState
+            var query = TaskUserState
                 .update({
                     stateId: stateId,
                     late: late,
@@ -71,7 +71,7 @@ var exportObject = function  (req, realm) {
     this.remove = function (taskId, users) {
         // removing task user states.
         return co(function* () {
-            query = TaskUserState
+            var query = TaskUserState
                 .delete()
                 .where(TaskUserState.taskId.equals(taskId));
             if (users) { // if users specified - remove only states for specified users

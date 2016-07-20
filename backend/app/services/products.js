@@ -9,6 +9,7 @@ var
     Survey = require('app/models/surveys'),
     Project = require('app/models/projects'),
     WorkflowStep = require('app/models/workflow_steps'),
+    Task = require('app/models/tasks'),
     sTask = require('app/services/tasks'),
     co = require('co'),
     Query = require('app/util').Query,

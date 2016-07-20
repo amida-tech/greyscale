@@ -10,6 +10,7 @@ var
     ProductUOA = require('app/models/product_uoa'),
     UOA = require('app/models/uoas'),
     Project = require('app/models/projects'),
+    Attachment = require('app/models/attachments'),
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
@@ -365,7 +366,7 @@ var exportObject = function  (req, realm) {
         return _.each(detailStatuses, function(item, i, arr){
             //item = this.getNamedItemStatus(item, status);
             item[status] = TaskUserState.getStatus(item.stateId);
-            arr[i] = _.pick(item, ['userId', status])
+            arr[i] = _.pick(item, ['userId', status]);
         }, this);
     };
     this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
