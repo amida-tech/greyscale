@@ -83,6 +83,19 @@ module.exports = {
         });
     },
 
+    approve: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // TaskUserStates - set state to approve
+            var oTaskUserState = new sTaskUserState(req);
+            oTaskUserState.approve(req.params.id, req.user.id);
+        }).then(function () {
+            res.status(200).end();
+        }, function (err) {
+            next(err);
+        });
+    },
+
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         var oTask = new sTask(req);

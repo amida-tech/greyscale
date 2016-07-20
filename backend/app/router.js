@@ -90,9 +90,6 @@ var surveys = require('app/controllers/surveys');
 router.route('/:realm/v0.2/surveys/parsedocx')
     .post( /*authenticate('token').always,*/ surveys.parsePolicyDocx);
 
-router.route('/:realm/v0.2/policy/approve')
-    .post( /*authenticate('token').always,*/ surveys.approvePolicy);
-
 router.route('/:realm/v0.2/surveys')
     .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ surveys.select)
     .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ surveys.insertOne);
@@ -210,8 +207,13 @@ router.route('/:realm/v0.2/tasks/:id')
     .get(authenticate('token').always, tasks.selectOne)
     .put(authenticate('token').always, jsonParser, tasks.updateOne)
     .delete(authenticate('token').always, tasks.delete);
+
 router.route('/:realm/v0.2/tasks/:id/start')
     .get(authenticate('token').always, tasks.start);
+
+router.route('/:realm/v0.2/tasks/:id/approve')
+    .get( /*authenticate('token').always,*/ tasks.approve);
+
 
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
