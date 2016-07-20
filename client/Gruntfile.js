@@ -63,7 +63,7 @@ module.exports = function (grunt) {
             name: 'dev',
             supportedLocales: i18nConfig.supportedLocales,
             apiProtocol: 'http',
-            apiHostname: 'indaba.ntrlab.ru',
+            apiHostname: 'indaba-hcsc.ntrlab.ru',
             apiPort: '83',
             apiVersion: 'v0.2',
             adminSchema: 'public',
