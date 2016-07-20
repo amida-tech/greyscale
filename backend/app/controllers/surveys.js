@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
+    sTaskUserState = require('app/services/taskuserstates'),
     Survey = require('app/models/surveys'),
     Policy = require('app/models/policies'),
     Product = require('app/models/products'),
@@ -635,6 +636,19 @@ module.exports = {
             next(err);
         });
 
+    },
+
+    approvePolicy: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // TaskUserStates - set state to approve
+            var oTaskUserState = new sTaskUserState(req);
+            oTaskUserState.approve(req.body.taskId, req.user.id);
+        }).then(function () {
+            res.status(201);
+        }, function (err) {
+            next(err);
+        });
     }
 
 };

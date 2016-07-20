@@ -388,6 +388,7 @@ module.exports = {
                 result.push(req.body[i]);
             }
 
+/* move approve to survey controller: POST /policy/approve ('draft' status does not exist now)
             // TaskUserStates - check and set state to approve/draft if possible
             var oTaskUserState = new sTaskUserState(req);
             var task = yield * common.getTaskByStep(req, result[0].wfStepId, result[0].UOAid);
@@ -404,6 +405,7 @@ module.exports = {
                     oTaskUserState.approve(task.id, req.user.id); // all answers is Ok
                 }
             }
+*/
 
             return result;
         }).then(function (data) {
