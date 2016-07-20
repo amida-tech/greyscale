@@ -1,18 +1,42 @@
-<modal-form-header>
-<span class="gs-message-from">
-    {{model.fromUserFullName}}
-    <i class="fa fa-flag pull-right" ng-show="model.isReturn"
-       ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
-</span>
-</modal-form-header>
-<div class="modal-body">
-    <div class="gs-message-body-warpper">
-        <div class="ta-text ta-scroll-window form-control">
-            <div class="ta-bind" ng-bind-html="model.entry"></div>
+<div ng-controller="ModalCommentFullScreenCtrl">
+    <modal-form-header>
+    <span class="gs-message-from">
+        {{model.fromUserFullName}}
+        <i class="fa fa-flag pull-right" ng-show="model.isReturn"
+           ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+    </span>
+    </modal-form-header>
+    <div class="modal-body">
+        <div class="gs-message-body-warpper">
+            <div class="ta-text ta-scroll-window form-control">
+                <div class="ta-bind" ng-bind-html="model.entry"></div>
+            </div>
+        </div>
+        <p class="subtext">{{model.created | date : 'short'}}</p>
+        <div class="gs-message-subcomments-list">
+            subs
         </div>
     </div>
-    <p class="subtext">{{model.created | date : 'short'}}</p>
-</div>
-<div class="modal-footer">
-    <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
+    <div class="modal-footer">
+        <div class="gs-message-subcomment-form" ng-if="subcomments.state.adding">
+            <h2 class="text-left">{{'COMMENTS.EXPLAIN_WHY_' + (subcomments.model.agree ? 'AGREE' : 'DISAGREE') | translate}}</h2>
+            <div name="dataForm" class="row form text-left" ng-form="dataForm">
+                <div class="form-group col-sm-8">
+                    <text-angular ng-model="subcomments.model.comment"></text-angular>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label for="person" class="control-label" translate="COMMENTS.TAG_COMMENT"></label>
+                    <select id="person" ng-model="subcomments.model.tag" class="form-control" multiple
+                            ng-options="tag as (tag.fullName || tag.title) for tag in subcomments.associate.tags"></select>
+                </div>
+            </div>
+            <button class="btn btn-default" ng-click="subcomments.cancel()" translate="COMMON.CANCEL"></button>
+            <button class="btn btn-primary" ng-click="subcomments.submit()" translate="COMMON.SUBMIT"></button>
+        </div>
+        <div ng-if="!subcomments.state.adding">
+            <button class="btn btn-primary" ng-click="subcomments.add(true)">{{'COMMON.AGREE'|translate}} ({{subcomments.counters.agreed||0}})</button>
+            <button class="btn btn-default" ng-click="subcomments.add(false)">{{'COMMON.DISAGREE'|translate}} ({{subcomments.counters.disagreed||0}})</button>
+            <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
+        </div>
+    </div>
 </div>

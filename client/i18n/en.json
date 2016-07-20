@@ -14,6 +14,8 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "EXPLAIN_WHY_AGREE": "Please explain why you agree",
+        "EXPLAIN_WHY_DISAGREE": "Please explain why you disagree",
         "NO_MESSAGES": "no messages",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
@@ -21,6 +23,7 @@
     },
     "COMMON": {
         "ADD": "Add",
+        "AGREE": "Agree",
         "ALL": "All",
         "APPLY": "Apply",
         "ASSIGN": "Assign",
@@ -35,6 +38,7 @@
         "CREATE": "Create",
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
+        "DISAGREE": "Disagree",
         "EDIT": "Edit",
         "FURTHER": "Further",
         "GLOBALLY": "Globally",

@@ -14,6 +14,8 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "NO_MESSAGES": "",
         "TAG_COMMENT": "",
         "TITLE": "",
@@ -21,6 +23,7 @@
     },
     "COMMON": {
         "ADD": "",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "",
         "ASSIGN": "",
@@ -35,6 +38,7 @@
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
+        "DISAGREE": "",
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",

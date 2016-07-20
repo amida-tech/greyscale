@@ -14,6 +14,8 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMENTS": {
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "NO_MESSAGES": "",
         "TAG_COMMENT": "",
         "TITLE": "",
@@ -21,6 +23,7 @@
     },
     "COMMON": {
         "ADD": "Добавить",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
@@ -35,6 +38,7 @@
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
+        "DISAGREE": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",

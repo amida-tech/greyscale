@@ -47,7 +47,7 @@ angular.module('greyscaleApp')
                 $scope.cancel = _toggleEdit;
 
                 $scope.fullview = function () {
-                    greyscaleModalsSrv.fullScreenComment($scope.model);
+                    greyscaleModalsSrv.fullScreenComment($scope.model, {associate: _associate});
                 };
 
                 $scope.highlightSource = _highlightSource;
