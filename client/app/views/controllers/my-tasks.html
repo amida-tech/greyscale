@@ -46,7 +46,9 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-uoa.html">
-    <b>{{row.uoa.name}}</b>
-    <br>
-    <small>{{row.uoa.shortName}}</small>
+    <span ng-hide="row.survey.policyId">
+        <b>{{row.uoa.name}}</b>
+        <br>
+        <small>{{row.uoa.shortName}}</small>
+    </span>
 </script>
