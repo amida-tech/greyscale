@@ -3,7 +3,7 @@ var
     config = require('config'),
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
-    productServ = require('app/services/products'),
+    sProduct = require('app/services/products'),
     notifications = require('app/controllers/notifications'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
@@ -1293,18 +1293,9 @@ module.exports = {
     },
 
     UOAdelete: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
+        var oProduct = new sProduct(req);
         co(function* () {
-            // moved to services
-            return yield productServ.deleteProductUOA(req, req.params.id, req.params.uoaid);
-
-            //thunkQuery(
-            //    ProductUOA.delete().where({
-            //        productId: req.params.id,
-            //        UOAid: req.params.uoaid
-            //    })
-            //);
+            return yield oProduct.deleteProductUOA(req.params.id, req.params.uoaid);
         }).then(function () {
             bologger.log({
                 req: req,

@@ -4,21 +4,10 @@ var
     bologger = new BoLogger(),
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
-    Product = require('app/models/products'),
-    Project = require('app/models/projects'),
-    Workflow = require('app/models/workflows'),
-    EssenceRole = require('app/models/essence_roles'),
-    WorkflowStep = require('app/models/workflow_steps'),
-    UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
-    Survey = require('app/models/surveys'),
     co = require('co'),
-    Query = require('app/util').Query,
-    query = new Query(),
     thunkify = require('thunkify'),
-    HttpError = require('app/error').HttpError,
-    ProductUOA = require('app/models/product_uoa'),
-    thunkQuery = thunkify(query);
+    HttpError = require('app/error').HttpError;
 
 module.exports = {
 

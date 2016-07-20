@@ -138,6 +138,23 @@ var exportObject = function  (req, realm) {
         return s3.getSignedUrl('putObject', params);
     };
 
+    this.deleteEntityAttachments = function (essenceId, entityId) {
+        var self = this;
+        return co(function* () {
+            var link = yield self.getLink(essenceId, entityId);
+            if (link.length) {
+                for (var i in link[0].attachments) {
+                    var otherLinks = yield self.getLinksContainAttachment(link[0].attachments[i]);
+                    console.log(otherLinks);
+                    if (otherLinks.length == 1) { // attachment does not link with other entities
+                        yield self.remove(link[0].attachments[i]);
+                    }
+                }
+                yield self.removeLink(essenceId, entityId);
+            }
+        });
+    }
+
     this.getAWSDownloadLink = function (key) {
         var params = {
             Bucket: config.awsBucket,
