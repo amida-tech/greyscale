@@ -15,7 +15,7 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
-    mammoth = require('mammoth'),
+    mammoth = require('mammoth-colors'),
     cheerio = require('cheerio'),
     thunkQuery = thunkify(query);
 
