@@ -85,7 +85,6 @@ angular.module('greyscaleApp')
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
                 }
-
             }
         };
 
