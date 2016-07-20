@@ -94,6 +94,9 @@ angular.module('greyscaleApp')
             $timeout(function () {
                 var range = typeof model.range === 'string' ? JSON.parse(model.range) : model.range;
                 var startNode = greyscaleSelection.restore(questionBlock[0], range);
+                if (!startNode) {
+                    return;
+                }
                 var parent = startNode.parentNode;
                 var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
                 angular.element('body').scrollTop(scrollPos);
