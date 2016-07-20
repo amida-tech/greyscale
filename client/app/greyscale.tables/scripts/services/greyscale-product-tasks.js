@@ -31,12 +31,12 @@ angular.module('greyscale.tables')
             title: tns + 'PROGRESS',
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
-            '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
-            'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
-            'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-            '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
-            '<span class="counter" ng-show="item.flagged && item.status != \'completed\' && item.flaggedCount">{{item.flaggedCount}}</span>' +
-            '</span></span>'
+                '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
+                'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
+                'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\' && item.flaggedCount">{{item.flaggedCount}}</span>' +
+                '</span></span>'
         }, {
             title: tns + 'DEADLINE',
             sortable: 'endDate',
@@ -53,7 +53,7 @@ angular.module('greyscale.tables')
             show: true,
             titleTemplate: '<div class="text-right"><a class="action expand-all"><i class="fa fa-eye"></i></a></div>',
             cellTemplate: '<div class="text-right" ng-if="!row.subjectCompleted"><a class="action"><i class="fa fa-eye"></i></a></div>' +
-            '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
+                '<div class="text-right" ng-if="row.subjectCompleted" title="{{\'' + tns + 'UOA_TASKS_COMPLETED\'|translate}}"><i class="fa fa-check text-success"></i></div>'
         }];
 
         var _table = {
@@ -215,8 +215,8 @@ angular.module('greyscale.tables')
 
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
-                        stepId: step.id
-                    }) || {};
+                    stepId: step.id
+                }) || {};
                 stepTask.flagClass = '';
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {
