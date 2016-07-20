@@ -128,9 +128,6 @@ var getUsersFromGroup = function* (req, groupId) {
         .where(UserGroup.groupId.equals(groupId))
     );
 
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Not found users for group with id `' + groupId + '`');
-    }
     return result;
 };
 exports.getUsersFromGroup = getUsersFromGroup;
