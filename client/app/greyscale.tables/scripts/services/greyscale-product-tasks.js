@@ -2,9 +2,11 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleProductTasksTbl', function (_, $q, $sce, greyscaleProductApi, greyscaleProductWorkflowApi,
-        greyscaleUserApi, greyscaleGroupApi, greyscaleModalsSrv) {
+        greyscaleUserApi, greyscaleGlobals) {
 
         var tns = 'PRODUCT_TASKS.';
+        var userStatuses = greyscaleGlobals.policyUserStatuses,
+            taskStatuses = greyscaleGlobals.productTaskStatuses;
 
         var _dicts = {
             uoas: [],
@@ -26,7 +28,7 @@ angular.module('greyscale.tables')
                 'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
                 '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
-                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\' && item.flaggedCount">{{item.flaggedCount}}</span>' +
                 '</span></span>'
         }, {
             title: tns + 'DEADLINE',
@@ -105,7 +107,7 @@ angular.module('greyscale.tables')
         }
 
         function _extendTasksWithRelations(tasks) {
-            var i, qty, user;
+            var i, qty, user, userStatus, status;
 
             angular.forEach(tasks, function (task) {
                 task.uoa = _.find(_dicts.uoas, {
@@ -134,15 +136,25 @@ angular.module('greyscale.tables')
                     }
                 }
                 task.user = [];
-                if (task.userStatuses) {
-                    qty = task.userStatuses.length;
-                    for (i = 0; i < qty; i++) {
-                        user = angular.extend({}, _.find(_dicts.users, {
-                            id: task.userStatuses[i].userId
-                        }));
-                        user.status = task.userStatuses[i].status;
-                        task.user.push(user);
+                for (i = 0; i < task.userIds.length; i++) {
+                    user = angular.extend({}, _.find(_dicts.users, {
+                        id: task.userIds[i]
+                    }));
+                    if (task.userStatuses) {
+                        status = _.find(task.userStatuses, {
+                            userId: task.userIds[i]
+                        }).status;
+                        userStatus = _.find(userStatuses, {
+                            value: status
+                        });
+                    } else {
+                        userStatus = _.find(taskStatuses, {
+                            value: task.status
+                        });
                     }
+
+                    user.status = userStatus ? userStatus.name : task.status;
+                    task.user.push(user);
                 }
             });
             _table.dataShare.tasks = tasks;
@@ -206,7 +218,7 @@ angular.module('greyscale.tables')
                         'user',
                         'endDate',
                         'startDate',
-                        'flaggedcount',
+                        'flaggedCount',
                         'flagClass',
                         'flaggedfrom',
                         'flaggedto'
