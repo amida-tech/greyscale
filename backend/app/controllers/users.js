@@ -714,7 +714,7 @@ module.exports = {
                     info: 'Update user'
                 });
             }
-            if (req.params.realm !== config.pgConnect.adminSchema) {
+            if (req.params.realm !== config.pgConnect.adminSchema && req.body.usergroupId) {
                 var userGroups4delete = yield thunkQuery(
                     UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
