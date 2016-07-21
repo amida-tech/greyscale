@@ -35,6 +35,7 @@
         "CONFIRM": "Подтвердить",
         "CONFIRMATION": "Подтверждение",
         "CONTINUE": "Продолжить",
+        "COPY": "",
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
@@ -53,12 +54,14 @@
         "REMIND": "Напомнить",
         "RESET": "Сброс",
         "SAVE": "Сохранить",
+        "SAVED": "",
         "SAVE_AND_CONTINUE": "Сохранить и продолжить",
         "SEND": "",
         "SEND_MESSAGE": "",
         "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "Показать все",
         "SUBMIT": "Отправить",
+        "THE_COPY": "",
         "UNASSIGN": "Отмена назначения",
         "UNASSIGNED": "",
         "VIEW": "Просмотр",
@@ -337,7 +340,8 @@
         },
         "VISUALIZATION": "Визуализация",
         "VISUALIZATIONS": "",
-        "WORKFLOW_STEPS": "Процессы"
+        "WORKFLOW_STEPS": "Процессы",
+        "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "",
@@ -391,6 +395,7 @@
         "PROJECT": "Проект"
     },
     "POLICY": {
+        "APPROVE": "",
         "AUTHOR": "",
         "NEW_POLICY": "",
         "NUMBER": "",
@@ -497,6 +502,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -513,6 +520,7 @@
                 "ROLE": "Роль",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "SORT_DISABLED": "",
+                "SORT_ENABLED": "",
                 "START_DATE": "Дата начала",
                 "TITLE": "Шаг",
                 "WRITE_ACCESS_READ": "Чтение",
@@ -520,7 +528,8 @@
             },
             "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
-            "TITLE_REQUIRED": "Название обязательно"
+            "TITLE_REQUIRED": "Название обязательно",
+            "WORKFLOW_TEMPLATES": ""
         }
     },
     "PRODUCT_TASKS": {
@@ -626,6 +635,14 @@
         "RIGHT_ERROR": "",
         "ROLE_RIGHT": "Правило роли",
         "ROLE_RIGHTS": "Правила ролей"
+    },
+    "SEARCH": {
+        "CLEAR": "",
+        "EACH_WORD": "",
+        "NEXT": "",
+        "NOT_FOUND": "",
+        "PREV": "",
+        "SEARCH": ""
     },
     "SURVEYS": {
         "ABOVE": "",
@@ -793,5 +810,14 @@
         "HEADER": "Шаги рабочих процессов",
         "ITEM": "Шаг процесса",
         "TITLE": "Название"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "SAVE_WORKFLOW_TEMPLATE": "",
+        "STEPS": "",
+        "TITLE": "",
+        "WORKFLOW_TEMPLATE": "",
+        "WORKFLOW_TEMPLATES": ""
     }
 }

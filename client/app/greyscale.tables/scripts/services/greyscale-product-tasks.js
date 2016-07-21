@@ -13,14 +13,21 @@ angular.module('greyscale.tables')
             users: [],
             steps: [],
             tasks: [],
-            groups: []
+            groups: [],
+            product: {}
         };
 
         var _cols = [{
             title: tns + 'UOA',
             field: 'uoa.name',
-            sortable: 'uoa.name'
+            sortable: 'uoa.name',
+            show: _isSurvey
         }, {
+            title: 'MY_TASKS.PRODUCT',
+            field: 'product.title',
+            show: _isPolicy
+        }, {
+
             title: tns + 'PROGRESS',
             cellClass: 'text-center',
             cellTemplate: '<span class="progress-blocks">' +
@@ -64,6 +71,14 @@ angular.module('greyscale.tables')
             dataPromise: _getData
         };
 
+        function _isPolicy() {
+            return (_table.dataFilter.policyId !== null);
+        }
+
+        function _isSurvey() {
+            return (_table.dataFilter.policyId === null);
+        }
+
         function _getProductId() {
             return _table.dataFilter.productId;
         }
@@ -84,6 +99,8 @@ angular.module('greyscale.tables')
             if (!product.workflow) {
                 return [];
             }
+
+            _dicts.product = product;
 
             var reqs = {
                 users: greyscaleUserApi.list(),
@@ -107,9 +124,11 @@ angular.module('greyscale.tables')
         }
 
         function _extendTasksWithRelations(tasks) {
-            var i, qty, user, userStatus, status;
+            var i, qty, user, userStatus;
 
             angular.forEach(tasks, function (task) {
+                task.product = _dicts.product;
+
                 task.uoa = _.find(_dicts.uoas, {
                     id: task.uoaId
                 });
@@ -136,25 +155,33 @@ angular.module('greyscale.tables')
                     }
                 }
                 task.user = [];
-                for (i = 0; i < task.userIds.length; i++) {
-                    user = angular.extend({}, _.find(_dicts.users, {
-                        id: task.userIds[i]
-                    }));
-                    if (task.userStatuses) {
-                        status = _.find(task.userStatuses, {
-                            userId: task.userIds[i]
-                        }).status;
-                        userStatus = _.find(userStatuses, {
-                            value: status
-                        });
-                    } else {
-                        userStatus = _.find(taskStatuses, {
-                            value: task.status
-                        });
-                    }
+                if (task.userStatuses) {
+                    qty = task.userStatuses.length;
 
-                    user.status = userStatus ? userStatus.name : task.status;
-                    task.user.push(user);
+                    for (i = 0; i < qty; i++) {
+                        userStatus = _.find(userStatuses, {
+                            value: task.userStatuses[i].status
+                        });
+                        user = angular.extend({}, _.find(_dicts.users, {
+                            id: task.userStatuses[i].userId
+                        }));
+                        user.status = userStatus ? userStatus.name : task.userStatuses[i].status;
+                        task.user.push(user);
+                    }
+                } else {
+                    qty = task.userIds.length;
+                    userStatus = _.find(taskStatuses, {
+                        value: task.status
+                    });
+                    userStatus = userStatus ? userStatus.name : task.status;
+
+                    for (i = 0; i < qty; i++) {
+                        user = angular.extend({}, _.find(_dicts.users, {
+                            id: task.userIds[i]
+                        }));
+                        user.status = userStatus;
+                        task.user.push(user);
+                    }
                 }
             });
             _table.dataShare.tasks = tasks;
@@ -177,7 +204,7 @@ angular.module('greyscale.tables')
                 }
                 currentTasks.push(currentTask);
             });
-            return $q.when(currentTasks);
+            return currentTasks;
         }
 
         function _getTaskProgressData(task, uoaTasks) {
