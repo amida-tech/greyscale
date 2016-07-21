@@ -38,9 +38,9 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.policyComment(data, {})
                         .then(function (commentBody) {
                             var _tag = {
-                                users: [],
-                                groups: []
-                            },
+                                    users: [],
+                                    groups: []
+                                },
                                 i, qty;
 
                             qty = commentBody.tag ? commentBody.tag.length : 0;
@@ -75,7 +75,7 @@ angular.module('greyscaleApp')
                 });
 
                 $scope.hideComments = function (filter) {
-                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function() {
+                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
                         for (var i = 0; i < $scope.model.items.length; i++) {
                             if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
                                 continue;
