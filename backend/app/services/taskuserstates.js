@@ -26,8 +26,8 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             var late = endDate ? (endDate < new Date()): false;
             var stateId = late ? TaskUserState.getStateId('late') : TaskUserState.getStateId('pending');
-            var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late") ' +
-                pgEscape('SELECT %s, v, %s, %s FROM unnest(\'{%s}\'::int[]) g(v)', taskId, stateId, late, users) +
+            var query ='INSERT INTO "TaskUserStates"  ("taskId", "userId", "stateId", "late", "endDate") ' +
+                pgEscape('SELECT %s, v, %s, %s, %L FROM unnest(\'{%s}\'::int[]) g(v)', taskId, stateId, late, endDate.toLocaleString(), users) +
                 'RETURNING "TaskUserStates"."taskId", "TaskUserStates"."userId", "TaskUserStates"."stateId"';
 
             var result = yield thunkQuery(query);
@@ -51,6 +51,7 @@ var exportObject = function  (req, realm) {
                 .update({
                     stateId: stateId,
                     late: late,
+                    endDate: endDate,
                     updatedAt: new Date()
                 })
                 .where(TaskUserState.userId.in(Array.from(users)))
@@ -169,6 +170,39 @@ var exportObject = function  (req, realm) {
             return yield thunkQuery(query);
         });
     };
+    this.updateLate = function (tasks, users) {
+        // update taskUserStates stateId - ONLY late state - hardcoded :( ToDo something
+        var self = this;
+        return co(function* () {
+            var query ='UPDATE "TaskUserStates" ' +
+                'SET ' +
+                '"late" = ("endDate" < now()), ' +
+                '"stateId" = ' +
+                'CAST(CASE WHEN ("endDate" < now() AND ("stateId" = 0 OR "stateId" = 2)) ' +
+                'THEN 1 ELSE "stateId" END as int), ' +
+                '"updatedAt" = now() ' +
+                pgEscape('WHERE (("TaskUserStates"."userId" IN (%s)) ', users) +
+                (tasks ? pgEscape('AND ("TaskUserStates"."taskId" IN (%s))) ', tasks) : ')') +
+                'RETURNING "taskId", "userId", "stateId"';
+/*
+            var query = TaskUserState
+                    .update(updateBody)
+                    .where(TaskUserState.userId.in(Array.from(users)))
+                    .and(TaskUserState.taskId.in(Array.from(tasks)))
+                    .returning(TaskUserState.taskId, TaskUserState.userId, TaskUserState.stateId);
+*/
+            var result = yield thunkQuery(query);
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'update',
+                object: 'TaskUserStates',
+                entities: result,
+                quantity: result.length,
+                info: 'Update states when Date increased'
+            });
+        });
+    };
     this.updateState = function (taskId, userId, updateBody) {
         // update taskUserState stateId and flags if needed
         var self = this;
@@ -222,8 +256,9 @@ var exportObject = function  (req, realm) {
             for (var i in users) {
                 taskUserState = yield self.get(taskId, users[i]); // get taskUserState
                 taskUserState.late = late;
+                taskUserState.endDate = endDate;
                 taskUserState.stateId = TaskUserState.setState(taskUserState);
-                yield self.updateState(taskId, users[i], _.pick(taskUserState, ['stateId', 'late']));
+                yield self.updateState(taskId, users[i], _.pick(taskUserState, ['stateId', 'late', 'endDate']));
             }
         });
     };

@@ -13,7 +13,8 @@ const TaskUserState = sql.define({
         'late',
         'approvedAt',
         'startedAt',
-        'draftAt'
+        'draftAt',
+        'endDate'
     ]
 });
 

@@ -353,13 +353,17 @@ var exportObject = function  (req, realm) {
     };
     this.getTaskUsersStatuses = function (commentDiscussion, users, taskId) {
 
-        // get all TaskUserStates for lists of users and tasks
         var tasks = taskId ? [taskId] : null;
+        // 1st update Late status
+        oTaskUserState.updateLate(tasks, users);
+        // get all TaskUserStates for lists of users and tasks
         return oTaskUserState.getByLists(tasks, users);
 
     };
     this.getTasksUserStatus = function (commentDiscussion, userId, tasks) {
 
+        // 1st update Late status
+        oTaskUserState.updateLate(tasks, [userId]);
         // get all TaskUserStates for lists of users and tasks
         return oTaskUserState.getByLists(tasks, [userId]);
 
