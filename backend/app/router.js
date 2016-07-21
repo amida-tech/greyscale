@@ -386,6 +386,22 @@ router.route('/:realm/v0.2/countries/:id')
     .delete(authenticate('token').always, checkRight('countries_delete_one'), countries.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
+//    WORKFLOWS TEMPLATES
+//----------------------------------------------------------------------------------------------------------------------
+
+var workflow_templates = require('app/controllers/workflow_templates');
+
+router.route('/:realm/v0.2/workflow_templates')
+    .get(authenticate('token').always, workflow_templates.select)
+    .post(authenticate('token').always, jsonParser, workflow_templates.insertOne);
+
+router.route('/:realm/v0.2/workflow_templates/:id')
+    .get(authenticate('token').always, workflow_templates.selectOne)
+    .put(authenticate('token').always, jsonParser, workflow_templates.updateOne)
+    .delete(authenticate('token').always, workflow_templates.deleteOne);
+
+
+//----------------------------------------------------------------------------------------------------------------------
 //    WORKFLOWS
 //----------------------------------------------------------------------------------------------------------------------
 var workflows = require('app/controllers/workflows');
