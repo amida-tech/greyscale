@@ -576,10 +576,13 @@ module.exports = function (grunt) {
                 src: '**/*.*'
             },
             docker: {
-                files: [
-                    {src: ['greyscale-env.js'], dest: 'app/greyscale.core/scripts/config/'},
-                    {src: ['greyscale-env-m.js'], dest: 'app/m/config.js'}
-                ],
+                files: [{
+                    src: ['greyscale-env.js'],
+                    dest: 'app/greyscale.core/scripts/config/'
+                }, {
+                    src: ['greyscale-env-m.js'],
+                    dest: 'app/m/config.js'
+                }],
                 expand: true,
                 cwd: ''
             },
