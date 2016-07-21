@@ -273,7 +273,8 @@ angular.module('greyscaleApp')
                     translated: true,
                     locked: false,
                     savedAt: NaN,
-                    isPolicy: false
+                    isPolicy: false,
+                    snsTitle: 'SURVEYS.SUBMIT'
                 };
 
                 $scope.goField = function (elemId) {
@@ -383,6 +384,9 @@ angular.module('greyscaleApp')
             provideResponses = flags.provideResponses;
 
             flags.isPolicy = !!scope.surveyData.policy;
+            if (flags.isPolicy) {
+                scope.model.snsTitle = 'POLICY.APPROVE';
+            }
             scope.model.translated = !flags.allowTranslate;
 
             for (q = 0; q < qQty; q++) {
