@@ -53,7 +53,8 @@ angular.module('greyscaleApp')
                         }
                         scope.model.data = {
                             range: window.getSelection().getRangeAt(0),
-                            selection: greyscaleSelection.get(document.getElementById(scope.qid))
+                            selection: greyscaleSelection.get(document.getElementById(scope.qid)),
+                            selectedHtml: greyscaleSelection.html()
                         };
 
                         menu = elem.find('#' + scope.model.menuId);
@@ -84,6 +85,7 @@ angular.module('greyscaleApp')
                     var _range = window.getSelection().getRangeAt(0).cloneRange().toString();
                     return (_range && _range.length > 0);
                 }
+
             }
         };
     });
