@@ -51,6 +51,7 @@ angular.module('greyscaleApp')
                     },
                     policy: {
                         id: resp.survey.policyId,
+                        author: resp.survey.author,
                         title: resp.survey.title,
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,

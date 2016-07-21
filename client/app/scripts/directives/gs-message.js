@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, greyscaleProfileSrv, greyscaleCommentApi, $timeout) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -23,6 +23,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
+                };
 
                 $scope.edit = function () {
                     $scope.entry = $scope.model.entry;
@@ -51,6 +54,26 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.highlightSource = _highlightSource;
+                $scope.resolveFlag = function () {
+                    if ($scope.model.isResolve) {
+                        return;
+                    }
+                    var _newComment = {
+                        taskId: $scope.model.taskId,
+                        stepId: null,
+                        questionId: $scope.model.questionId,
+                        entry: $scope.model.entry,
+                        range: $scope.model.range,
+                        tags: $scope.model.tags,
+                        commentType: $scope.model.commentType,
+                        isReturn: false,
+                        isResolve: true,
+                        returnTaskId: $scope.model.id
+                    };
+                    greyscaleCommentApi.add(_newComment).then(function (result) {
+                        $scope.model.isResolve = true;
+                    });
+                };
 
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
