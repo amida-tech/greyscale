@@ -56,8 +56,9 @@ angular.module('greyscaleApp')
 
                 $scope.toggleComment = function () {
                     //hide $scope.model
-                    $scope.model.isHidden = !$scope.model.isHidden;
-                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, !$scope.model.isHidden);
+                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
+                        $scope.model.isHidden = !$scope.model.isHidden;
+                    });
                 };
                 
                 $scope.highlightSource = _highlightSource;
