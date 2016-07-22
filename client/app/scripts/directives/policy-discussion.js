@@ -88,29 +88,9 @@ angular.module('greyscaleApp')
                     };
 
                 $q.all(reqs).then(function (resp) {
-                    var tag, i, qty, title;
+                    var i, qty;
                     /* form associate */
-                    scope.model.associate = {
-                        tags: []
-                    };
-
-                    qty = resp.tags.users.length;
-                    for (i = 0; i < qty; i++) {
-                        tag = resp.tags.users[i];
-                        title = greyscaleUtilsSrv.getUserName(tag);
-                        angular.extend(tag, {
-                            fullName: title
-                        });
-
-                        scope.model.associate.tags.push(tag);
-                        scope.model.associate[tag.userId] = tag;
-
-                    }
-
-                    qty = resp.tags.groups.length;
-                    for (i = 0; i < qty; i++) {
-                        scope.model.associate.tags.push(resp.tags.groups[i]);
-                    }
+                    scope.model.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
 
                     /* comment types */
                     qty = resp.tags.commentTypes.length;
