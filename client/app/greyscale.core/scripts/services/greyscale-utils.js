@@ -18,7 +18,8 @@ angular.module('greyscale.core')
             getApiBase: _getApiBase,
             capitalize: _capitalize,
             countWords: _countWords,
-            getUserName: _getUserName
+            getUserName: _getUserName,
+            getTagsAssociate: _getTagsAssociate
         };
 
         function _decode(dict, key, code, name) {
@@ -163,5 +164,28 @@ angular.module('greyscale.core')
 
         function _getUserName(profile) {
             return [profile.firstName, profile.lastName].join(' ');
+        }
+
+        function _getTagsAssociate(tagsData) {
+            var tag, i, qty, title;
+            var _associate = {
+                tags: []
+            };
+            qty = tagsData.users.length;
+            for (i = 0; i < qty; i++) {
+                tag = tagsData.users[i];
+                title = _getUserName(tag);
+                angular.extend(tag, {
+                    fullName: title
+                });
+                _associate.tags.push(tag);
+                _associate[tag.userId] = tag;
+
+            }
+            qty = tagsData.groups.length;
+            for (i = 0; i < qty; i++) {
+                _associate.tags.push(tagsData.groups[i]);
+            }
+            return _associate;
         }
     });

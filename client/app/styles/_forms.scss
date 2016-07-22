@@ -181,3 +181,9 @@ option.disabled {
         }
     }
 }
+
+.gs-message-subcomment-form {
+    .ta-editor, .ta-scroll-window > .ta-bind{
+        min-height: 90px;
+    }
+}

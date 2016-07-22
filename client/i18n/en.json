@@ -14,9 +14,13 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "ANSWERS": "Answers",
         "EXPLAIN_WHY_AGREE": "Please explain why you agree",
         "EXPLAIN_WHY_DISAGREE": "Please explain why you disagree",
+        "IS_AGREED": "Agreed",
+        "IS_DISAGREED": "Disagreed",
         "NO_MESSAGES": "no messages",
+        "TAG_ANSWER": "Tag Answer",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
         "TYPE": "Comment type"

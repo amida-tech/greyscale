@@ -4,18 +4,23 @@ angular.module('greyscaleApp')
 .controller('ModalCommentFullScreenCtrl', function($scope, $q, greyscaleCommentApi, greyscaleUtilsSrv) {
 
     var comment = $scope.model;
-console.log(comment, $scope);
+
+    var _dicts = {};
+
     var _subcomments = {
         model: {},
         state: {},
         associate: {
             tags: []
+
         },
+        list: [],
         counts: {},
         add: _add,
         cancel: _cancel,
         submit: _submit
     };
+
     $scope.subcomments = _subcomments;
 
     _initCommentData();
@@ -36,29 +41,25 @@ console.log(comment, $scope);
     function _initCommentData() {
 
         var reqs = {
-            tags: greyscaleCommentApi.getUsers(comment.taskId)
+            tags: greyscaleCommentApi.getUsers(comment.taskId),
+            subcomments: _getSubcommentsData()
         };
 
         $q.all(reqs).then(function(resp){
-            var tag, i, qty, title;
-            qty = resp.tags.users.length;
-            for (i = 0; i < qty; i++) {
-                tag = resp.tags.users[i];
-                title = greyscaleUtilsSrv.getUserName(tag);
-                angular.extend(tag, {
-                    fullName: title
-                });
-
-                _subcomments.associate.tags.push(tag);
-            }
-
-            qty = resp.tags.groups.length;
-            for (i = 0; i < qty; i++) {
-                _subcomments.associate.tags.push(resp.tags.groups[i]);
-            }
+            _subcomments.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
+            _subcomments.list = resp.subcomments;
             console.log(_subcomments);
         });
 
+    }
+
+    function _getSubcommentsData() {
+        return [
+            {entry: '<p>subcomment text 1</p>', agree: true, user: 'John Doe', created: new Date()},
+            {entry: '<p>subcomment text 2</p>', agree: false, user: 'John Doe', created: new Date()},
+            {entry: '<p>subcomment text 3</p>', agree: true, user: 'John Doe', created: new Date()},
+            {entry: '<p>subcomment text 4</p>', agree: false, user: 'John Doe', created: new Date()}
+        ];
     }
 
 });
