@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, i18n) {
+        greyscaleModalsSrv, i18n, _) {
 
         return {
             restrict: 'E',
@@ -21,71 +21,137 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.model = {
                     items: [],
-                    associate: [],
-                    flag: true
+                    associate: []
                 };
 
                 $scope.$on(greyscaleGlobals.events.policy.addComment, function (evt, data) {
-                    angular.extend(data, {
-                        comment: data.quote ? '<blockquote>' + data.quote + '</blockquote><br/>' : '',
-                        tags: $scope.model.associate.tags,
-                        commentTypes: $scope.model.commentTypes,
-                        flag: false
-                    });
-
-                    greyscaleModalsSrv.policyComment(data, {})
-                        .then(function (commentBody) {
-                            save(commentBody);
-                        })
-                        .catch(function (reason) {
-                            if (reason === 'backdrop click') {
-                                save(data, true);
-                            } else {
-                                return $q.reject(reason);
-                            }
-                        });
+                    var _comment = {
+                        userFromId: $scope.policy.userId,
+                        taskId: $scope.policy.taskId,
+                        stepId: null,
+                        questionId: data.section.id,
+                        entry: data.quote ? '<blockquote contenteditable="false" readonly="readonly">' +
+                            data.quote + '</blockquote><br/>' : '',
+                        range: data.range,
+                        tag: [],
+                        isReturn: false
+                    };
+                    _editComment(_comment);
                 });
 
-                function save(commentBody, auto) {
+                $scope.removeComment = _removeComment;
+                $scope.editComment = _editComment;
+
+                function save(commentBody, isDraft) {
                     var _tag = {
                             users: [],
                             groups: []
                         },
-                        i, qty;
+                        i, qty,
+                        res = $q.reject('SAVE.ERROR');
 
                     qty = commentBody.tag ? commentBody.tag.length : 0;
 
                     for (i = 0; i < qty; i++) {
                         if (commentBody.tag[i].userId) {
                             _tag.users.push(commentBody.tag[i].userId);
-                        } else if (commentBody.tag[i].groupId) {
+                        } else if (commentBody.tags[i].groupId) {
                             _tag.groups.push(commentBody.tag[i].groupId);
                         }
                     }
-                    var _newComment = {
-                        userFromId: $scope.policy.userId,
-                        taskId: $scope.policy.taskId,
-                        stepId: null,
-                        questionId: commentBody.section.id,
-                        entry: commentBody.comment,
-                        range: commentBody.range,
-                        tags: _tag,
-                        commentType: commentBody.type
-                    };
 
-                    if (auto) {
-                        greyscaleCommentApi.autoSave(_newComment).then(function (result) {
-                            angular.extend(_newComment, result);
-                            _newComment.activated = true;
-                            $scope.model.items.unshift(_newComment);
-                        });
+                    var _newComment = angular.extend({}, commentBody);
+                    _newComment.tags = _tag;
+
+                    if (_newComment.id) {
+                        res = greyscaleCommentApi.update(_newComment.id, _newComment)
+                            .then(function () {
+                                var _idx = _.findIndex($scope.model.items, {
+                                    id: _newComment.id
+                                });
+
+                                if (~_idx) {
+                                    $scope.model.items[_idx] = _newComment;
+                                }
+                                return _newComment;
+                            });
                     } else {
-                        greyscaleCommentApi.add(_newComment).then(function (result) {
+                        _newComment.activated = !isDraft;
+                        if (isDraft) {
+                            res = greyscaleCommentApi.autoSave(_newComment);
+                        } else {
+                            res = greyscaleCommentApi.add(_newComment);
+                        }
+                        res.then(function (result) {
                             angular.extend(_newComment, result);
-                            _newComment.activated = true;
                             $scope.model.items.unshift(_newComment);
+                            return _newComment;
                         });
                     }
+                    return res;
+                }
+
+                function _editComment(comment) {
+                    var _opt = {
+                            commentTypes: $scope.model.commentTypes,
+                            tags: $scope.model.associate.tags
+                        },
+                        _comment = angular.extend({}, comment);
+
+                    if (!_comment.tag) {
+                        _comment.tag = _getTags(_comment.tags);
+                    }
+
+                    greyscaleModalsSrv.policyComment(_comment, _opt)
+                        .then(save)
+                        .catch(function (reason) {
+                            if (reason === 'backdrop click') {
+                                return save(_comment, true);
+                            } else {
+                                return $q.reject(reason);
+                            }
+                        });
+                }
+
+                function _removeComment(comment) {
+                    return greyscaleCommentApi.remove(comment.id)
+                        .then(function () {
+                            var idx = _.findIndex($scope.model.items, {
+                                id: comment.id
+                            });
+                            if (!!~idx) {
+                                $scope.model.items.splice(idx, 1);
+                            }
+                        });
+                }
+
+                function _getTags(tags) {
+                    var i,
+                        _tag,
+                        qty,
+                        aTags = JSON.parse(tags),
+                        res = [];
+
+                    qty = aTags.users.length;
+                    for (i = 0; i < qty; i++) {
+                        _tag = _.find($scope.model.associate.tags, {
+                            userId: aTags.users[i]
+                        });
+                        if (_tag) {
+                            res.push(_tag);
+                        }
+                    }
+
+                    qty = aTags.groups.length;
+                    for (i = 0; i < qty; i++) {
+                        _tag = _.find($scope.model.associate.tags, {
+                            groupId: aTags.group[i]
+                        });
+                        if (_tag) {
+                            res.push(_tag);
+                        }
+                    }
+                    return res;
                 }
             }
         };

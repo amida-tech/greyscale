@@ -11,8 +11,9 @@ angular.module('greyscaleApp')
                 model: '=gsMessage',
                 associate: '=',
                 options: '=',
-                remove: '&',
-                update: '&'
+                edit: '&?',
+                remove: '&?',
+                update: '&?'
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
@@ -24,10 +25,12 @@ angular.module('greyscaleApp')
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
 
-                $scope.edit = function () {
-                    $scope.entry = $scope.model.entry;
-                    _toggleEdit();
-                };
+                if (!$scope.edit || typeof $scope.edit !== 'function') {
+                    $scope.edit = function () {
+                        $scope.entry = $scope.model.entry;
+                        _toggleEdit();
+                    };
+                }
 
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;

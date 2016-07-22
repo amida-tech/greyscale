@@ -43,14 +43,14 @@ angular.module('greyscale.rest')
             return _api().one('entryscope', id + '').get().then(_response);
         }
 
-        function _add(data) {
-            return _api().customPOST(data).then(_response);
+        function _add(data, params) {
+            return _api().customPOST(data, null, params).then(_response);
         }
 
         function _autoSave(data) {
-            return _api().customPOST(data, null, {
+            return _add(data, {
                 autosave: true
-            }).then(_response);
+            });
         }
 
         function _update(id, data) {

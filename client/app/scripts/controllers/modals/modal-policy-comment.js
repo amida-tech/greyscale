@@ -7,7 +7,7 @@ angular.module('greyscaleApp')
     $scope.model = formData;
 
     if (extData) {
-        $scope.view = angular.copy(extData);
+        $scope.view = extData;
     }
 
     $scope.close = function () {
