@@ -14,9 +14,13 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "ANSWERS": "",
         "EXPLAIN_WHY_AGREE": "",
         "EXPLAIN_WHY_DISAGREE": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
         "TYPE": ""
