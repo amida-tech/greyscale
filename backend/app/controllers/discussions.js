@@ -688,8 +688,13 @@ function* getAvailableUsers(req) {
 }
 
 function* checkNextEntry(req, id, checkOnly) {
-    var result;
+    //var result;
     var entry = yield * common.getDiscussionEntry(req, id);
+    return !entry.activated;
+    if (entry.activated && !checkOnly) {
+        throw new HttpError(403, 'Entry with id=`' + id + '` cannot be updated or deleted');
+    }
+    /*
     var task = yield * common.getTask(req, entry.taskId);
     var productId = task.productId;
     var uoaId = task.uoaId;
@@ -710,9 +715,10 @@ function* checkNextEntry(req, id, checkOnly) {
         if (checkOnly) {
             return false;
         }
-        throw new HttpError(403, 'Entry with id=`' + id + '` cannot be updated or deleted, there are have following entries');
+        throw new HttpError(403, 'Entry with id=`' + id + '` cannot be updated.');
     }
     return true;
+    */
 }
 
 function* getNextOrder(req, taskId, questionId) {

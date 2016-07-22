@@ -5,7 +5,6 @@
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
         greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
-        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
             flaggedQuestions = [],
             flaggedStep = null,
@@ -46,6 +45,7 @@ angular.module('greyscaleApp')
                         .then(function (resp) {
                             if ($scope.model.questions[body.questionId]) {
                                 angular.extend(body, resp);
+                                body.activated = !body.isReturn;
                                 $scope.model.questions[body.questionId].items.unshift(body);
                                 flaggedQuestions.push(body.questionId);
                             }
@@ -85,13 +85,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.filterSteps = function (elem) {
-                    if (elem.id === $scope.surveyParams.currentStepId) {
-                        return false;
-                    }
-                    if ($scope.model.msg.isReturn && elem.position > currentStep.position) {
-                        return false;
-                    }
-                    return true;
+                    var res = (elem.id !== $scope.surveyParams.currentStepId);
+                    res =  res && (!$scope.model.msg.isReturn || elem.position <= currentStep.position);
+                    return res;
                 };
 
                 $scope.filterQuests = function (quest) {
