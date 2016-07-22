@@ -670,6 +670,9 @@ function* checkNextEntry(req, id, checkOnly) {
     //var result;
     var entry = yield * common.getDiscussionEntry(req, id);
     return !entry.activated;
+    if (entry.activated && !checkOnly) {
+        throw new HttpError(403, 'Entry with id=`' + id + '` cannot be updated or deleted');
+    }
     /*
     var task = yield * common.getTask(req, entry.taskId);
     var productId = task.productId;
