@@ -22,6 +22,11 @@ angular.module('greyscaleApp')
 
     var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
 
+    productWorkflow.dataFilter.workflowTemplateMode = workflowTemplateMode;
+    if (!workflowTemplateMode) {
+        _refreshTemplatesList();
+    }
+
     if (!workflowTemplateMode) {
         _refreshTemplatesList();
     } else {
@@ -52,13 +57,50 @@ angular.module('greyscaleApp')
 
     $scope.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
 
+    $scope.$on('form-field-change', function(e,data){
+        switch (data.field) {
+            case 'startDate':
+            case 'endDate':
+                _validateDates();
+            break;
+        }
+    });
+
+    var _allDatesValid;
+    function _validateDates() {
+        var tableData = productWorkflow.tableParams.data;
+        var steps = _getSteps();
+        var lastDate;
+        _allDatesValid = true;
+        angular.forEach(steps, function(step, i){
+            var startDate = step.startDate ? new Date(Date.parse(step.startDate)) : null;
+            var endDate = step.endDate ? new Date(Date.parse(step.endDate)) : null;
+            step.startDateInvalid = startDate && lastDate && startDate < lastDate;
+            if (startDate) {
+                lastDate = startDate;
+            }
+            step.endDateInvalid = endDate && lastDate && endDate < lastDate;
+            if (endDate) {
+                lastDate = endDate;
+            }
+            if (step.startDateInvalid || step.endDateInvalid) {
+                _allDatesValid = false;
+            }
+            tableData[i].startDateInvalid = step.startDateInvalid;
+            tableData[i].endDateInvalid = step.endDateInvalid;
+        });
+        if (!_allDatesValid) {
+            greyscaleUtilsSrv.errorMsg('PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR');
+        }
+    }
+
     function _validateWorkflowSteps() {
         var steps = _getSteps();
         var valid = 0;
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
                 step.role && step.role !== '' &&
-                (workflowTemplateMode || (step.startDate && step.endDate)) &&
+                (workflowTemplateMode || _allDatesValid) &&
                 step.usergroupId && step.usergroupId.length
             ) {
                 valid++;

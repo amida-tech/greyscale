@@ -1,29 +1,31 @@
 <form style="padding: 0 15px;" translate-namespace="PRODUCTS.WORKFLOW.STEPS">
     <div class="row">
         <div class="col-md-{{ !ext.dataFilter.workflowTemplateMode ? 3 : 6 }} form-group">
-            <label translate="{{ext.formFields.title.title}}"></label>
+            <label translate="{{ext.formFields.title.title}}" class="required"></label>
             <span modal-form-rec="row"
                     modal-form-field="ext.formFields.title" embedded="true"
                     modal-form-field-model="row.title">
             </span>
         </div>
         <div class="col-md-{{ !ext.dataFilter.workflowTemplateMode ? 3 : 6 }}">
-            <label translate="{{ext.formFields.role.title}}"></label>
+            <label translate="{{ext.formFields.role.title}}" class="required"></label>
             <span modal-form-rec="row"
                   modal-form-field="ext.formFields.role" embedded="true"
                   modal-form-field-model="row.role">
             </span>
         </div>
         <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
-            <label translate="{{ext.formFields.startDate.title}}"></label>
-            <span modal-form-rec="row"
+            <label translate="{{ext.formFields.startDate.title}}" class="required"></label>
+            <span modal-form-rec="row" ng-class="{'field-error':row.startDateInvalid}"
+                  title="{{row.startDateInvalid ? 'PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR' : '' | translate}}"
                   modal-form-field="ext.formFields.startDate" embedded="true"
-                  modal-form-field-model="row.startDate">
+                  modal-form-field-model="row.startDate" >
             </span>
         </div>
         <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
-            <label translate="{{ext.formFields.endDate.title}}"></label>
-            <span modal-form-rec="row"
+            <label translate="{{ext.formFields.endDate.title}}" class="required"></label>
+            <span modal-form-rec="row" ng-class="{'field-error':row.endDateInvalid}"
+                  title="{{row.endDateInvalid ? 'PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR' : '' | translate}}"
                   modal-form-field="ext.formFields.endDate" embedded="true"
                   modal-form-field-model="row.endDate">
             </span>
@@ -31,7 +33,7 @@
     </div>
     <div class="row">
         <div class="col-md-4">
-            <label translate=".GROUPS"></label>
+            <label translate=".GROUPS" class="required"></label>
             <div ng-if="!row.groups.length">
                 <i class="text-warning" translate=".NO_GROUPS"></i>
             </div>
