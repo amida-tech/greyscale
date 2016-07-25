@@ -576,6 +576,7 @@ module.exports = {
                 'SELECT ' +
                 '"Tasks"."id" as "taskId", ' +
                 '"UnitOfAnalysis"."name" as "uoaName", ' +
+                '"UnitOfAnalysis"."id" as "uoaId", ' +
                 '"UnitOfAnalysisType"."name" as "uoaTypeName", ' +
                 'array(' +
                 'SELECT "UnitOfAnalysisTag"."name" ' +
@@ -589,7 +590,7 @@ module.exports = {
                 //'"Roles"."name" as "ownerRole", ' +
                 '"Surveys"."title" as "surveyTitle", ' +
                 '"SurveyQuestions"."label" as "questionTitle", "SurveyQuestions"."qid" as "questionCode", "SurveyQuestions"."id" as "questionId", "SurveyQuestions"."value" as "questionWeight", "SurveyQuestions"."type" as "questionTypeId",' +
-                '"SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
+                '"SurveyAnswers"."version", "SurveyAnswers"."value" as "answerValue", "SurveyAnswers"."optionId" as "answerOptions", array_to_string("SurveyAnswers"."links", \', \') as "links", "SurveyAnswers"."attachments" as "attachments" ' +
 
                 'FROM "Tasks" ' +
                 'LEFT JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
@@ -601,28 +602,10 @@ module.exports = {
                 'LEFT JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id") ' +
                 'LEFT JOIN "SurveyQuestions" ON ("Surveys"."id" = "SurveyQuestions"."surveyId") ' +
 
-                'LEFT JOIN ( ' +
-                'SELECT ' +
-                'COALESCE(max("SurveyAnswers"."version"), -1) as max,' +
-                '"SurveyAnswers"."questionId",' +
-                '"SurveyAnswers"."userId",' +
-                '"SurveyAnswers"."UOAid",' +
-                '"SurveyAnswers"."wfStepId" ' +
-                'FROM "SurveyAnswers" ' +
-                'GROUP BY "SurveyAnswers"."questionId","SurveyAnswers"."userId","SurveyAnswers"."UOAid","SurveyAnswers"."wfStepId" ' +
-                ') as "sa" ' +
-
-                'on ((("sa"."questionId" = "SurveyQuestions"."id") ' +
-                'AND ("sa"."userId" = "Users"."id")) ' +
-                'AND ("sa"."UOAid" = "UnitOfAnalysis"."id")) ' +
-                'AND ("sa"."wfStepId" = "WorkflowSteps"."id") ' +
-
                 'LEFT JOIN "SurveyAnswers" ON ( ' +
-                '((("SurveyAnswers"."questionId" = "sa"."questionId") ' +
-                'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
-                'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
-                'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
-                'AND (COALESCE("SurveyAnswers"."version", -1) = "sa".max) ' +
+                '(("SurveyAnswers"."questionId" = "SurveyQuestions"."id") ' +
+                'AND ("SurveyAnswers"."UOAid" = "UnitOfAnalysis"."id")) ' +
+                'AND ("SurveyAnswers"."wfStepId" = "WorkflowSteps"."id") ' +
                 ') ' +
                 'WHERE ( ' +
                 pgEscape('("Tasks"."productId" = %s) ', id) +
@@ -631,7 +614,40 @@ module.exports = {
                 ')';
             debug(q);
 
-            var answers = yield thunkQuery(q);
+            var allAnswers = yield thunkQuery(q);
+            var answers = [];
+
+            // find latest answer for each (questionId,UOAid) pair
+            var groups = _.groupBy(allAnswers, 'questionId');
+            for (var questionId in groups) {
+                groups[questionId] = _.groupBy(groups[questionId], 'uoaId');
+                for (var uoaId in groups[questionId]) {
+                    var groupAnswers = _.sortBy(groups[questionId][uoaId], 'stepPosition');
+                    var stepPositions = _.uniq(_.pluck(groupAnswers, 'stepPosition'));
+                    stepPositions.forEach(function (stepPosition) {
+                        var maxVersion = -1;
+                        var maxAnswer;
+                        for (var i = 0; i < groupAnswers.length; i++) {
+                            if (groupAnswers[i].stepPosition > stepPosition) { break; }
+                            if (groupAnswers[i].version !== null && groupAnswers[i].version >= maxVersion) {
+                                maxAnswer = groupAnswers[i];
+                                maxVersion = groupAnswers[i].version;
+                            }
+                            if (groupAnswers[i].version === null && groupAnswers[i].stepPosition === stepPosition) {
+                                maxAnswer = groupAnswers[i];
+                                i++;
+                                break;
+                            }
+                        }
+                        var answer = groupAnswers[i-1];
+                        answer.answerValue = maxAnswer.answerValue;
+                        answer.answerOptions = maxAnswer.answerOptions;
+                        answer.links = maxAnswer.links;
+                        answer.attachments = maxAnswer.attachments;
+                        answers.push(answer);
+                    });
+                }
+            }
 
             // for question order
             var questionOrdinals = {};
