@@ -30,7 +30,8 @@ angular.module('greyscaleApp')
                 function _setModel() {
                     if (ngModel) {
                         _policy = ngModel.$viewValue;
-                        _policy.qid = _policy.qid || ('Q' + _policy.id);
+                        //_policy.qid = _policy.qid || ('Q' + _policy.id);
+                        _policy.qid = 'Q' + _policy.id;
                         scope.model = _policy;
                         _setContextMenu();
                     }
