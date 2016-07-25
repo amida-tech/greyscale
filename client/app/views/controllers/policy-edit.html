@@ -1,6 +1,10 @@
 <div class="row policy-edit">
     <!-- gs-palette></gs-palette -->
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
+        <div uib-alert class="alert-warning" ng-if="model.policy.options.readonly">
+            <span translate="POLICY.IS_EDITING_BY"></span> {{model.survey.editorUser.fullName}} ({{model.survey.editorUser.email}})
+            <span class="subtext">{{model.survey.startEdit | date:'y/MM/dd H:m:s'}}</span>
+        </div>
         <div class="row">
             <div class="col-sm-7">
                 <policy-block policy-data="model.policy"></policy-block>
@@ -12,7 +16,7 @@
             </div>
             -->
         </div>
-        <form-builder ng-model="model.survey"></form-builder>
+        <form-builder ng-model="model.survey" ng-if="!model.policy.options.readonly"></form-builder>
 
         <div no-compile form-builder-control>
             <div class="form-builder-control text-right">

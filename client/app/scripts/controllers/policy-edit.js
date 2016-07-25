@@ -78,7 +78,11 @@ angular.module('greyscaleApp')
         $scope.publish = _publish;
 
         function _loadSurvey() {
-            greyscaleSurveyApi.get(surveyId).then(function (survey) {
+            var params = {
+                forEdit: true
+            };
+
+            greyscaleSurveyApi.get(surveyId, params).then(function (survey) {
                 var _questions = [],
                     _sections = [],
                     qty = survey.questions ? survey.questions.length : 0,
@@ -96,6 +100,14 @@ angular.module('greyscaleApp')
                         number: survey.number,
                         attachments: survey.attachments || []
                     });
+
+                    $scope.model.policy.options.readonly = survey.locked;
+
+                    if (survey.editor) {
+                        greyscaleUsers.get(survey.editor).then(function(user){
+                            $scope.model.survey.editorUser = user;
+                        })
+                    }
 
                     for (q = 0; q < qty; q++) {
                         if (survey.questions[q].type === policyIdx) {
