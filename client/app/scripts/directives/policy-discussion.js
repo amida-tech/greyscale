@@ -62,6 +62,7 @@ angular.module('greyscaleApp')
 
                     var _newComment = angular.extend({}, commentBody);
                     _newComment.tags = _tag;
+                    _newComment.activated = !isDraft;
 
                     if (_newComment.id) {
                         res = greyscaleCommentApi.update(_newComment.id, _newComment)
@@ -76,7 +77,6 @@ angular.module('greyscaleApp')
                                 return _newComment;
                             });
                     } else {
-                        _newComment.activated = !isDraft;
                         if (isDraft) {
                             res = greyscaleCommentApi.autoSave(_newComment);
                         } else {
