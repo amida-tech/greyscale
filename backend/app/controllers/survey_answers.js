@@ -18,6 +18,7 @@ var
     Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
+    UserGroup = require('app/models/user_groups'),
     co = require('co'),
     sql = require('sql'),
     Query = require('app/util').Query,
@@ -28,6 +29,7 @@ var
     crypto = require('crypto'),
     config = require('config'),
     common = require('app/services/common'),
+    sTask = require('app/services/tasks'),
     notifications = require('app/controllers/notifications'),
     mc = require('app/mc_helper'),
     pgEscape = require('pg-escape'),
@@ -86,14 +88,40 @@ module.exports = {
                     .where(
                         Task.uoaId.equals(req.params.UOAid)
                         .and(Task.productId.equals(req.params.productId))
-                        .and(Task.userIds.contains('{' + req.user.id + '}')) // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+                        .and(Task.userIds.contains('{' + req.user.id + '}'))
                     )
                 );
                 if (!userTasks[0]) {
-                    throw new HttpError(
-                        403,
-                        'You should be owner at least of 1 task for this product and subject'
-                    );
+                    var query = 'SELECT DISTINCT ' +
+                        '"Tasks"."id" ' +
+                        'FROM "Tasks" ' +
+                        'INNER JOIN "UserGroups" ON ("Tasks"."groupIds" @> ARRAY["UserGroups"."groupId"]) ' +
+                        'INNER JOIN "Users" ON ("UserGroups"."userId" = "Users"."id") ' +
+                        pgEscape('WHERE ("Users"."id" = %s) ', req.user.id);
+/* ToDo:
+                    var query = Task
+                            .select()
+                            .from(
+                            Task
+                                .leftJoin(UserGroup)
+                                .on(Task.groupIds.contains('ARRAY["UserGroups"."groupId"]'))
+                                //.on(Task.groupIds.contains(Array.from(UserGroup.groupId)))
+                                .leftJoin(User)
+                                .on(UserGroup.userId.equals(User.id))
+                        )
+                            .where(
+                            Task.uoaId.equals(req.params.UOAid)
+                                .and(Task.productId.equals(req.params.productId))
+                                .and(User.id.equals(req.user.id))
+                        );
+*/
+                    var userTasksUsingGroups = yield thunkQuery(query);
+                    if (!userTasksUsingGroups[0]) {
+                        throw new HttpError(
+                            403,
+                            'You should be owner at least of 1 task for this product and subject'
+                        );
+                    }
                 }
             }
 
@@ -286,11 +314,13 @@ module.exports = {
                 throw new HttpError(404, 'answer does not exist');
             }
 
-            if (!_.contains(result.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+            var oTask = new sTask(req);
+            var usersIds =  yield oTask.getUsersIdsByTask(result.task.id);
+            if (!_.contains(usersIds, req.user.id)) {
                 throw new HttpError(
                     403,
                     'Task(id=' + result.task.id + ') on current workflow step does not assigned to current user ' +
-                    '(Task user ids = ' + result.task.userIds + ', user id = ' + req.user.id + ')'
+                    '(Task user ids = ' + usersIds + ', user id = ' + req.user.id + ')'
                 );
             }
 
@@ -480,11 +510,13 @@ function* addAnswer(req, dataObject) {
     if (!curStep.task) {
         throw new HttpError(403, 'Task is not defined');
     }
-    if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+    var oTask = new sTask(req);
+    var usersIds =  yield oTask.getUsersIdsByTask(curStep.task.id);
+    if (!_.contains(usersIds, req.user.id)) {
         throw new HttpError(
             403,
-            'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
-            '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
+            'Task(id=' + curStep.task.id + ') on this step does not assigned to current user ' +
+            '(Task user ids = ' + usersIds + ', user id = ' + req.user.id + ')'
         );
     }
 

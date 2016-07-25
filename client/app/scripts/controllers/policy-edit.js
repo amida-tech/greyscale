@@ -29,7 +29,8 @@ angular.module('greyscaleApp')
                 authorName: '',
                 essenceId: -1,
                 options: {
-                    readonly: false
+                    readonly: false,
+                    canImport: true
                 },
                 sections: [],
                 attachments: []
@@ -72,11 +73,7 @@ angular.module('greyscaleApp')
             $scope.saveFormbuilder();
         };
 
-        $scope.cancel = function () {
-            $state.go('projects.setup.surveys', {
-                projectId: projectId
-            });
-        };
+        $scope.cancel = _goPolicyList;
 
         $scope.publish = _publish;
 
@@ -85,7 +82,8 @@ angular.module('greyscaleApp')
                 var _questions = [],
                     _sections = [],
                     qty = survey.questions ? survey.questions.length : 0,
-                    q;
+                    q,
+                    canImport = $scope.model.policy.options.canImport;
 
                 $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
 
@@ -96,23 +94,22 @@ angular.module('greyscaleApp')
                         section: survey.section,
                         subsection: survey.subsection,
                         number: survey.number,
-                        options: {
-                            readonly: false
-                        },
-                        sections: [],
                         attachments: survey.attachments || []
                     });
 
                     for (q = 0; q < qty; q++) {
                         if (survey.questions[q].type === policyIdx) {
                             _sections.push(survey.questions[q]);
+                            canImport = canImport && (!survey.questions[q].description);
                         } else {
                             _questions.push(survey.questions[q]);
                         }
                     }
+
                     _policiesGenerate(_sections);
                     survey.questions = _questions;
                     $scope.model.survey = survey;
+                    $scope.model.policy.options.canImport = canImport;
                     $scope.model.policy.sections = _sections;
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
@@ -165,10 +162,7 @@ angular.module('greyscaleApp')
                     if (!_survey.id) {
                         $scope.model.survey.id = resp.id;
                     }
-
-                    $state.go('policy', {
-                        projectId: projectId
-                    });
+                    _goPolicyList();
                 })
                 .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err, 'ERROR.SURVEY_UPDATE_ERROR');
@@ -190,6 +184,10 @@ angular.module('greyscaleApp')
         $scope.$on('$destroy', function () {
             Organization.$lock = false;
         });
+
+        function _goPolicyList() {
+            $state.go('policy');
+        }
 
         function _publish() {
             $scope.model.survey.isDraft = false;

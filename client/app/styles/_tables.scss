@@ -7,6 +7,7 @@
 
 .drag-item {
     cursor: move;
+
     &.ui-draggable-dragging {
         background: #fff;
         box-shadow: 0 2px 5px #999;
@@ -18,6 +19,7 @@
     .text-muted {
         opacity: 0.4;
     }
+
     .action {
         margin: 0;
     }
@@ -27,6 +29,7 @@
     &.bg-success {
         @extend .bg-success;
     }
+
     &.bg-danger {
         @extend .bg-danger;
     }
@@ -37,13 +40,23 @@
     vertical-align: top;
 }
 
+.table-inner-container {
+    margin: -8px -8px 8px -8px;
+
+    .no-top-border {
+        border-top-width: 0;
+    }
+}
+
 .expand-row {
     [class^="col-"] {
         margin-bottom: 0;
     }
+
     .row-block {
         display: inline-block;
         padding: 0 15px;
+
         &:first-child {
             padding-left: 0;
         }
@@ -54,13 +67,16 @@
     .on-hover-show {
         display: none;
     }
+
     .on-hover-hide {
         display: block;
     }
+
     &.column-hovered {
         .on-hover-show {
             display: block;
         }
+
         .on-hover-hide {
             display: none;
         }
@@ -87,16 +103,19 @@
 
 table.table-col-fixed {
     table-layout: fixed;
+
     &.table-col-sm {
         th, td {
             width: 100px;
         }
     }
+
     &.table-col-md {
         th, td {
             width: 200px;
         }
     }
+
     &.table-col-lg {
         th, td {
             width: 400px;
@@ -114,6 +133,7 @@ table.table-col-fixed {
         margin-right: 2px;
         background: #ddd;
         opacity: 0.5;
+
         .fa-flag {
             font-size: 12px;
             position: relative;
@@ -121,15 +141,19 @@ table.table-col-fixed {
             left: 0;
             color: #fff;
         }
+
         &.active {
             width: 21px;
             height: 21px;
+
             .fa-flag {
                 font-size: 16px;
                 top: 1px;
                 left: 0;
             }
+
             opacity: 1;
+
             .counter {
                 top: 13px;
                 color: red;
@@ -137,22 +161,28 @@ table.table-col-fixed {
                 border: 1px solid red;
             }
         }
+
         &.status-current {
             background: $green;
+
             &.delayed {
                 background: $red;
             }
         }
+
         &.status-completed {
             background: $gray;
         }
+
         &.status-waiting {
             background: #aaa;
+
             .fa-backward {
                 position: relative;
                 top: -1px;
             }
         }
+
         .counter {
             line-height: 15px;
             min-width: 16px;
@@ -171,39 +201,49 @@ table.table-col-fixed {
     .table {
         margin: 0;
     }
+
     .ng-table-pager {
         padding: 0;
+
         .pagination, .ng-table-counts {
             margin: 10px;
         }
     }
+
     tr.ui-sortable-placeholder {
         visibility: visible !important;
         @extend .bg-success;
+
         td {
             @extend .bg-success;
         }
     }
+
     tr.ui-sortable-helper {
         background: #fff;
         box-shadow: 0 2px 5px #999;
         z-index: 1000;
     }
+
     .action-drag-sortable {
         cursor: move;
     }
+
     .action-disabled {
         cursor: default;
         color: #aaaaaa !important;
     }
+
     .pagination, .ng-table-counts {
         .pagination-info {
             padding: 0 12px 0 0;
             position: relative;
             top: 2px;
         }
+
         .btn {
             background: $white;
+
             &:hover, &:active, &.active {
                 background: $green;
                 color: $white;
@@ -211,10 +251,17 @@ table.table-col-fixed {
             }
         }
     }
+
     tr td .action:first-child {
-        margin: 0
+        margin: 0;
     }
+
     label + .radio {
         margin-top: 0;
+    }
+    .table.hidden-head {
+        tr th {
+            display: none;
+        }
     }
 }

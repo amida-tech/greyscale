@@ -8,6 +8,10 @@ var config = require('config'),
     util = require('util'),
     pg = require('pg'),
     fs = require('fs'),
+    Uoa = require('app/models/uoas'),
+    UoaType = require('app/models/uoatypes'),
+    Organization = require('app/models/organizations'),
+    _ = require('underscore'),
     HttpError = require('app/error').HttpError,
     Query = require('app/util').Query,
     query = new Query(),
@@ -76,6 +80,121 @@ app.on('start', function () {
         }).then(function (data) {
             var query = new Query(data);
             req.thunkQuery = thunkify(query);
+            next();
+        }, function (err) {
+            next(err);
+        });
+    });
+
+    // Initialize subject for policy if needed
+    app.use('/:realm', function (req, res, next) {
+        if (req.params.realm === config.pgConnect.adminSchema) {
+            next();
+            return;
+        }
+        var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
+        var policyUoaName = config.pgConnect.policyUoaName || '_Policy_';
+        var policyUoaId, policyUoaTypeId;
+        co(function* () {
+            if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                try {
+                    policyUoaId = yield mc.get(req.mcClient, 'policyUoaId');
+                } catch (e) {
+                    throw new HttpError(500, e);
+                }
+            }
+
+            if (!policyUoaId) {
+                var thunkQuery = req.thunkQuery;
+                // check policy virtual subject
+                policyUoaId = yield thunkQuery(Uoa
+                        .select(Uoa.id)
+                        .from(
+                        Uoa
+                            .leftJoin(UoaType)
+                            .on(UoaType.id.equals(Uoa.unitOfAnalysisType))
+                    )
+                        .where(Uoa.name.equals(policyUoaName))
+                        .and(UoaType.name.equals(policyUoaType))
+
+                );
+                if (_.first(policyUoaId)) {
+                    debug('Policy virtual subject `' + policyUoaName + '` with type `' + policyUoaType + '` already exist');
+                    policyUoaId = policyUoaId[0].id;
+                } else {
+                    debug('Policy virtual subject id not defined yet');
+                    policyUoaTypeId = yield thunkQuery(UoaType
+                            .select(UoaType.id)
+                            .from(UoaType)
+                            .where(UoaType.name.equals(policyUoaType))
+                    );
+                    if (_.first(policyUoaTypeId)) {
+                        debug('Policy virtual subject type `' + policyUoaType + '` exist');
+                        policyUoaTypeId = policyUoaTypeId[0].id;
+                    } else {
+                        // create new uoaType for policy
+                        debug('Create new policy virtual subject type: ' + policyUoaType);
+                        policyUoaTypeId = yield thunkQuery(UoaType
+                                .insert({
+                                    name: policyUoaType,
+                                    description: 'Policy virtual subject type'
+                                })
+                                .returning(UoaType.id)
+                        );
+                        if (!_.first(policyUoaTypeId)) {
+                            throw new HttpError(500, 'Error creating policy virtual subject type');
+                        }
+                        policyUoaTypeId = policyUoaTypeId[0].id;
+                    }
+                    // check policy virtual subject
+                    policyUoaId = yield thunkQuery(Uoa
+                            .select(Uoa.id)
+                            .from(Uoa)
+                            .where(Uoa.name.equals(policyUoaName))
+                            .and(Uoa.unitOfAnalysisType.equals(policyUoaTypeId))
+                    );
+                    if (_.first(policyUoaId)) {
+                        debug('Policy virtual subject exist');
+                        policyUoaId = policyUoaId[0].id;
+                    } else {
+                        // get organization admin user id
+                        var adminUserId = yield thunkQuery(Organization
+                                .select(Organization.adminUserId)
+                                .from(Organization)
+                        );
+                        if (!_.first(adminUserId)) {
+                            throw new HttpError(500, 'Error get admin user id for organization: `' + req.param.realm + '`');
+                        }
+                        adminUserId = adminUserId[0].adminUserId;
+                        // create new virtual uoa (subject) for policy
+                        debug('Create new policy virtual subject `' + policyUoaName + '`');
+                        policyUoaId = yield thunkQuery(Uoa
+                                .insert({
+                                    name: policyUoaName,
+                                    unitOfAnalysisType: policyUoaTypeId,
+                                    creatorId: adminUserId,
+                                    ownerId: adminUserId
+                                })
+                                .returning(Uoa.id)
+                        );
+                        if (!_.first(policyUoaId)) {
+                            throw new HttpError(500, 'Error creating policy virtual subject');
+                        }
+                        policyUoaId = policyUoaId[0].id;
+                    }
+                }
+                if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
+                    try {
+                        policyUoaId = yield mc.set(req.mcClient, 'policyUoaId', policyUoaId, 60);
+                    } catch (e) {
+                        throw new HttpError(500, e);
+                    }
+                }
+            }
+
+            return policyUoaId;
+        }).then(function (data) {
+            req.policyUoa = data;
             next();
         }, function (err) {
             next(err);

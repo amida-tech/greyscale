@@ -32,6 +32,7 @@
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
+        "COPY": "Copy",
         "CREATE": "Create",
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
@@ -49,12 +50,14 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
         "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "THE_COPY": "Copy",
         "UNASSIGN": "Unassign",
         "UNASSIGNED": "Unassigned",
         "VIEW": "View",
@@ -174,6 +177,13 @@
             "INTERNAL": "Internal Notifications Only",
             "INTERNAL_AND_EMAILS": "Internal Notifications And Emails",
             "OFF": "Off"
+        },
+        "POLICYUSERSTATUSES": {
+            "APPROVED": "Approved",
+            "DELAYED": "Delayed",
+            "FLAGGED": "Flagged",
+            "LATE": "Late",
+            "PENDING": "Pending"
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
@@ -326,7 +336,8 @@
         },
         "VISUALIZATION": "Visualization",
         "VISUALIZATIONS": "Visualizations",
-        "WORKFLOW_STEPS": "Workflow Steps"
+        "WORKFLOW_STEPS": "Workflow Steps",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
@@ -371,7 +382,8 @@
         "COUNT_STARTED": "Started",
         "COUNT_UOAS": "Subjects",
         "DEADLINE": "Deadline",
-        "DOWNLOAD_DATA": "Download Data"
+        "DOWNLOAD_DATA": "Download Data",
+        "INFO_TITLE": "Project Details"
     },
     "PM_PROJECTS": {
         "NO_PRODUCTS": "No projects",
@@ -379,6 +391,7 @@
         "PROJECT": "Project"
     },
     "POLICY": {
+        "APPROVE": "Aprove",
         "AUTHOR": "Author",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
@@ -485,6 +498,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
+            "SAVE_AS_TEMPLATE": "Save Current Workflow As Template",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -501,6 +516,7 @@
                 "ROLE": "Role",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
+                "SORT_ENABLED": "Drag by this handle to reorder steps list",
                 "START_DATE": "Start Date",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
@@ -508,7 +524,8 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
-            "TITLE_REQUIRED": "Title is required."
+            "TITLE_REQUIRED": "Title is required.",
+            "WORKFLOW_TEMPLATES": "Workflow Templates"
         }
     },
     "PRODUCT_TASKS": {
@@ -615,6 +632,14 @@
         "ROLE_RIGHT": "Role Right",
         "ROLE_RIGHTS": "Role Rights"
     },
+    "SEARCH": {
+        "CLEAR": "Clear",
+        "EACH_WORD": "Search Each Word",
+        "NEXT": "Next",
+        "NOT_FOUND": "Not Found",
+        "PREV": "Previous",
+        "SEARCH": "Search"
+    },
     "SURVEYS": {
         "ABOVE": "above",
         "AGREE": "Agree",
@@ -640,6 +665,7 @@
         "NAME": "Name",
         "NEW_SURVEY": "New survey",
         "NO_DATA": "No data",
+        "NO_OPTIONS_WAS_SELECTED": "no option was selected",
         "PRINT_ALL": "Print with answers",
         "PRINT_BLANK": "Print blank",
         "PRINT_QUESTIONS": "Print questions only",
@@ -780,5 +806,14 @@
         "HEADER": "Workflow Steps",
         "ITEM": "Workflow Step",
         "TITLE": "Title"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.workflow.name}}</b>",
+        "DESCRIPTION": "Description",
+        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
+        "STEPS": "Steps",
+        "TITLE": "Title",
+        "WORKFLOW_TEMPLATE": "Workflow Template",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     }
 }

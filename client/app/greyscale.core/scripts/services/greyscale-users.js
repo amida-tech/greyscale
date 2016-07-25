@@ -7,33 +7,61 @@ angular.module('greyscale.core')
         var _users = {};
 
         this.get = function (userId) {
-            var _res;
-            if (userId >= 0) {
-                if (_users[userId]) {
-                    _res = $q.resolve(_users[userId]);
+            var _res, userIds, i, qty,
+                unknown = [],
+                promises = [];
+
+            if (userId) {
+                if (userId.constructor === Array) {
+                    userIds = userId;
                 } else {
-                    _users[userId] = greyscaleUserApi.list({
-                            id: userId
+                    userIds = [userId];
+                }
+
+                qty = userIds.length;
+
+                for (i = 0; i < qty; i++) {
+                    if (!_users[userIds[i]]) {
+                        unknown.push(userIds[i]);
+                    }
+                }
+
+                if (unknown.length > 0) {
+                    promises.push(greyscaleUserApi.list({
+                            id: unknown.join('|')
                         })
                         .then(function (users) {
-                            var u, _user,
-                                qty = users.length;
-                            for (u = 0; u < qty; u++) {
-                                _user = users[u];
-                                _users[_user.id] = _user;
-                            }
-                            if (_users[userId]) {
-                                return _users[userId];
-                            } else {
-                                return _nobody();
+                            var _u,
+                                _qty = users.length;
+
+                            for (_u = 0; _u < _qty; _u++) {
+                                _users[users[_u].id] = users[_u];
                             }
                         })
                         .catch(function () {
-                            _users[userId] = null;
                             return $q.resolve(_nobody());
-                        });
-                    _res = _users[userId];
+                        })
+                    );
                 }
+
+                _res = $q.all(promises).then(function () {
+                    var _u, __res;
+
+                    __res = [];
+                    for (_u = 0; _u < qty; _u++) {
+                        if (!_users[userIds[_u]]) {
+                            __res.push(_nobody());
+                        } else {
+                            __res.push(_users[userIds[_u]]);
+                        }
+                    }
+
+                    if (userId.constructor !== Array) {
+                        __res = __res[0];
+                    }
+
+                    return __res;
+                });
             } else {
                 _res = $q.resolve(_nobody());
             }

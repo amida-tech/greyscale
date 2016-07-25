@@ -12,6 +12,7 @@ var
     Group = require('app/models/groups'),
     UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
+    UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
@@ -20,6 +21,7 @@ var
     Notification = require('app/models/notifications'),
     Organization = require('app/models/organizations'),
     User = require('app/models/users'),
+    sTask = require('app/services/tasks'),
     co = require('co'),
     sql = require('sql'),
     Query = require('app/util').Query,
@@ -269,11 +271,13 @@ var getCurrentStepExt = function* (req, productId, uoaId) {
     }
 
     if (req.user.roleID === 3) { // simple user
-        if (!_.contains(curStep.task.userIds, req.user.id)) { // ToDo: add groupIds (when frontend will support feature "Assign groups to task")
+        var oTask = new sTask(req);
+        var usersIds =  yield oTask.getUsersIdsByTask(curStep.task.id);
+        if (!_.contains(usersIds, req.user.id)) {
             throw new HttpError(
                 403,
-                'Task(id=' + curStep.task.id + ') at this step does not assigned to current user ' +
-                '(Task user ids = ' + curStep.task.userIds + ', user id = ' + req.user.id + ')'
+                'Task(id=' + curStep.task.id + ') on current workflow step does not assigned to current user ' +
+                '(Task user ids = ' + usersIds + ', user id = ' + req.user.id + ')'
             );
         }
     }
@@ -397,3 +401,26 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getPolicyUoaId = function* (req) {
+    var thunkQuery = req.thunkQuery;
+    var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
+    var policyUoaName = config.pgConnect.policyUoaName || '<Policy>';
+    var policyUoaId;
+    policyUoaId = yield thunkQuery(UOA
+            .select(UOA.id)
+            .from(
+            UOA
+                .leftJoin(UoaType)
+                .on(UoaType.id.equals(UOA.unitOfAnalysisType))
+        )
+            .where(UOA.name.equals(policyUoaName))
+            .and(UoaType.name.equals(policyUoaType))
+
+    );
+    if (!_.first(policyUoaId)) {
+        throw new HttpError(403, 'Policy virtual subject `' + policyUoaName + '` with type `' + policyUoaType + '` does not exist');
+    }
+    return policyUoaId[0].id;
+};
+exports.getPolicyUoaId = getPolicyUoaId;

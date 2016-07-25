@@ -2,8 +2,8 @@ var
     _ = require('underscore'),
     config = require('config'),
     common = require('app/services/common'),
-    productServ = require('app/services/products'),
-    notifications = require('app/controllers/notifications'),
+    sTask = require('app/services/tasks'),
+    sProduct = require('app/services/products'),
     crypto = require('crypto'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
@@ -45,45 +45,10 @@ var debug = require('debug')('debug_products');
 var error = require('debug')('error');
 debug.log = console.log.bind(console);
 
-var notify = function (req, note0, entryId, taskId, essenceName, templateName) {
-    co(function* () {
-        var userTo, note;
-        // notify
-        var sentUsersId = []; // array for excluding duplicate sending
-        var task = yield * common.getTask(req, taskId);
-        for (var i in task.userIds) {
-            if (sentUsersId.indexOf(task.userIds[i]) === -1) {
-                if (req.user.id !== task.userIds[i]) { // don't send self notification
-                    userTo = yield * common.getUser(req, task.userIds[i]);
-                    note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                    notifications.notify(req, userTo, note, templateName);
-                    sentUsersId.push(task.userIds[i]);
-                }
-            }
-        }
-        for (i in task.groupIds) {
-            var usersFromGroup = yield * common.getUsersFromGroup(req, task.groupIds[i]);
-            for (var j in usersFromGroup) {
-                if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
-                    if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
-                        userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                        notifications.notify(req, userTo, note, templateName);
-                        sentUsersId.push(usersFromGroup[j].userId);
-                    }
-                }
-            }
-        }
-    }).then(function (result) {
-        debug('Created notifications `' + note0.action + '`');
-    }, function (err) {
-        error(JSON.stringify(err));
-    });
-};
-
 var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
+    var oProduct = new sProduct(req);
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
@@ -120,7 +85,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  The person who assigned the flag now receives a notification telling him that the flags were resolved and are ready to be reviewed.
         task = yield * common.getTaskByStep(req, step4Resolve, UOAid);
-        notify(req, {
+        oProduct.notify({
             body: 'flags were resolved',
             action: 'flags were resolved'
         }, null, task.id, '', 'activateTask');
@@ -140,7 +105,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
         task = yield * common.getTaskByStep(req, returnStepId, UOAid);
-        notify(req, {
+        oProduct.notify({
             body: 'flags requiring resolution',
             action: 'flags requiring resolution',
             flags: {
@@ -166,7 +131,7 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
         if (nextStep.taskId) {
             // notify
-            notify(req, {
+            oProduct.notify({
                 body: 'Task activated (next step)',
                 action: 'Task activated (next step)',
             }, nextStep.taskId, nextStep.taskId, 'Tasks', 'activateTask');
@@ -252,84 +217,9 @@ module.exports = {
     },
 
     tasks: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
         co(function* () {
-            var curStepAlias = 'curStep';
-            return yield thunkQuery(
-                Task
-                .select(
-                    Task.star(),
-                    'CASE ' +
-                    'WHEN ' +
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."id" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') IS NULL ' +
-                    'THEN FALSE ' +
-                    'ELSE TRUE ' +
-                    'END as flagged',
-                    '( ' +
-                    'SELECT count("Discussions"."id") ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    ') as flaggedCount',
-                    '(' +
-                    'SELECT ' +
-                    '"Discussions"."taskId" ' +
-                    'FROM "Discussions" ' +
-                    'WHERE "Discussions"."returnTaskId" = "Tasks"."id" ' +
-                    'AND "Discussions"."isReturn" = true ' +
-                    'AND "Discussions"."isResolve" = false ' +
-                    'AND "Discussions"."activated" = true ' +
-                    'LIMIT 1' +
-                    ') as flaggedFrom',
-                    'CASE ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" = 0) THEN \'current\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" IS NULL AND ("WorkflowSteps"."position" <> 0) THEN \'waiting\' ' +
-                    'WHEN ("' + pgEscape.string(curStepAlias) + '"."position" > "WorkflowSteps"."position") OR ("ProductUOA"."isComplete" = TRUE) THEN \'completed\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" = "WorkflowSteps"."position" THEN \'current\' ' +
-                    'WHEN "' + pgEscape.string(curStepAlias) + '"."position" < "WorkflowSteps"."position" THEN \'waiting\' ' +
-                    'END as status ',
-                    WorkflowStep.position,
-                    '(' +
-                    'SELECT max("SurveyAnswers"."created") ' +
-                    'FROM "SurveyAnswers" ' +
-                    'WHERE ' +
-                    '"SurveyAnswers"."productId" = "Tasks"."productId" ' +
-                    'AND "SurveyAnswers"."UOAid" = "Tasks"."uoaId" ' +
-                    'AND "SurveyAnswers"."wfStepId" = "Tasks"."stepId" ' +
-                    ') as "lastVersionDate"'
-                )
-                .from(
-                    Task
-                    .leftJoin(WorkflowStep)
-                    .on(Task.stepId.equals(WorkflowStep.id))
-                    .leftJoin(Product)
-                    .on(Task.productId.equals(Product.id))
-                    .leftJoin(UOA)
-                    .on(Task.uoaId.equals(UOA.id))
-                    .leftJoin(ProductUOA)
-                    .on(
-                        ProductUOA.productId.equals(Task.productId)
-                        .and(ProductUOA.UOAid.equals(Task.uoaId))
-                    )
-                    .leftJoin(WorkflowStep.as(curStepAlias))
-                    .on(
-                        ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
-                    )
-                )
-                .where(Task.productId.equals(req.params.id))
-            );
+            var oTask = new sTask(req);
+            return yield oTask.getProductTasks();
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -339,6 +229,7 @@ module.exports = {
 
     editTasks: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
+        var oProduct = new sProduct(req);
 
         co(function* () {
             var product = yield thunkQuery(
@@ -395,7 +286,7 @@ module.exports = {
                         });
 
                         // notify
-                        notify(req, {
+                        oProduct.notify({
                             body: 'Task updated',
                             action: 'Task updated',
                         }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
@@ -422,7 +313,7 @@ module.exports = {
                     });
 
                     // notify
-                    notify(req, {
+                    oProduct.notify({
                         body: 'Task created',
                         action: 'Task created'
                     }, req.body[i].id, req.body[i].id, 'Tasks', 'assignTask');
@@ -1152,7 +1043,7 @@ module.exports = {
     delete: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
 
-        co(function* () {
+        co(function* () { // ToDo: Delete project (product) if subjects exists?
             return yield thunkQuery(
                 Product.delete().where(Product.id.equals(req.params.id))
             );
@@ -1175,40 +1066,41 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            yield * checkProductData(req);
-            if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
-                var result = yield * updateCurrentStepId(req);
-                if (typeof result === 'object') {
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'update',
-                        object: 'ProductUOA',
-                        entities: result,
-                        quantity: 1,
-                        info: 'Update currentStep to `' + result.currentStepId + '` for product `' + result.productId + '` (for all subjects)'
-                    });
-                } else {
-                    bologger.log({
-                        req: req,
-                        user: req.user,
-                        action: 'update',
-                        object: 'ProductUOA',
-                        entities: null,
-                        info: 'Error update currentStep for product `' + req.params.id + '` (Not found step ID or min step position)'
-                    });
+            var oProduct = new sProduct(req);
+            yield oProduct.checkProductData();
+            var policyUoaId = yield * common.getPolicyUoaId(req);
+            var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+            var oldSurvey = product.surveyId ? yield * common.getEntity(req, product.surveyId, Survey, 'id') : null;
+            var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+            if (
+                ((oldSurvey && !oldSurvey.policyId) && (!newSurvey || (newSurvey && newSurvey.policyId))) ||    // old  survey is not policy AND new survey is empty or policy (S -> 0 or S -> P)
+                                                                                                                // OR
+                ((oldSurvey && oldSurvey.policyId) && (!newSurvey || (newSurvey && !newSurvey.policyId)))       // old  survey is policy AND new survey is empty or not policy (P -> 0 or P -> S)
+            ) {
+                var oTask = new sTask(req);
+                var tasks = yield oTask.getByProductAllUoas(product.id);
+                // 1. remove all subjects
+                if (tasks.length) {
+                    throw new HttpError(403, 'You cannot change survey (remove all targets), because there are already some tasks assigned to product');
                 }
+                yield oTask.deleteTasks(product.id);
+                yield oProduct.deleteProductAllUoas(product.id);
+                // 2. set project status to planning
+                req.body.status = 0; // 0: Planning
             }
-            return yield thunkQuery(Product.update(_.pick(req.body, Product.editCols)).where(Product.id.equals(req.params.id)));
+            if (!oldSurvey || (oldSurvey && !oldSurvey.policyId) &&     // old survey is empty or old survey is not policy
+                                                                        // AND
+                (newSurvey && newSurvey.policyId)                       // new survey is policy
+            ) {
+                // 3. add virtual subject for product (add record to productUoa)
+                yield oProduct.addProductUoa(product.id, policyUoaId);
+            }
+
+            if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                var result = oProduct.updateCurrentStepId(product);
+            }
+            return yield oProduct.updateProduct();
         }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'update',
-                object: 'products',
-                entity: req.params.id,
-                info: 'Update product'
-            });
             res.status(202).end();
         }, function (err) {
             next(err);
@@ -1219,21 +1111,20 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            yield * checkProductData(req);
-            var result = yield thunkQuery(
-                Product.insert(_.pick(req.body, Product.table._initialConfig.columns)).returning(Product.id)
-            );
-            return result;
-        }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'products',
-                entity: _.first(data).id,
-                info: 'Add new product'
-            });
-            res.status(201).json(_.first(data));
+            var oProduct = new sProduct(req);
+            yield oProduct.checkProductData();
+            var productId = yield oProduct.insertProduct();
+            if (productId) {
+                var policyUoaId = yield * common.getPolicyUoaId(req);
+                var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
+                if (newSurvey && newSurvey.policyId) {  // new survey is policy
+                    // add virtual subject for product (add record to productUoa)
+                    yield oProduct.addProductUoa(productId, policyUoaId);
+                }
+            }
+            return productId;
+        }).then(function (productId) {
+            res.status(201).json({id: productId});
         }, function (err) {
             next(err);
         });
@@ -1263,27 +1154,9 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            yield thunkQuery(
-                ProductUOA.insert({
-                    productId: req.params.id,
-                    UOAid: req.params.uoaid
-                })
-            );
+            var oProduct = new sProduct(req);
+            yield oProduct.addProductUoa(req.params.id, req.params.uoaid);
         }).then(function (data) {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'insert',
-                object: 'ProductUOA',
-                entity: null,
-                entities: {
-                    productId: req.params.id,
-                    uoaId: req.params.uoaId
-                },
-                quantity: 1,
-                info: 'Add new subject `' + req.params.uoaId + '` for product `' + req.params.id + '`'
-            });
-
             res.status(201).end();
         }, function (err) {
             next(err);
@@ -1370,29 +1243,15 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
 
         co(function* () {
-            // moved to services
-            return yield productServ.deleteProductUOA(req, req.params.id, req.params.uoaid);
-
-            //thunkQuery(
-            //    ProductUOA.delete().where({
-            //        productId: req.params.id,
-            //        UOAid: req.params.uoaid
-            //    })
-            //);
+            var oProduct = new sProduct(req);
+            var oTask = new sTask(req);
+            var tasks = yield oTask.getByProductUOA(req.params.id, req.params.uoaid);
+            if (tasks.length) {
+                throw new HttpError(403, 'You cannot delete this target, because there are already some tasks in it');
+            }
+            yield oTask.deleteTasks(req.params.id, req.params.uoaid);
+            return yield oProduct.deleteProductUoa(req.params.id, req.params.uoaid);
         }).then(function () {
-            bologger.log({
-                req: req,
-                user: req.user,
-                action: 'delete',
-                object: 'ProductUOA',
-                entity: null,
-                entities: {
-                    productId: req.params.id,
-                    uoaId: req.params.uoaid
-                },
-                quantity: 1,
-                info: 'Delete subject `' + req.params.uoaid + '` for product `' + req.params.id + '`'
-            });
             res.status(204).end();
         }, function (err) {
             next(err);
@@ -1412,150 +1271,6 @@ module.exports = {
     }
 
 };
-
-function* checkProductData(req) {
-    var thunkQuery = req.thunkQuery;
-    if (!req.params.id) { // create
-        if (!req.body.projectId) {
-            throw new HttpError(403, 'Matrix id and Project id fields are required');
-        }
-    }
-
-    if (typeof req.body.status !== 'undefined') {
-        if (Product.statuses.indexOf(req.body.status) === -1) {
-            throw new HttpError(
-                403,
-                'Status can be only: ' +
-                '0 - Planning, ' +
-                '1 - Started, ' +
-                '2 - Suspended, ' +
-                '3 - Completed, ' +
-                '4 - Canceled'
-            );
-        }
-    }
-
-    if (req.body.surveyId) {
-        var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-        if (!_.first(isExistSurvey)) {
-            throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-        }
-    }
-
-    if (req.body.projectId) {
-        var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-        if (!_.first(isExistProject)) {
-            throw new HttpError(403, 'Project with this id does not exist');
-        }
-    }
-
-}
-
-function* updateCurrentStepId(req) {
-    var thunkQuery = req.thunkQuery;
-
-    var essenceId = yield * common.getEssenceId(req, 'Tasks');
-    var product = yield * common.getEntity(req, req.params.id, Product, 'id');
-    var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
-
-    console.log(product.status);
-
-    // start-restart project -> set isComplete flag to false for all subjects
-    if (product.status !== 2) { // not suspended
-        yield thunkQuery(
-            ProductUOA.update({
-                isComplete: false
-            }).where(ProductUOA.productId.equals(req.params.id))
-        );
-    }
-
-    var result;
-    // get min step position for each productId-uoaId
-    var minStepPositionQuery = WorkflowStep
-        .select(
-            sql.functions.MIN(WorkflowStep.position).as('minPosition'),
-            Task.uoaId
-        )
-        .from(WorkflowStep
-            .join(Task).on(Task.stepId.equals(WorkflowStep.id))
-        )
-        .where(Task.productId.equals(req.params.id))
-        .group(Task.uoaId);
-
-    result = yield thunkQuery(minStepPositionQuery);
-    if (!_.first(result)) {
-        debug('Not found min step position for productId `' + req.params.id + '`');
-        return null;
-    }
-    var minStepPositions = result;
-
-    // get step ID with min step position for specified productId and each uoaId
-    for (var i = 0; i < minStepPositions.length; i++) {
-        var nextStep = yield thunkQuery(
-            WorkflowStep
-            .select(
-                WorkflowStep.id,
-                Task.id.as('taskId')
-            )
-            .from(WorkflowStep
-                .join(Task).on(Task.stepId.equals(WorkflowStep.id))
-            )
-            .where(Task.productId.equals(req.params.id)
-                .and(Task.uoaId.equals(minStepPositions[i].uoaId))
-                .and(WorkflowStep.position.equals(minStepPositions[i].minPosition))
-            )
-        );
-        if (_.first(nextStep)) {
-            minStepPositions[i].stepId = nextStep[0].id;
-            minStepPositions[i].taskId = nextStep[0].taskId;
-
-            // update all currentStepId with min position step ID for specified productId for each subject
-            //
-            if (product.status !== 2) { // not suspended
-                result = yield thunkQuery(ProductUOA
-                    .update({
-                        currentStepId: minStepPositions[i].stepId
-                    })
-                    .where(ProductUOA.productId.equals(req.params.id)
-                        .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                    )
-                );
-            } else {
-                var result1 = yield thunkQuery(
-                    ProductUOA
-                    .select()
-                    .where(ProductUOA.productId.equals(req.params.id)
-                        .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                        .and(ProductUOA.currentStepId.isNull())
-                    )
-                );
-                if (_.first(result1)) {
-                    result = yield thunkQuery(ProductUOA
-                        .update({
-                            currentStepId: minStepPositions[i].stepId
-                        })
-                        .where(ProductUOA.productId.equals(req.params.id)
-                            .and(ProductUOA.UOAid.equals(minStepPositions[i].uoaId))
-                        )
-                    );
-                }
-            }
-
-            // notify
-            var task = yield * common.getTask(req, parseInt(minStepPositions[i].taskId));
-            notify(req, {
-                body: 'Task activated (project started)',
-                action: 'Task activated (project started)'
-            }, task.id, task.id, 'Tasks', 'activateTask');
-        }
-    }
-
-    return {
-        productId: req.params.id,
-        currentSteps: minStepPositions
-    };
-
-}
 
 function* dumpProduct(req, productId) {
     var thunkQuery = req.thunkQuery;

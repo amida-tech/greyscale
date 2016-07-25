@@ -85,7 +85,7 @@ module.exports = {
                     var endOfDoc = 'END';
 
                     $('html').children().each(function(key, item) {
-                        if (item.name == 'h1') {
+                        if (item.name === 'h1') {
                             var index = $(item).text().replace(new RegExp('[^a-zA-Z]', 'g'), '').toUpperCase();
                             var current = item;
                             debug('Item: '+$(item).html());
@@ -94,7 +94,7 @@ module.exports = {
                             if (index === endOfDoc) {
                                 return false;
                             } else {
-                                while ($(current).next() && ['h1'].indexOf($(current).next()[0].name) == -1) {
+                                while ($(current).next() && ['h1'].indexOf($(current).next()[0].name) === -1) {
                                     var nextItem = $(current).next()[0];
                                     content += $(nextItem).html();
                                     current = nextItem;
