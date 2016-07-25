@@ -153,7 +153,8 @@ var exportObject = function  (req, realm) {
             );
             if (!_.first(taskUserState) && !noCheckError) {
                 // backend server logic error - it does not possible
-                throw new HttpError(403, 'Server error: Not found taskUserState for taskId `'+taskId+'` userId `'+userId+'` - something wrong when assigning task to users and groups!');
+                //throw new HttpError(403, 'Server error: Not found taskUserState for taskId `'+taskId+'` userId `'+userId+'` - something wrong when assigning task to users and groups!');
+                throw new HttpError(403, 'Obsolete project: Recreate (reassign)) all tasks!');
             }
             return _.first(taskUserState) ? taskUserState[0] : null;
         });
