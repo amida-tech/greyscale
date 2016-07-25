@@ -75,7 +75,7 @@ module.exports = {
         co(function* () {
             // TaskUserStates - start task for user
             var oTaskUserState = new sTaskUserState(req);
-            yield oTaskUserState.start(req.params.id, req.user.id);
+            oTaskUserState.start(req.params.id, req.user.id);
         }).then(function () {
             res.status(200).end();
         }, function (err) {

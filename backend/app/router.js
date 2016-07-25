@@ -212,7 +212,7 @@ router.route('/:realm/v0.2/tasks/:id/start')
     .get(authenticate('token').always, tasks.start);
 
 router.route('/:realm/v0.2/tasks/:id/approve')
-    .get( /*authenticate('token').always,*/ tasks.approve);
+    .get(authenticate('token').always, tasks.approve);
 
 
 //----------------------------------------------------------------------------------------------------------------------
