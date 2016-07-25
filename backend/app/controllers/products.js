@@ -603,7 +603,7 @@ module.exports = {
 
                 'LEFT JOIN ( ' +
                 'SELECT ' +
-                'max("SurveyAnswers"."version") as max,' +
+                'COALESCE(max("SurveyAnswers"."version"), -1) as max,' +
                 '"SurveyAnswers"."questionId",' +
                 '"SurveyAnswers"."userId",' +
                 '"SurveyAnswers"."UOAid",' +
@@ -622,7 +622,7 @@ module.exports = {
                 'AND ("SurveyAnswers"."userId" = "sa"."userId")) ' +
                 'AND ("SurveyAnswers"."UOAid" = "sa"."UOAid")) ' +
                 'AND ("SurveyAnswers"."wfStepId" = "sa"."wfStepId") ' +
-                'AND ("SurveyAnswers"."version" = "sa"."max") ' +
+                'AND (COALESCE("SurveyAnswers"."version", -1) = "sa".max) ' +
                 ') ' +
                 'WHERE ( ' +
                 pgEscape('("Tasks"."productId" = %s) ', id) +
