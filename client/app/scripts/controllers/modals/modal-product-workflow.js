@@ -5,7 +5,7 @@ angular.module('greyscaleApp')
     product, modalParams, Organization,
     greyscaleProductWorkflowTbl,
     greyscaleWorkflowTemplateApi,
-    greyscaleUtilsSrv) {
+    greyscaleUtilsSrv, $timeout) {
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
@@ -13,6 +13,8 @@ angular.module('greyscaleApp')
     productWorkflow.dataFilter.workflowId = workflowId;
     productWorkflow.dataFilter.organizationId = Organization.id;
     productWorkflow.dataFilter.product = product;
+
+    productWorkflow.dragSortable = {onChange: _validateDates};
 
     $scope.modalParams = angular.copy(modalParams);
     $scope.model = {
@@ -66,7 +68,8 @@ angular.module('greyscaleApp')
         }
     });
 
-    var _allDatesValid;
+    var _allDatesValid = true;
+    var errorMsgTimer;
     function _validateDates() {
         var tableData = productWorkflow.tableParams.data;
         var steps = _getSteps();
@@ -90,7 +93,12 @@ angular.module('greyscaleApp')
             tableData[i].endDateInvalid = step.endDateInvalid;
         });
         if (!_allDatesValid) {
-            greyscaleUtilsSrv.errorMsg('PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR');
+            if (errorMsgTimer) {
+                $timeout.cancel(errorMsgTimer);
+            }
+            errorMsgTimer = $timeout(function(){
+                greyscaleUtilsSrv.errorMsg('PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR');
+            }, 50);
         }
     }
 
