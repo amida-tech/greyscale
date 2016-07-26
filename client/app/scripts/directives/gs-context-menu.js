@@ -54,7 +54,7 @@ angular.module('greyscaleApp')
                         scope.model.data = {
                             range: window.getSelection().getRangeAt(0),
                             selection: greyscaleSelection.get(document.getElementById(scope.qid)),
-                            selectedHtml: _getSelectedHtml()
+                            selectedHtml: greyscaleSelection.html()
                         };
 
                         menu = elem.find('#' + scope.model.menuId);
@@ -86,24 +86,6 @@ angular.module('greyscaleApp')
                     return (_range && _range.length > 0);
                 }
 
-                function _getSelectedHtml() {
-                    var html = '';
-                    if (typeof window.getSelection !== 'undefined') {
-                        var sel = window.getSelection();
-                        if (sel.rangeCount) {
-                            var container = document.createElement('div');
-                            for (var i = 0, len = sel.rangeCount; i < len; ++i) {
-                                container.appendChild(sel.getRangeAt(i).cloneContents());
-                            }
-                            html = container.innerHTML;
-                        }
-                    } else if (typeof document.selection !== 'undefined') {
-                        if (document.selection.type === 'Text') {
-                            html = document.selection.createRange().htmlText;
-                        }
-                    }
-                    return html;
-                }
             }
         };
     });

@@ -12,6 +12,7 @@ var
     Group = require('app/models/groups'),
     UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
+    UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
     SurveyQuestion = require('app/models/survey_questions'),
@@ -400,3 +401,26 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getPolicyUoaId = function* (req) {
+    var thunkQuery = req.thunkQuery;
+    var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
+    var policyUoaName = config.pgConnect.policyUoaName || '<Policy>';
+    var policyUoaId;
+    policyUoaId = yield thunkQuery(UOA
+            .select(UOA.id)
+            .from(
+            UOA
+                .leftJoin(UoaType)
+                .on(UoaType.id.equals(UOA.unitOfAnalysisType))
+        )
+            .where(UOA.name.equals(policyUoaName))
+            .and(UoaType.name.equals(policyUoaType))
+
+    );
+    if (!_.first(policyUoaId)) {
+        throw new HttpError(403, 'Policy virtual subject `' + policyUoaName + '` with type `' + policyUoaType + '` does not exist');
+    }
+    return policyUoaId[0].id;
+};
+exports.getPolicyUoaId = getPolicyUoaId;

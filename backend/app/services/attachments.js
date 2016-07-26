@@ -22,7 +22,7 @@ var exportObject = function  (req, realm) {
 
     this.getList = function () {
         return co(function* () {
-            return thunkQuery(Attachment.select().from(Attachment), req.query);
+            return yield thunkQuery(Attachment.select().from(Attachment), req.query);
         });
     };
 

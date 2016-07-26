@@ -586,6 +586,21 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
                 icon: 'fa-eye',
                 accessLevel: systemRoles.any.mask
             }
+        })
+        .state('workflowTemplates', {
+            parent: 'home',
+            url: 'workflow-templates',
+            views: {
+                'body@dashboard': {
+                    templateUrl: 'views/controllers/workflow-templates.html',
+                    controller: 'WorkflowTemplatesCtrl'
+                }
+            },
+            data: {
+                name: 'NAV.WORKFLOW_TEMPLATES',
+                icon: 'fa-road',
+                accessLevel: systemRoles.superAdmin.mask | systemRoles.admin.mask
+            }
         });
 
     $urlRouterProvider.otherwise('/');

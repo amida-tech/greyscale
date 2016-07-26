@@ -259,4 +259,9 @@ table.table-col-fixed {
     label + .radio {
         margin-top: 0;
     }
+    .table.hidden-head {
+        tr th {
+            display: none;
+        }
+    }
 }
