@@ -190,7 +190,32 @@ angular.module('greyscale.core')
             setRolesId: _setRolesId,
             widgetTableDefaults: {
                 pageLength: 0
-            }
+            },
+            policy: {
+                userStatuses: {
+                    approved: 'approved',
+                    late: 'late',
+                    flagged: 'flagged',
+                    delayed: 'delayed',
+                    pending: 'pending'
+                }
+            },
+            policyUserStatuses: [{
+                value: 'late',
+                name: 'LATE'
+            }, {
+                value: 'approved',
+                name: 'APPROVED'
+            }, {
+                value: 'flagged',
+                name: 'FLAGGED'
+            }, {
+                value: 'pending',
+                name: 'PENDING'
+            }, {
+                value: 'delayed',
+                name: 'DELAYED'
+            }]
         };
 
         return {

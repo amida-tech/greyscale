@@ -178,6 +178,13 @@
             "INTERNAL_AND_EMAILS": "",
             "OFF": ""
         },
+        "POLICYUSERSTATUSES": {
+            "APPROVED": "",
+            "DELAYED": "",
+            "FLAGGED": "",
+            "LATE": "",
+            "PENDING": ""
+        },
         "PRODUCTSTATES": {
             "CANCELLED": "",
             "COMPLETED": "",

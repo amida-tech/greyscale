@@ -21,7 +21,8 @@ angular.module('greyscaleApp')
         var surveyAnswers = [],
             coAnswers = {},
             flags = {},
-            resolveSaving;
+            resolveSaving,
+            userStatuses = greyscaleGlobals.policy.userStatuses;
 
         return {
             restrict: 'E',
@@ -393,7 +394,8 @@ angular.module('greyscaleApp')
 
             flags.isPolicy = !!scope.surveyData.policy;
             if (flags.isPolicy) {
-                scope.model.snsTitle = 'POLICY.APPROVE';
+                scope.model.snsTitle = task.userStatus === userStatuses.approved ?
+                    'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
             }
             scope.model.translated = !flags.allowTranslate;
 

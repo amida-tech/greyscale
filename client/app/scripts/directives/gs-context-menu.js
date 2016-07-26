@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('gsContextMenu', function (greyscaleSelection, $timeout, $log) {
+    .directive('gsContextMenu', function (greyscaleSelection, $timeout) {
         return {
             restrict: 'A',
             transclude: true,
@@ -85,7 +85,6 @@ angular.module('greyscaleApp')
                     var _range = window.getSelection().getRangeAt(0).cloneRange().toString();
                     return (_range && _range.length > 0);
                 }
-
             }
         };
     });
