@@ -118,7 +118,7 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         var oTask = new sTask(req);
         var oTaskUserState = new sTaskUserState(req);
-        var usersIds, step; // for use with TaskUserStates
+        var usersIds, task; // for use with TaskUserStates
 
         co(function* () {
             req.body = yield * common.prepUsersForTask(req, req.body);
@@ -138,8 +138,8 @@ module.exports = {
 
             // modify initial TaskUserStates
             usersIds =  yield oTask.getUsersIdsByTask(req.params.id);
-            step = yield * common.getStepByTask(req, req.params.id);
-            yield oTaskUserState.modify(req.params.id, usersIds, step.endDate);
+            task = yield * common.getTask(req, req.params.id);
+            yield oTaskUserState.modify(req.params.id, usersIds, task.endDate);
 
         }).then(function () {
             res.status(202).end();

@@ -299,8 +299,8 @@ module.exports = {
 
                         // modify initial TaskUserStates
                         usersIds =  yield oTask.getUsersIdsByTask(req.body[i].id);
-                        step = yield * common.getStepByTask(req, req.body[i].id);
-                        yield oTaskUserState.modify(req.body[i].id, usersIds, step.endDate);
+                        //step = yield * common.getStepByTask(req, req.body[i].id);
+                        yield oTaskUserState.modify(req.body[i].id, usersIds, req.body[i].endDate);
 
                         // notify
                         oProduct.notify({
@@ -331,8 +331,8 @@ module.exports = {
 
                     // add initial TaskUserStates
                     usersIds =  yield oTask.getUsersIdsByTask(req.body[i].id);
-                    step = yield * common.getStepByTask(req, req.body[i].id);
-                    yield oTaskUserState.add(req.body[i].id, usersIds, step.endDate);
+                    //step = yield * common.getStepByTask(req, req.body[i].id);
+                    yield oTaskUserState.add(req.body[i].id, usersIds, req.body[i].endDate);
 
                     // notify
                     oProduct.notify({

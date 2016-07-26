@@ -119,7 +119,7 @@ var exportObject = function  (req, realm) {
             }
             updatingUsers = _.intersection(users, existingUsers);
             if (updatingUsers && updatingUsers.length > 0) {
-                yield self.update(taskId, updatingUsers, endDate);
+                yield self.updateEndDate(taskId, updatingUsers, endDate);
             }
             removingUsers = _.difference(existingUsers, users);
             if (removingUsers && removingUsers.length > 0) {

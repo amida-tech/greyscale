@@ -143,8 +143,8 @@ module.exports = {
 
     stepsUpdate: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
-        var oTask = new sTask(req);
-        var oTaskUserState = new sTaskUserState(req);
+        //var oTask = new sTask(req);
+        //var oTaskUserState = new sTaskUserState(req);
         co(function* () {
             if (!Array.isArray(req.body)) {
                 throw new HttpError(403, 'You should pass an array of workflow steps objects in request body');
@@ -186,6 +186,7 @@ module.exports = {
                             info: 'Update workflow step'
                         });
 
+/*
                         // set TaskUserStates if endDate changed
                         tasks = yield thunkQuery(Task.select().where(Task.stepId.equals(req.body[i].id)));
                         if (tasks && tasks.length > 0) {
@@ -195,6 +196,7 @@ module.exports = {
                                 yield oTaskUserState.updateEndDate(tasks[i].id, usersIds, new Date(req.body[i].endDate));
                             }
                         }
+*/
 
                         yield thunkQuery(
                             WorkflowStepGroup.delete().where(WorkflowStepGroup.stepId.equals(req.body[i].id))
