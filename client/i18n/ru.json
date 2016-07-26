@@ -632,6 +632,14 @@
         "ROLE_RIGHT": "Правило роли",
         "ROLE_RIGHTS": "Правила ролей"
     },
+    "SEARCH": {
+        "CLEAR": "",
+        "EACH_WORD": "",
+        "NEXT": "",
+        "NOT_FOUND": "",
+        "PREV": "",
+        "SEARCH": ""
+    },
     "SURVEYS": {
         "ABOVE": "",
         "AGREE": "Согласовано",

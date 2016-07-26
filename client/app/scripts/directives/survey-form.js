@@ -599,7 +599,8 @@ angular.module('greyscaleApp')
 
                             if (_answers[v].userId === currentUserId) {
                                 flags.hasVersion = true;
-                            } else if (scope.surveyData.collaboratorIds && scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                            } else if (scope.surveyData.collaboratorIds &&
+                                scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }
