@@ -216,3 +216,17 @@ body {
 .no-top-margin {
     margin-top: 0;
 }
+
+[fixed-on-scroll] > * {
+    position: relative;
+    overflow-y: auto;
+    display: block;
+}
+
+mark {
+    background-color: #fdfd9e;
+    padding: 0;
+}
+mark.active {
+    border-left: 1px dotted #ccc;
+}

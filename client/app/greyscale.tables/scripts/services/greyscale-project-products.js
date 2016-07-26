@@ -91,7 +91,6 @@ angular.module('greyscale.tables')
                 getDisabled: _getDisabledStatus
             }
         }, {
-            title: tns + 'SETTINGS',
             show: true,
             dataFormat: 'action',
             dataHide: true,
@@ -101,10 +100,17 @@ angular.module('greyscale.tables')
                 getTooltip: _getStartOrPauseProductTooltip,
                 class: 'info',
                 handler: _startOrPauseProduct
-            }, {
+            }]
+        }, {
+            title: tns + 'SETTINGS',
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
                 title: tns + 'UOAS',
                 class: 'info',
-                handler: _editProductUoas
+                handler: _editProductUoas,
+                show: _showUoaSetting
             }, {
                 title: tns + 'TASKS',
                 class: 'info',
@@ -366,6 +372,10 @@ angular.module('greyscale.tables')
                         return errHandler(err, op);
                     });
             }
+        }
+
+        function _showUoaSetting(row) {
+            return !row.policyId;
         }
 
         function errHandler(err, operation) {

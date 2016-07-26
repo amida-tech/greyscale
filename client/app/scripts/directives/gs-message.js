@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -50,6 +50,8 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
+                $scope.highlightSource = _highlightSource;
+
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
                 }
@@ -57,8 +59,8 @@ angular.module('greyscaleApp')
                 _associate = $scope.associate;
             },
             link: function (scope, elem) {
-                scope.$watch('model', function () {
 
+                scope.$watch('model', function () {
                     var msgBody = (elem.find('.gs-message-body')),
                         taText, fView;
 
@@ -74,9 +76,32 @@ angular.module('greyscaleApp')
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+
+                    msgBody.find('.ta-text')
+                        .on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                 });
             }
         };
+
+        function _highlightSource(model, event) {
+            var questionBlock = $('#Q' + model.questionId);
+            if (!questionBlock.length) {
+                return;
+            }
+            questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
+            $timeout(function () {
+                var range = typeof model.range === 'string' ? JSON.parse(model.range) : model.range;
+                var startNode = greyscaleSelection.restore(questionBlock[0], range);
+                if (!startNode) {
+                    return;
+                }
+                var parent = startNode.parentNode;
+                var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
+                angular.element('body').scrollTop(scrollPos);
+            });
+        }
 
         function _getUser(userId) {
             var user = _associate ? _associate[userId] : null;

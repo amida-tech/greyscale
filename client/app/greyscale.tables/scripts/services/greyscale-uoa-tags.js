@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTagsTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi) {
+        greyscaleLanguageApi, greyscaleUoaTagApi, greyscaleUoaClassTypeApi, $rootScope) {
 
         var tns = 'UOA_TAGS.';
 
@@ -74,8 +74,24 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             add: {
                 handler: _addUoaTag
-            }
+            },
+            update: {
+                uoaClassTypes: _updateUoaClassTypes
+            },
+            onReload: _broadcastUpdate
         };
+
+        function _broadcastUpdate() {
+            $rootScope.$broadcast('update-uoaTags', {
+                uoaTags: dicts.uoaTags
+            });
+        }
+
+        function _updateUoaClassTypes(uoaClassTypes) {
+            if (uoaClassTypes) {
+                dicts.uoaClassTypes = uoaClassTypes;
+            }
+        }
 
         function _editUoaTag(_uoaTag) {
             var op = 'editing';
@@ -132,7 +148,7 @@ angular.module('greyscale.tables')
                     }
                     dicts.languages = promises.languages;
                     dicts.uoaClassTypes = promises.uoaClassTypes;
-
+                    dicts.uoaTags = promises.uoaTags;
                     return promises.uoaTags;
                 });
             });
