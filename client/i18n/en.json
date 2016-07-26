@@ -180,10 +180,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "Approved",
-            "DELAYED": "Delayed",
             "FLAGGED": "Flagged",
             "LATE": "Late",
-            "PENDING": "Pending"
+            "PENDING": "Pending",
+            "STARTED": "Started"
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",

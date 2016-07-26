@@ -129,7 +129,7 @@ angular.module('greyscaleApp')
 
                 function _approve(saveSuccess) {
                     return greyscaleTaskApi.state(scope.surveyData.task.id, 'approve')
-                        .then(function(){
+                        .then(function () {
                             return saveSuccess;
                         });
                 }

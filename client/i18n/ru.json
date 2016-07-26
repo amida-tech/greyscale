@@ -180,10 +180,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "",
-            "DELAYED": "",
             "FLAGGED": "",
             "LATE": "",
-            "PENDING": ""
+            "PENDING": "",
+            "STARTED": ""
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Отменен",

@@ -152,10 +152,10 @@ angular.module('greyscaleApp')
 
         function _startTask(task) {
             return greyscaleTaskApi.state(task.id, 'start')
-                .then(function(){
+                .then(function () {
                     return task;
                 })
-                .catch(function(err){
+                .catch(function (err) {
                     greyscaleUtilsSrv.errorMsg(err);
                     return task;
                 });
