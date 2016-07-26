@@ -64,7 +64,7 @@ angular.module('greyscale.rest')
             return _api().one('hidden').put({
                 taskId: taskId,
                 filter: filter,
-                hide: !show,
-            })
+                hide: !show
+            });
         }
     });

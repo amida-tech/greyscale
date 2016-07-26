@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout, 
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
         greyscaleProfileSrv, greyscaleCommentApi) {
         var _associate = [];
         return {
@@ -60,7 +60,7 @@ angular.module('greyscaleApp')
                         $scope.model.isHidden = !$scope.model.isHidden;
                     });
                 };
-                
+
                 $scope.highlightSource = _highlightSource;
 
                 function _toggleEdit() {
@@ -126,12 +126,12 @@ angular.module('greyscaleApp')
             }
             return user;
 
-    }
+        }
 
-    function _getUserName(userId) {
-        return greyscaleUtilsSrv.getUserName(_getUser(userId));
-    }
-});
+        function _getUserName(userId) {
+            return greyscaleUtilsSrv.getUserName(_getUser(userId));
+        }
+    });
 /* message object
  {
  "id": 2,
