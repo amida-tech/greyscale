@@ -20,6 +20,8 @@ angular.module('greyscale.core')
                 },
                 webSocket: {
                     notify: 'something-new',
+                    policyLock: 'POLICY_LOCK',
+                    policyUnlock: 'POLICY_UNLOCK',
                     policyLocked: 'POLICY_LOCKED',
                     policyUnlocked: 'POLICY_UNLOCKED'
                 }

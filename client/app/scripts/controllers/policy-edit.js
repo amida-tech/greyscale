@@ -12,6 +12,10 @@ angular.module('greyscaleApp')
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
 
         var isPolicy = true;
+        var wsEvents = greyscaleGlobals.events.webSocket;
+        var user = {
+            id:-1
+        };
 
         $scope.model = {
             survey: {
@@ -46,7 +50,12 @@ angular.module('greyscaleApp')
                 }
             });
 
-        greyscaleProfileSrv.getProfile().then(_setAuthor);
+        greyscaleProfileSrv.getProfile()
+            .then(function(_user){
+                user = _user;
+                return _user;
+            })
+            .then(_setAuthor);
 
         _policiesGenerate($scope.model.policy.sections);
 
@@ -77,16 +86,23 @@ angular.module('greyscaleApp')
 
         $scope.publish = _publish;
 
+        //listeners for policy lock state
+        greyscaleWebSocketSrv.on(wsEvents.policyLocked, function(data) {
+            greyscaleUtilsSrv.errorMsg(JSON.stringify(data));
+            $scope.model.policy.options.readonly = (data.editor !== user.id);
+        });
+
+        greyscaleWebSocketSrv.on(wsEvents.policyUnlocked, function(data){
+            greyscaleUtilsSrv.errorMsg(JSON.stringify(data));
+            $scope.model.policy.options.readonly = false;
+        });
+
         function _loadSurvey() {
             var params = {
                 forEdit: true
             };
 
-
-
             greyscaleSurveyApi.get(surveyId, params).then(function (survey) {
-
-                greyscaleWebSocketSrv.emit('policyLocked', {policyId: survey.policyId});
 
                 var _questions = [],
                     _sections = [],
@@ -94,7 +110,11 @@ angular.module('greyscaleApp')
                     q,
                     canImport = $scope.model.policy.options.canImport;
 
-                $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
+                $scope.model.survey.isPolicy = (survey.policyId !== null);
+
+                if (survey.policyId) {
+                    greyscaleWebSocketSrv.emit(wsEvents.policyLock, {policyId: survey.policyId});
+                }
 
                 if ($scope.model.survey.isPolicy) {
                     angular.extend($scope.model.policy, {
@@ -203,6 +223,8 @@ angular.module('greyscaleApp')
         });
 
         function _goPolicyList() {
+            greyscaleWebSocketSrv.emit(wsEvents.policyUnlock);
+
             $state.go('policy');
         }
 

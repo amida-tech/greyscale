@@ -13,10 +13,9 @@ angular.module('greyscale.core')
                         realm: Organization.realm
                     });
                 });
-        };
+        }
 
         this.emit = function (event, data) {
-            console.log(event);
             if (socket) {
                 socket.emit(event, data);
             }
