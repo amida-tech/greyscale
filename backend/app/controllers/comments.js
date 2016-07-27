@@ -407,7 +407,7 @@ module.exports = {
 
             if (!result[0].isResolve) {
                 if (result[0].isReturn) {
-                    var authorId = yield * common.getPolicyAuthorIdByTask(task.id);
+                    var authorId = yield * common.getPolicyAuthorIdByTask(result[0].taskId);
                     notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
                 } else {
                     notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
@@ -562,12 +562,10 @@ function* checkInsert(req) {
     // if comment`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
         req.body = _.extend(req.body, {
             returnTaskId: taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
 }
@@ -912,42 +910,6 @@ function* getNextAnswerOrder(req, commentId) {
     // get next order
     // if not found records, nextOrder must be 1  - the first answer for comment
     return (!_.first(result)) ? 1 : result[0].maxorder + 1;
-}
-
-function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
-    var result;
-    // get current step for survey
-    var query =
-        'SELECT ' +
-        '"Tasks"."stepId" as stepid, ' +
-        '"ProductUOA"."currentStepId" as currentstepid ' +
-        'FROM ' +
-        '"Tasks" ' +
-        'INNER JOIN "ProductUOA" ON ' +
-        '"ProductUOA"."productId" = "Tasks"."productId" AND ' +
-        '"ProductUOA"."UOAid" = "Tasks"."uoaId" ' +
-        'WHERE ' +
-        pgEscape('"Tasks"."id" = %s', taskId);
-    var thunkQuery = req.thunkQuery;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id=`' + taskId + '` does not exist in Tasks'); // just in case - not possible case!
-    }
-    if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because Task stepId=`' + result[0].stepid +
-            '` does not equal currentStepId=`' + result[0].currentstepid + '`');
-    }
-
-/*
-    var currentStep = yield * getCurrentStep(req, taskId);
-    if (tag === 'return') {
-        if (!currentStep.position || currentStep.position === 0) {
-            throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because there are not previous steps');
-        }
-    }
-*/
-
-    return yield * checkUserId(req, user, stepId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
 }
 
 function* getCurrentStep(req, taskId) {
