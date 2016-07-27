@@ -109,9 +109,9 @@ angular.module('greyscaleApp')
                     $scope.model.policy.options.readonly = survey.locked;
 
                     if (survey.editor) {
-                        greyscaleUsers.get(survey.editor).then(function(user){
+                        greyscaleUsers.get(survey.editor).then(function (user) {
                             $scope.model.survey.editorUser = user;
-                        })
+                        });
                     }
 
                     for (q = 0; q < qty; q++) {
