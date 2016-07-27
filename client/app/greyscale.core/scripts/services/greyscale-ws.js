@@ -1,17 +1,26 @@
 'use strict';
 
 angular.module('greyscale.core')
-    .service('greyscaleWebSocketSrv', function (greyscaleProfileSrv, greyscaleEnv) {
+    .service('greyscaleWebSocketSrv', function (greyscaleProfileSrv, greyscaleEnv, greyscaleTokenSrv, Organization) {
         var socket;
 
         function _setUser() {
             greyscaleProfileSrv.getProfile()
                 .then(function (profile) {
                     socket.emit('setUser', {
-                        userId: profile.id
+                        userId: profile.id,
+                        token: greyscaleTokenSrv(),
+                        realm: Organization.realm
                     });
                 });
-        }
+        };
+
+        this.emit = function (event, data) {
+            console.log(event);
+            if (socket) {
+                socket.emit(event, data);
+            }
+        };
 
         this.init = function () {
             socket = _getConnection();

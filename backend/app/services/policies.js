@@ -3,6 +3,8 @@ var
     Policy = require('app/models/policies'),
     co = require('co'),
     HttpError = require('app/error').HttpError,
+    Query = require('app/util').Query,
+    thunkify = require('thunkify'),
     sUser = require('./users');
 
 
@@ -36,7 +38,9 @@ var exportObject = function  (req, realm) {
                 startEdit: new Date()
             };
 
-            return yield thunkQuery(Policy.update(editFields).where(Policy.id.equals(id)));
+            var policy = yield thunkQuery(Policy.update(editFields).where(Policy.id.equals(id)).returning(Policy.star()));
+
+            return policy[0];
         });
     };
 

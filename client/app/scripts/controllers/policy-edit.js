@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi) {
+        greyscaleEntityTypeApi, greyscaleWebSocketSrv) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -82,7 +82,12 @@ angular.module('greyscaleApp')
                 forEdit: true
             };
 
+
+
             greyscaleSurveyApi.get(surveyId, params).then(function (survey) {
+
+                greyscaleWebSocketSrv.emit('policyLocked', {policyId: survey.policyId});
+
                 var _questions = [],
                     _sections = [],
                     qty = survey.questions ? survey.questions.length : 0,

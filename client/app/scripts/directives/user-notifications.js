@@ -62,6 +62,13 @@ angular.module('greyscaleApp')
                         _realm = _isSuperAdmin() ? greyscaleGlobals.adminSchema : Organization.realm;
                         _getUnreadNotifications();
                         greyscaleWebSocketSrv.on(wsEvents.notify, _getUnreadNotifications);
+                        greyscaleWebSocketSrv.on(wsEvents.policyLocked, function(data){
+                            console.log('policy locked');
+                            console.log(data);
+                        });
+                        greyscaleWebSocketSrv.on(wsEvents.policyUnlocked, function(){
+                            console.log('policy unlocked');
+                        });
                         userNotificationsSrv.setUpdate(_getUnreadNotifications, _realm);
                     });
 
