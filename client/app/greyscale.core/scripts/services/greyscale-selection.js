@@ -113,9 +113,9 @@ angular.module('greyscale.core')
                         range = sel.getRangeAt(i);
                         if (withParents) {
                             if (range.commonAncestorContainer === range.startContainer) {
-                                _container = range.commonAncestorContainer;
+                                _container = range.commonAncestorContainer.parentNode;
                             } else {
-                                _container = range.startContainer.parentNode;
+                                _container = range.commonAncestorContainer;
                             }
                             _container = _cloneParents(_container, _rootContainer);
                         } else {
@@ -139,9 +139,10 @@ angular.module('greyscale.core')
                 _node,
                 q;
 
-            _node = node.parentNode;
+            _node = node;
 
-            while (!(_node.nodeName === 'DIV' && ~_node.className.indexOf('ta-text')) && _node.nodeName !== '#document') {
+            while (!(_node.nodeName === 'DIV' && ~_node.className.indexOf('ta-text')) &&
+            _node.nodeName !== '#document') {
                 _parents.push(_node.cloneNode(false));
                 _node = _node.parentNode;
             }
