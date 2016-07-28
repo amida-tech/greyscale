@@ -560,6 +560,7 @@ angular.module('greyscaleApp')
                     var taskViewModel = uoa.steps[step.id] = {};
                     var user = task ? _.find(_dicts.users, {
                         id: task.userId
+                        //id: task.userIds[0]
                     }) : undefined;
                     angular.extend(taskViewModel, {
                         id: task ? task.id : undefined,
@@ -568,6 +569,7 @@ angular.module('greyscaleApp')
                         startDate: task && task.startDate || step.startDate,
                         endDate: task && task.endDate || step.endDate,
                         userId: task ? task.userId : undefined,
+                        //userId: task && task.userIds && task.userIds[0] ? task.userIds[0] : undefined,
                         user: user,
                         step: step
                     });
@@ -584,7 +586,8 @@ angular.module('greyscaleApp')
                     'productId',
                     'stepId',
                     'uoaId',
-                    'userId',
+                    //'userId',
+                    'userIds',
                     'startDate',
                     'endDate'
                 ]));

@@ -6,7 +6,12 @@ angular.module('greyscale.tables')
 
         var tns = 'PRODUCT_TASKS.';
 
-        var _dicts = {};
+        var _dicts = {
+            uoas: [],
+            users: [],
+            steps: [],
+            tasks: []
+        };
 
         var _cols = [{
             title: tns + 'UOA',
@@ -19,7 +24,9 @@ angular.module('greyscale.tables')
                 '<span class="progress-block status-{{item.status}}" popover-trigger="mouseenter" ' +
                 'uib-popover-template="item.user && \'views/controllers/pm-dashboard-product-tasks-progress-popover.html\'" ' +
                 'ng-class="{active:item.active, delayed: !item.onTime}" ng-repeat="item in row.progress track by $index">' +
-                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i><span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
+                '<i ng-show="!item.user && item.active" class="text-danger fa fa-exclamation"></i>' +
+                '<i ng-show="item.flagClass" class="fa fa-{{item.flagClass}}"></i>' +
+                '<span class="counter" ng-show="item.flagged && item.status != \'completed\'">{{item.flaggedcount}}</span>' +
                 '</span></span>'
         }, {
             title: tns + 'DEADLINE',
@@ -80,6 +87,8 @@ angular.module('greyscale.tables')
                 return $q.when([]);
             }
 
+            _dicts.product = product;
+
             var reqs = {
                 users: greyscaleUserApi.list(),
                 uoas: greyscaleProductApi.product(product.id).uoasList(),
@@ -94,7 +103,7 @@ angular.module('greyscale.tables')
                     _dicts.steps = data.steps;
                     _dicts.tasks = data.tasks;
                     return _extendTasksWithRelations(data.tasks)
-                        .then(_getCurrentTasks);
+                        .then(_getSubjectRowsData);
                 });
         }
 
@@ -108,48 +117,55 @@ angular.module('greyscale.tables')
                 });
                 task.user = _.find(_dicts.users, {
                     id: task.userId
+                    //id: task.userIds[0]
                 });
             });
             _table.dataShare.tasks = tasks;
             return $q.when(tasks);
         }
 
-        function _getCurrentTasks(tasks) {
-            var currentTasks = [];
-            var grouppedTasks = _.groupBy(tasks, 'uoaId');
-            angular.forEach(grouppedTasks, function (uoaTasks) {
+        function _getSubjectRowsData(tasks) {
+            var subjectRowsData = [];
+            var tasksBySubject = _.groupBy(tasks, 'uoaId');
+            angular.forEach(tasksBySubject, function (uoaTasks) {
                 uoaTasks = _.sortBy(uoaTasks, 'position');
-                var currentTask;
+                var rowData;
                 angular.forEach(uoaTasks, function (task) {
-                    if (!currentTask && task.uoa && task.stepId === task.uoa.currentStepId) {
-                        currentTask = _setCurrentTask(task, uoaTasks);
+                    if (!rowData && task.uoa && task.stepId === task.uoa.currentStepId) {
+                        rowData = task;
                     }
                 });
-                if (!currentTask) {
-                    currentTask = {
-
-                    };
+                if (!rowData) {
+                    rowData = uoaTasks[0];
+                    rowData.noActiveTask = true;
                 }
-                currentTasks.push(currentTask);
+                if (_dicts.product.status === 0) {
+                    rowData.planningMode = true;
+                }
+                rowData = _getSubjectRowDataWithProgress(rowData, uoaTasks);
+
+                subjectRowsData.push(rowData);
             });
-            return $q.when(currentTasks);
+            return $q.when(subjectRowsData);
         }
 
-        function _setCurrentTask(task, uoaTasks) {
-            var currentTask = _getTaskProgressData(task, uoaTasks);
-            return currentTask;
-        }
-
-        function _getTaskProgressData(task, uoaTasks) {
-            task.progress = [];
-            var id = parseInt(task.id);
+        function _getSubjectRowDataWithProgress(rowData, uoaTasks) {
+            rowData.progress = [];
+            var id = parseInt(rowData.id);
             var unCompletedCount = 0;
             var _flagSrc, _flagDst;
 
             angular.forEach(_.sortBy(_dicts.steps, 'position'), function (step) {
                 var stepTask = _.find(uoaTasks, {
                     stepId: step.id
-                }) || {};
+                });
+
+                if (!stepTask) {
+                    stepTask = {
+                        step: step
+                    };
+                }
+
                 stepTask.flagClass = '';
                 if (_flagSrc) {
                     if (stepTask.id === _flagSrc) {
@@ -161,68 +177,73 @@ angular.module('greyscale.tables')
                 }
                 if (stepTask.flagged && stepTask.status !== 'completed') {
                     stepTask.flagClass = stepTask.flagClass || 'flag';
-                    _flagSrc = task.flaggedfrom;
-                    _flagDst = task.id;
+                    _flagSrc = rowData.flaggedfrom;
+                    _flagDst = rowData.id;
                 }
-                if (!stepTask) {
-                    task.progress.push({
-                        step: step
-                    });
-                } else {
-                    var progressTask = _.pick(stepTask, [
-                        'id',
-                        'status',
-                        'active',
-                        'flagged',
-                        'step',
-                        'user',
-                        'endDate',
-                        'startDate',
-                        'flaggedcount',
-                        'flagClass',
-                        'flaggedfrom',
-                        'flaggedto'
-                    ]);
-                    task.progress.push(progressTask);
-                    if (task.status !== 'completed') {
-                        unCompletedCount++;
-                    }
-                    if (progressTask.id === id) {
-                        progressTask.active = true;
-                        task.onTime = _isOnTime(progressTask);
-                    }
-                    progressTask.onTime = task.onTime;
 
-                    if (progressTask.active && progressTask.flaggedfrom) {
-                        task.onTime = progressTask.onTime = _isOnTime(_.find(uoaTasks, {
-                            id: progressTask.flaggedfrom
-                        }));
-                    }
+                var progressTask = _.pick(stepTask, [
+                    'id',
+                    'status',
+                    'active',
+                    'flagged',
+                    'step',
+                    'user',
+                    'endDate',
+                    'startDate',
+                    'flaggedcount',
+                    'flagClass',
+                    'flaggedfrom',
+                    'flaggedto',
+                    'planningMode'
+                ]);
+
+
+                if (rowData.status !== 'completed') {
+                    unCompletedCount++;
                 }
+
+                if (rowData.uoa.currentStepId === progressTask.step.id) {
+                    progressTask.active = true;
+                    rowData.activeStep = progressTask.step;
+                    rowData.onTime = _isOnTime(progressTask);
+                }
+                progressTask.onTime = rowData.onTime;
+
+                if (progressTask.active && progressTask.flaggedfrom) {
+                    rowData.onTime = progressTask.onTime = _isOnTime(_.find(uoaTasks, {
+                        id: progressTask.flaggedfrom
+                    }));
+                }
+
+                rowData.progress.push(progressTask);
             });
 
-            if (!unCompletedCount) {
-                var activeTask = _.find(task.progress, 'active');
-                activeTask.active = false;
-                task.allCompleted = true;
+            if (rowData.planningMode || (!unCompletedCount && !rowData.noActiveTask)) {
+                rowData.allCompleted = !unCompletedCount;
+                _.map(rowData.progress, function(item){
+                    if (item.status !== 'completed') {
+                        item.status =  'waiting';
+                    }
+                    item.active = false;
+                });
             }
 
-            task.progress = _.sortBy(task.progress, 'step.position');
+            rowData.progress = _.sortBy(rowData.progress, 'step.position');
 
-            for (var i = task.progress.length - 1; i >= 0; i--) {
-                if (task.progress[i].id) {
-                    task.last = task.progress[i].id === task.id;
+            for (var i = rowData.progress.length - 1; i >= 0; i--) {
+                if (rowData.progress[i].id) {
+                    rowData.last = rowData.progress[i].id === rowData.id;
                     break;
                 }
             }
 
-            if (task.progress[task.progress.length - 1].status === 'completed') {
-                task.subjectCompleted = true;
+            if (rowData.progress[rowData.progress.length - 1].status === 'completed') {
+                rowData.subjectCompleted = true;
             }
 
-            task.started = !!task.lastVersionDate;
+            rowData.started = !!rowData.lastVersionDate;
 
-            return task;
+            return rowData;
         }
 
         function _isOnTime(task) {

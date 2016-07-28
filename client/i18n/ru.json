@@ -481,6 +481,8 @@
         "UOA": "Субъект",
         "UOA_ASSIGNED_TASKS_COMPLETED": "",
         "UOA_COMPLETED": "",
+        "UOA_NO_ACTIVE_TASK": "",
+        "UOA_PLANNING": "",
         "USER": "Пользователь"
     },
     "PROFILE": {
