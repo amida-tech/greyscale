@@ -13,7 +13,8 @@ angular.module('greyscale.core')
                 },
                 survey: {
                     answerDirty: 'ANSWER_DIRTY',
-                    builderFormSaved: 'form-changes-saved'
+                    builderFormSaved: 'form-changes-saved',
+                    extSave: 'EXT_SAVE'
                 },
                 policy: {
                     addComment: 'POLICY_ADD_COMMENT'

@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
+    .controller('PolicyEditCtrl', function (_, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
         greyscaleEntityTypeApi, greyscaleWebSocketSrv) {
 
@@ -12,12 +12,18 @@ angular.module('greyscaleApp')
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
 
         var isPolicy = true;
-        var wsEvents = greyscaleGlobals.events.webSocket;
+        var wsEvents = greyscaleGlobals.events.webSocket,
+            surveyEvents = greyscaleGlobals.events.survey;
         var user = {
-            id:-1
+            id: -1
         };
 
+        var lAnswerDirty;
+
+        Organization.$lock = true;
+
         $scope.model = {
+            loading: false,
             survey: {
                 isPolicy: isPolicy,
                 isDraft: true,
@@ -34,132 +40,134 @@ angular.module('greyscaleApp')
                 essenceId: -1,
                 options: {
                     readonly: false,
-                    canImport: true
+                    canImport: false
                 },
                 sections: [],
                 attachments: []
             }
         };
 
-        greyscaleEntityTypeApi.list({
-                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
-            })
-            .then(function (essences) {
-                if (essences.length) {
-                    $scope.model.policy.essenceId = essences[0].id;
-                }
-            });
+        lAnswerDirty = $scope.$on(surveyEvents.answerDirty, function () {
+            $scope.dataForm.$setDirty();
+        });
 
-        greyscaleProfileSrv.getProfile()
-            .then(function(_user){
-                user = _user;
-                return _user;
-            })
-            .then(_setAuthor);
-
-        _policiesGenerate($scope.model.policy.sections);
-
-        $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
-
-        Organization.$lock = true;
-
-        if (surveyId) {
-            Organization.$watch($scope, function () {
-                projectId = Organization.projectId;
-                _loadSurvey();
-            });
-        }
-
-        $scope.getAuthor = function () {
-            greyscaleUsers.get($scope.model.author).then(_setAuthor);
-        };
-
-        $scope.save = function () {
-            var _deregistator = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
-                _deregistator();
-                _save();
-            });
-            $scope.saveFormbuilder();
-        };
-
+        //button handlers
+        $scope.save = _saveClick;
         $scope.cancel = _goPolicyList;
-
         $scope.publish = _publish;
 
         //listeners for policy lock state
-        greyscaleWebSocketSrv.on(wsEvents.policyLocked, function(data) {
+        greyscaleWebSocketSrv.on(wsEvents.policyLocked, function (data) {
             greyscaleUtilsSrv.errorMsg(JSON.stringify(data));
             $scope.model.policy.options.readonly = (data.editor !== user.id);
         });
 
-        greyscaleWebSocketSrv.on(wsEvents.policyUnlocked, function(data){
+        greyscaleWebSocketSrv.on(wsEvents.policyUnlocked, function (data) {
             greyscaleUtilsSrv.errorMsg(JSON.stringify(data));
             $scope.model.policy.options.readonly = false;
         });
+
+        $scope.$on('$destroy', function () {
+            Organization.$lock = false;
+            lAnswerDirty();
+        });
+
+        if (surveyId) {
+            $scope.model.loading = true;
+            Organization.$watch($scope, function () {
+                projectId = Organization.projectId;
+                _loadSurvey();
+            });
+        } else {
+            greyscaleProfileSrv.getProfile()
+                .then(function (_user) {
+                    user = _user;
+                    return _user;
+                })
+                .then(_setAuthor);
+            _policiesGenerate($scope.model.policy.sections);
+            $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
+        }
 
         function _loadSurvey() {
             var params = {
                 forEdit: true
             };
 
-            greyscaleSurveyApi.get(surveyId, params).then(function (survey) {
+            greyscaleSurveyApi.get(surveyId, params)
+                .then(function (survey) {
+                    var _questions = [],
+                        _sections = [],
+                        qty = survey.questions ? survey.questions.length : 0,
+                        q,
+                        canImport = true;
 
-                var _questions = [],
-                    _sections = [],
-                    qty = survey.questions ? survey.questions.length : 0,
-                    q,
-                    canImport = $scope.model.policy.options.canImport;
+                    isPolicy = (survey.policyId !== null);
+                    survey.isPolicy = isPolicy;
 
-                $scope.model.survey.isPolicy = (survey.policyId !== null);
+                    if (isPolicy) {
+                        greyscaleWebSocketSrv.emit(wsEvents.policyLock, {
+                            policyId: survey.policyId
+                        });
 
-                if (survey.policyId) {
-                    greyscaleWebSocketSrv.emit(wsEvents.policyLock, {policyId: survey.policyId});
-                }
+                        angular.extend($scope.model.policy, {
+                            id: survey.policyId,
+                            title: survey.title,
+                            section: survey.section,
+                            subsection: survey.subsection,
+                            number: survey.number,
+                            answerId: survey.policyId,
+                            attachments: survey.attachments || []
+                        });
 
-                if ($scope.model.survey.isPolicy) {
-                    angular.extend($scope.model.policy, {
-                        id: survey.policyId,
-                        title: survey.title,
-                        section: survey.section,
-                        subsection: survey.subsection,
-                        number: survey.number,
-                        attachments: survey.attachments || []
-                    });
+                        if (survey.editor) {
+                            greyscaleUsers.get(survey.editor)
+                                .then(function (user) {
+                                    survey.editorUser = user;
+                                });
+                        }
 
-                    $scope.model.policy.options.readonly = survey.locked;
+                        for (q = 0; q < qty; q++) {
+                            if (survey.questions[q].type === policyIdx) {
+                                _sections.push(survey.questions[q]);
+                                canImport = canImport && (!survey.questions[q].description);
+                            } else {
+                                _questions.push(survey.questions[q]);
+                            }
+                        }
 
-                    if (survey.editor) {
-                        greyscaleUsers.get(survey.editor).then(function (user) {
-                            $scope.model.survey.editorUser = user;
+                        survey.questions = _questions;
+                        angular.extend($scope.model.survey, survey);
+
+                        _policiesGenerate(_sections);
+                        angular.extend($scope.model.policy, {
+                            sections: _sections,
+                            options: {
+                                canImport: canImport,
+                                readonly: survey.locked
+                            }
                         });
                     }
+                    $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
 
-                    for (q = 0; q < qty; q++) {
-                        if (survey.questions[q].type === policyIdx) {
-                            _sections.push(survey.questions[q]);
-                            canImport = canImport && (!survey.questions[q].description);
-                        } else {
-                            _questions.push(survey.questions[q]);
-                        }
+                    if (projectId !== survey.projectId) {
+                        Organization.$setBy('projectId', survey.projectId);
                     }
 
-                    _policiesGenerate(_sections);
-                    survey.questions = _questions;
-                    $scope.model.survey = survey;
-                    $scope.model.policy.options.canImport = canImport;
-                    $scope.model.policy.sections = _sections;
-
-                    greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);
-
-                    $scope.model.policy.answerId = survey.policyId;
-
-                }
-                $state.ext.surveyName = survey ? survey.title : $state.ext.surveyName;
-
-                if (projectId !== survey.projectId) {
-                    Organization.$setBy('projectId', survey.projectId);
-                }
-            });
+                    return greyscaleEntityTypeApi.list({
+                        tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+                    });
+                })
+                .then(function (essences) {
+                    if (essences.length) {
+                        $scope.model.policy.essenceId = essences[0].id;
+                    }
+                    return ($scope.model.survey.author) ? greyscaleUsers.get($scope.model.survey.author) : false;
+                })
+                .then(_setAuthor)
+                .finally(function () {
+                    $scope.model.loading = false;
+                });
         }
 
         function _save() {
@@ -206,7 +214,7 @@ angular.module('greyscaleApp')
                 });
         }
 
-        var firstSave = $scope.$on(greyscaleGlobals.events.survey.builderFormSaved, function () {
+        var firstSave = $scope.$on(surveyEvents.builderFormSaved, function () {
             $scope.dataForm.$dirty = true;
             $timeout(function () {
                 $scope.$digest();
@@ -214,13 +222,15 @@ angular.module('greyscaleApp')
             firstSave();
         });
 
-        $scope.$on(greyscaleGlobals.events.survey.answerDirty, function () {
-            $scope.dataForm.$setDirty();
-        });
-
-        $scope.$on('$destroy', function () {
-            Organization.$lock = false;
-        });
+        function _saveClick() {
+            var _deregistator = $scope.$on(surveyEvents.builderFormSaved, function () {
+                _deregistator();
+                _save();
+            });
+            $timeout(function () {
+                $scope.$broadcast(surveyEvents.extSave);
+            });
+        }
 
         function _goPolicyList() {
             greyscaleWebSocketSrv.emit(wsEvents.policyUnlock);
@@ -259,7 +269,10 @@ angular.module('greyscaleApp')
         }
 
         function _setAuthor(profile) {
-            $scope.model.policy.author = profile.id;
-            $scope.model.policy.authorName = greyscaleUtilsSrv.getUserName(profile);
+            if (profile) {
+                $scope.model.policy.author = profile.id;
+                $scope.model.policy.authorName = profile.fullName;
+            }
+            return profile;
         }
     });
