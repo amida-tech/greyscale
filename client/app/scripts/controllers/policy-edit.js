@@ -12,7 +12,7 @@ angular.module('greyscaleApp')
             surveyId = $stateParams.id === 'new' ? null : $stateParams.id;
 
         var isPolicy = true;
-        var wsEvents = greyscaleGlobals.events.webSocket,
+        var wsEvents = greyscaleGlobals.events.ws,
             surveyEvents = greyscaleGlobals.events.survey;
         var user = {
             id: -1

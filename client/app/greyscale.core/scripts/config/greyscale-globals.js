@@ -19,12 +19,13 @@ angular.module('greyscale.core')
                 policy: {
                     addComment: 'POLICY_ADD_COMMENT'
                 },
-                webSocket: {
+                ws: { /* webSocket events */
                     notify: 'something-new',
                     policyLock: 'POLICY_LOCK',
                     policyUnlock: 'POLICY_UNLOCK',
                     policyLocked: 'POLICY_LOCKED',
-                    policyUnlocked: 'POLICY_UNLOCKED'
+                    policyUnlocked: 'POLICY_UNLOCKED',
+                    setUser: 'setUser'
                 }
             },
             projectStates: [{

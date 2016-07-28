@@ -20,7 +20,7 @@ angular.module('greyscaleApp')
                     if ($scope.loginForm.$valid) {
                         greyscaleUserApi.login($scope.model.login, $scope.model.password)
                             .then(function () {
-                                $rootScope.$emit(greyscaleGlobals.events.common.login);
+                                $rootScope.$broadcast(greyscaleGlobals.events.common.login);
                             })
                             .catch(function (err) {
                                 if (err && err.data && err.data.e === 300) {
