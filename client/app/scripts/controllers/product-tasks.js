@@ -329,7 +329,7 @@ angular.module('greyscaleApp')
             var _stepId = assignParams.stepId,
                 _uoaIds = assignParams.uoaIds,
                 _user = assignParams.userView,
-                i, qty, task, taskCopy,
+                i, qty, uoaId, task, taskCopy,
                 saveTasks = [],
                 newTasks = [],
                 step = _.find($scope.model.workflowSteps, {
@@ -340,7 +340,6 @@ angular.module('greyscaleApp')
                     groupIds: []
                 },
                 taskData = {
-                    uoaId: null,
                     stepId: _stepId,
                     productId: productId,
                     startDate: step.startDate,
@@ -348,13 +347,13 @@ angular.module('greyscaleApp')
                 };
 
             qty = _uoaIds.length;
-
             for (i = 0; i < qty; i++) {
-                task = _findTask(_uoaIds[i], _stepId);
-                taskCopy = task ? angular.copy(task) : taskData;
+                uoaId = _uoaIds[i];
+                task = _findTask(uoaId, _stepId);
+                taskCopy = angular.copy(task ? task : taskData);
                 if (_isAcceptableUser(taskCopy, _user)) {
                     angular.extend(taskCopy, userData);
-                    taskCopy.uoaId = _uoaIds[i];
+                    taskCopy.uoaId = uoaId;
                     if (!task) {
                         newTasks.push(taskCopy);
                     }
@@ -372,7 +371,6 @@ angular.module('greyscaleApp')
                     }
                 });
             };
-
             return greyscaleProductApi.product(productId).tasksListUpdate(saveTasks)
                 .then(function (response) {
                     if (response.inserted && response.inserted.length === newTasks.length) {
