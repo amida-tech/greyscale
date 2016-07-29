@@ -22,6 +22,10 @@ angular.module('greyscaleApp')
 
     var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
 
+    productWorkflow.dataFilter.templateMode = workflowTemplateMode;
+
+    productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
+
     if (!workflowTemplateMode) {
         _refreshTemplatesList();
     } else {

@@ -33,6 +33,8 @@ angular.module('greyscaleApp')
                 disabled: true
             };
 
+            _normalizeAddButtons(model);
+
             _translateParams(model);
 
             if (!model.tableParams || !(model.tableParams instanceof NgTableParams)) {
@@ -149,6 +151,28 @@ angular.module('greyscaleApp')
                 }
             };
 
+        }
+
+        function _normalizeAddButtons(table) {
+            table.add = table.add || [];
+            if (!angular.isArray(table.add)) {
+                table.add = [table.add];
+            }
+
+            var showFn = function (showVal) {
+                return function () {
+                    if (showVal === undefined) {
+                        return true;
+                    }
+                    if (typeof showVal === 'function') {
+                        return showVal();
+                    }
+                };
+            };
+
+            angular.forEach(table.add, function (add, i) {
+                table.add[i].show = showFn(add.show);
+            });
         }
 
         function _newPagination(scope) {

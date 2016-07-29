@@ -499,7 +499,6 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -514,6 +513,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса",
                 "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
+                "SAVE_AS_TEMPLATE": "",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",

@@ -499,7 +499,6 @@
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",
@@ -514,6 +513,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "",
                 "PROVIDE_RESPONSES": "",
                 "ROLE": "",
+                "SAVE_AS_TEMPLATE": "",
                 "SEE_OTHERS_RESPONSES": "",
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
