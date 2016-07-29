@@ -42,19 +42,19 @@ module.exports = {
             if (!item) {
                 throw new HttpError(404, 'Not found');
             } else {
-                if (req.query.forEdit) {
-                    if (!item.policyId) {
-                        throw new HttpError(403, '"forEdit" query parameter available only for policies');
-                    }
-                    item.locked = true;
-                    if (!item.editor) {
-                        yield oPolicy.setEditor(item.policyId, req.user.id);
-                        item.editor = req.user.id;
-                        item.locked = false;
-                    } else if (item.editor == req.user.id) {
-                        item.locked = false;
-                    }
-                }
+                //if (req.query.forEdit) {
+                //    if (!item.policyId) {
+                //        throw new HttpError(403, '"forEdit" query parameter available only for policies');
+                //    }
+                //    item.locked = true;
+                //    if (!item.editor) {
+                //        yield oPolicy.setEditor(item.policyId, req.user.id);
+                //        item.editor = req.user.id;
+                //        item.locked = false;
+                //    } else if (item.editor == req.user.id) {
+                //        item.locked = false;
+                //    }
+                //}
                 return item;
             }
         }).then(function (item) {

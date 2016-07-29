@@ -6,8 +6,6 @@ var Token = require('app/models/token');
 var sUser = require('app/services/users');
 var sPolicy = require('app/services/policies');
 var config = require('config');
-//var User = require('app/models/users');
-//var Token =
 var Query = require('app/util').Query;
 var thunkify = require('thunkify');
 var co = require('co');
@@ -17,25 +15,23 @@ debug.log = console.log.bind(console);
 
 var ioServer;
 
+var socketEvents = {
+    policyLock: 'POLICY_LOCK', //income
+    policyUnlock: 'POLICY_UNLOCK', //income
+    setUser: 'setUser', //income
+    policyLocked: 'POLICY_LOCKED', //outcome
+    policyUnlocked: 'POLICY_UNLOCKED', //outcome
+    somethingNew: 'something-new' //outcome
+};
+
 exports.sendNotification = function (userId) {
     var clients = ioServer.sockets.sockets;
     for (var i in clients) {
-        if (clients[i].userId !== userId) {
+        if (clients[i].req.user.id !== userId) {
             continue;
         }
         debug('send notification to user ' + clients[i].userId);
-        clients[i].emit('something-new');
-    }
-};
-
-exports.policyLocked = function (policyId) {
-    var clients = ioServer.sockets.sockets;
-    for (var i in clients) {
-        //if (clients[i].userId !== userId) {
-        //    continue;
-        //}
-        //debug('send notification to user ' + clients[i].userId);
-        clients[i].emit('policyLocked',policyId);
+        clients[i].emit(socketEvents.somethingNew);
     }
 };
 
@@ -52,39 +48,44 @@ exports.init = function (server) {
             debug('Socket disconnected ' + socket.id);
         });
 
-        socket.on('policyLocked', function (data) {
+        socket.on(socketEvents.policyLock, function (data) {
+            debug('policyLock');
             debug(socket.req);
-            debug('Got policy locked, id =  ' + data.policyId);
-            co(function* () {
-                var oPolicy = new sPolicy(socket.req);
-                debug(socket.req.user.id);
-                var policy = yield oPolicy.setEditor(data.policyId, socket.req.user.id);
-                return policy;
-            }).then(
-                (policy) => {
-                    var response = {
-                        policyId: policy.id,
-                        editor: policy.editor,
-                        tsLock: policy.startEdit
-                    };
-                    debug(response);
-                    socket.emit('policyLocked', response);
-                },
-                (err) => {
-                    // emit policy locked error
-                }
-            );
+            if (socket.req && socket.req.user && socket.req.user.id){
+                co(function* () {
+                    var oPolicy = new sPolicy(socket.req);
+                    debug(socket.req.user.id);
+                    try{
+                        var policy = yield oPolicy.lockPolicy(data.policyId, socket.req.user.id, socket.id);
+                    }catch(err){
+                        debug(JSON.stringify(err));
+                        var policy = yield oPolicy.getById(data.policyId);
+                    }
+                    return policy;
+                }).then(
+                    (policy) => {
+                        var response = {
+                            policyId: policy.id,
+                            editor: policy.editor,
+                            tsLock: policy.startEdit
+                        };
+                        debug(response);
+                        socket.emit(socketEvents.policyLocked, response);
+                    },
+                    (err) => {
+                        // emit policy locked error
+                        debug(JSON.stringify(err));
+                    }
+                );
+            }
         });
 
-        socket.on('setUser', function (data) {
-            debug(data.realm);
-            var thunkQuery = thunkify(new Query(data.realm));
+        socket.on(socketEvents.setUser, function (data) {
+
             // We pass req to services constructor as something like session
             // from req we can get info about current schema, user id, etc
             // and use it inside service methods instead of pass it to each method as parameters
-            var req = { // emulate req object.
-                thunkQuery: thunkQuery
-            };
+            var req = {}; // emulate req object.
 
             var thunkQueryPublic = thunkify(new Query(config.pgConnect.adminSchema));
 
@@ -94,6 +95,7 @@ exports.init = function (server) {
                 if (!token.length) {
                     // TODO emit error token invalid
                 } else {
+                    req.thunkQuery = thunkify(new Query(token[0].realm));
                     var oUser = new sUser(req, token[0].realm);
                     req.user = yield oUser.getInfo(token[0].userID);
                     if (!req.user || (token[0].userID !== data.userId)) {
@@ -107,8 +109,6 @@ exports.init = function (server) {
                 (data) => debug(data),
                 (err) => debug(err) // TODO emit error token invalid
             );
-
-
         });
     });
 };

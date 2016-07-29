@@ -7,7 +7,8 @@ var columns = [
     'number',
     'author',
     'editor',
-    'startEdit'
+    'startEdit',
+    'socketId'
 ];
 
 var Policy = sql.define({
