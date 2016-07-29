@@ -461,9 +461,14 @@ router.route('/:realm/v0.2/comments/entryscope')
     .get(authenticate('token').always, comments.getEntryScope);
 router.route('/:realm/v0.2/comments/entryscope/:id')
     .get(authenticate('token').always, comments.getEntryUpdate);
+router.route('/:realm/v0.2/comments/hidden')
+    .put(authenticate('token').always, jsonParser, comments.hideUnhide);
 router.route('/:realm/v0.2/comments/:id')
     .put(authenticate('token').always, jsonParser, comments.updateOne)
     .delete(authenticate('token').always, comments.deleteOne);
+router.route('/:realm/v0.2/comments/:commentId/answers')
+    .get(authenticate('token').always, comments.selectAnswers)
+    .post(authenticate('token').always, jsonParser, comments.insertAnswer);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS

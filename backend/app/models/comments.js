@@ -20,7 +20,12 @@ var Comment = sql.define({
         'activated',
         'tags',
         'range',
-        'commentType'
+        'commentType',
+        'isHidden',
+        'userHideId',
+        'hiddenAt',
+        'parentId',
+        'isAgree'
     ]
 });
 
@@ -39,7 +44,20 @@ Comment.insertCols = [
     'activated',
     'tags',
     'range',
-    'commentType'
+    'commentType',
+    'isHidden',
+    'userHideId',
+    'hiddenAt',
+    'parentId',
+    'isAgree'
+];
+
+Comment.answerFromParentCols = [
+    'taskId',
+    'questionId',
+    'userId',
+    'stepId',
+    'stepFromId'
 ];
 
 Comment.updateCols = [
@@ -47,7 +65,12 @@ Comment.updateCols = [
     'updated',
     'tags',
     'range',
-    'commentType'
+    'commentType',
+    'isHidden',
+    'userHideId',
+    'hiddenAt',
+    'isAgree'
+
 ];
 
 Comment.commentTypes = [{

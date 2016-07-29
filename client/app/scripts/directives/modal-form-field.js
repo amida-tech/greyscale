@@ -164,7 +164,7 @@ angular.module('greyscaleApp')
                 var _options = [];
                 if (clmn.dataFormat === 'option') {
                     if (clmn.dataSet.getData) {
-                        setDatasetOptions(clmn.dataSet, clmn.dataSet.getData());
+                        setDatasetOptions(clmn.dataSet, clmn.dataSet.getData() || []);
                     } else if (clmn.dataSet.dataPromise) {
                         clmn.dataSet.dataPromise($scope.modalFormRec).then(function (data) {
                             setDatasetOptions(clmn.dataSet, data);

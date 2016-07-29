@@ -71,12 +71,25 @@ function* checkString(val, keyName) {
     return val;
 }
 
-var notify = function (req, commentId, taskId, action, essenceName, templateName) {
+var notify = function (req, commentId, taskId, action, essenceName, templateName, authorId) {
     co(function* () {
         var userTo, note, usersFromGroup;
         var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
+
+        // if authorId specified - send notification to author
+        if (authorId){
+            userTo = yield * common.getUser(req, authorId);
+            note = yield * notifications.extendNote(req, {
+                body: req.body.entry,
+                action: action
+            }, userTo, essenceName, commentId, userTo.organizationId, taskId);
+            notifications.notify(req, userTo, note, templateName);
+            sentUsersId.push(authorId);
+        }
+
+/* don't notify users assigned to task - ONLY tagged
         var task = yield * common.getTask(req, taskId);
         for (i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
@@ -103,6 +116,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
                 }
             }
         }
+*/
 
         if (req.body.tags) {
             req.body.tags = JSON.parse(req.body.tags);
@@ -151,6 +165,10 @@ module.exports = {
             var selectFields =
                 'SELECT ' +
                 '"Comments".*, ' +
+                '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 1 ELSE 0 END as INT)) as agree ' +
+                'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id"), ' +
+                '(SELECT sum(CAST(CASE WHEN "c1"."isAgree" THEN 0 ELSE 1 END as INT)) as disagree ' +
+                'FROM "Comments"  as c1 WHERE "c1"."parentId" = "Comments"."id"), ' +
                 '"Tasks"."uoaId", ' +
                 '"Tasks"."productId", ' +
                 '"SurveyQuestions"."surveyId"';
@@ -165,7 +183,7 @@ module.exports = {
                 //'INNER JOIN "Products" ON "Tasks"."productId" = "Products"."id" '+
                 'INNER JOIN "Surveys" ON "SurveyQuestions"."surveyId" = "Surveys"."id"';
 
-            var selectWhere = 'WHERE 1=1 ';
+            var selectWhere = 'WHERE "Comments"."parentId" IS NULL ';   // select only comments - not answers
             selectWhere = setWhereInt(selectWhere, req.query.questionId, 'Comments', 'questionId');
             //selectWhere = setWhereInt(selectWhere, req.query.userId, 'Comments', 'userId');
             selectWhere = setWhereInt(selectWhere, req.query.userFromId, 'Comments', 'userFromId');
@@ -174,6 +192,17 @@ module.exports = {
             selectWhere = setWhereInt(selectWhere, productId, 'Tasks', 'productId');
             selectWhere = setWhereInt(selectWhere, req.query.stepId, 'WorkflowSteps', 'id');
             selectWhere = setWhereInt(selectWhere, req.query.surveyId, 'Surveys', 'id');
+
+             //return only activated comments and draft comments for current user
+            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
+
+            if (!(req.query.hidden === 'true')) {
+                // show only unhidden comments
+                selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
+            } else if(!auth.checkAdmin(req.user)) {
+                // specified hidden parameters for ordinary user show only self comments (include hidden)
+                selectWhere = selectWhere + pgEscape(' AND ("Comments"."isHidden" = false OR "Comments"."userFromId" = %s ) ', req.user.id);
+            } // if admin - show all hidden comments
 
             if (req.query.filter === 'resolve') {
                 /*
@@ -208,17 +237,53 @@ module.exports = {
         });
     },
 
+    selectAnswers: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            var commentId = yield * checkOneId(req, req.params.commentId, Comment, 'id', 'commentId', 'Comment');
+            var selectQuery = 'SELECT "Comments".* FROM "Comments" ';
+
+            var selectWhere = pgEscape('WHERE "Comments"."parentId" = %s ', commentId);   // select answers
+
+            //return only activated comments and draft comments for current user
+            selectWhere = selectWhere + pgEscape(' AND ("Comments"."activated" = true OR "Comments"."userFromId" = %s ) ', req.user.id);
+
+            if (!(req.query.hidden === 'true')) {
+                // show only unhidden comments
+                selectWhere = selectWhere + ' AND ("Comments"."isHidden" = false) ';
+            } else if(!auth.checkAdmin(req.user)) {
+                // specified hidden parameters for ordinary user show only self comments (include hidden)
+                selectWhere = selectWhere + pgEscape(' AND ("Comments"."isHidden" = false OR "Comments"."userFromId" = %s ) ', req.user.id);
+            } // if admin - show all hidden comments
+
+            var selectOrder = '';
+            if (req.query.order) {
+                var sorted = req.query.order.split(',');
+                for (var i = 0; i < sorted.length; i++) {
+                    var sort = sorted[i];
+                    selectOrder =
+                        ((selectOrder === '') ? 'ORDER BY ' : selectOrder + ', ') +
+                        sort.replace('-', '').trim() +
+                        (sort.indexOf('-') === 0 ? ' desc' : ' asc');
+                }
+            }
+
+            selectQuery = selectQuery + selectWhere + selectOrder;
+            return yield thunkQuery(selectQuery);
+        }).then(function (data) {
+            res.json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
-            var returnObject = yield * checkInsert(req);
+            yield * checkInsert(req);
             var task = yield * common.getTask(req, parseInt(req.body.taskId));
-            var retTask = task;
-            if (returnObject) {
-                retTask = yield * common.getTask(req, parseInt(returnObject.taskId));
-            }
             req.body = _.extend(req.body, {
                 userFromId: req.user.realmUserId
             }); // add from realmUserId instead of user id
@@ -228,7 +293,7 @@ module.exports = {
             req.body = _.extend(req.body, {
                 stepId: task.stepId
             }); // add stepId from task (don't use stepId from body - use stepId only for current task)
-            if (!isReturn && !isResolve) {
+            if (!req.query.autosave) {
                 req.body = _.extend(req.body, {
                     activated: true
                 }); // ordinary entries is activated
@@ -243,8 +308,14 @@ module.exports = {
             req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
             var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+            if (req.body.activated && !isResolve) {
+                if (isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(req, task.id);
+                    notify(req, result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+                }
+            }
 
             bologger.log({
                 req: req,
@@ -253,6 +324,60 @@ module.exports = {
                 object: 'Comments',
                 entity: result[0].id,
                 info: 'Add comment'
+            });
+
+            return _.first(result);
+
+        }).then(function (data) {
+            res.status(201).json(data);
+        }, function (err) {
+            next(err);
+        });
+    },
+
+    insertAnswer: function (req, res, next) {
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            yield * checkAnswerInsert(req);
+            var parentComment = yield * common.getEntity(req, req.params.commentId, Comment, 'id');
+            req.body = _.extend(req.body,_.pick(parentComment, Comment.answerFromParentCols)); // add key values from parent comment
+            req.body = _.extend(req.body, {
+                parentId: parentComment.id
+            });
+            req.body = _.extend(req.body, {
+                userFromId: req.user.realmUserId
+            }); // add from realmUserId instead of user id
+            if (!req.query.autosave) { // if autosave is exist for answers
+                req.body = _.extend(req.body, {
+                    activated: true
+                }); // answers is activated
+            }
+            req.body = _.extend(req.body, {
+                tags: JSON.stringify(req.body.tags)
+            }); // stringify tags
+            req.body = _.extend(req.body, {
+                range: JSON.stringify(req.body.range)
+            }); // stringify range
+            // get next order for entry
+            var nextOrder = yield * getNextAnswerOrder(req, parentComment.id);
+            req.body = _.extend(req.body, {
+                order: nextOrder
+            }); // add nextOrder (if order was presented in body replace it)
+
+            req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
+            var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+
+            if (req.body.activated) {
+                notify(req, result[0].id, parentComment.taskId, 'Answer added', 'Comments', 'comment');
+            }
+
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'insert',
+                object: 'Comments',
+                entity: result[0].id,
+                info: 'Add answer to comment'
             });
 
             return _.first(result);
@@ -278,10 +403,16 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
             req.body = _.pick(req.body, Comment.updateCols); // update only columns that may be updated
-            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId));
+            var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId, Comment.isReturn, Comment.isResolve));
 
-            // ToDo: flag and resolve may be draft? Then don't notify
-            notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+            if (!result[0].isResolve) {
+                if (result[0].isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(result[0].taskId);
+                    notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+                }
+            }
 
             bologger.log({
                 req: req,
@@ -361,6 +492,55 @@ module.exports = {
         }, function (err) {
             next(err);
         });
+    },
+    hideUnhide: function (req, res, next) {
+        // put /comments/hidden?taskId=<id>&hide=true|false&filter='all'|'flagged'|<id>
+        var thunkQuery = req.thunkQuery;
+        co(function* () {
+            // parse query
+            var hide = req.query.hide ? (req.query.hide !== 'false') : true;
+            var isAdmin = auth.checkAdmin(req.user);
+            var taskId = yield * checkOneId(req, req.query.taskId, Task, 'id', 'taskId', 'Task');
+            var query = Comment
+                .update({
+                    isHidden: hide,
+                    userHideId: req.user.id,
+                    hiddenAt: new Date()
+                })
+                .where(Comment.taskId.equals(taskId))
+                .and(Comment.activated.equals(true))
+                .returning(Comment.id, Comment.isHidden, Comment.userHideId, Comment.hiddenAt);
+
+            if (!isAdmin) {
+                // hide/unhide only self comments
+                query = query.and(Comment.userFromId.equals(req.user.id));
+            }
+            if (req.query.filter && req.query.filter.toUpperCase() === 'FLAGGED') {
+                // hide/unhide only flagged
+                query = query.and(Comment.isReturn.equals(true));
+            } else if (req.query.filter && parseInt(req.query.filter) > 0) {
+                // hide/unhide specified comment
+                query = query.and(Comment.id.equals(parseInt(req.query.filter)));
+            } // else hide/unhide all comments for specified task
+
+            var result = yield thunkQuery(query);
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Comments',
+                    entities: result,
+                    quantity: result.length,
+                    info: 'Hide/unhide comment(s)'
+                });
+            }
+            return result;
+        }).then(function (data) {
+            res.status(202).end();
+        }, function (err) {
+            next(err);
+        });
     }
 
 };
@@ -382,15 +562,20 @@ function* checkInsert(req) {
     // if comment`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
         req.body = _.extend(req.body, {
-            returnTaskId: returnObject.taskId
+            returnTaskId: taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
-    return returnObject;
+}
+
+function* checkAnswerInsert(req) {
+    var commentId = yield * checkOneId(req, req.params.commentId, Comment, 'id', 'commentId', 'Comment');
+    if (!req.body.isAgree ) { // disagree
+        yield * checkString(req.body.entry, 'Entry');
+    }
+
 }
 
 function* checkUpdate(req) {
@@ -709,40 +894,22 @@ function* getNextOrder(req, taskId, questionId) {
     return (!_.first(result)) ? 1 : result[0].maxorder + 1;
 }
 
-function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
+function* getNextAnswerOrder(req, commentId) {
+
+    // then get max order for answers
     var result;
-    // get current step for survey
     var query =
         'SELECT ' +
-        '"Tasks"."stepId" as stepid, ' +
-        '"ProductUOA"."currentStepId" as currentstepid ' +
+        'max("Comments".order) as maxorder ' +
         'FROM ' +
-        '"Tasks" ' +
-        'INNER JOIN "ProductUOA" ON ' +
-        '"ProductUOA"."productId" = "Tasks"."productId" AND ' +
-        '"ProductUOA"."UOAid" = "Tasks"."uoaId" ' +
-        'WHERE ' +
-        pgEscape('"Tasks"."id" = %s', taskId);
+        '"Comments" ' +
+        'WHERE  ' +
+        pgEscape('"Comments"."parentId" = %s', commentId);
     var thunkQuery = req.thunkQuery;
     result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id=`' + taskId + '` does not exist in Tasks'); // just in case - not possible case!
-    }
-    if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because Task stepId=`' + result[0].stepid +
-            '` does not equal currentStepId=`' + result[0].currentstepid + '`');
-    }
-
-/*
-    var currentStep = yield * getCurrentStep(req, taskId);
-    if (tag === 'return') {
-        if (!currentStep.position || currentStep.position === 0) {
-            throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because there are not previous steps');
-        }
-    }
-*/
-
-    return yield * checkUserId(req, user, stepId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
+    // get next order
+    // if not found records, nextOrder must be 1  - the first answer for comment
+    return (!_.first(result)) ? 1 : result[0].maxorder + 1;
 }
 
 function* getCurrentStep(req, taskId) {
