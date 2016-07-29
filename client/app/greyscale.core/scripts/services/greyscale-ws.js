@@ -2,7 +2,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleWebSocketSrv', function (greyscaleEnv, greyscaleTokenSrv, Organization,
-        $rootScope, greyscaleGlobals) {
+        $rootScope, greyscaleGlobals, $log) {
 
         var socket;
         var events = greyscaleGlobals.events;
@@ -13,6 +13,7 @@ angular.module('greyscale.core')
         this.init = _init;
         this.emit = _emit;
         this.on = _on;
+        this.id = _getId;
         this.off = _off;
 
         function _setUser() {
@@ -22,17 +23,22 @@ angular.module('greyscale.core')
         }
 
         function _init() {
-            socket = _getConnection();
+            socket = _open();
             socket.on('connect', function () {
+                $log.debug('connected socket id', socket.id);
                 _setUser();
             });
+
             socket.on('reconnect', function () {
+                $log.debug('re-connected socket id', socket.id);
                 _setUser();
             });
         }
 
         function _close() {
             if (socket) {
+                socket.off('connect');
+                socket.off('reconnect');
                 socket.close();
             }
         }
@@ -45,7 +51,7 @@ angular.module('greyscale.core')
 
         function _on(eventName, handler) {
             if (socket && typeof handler === 'function') {
-                return socket.on(eventName, handler);
+                socket.on(eventName, handler);
             }
         }
 
@@ -55,16 +61,27 @@ angular.module('greyscale.core')
             }
         }
 
-        function _getConnection() {
-            var url = (greyscaleEnv.apiProtocol || 'http') + '://' + ([greyscaleEnv.apiHostname,
-                greyscaleEnv.apiPort
-            ].join(':') + '/');
-            var opts = {
-                transports: ['websocket']
-            };
+        function _open() {
+            var url = (greyscaleEnv.apiProtocol || 'http') + '://' +
+                ([greyscaleEnv.apiHostname, greyscaleEnv.apiPort].join(':') + '/'),
+                opts = {
+                    transports: ['websocket']
+                };
+
             return window.io(url, opts);
         }
+
+        function _getId() {
+            var res = null;
+            if (socket) {
+                res = socket.id;
+            }
+
+            return res;
+        }
     })
-    .run(function (greyscaleWebSocketSrv) {
-        greyscaleWebSocketSrv.init();
+    .run(function (greyscaleWebSocketSrv, greyscaleTokenSrv) {
+        if (greyscaleTokenSrv()) {
+            greyscaleWebSocketSrv.init();
+        }
     });
