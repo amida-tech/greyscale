@@ -61,8 +61,6 @@ angular.module('greyscaleApp')
                     });
                 };
 
-                $scope.highlightSource = _highlightSource;
-
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
                 }
@@ -83,15 +81,14 @@ angular.module('greyscaleApp')
                         } else {
                             fView.hide();
                         }
+
+                        taText.on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                     }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
-
-                    msgBody.find('.ta-text')
-                        .on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
                 });
             }
         };
