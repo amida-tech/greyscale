@@ -1,5 +1,5 @@
 <div>
-    <div ng-if="isAdmin();">
+    <div ng-if="isAdmin() && model.items.length > 0">
         <a ng-click="hideComments('all');">
             <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL"></span>
         </a><br />
@@ -7,6 +7,11 @@
             <i class="fa fa-eye-slash"></i> <span translate="COMMENTS.HIDE_ALL_FLAGGED"></span>
         </a>
     </div>
-    <div gs-message="msg" associate="model.associate" options="policy.options" ng-repeat="msg in model.items"></div>
+    <div gs-message="msg"
+         associate="model.associate"
+         options="policy.options"
+         remove="removeComment(msg)"
+         edit="editComment(msg)"
+         ng-repeat="msg in model.items"></div>
     <p class="text-center" translate="COMMENTS.NO_MESSAGES" ng-hide="model.items.length > 0"></p>
 </div>
