@@ -17,7 +17,8 @@ angular.module('greyscale.core')
         this.off = _off;
 
         function _setUser() {
-            socket.emit(events.ws.setUser, {
+            _emit(events.ws.setUser, {
+                socketId: socket.id,
                 token: greyscaleTokenSrv()
             });
         }
@@ -45,6 +46,7 @@ angular.module('greyscale.core')
 
         function _emit(eventName, data) {
             if (socket) {
+                angular.extend(data, {socketId: socket.id});
                 socket.emit(eventName, data);
             }
         }
