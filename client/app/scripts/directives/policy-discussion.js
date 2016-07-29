@@ -102,6 +102,10 @@ angular.module('greyscaleApp')
                         _comment.tag = _getTags(_comment.tags);
                     }
 
+                    while (_comment.range && typeof _comment.range === 'string') {
+                        _comment.range = JSON.parse(_comment.range);
+                    }
+
                     greyscaleModalsSrv.policyComment(_comment, _opt)
                         .then(save)
                         .catch(function (reason) {
