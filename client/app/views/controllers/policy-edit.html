@@ -1,7 +1,7 @@
 <div class="row policy-edit">
     <div name="dataForm" class="col-sm-12 form-horizontal" ng-form="dataForm">
-        <div uib-alert class="alert-warning" ng-if="model.policy.options.readonly">
-            <span translate="POLICY.IS_EDITING_BY"></span> {{model.survey.editorUser.fullName}} ({{model.survey.editorUser.email}})
+        <div uib-alert class="alert-warning" ng-if="model.lock.locked">
+            <span translate="POLICY.IS_EDITING_BY"></span> {{model.lock.editorUser.fullName}} ({{model.lock.editorUser.email}})
             <span class="subtext">{{model.survey.startEdit | date:'y/MM/dd H:m:ss'}}</span>
         </div>
         <div class="row">
@@ -15,7 +15,7 @@
             </div>
             -->
         </div>
-        <div ng-if="!model.policy.options.readonly && !model.loading">
+        <div ng-if="!model.policy.options.readonly && !model.loading && !model.lock.locked">
             <form-builder ng-model="model.survey"></form-builder>
         </div>
         <div class="row">

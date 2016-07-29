@@ -46,7 +46,9 @@ angular.module('greyscale.core')
 
         function _emit(eventName, data) {
             if (socket) {
-                angular.extend(data, {socketId: socket.id});
+                angular.extend(data, {
+                    socketId: socket.id
+                });
                 socket.emit(eventName, data);
             }
         }
