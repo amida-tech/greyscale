@@ -185,6 +185,7 @@ angular.module('greyscaleApp')
                 _survey.id = surveyId;
             }
             angular.extend(_survey, {
+                socketId: greyscaleWebSocketSrv.id(),
                 policyId: _policy.id,
                 title: _policy.title,
                 section: _policy.section,
