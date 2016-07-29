@@ -87,6 +87,7 @@ angular.module('greyscaleApp')
                 .then(_setAuthor);
             _policiesGenerate($scope.model.policy.sections);
             $state.ext.surveyName = i18n.translate('SURVEYS.NEW_SURVEY');
+            $scope.model.policy.options.canImport = true;
         }
 
         function _loadSurvey() {
