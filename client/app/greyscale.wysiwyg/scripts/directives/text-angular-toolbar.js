@@ -1,16 +1,21 @@
 'use strict';
-angular.module('greyscaleApp')
-    .directive('textAngularToolbar', function ($window, $interval) {
+angular.module('greyscale.wysiwyg')
+    .directive('textAngularToolbar', function ($window, $log) {
         return {
             link: _link
         };
 
         function _link(scope, el) {
+            $log.debug('taToolbar ', el);
             var stop = scope.$watch(_detectFocus(el), _toggleExtendedMode(el));
             scope.$on('$destroy', function () {
                 stop();
                 _stopControlPosition(el);
             });
+
+            angular.element($window).bind('scroll', function(){
+                $log.debug($window);
+            })
         }
 
         function _detectFocus(el) {
@@ -21,6 +26,7 @@ angular.module('greyscaleApp')
 
         function _toggleExtendedMode(el) {
             return function (activate) {
+                $log.debug('taToolbar extended mode', el, activate);
                 _toggleControlPosition(el, activate);
             };
         }
@@ -54,6 +60,7 @@ angular.module('greyscaleApp')
                     el.css('top', offset);
                 }
             };
+
             setOffset();
             angular.element($window).on('scroll', setOffset);
             return function () {
@@ -62,14 +69,15 @@ angular.module('greyscaleApp')
         }
 
         function _getToolbarOffset(el) {
-            var offset = _findWiewportOfset(el[0].parentNode);
+            var offset = _findViewportOffset(el[0].parentNode);
             offset = offset < 0 ? -offset : 0;
             offset = (offset >= el.next().height()) ? 0 : offset;
             return offset;
         }
 
-        function _findWiewportOfset(node) {
+        function _findViewportOffset(node) {
             var viewportOffset = 0;
+            $log.debug(node, $window.scrollY);
             if (node.offsetParent) {
                 do {
                     viewportOffset += node.offsetTop;
