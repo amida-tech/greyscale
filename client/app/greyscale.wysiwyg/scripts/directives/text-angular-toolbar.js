@@ -1,21 +1,16 @@
 'use strict';
 angular.module('greyscale.wysiwyg')
-    .directive('textAngularToolbar', function ($window, $log) {
+    .directive('textAngularToolbar', function ($window) {
         return {
             link: _link
         };
 
         function _link(scope, el) {
-            $log.debug('taToolbar ', el);
             var stop = scope.$watch(_detectFocus(el), _toggleExtendedMode(el));
             scope.$on('$destroy', function () {
                 stop();
                 _stopControlPosition(el);
             });
-
-            angular.element($window).bind('scroll', function(){
-                $log.debug($window);
-            })
         }
 
         function _detectFocus(el) {
@@ -26,7 +21,6 @@ angular.module('greyscale.wysiwyg')
 
         function _toggleExtendedMode(el) {
             return function (activate) {
-                $log.debug('taToolbar extended mode', el, activate);
                 _toggleControlPosition(el, activate);
             };
         }
@@ -52,38 +46,34 @@ angular.module('greyscale.wysiwyg')
         }
 
         function _controlPosition(el) {
-            var prev;
+            var prev,
+                _modal = angular.element('body.modal-open .modal'),
+                _container = $window;
+
             var setOffset = function () {
-                var offset = _getToolbarOffset(el);
+                var offset = _getToolbarOffsetY(el, el[0].parentNode);
                 if (prev !== offset) {
                     prev = offset;
                     el.css('top', offset);
                 }
             };
 
+            if (_modal.length > 0) {
+                _container = _modal[0];
+            }
+
             setOffset();
-            angular.element($window).on('scroll', setOffset);
+            angular.element(_container).on('scroll', setOffset);
             return function () {
-                angular.element($window).off('scroll', setOffset);
+                angular.element(_container).off('scroll', setOffset);
             };
         }
 
-        function _getToolbarOffset(el) {
-            var offset = _findViewportOffset(el[0].parentNode);
+        function _getToolbarOffsetY(el, container) {
+            var _eBox = container.getBoundingClientRect();
+            var offset = _eBox.top;
             offset = offset < 0 ? -offset : 0;
             offset = (offset >= el.next().height()) ? 0 : offset;
             return offset;
-        }
-
-        function _findViewportOffset(node) {
-            var viewportOffset = 0;
-            $log.debug(node, $window.scrollY);
-            if (node.offsetParent) {
-                do {
-                    viewportOffset += node.offsetTop;
-                    node = node.offsetParent;
-                } while (node);
-            }
-            return viewportOffset - $window.scrollY;
         }
     });
