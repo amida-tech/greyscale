@@ -591,7 +591,7 @@ var exportObject = function  (req, realm) {
             // get all noncompleted tasks, where groupIds contain groups for deleting (from these groups user was removed)
             var delTasks = [], tasks;
             for (i in delGroups) {
-                tasks = yield self.getTasksByGroup(delGroups[i]);
+                tasks = yield self.getTasksByGroup(delGroups[i], 'curStep');
                 for (j in tasks) {
                     if (typeof _.findWhere(delTasks, {id: tasks[j].id}) === 'undefined') {
                         delTasks.push(tasks[j]);
@@ -612,7 +612,7 @@ var exportObject = function  (req, realm) {
             // get all noncompleted tasks, where groupIds contain groups for adding (to these groups user was added)
             var newTasks = [];
             for (i in newGroups) {
-                tasks = yield self.getTasksByGroup(newGroups[i]);
+                tasks = yield self.getTasksByGroup(newGroups[i], 'curStep');
                 for (j in tasks) {
                     if (typeof _.findWhere(newTasks, {id: tasks[j].id}) === 'undefined') {
                         newTasks.push(tasks[j]);
@@ -626,14 +626,16 @@ var exportObject = function  (req, realm) {
                     if (users.indexOf(userId) === -1) {
                         // user is realy new user - was not assign to task before
                         // modify user in TaskUserState (add or update)
-                        var step = yield * common.getStepByTask(req, newTasks[i].id);
-                        var taskUserState = yield oTaskUserState.upsert(newTasks[i].id, userId, step.endDate);
+                        //var step = yield * common.getStepByTask(req, newTasks[i].id);
+                        var taskUserState = yield oTaskUserState.upsert(newTasks[i].id, userId, newTasks[i].endDate);
                         if (!taskUserState) {
-                            // notify about assign
-                            oProduct.notifyOneUser(userId, {
-                                body: 'Task updated (added new user to assigned group(s))',
-                                action: 'Task updated (added new user to assigned group(s))'
-                            }, newTasks[i].id, newTasks[i].id, 'Tasks', 'assignTask');
+                            if (newTasks[i].status !== 'completed') {   // notify only noncompleted tasks
+                                // notify about assign
+                                oProduct.notifyOneUser(userId, {
+                                    body: 'Task updated (added new user to assigned group(s))',
+                                    action: 'Task updated (added new user to assigned group(s))'
+                                }, newTasks[i].id, newTasks[i].id, 'Tasks', 'assignTask');
+                            }
                             if (newTasks[i].stepId === newTasks[i].currentStepId) {
                                 // current step is active
                                 // notify about activation
@@ -649,7 +651,7 @@ var exportObject = function  (req, realm) {
             }
         });
     };
-    this.getTasksByGroup = function (groupId) {
+    this.getTasksByGroup = function (groupId, curStepAlias) {
         var self = this;
         return co(function* () {
             return yield thunkQuery(Task
@@ -658,13 +660,23 @@ var exportObject = function  (req, realm) {
                     Task.userIds,
                     Task.groupIds,
                     Task.stepId,
-                    ProductUOA.currentStepId
+                    Task.endDate,
+                    ProductUOA.currentStepId,
+                    self.taskStatus.statusColumn(curStepAlias)
             )
                 .from(
                 Task
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
                     .leftJoin(ProductUOA)
                     .on(Task.productId.equals(ProductUOA.productId)
                         .and(Task.uoaId.equals(ProductUOA.UOAid))
+                )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                    ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
                 )
             )
                 .where(Task.groupIds.contains('{' + groupId + '}')
