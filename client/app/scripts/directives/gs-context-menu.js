@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('gsContextMenu', function (greyscaleSelection, $timeout, $window) {
+    .directive('gsContextMenu', function (greyscaleSelection, greyscaleUtilsSrv, $timeout, $window) {
         return {
             restrict: 'A',
             transclude: true,
@@ -41,7 +41,7 @@ angular.module('greyscaleApp')
                         evt.preventDefault();
                         menu = elem.find('#' + scope.model.menuId);
 
-                        _offset = _getOffset(evt.currentTarget);
+                        _offset = greyscaleUtilsSrv.getElemOffset(evt.currentTarget);
 
                         _offset = {
                             left: evt.pageX - _offset.left,
@@ -72,46 +72,6 @@ angular.module('greyscaleApp')
                             elem.addClass('open');
                         }, 0);
                     }
-                }
-
-                function _getOffset(elem) {
-                    if (elem.getBoundingClientRect) {
-                        return getOffsetRect(elem);
-                    } else {
-                        return getOffsetSum(elem);
-                    }
-                }
-
-                function getOffsetSum(elem) {
-                    var top = 0,
-                        left = 0;
-
-                    while (elem) {
-                        top = top + parseInt(elem.offsetTop);
-                        left = left + parseInt(elem.offsetLeft);
-                        elem = elem.offsetParent;
-                    }
-
-                    return {
-                        top: top,
-                        left: left
-                    };
-                }
-
-                function getOffsetRect(elem) {
-                    var box = elem.getBoundingClientRect(),
-                        body = $window.document.body,
-                        docElem = $window.document.documentElement;
-
-                    var scrollTop = $window.pageYOffset || docElem.scrollTop || body.scrollTop,
-                        scrollLeft = $window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
-                        clientTop = docElem.clientTop || body.clientTop || 0,
-                        clientLeft = docElem.clientLeft || body.clientLeft || 0;
-
-                    return {
-                        top: Math.round(box.top + scrollTop - clientTop),
-                        left: Math.round(box.left + scrollLeft - clientLeft)
-                    };
                 }
 
                 function _hasSelection() {

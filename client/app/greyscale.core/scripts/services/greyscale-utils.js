@@ -18,7 +18,8 @@ angular.module('greyscale.core')
             getApiBase: _getApiBase,
             capitalize: _capitalize,
             countWords: _countWords,
-            getUserName: _getUserName
+            getUserName: _getUserName,
+            getElemOffset: _getOffset
         };
 
         function _decode(dict, key, code, name) {
@@ -164,4 +165,45 @@ angular.module('greyscale.core')
         function _getUserName(profile) {
             return [profile.firstName, profile.lastName].join(' ');
         }
+
+        function _getOffset(elem) {
+            if (elem.getBoundingClientRect) {
+                return _getOffsetRect(elem);
+            } else {
+                return _getOffsetSum(elem);
+            }
+        }
+
+        function _getOffsetSum(elem) {
+            var top = 0,
+                left = 0;
+
+            while (elem) {
+                top = top + parseInt(elem.offsetTop);
+                left = left + parseInt(elem.offsetLeft);
+                elem = elem.offsetParent;
+            }
+
+            return {
+                top: top,
+                left: left
+            };
+        }
+
+        function _getOffsetRect(elem) {
+            var box = elem.getBoundingClientRect(),
+                body = $window.document.body,
+                docElem = $window.document.documentElement;
+
+            var scrollTop = $window.pageYOffset || docElem.scrollTop || body.scrollTop,
+                scrollLeft = $window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+                clientTop = docElem.clientTop || body.clientTop || 0,
+                clientLeft = docElem.clientLeft || body.clientLeft || 0;
+
+            return {
+                top: Math.round(box.top + scrollTop - clientTop),
+                left: Math.round(box.left + scrollLeft - clientLeft)
+            };
+        }
+
     });
