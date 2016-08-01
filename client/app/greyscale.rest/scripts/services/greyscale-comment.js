@@ -12,7 +12,9 @@ angular.module('greyscale.rest')
             add: _add,
             update: _update,
             remove: _remove,
-            getUsers: _users
+            getUsers: _users,
+            getAnswers: _getAnswers,
+            postAnswer: _postAnswer
         };
 
         function _api() {
@@ -56,5 +58,13 @@ angular.module('greyscale.rest')
 
         function _users(taskId) {
             return _api().one('users', taskId + '').get().then(_response);
+        }
+
+        function _getAnswers(commentId) {
+            return _api().one(commentId + '').one('answers').get().then(_response);
+        }
+
+        function _postAnswer(commentId, answer) {
+            return _api().one(commentId + '').one('answers').customPOST(answer).then(_response);
         }
     });

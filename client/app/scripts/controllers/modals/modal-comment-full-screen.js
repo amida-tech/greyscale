@@ -1,13 +1,11 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalCommentFullScreenCtrl', function($scope, $q, greyscaleCommentApi, greyscaleUtilsSrv) {
+.controller('ModalCommentFullScreenCtrl', function(_, $scope, $q, greyscaleCommentApi, greyscaleUtilsSrv) {
 
     var comment = $scope.model;
 
-    var _dicts = {};
-
-    var _subcomments = {
+    var _answers = {
         model: {},
         state: {},
         associate: {
@@ -15,51 +13,59 @@ angular.module('greyscaleApp')
 
         },
         list: [],
-        counts: {},
+        counter: {},
         add: _add,
         cancel: _cancel,
         submit: _submit
     };
 
-    $scope.subcomments = _subcomments;
+    $scope.answers = _answers;
 
-    _initCommentData();
+    _updateCommentData();
 
     function _add(agree){
-        _subcomments.model.agree = agree;
-        _subcomments.state.adding = true;
+        _answers.model.isAgree = agree;
+        _answers.state.adding = true;
     }
 
     function _cancel(){
-        _subcomments.state.adding = false;
+        _answers.state.adding = false;
     }
 
     function _submit() {
-        console.log(_subcomments.model);
+        var answerData = {
+            entry: _answers.model.entry,
+            tags: greyscaleUtilsSrv.getTagsPostData(_answers.model.tag),
+            isAgree: _answers.model.isAgree
+        };
+        greyscaleCommentApi.postAnswer(comment.id, answerData)
+            .then(_updateCommentData)
+            .then(_clearAddingMode);
     }
 
-    function _initCommentData() {
+    function _clearAddingMode() {
+        _answers.state.adding = false;
+        _answers.model = {};
+    }
+
+    function _updateCommentData() {
 
         var reqs = {
             tags: greyscaleCommentApi.getUsers(comment.taskId),
-            subcomments: _getSubcommentsData()
+            answers: greyscaleCommentApi.getAnswers(comment.id)
         };
 
         $q.all(reqs).then(function(resp){
-            _subcomments.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
-            _subcomments.list = resp.subcomments;
-            console.log(_subcomments);
-        });
-
+            _answers.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
+            _answers.list = resp.answers;
+            return _answers.list;
+        })
+        .then(_setCounters);
     }
 
-    function _getSubcommentsData() {
-        return [
-            {entry: '<p>subcomment text 1</p>', agree: true, user: 'John Doe', created: new Date()},
-            {entry: '<p>subcomment text 2</p>', agree: false, user: 'John Doe', created: new Date()},
-            {entry: '<p>subcomment text 3</p>', agree: true, user: 'John Doe', created: new Date()},
-            {entry: '<p>subcomment text 4</p>', agree: false, user: 'John Doe', created: new Date()}
-        ];
+    function _setCounters(answers) {
+        _answers.counter.agreed = _.filter(answers, 'isAgree').length;
+        _answers.counter.disagreed = answers.length - _answers.counter.agreed;
     }
 
 });

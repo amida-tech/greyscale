@@ -37,21 +37,6 @@ angular.module('greyscaleApp')
 
                     greyscaleModalsSrv.policyComment(data, {})
                         .then(function (commentBody) {
-                            var _tag = {
-                                    users: [],
-                                    groups: []
-                                },
-                                i, qty;
-
-                            qty = commentBody.tag ? commentBody.tag.length : 0;
-
-                            for (i = 0; i < qty; i++) {
-                                if (commentBody.tag[i].userId) {
-                                    _tag.users.push(commentBody.tag[i].userId);
-                                } else if (commentBody.tag[i].groupId) {
-                                    _tag.groups.push(commentBody.tag[i].groupId);
-                                }
-                            }
                             _newComment = {
                                 userFromId: $scope.policy.userId,
                                 taskId: $scope.policy.taskId,
@@ -59,7 +44,7 @@ angular.module('greyscaleApp')
                                 questionId: commentBody.section.id,
                                 entry: commentBody.comment,
                                 range: commentBody.range,
-                                tags: _tag,
+                                tags: greyscaleUtilsSrv.getTagsPostData(commentBody.tag),
                                 commentType: commentBody.type,
                                 isReturn: commentBody.flag
                             };

@@ -19,7 +19,8 @@ angular.module('greyscale.core')
             capitalize: _capitalize,
             countWords: _countWords,
             getUserName: _getUserName,
-            getTagsAssociate: _getTagsAssociate
+            getTagsAssociate: _getTagsAssociate,
+            getTagsPostData: _getTagsPostData
         };
 
         function _decode(dict, key, code, name) {
@@ -187,5 +188,24 @@ angular.module('greyscale.core')
                 _associate.tags.push(tagsData.groups[i]);
             }
             return _associate;
+        }
+
+        function _getTagsPostData(tags) {
+            var _tagsData = {
+                    users: [],
+                    groups: []
+                },
+                i, qty;
+
+            qty = tags ? tags.length : 0;
+
+            for (i = 0; i < qty; i++) {
+                if (tags[i].userId) {
+                    _tagsData.users.push(tags[i].userId);
+                } else if (tags[i].groupId) {
+                    _tagsData.groups.push(tags[i].groupId);
+                }
+            }
+            return _tagsData;
         }
     });
