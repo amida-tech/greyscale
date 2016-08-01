@@ -47,12 +47,17 @@ var exportObject = function  (req, realm) {
             if (policy.socketId && (policy.socketId !== socketId)) {
                 var startEditOld = new Date(policy.startEdit);
                 var range = startEdit.getTime() - startEditOld.getTime();
+                console.log('--->>>>>');
+                console.log(range);
+                console.log(self._lockLimit);
                 if ((range < self._lockLimit) && (policy.editor !== userId)) {
                     throw new HttpError(403, "Policy already locked");
                 }
             }
 
             var user = yield oUser.getById(userId);
+
+            console.log(user);
 
             if (!user) {
                 throw new HttpError(403, "User with id = " + userId + " does not exist");
@@ -68,6 +73,17 @@ var exportObject = function  (req, realm) {
 
             var policy = yield thunkQuery(Policy.update(editFields).where(Policy.id.equals(id)).returning(Policy.star()));
             return policy[0];
+        });
+    };
+
+    this.unlockSocketPolicies = function (socketId) { // in theory, we can have just one locked policy per connection
+        return co(function* () {
+            var editFields = {
+                socketId: null,
+                editor: null,
+                startEdit: null
+            };
+            return yield thunkQuery(Policy.update(editFields).where(Policy.socketId.equals(socketId)).returning(Policy.star()));
         });
     };
 
