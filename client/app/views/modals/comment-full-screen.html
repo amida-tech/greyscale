@@ -42,8 +42,8 @@
         <button class="btn btn-primary" ng-click="answers.submit()" translate="COMMON.SUBMIT"></button>
     </div>
     <div ng-if="!answers.state.adding">
-        <button class="btn btn-primary" ng-click="answers.add(true)">{{'COMMON.AGREE'|translate}} ({{answers.counter.agreed||0}})</button>
-        <button class="btn btn-default" ng-click="answers.add(false)">{{'COMMON.DISAGREE'|translate}} ({{answers.counter.disagreed||0}})</button>
+        <button class="btn btn-primary" ng-click="answers.add(true)">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
+        <button class="btn btn-default" ng-click="answers.add(false)">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
         <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
     </div>
 </div>
