@@ -46,9 +46,7 @@ angular.module('greyscale.wysiwyg')
         }
 
         function _controlPosition(el) {
-            var prev,
-                _modal = angular.element('body.modal-open .modal'),
-                _container = $window;
+            var prev;
 
             var setOffset = function () {
                 var offset = _getToolbarOffsetY(el, el[0].parentNode);
@@ -58,14 +56,11 @@ angular.module('greyscale.wysiwyg')
                 }
             };
 
-            if (_modal.length > 0) {
-                _container = _modal[0];
-            }
-
             setOffset();
-            angular.element(_container).on('scroll', setOffset);
+
+            $window.document.addEventListener('scroll', setOffset);
             return function () {
-                angular.element(_container).off('scroll', setOffset);
+                $window.document.removeEventListener('scroll', setOffset);
             };
         }
 
