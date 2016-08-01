@@ -1,9 +1,13 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalCommentFullScreenCtrl', function(_, $scope, $q, greyscaleCommentApi, greyscaleUtilsSrv) {
+.controller('ModalCommentFullScreenCtrl', function(comment, _, $scope, $q, greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance) {
 
-    var comment = $scope.model;
+    $scope.close = function () {
+        $uibModalInstance.dismiss();
+    };
+
+    $scope.model = comment;
 
     var _answers = {
         model: {},
@@ -64,8 +68,8 @@ angular.module('greyscaleApp')
     }
 
     function _setCounters(answers) {
-        _answers.counter.agreed = _.filter(answers, 'isAgree').length;
-        _answers.counter.disagreed = answers.length - _answers.counter.agreed;
+        comment.agree = _.filter(answers, 'isAgree').length;
+        comment.disagree = answers.length - comment.agree;
     }
 
 });

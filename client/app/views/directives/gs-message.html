@@ -6,7 +6,9 @@
 <div class="gs-message-body-warpper">
     <div class="gs-message-body" ng-hide="isEdit">
         <div class="ta-text" ng-bind-html="model.entry"></div>
-        <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>
+        <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action">
+            <i class="fa fa-comments-o"></i> <small>+{{model.agree||0}}/-{{model.disagree||0}}</small>
+        </a></div>
     </div>
     <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
     <div class="text-right gs-message-actions" ng-hide="model.activated">
