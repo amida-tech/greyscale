@@ -61,21 +61,12 @@ angular.module('greyscaleApp')
             link: function (scope, elem) {
 
                 scope.$watch('model', function () {
-                    var msgBody = (elem.find('.gs-message-body')),
-                        taText, fView;
 
-                    if (msgBody.length > 0) {
-                        taText = (msgBody.find('.ta-text'));
-                        fView = (msgBody.find('.gs-message-full-view'));
-                        if (msgBody.innerHeight() < taText.outerHeight()) {
-                            fView.show();
-                        } else {
-                            fView.hide();
-                        }
-                    }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+
+                    var msgBody = (elem.find('.gs-message-body'));
 
                     msgBody.find('.ta-text')
                         .on('click', function (e) {
