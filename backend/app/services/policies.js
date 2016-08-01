@@ -47,17 +47,12 @@ var exportObject = function  (req, realm) {
             if (policy.socketId && (policy.socketId !== socketId)) {
                 var startEditOld = new Date(policy.startEdit);
                 var range = startEdit.getTime() - startEditOld.getTime();
-                console.log('--->>>>>');
-                console.log(range);
-                console.log(self._lockLimit);
                 if ((range < self._lockLimit) && (policy.editor !== userId)) {
                     throw new HttpError(403, "Policy already locked");
                 }
             }
 
             var user = yield oUser.getById(userId);
-
-            console.log(user);
 
             if (!user) {
                 throw new HttpError(403, "User with id = " + userId + " does not exist");
