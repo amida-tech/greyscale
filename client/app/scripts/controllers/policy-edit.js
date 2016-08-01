@@ -19,7 +19,7 @@ angular.module('greyscaleApp')
         };
 
         var lAnswerDirty,
-            lockHeartBeat;
+            hbPromise;
 
         Organization.$lock = true;
 
@@ -58,8 +58,8 @@ angular.module('greyscaleApp')
             $scope.dataForm.$setDirty();
         });
 
-        lockHeartBeat = $interval(function () {
-            if ($scope.model.survey.isPolicy && $scope.model.survey.policyId && !$scope.model.policy.options.readonly) {
+        hbPromise = $interval(function () {
+            if ($scope.model.survey.isPolicy && $scope.model.survey.policyId && !$scope.model.lock.locked) {
                 _lockPolicy($scope.model.survey.policyId);
             }
         }, greyscaleGlobals.wsHeartbeatSec * 1000);
@@ -73,13 +73,14 @@ angular.module('greyscaleApp')
         greyscaleWebSocketSrv.on(wsEvents.policyLocked, _policyLocked);
         greyscaleWebSocketSrv.on(wsEvents.policyUnlocked, _policyUnlocked);
 
-        $scope.$on('$destroy', function () {
+        var _destroy = $scope.$on('$destroy', function () {
             Organization.$lock = false;
             lAnswerDirty();
-            lockHeartBeat();
+            $interval.cancel(hbPromise);
             greyscaleWebSocketSrv.off(wsEvents.policyLocked, _policyLocked);
             greyscaleWebSocketSrv.off(wsEvents.policyUnlocked, _policyUnlocked);
             _unlockPolicy($scope.model.survey.policyId);
+            _destroy();
         });
 
         greyscaleProfileSrv.getProfile()
