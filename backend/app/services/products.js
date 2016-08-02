@@ -10,6 +10,7 @@ var
     Project = require('app/models/projects'),
     Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
+    Task = require('app/models/tasks'),
     sTask = require('app/services/tasks'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -313,6 +314,7 @@ var exportObject = function  (req, realm) {
         });
     };
     this.notify = function (note0, entryId, taskId, essenceName, templateName) {
+        var self = this;
         co(function* () {
             var userTo, note;
             // notify
@@ -321,9 +323,7 @@ var exportObject = function  (req, realm) {
             for (var i in task.userIds) {
                 if (sentUsersId.indexOf(task.userIds[i]) === -1) {
                     if (req.user.id !== task.userIds[i]) { // don't send self notification
-                        userTo = yield * common.getUser(req, task.userIds[i]);
-                        note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                        notifications.notify(req, userTo, note, templateName);
+                        yield self.notifyOneUser(task.userIds[i], note0, entryId, taskId, essenceName, templateName);
                         sentUsersId.push(task.userIds[i]);
                     }
                 }
@@ -333,9 +333,7 @@ var exportObject = function  (req, realm) {
                 for (var j in usersFromGroup) {
                     if (sentUsersId.indexOf(usersFromGroup[j].userId) === -1) {
                         if (req.user.id !== usersFromGroup[j].userId) { // don't send self notification
-                            userTo = yield * common.getUser(req, usersFromGroup[j].userId);
-                            note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
-                            notifications.notify(req, userTo, note, templateName);
+                            yield self.notifyOneUser(usersFromGroup[j].userId, note0, entryId, taskId, essenceName, templateName);
                             sentUsersId.push(usersFromGroup[j].userId);
                         }
                     }
@@ -345,6 +343,14 @@ var exportObject = function  (req, realm) {
             debug('Created notifications `' + note0.action + '`');
         }, function (err) {
             error(JSON.stringify(err));
+        });
+    };
+    this.notifyOneUser = function (userId, note0, entryId, taskId, essenceName, templateName) {
+        var self = this;
+        return co(function* () {
+            var userTo = yield * common.getUser(req, userId);
+            var note = yield * notifications.extendNote(req, note0, userTo, essenceName, entryId, userTo.organizationId, taskId);
+            notifications.notify(req, userTo, note, templateName);
         });
     };
 };

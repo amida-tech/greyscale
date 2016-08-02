@@ -38,7 +38,7 @@ angular.module('greyscaleApp')
                         _res = _.find($scope.field.options, {
                             id: answer.optionId[0]
                         });
-                        _res = _res.label;
+                        _res = _res ? _res.label : null;
                     }
 
                     if (_res === null) {

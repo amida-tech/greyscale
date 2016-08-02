@@ -182,10 +182,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "Approved",
-            "DELAYED": "Delayed",
             "FLAGGED": "Flagged",
             "LATE": "Late",
-            "PENDING": "Pending"
+            "PENDING": "Pending",
+            "STARTED": "Started"
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
@@ -393,7 +393,7 @@
         "PROJECT": "Project"
     },
     "POLICY": {
-        "APPROVE": "Aprove",
+        "APPROVE": "Approve",
         "AUTHOR": "Author",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
