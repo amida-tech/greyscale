@@ -6,30 +6,38 @@
 angular.module('greyscale.rest')
     .factory('greyscaleLanguageApi', function (greyscaleRestSrv) {
 
-        var _api = function () {
-            return greyscaleRestSrv().one('languages');
-        };
-
-        function _listLanguage() {
-            return _api().get();
-        }
-
-        function _addLanguage(language) {
-            return _api().customPOST(language);
-        }
-
-        function _deleteLanguage(language) {
-            return _api().one(language.id + '').remove();
-        }
-
-        var _updateLanguage = function (language) {
-            return _api().one(language.id + '').customPUT(language);
-        };
-
         return {
             list: _listLanguage,
             add: _addLanguage,
             update: _updateLanguage,
             delete: _deleteLanguage
         };
+
+        function _api() {
+            return greyscaleRestSrv().one('languages');
+        }
+
+        function _prepareData(resp) {
+            if (resp) {
+                return resp.plain();
+            } else {
+                return resp;
+            }
+        }
+
+        function _listLanguage() {
+            return _api().get().then(_prepareData);
+        }
+
+        function _addLanguage(language) {
+            return _api().customPOST(language).then(_prepareData);
+        }
+
+        function _deleteLanguage(language) {
+            return _api().one(language.id + '').remove().then(_prepareData);
+        }
+
+        function _updateLanguage(language) {
+            return _api().one(language.id + '').customPUT(language).then(_prepareData);
+        }
     });

@@ -260,7 +260,7 @@ table.table-col-fixed {
         margin-top: 0;
     }
     .table.hidden-head {
-        tr th {
+        > thead > tr > th {
             display: none;
         }
     }

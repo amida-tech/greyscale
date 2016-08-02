@@ -168,7 +168,7 @@ angular.module('greyscaleApp')
                         _steps;
 
                     /* assign to steps */
-                    _steps = _.remove(resp.steps.plain(), {
+                    _steps = _.remove(resp.steps, {
                         id: task.stepId
                     });
                     currentStep = _steps[0];
