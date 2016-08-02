@@ -8,6 +8,7 @@ var
     Product = require('app/models/products'),
     Survey = require('app/models/surveys'),
     Project = require('app/models/projects'),
+    Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
     Task = require('app/models/tasks'),
     sTask = require('app/services/tasks'),
