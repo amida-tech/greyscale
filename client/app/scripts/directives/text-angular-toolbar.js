@@ -1,6 +1,6 @@
 'use strict';
 angular.module('greyscaleApp')
-    .directive('textAngularToolbar', function () {
+    .directive('textAngularToolbar', function ($window, $interval) {
         return {
             link: _link
         };
@@ -55,16 +55,27 @@ angular.module('greyscaleApp')
                 }
             };
             setOffset();
-            document.addEventListener('scroll', setOffset, true);
+            angular.element($window).on('scroll', setOffset);
             return function () {
-                document.removeEventListener('scroll', setOffset, true);
+                angular.element($window).off('scroll', setOffset);
             };
         }
 
         function _getToolbarOffset(el) {
-            var offset = el[0].parentNode.getBoundingClientRect().top;
+            var offset = _findWiewportOfset(el[0].parentNode);
             offset = offset < 0 ? -offset : 0;
             offset = (offset >= el.next().height()) ? 0 : offset;
             return offset;
+        }
+
+        function _findWiewportOfset(node) {
+            var viewportOffset = 0;
+            if (node.offsetParent) {
+                do {
+                    viewportOffset += node.offsetTop;
+                    node = node.offsetParent;
+                } while (node);
+            }
+            return viewportOffset - $window.scrollY;
         }
     });

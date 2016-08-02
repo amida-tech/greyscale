@@ -93,7 +93,7 @@ app.on('start', function () {
             return;
         }
         var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
-        var policyUoaName = config.pgConnect.policyUoaName || '<Policy>';
+        var policyUoaName = config.pgConnect.policyUoaName || '_Policy_';
         var policyUoaId, policyUoaTypeId;
         co(function* () {
             if (process.env.BOOTSTRAP_MEMCACHED !== 'DISABLE') {
@@ -150,7 +150,8 @@ app.on('start', function () {
                     policyUoaId = yield thunkQuery(Uoa
                             .select(Uoa.id)
                             .from(Uoa)
-                            .where(Uoa.unitOfAnalysisType.equals(policyUoaTypeId))
+                            .where(Uoa.name.equals(policyUoaName))
+                            .and(Uoa.unitOfAnalysisType.equals(policyUoaTypeId))
                     );
                     if (_.first(policyUoaId)) {
                         debug('Policy virtual subject exist');

@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('gsContextMenu', function (greyscaleSelection, $timeout, $log) {
+    .directive('gsContextMenu', function (greyscaleSelection, greyscaleUtilsSrv, $timeout, $window) {
         return {
             restrict: 'A',
             transclude: true,
@@ -34,46 +34,39 @@ angular.module('greyscaleApp')
                 elem.on('contextmenu', _showContextMenu);
 
                 function _showContextMenu(evt) {
-                    var node, x, y, menu, bottom, right,
-                        limit = 1000;
+                    var menu, bottom, right,
+                        _offset;
 
                     if (_hasSelection()) {
                         evt.preventDefault();
-                        node = evt.target;
-                        x = evt.offsetX;
-                        y = evt.offsetY;
+                        menu = elem.find('#' + scope.model.menuId);
 
-                        while (node && limit && node !== evt.currentTarget) {
-                            limit--;
-                            if (node.nodeName !== 'TR') {
-                                x += node.offsetLeft;
-                                y += node.offsetTop;
-                            }
-                            node = node.offsetParent || node.parentNode;
-                        }
-                        scope.model.data = {
-                            range: window.getSelection().getRangeAt(0),
-                            selection: greyscaleSelection.get(document.getElementById(scope.qid)),
-                            selectedHtml: greyscaleSelection.html()
+                        _offset = greyscaleUtilsSrv.getElemOffset(evt.currentTarget);
+
+                        _offset = {
+                            left: evt.pageX - _offset.left,
+                            top: evt.pageY - _offset.top
                         };
 
-                        menu = elem.find('#' + scope.model.menuId);
                         right = evt.clientX + menu.outerWidth() + 5;
 
-                        if (x + menu.width > window.innerWidth) {
-                            x -= (right - window.innerWidth);
+                        if (right > $window.innerWidth) {
+                            _offset.left -= (right - $window.innerWidth);
                         }
 
                         bottom = evt.clientY + menu.outerHeight() + 5;
 
-                        if (bottom > window.innerHeight) {
-                            y -= (bottom - window.innerHeight);
+                        if (bottom > $window.innerHeight) {
+                            _offset.top -= (bottom - $window.innerHeight);
                         }
 
-                        menu.css({
-                            left: x,
-                            top: y
-                        });
+                        menu.css(_offset);
+
+                        scope.model.data = {
+                            range: $window.getSelection().getRangeAt(0),
+                            selection: greyscaleSelection.get($window.document.getElementById(scope.qid)),
+                            selectedHtml: greyscaleSelection.html()
+                        };
 
                         $timeout(function () {
                             elem.addClass('open');
@@ -82,7 +75,7 @@ angular.module('greyscaleApp')
                 }
 
                 function _hasSelection() {
-                    var _range = window.getSelection().getRangeAt(0).cloneRange().toString();
+                    var _range = $window.getSelection().getRangeAt(0).cloneRange().toString();
                     return (_range && _range.length > 0);
                 }
 
