@@ -3,7 +3,7 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsCoAnswers', function ($log) {
+    .directive('gsCoAnswers', function () {
         return {
             restrict: 'AE',
             scope: {
