@@ -87,6 +87,7 @@
         "ACCESS_RESTRICTED": "Доступ ограничен к",
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
+        "NOT_DOCX": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",
