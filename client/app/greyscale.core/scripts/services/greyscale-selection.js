@@ -104,18 +104,24 @@ angular.module('greyscale.core')
 
         function _getSelectedHtml(withParents) {
             var html = '',
-                range, _container, _rootContainer;
+                range,
+                _container,
+                _rootContainer;
             if (typeof window.getSelection !== 'undefined') {
                 var sel = window.getSelection();
                 if (sel.rangeCount) {
                     _rootContainer = document.createElement('div');
                     for (var i = 0, len = sel.rangeCount; i < len; ++i) {
-                        range = sel.getRangeAt(i);
+                        range = sel.getRangeAt(i).cloneRange();
                         if (withParents) {
                             if (range.commonAncestorContainer === range.startContainer) {
                                 _container = range.commonAncestorContainer.parentNode;
                             } else {
                                 _container = range.commonAncestorContainer;
+                                if (range.startContainer.parentNode.nodeName === 'LI') {
+                                    range.startContainer.parentNode.setAttribute('value',
+                                        _getLiIndex(range.startContainer.parentNode));
+                                }
                             }
                             _container = _cloneParents(_container, _rootContainer);
                         } else {
@@ -137,13 +143,18 @@ angular.module('greyscale.core')
             var _parents = [],
                 _container,
                 _node,
+                _clone,
                 q;
 
             _node = node;
 
             while (!(_node.nodeName === 'DIV' && ~_node.className.indexOf('ta-text')) &&
             _node.nodeName !== '#document') {
-                _parents.push(_node.cloneNode(false));
+                _clone = _node.cloneNode(false);
+                if (_clone.nodeName === 'LI') {
+                    _clone.setAttribute('value', _getLiIndex(_node));
+                }
+                _parents.push(_clone);
                 _node = _node.parentNode;
             }
 
@@ -155,5 +166,9 @@ angular.module('greyscale.core')
             }
 
             return _container;
+        }
+
+        function _getLiIndex(elemLi) {
+            return elemLi.getAttribute('value') || angular.element(elemLi).index() + 1;
         }
     });
