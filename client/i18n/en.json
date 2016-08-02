@@ -95,7 +95,7 @@
     },
     "FILE": {
         "CONTINUE": "Continue",
-        "ERROR_FILTER_CSV": "Allowed only .scv file extension",
+        "ERROR_FILTER_CSV": "Allowed only .csv file extension",
         "SELECT": "Please select the file to upload",
         "SELECT_CSV": "Please select .csv file to upload"
     },
