@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('ModalCommentFullScreenCtrl', function(comment, _, $scope, $q, greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance) {
+.controller('ModalCommentFullScreenCtrl', function(comment, _, $scope, $q,
+    greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance, i18n) {
 
     $scope.close = function () {
         $uibModalInstance.dismiss();
@@ -24,6 +25,8 @@ angular.module('greyscaleApp')
     };
 
     $scope.answers = _answers;
+
+    $scope.getUserName = _getUserName;
 
     _updateCommentData();
 
@@ -70,6 +73,24 @@ angular.module('greyscaleApp')
     function _setCounters(answers) {
         comment.agree = _.filter(answers, 'isAgree').length;
         comment.disagree = answers.length - comment.agree;
+    }
+
+    function _getUser(userId) {
+        var user = _answers.associate ? _answers.associate[userId] : null;
+        if (!user) {
+            user = {
+                userId: userId,
+                firstName: i18n.translate('USERS.ANONYMOUS'),
+                lastName: '',
+                stepName: ''
+            };
+        }
+        return user;
+
+    }
+
+    function _getUserName(answer) {
+        return greyscaleUtilsSrv.getUserName(_getUser(answer.userFromId));
     }
 
 });

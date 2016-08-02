@@ -17,7 +17,7 @@
         <h2 translate="COMMENTS.ANSWERS"></h2>
         <div class="list-group">
             <div ng-repeat="answer in answers.list" class="list-group-item">
-                <b class="gs-message-answer-user">{{answer.user}}</b>
+                <b class="gs-message-answer-user">{{getUserName(answer)}}</b>
                 <b class="gs-message-answer-agreement">{{ 'COMMENTS.IS_' + (answer.isAgree ? 'AGREED' : 'DISAGREED') | translate }}</b>
                 <small class="text-muted">{{answer.created | date: 'short'}}</small>
                 <div ng-bind-html="answer.entry"></div>
