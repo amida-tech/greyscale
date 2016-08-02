@@ -95,7 +95,9 @@
     },
     "FILE": {
         "CONTINUE": "Продолжить",
-        "SELECT": "Выберите файл для загрузки"
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "Выберите файл для загрузки",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "Выше",
