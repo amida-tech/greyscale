@@ -50,6 +50,10 @@ angular.module('greyscaleApp')
                     switch (cell.dataFormat) {
                     case 'action':
                         elem.addClass('text-right row-actions');
+                        if (cell.textLeft) {
+                            elem.removeClass('text-right');
+                            elem.addClass('text-left');
+                        }
                         elem.append('<a ng-repeat="act in widgetCell.actions" title="{{act.tooltip||act.getTooltip(rowValue)|translate}}" ng-if="!act.show || act.show(rowValue)" ' +
                             'class="action action-{{act.class||act.getClass(rowValue)}}" ng-init="icon = act.icon||act.getIcon(rowValue)"' +
                             'ng-click="act.handler && act.handler(rowValue); act.handler && $event.stopPropagation();"><i class="fa {{icon}}" ng-show="icon"> </i>{{act.title|translate}}</a>');
@@ -81,7 +85,6 @@ angular.module('greyscaleApp')
                         break;
 
                     case 'boolean':
-                        elem.addClass('text-center');
                         if ($scope.rowValue[_field] === true) {
                             elem.append('<span class="text-success"><i class="fa fa-check"></i></span>');
                         } else if ($scope.rowValue[_field] === false) {
@@ -108,6 +111,10 @@ angular.module('greyscaleApp')
 
                     if (cell.link) {
                         _resolveLinkCell();
+                    }
+
+                    if (cell.textCenter) {
+                        elem.addClass('text-center');
                     }
 
                     if (cell.cellClass) {
