@@ -31,6 +31,14 @@ angular.module('greyscale.rest')
             resetPasswd: _resetPasswd
         };
 
+        function _prepareData(resp) {
+            if (resp) {
+                return resp.plain();
+            } else {
+                return resp;
+            }
+        }
+
         function orgAPI() {
             return selfAPI().one('organization');
         }
@@ -48,36 +56,38 @@ angular.module('greyscale.rest')
         }
 
         function _save(data) {
-            return selfAPI().customPUT(data);
+            return selfAPI().customPUT(data).then(_prepareData);
         }
 
         function _getOrg() {
-            return orgAPI().get();
+            return orgAPI().get().then(_prepareData);
         }
 
         function _saveOrg(data) {
-            return orgAPI().customPUT(data);
+            return orgAPI().customPUT(data).then(_prepareData);
         }
 
         function _checkActivationToken(token) {
-            return userAPI().one('activate', token).get();
+            return userAPI().one('activate', token).get().then(_prepareData);
         }
 
         function _activate(token, data) {
-            return userAPI().one('activate', token).customPOST(data);
+            return userAPI().one('activate', token).customPOST(data).then(_prepareData);
         }
 
         function _listUsers(params, realm) {
-            return userAPI(realm).get(params).then(function (resp) {
-                var i,
-                    qty = resp.length;
+            return userAPI(realm).get(params)
+                .then(_prepareData)
+                .then(function (resp) {
+                    var i,
+                        qty = resp.length;
 
-                for (i = 0; i < qty; i++) {
-                    resp[i].fullName = greyscaleUtilsSrv.getUserName(resp[i]);
-                }
+                    for (i = 0; i < qty; i++) {
+                        resp[i].fullName = greyscaleUtilsSrv.getUserName(resp[i]);
+                    }
 
-                return resp.plain();
-            });
+                    return resp;
+                });
         }
 
         function _login(user, passwd) {
@@ -85,6 +95,7 @@ angular.module('greyscale.rest')
                     'Authorization': 'Basic ' + greyscaleBase64Srv.encode(user + ':' + passwd)
                 })
                 .one('users', 'token').get()
+                .then(_prepareData)
                 .then(function (resp) {
                     greyscaleTokenSrv(resp.token);
                     greyscaleRealmSrv.init(resp.realm);
@@ -116,19 +127,21 @@ angular.module('greyscale.rest')
         }
 
         function _inviteSuperAdmin(userData) {
-            return userAPI(greyscaleGlobals.adminSchema).one('invite').customPOST(userData);
+            return userAPI(greyscaleGlobals.adminSchema).one('invite')
+                .customPOST(userData)
+                .then(_prepareData);
         }
 
         function _inviteAdmin(userData, realm) {
-            return userAPI(realm).one('invite').customPOST(userData);
+            return userAPI(realm).one('invite').customPOST(userData).then(_prepareData);
         }
 
         function _inviteUser(userData) {
-            return orgAPI().one('invite').customPOST(userData);
+            return orgAPI().one('invite').customPOST(userData).then(_prepareData);
         }
 
         function updateUser(data, realm) {
-            return userAPI(realm).one(data.id + '').customPUT(data);
+            return userAPI(realm).one(data.id + '').customPUT(data).then(_prepareData);
         }
 
         function delUser(id, realm) {
@@ -140,28 +153,29 @@ angular.module('greyscale.rest')
         }
 
         function _listUoa(userId) {
-            return _uoaAPI(userId).one('uoa').get();
+            return _uoaAPI(userId).one('uoa').get().then(_prepareData);
         }
 
         function _addUoa(userId, uoaId) {
-            return _uoaAPI(userId).one('uoa', uoaId + '').customPOST();
+            return _uoaAPI(userId).one('uoa', uoaId + '').customPOST().then(_prepareData);
         }
 
         function _delUoa(userId, uoaId) {
-            return _uoaAPI(userId).one('uoa', uoaId + '').remove();
+            return _uoaAPI(userId).one('uoa', uoaId + '').remove().then(_prepareData);
         }
 
         function _remind(login) {
             return userAPI().one('forgot').customPOST({
-                email: login
-            });
+                    email: login
+                })
+                .then(_prepareData);
         }
 
         function _resetToken(token) {
-            return userAPI().one('check_restore_token', token).get();
+            return userAPI().one('check_restore_token', token).get().then(_prepareData);
         }
 
         function _resetPasswd(data) {
-            return userAPI().one('reset-password').customPUT(data);
+            return userAPI().one('reset-password').customPUT(data).then(_prepareData);
         }
     });

@@ -20,8 +20,8 @@ angular.module('greyscaleApp').controller('VisualizationsCtrl', function ($http,
                 title: tns + 'TITLE',
                 cellClass: 'text-center',
                 cellTemplate: '<span ng-switch on="row.type">' +
-                    '<a ng-href="#/visualizations/{{row.id}}" ng-switch-when="single">{{row.title}}</a>' +
-                    '<a ng-href="#/visualizations/comparative/{{row.id}}" ng-switch-when="comparative">{{row.title}}</a>' +
+                    '<a ui-sref="visualization({visualizationId: row.id})" ng-switch-when="single">{{row.title}}</a>' +
+                    '<a ui-sref="comparative-visualization({visualizationId: row.id})" ng-switch-when="comparative">{{row.title}}</a>' +
                     '</span>'
             }, {
                 field: 'type',

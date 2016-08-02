@@ -1,45 +1,66 @@
 <modal-form-header>
-    <span translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+    <span ng-if="!modalParams.title" translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+    <span ng-if="modalParams.title">{{modalParams.title | translate}}</span>
 </modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
+    <div class="row">
 
-    <form name="model.dataForm" class="form">
-        <div class="form-group">
-            <label translate=".TITLE"></label>
+        <div class="col-md-{{ workflowTemplateMode ? 12 : 7 }}">
+            <form name="model.dataForm" class="form">
+                <div class="form-group">
+                    <label translate=".TITLE"></label>
 
-            <div>
-                <input type="text" class="form-control" name="name" id="name"
-                       ng-model="model.product.workflow.name"
-                       ng-required="true" ng-minlength="1">
+                    <div>
+                        <input type="text" class="form-control" name="name" id="name"
+                               ng-model="model.product.workflow.name"
+                               ng-required="true" ng-minlength="1">
 
-                <div class="text-center" ng-messages="model.dataForm.name.$error" role="alert"
-                     ng-if="model.dataForm.name.$dirty">
-                    <span ng-message="required, minlength" class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
+                        <div class="text-center" ng-messages="model.dataForm.name.$error" role="alert"
+                             ng-if="model.dataForm.name.$dirty">
+                            <span ng-message="required, minlength" class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label translate=".DESCRIPTION"></label>
+
+                    <div>
+                        <textarea type="text" class="form-control" name="description" id="description"
+                                  ng-model="model.product.workflow.description"
+                                  ng-required="true" ng-minlength="1"></textarea>
+
+                        <div class="text-center" ng-messages="model.dataForm.description.$error" role="alert"
+                             ng-if="model.dataForm.description.$dirty">
+                            <span ng-message="required, minlength" class="help-block"><span
+                                translate=".DESCRIPTION_REQUIRED"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div ng-if="!workflowTemplateMode" class="col-md-5 text-right">
+            <label translate=".WORKFLOW_TEMPLATES"></label>
+            <div class="form-group">
+                <div class="input-group">
+                    <select class="form-control" ng-model="model.selectedTemplate" ng-options="tpl as tpl.workflow.name for tpl in model.workflowTemplates">
+                        <option value="" translate=".LOAD_FROM_WORKFLOW_TEMPLATE"></option>
+                    </select>
+                    <a class="input-group-addon btn btn-default" ng-disabled="!model.selectedTemplate" ng-click="applyWorkflowTemplate()" translate="COMMON.APPLY"></a>
                 </div>
             </div>
-        </div>
-        <div class="form-group">
-            <label translate=".DESCRIPTION"></label>
-
-            <div>
-                <textarea type="text" class="form-control" name="description" id="description"
-                          ng-model="model.product.workflow.description"
-                          ng-required="true" ng-minlength="1"></textarea>
-
-                <div class="text-center" ng-messages="model.dataForm.description.$error" role="alert"
-                     ng-if="model.dataForm.description.$dirty">
-                    <span ng-message="required, minlength" class="help-block"><span
-                        translate=".DESCRIPTION_REQUIRED"></span></span>
-                </div>
+            <div class="form-group">
+                <br>
+                <br>
+                <a ng-click="saveAsTemplate()" translate=".SAVE_AS_TEMPLATE">Save</a>
             </div>
         </div>
-    </form>
+    </div>
 
     <widget-table model="model.productWorkflow"></widget-table>
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()" ng-click="save()"
-            translate="COMMON.SAVE_AND_CONTINUE"></button>
+    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()"
+            ng-click="save()">{{ workflowTemplateMode ? 'COMMON.SAVE' : 'COMMON.SAVE_AND_CONTINUE' | translate }}</button>
 </div>
 
