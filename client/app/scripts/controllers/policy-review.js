@@ -44,7 +44,7 @@ angular.module('greyscaleApp')
                 data = {
                     survey: resp.survey,
                     userId: _user.id,
-                    languages: resp.languages.plain(),
+                    languages: resp.languages,
                     essenceId: resp.essence[0] ? resp.essence[0].id : null,
                     flags: {
                         allowEdit: !!resp.task

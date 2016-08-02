@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleUoaTypeApi, greyscaleLanguageApi) {
+        greyscaleUoaTypeApi, greyscaleLanguageApi, $rootScope) {
 
         var tns = 'UOAS.';
 
@@ -73,7 +73,8 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             add: {
                 handler: _addUoaType
-            }
+            },
+            onReload: _broadcastUpdate
         };
 
         function _editUoaType(_uoaType) {
@@ -103,6 +104,12 @@ angular.module('greyscale.tables')
                 });
         }
 
+        function _broadcastUpdate() {
+            $rootScope.$broadcast('update-uoaTypes', {
+                uoaTypes: dicts.uoaTypes
+            });
+        }
+
         function _delRecord(uoaType) {
             greyscaleModalsSrv.confirm({
                 message: tns + 'DELETE_CONFIRM_TYPE',
@@ -129,7 +136,7 @@ angular.module('greyscale.tables')
                         greyscaleUtilsSrv.prepareFields(promises.uoaTypes, recDescr);
                     }
                     dicts.languages = promises.languages;
-
+                    dicts.uoaTypes = promises.uoaTypes;
                     return promises.uoaTypes;
                 });
             });
