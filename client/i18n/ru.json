@@ -238,6 +238,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "Название ISO",
+            "RESULT": "",
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",
