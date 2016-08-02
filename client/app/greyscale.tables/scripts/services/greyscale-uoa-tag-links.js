@@ -71,8 +71,24 @@ angular.module('greyscale.tables')
             add: {
                 handler: _addUoaTagLink
             },
-            query: {}
+            query: {},
+            update: {
+                uoaTags: _updateUoaTags,
+                uoas: _updateUoas
+            },
         };
+
+        function _updateUoaTags(uoaTags) {
+            if (uoaTags) {
+                dicts.uoaTags = uoaTags;
+            }
+        }
+
+        function _updateUoas(uoas) {
+            if (uoas) {
+                dicts.uoas = uoas;
+            }
+        }
 
         function _addUoaTagLink() {
             var op = 'adding';

@@ -52,6 +52,7 @@ checkbox-list {
                 word-wrap: break-word;
                 padding: 5px;
                 background-color: #fff;
+                cursor: pointer;
             }
 
             .gs-message-full-view {
@@ -128,4 +129,60 @@ div.disabled {
 .section-text {
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+.search-panel {
+    .well {
+        overflow-y: visible;
+        .dropdown-menu {
+            right: 0;
+            left: auto;
+            float: left;
+        }
+    }
+    &.is-fixed-on-scroll {
+        .well {
+            box-shadow: 0 0 15px #ccc;
+            z-index: 10;
+        }
+    }
+    input {
+        height: 27pt;
+        padding-right: 35px;
+    }
+    .search-btn {
+        border: 1px solid #ccc !important;
+        background: transparent !important;
+        color: #444;
+        &.search-info {
+            color: #999;
+            &:hover, &:active {
+                cursor: default;
+                box-shadow: none;
+            }
+            border-left-width: 0 !important;
+            border-right-width: 0 !important;
+        }
+        &.search-next {
+            border-right: 0 !important;
+        }
+        &.search-empty, &.search-clear {
+            color: $brand-danger;
+        }
+        &.search-empty {
+            border-left-width: 1px !important;
+        }
+        &.search-clear {
+            position: absolute;
+            right: 100%;
+            z-index: 5;
+            border: 0px !important;
+            font-size: 19px;
+            padding: 5px 10px 3px;
+        }
+    }
+}
+
+em.hilitor.current {
+    border: 1px dotted #ccc;
 }

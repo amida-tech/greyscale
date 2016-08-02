@@ -1,7 +1,6 @@
 var
     _ = require('underscore'),
     config = require('config'),
-    common = require('app/services/common'),
     debug = require('debug')('bologger'),
     vl = require('validator'),
     Essence = require('app/models/essences'),
@@ -19,7 +18,12 @@ function BoLogger() {
 }
 
 BoLogger.prototype.init = function* (object, req) {
-    this.data.essence = yield common.getEssenceId(req, object);
+    var thunkQuery = (req) ? req.thunkQuery : thunkify(new Query(config.pgConnect.adminSchema));
+    var result = yield thunkQuery(Essence.select().from(Essence).where([sql.functions.UPPER(Essence.tableName).equals(object.toUpperCase())]));
+    if (!_.first(result)) {
+        debug('Error find Essence for table name `' + object + '`');
+    }
+    this.data.essence = result[0].id;
 };
 
 BoLogger.prototype.extend = function (data) {

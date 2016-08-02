@@ -6,14 +6,22 @@
 
 <p>
     Date: <%= date.toLocaleString() %></br>
-    <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %> in the <%= uoa.name %> policy for the <%= product.title %></a></br>
+<% if (survey.policyId) { %>
+    <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %>. Policy `<%= survey.title %>`, project `<%= product.title %>`</a></br>
+<% } else { %>
+    <a href="<%= config.domain %>/#/policy/review/<%= survey.id %>/task/<%= task.id %>"><%= action %>. Survey `<%= survey.title %>`, subject `<%= uoa.name %>`, project `<%= product.title %>`</a></br>
+<% } %>
     Comment:</br>
     <%- body %>
 </p>
 <p>
     Organisation: <%= organization.name %></br>
     Project: <%= product.title %></br>
+<% if (survey.policyId) { %>
+    Policy: <%= survey.title %></br>
+<% } else { %>
     Survey: <%= survey.title %></br>
     Subject: <%= uoa.name %></br>
+<% } %>
     Task: <%= step.title %></br></br>
 </p>
