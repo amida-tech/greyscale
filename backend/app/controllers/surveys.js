@@ -49,9 +49,17 @@ module.exports = {
 
                     var html = '<html>' + result.value + '</html>';
                     var $ = cheerio.load(html);
-                    var obj = {};
-
+                    var obj = {headers: {}, sections: {}};
                     var endOfDoc = 'END';
+
+                    var tables = $('html').find('table');
+
+                    if (tables[0]) {
+                        $(tables[0]).find('tr').each(function(key, item){
+                            var tds = $(item).children('td');
+                            obj.headers[$(tds[0]).text()] = $(tds[1]).text();
+                        });
+                    }
 
                     $('html').children().each(function(key, item) {
                         if (item.name === 'h1') {
@@ -70,7 +78,7 @@ module.exports = {
                                 }
                             }
 
-                            obj[index] = content;
+                            obj.sections[index] = content;
                         }
                     });
                     res.json(obj);
