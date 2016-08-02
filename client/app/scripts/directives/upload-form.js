@@ -31,13 +31,25 @@ angular.module('greyscaleApp')
                     }]
                 });
 
+                $scope.model = {};
+
+                $scope.uploader = uploader;
+
+                uploader.onAfterAddingFile = function () {
+                    $scope.model.error = null;
+                };
+
+                uploader.onWhenAddingFileFailed = function (file, filter) {
+                    $scope.model.error = 'ERROR_FILTER_' + filter.name;
+                };
+
                 uploader.onBeforeUploadItem = function (item) {
+                    console.log(item);
                     item.url = _getAbsoluteUrl($scope.uploadEndpoint);
                     item.headers.token = _token;
                     if (typeof $scope.uploadBefore === 'function') {
                         $scope.uploadBefore(item);
                     }
-                    $scope.model = {};
                 };
 
                 uploader.onCompleteItem = function (file, data) {
@@ -48,7 +60,6 @@ angular.module('greyscaleApp')
                     $timeout(function () {
                         $scope.$digest();
                     });
-
                     if (file.isError) {
                         return;
                     }
