@@ -4,6 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyBlock', function () {
+        var _headers = ['SECTION', 'SUBSECTION', 'NUMBER', 'TITLE', 'TYPE', 'AUTHOR'];
+
         return {
             restrict: 'E',
             templateUrl: 'views/directives/policy-block.html',
@@ -51,23 +53,12 @@ angular.module('greyscaleApp')
                 };
 
                 uploader.onCompleteItem = function (item, data) {
-                    var _sectionName,
-                        i = 0;
                     if (!item.isError) {
-                        for (_sectionName in data) {
-                            if ($scope.policyData.sections.length <= i) {
-                                $scope.policyData.sections.push({
-                                    label: '',
-                                    description: ''
-                                });
-                            }
-                            if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
-                                $scope.policyData.sections[i].label = _sectionName.toUpperCase();
-                                $scope.policyData.sections[i].description = data[_sectionName];
-                                $scope.policyData.options.canImport = $scope.policyData.options.canImport &&
-                                    (!data[_sectionName]);
-                                i++;
-                            }
+                        if (data.headers) {
+                            _loadHeaders(data.headers);
+                        }
+                        if (data.sections) {
+                            _loadSections(data.sections);
                         }
                         _modifyEvt();
                     }
@@ -86,6 +77,37 @@ angular.module('greyscaleApp')
 
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
+                }
+
+                function _loadSections(data) {
+                    var _sectionName,
+                        i = 0;
+
+                    for (_sectionName in data) {
+                        if ($scope.policyData.sections.length <= i) {
+                            $scope.policyData.sections.push({
+                                label: '',
+                                description: ''
+                            });
+                        }
+                        if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
+                            $scope.policyData.sections[i].label = _sectionName;
+                            $scope.policyData.sections[i].description = data[_sectionName];
+                            i++;
+                        }
+                    }
+                }
+
+                function _loadHeaders(headers) {
+                    var i, key,
+                        qty = _headers.length;
+
+                    for (i = 0; i < qty; i++) {
+                        key = _headers[i];
+                        if (headers.hasOwnProperty(key)) {
+                            $scope.policyData[key.toLowerCase()] = headers[key];
+                        }
+                    }
                 }
             }
         };

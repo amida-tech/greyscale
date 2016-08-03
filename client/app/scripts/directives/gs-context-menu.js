@@ -78,7 +78,6 @@ angular.module('greyscaleApp')
                     var _range = $window.getSelection().getRangeAt(0).cloneRange().toString();
                     return (_range && _range.length > 0);
                 }
-
             }
         };
     });

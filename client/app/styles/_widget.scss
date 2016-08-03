@@ -184,17 +184,6 @@ $widget-header-font-weight: bold;
                 }
             }
         }
-        th, td {
-            .checkbox {
-                position: relative;
-                top: 1px;
-                margin-top: 0;
-                margin-bottom: 0;
-                label {
-                    min-height: 0;
-                }
-            }
-        }
         td {
             @extend p;
 

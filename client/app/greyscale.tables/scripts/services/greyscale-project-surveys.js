@@ -65,7 +65,7 @@ angular.module('greyscale.tables')
             if (!projectId) {
                 return $q.reject();
             } else {
-                return greyscaleProjectApi.surveysList(projectId)
+                return greyscaleSurveyApi.list()
                     .then(function (data) {
                         return $filter('filter')(data, function (item) {
                             return (_isPolicy() && item.policyId || _isSurvey() && !item.policyId);

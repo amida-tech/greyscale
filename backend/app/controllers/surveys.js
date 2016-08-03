@@ -17,6 +17,7 @@ var
     HttpError = require('app/error').HttpError,
     mammoth = require('mammoth'),
     cheerio = require('cheerio'),
+    sSurvey = require('app/services/surveys'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');
@@ -25,36 +26,11 @@ debug.log = console.log.bind(console);
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            return yield thunkQuery(
-                Survey
-                .select(
-                    Survey.star(),
-                    Policy.section, Policy.subsection, Policy.author, Policy.number,
-                    '(SELECT array_agg(row_to_json(att)) FROM (' +
-                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                    'FROM "AttachmentLinks" al ' +
-                    'JOIN "Attachments" a ' +
-                    'ON al."entityId" = "Policies"."id" ' +
-                    'JOIN "Essences" e ' +
-                    'ON e.id = al."essenceId" ' +
-                    'AND e."tableName" = \'Policies\' ' +
-                    'WHERE a."id" = ANY(al."attachments")' +
-                    ') as att) as attachments'
-                )
-                .from(
-                    Survey
-                    .leftJoin(Policy)
-                    .on(Survey.policyId.equals(Policy.id))
-                ),
-                _.omit(req.query)
-            );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oSurvey = new sSurvey(req);
+        oSurvey.getList().then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
     },
 
     parsePolicyDocx: function (req, res, next) {
@@ -73,9 +49,17 @@ module.exports = {
 
                     var html = '<html>' + result.value + '</html>';
                     var $ = cheerio.load(html);
-                    var obj = {};
-
+                    var obj = {headers: {}, sections: {}};
                     var endOfDoc = 'END';
+
+                    var tables = $('html').find('table');
+
+                    if (tables[0]) {
+                        $(tables[0]).find('tr').each(function(key, item){
+                            var tds = $(item).children('td');
+                            obj.headers[$(tds[0]).text()] = $(tds[1]).text();
+                        });
+                    }
 
                     $('html').children().each(function(key, item) {
                         if (item.name === 'h1') {
@@ -94,7 +78,7 @@ module.exports = {
                                 }
                             }
 
-                            obj[index] = content;
+                            obj.sections[index] = content;
                         }
                     });
                     res.json(obj);
