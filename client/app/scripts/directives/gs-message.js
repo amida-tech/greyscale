@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
+        greyscaleProfileSrv, greyscaleCommentApi) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -24,6 +25,9 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
+                };
 
                 if (!$scope.edit || typeof $scope.edit !== 'function') {
                     $scope.edit = function () {
@@ -53,7 +57,12 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
-                $scope.highlightSource = _highlightSource;
+                $scope.toggleComment = function () {
+                    //hide $scope.model
+                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
+                        $scope.model.isHidden = !$scope.model.isHidden;
+                    });
+                };
 
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
@@ -75,15 +84,14 @@ angular.module('greyscaleApp')
                         } else {
                             fView.hide();
                         }
+
+                        taText.on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                     }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
-
-                    msgBody.find('.ta-text')
-                        .on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
                 });
             }
         };

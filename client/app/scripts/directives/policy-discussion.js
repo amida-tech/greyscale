@@ -4,7 +4,7 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('policyDiscussion', function ($q, greyscaleGlobals, greyscaleCommentApi, greyscaleUtilsSrv,
-        greyscaleModalsSrv, i18n, _) {
+        greyscaleModalsSrv, greyscaleProfileSrv, i18n, _) {
 
         return {
             restrict: 'E',
@@ -106,7 +106,7 @@ angular.module('greyscaleApp')
                         _comment.range = JSON.parse(_comment.range);
                     }
 
-                    greyscaleModalsSrv.policyComment(_comment, _opt)
+                    return greyscaleModalsSrv.policyComment(_comment, _opt)
                         .then(save)
                         .catch(function (reason) {
                             if (reason === 'backdrop click') {
@@ -114,7 +114,8 @@ angular.module('greyscaleApp')
                             } else {
                                 return $q.reject(reason);
                             }
-                        });
+                        })
+                        .catch(greyscaleUtilsSrv.errorMsg);
                 }
 
                 function _removeComment(comment) {
@@ -157,19 +158,33 @@ angular.module('greyscaleApp')
                     }
                     return res;
                 }
+                $scope.hideComments = function (filter) {
+                    greyscaleCommentApi.hide($scope.policy.taskId, filter).then(function () {
+                        for (var i = 0; i < $scope.model.items.length; i++) {
+                            if (filter === 'flagged' && !$scope.model.items[i].isReturn) {
+                                continue;
+                            }
+                            $scope.model.items[i].isHidden = true;
+                        }
+                    });
+                };
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
+                };
             }
         };
 
         function _updateDiscussion(data, scope) {
             if (data && data.sections && data.taskId) {
                 var params = {
-                        surveyId: data.surveyId,
-                        taskId: data.taskId
-                    },
-                    reqs = {
-                        tags: greyscaleCommentApi.getUsers(data.taskId),
-                        messages: greyscaleCommentApi.list(params)
-                    };
+                    surveyId: data.surveyId,
+                    taskId: data.taskId,
+                    hidden: greyscaleProfileSrv.isAdmin()
+                };
+                var reqs = {
+                    tags: greyscaleCommentApi.getUsers(data.taskId),
+                    messages: greyscaleCommentApi.list(params)
+                };
 
                 $q.all(reqs).then(function (resp) {
                     var tag, i, qty, title;

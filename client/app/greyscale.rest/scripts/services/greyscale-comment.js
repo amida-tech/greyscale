@@ -13,7 +13,8 @@ angular.module('greyscale.rest')
             autoSave: _autoSave,
             update: _update,
             remove: _remove,
-            getUsers: _users
+            getUsers: _users,
+            hide: _hide
         };
 
         function _api() {
@@ -63,5 +64,14 @@ angular.module('greyscale.rest')
 
         function _users(taskId) {
             return _api().one('users', taskId + '').get().then(_response);
+        }
+
+        function _hide(taskId, filter, show) {
+            //filter values - 'all', 'flagged', commentId
+            return _api().one('hidden').put({
+                taskId: taskId,
+                filter: filter,
+                hide: !show
+            });
         }
     });
