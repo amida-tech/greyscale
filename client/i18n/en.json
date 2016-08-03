@@ -78,7 +78,9 @@
     },
     "FILE": {
         "CONTINUE": "Continue",
-        "SELECT": "Please select the file to upload"
+        "ERROR_FILTER_CSV": "Allowed only .csv file extension",
+        "SELECT": "Please select the file to upload",
+        "SELECT_CSV": "Please select .csv file to upload"
     },
     "FORMBUILDER": {
         "ABOVE": "Above",
