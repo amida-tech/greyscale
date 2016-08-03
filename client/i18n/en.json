@@ -243,6 +243,7 @@
             "ISO2": "ISO2",
             "NAME": "Name",
             "NAMEISO": "Name ISO",
+            "RESULT": "Result",
             "RESULTS_TITLE": "Import Results",
             "SHORT_NAME": "Short Name",
             "STATUS": "Status",
