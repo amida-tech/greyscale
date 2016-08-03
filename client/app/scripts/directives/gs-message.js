@@ -11,8 +11,9 @@ angular.module('greyscaleApp')
                 model: '=gsMessage',
                 associate: '=',
                 options: '=',
-                remove: '&',
-                update: '&'
+                edit: '&?',
+                remove: '&?',
+                update: '&?'
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
@@ -24,10 +25,12 @@ angular.module('greyscaleApp')
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
 
-                $scope.edit = function () {
-                    $scope.entry = $scope.model.entry;
-                    _toggleEdit();
-                };
+                if (!$scope.edit || typeof $scope.edit !== 'function') {
+                    $scope.edit = function () {
+                        $scope.entry = $scope.model.entry;
+                        _toggleEdit();
+                    };
+                }
 
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;
@@ -85,21 +88,25 @@ angular.module('greyscaleApp')
             }
         };
 
-        function _highlightSource(model, event) {
+        function _highlightSource(model) {
             var questionBlock = $('#Q' + model.questionId);
             if (!questionBlock.length) {
                 return;
             }
             questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
             $timeout(function () {
-                var range = typeof model.range === 'string' ? JSON.parse(model.range) : model.range;
-                var startNode = greyscaleSelection.restore(questionBlock[0], range);
-                if (!startNode) {
-                    return;
+                var startNode,
+                    range = model.range;
+
+                while (typeof range === 'string') {
+                    range = JSON.parse(range);
                 }
-                var parent = startNode.parentNode;
-                var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
-                angular.element('body').scrollTop(scrollPos);
+                startNode = greyscaleSelection.restore(questionBlock[0], range);
+                if (startNode) {
+                    var parent = startNode.parentNode;
+                    var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
+                    angular.element('body').scrollTop(scrollPos);
+                }
             });
         }
 
