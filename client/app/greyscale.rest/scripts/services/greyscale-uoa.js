@@ -19,7 +19,7 @@ angular.module('greyscale.rest')
         }
 
         function _plain(resp) {
-            return (typeof resp.plain === 'function') ? resp.plain() : resp;
+            return (resp && typeof resp.plain === 'function') ? resp.plain() : resp;
         }
 
         function _uoa(params) {

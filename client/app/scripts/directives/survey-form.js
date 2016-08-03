@@ -4,7 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
+        greyscaleTaskApi, $log) {
 
         var tasks = {
             survey: 'tasks',
@@ -66,7 +67,7 @@ angular.module('greyscaleApp')
                                 }) : saveRes;
                             })
                             .then(function (res) {
-                                return (!flags.isPolicy) ? goNextStep(res, resolve) : res;
+                                return (flags.isPolicy) ? _approve(res) : goNextStep(res, resolve);
                             });
                     }
 
@@ -124,6 +125,13 @@ angular.module('greyscaleApp')
 
                 function _unlock() {
                     scope.model.locked = false;
+                }
+
+                function _approve(saveSuccess) {
+                    return greyscaleTaskApi.state(scope.surveyData.task.id, 'approve')
+                        .then(function () {
+                            return saveSuccess;
+                        });
                 }
 
                 function goNextStep(saveSuccess, resolve) {
@@ -601,8 +609,7 @@ angular.module('greyscaleApp')
 
                             if (_answers[v].userId === currentUserId) {
                                 flags.hasVersion = true;
-                            } else if (scope.surveyData.collaboratorIds &&
-                                scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
+                            } else if (scope.surveyData.collaboratorIds && scope.surveyData.collaboratorIds.indexOf(_answers[v].userId) > -1) {
                                 _addValToKey(coAnswers, qId, _answers[v], coAnswerRestrict);
                             }
                         }

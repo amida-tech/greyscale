@@ -17,7 +17,7 @@ var environments = {
             adminSchema: 'public',
             sceletonSchema: 'sceleton',
             policyUoaType: 'Policy',
-            policyUoaName: '<Policy>'
+            policyUoaName: '_Policy_'
         },
         mc: { // memcache
             host: process.env.MEMCACHED_PORT_11211_TCP_ADDR || 'localhost',
@@ -234,12 +234,16 @@ var environments = {
                 emailBody: './views/emails/welcome.html'
             },
             assignTask: {
-                subject: 'Indaba. You are assigned to task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)',
+                subject: '<% if (survey.policyId) ' +
+                '{ %>Indaba. You are assigned to task `<%= step.title %>`. Policy `<%= survey.title %>` (<%= product.title %>)<% } ' +
+                'else { %>Indaba. You are assigned to task `<%= step.title %>`. Survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>)<% } %>',
                 notificationBody: './views/notifications/assign_task.html',
                 emailBody: './views/emails/assign_task.html'
             },
             activateTask: {
-                subject: 'Indaba. Your task `<%= step.title %>` for survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>) is activated',
+                subject: '<% if (survey.policyId) ' +
+                '{ %>Indaba. Your task `<%= step.title %>`, policy `<%= survey.title %>` (<%= product.title %>) is activated<% } ' +
+                'else { %>Indaba. Your task `<%= step.title %>`, survey `<%= survey.title %>` (<%= uoa.name %>, <%= product.title %>) is activated<% } %>',
                 notificationBody: './views/notifications/activate_task.html',
                 emailBody: './views/emails/activate_task.html'
             },
@@ -254,7 +258,9 @@ var environments = {
                 emailBody: './views/emails/resolve_flag.html'
             },
             comment: {
-                subject: 'Indaba. <%= action %> in the <%= uoa.name %> survey for the <%= product.title %>',
+                subject: '<% if (survey.policyId) ' +
+                '{ %>Indaba. <%= action %>. Policy `<%= survey.title %>`, project `<%= product.title %>`<% } ' +
+                'else { %>Indaba. <%= action %>. Survey `<%= survey.title %>`, subject `<%= uoa.name %>`, project `<%= product.title %>`<% } %>',
                 notificationBody: './views/notifications/comment.html',
                 emailBody: './views/emails/comment.html'
             }

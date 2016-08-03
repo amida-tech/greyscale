@@ -29,6 +29,7 @@ angular.module('greyscaleApp')
             if (product.surveyId) {
                 greyscaleSurveyApi.get(product.surveyId).then(function (survey) {
                     $scope.model.survey = survey;
+                    tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
             greyscaleProjectProductsTbl.methods.fillSurvey(product.projectId);

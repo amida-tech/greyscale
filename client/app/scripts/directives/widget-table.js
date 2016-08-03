@@ -77,6 +77,10 @@ angular.module('greyscaleApp')
                     }
                 });
 
+                model.refreshDataMap = function () {
+                    model.dataMap = _getDataMap(model.tableParams.data);
+                };
+
                 if (typeof model.onInit === 'function') {
                     model.onInit();
                 }

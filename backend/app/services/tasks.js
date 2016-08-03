@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     common = require('app/services/common'),
     Task = require('app/models/tasks'),
+    TaskUserState = require('app/models/taskuserstates'),
     Survey = require('app/models/surveys'),
     Product = require('app/models/products'),
     Group = require('app/models/groups'),
@@ -9,11 +10,16 @@ var
     ProductUOA = require('app/models/product_uoa'),
     UOA = require('app/models/uoas'),
     Project = require('app/models/projects'),
+    Attachment = require('app/models/attachments'),
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
+    BoLogger = require('app/bologger'),
+    bologger = new BoLogger(),
+    sTaskUserState = require('app/services/taskuserstates'),
+    sProduct = require('app/services/products'),
     pgEscape = require('pg-escape');
 
 var exportObject = function  (req, realm) {
@@ -22,19 +28,81 @@ var exportObject = function  (req, realm) {
     if (!realm) {
         thunkQuery = req.thunkQuery;
     }
+    var oTaskUserState = new sTaskUserState(req);
+    var oProduct = new sProduct(req);
 
     this.getList = function () {
         return co(function* () {
             return thunkQuery(Attachment.select().from(Attachment), req.query);
         });
     };
+    this.deleteTask = function (taskId) {
+        return co(function* () {
+            yield thunkQuery(
+                Task.delete().where(Task.id.equals(taskId))
+            );
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'tasks',
+                entity: taskId,
+                info: 'Delete task'
+            });
+        });
+    };
+    this.deleteTasks = function (productId, uoaId) {
+        return co(function* () {
+            var query = Task.delete()
+                .where(
+                Task.productId.equals(productId)
+                    .and(Task.userIds.equals('{}'))
+                    .and(Task.groupIds.equals('{}'))
+            );
+            if (uoaId) {
+                query = query.and(Task.uoaId.equals(uoaId));
+            }
+
+            yield thunkQuery(query);
+            bologger.log({
+                req: req,
+                user: req.user,
+                action: 'delete',
+                object: 'tasks',
+                entity: null,
+                entities: {
+                    productId: productId,
+                    uoaId: uoaId
+                },
+                quantity: 1,
+                info: 'Delete all tasks for product `' + productId + '` subject `' + (uoaId ? uoaId : 'ALL') + '`'
+            });
+        });
+    };
     this.getByProductUOA = function (productId, uoaId) {
         return co(function* () {
             return yield thunkQuery(
-                Task.select().where({
-                    productId: productId,
-                    uoaId: uoaId
-                })
+                Task.select()
+                    .where(
+                    Task.productId.equals(productId)
+                    .and(Task.uoaId.equals(uoaId))
+                    .and(Task.userIds.notEquals('{}')
+                        .or(Task.groupIds.notEquals('{}'))
+                    )
+                )
+            );
+        });
+    };
+    this.getByProductAllUoas = function (productId) {
+        return co(function* () {
+            return yield thunkQuery(
+                Task.select()
+                    .where(
+                    Task.productId.equals(productId)
+                    .and(Task.userIds.notEquals('{}')
+                        .or(Task.groupIds.notEquals('{}'))
+                    )
+                )
             );
         });
     };
@@ -284,75 +352,36 @@ var exportObject = function  (req, realm) {
         return this.getTaskExt('Comments', 'curStep');
     };
     this.getTaskUsersStatuses = function (commentDiscussion, users, taskId) {
-        var self = this;
-        return co(function* () {
-            var userArraysAlias = 'userArrays';
-            var whereClause = taskId ? pgEscape('WHERE ("Tasks"."id" = %s) ', taskId) : '';
-            var taskColumn = taskId ? '' : '"Tasks"."id" as "taskId", ';
-            return yield thunkQuery('SELECT ' +
-                taskColumn +
-                pgEscape('"%s"."userId", ', userArraysAlias) +
-                self.taskUserStatus.flaggedColumn(commentDiscussion, userArraysAlias) + ', ' +
-                self.taskUserStatus.approvedColumn('SurveyAnswers', userArraysAlias) + ', ' +
-                self.taskUserStatus.lateColumn('WorkflowSteps') + ', ' +
-                self.taskUserStatus.draftColumn('SurveyAnswers', userArraysAlias) +
-                'FROM "Tasks", ' +
-                pgEscape('(SELECT unnest(\'{%s}\'::int[]) as "userId") as "%s" ', users, userArraysAlias) +
-                whereClause
-            );
-        });
+
+        var tasks = taskId ? [taskId] : null;
+        // 1st update Late status
+        oTaskUserState.updateLate(tasks, users);
+        // get all TaskUserStates for lists of users and tasks
+        return oTaskUserState.getByLists(tasks, users);
+
     };
     this.getTasksUserStatus = function (commentDiscussion, userId, tasks) {
-        var self = this;
-        return co(function* () {
-            var userAlias = 'userAlias';
-            return yield thunkQuery('SELECT ' +
-                '"Tasks"."id" as "id", ' +
-                pgEscape('"%s"."userId", ', userAlias) +
-                self.taskUserStatus.flaggedColumn(commentDiscussion, userAlias) + ', ' +
-                self.taskUserStatus.approvedColumn('SurveyAnswers', userAlias) + ', ' +
-                self.taskUserStatus.lateColumn('WorkflowSteps') + ', ' +
-                self.taskUserStatus.draftColumn('SurveyAnswers', userAlias) +
-                'FROM "Tasks" ' +
-                'INNER JOIN "Products" ON ("Tasks"."productId" = "Products"."id") ' +
-                'INNER JOIN "Surveys" ON ("Products"."surveyId" = "Surveys"."id"), ' +
-                pgEscape('(SELECT %s as "userId") as "%s" ', userId, userAlias) +
-                pgEscape('WHERE (ARRAY["Tasks"."id"] <@ \'{%s}\') ', tasks) +
-                'AND ("Products"."status" = 1) ' +
-                'AND ("Surveys"."policyId" IS NOT NULL)'
-            );
-        });
+
+        // 1st update Late status
+        oTaskUserState.updateLate(tasks, [userId]);
+        // get all TaskUserStates for lists of users and tasks
+        return oTaskUserState.getByLists(tasks, [userId]);
+
     };
     this.getNamedStatuses = function (detailStatuses, status) {
         return _.each(detailStatuses, function(item, i, arr){
-            item = this.getNamedItemStatus(item, status);
+            //item = this.getNamedItemStatus(item, status);
+            item[status] = TaskUserState.getStatus(item.stateId);
+            arr[i] = _.pick(item, ['userId', status]);
         }, this);
     };
-    this.getNamedItemStatus = function (item, status) {
-        if (item.flagged) {
-            item[status] = 'flagged';
-        } else if (item.approved) {
-            item[status] = 'approved';
-        } else if (item.late) {
-            item[status] = 'late';
-        } else if (item.draft) {
-            item[status] = 'started';
-        } else {
-            item[status] = 'pending';
-        }
-        delete item.flagged;
-        delete item.approved;
-        delete item.late;
-        delete item.draft;
-        return item;
-    };
     this.mergeTasksWithUserStatus = function (tasks, statuses, statusName) {
-        tasks = _.each(tasks, function(item, i, arr){
-            for (var i in statuses) {
-                if (statuses.indexOf(item.id) === -1) {
-                    statuses[i] = this.getNamedItemStatus(statuses[i], statusName);
-                    item[statusName] = statuses[i][statusName];
-                }
+        tasks = _.each(tasks, function(item){
+            var status = _.findWhere(statuses, {taskId: item.id});
+            if (typeof status !== 'undefined') {
+                //status = this.getNamedItemStatus(status, statusName);
+                //item[statusName] = status[statusName];
+                item[statusName] = TaskUserState.getStatus(status.stateId);
             }
         }, this);
         return tasks;
@@ -407,6 +436,26 @@ var exportObject = function  (req, realm) {
                 users: users,
                 groups: groups
             };
+        });
+    };
+    this.getUsersIds = function (userIds, groupIds) {
+        return co(function* () {
+            var usersFromGroup;
+            var users = [];
+            for (var i in userIds) {
+                if (users.indexOf(userIds[i]) === -1) {
+                    users.push(userIds[i]);
+                }
+            }
+            for (i in groupIds) {
+                usersFromGroup = yield * common.getUsersFromGroup(req, groupIds[i]);
+                for (var j in usersFromGroup) {
+                    if (users.indexOf(usersFromGroup[j].userId) === -1) {
+                        users.push(usersFromGroup[j].userId);
+                    }
+                }
+            }
+            return users;
         });
     };
     this.getUsersIdsByTask = function (taskId) {
@@ -482,7 +531,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 'LIMIT 1' +
                 ') IS NULL ' +
                 'THEN FALSE ' +
@@ -496,7 +545,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 ') as "flaggedCount"';
         },
         flaggedFromColumn : function (commentDiscussion) {
@@ -507,7 +556,7 @@ var exportObject = function  (req, realm) {
                 pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
                 pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
                 pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : '') +
+                ((commentDiscussion === 'Discussions') ? pgEscape('AND "%s"."returnTaskId" = "Tasks"."id" ', commentDiscussion) : pgEscape('AND "%s"."taskId" = "Tasks"."id" ', commentDiscussion)) +
                 'LIMIT 1' +
                 ') as "flaggedFrom"';
         },
@@ -531,75 +580,110 @@ var exportObject = function  (req, realm) {
                 'END as "status" ';
         }
     };
-    this.taskUserStatus = {
-        flaggedColumn : function (commentDiscussion, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userFromId" ', commentDiscussion) +
-                pgEscape('FROM "%s" ', commentDiscussion) +
-                pgEscape('WHERE "%s"."isReturn" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."isResolve" = false ', commentDiscussion) +
-                pgEscape('AND "%s"."activated" = true ', commentDiscussion) +
-                pgEscape('AND "%s"."userFromId" = "%s"."userId" ', commentDiscussion, userArraysAlias) +
-                pgEscape('AND "Tasks"."id" = "%s"."taskId" ', commentDiscussion) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "flagged" ';
-        },
-        approvedColumn : function (surveyAnswer, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userId" ', surveyAnswer) +
-                pgEscape('FROM "%s" ', surveyAnswer) +
-                pgEscape('WHERE "%s"."version" IS NOT NULL ', surveyAnswer) +
-                pgEscape('AND "%s"."productId" = "Tasks"."productId" ', surveyAnswer) +
-                pgEscape('AND "%s"."UOAid" = "Tasks"."uoaId" ', surveyAnswer) +
-                pgEscape('AND "%s"."userId" = "%s"."userId" ', surveyAnswer, userArraysAlias) +
-                pgEscape('AND "%s"."wfStepId" = "Tasks"."stepId" ', surveyAnswer) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "approved" ';
-        },
-        lateColumn : function (wfSteps) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."id" ', wfSteps) +
-                pgEscape('FROM "%s" ', wfSteps) +
-                pgEscape('WHERE "%s"."endDate" < now() ', wfSteps) +
-                pgEscape('AND "%s"."id" = "Tasks"."stepId" ', wfSteps) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "late" ';
-        },
-        draftColumn : function (surveyAnswer, userArraysAlias) {
-            return 'CASE ' +
-                'WHEN ' +
-                '(' +
-                'SELECT ' +
-                pgEscape('"%s"."userId" ', surveyAnswer) +
-                pgEscape('FROM "%s" ', surveyAnswer) +
-                pgEscape('WHERE "%s"."productId" = "Tasks"."productId" ', surveyAnswer) +
-                pgEscape('AND "%s"."UOAid" = "Tasks"."uoaId" ', surveyAnswer) +
-                pgEscape('AND "%s"."userId" = "%s"."userId" ', surveyAnswer, userArraysAlias) +
-                pgEscape('AND "%s"."wfStepId" = "Tasks"."stepId" ', surveyAnswer) +
-                'LIMIT 1' +
-                ') IS NULL ' +
-                'THEN FALSE ' +
-                'ELSE TRUE ' +
-                'END as "draft" ';
-        }
+    this.modifyUserInGroups = function (delUserFromGroups, newUserToGroups) {
+        var self = this;
+        return co(function* () {
+            var userId = newUserToGroups.length > 0 ? newUserToGroups[0].userId : delUserFromGroups.length > 0 ? delUserFromGroups[0].userId : null;
+            var users=[], i, j;
+            // get all groups for removing user
+            var delGroups = _.map(delUserFromGroups, function(item){return item.groupId;});
+            var newGroups = _.map(newUserToGroups, function(item){return item.groupId;});
+            // get all noncompleted tasks, where groupIds contain groups for deleting (from these groups user was removed)
+            var delTasks = [], tasks;
+            for (i in delGroups) {
+                tasks = yield self.getTasksByGroup(delGroups[i], 'curStep');
+                for (j in tasks) {
+                    if (typeof _.findWhere(delTasks, {id: tasks[j].id}) === 'undefined') {
+                        delTasks.push(tasks[j]);
+                    }
+                }
+            }
+            if (_.first(delTasks)) {
+                for (i in delTasks) {
+                    // check if user was assigned to this task not only in deleted Groups
+                    users = yield self.getUsersIds(delTasks[i].userIds, _.difference(delTasks[i].groupIds, delGroups)); // get all users for task without groups from which user was excluded
+                    if (users.indexOf(userId) === -1) {
+                        // user was assigned to this task ONLY in deleted Groups
+                        yield oTaskUserState.remove([delTasks[i].id], [userId]);
+                    }
+                }
+            }
+
+            // get all noncompleted tasks, where groupIds contain groups for adding (to these groups user was added)
+            var newTasks = [];
+            for (i in newGroups) {
+                tasks = yield self.getTasksByGroup(newGroups[i], 'curStep');
+                for (j in tasks) {
+                    if (typeof _.findWhere(newTasks, {id: tasks[j].id}) === 'undefined') {
+                        newTasks.push(tasks[j]);
+                    }
+                }
+            }
+            if (_.first(newTasks)) {
+                for (i in newTasks) {
+                    // check if user realy new user for this task
+                    users = yield self.getUsersIds(newTasks[i].userIds, _.difference(newTasks[i].groupIds, newGroups)); // get all users for task before new groups extend
+                    if (users.indexOf(userId) === -1) {
+                        // user is realy new user - was not assign to task before
+                        // modify user in TaskUserState (add or update)
+                        //var step = yield * common.getStepByTask(req, newTasks[i].id);
+                        var taskUserState = yield oTaskUserState.upsert(newTasks[i].id, userId, newTasks[i].endDate);
+                        if (!taskUserState) {
+                            if (newTasks[i].status !== 'completed') {   // notify only noncompleted tasks
+                                // notify about assign
+                                oProduct.notifyOneUser(userId, {
+                                    body: 'Task updated (added new user to assigned group(s))',
+                                    action: 'Task updated (added new user to assigned group(s))'
+                                }, newTasks[i].id, newTasks[i].id, 'Tasks', 'assignTask');
+                            }
+                            if (newTasks[i].stepId === newTasks[i].currentStepId) {
+                                // current step is active
+                                // notify about activation
+                                oProduct.notifyOneUser(userId, {
+                                    body: 'Task activated (for new user in assigned group(s))',
+                                    action: 'Task activated (for new user in assigned group(s))'
+                                }, newTasks[i].id, newTasks[i].id, 'Tasks', 'activateTask');
+                            }
+                        }
+
+                    }
+                }
+            }
+        });
+    };
+    this.getTasksByGroup = function (groupId, curStepAlias) {
+        var self = this;
+        return co(function* () {
+            return yield thunkQuery(Task
+                .select(
+                    Task.id,
+                    Task.userIds,
+                    Task.groupIds,
+                    Task.stepId,
+                    Task.endDate,
+                    ProductUOA.currentStepId,
+                    self.taskStatus.statusColumn(curStepAlias)
+            )
+                .from(
+                Task
+                    .leftJoin(Product)
+                    .on(Task.productId.equals(Product.id))
+                    .leftJoin(WorkflowStep)
+                    .on(Task.stepId.equals(WorkflowStep.id))
+                    .leftJoin(ProductUOA)
+                    .on(Task.productId.equals(ProductUOA.productId)
+                        .and(Task.uoaId.equals(ProductUOA.UOAid))
+                )
+                    .leftJoin(WorkflowStep.as(curStepAlias))
+                    .on(
+                    ProductUOA.currentStepId.equals(WorkflowStep.as(curStepAlias).id)
+                )
+            )
+                .where(Task.groupIds.contains('{' + groupId + '}')
+                    .and(ProductUOA.isComplete.notEquals(true))
+            )
+            );
+        });
     };
 };
 module.exports = exportObject;
