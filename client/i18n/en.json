@@ -14,6 +14,8 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "HIDE_ALL": "Hide all",
+        "HIDE_ALL_FLAGGED": "Hide all flagged",
         "NO_MESSAGES": "no messages",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",

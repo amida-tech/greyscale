@@ -11,7 +11,7 @@ angular.module('greyscaleApp')
         }
 
         $scope.close = function () {
-            $uibModalInstance.dismiss();
+            $uibModalInstance.dismiss('close');
         };
 
         $scope.save = function () {
