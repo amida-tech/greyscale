@@ -33,7 +33,8 @@ angular.module('greyscaleApp')
         }
 
         if (taskId) {
-            reqs.task = greyscaleTaskApi.get(taskId);
+            reqs.task = greyscaleTaskApi.get(taskId)
+                .then(_startTask);
         }
 
         $q.all(reqs)
@@ -147,5 +148,16 @@ angular.module('greyscaleApp')
             }
             _survey.questions = _questions;
             data.policy.sections = _sections;
+        }
+
+        function _startTask(task) {
+            return greyscaleTaskApi.state(task.id, 'start')
+                .then(function () {
+                    return task;
+                })
+                .catch(function (err) {
+                    greyscaleUtilsSrv.errorMsg(err);
+                    return task;
+                });
         }
     });

@@ -15,8 +15,9 @@ var
     query = new Query(),
     thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError,
-    mammoth = require('mammoth'),
+    mammoth = require('mammoth-colors'),
     cheerio = require('cheerio'),
+    sSurvey = require('app/services/surveys'),
     thunkQuery = thunkify(query);
 
 var debug = require('debug')('debug_surveys');
@@ -25,57 +26,46 @@ debug.log = console.log.bind(console);
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-        co(function* () {
-            return yield thunkQuery(
-                Survey
-                .select(
-                    Survey.star(),
-                    Policy.section, Policy.subsection, Policy.author, Policy.number,
-                    '(SELECT array_agg(row_to_json(att)) FROM (' +
-                    'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                    'FROM "AttachmentLinks" al ' +
-                    'JOIN "Attachments" a ' +
-                    'ON al."entityId" = "Policies"."id" ' +
-                    'JOIN "Essences" e ' +
-                    'ON e.id = al."essenceId" ' +
-                    'AND e."tableName" = \'Policies\' ' +
-                    'WHERE a."id" = ANY(al."attachments")' +
-                    ') as att) as attachments'
-                )
-                .from(
-                    Survey
-                    .leftJoin(Policy)
-                    .on(Survey.policyId.equals(Policy.id))
-                ),
-                _.omit(req.query)
-            );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oSurvey = new sSurvey(req);
+        oSurvey.getList().then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
     },
 
     parsePolicyDocx: function (req, res, next) {
         if (req.files.file) {
             var file = req.files.file;
+            var options = {
+                styleMap: [
+                    "u  => u"
+                ]
+            };
             mammoth
-                .convertToHtml({
-                    path: file.path
-                })
+                .convertToHtml(
+                    {path: file.path},
+                    options
+                )
                 .then(function (result) {
 
-                    if (result.messages.length) { // TODO handle errors
-                        //throw new HttpError(403, 'File convert error: ' + JSON.stringify(result.messages))
-                        //next();
+                    var obj = {headers: {}, sections: {}};
+                    if (result.messages.length) {
+                        obj.errors = result.messages;
                     }
 
                     var html = '<html>' + result.value + '</html>';
                     var $ = cheerio.load(html);
-                    var obj = {};
 
                     var endOfDoc = 'END';
+
+                    var tables = $('html').find('table');
+
+                    if (tables[0]) {
+                        $(tables[0]).find('tr').each(function(key, item){
+                            var tds = $(item).children('td');
+                            obj.headers[$(tds[0]).text()] = $(tds[1]).text();
+                        });
+                    }
 
                     $('html').children().each(function(key, item) {
                         if (item.name === 'h1') {
@@ -93,10 +83,11 @@ module.exports = {
                                     current = nextItem;
                                 }
                             }
-
-                            obj[index] = content;
+                            content = content.split('\t').join('&nbsp;&nbsp;&nbsp;&nbsp;');
+                            obj.sections[index] = content;
                         }
                     });
+
                     res.json(obj);
                 })
                 .done();

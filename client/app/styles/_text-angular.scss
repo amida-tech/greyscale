@@ -1,9 +1,15 @@
-text-angular {
+text-angular,
+.ta-root {
     position: relative;
 }
-[text-angular-toolbar] {
+
+[text-angular-toolbar],
+.ta-toolbar {
     height: 25px;
     position: relative;
     z-index: 1;
 }
 
+.modal-dialog .ta-scroll-window {
+    height: 300px;
+}
