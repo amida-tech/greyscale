@@ -31,7 +31,7 @@ angular.module('greyscale.core')
                             .then(function (profileData) {
                                 _cancelTokenChecker();
                                 _tokenChecker = $interval(_checkToken, _tokenTTL);
-                                _profile = profileData.plain();
+                                _profile = profileData;
                                 return _profile;
                             })
                             .then(self._setAccessLevel)
@@ -50,7 +50,7 @@ angular.module('greyscale.core')
         };
 
         this.getUserName = function () {
-
+            greyscaleUtilsSrv.getUserName(_profile);
         };
 
         this._setAccessLevel = function (profile) {

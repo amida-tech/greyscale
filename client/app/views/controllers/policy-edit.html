@@ -5,12 +5,15 @@
             <div class="col-sm-7">
                 <policy-block policy-data="model.policy"></policy-block>
             </div>
-<!--
-            <div class="col-sm-5">
-                <survey-discussion survey-data="model.policy"></survey-discussion>
-                <div class="disabled"></div>
+
+            <div class="col-sm-5" ng-if="model.policy.taskId">
+                <rd-widget>
+                    <rd-widget-header title="{{'SURVEYS.DISCUSSION' | translate}}"></rd-widget-header>
+                    <rd-widget-body classes="group-discussion">
+                        <policy-discussion policy="model.policy"></policy-discussion>
+                    </rd-widget-body>
+                </rd-widget>
             </div>
-            -->
         </div>
         <form-builder ng-model="model.survey"></form-builder>
 

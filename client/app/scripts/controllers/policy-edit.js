@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi) {
+        greyscaleEntityTypeApi, greyscaleProductApi) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -29,7 +29,8 @@ angular.module('greyscaleApp')
                 authorName: '',
                 essenceId: -1,
                 options: {
-                    readonly: false
+                    readonly: false,
+                    canImport: true
                 },
                 sections: [],
                 attachments: []
@@ -44,6 +45,29 @@ angular.module('greyscaleApp')
                     $scope.model.policy.essenceId = essences[0].id;
                 }
             });
+
+        greyscaleProductApi.getList({
+            surveyId: surveyId
+        }).then(function (products) {
+            if (!products || !products.length) {
+                return;
+            }
+            var product = products[0];
+
+            greyscaleProductApi.product(product.id).tasksList().then(function (tasks) {
+                if (!tasks || !tasks.length) {
+                    return;
+                }
+
+                for (var i = 0; i < tasks.length; i++) {
+                    if (tasks[i].status !== 'current') {
+                        continue;
+                    }
+                    $scope.model.policy.taskId = tasks[i].id;
+                    break;
+                }
+            });
+        });
 
         greyscaleProfileSrv.getProfile().then(_setAuthor);
 
@@ -81,7 +105,8 @@ angular.module('greyscaleApp')
                 var _questions = [],
                     _sections = [],
                     qty = survey.questions ? survey.questions.length : 0,
-                    q;
+                    q,
+                    canImport = $scope.model.policy.options.canImport;
 
                 $scope.model.survey.isPolicy = ($scope.model.survey.policyId !== null);
 
@@ -92,23 +117,22 @@ angular.module('greyscaleApp')
                         section: survey.section,
                         subsection: survey.subsection,
                         number: survey.number,
-                        options: {
-                            readonly: false
-                        },
-                        sections: [],
                         attachments: survey.attachments || []
                     });
 
                     for (q = 0; q < qty; q++) {
                         if (survey.questions[q].type === policyIdx) {
                             _sections.push(survey.questions[q]);
+                            canImport = canImport && (!survey.questions[q].description);
                         } else {
                             _questions.push(survey.questions[q]);
                         }
                     }
+
                     _policiesGenerate(_sections);
                     survey.questions = _questions;
                     $scope.model.survey = survey;
+                    $scope.model.policy.options.canImport = canImport;
                     $scope.model.policy.sections = _sections;
 
                     greyscaleUsers.get($scope.model.survey.author).then(_setAuthor);

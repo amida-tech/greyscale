@@ -5,7 +5,7 @@
 
 angular.module('greyscale.tables')
     .factory('greyscaleUoaClassTypesTbl', function ($q, greyscaleUtilsSrv, greyscaleProfileSrv, greyscaleModalsSrv,
-        greyscaleLanguageApi, greyscaleUoaClassTypeApi) {
+        greyscaleLanguageApi, greyscaleUoaClassTypeApi, $rootScope) {
 
         var tns = 'UOA_TAGS.';
 
@@ -71,8 +71,15 @@ angular.module('greyscale.tables')
             dataPromise: _getData,
             add: {
                 handler: _addUoaClassType
-            }
+            },
+            onReload: _broadcastUpdate
         };
+
+        function _broadcastUpdate() {
+            $rootScope.$broadcast('update-uoaClassTypes', {
+                uoaClassTypes: dicts.uoaClassTypes
+            });
+        }
 
         function _editUoaClassType(_uoaClassType) {
             var op = 'editing';
@@ -127,6 +134,8 @@ angular.module('greyscale.tables')
                         greyscaleUtilsSrv.prepareFields(promises.uoaClassTypes, recDescr);
                     }
                     dicts.languages = promises.languages;
+
+                    dicts.uoaClassTypes = promises.uoaClassTypes;
 
                     return promises.uoaClassTypes;
                 });

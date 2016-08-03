@@ -28,6 +28,29 @@ angular.module('greyscaleApp')
             uoaClassTypes: greyscaleUoaClassTypesTbl
         };
 
+        var stopUpdateUoaTypes = $scope.$on('update-uoaTypes', function (e, data) {
+            $scope.model.uoas.update.uoaTypes(data.uoaTypes);
+        });
+
+        var stopUpdateUoaClassTypes = $scope.$on('update-uoaClassTypes', function (e, data) {
+            $scope.model.uoaTags.update.uoaClassTypes(data.uoaClassTypes);
+        });
+
+        var stopUpdateUoaTags = $scope.$on('update-uoaTags', function (e, data) {
+            $scope.model.uoaTagLinks.update.uoaTags(data.uoaTags);
+        });
+
+        var stopUpdateUoas = $scope.$on('update-uoas', function (e, data) {
+            $scope.model.uoaTagLinks.update.uoas(data.uoas);
+        });
+
+        $scope.$on('$destroy', function () {
+            stopUpdateUoaTypes();
+            stopUpdateUoaClassTypes();
+            stopUpdateUoaTags();
+            stopUpdateUoas();
+        });
+
         $scope.selectUoa = function (uoa) {
             if (typeof uoa !== 'undefined') {
                 $scope.model.uoaTagLinks.query = {

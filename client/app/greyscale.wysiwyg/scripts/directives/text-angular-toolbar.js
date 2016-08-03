@@ -1,6 +1,6 @@
 'use strict';
-angular.module('greyscaleApp')
-    .directive('textAngularToolbar', function () {
+angular.module('greyscale.wysiwyg')
+    .directive('textAngularToolbar', function ($window) {
         return {
             link: _link
         };
@@ -47,22 +47,26 @@ angular.module('greyscaleApp')
 
         function _controlPosition(el) {
             var prev;
+
             var setOffset = function () {
-                var offset = _getToolbarOffset(el);
+                var offset = _getToolbarOffsetY(el, el[0].parentNode);
                 if (prev !== offset) {
                     prev = offset;
                     el.css('top', offset);
                 }
             };
+
             setOffset();
-            document.addEventListener('scroll', setOffset, true);
+
+            $window.document.addEventListener('scroll', setOffset);
             return function () {
-                document.removeEventListener('scroll', setOffset, true);
+                $window.document.removeEventListener('scroll', setOffset);
             };
         }
 
-        function _getToolbarOffset(el) {
-            var offset = el[0].parentNode.getBoundingClientRect().top;
+        function _getToolbarOffsetY(el, container) {
+            var _eBox = container.getBoundingClientRect();
+            var offset = _eBox.top;
             offset = offset < 0 ? -offset : 0;
             offset = (offset >= el.next().height()) ? 0 : offset;
             return offset;
