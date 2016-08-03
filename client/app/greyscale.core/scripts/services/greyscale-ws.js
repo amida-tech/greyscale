@@ -2,7 +2,7 @@
 
 angular.module('greyscale.core')
     .service('greyscaleWebSocketSrv', function (greyscaleEnv, greyscaleTokenSrv, Organization,
-        $rootScope, greyscaleGlobals, $log) {
+        $rootScope, greyscaleGlobals) {
 
         var socket;
         var events = greyscaleGlobals.events;
@@ -26,12 +26,10 @@ angular.module('greyscale.core')
         function _init() {
             socket = _open();
             socket.on('connect', function () {
-                $log.debug('connected socket id', socket.id);
                 _setUser();
             });
 
             socket.on('reconnect', function () {
-                $log.debug('re-connected socket id', socket.id);
                 _setUser();
             });
         }

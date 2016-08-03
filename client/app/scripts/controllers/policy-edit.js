@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval, $log) {
+        greyscaleEntityTypeApi, greyscaleProductApi, greyscaleWebSocketSrv, $interval) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -115,7 +115,6 @@ angular.module('greyscaleApp')
         }
 
         function _policyLocked(data) {
-            $log.debug('policy locked', data);
             angular.extend($scope.model.lock, data);
             $scope.model.lock.locked = (data.editor !== user.id);
             greyscaleUsers.get(data.editor)
@@ -126,7 +125,6 @@ angular.module('greyscaleApp')
         }
 
         function _policyUnlocked(data) {
-            $log.debug('policy unlocked', data);
             $scope.model.lock.locked = (data.policyId === $scope.model.survey.policyId);
         }
 
