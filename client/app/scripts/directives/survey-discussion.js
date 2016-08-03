@@ -5,7 +5,6 @@
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
         greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
-        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
             flaggedQuestions = [],
             flaggedStep = null,

@@ -20,6 +20,8 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-uoa.html'
         }, {
+            field: 'startDate',
+            sortable: true,
             title: tns + 'TERMS',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-terms.html'
@@ -33,7 +35,7 @@ angular.module('greyscale.tables')
             title: tns + 'TITLE',
             icon: 'fa-tasks',
             sorting: {
-                id: 'asc'
+                startDate: 'asc'
             },
             cols: resDescr,
             dataPromise: _getData,
