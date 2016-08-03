@@ -110,7 +110,7 @@ angular.module('greyscaleApp')
                                 '<span class="input-group-addon" ng-show="field.units">{{field.units}}</span></div>';
 
                             message += '<span ng-show="field.answer">' + i18n.translate(
-                                    'COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
+                                'COMMON.CURRENT_VALUE') + ': {{field.answer}}</span>';
 
                             break;
 
@@ -153,9 +153,9 @@ angular.module('greyscaleApp')
 
                         case 'radio':
                             body = '<div class="checkbox-list option-list' +
-                                    (scope.field.withOther ? ' with-other' : '') +
+                                (scope.field.withOther ? ' with-other' : '') +
                                 '" ng-class="field.listType">';
-                            
+
                             if (scope.field.options && scope.field.options.length > 0) {
                                 body += '<div class="checkbox-list-item" ng-repeat="opt in field.options"><div class="radio">' +
                                     '<label><input type="radio" name="{{field.cid}}" ng-model="field.answer"' +
