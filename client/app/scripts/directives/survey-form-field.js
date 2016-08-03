@@ -129,10 +129,12 @@ angular.module('greyscaleApp')
                                 return res;
                             };
 
-                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list' +
+                                (scope.field.withOther ? ' with-other' : '') +
+                                '" ng-class="field.listType">';
 
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body += '<div ng-repeat="opt in field.options"><div class="checkbox">' +
+                                body += '<div ng-repeat="opt in field.options" class="checkbox-list-item"><div class="checkbox">' +
                                     '<label><input type="checkbox" ng-model="opt.checked" ng-disabled="field.flags.readonly || isDisabled" ' +
                                     'ng-required="field.required && !selectedOpts(field)" gs-valid="field">' +
                                     '<div class="chk-box"></div><span class="survey-option">{{opt.label}}</span></label></div></div>';
@@ -150,10 +152,14 @@ angular.module('greyscaleApp')
                             break;
 
                         case 'radio':
-                            body = '<div class="checkbox-list option-list" ng-class="field.listType">';
+                            body = '<div class="checkbox-list option-list' +
+                                (scope.field.withOther ? ' with-other' : '') +
+                                '" ng-class="field.listType">';
+
                             if (scope.field.options && scope.field.options.length > 0) {
-                                body += '<div class="radio" ng-repeat="opt in field.options"><label><input type="radio" ' +
-                                    'name="{{field.cid}}" ng-model="field.answer" ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
+                                body += '<div class="checkbox-list-item" ng-repeat="opt in field.options"><div class="radio">' +
+                                    '<label><input type="radio" name="{{field.cid}}" ng-model="field.answer"' +
+                                    ' ng-required="field.required" ng-disabled="(field.flags.readonly || isDisabled)"' +
                                     ' ng-value="opt" gs-valid="field"><i class="chk-box"></i>' +
                                     '<span class="survey-option">{{opt.label}}</span></label></div></div>';
                             }
