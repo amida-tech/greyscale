@@ -5,7 +5,7 @@
 angular.module('greyscaleApp')
     .controller('PolicyEditCtrl', function (_, $q, $scope, $state, $stateParams, $timeout, greyscaleSurveyApi,
         Organization, greyscaleUtilsSrv, greyscaleGlobals, i18n, greyscaleProfileSrv, greyscaleUsers,
-        greyscaleEntityTypeApi) {
+        greyscaleEntityTypeApi, greyscaleProductApi) {
 
         var projectId,
             policyIdx = greyscaleGlobals.formBuilder.fieldTypes.indexOf('policy'),
@@ -78,6 +78,30 @@ angular.module('greyscaleApp')
         $scope.publish = _publish;
 
         function _loadSurvey() {
+
+            greyscaleProductApi.getList({
+                surveyId: surveyId
+            }).then(function (products) {
+                if (!products || !products.length) {
+                    return;
+                }
+                var product = products[0];
+
+                greyscaleProductApi.product(product.id).tasksList().then(function (tasks) {
+                    if (!tasks || !tasks.length) {
+                        return;
+                    }
+
+                    for (var i = 0; i < tasks.length; i++) {
+                        if (tasks[i].status !== 'current') {
+                            continue;
+                        }
+                        $scope.model.policy.taskId = tasks[i].id;
+                        break;
+                    }
+                });
+            });
+
             greyscaleSurveyApi.get(surveyId).then(function (survey) {
                 var _questions = [],
                     _sections = [],

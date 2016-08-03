@@ -8,7 +8,7 @@ angular.module('greyscaleApp')
 	$scope.tagDisabled = false;
 
     if (extData) {
-        $scope.view = angular.copy(extData);
+        $scope.view = extData;
     }
 
     $scope.close = function () {

@@ -1,25 +1,29 @@
-<span class="gs-message-from">
-    {{getUserName()}}
-	<span ng-if="model.isReturn">
-        <a ng-if="isAdmin() && !model.isResolve" class="pull-right" ng-click="resolveFlag();">
-            <i class="fa fa-flag text-danger"></i>
+<div ng-if="isAdmin() || !model.isHidden" class="gs-message">
+    <span class="gs-message-from">
+        <a ng-if="isAdmin();" ng-click="toggleComment();">
+            <i class="fa" ng-class="{ 'fa-eye-slash': !model.isHidden, 'fa-eye': model.isHidden }"></i>
         </a>
-
-        <i ng-if="!isAdmin() || model.isResolve" class="fa fa-flag pull-right"
-			ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
-	</span>
-</span>
-<div class="gs-message-body-warpper">
-    <div class="gs-message-body" ng-hide="isEdit">
-        <div class="ta-text" ng-bind-html="model.entry"></div>
-        <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>
+        {{getUserName()}}
+        <span ng-if="model.isReturn">
+            <a ng-if="isAdmin() && !model.isResolve" class="pull-right" ng-click="resolveFlag();">
+                <i class="fa fa-flag text-danger"></i>
+            </a>
+            <i ng-if="!isAdmin() || model.isResolve" class="fa fa-flag pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+        </span>
+    </span>
+    <div ng-hide="model.isHidden" class="gs-message-body-warpper">
+        <div class="gs-message-body" ng-hide="isEdit">
+            <div class="ta-text" ng-bind-html="model.entry"></div>
+            <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>
+        </div>
+        <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
+        <div class="text-right gs-message-actions" ng-hide="model.activated">
+            <a ng-click="remove()" ng-hide="isEdit"><i class="fa fa-trash action-danger"></i></a>
+            <a ng-click="edit()" ng-hide="isEdit"><i class="fa fa-pencil"></i></a>
+            <a ng-click="cancel()" ng-show="isEdit"><i class="fa fa-times action-secondary"></i></a>
+            <a ng-click="apply()" ng-show="isEdit"><i class="fa fa-check"></i></a>
+        </div>
     </div>
-    <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
-    <div class="text-right gs-message-actions" ng-hide="model.activated">
-        <a ng-click="remove()" ng-hide="isEdit"><i class="fa fa-trash action-danger"></i></a>
-        <a ng-click="edit()" ng-hide="isEdit"><i class="fa fa-pencil"></i></a>
-        <a ng-click="cancel()" ng-show="isEdit"><i class="fa fa-times action-secondary"></i></a>
-        <a ng-click="apply()" ng-show="isEdit"><i class="fa fa-check"></i></a>
-    </div>
+    <p class="subtext">{{model.created | date : 'short'}}</p>
 </div>
-<p class="subtext">{{model.created | date : 'short'}}</p>
