@@ -3,7 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout) {
+    .directive('gsMessage', function (i18n, greyscaleUtilsSrv, greyscaleModalsSrv, greyscaleSelection, $timeout,
+        greyscaleProfileSrv, greyscaleCommentApi) {
         var _associate = [];
         return {
             restrict: 'A',
@@ -11,8 +12,9 @@ angular.module('greyscaleApp')
                 model: '=gsMessage',
                 associate: '=',
                 options: '=',
-                remove: '&',
-                update: '&'
+                edit: '&?',
+                remove: '&?',
+                update: '&?'
             },
             templateUrl: 'views/directives/gs-message.html',
             controller: function ($scope) {
@@ -23,11 +25,16 @@ angular.module('greyscaleApp')
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
-
-                $scope.edit = function () {
-                    $scope.entry = $scope.model.entry;
-                    _toggleEdit();
+                $scope.isAdmin = function () {
+                    return greyscaleProfileSrv.isAdmin();
                 };
+
+                if (!$scope.edit || typeof $scope.edit !== 'function') {
+                    $scope.edit = function () {
+                        $scope.entry = $scope.model.entry;
+                        _toggleEdit();
+                    };
+                }
 
                 $scope.apply = function () {
                     var _backup = $scope.model.entry;
@@ -50,7 +57,12 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
-                $scope.highlightSource = _highlightSource;
+                $scope.toggleComment = function () {
+                    //hide $scope.model
+                    greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
+                        $scope.model.isHidden = !$scope.model.isHidden;
+                    });
+                };
 
                 function _toggleEdit() {
                     $scope.isEdit = !$scope.isEdit;
@@ -72,34 +84,37 @@ angular.module('greyscaleApp')
                         } else {
                             fView.hide();
                         }
+
+                        taText.on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                     }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
-
-                    msgBody.find('.ta-text')
-                        .on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
                 });
             }
         };
 
-        function _highlightSource(model, event) {
+        function _highlightSource(model) {
             var questionBlock = $('#Q' + model.questionId);
             if (!questionBlock.length) {
                 return;
             }
             questionBlock.closest('.panel:not(.panel-open)').find('.accordion-toggle').click();
             $timeout(function () {
-                var range = typeof model.range === 'string' ? JSON.parse(model.range) : model.range;
-                var startNode = greyscaleSelection.restore(questionBlock[0], range);
-                if (!startNode) {
-                    return;
+                var startNode,
+                    range = model.range;
+
+                while (typeof range === 'string') {
+                    range = JSON.parse(range);
                 }
-                var parent = startNode.parentNode;
-                var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
-                angular.element('body').scrollTop(scrollPos);
+                startNode = greyscaleSelection.restore(questionBlock[0], range);
+                if (startNode) {
+                    var parent = startNode.parentNode;
+                    var scrollPos = parent.getBoundingClientRect().top + window.scrollY;
+                    angular.element('body').scrollTop(scrollPos);
+                }
             });
         }
 
