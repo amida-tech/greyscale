@@ -4,6 +4,7 @@ var
     config = require('config'),
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
+    sTaskUserState = require('app/services/taskuserstates'),
     BoLogger = require('app/bologger'),
     Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
@@ -71,12 +72,25 @@ function* checkString(val, keyName) {
     return val;
 }
 
-var notify = function (req, commentId, taskId, action, essenceName, templateName) {
+var notify = function (req, commentId, taskId, action, essenceName, templateName, authorId) {
     co(function* () {
         var userTo, note, usersFromGroup;
         var i, j;
         // notify
         var sentUsersId = []; // array for excluding duplicate sending
+
+        // if authorId specified - send notification to author
+        if (authorId){
+            userTo = yield * common.getUser(req, authorId);
+            note = yield * notifications.extendNote(req, {
+                body: req.body.entry,
+                action: action
+            }, userTo, essenceName, commentId, userTo.organizationId, taskId);
+            notifications.notify(req, userTo, note, templateName);
+            sentUsersId.push(authorId);
+        }
+
+/* don't notify users assigned to task - ONLY tagged
         var task = yield * common.getTask(req, taskId);
         for (i in task.userIds) {
             if (sentUsersId.indexOf(task.userIds[i]) === -1) {
@@ -103,6 +117,7 @@ var notify = function (req, commentId, taskId, action, essenceName, templateName
                 }
             }
         }
+*/
 
         if (req.body.tags) {
             req.body.tags = JSON.parse(req.body.tags);
@@ -247,11 +262,22 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
 
-            req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
-            var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+                req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
+                var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+
+            if (isReturn) {
+                // TaskUserStates - start task for user
+                var oTaskUserState = new sTaskUserState(req);
+                yield oTaskUserState.flagged(task.id, req.user.id);
+            }
 
             if (req.body.activated && !isResolve) {
-                notify(req, result[0].id, task.id, isReturn ? 'Flagged comment added' : 'Comment added', 'Comments', 'comment');
+                if (isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(req, task.id);
+                    notify(req, result[0].id, task.id, 'Flagged comment added', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, task.id, 'Comment added', 'Comments', 'comment');
+                }
             }
 
             bologger.log({
@@ -289,7 +315,12 @@ module.exports = {
             var result = yield thunkQuery(Comment.update(req.body).where(Comment.id.equals(req.params.id)).returning(Comment.id, Comment.taskId, Comment.isReturn, Comment.isResolve));
 
             if (!result[0].isResolve) {
-                notify(req, result[0].id, result[0].taskId, result[0].isReturn ? 'Flagged comment updated' : 'Comment updated', 'Comments', 'comment');
+                if (result[0].isReturn) {
+                    var authorId = yield * common.getPolicyAuthorIdByTask(result[0].taskId);
+                    notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
+                } else {
+                    notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
+                }
             }
 
             bologger.log({
@@ -440,12 +471,10 @@ function* checkInsert(req) {
     // if comment`s entry is entry with "returning" (isReturn flag is true)
     var returnObject = null;
     if (req.body.isReturn) {
-        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'return');
         req.body = _.extend(req.body, {
             returnTaskId: taskId
         }); // add returnTaskId
     } else if (req.body.isResolve) {
-        //returnObject = yield * checkForReturnAndResolve(req, req.user, taskId, req.body.stepId, 'resolve');
         req.body = _.omit(req.body, 'isReturn'); // remove isReturn flag from body
     }
 }
@@ -764,42 +793,6 @@ function* getNextOrder(req, taskId, questionId) {
     // get next order
     // if not found records, nextOrder must be 1  - the first comment for question
     return (!_.first(result)) ? 1 : result[0].maxorder + 1;
-}
-
-function* checkForReturnAndResolve(req, user, taskId, stepId, tag) {
-    var result;
-    // get current step for survey
-    var query =
-        'SELECT ' +
-        '"Tasks"."stepId" as stepid, ' +
-        '"ProductUOA"."currentStepId" as currentstepid ' +
-        'FROM ' +
-        '"Tasks" ' +
-        'INNER JOIN "ProductUOA" ON ' +
-        '"ProductUOA"."productId" = "Tasks"."productId" AND ' +
-        '"ProductUOA"."UOAid" = "Tasks"."uoaId" ' +
-        'WHERE ' +
-        pgEscape('"Tasks"."id" = %s', taskId);
-    var thunkQuery = req.thunkQuery;
-    result = yield thunkQuery(query);
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Task with id=`' + taskId + '` does not exist in Tasks'); // just in case - not possible case!
-    }
-    if (result[0].currentstepid !== result[0].stepid) {
-        throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because Task stepId=`' + result[0].stepid +
-            '` does not equal currentStepId=`' + result[0].currentstepid + '`');
-    }
-
-/*
-    var currentStep = yield * getCurrentStep(req, taskId);
-    if (tag === 'return') {
-        if (!currentStep.position || currentStep.position === 0) {
-            throw new HttpError(403, 'It is not possible to post comment with "' + tag + '" flag, because there are not previous steps');
-        }
-    }
-*/
-
-    return yield * checkUserId(req, user, stepId, taskId, currentStep, tag); // {returnUserId, returnTaskId, returnStepId}
 }
 
 function* getCurrentStep(req, taskId) {

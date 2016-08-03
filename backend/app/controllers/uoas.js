@@ -41,8 +41,8 @@ module.exports = {
                         .leftJoin(UnitOfAnalysisType)
                         .on(UnitOfAnalysis.unitOfAnalysisType.equals(UnitOfAnalysisType.id))
                 )
-                .where(UnitOfAnalysisType.name.notEquals(config.pgConnect.policyUoaType))
-                ,_.omit(req.query, 'offset', 'limit', 'order')
+                .where(UnitOfAnalysisType.name.notEquals(config.pgConnect.policyUoaType)),
+                _.omit(req.query, 'offset', 'limit', 'order')
             );
             return yield [_counter, uoa];
         }).then(function (data) {
