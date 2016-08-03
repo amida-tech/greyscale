@@ -1,9 +1,11 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function (_, $q, greyscaleTaskApi) {
+    .factory('greyscaleMyTasksTbl', function (_, greyscaleTaskApi, greyscaleProfileSrv, greyscaleGlobals, $log) {
 
-        var tns = 'MY_TASKS.';
+        var tns = 'MY_TASKS.',
+            _userId,
+            _userStatuses = greyscaleGlobals.policy.userStatuses;
 
         var resDescr = [{
             title: tns + 'TASK',
@@ -28,7 +30,11 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
 
-        var _table = {
+        greyscaleProfileSrv.getProfile().then(function (_profile) {
+            _userId = _profile.id;
+        });
+
+        return {
             title: tns + 'TITLE',
             icon: 'fa-tasks',
             sorting: {
@@ -42,10 +48,15 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleTaskApi.myList().then(function (data) {
                 return _.filter(data, function (item) {
-                    return item.status === 'current';
+                    var res = item.status === 'current',
+                        userStatus;
+
+                    if (res) {
+                        item.approved = (item.userStatus && item.userStatus === _userStatuses.approved);
+                        $log.debug('my task filter', item, item.approved);
+                    }
+                    return res;
                 });
             });
         }
-
-        return _table;
     });

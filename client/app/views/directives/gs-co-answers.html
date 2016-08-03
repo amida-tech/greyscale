@@ -1,7 +1,7 @@
 <div class="co-answers-wrapper panel" ng-show="field.coAnswers.length>0">
     <a class="action-primary" ng-click="model.collapsed = !model.collapsed">
         <i class="fa" ng-class="{'fa-plus': model.collapsed, 'fa-minus':!model.collapsed}"></i>
-        <span translate="SURVEYS.RESPONSES"></span>
+        <span translate="SURVEYS.RESPONSES"></span> ({{field.coAnswers.length}})
     </a>
     <div uib-collapse="model.collapsed" class="panel-body" ng-switch="field.type">
         <div ng-switch-when="radio">
@@ -63,14 +63,17 @@
         <td class=""><label>{{getAuthor(answer.userId)}}</label></td>
         <td ng-repeat="option in field.options">
             <div ng-class="{'checkbox': field.type === 'checkboxes', 'radio': field.type === 'radio'}">
-                <label><input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="isChecked(answer, option)" disabled>
-                    <div class="chk-box"></div>
+                <label>
+                    <input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="isChecked(answer, option)" disabled>
+                    <i class="chk-box"></i>
+                    <span class="survey-option"></span>
                 </label>
             </div>
         </td>
         <td ng-if="field.withOther">
-            <div ng-class="{'checkbox': field.type === 'checkboxes', 'radio': field.type='radio'}">
-                <label><input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="(answer.value)" disabled>
+            <div ng-class="{'checkbox': field.type === 'checkboxes', 'radio': field.type === 'radio'}">
+                <label>
+                    <input type="{{field.type === 'checkboxes' ? 'checkbox':'radio'}}" ng-checked="(answer.value)" disabled>
                     <i class="chk-box"></i><span class="survey-option">{{answer.value}}</span>
                 </label>
             </div>
