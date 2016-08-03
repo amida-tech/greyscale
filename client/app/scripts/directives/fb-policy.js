@@ -44,7 +44,7 @@ angular.module('greyscaleApp')
                             action: function (data) {
                                 var _comment = {
                                     section: scope.model,
-                                    quote: data.range.cloneRange().toString(),
+                                    quote: data.selectedHtml,
                                     range: data.selection
                                 };
                                 $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
