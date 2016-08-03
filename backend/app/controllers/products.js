@@ -24,8 +24,10 @@ var
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
+    TaskUserState = require('app/models/taskuserstates'),
     UOA = require('app/models/uoas'),
     Discussion = require('app/models/discussions'),
+    Comment = require('app/models/comments'),
     Index = require('app/models/indexes.js'),
     Subindex = require('app/models/subindexes.js'),
     IndexQuestionWeight = require('app/models/index_question_weights.js'),
@@ -50,18 +52,27 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
     var oProduct = new sProduct(req);
+    var oTask = new sTask(req);
+
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
+    var isPolicy = yield oTask.isPolicy(curStep.task.id);
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
         // if exists entries with return flags then check existing resolve entries and create it if needed
-        autoResolve = yield * doAutoResolve(req, curStep.task.id);
+        if (isPolicy) {
+            autoResolve = yield * doAutoResolve(req, curStep.task.id, 'Comments');
+            // update return entries - resolve their
+            yield * updateReturnTaskForPolicy(req, curStep.task.id);
+        } else {
+            autoResolve = yield * doAutoResolve(req, curStep.task.id, 'Discussions');
+        }
     }
 
-    if (req.query.resolve || autoResolve) { // try to resolve
+    if ((req.query.resolve || autoResolve) && !isPolicy) { // try to resolve (only for survey - not policy)
         // check if resolve is possible
         var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
@@ -94,28 +105,43 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
     }
 
-    // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
-    if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
-        // set currentStep to step from returnTaskId
-        yield * updateCurrentStep(req, returnStepId, productId, UOAid);
-        // activate discussion`s entry with return flag
-        var flagsCount = yield * activateEntries(req, curStep.task.id, {
-            isReturn: true
-        });
+    if (!isPolicy) {    // only for syrvey - not policy
+        // check if exist return flag(s)
+        var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
+        if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
+            // set currentStep to step from returnTaskId
+            yield * updateCurrentStep(req, returnStepId, productId, UOAid);
+            // activate discussion`s entry with return flag
+            var flagsCount = yield * activateEntries(req, curStep.task.id, {
+                isReturn: true
+            });
 
-        // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
-        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
-        oProduct.notify({
-            body: 'flags requiring resolution',
-            action: 'flags requiring resolution',
-            flags: {
-                count: flagsCount
-            }
-        }, null, task.id, '', 'returnFlag');
+            // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
+            task = yield * common.getTaskByStep(req, returnStepId, UOAid);
+            oProduct.notify({
+                body: 'flags requiring resolution',
+                action: 'flags requiring resolution',
+                flags: {
+                    count: flagsCount
+                }
+            }, null, task.id, '', 'returnFlag');
 
-        return;
+            return;
+        }
+    } else if (!req.query.force) {    // for policy - check all users approved task - only if no force
+        var oTaskUserState = new sTaskUserState(req);
+        var taskUserStates = yield oTaskUserState.getByLists([curStep.task.id],null);
+        if (!_.first(taskUserStates)) {
+            debug('Error getting taskUserStates - possible obsolete data - don`t move workflow step');
+            return;
+        }
+        var approvedId = TaskUserState.getStateId('approved');
+        if (_.find(taskUserStates, function(item){ return item.stateId !== approvedId; })) {
+            debug('At least one of taskUserStates is  not Approved  - don`t move workflow step');
+            return;
+        }
     }
+
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
     if (minNextStepPosition !== null) { // min next step exists, position is not null
@@ -1296,6 +1322,8 @@ module.exports = {
 
     },
 
+    moveWorkflow: moveWorkflow,
+
     productUOAmove: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -1952,9 +1980,36 @@ function* updateReturnTask(req, taskId) {
     }
 }
 
-function* doAutoResolve(req, taskId) {
+function* updateReturnTaskForPolicy(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.returnTaskId.equals(taskId))
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Autoresolve flags (policy)'
+        });
+    }
+}
+
+function* doAutoResolve(req, taskId, relation) {
     var thunkQuery = req.thunkQuery;
     var query, result;
+    var Discussion = relation === 'Comments' ? Comment : Discussion;
+    var activated = (relation === 'Comments');
     // get existing entries with flags
     query =
         Discussion
@@ -1996,7 +2051,8 @@ function* doAutoResolve(req, taskId) {
             // resolve Entry exist - update it with "Resolved automatically"
             resolveEntry = _.extend(resolveEntry, {
                 entry: resolveEntry.entry.trim() + ' Resolved automatically',
-                updated: new Date()
+                updated: new Date(),
+                activated: activated
             });
             var id = resolveEntry.id;
             resolveEntry = _.pick(resolveEntry, Discussion.updateCols); // update only columns that may be updated
@@ -2006,7 +2062,7 @@ function* doAutoResolve(req, taskId) {
                     req: req,
                     user: req.user,
                     action: 'update',
-                    object: 'Discussions',
+                    object: relation,
                     entity: result[0].id,
                     info: 'Update resolve entry (Resolved automatically)'
                 });
@@ -2022,7 +2078,7 @@ function* doAutoResolve(req, taskId) {
                 isReturn: false,
                 returnTaskId: null,
                 isResolve: true,
-                activated: false,
+                activated: activated,
                 entry: 'Resolved automatically',
                 order: flagsEntries[i].order + 1,
                 updated: new Date()
@@ -2034,7 +2090,7 @@ function* doAutoResolve(req, taskId) {
                     req: req,
                     user: req.user,
                     action: 'insert',
-                    object: 'Discussions',
+                    object: relation,
                     entity: result[0].id,
                     info: 'Insert resolve entry (Resolved automatically)'
                 });

@@ -163,10 +163,17 @@ var exportObject = function  (req, realm) {
         return co(function* () {
             // get taskUserState(s)
             var query = TaskUserState
-                    .select(TaskUserState.star())
+                    .select(TaskUserState.star());
+            if (tasks && users) {
+                query = query
+                    .where(TaskUserState.userId.in(Array.from(users)))
+                    .and(TaskUserState.taskId.in(Array.from(tasks)));
+            } else if (users) {
+                query = query
                     .where(TaskUserState.userId.in(Array.from(users)));
-            if (tasks) {
-                query = query.and(TaskUserState.taskId.in(Array.from(tasks)));
+            } else if (tasks) {
+                query = query
+                    .where(TaskUserState.taskId.in(Array.from(tasks)));
             }
             return yield thunkQuery(query);
         });
