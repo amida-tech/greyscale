@@ -91,8 +91,10 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    for (; i < qty; i++) {
-                        $scope.policyData.sections[i].deleted = true;
+                    if (i) { //if one or more sections were imported
+                        for (; i < qty; i++) {
+                            $scope.policyData.sections[i].deleted = true;
+                        }
                     }
                 }
 
