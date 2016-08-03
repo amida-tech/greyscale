@@ -1,7 +1,15 @@
 'use strict';
 
 angular.module('greyscale.rest')
-    .factory('greyscaleTaskApi', function (greyscaleRestSrv) {
+    .factory('greyscaleTaskApi', function (greyscaleRestSrv, $q) {
+        return {
+            myList: _myList,
+            get: _getTask,
+            add: _add,
+            update: _update,
+            del: _del,
+            state: _state
+        };
 
         function api() {
             return greyscaleRestSrv().one('tasks');
@@ -47,11 +55,13 @@ angular.module('greyscale.rest')
             return api().one(taskId + '').get().then(_prepareResp);
         }
 
-        return {
-            myList: _myList,
-            get: _getTask,
-            add: _add,
-            update: _update,
-            del: _del
-        };
+        function _state(taskId, state) {
+            if (state) {
+                return api().one(taskId + '', '' + state)
+                    .get()
+                    .then(_prepareResp);
+            } else {
+                return $q.reject('NO_TASK_STATE');
+            }
+        }
     });

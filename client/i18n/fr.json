@@ -14,6 +14,8 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "HIDE_ALL": "",
+        "HIDE_ALL_FLAGGED": "",
         "NO_MESSAGES": "",
         "TAG_COMMENT": "",
         "TITLE": "",
@@ -96,7 +98,9 @@
     },
     "FILE": {
         "CONTINUE": "",
-        "SELECT": ""
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "",
@@ -181,10 +185,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "",
-            "DELAYED": "",
             "FLAGGED": "",
             "LATE": "",
-            "PENDING": ""
+            "PENDING": "",
+            "STARTED": ""
         },
         "PRODUCTSTATES": {
             "CANCELLED": "",
