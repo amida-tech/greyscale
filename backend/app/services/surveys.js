@@ -3,6 +3,7 @@ var
     Policy = require('app/models/policies'),
     Survey = require('app/models/surveys'),
     co = require('co'),
+    thunkify = require('thunkify'),
     HttpError = require('app/error').HttpError;
 
 
@@ -30,7 +31,12 @@ var exportObject = function  (req, realm) {
                             'ON e.id = al."essenceId" ' +
                             'AND e."tableName" = \'Policies\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
-                        ') as att) as attachments'
+                        ') as att) as attachments',
+                        '(' +
+                            'SELECT array_agg("Products"."id") ' +
+                            'FROM "Products" ' +
+                            'WHERE "Products"."surveyId" = "Surveys"."id"' +
+                        ') as products'
                     )
                     .from(
                         Survey

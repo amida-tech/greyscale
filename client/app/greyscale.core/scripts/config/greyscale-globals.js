@@ -201,7 +201,7 @@ angular.module('greyscale.core')
                     approved: 'approved',
                     late: 'late',
                     flagged: 'flagged',
-                    delayed: 'delayed',
+                    started: 'started',
                     pending: 'pending'
                 }
             },
@@ -218,8 +218,8 @@ angular.module('greyscale.core')
                 value: 'pending',
                 name: 'PENDING'
             }, {
-                value: 'delayed',
-                name: 'DELAYED'
+                value: 'started',
+                name: 'STARTED'
             }]
         };
 
