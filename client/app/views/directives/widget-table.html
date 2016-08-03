@@ -3,7 +3,7 @@
         <div class="text-right" ng-show="model.add.length">
             <a ng-repeat="addBtn in model.add"
                ng-show="addBtn.show()"
-               class="action action-primary" ng-click="addBtn.handler()"
+               class="action action-primary {{addBtn.classes}}" ng-click="addBtn.handler()"
                title="{{addBtn.tooltip||'COMMON.ADD'|translate}}">
                 <i ng-if="addBtn.icon !== null" class="fa {{addBtn.icon||'fa-plus'}}"></i> {{addBtn.title||'COMMON.ADD'|translate}}
             </a>

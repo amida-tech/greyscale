@@ -145,6 +145,7 @@ angular.module('greyscale.tables')
             add: [{
                 icon: true,
                 title: tns + 'SAVE_AS_TEMPLATE',
+                classes: 'right-gap',
                 handler: function () {
                     if (typeof _table.dataFilter.saveAsTemplate === 'function') {
                         _table.dataFilter.saveAsTemplate();
