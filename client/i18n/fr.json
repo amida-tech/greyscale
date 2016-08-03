@@ -89,6 +89,8 @@
         "ACCESS_RESTRICTED": "",
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
+        "NO_POLICY_HEADERS": "",
+        "NO_POLICY_SECTIONS": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",

@@ -95,6 +95,8 @@ angular.module('greyscaleApp')
                         for (; i < qty; i++) {
                             $scope.policyData.sections[i].deleted = true;
                         }
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_SECTIONS');
                     }
                 }
 
@@ -102,11 +104,15 @@ angular.module('greyscaleApp')
                     var i, key,
                         qty = _headers.length;
 
-                    for (i = 0; i < qty; i++) {
-                        key = _headers[i];
-                        if (headers.hasOwnProperty(key)) {
-                            $scope.policyData[key.toLowerCase()] = headers[key];
+                    if (qty) {
+                        for (i = 0; i < qty; i++) {
+                            key = _headers[i];
+                            if (headers.hasOwnProperty(key)) {
+                                $scope.policyData[key.toLowerCase()] = headers[key];
+                            }
                         }
+                    } else {
+                        greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_HEADERS');
                     }
                 }
             }
