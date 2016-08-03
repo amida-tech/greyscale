@@ -78,7 +78,9 @@
     },
     "FILE": {
         "CONTINUE": "",
-        "SELECT": ""
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "",
