@@ -4,6 +4,7 @@ var
     config = require('config'),
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
+    sTaskUserState = require('app/services/taskuserstates'),
     BoLogger = require('app/bologger'),
     Organization = require('app/models/organizations'),
     bologger = new BoLogger(),
@@ -305,8 +306,14 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
 
-            req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
-            var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+                req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
+                var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+
+            if (isReturn) {
+                // TaskUserStates - start task for user
+                var oTaskUserState = new sTaskUserState(req);
+                yield oTaskUserState.flagged(task.id, req.user.id);
+            }
 
             if (req.body.activated && !isResolve) {
                 if (isReturn) {

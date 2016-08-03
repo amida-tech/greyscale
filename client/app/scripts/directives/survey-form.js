@@ -4,7 +4,8 @@
 'use strict';
 angular.module('greyscaleApp')
     .directive('surveyForm', function (_, $q, greyscaleGlobals, greyscaleSurveyAnswerApi, $interval, $timeout,
-        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window, $log) {
+        $anchorScroll, greyscaleUtilsSrv, greyscaleProductApi, greyscaleDiscussionApi, $state, i18n, $window,
+        greyscaleTaskApi, $log) {
 
         var tasks = {
             survey: 'tasks',
@@ -20,7 +21,8 @@ angular.module('greyscaleApp')
         var surveyAnswers = [],
             coAnswers = {},
             flags = {},
-            resolveSaving;
+            resolveSaving,
+            userStatuses = greyscaleGlobals.policy.userStatuses;
 
         return {
             restrict: 'E',
@@ -65,7 +67,7 @@ angular.module('greyscaleApp')
                                 }) : saveRes;
                             })
                             .then(function (res) {
-                                return (!flags.isPolicy) ? goNextStep(res, resolve) : res;
+                                return (flags.isPolicy) ? _approve(res) : goNextStep(res, resolve);
                             });
                     }
 
@@ -123,6 +125,13 @@ angular.module('greyscaleApp')
 
                 function _unlock() {
                     scope.model.locked = false;
+                }
+
+                function _approve(saveSuccess) {
+                    return greyscaleTaskApi.state(scope.surveyData.task.id, 'approve')
+                        .then(function () {
+                            return saveSuccess;
+                        });
                 }
 
                 function goNextStep(saveSuccess, resolve) {
@@ -385,7 +394,8 @@ angular.module('greyscaleApp')
 
             flags.isPolicy = !!scope.surveyData.policy;
             if (flags.isPolicy) {
-                scope.model.snsTitle = 'POLICY.APPROVE';
+                scope.model.snsTitle = task.userStatus === userStatuses.approved ?
+                    'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
             }
             scope.model.translated = !flags.allowTranslate;
 
