@@ -68,6 +68,16 @@ angular.module('greyscale.tables')
             },
             dataHide: true
         }, {
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
@@ -85,13 +95,8 @@ angular.module('greyscale.tables')
             show: true,
             dataFormat: 'action',
             dataHide: true,
+            textLeft: true,
             actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }, {
                 title: tns + 'UOAS',
                 class: 'info',
                 handler: _editProductUoas
