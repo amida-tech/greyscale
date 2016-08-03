@@ -1,7 +1,7 @@
 <div ng-if="!row.subjectCompleted && !row.allCompleted" translate-namespace="PRODUCT_TASKS" ng-cloak>
     <div class="row">
         <div class="col-md-4"><b translate=".ROLE"></b><b>: {{row.step.role}}</b></div>
-        <div class="col-md-2"><b translate=".STATUS"></b></div>
+        <div class="col-md-2"><b translate=".STATUS" ng-if="row.user && row.user.length"></b></div>
         <div class="col-md-1">
             <a ng-click="ext.moveNextStep(row)" ng-if="!row.subjectCompleted"
                title="{{(row.last ? 'PRODUCT_TASKS.FORCE_COMPLETE' : 'PRODUCT_TASKS.FORCE_NEXT_STEP') | translate}}">

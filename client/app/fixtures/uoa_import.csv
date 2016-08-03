@@ -1,6 +1,8 @@
 name,description,shortName,ISO,ISO2,nameISO,uoaType,visibility,status,langId,parentId,gadmId0,gadmId1,gadmId2,gadmId3,gadmObjectId,HASK
-Afghanistan,Region: Southern Asia (Asia); WB: South Asia - Low income - Debt not classified,Afghanistan,AFG,AF,AFGHANISTAN,99,3,4,,,2,,,,,
-Albania,Region: Southern Europe (Europe); WB: Europe & Central Asia - Lower middle income - Less indebted,Albania,ALB,AL,ALBANIA,1,2,3,,100,6,,,,,
-,Region: Northern Africa (Africa); WB: Middle East & North Africa - Lower middle income - Less indebted,Algeria,DZA,DZ,ALGERIA,,,,,,65,,,,,
-American Samoa,Region: Polynesia (Oceania); WB: East Asia & Pacific - Upper middle income - Debt not classified,,ASM,AS,AMERICAN SAMOA
-Andorra,Region: Southern Europe (Europe); WB:  - High income: nonOECD - Debt not classified,Andorra,AND,AD,ANDORRA,,,,100,,7,,,,,
+Bahrain,Region: Western Asia (Asia); WB:  - High income: nonOECD - Debt not classified,Bahrain,BHR,BH,BAHRAIN
+Bangladesh,Region: Southern Asia (Asia); WB: South Asia - Low income - Less indebted,Bangladesh,BGD,BD,BANGLADESH
+Barbados,Region: Caribbean (Americas); WB: Latin America & Caribbean - Upper middle income - Less indebted,Barbados,BRB,BB,BARBADOS
+Belarus,Region: Eastern Europe (Europe); WB: Europe & Central Asia - Lower middle income - Less indebted,Belarus,BLR,BY,BELARUS
+Belgium,Region: Western Europe (Europe); WB: .. - High income: OECD - Debt not classified,Belgium,BEL,BE,BELGIUM
+Belize,Region: Central America (Americas); WB: Latin America & Caribbean - Upper middle income - Severely indebted,Belize,BLZ,BZ,BELIZE
+Benin,Region: Western Africa (Africa); WB: Sub-Saharan Africa - Low income - Moderately indebted,Benin,BEN,BJ,BENIN

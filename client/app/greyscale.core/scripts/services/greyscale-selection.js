@@ -5,7 +5,8 @@ angular.module('greyscale.core')
     .provider('greyscaleSelection', function () {
         var self = {
             get: _saveSelection,
-            restore: _restoreSelection
+            restore: _restoreSelection,
+            html: _getSelectedHtml
         };
 
         return {
@@ -13,12 +14,14 @@ angular.module('greyscale.core')
                 if (window.getSelection && document.createRange) {
                     self = {
                         get: _saveSelection,
-                        restore: _restoreSelection
+                        restore: _restoreSelection,
+                        html: _getSelectedHtml
                     };
                 } else if (document.selection) {
                     self = {
                         get: _saveMsSelection,
-                        restore: _restoreMsSelection
+                        restore: _restoreMsSelection,
+                        html: _getSelectedHtml
                     };
                 }
                 return self;
@@ -48,13 +51,15 @@ angular.module('greyscale.core')
             var nodeStack = [container],
                 node,
                 foundStart = false,
-                stop = false;
+                stop = false,
+                startNode;
 
             while (!stop && (node = nodeStack.pop())) {
                 if (node.nodeType === 3) {
                     var nextCharIndex = charIndex + node.length;
                     if (!foundStart && selection.start >= charIndex && selection.start <= nextCharIndex) {
                         range.setStart(node, selection.start - charIndex);
+                        startNode = node;
                         foundStart = true;
                     }
                     if (foundStart && selection.end >= charIndex && selection.end <= nextCharIndex) {
@@ -69,10 +74,10 @@ angular.module('greyscale.core')
                     }
                 }
             }
-
             var sel = window.getSelection();
             sel.removeAllRanges();
             sel.addRange(range);
+            return startNode;
         }
 
         function _saveMsSelection(container) {
@@ -95,6 +100,25 @@ angular.module('greyscale.core')
             textRange.moveEnd('character', selection.end);
             textRange.moveStart('character', selection.start);
             textRange.select();
+        }
+
+        function _getSelectedHtml() {
+            var html = '';
+            if (typeof window.getSelection !== 'undefined') {
+                var sel = window.getSelection();
+                if (sel.rangeCount) {
+                    var container = document.createElement('div');
+                    for (var i = 0, len = sel.rangeCount; i < len; ++i) {
+                        container.appendChild(sel.getRangeAt(i).cloneContents());
+                    }
+                    html = container.innerHTML;
+                }
+            } else if (typeof document.selection !== 'undefined') {
+                if (document.selection.type === 'Text') {
+                    html = document.selection.createRange().htmlText;
+                }
+            }
+            return html;
         }
 
     });

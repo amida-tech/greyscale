@@ -55,7 +55,7 @@ angular.module('greyscaleApp')
                     task: resp.task,
                     resolveData: resp.scopeList ? _getResolveData(resp.scopeList) : null,
                     userId: resp.profile.id,
-                    languages: resp.languages.plain(),
+                    languages: resp.languages,
                     essenceId: resp.essence[0] ? resp.essence[0].id : null
                 };
                 data.flags = {
@@ -95,7 +95,6 @@ angular.module('greyscaleApp')
                     $q.reject();
             })
             .then(function (steps) {
-                steps = steps.plain();
                 var s, qty = steps.length;
                 for (s = 0; s < qty; s++) {
                     if (data.task.stepId === steps[s].id) {

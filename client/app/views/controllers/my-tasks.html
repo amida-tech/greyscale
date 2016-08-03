@@ -18,15 +18,17 @@
 </div>
 
 <script type="text/ng-template" id="my-tasks-cell-task.html">
-    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i><br>
+    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i>
+    <i class="fa fa-check text-success" ng-show="row.approved"></i>
+    <br>
     <small>{{row.step.description}}</small>
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-survey.html">
-    <a ng-href="/#survey/{{row.survey.id}}/task/{{row.id}}" ng-hide="row.survey.policyId">
+    <a ui-sref="survey({id: row.survey.id, taskId: row.id})" ng-hide="row.survey.policyId">
         <i class="fa fa-list"></i> {{row.survey.title}}
     </a>
-    <a ng-href="/#policy/review/{{row.survey.id}}/task/{{row.id}}" ng-show="row.survey.policyId">
+    <a ui-sref="policy.review({id: row.survey.id, taskId: row.id})" ng-show="row.survey.policyId">
         <i class="fa fa-file"></i> {{row.survey.title}}
     </a>
     <br>
@@ -46,7 +48,9 @@
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-uoa.html">
-    <b>{{row.uoa.name}}</b>
-    <br>
-    <small>{{row.uoa.shortName}}</small>
+    <span ng-hide="row.survey.policyId">
+        <b>{{row.uoa.name}}</b>
+        <br>
+        <small>{{row.uoa.shortName}}</small>
+    </span>
 </script>
