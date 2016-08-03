@@ -716,6 +716,16 @@ module.exports = {
                 });
             }
             if (req.params.realm !== config.pgConnect.adminSchema) {
+
+                // check if usergroupId changed
+                var userGroups = yield thunkQuery(UserGroup.select().where(UserGroup.userId.equals(req.params.id)));
+                if (_.first(userGroups)) {
+                    userGroups = _.map(userGroups, function(item){return item.groupId;});
+                }
+                if (_.difference(userGroups, req.body.usergroupId).length === 0 && _.difference(req.body.usergroupId, userGroups).length === 0) {
+                    return;  // groups for user does not changed
+                }
+
                 var userGroups4delete = yield thunkQuery(
                     UserGroup.delete().where(UserGroup.userId.equals(req.params.id)).returning('*')
                 );
@@ -732,7 +742,7 @@ module.exports = {
                 for (var i in req.body.usergroupId) {
                     groupObjs.push({
                         groupId: req.body.usergroupId[i],
-                        userId: req.params.id
+                        userId: parseInt(req.params.id)
                     });
                 }
                 if (groupObjs.length) {
@@ -749,6 +759,11 @@ module.exports = {
                         info: 'Add new groups for user'
                     });
                 }
+                // assign/deassign user to tasks when included/excluded to/from group
+                var newUserToGroups = _.difference(groupObjs, userGroups4delete);
+                var delUserFromGroups = _.difference(userGroups4delete, groupObjs);
+                var oTask = new sTask(req);
+                yield oTask.modifyUserInGroups(delUserFromGroups, newUserToGroups);
             }
 
         }).then(function () {

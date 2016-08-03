@@ -14,6 +14,8 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "HIDE_ALL": "Hide all",
+        "HIDE_ALL_FLAGGED": "Hide all flagged",
         "NO_MESSAGES": "no messages",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
@@ -32,6 +34,7 @@
         "CONFIRM": "Confirm",
         "CONFIRMATION": "Confirmation",
         "CONTINUE": "Continue",
+        "COPY": "Copy",
         "CREATE": "Create",
         "CURRENT_VALUE": "Current value",
         "DELETE": "Delete",
@@ -49,12 +52,14 @@
         "REMIND": "Remind",
         "RESET": "Reset",
         "SAVE": "Save",
+        "SAVED": "Saved",
         "SAVE_AND_CONTINUE": "Save And Continue",
         "SEND": "Send",
         "SEND_MESSAGE": "Send Message",
         "SERVICE_UNAVAILABLE": "Service Unavailable",
         "SHOW_ALL": "Show All",
         "SUBMIT": "Submit",
+        "THE_COPY": "Copy",
         "UNASSIGN": "Unassign",
         "UNASSIGNED": "Unassigned",
         "VIEW": "View",
@@ -92,7 +97,9 @@
     },
     "FILE": {
         "CONTINUE": "Continue",
-        "SELECT": "Please select the file to upload"
+        "ERROR_FILTER_CSV": "Allowed only .csv file extension",
+        "SELECT": "Please select the file to upload",
+        "SELECT_CSV": "Please select .csv file to upload"
     },
     "FORMBUILDER": {
         "ABOVE": "Above",
@@ -177,10 +184,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "Approved",
-            "DELAYED": "Delayed",
             "FLAGGED": "Flagged",
             "LATE": "Late",
-            "PENDING": "Pending"
+            "PENDING": "Pending",
+            "STARTED": "Started"
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
@@ -333,7 +340,8 @@
         },
         "VISUALIZATION": "Visualization",
         "VISUALIZATIONS": "Visualizations",
-        "WORKFLOW_STEPS": "Workflow Steps"
+        "WORKFLOW_STEPS": "Workflow Steps",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "Date / Time",
@@ -387,6 +395,7 @@
         "PROJECT": "Project"
     },
     "POLICY": {
+        "APPROVE": "Approve",
         "AUTHOR": "Author",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",
@@ -493,6 +502,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
+            "SAVE_AS_TEMPLATE": "Save Current Workflow As Template",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -509,6 +520,7 @@
                 "ROLE": "Role",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
+                "SORT_ENABLED": "Drag by this handle to reorder steps list",
                 "START_DATE": "Start Date",
                 "TITLE": "Title",
                 "WRITE_ACCESS_READ": "Read",
@@ -516,7 +528,8 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
-            "TITLE_REQUIRED": "Title is required."
+            "TITLE_REQUIRED": "Title is required.",
+            "WORKFLOW_TEMPLATES": "Workflow Templates"
         }
     },
     "PRODUCT_TASKS": {
@@ -622,6 +635,14 @@
         "RIGHT_ERROR": "Please select right.",
         "ROLE_RIGHT": "Role Right",
         "ROLE_RIGHTS": "Role Rights"
+    },
+    "SEARCH": {
+        "CLEAR": "Clear",
+        "EACH_WORD": "Search Each Word",
+        "NEXT": "Next",
+        "NOT_FOUND": "Not Found",
+        "PREV": "Previous",
+        "SEARCH": "Search"
     },
     "SURVEYS": {
         "ABOVE": "above",
@@ -789,5 +810,14 @@
         "HEADER": "Workflow Steps",
         "ITEM": "Workflow Step",
         "TITLE": "Title"
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "Please confirm deleting of Workflow Template <b>{{template.workflow.name}}</b>",
+        "DESCRIPTION": "Description",
+        "SAVE_WORKFLOW_TEMPLATE": "Save Current Workflow As Template",
+        "STEPS": "Steps",
+        "TITLE": "Title",
+        "WORKFLOW_TEMPLATE": "Workflow Template",
+        "WORKFLOW_TEMPLATES": "Workflow Templates"
     }
 }

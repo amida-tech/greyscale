@@ -12,8 +12,10 @@ var
     Group = require('app/models/groups'),
     UserGroup = require('app/models/user_groups'),
     UOA = require('app/models/uoas'),
+    UoaType = require('app/models/uoatypes'),
     Task = require('app/models/tasks'),
     Survey = require('app/models/surveys'),
+    Policy = require('app/models/policies'),
     SurveyQuestion = require('app/models/survey_questions'),
     Discussion = require('app/models/discussions'),
     Comment = require('app/models/comments'),
@@ -63,6 +65,22 @@ var getTaskByStep = function* (req, stepId, uoaId) {
 };
 exports.getTaskByStep = getTaskByStep;
 
+var getStepByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Task
+            .select(WorkflowStep.star())
+            .from(Task
+                .leftJoin(WorkflowStep).on(WorkflowStep.id.equals(Task.stepId)))
+            .where(Task.id.equals(taskId))
+    );
+    if (!_.first(result)) {
+        throw new HttpError(403, 'Step for taskId `' + parseInt(taskId).toString() + '` not found');
+    }
+    return result[0];
+};
+exports.getStepByTask = getStepByTask;
+
 var checkDuplicateTask = function* (req, stepId, uoaId, productId) {
     var thunkQuery = req.thunkQuery;
     var result = yield thunkQuery(Task.select().where(Task.stepId.equals(stepId).and(Task.uoaId.equals(uoaId)).and(Task.productId.equals(productId))));
@@ -110,9 +128,6 @@ var getUsersFromGroup = function* (req, groupId) {
         .where(UserGroup.groupId.equals(groupId))
     );
 
-    if (!_.first(result)) {
-        throw new HttpError(403, 'Not found users for group with id `' + groupId + '`');
-    }
     return result;
 };
 exports.getUsersFromGroup = getUsersFromGroup;
@@ -400,3 +415,45 @@ var prepUsersForTask = function* (req, task) {
     return task;
 };
 exports.prepUsersForTask = prepUsersForTask;
+
+var getPolicyUoaId = function* (req) {
+    var thunkQuery = req.thunkQuery;
+    var policyUoaType = config.pgConnect.policyUoaType || 'Policy';
+    var policyUoaName = config.pgConnect.policyUoaName || '<Policy>';
+    var policyUoaId;
+    policyUoaId = yield thunkQuery(UOA
+            .select(UOA.id)
+            .from(
+            UOA
+                .leftJoin(UoaType)
+                .on(UoaType.id.equals(UOA.unitOfAnalysisType))
+        )
+            .where(UOA.name.equals(policyUoaName))
+            .and(UoaType.name.equals(policyUoaType))
+
+    );
+    if (!_.first(policyUoaId)) {
+        throw new HttpError(403, 'Policy virtual subject `' + policyUoaName + '` with type `' + policyUoaType + '` does not exist');
+    }
+    return policyUoaId[0].id;
+};
+exports.getPolicyUoaId = getPolicyUoaId;
+
+var getPolicyAuthorIdByTask = function* (req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var policyAuthorId = yield thunkQuery(Task
+            .select(Policy.author)
+            .from(
+            Task
+                .leftJoin(Product)
+                .on(Product.id.equals(Task.productId))
+                .leftJoin(Survey)
+                .on(Survey.id.equals(Product.surveyId))
+                .leftJoin(Policy)
+                .on(Policy.id.equals(Survey.policyId))
+        )
+            .where(Task.id.equals(taskId))
+    );
+    return _.first(policyAuthorId) ? policyAuthorId[0].author : null;
+};
+exports.getPolicyAuthorIdByTask = getPolicyAuthorIdByTask;

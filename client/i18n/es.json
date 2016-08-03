@@ -14,6 +14,8 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "HIDE_ALL": "",
+        "HIDE_ALL_FLAGGED": "",
         "NO_MESSAGES": "",
         "TAG_COMMENT": "",
         "TITLE": "",
@@ -32,6 +34,7 @@
         "CONFIRM": "",
         "CONFIRMATION": "",
         "CONTINUE": "",
+        "COPY": "",
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
@@ -49,12 +52,14 @@
         "REMIND": "",
         "RESET": "",
         "SAVE": "",
+        "SAVED": "",
         "SAVE_AND_CONTINUE": "",
         "SEND": "",
         "SEND_MESSAGE": "",
         "SERVICE_UNAVAILABLE": "",
         "SHOW_ALL": "",
         "SUBMIT": "",
+        "THE_COPY": "",
         "UNASSIGN": "",
         "UNASSIGNED": "",
         "VIEW": "",
@@ -92,7 +97,9 @@
     },
     "FILE": {
         "CONTINUE": "",
-        "SELECT": ""
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "",
@@ -177,10 +184,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "",
-            "DELAYED": "",
             "FLAGGED": "",
             "LATE": "",
-            "PENDING": ""
+            "PENDING": "",
+            "STARTED": ""
         },
         "PRODUCTSTATES": {
             "CANCELLED": "",
@@ -333,7 +340,8 @@
         },
         "VISUALIZATION": "",
         "VISUALIZATIONS": "",
-        "WORKFLOW_STEPS": ""
+        "WORKFLOW_STEPS": "",
+        "WORKFLOW_TEMPLATES": ""
     },
     "NOTIFICATIONS": {
         "DATE_TIME": "",
@@ -387,6 +395,7 @@
         "PROJECT": ""
     },
     "POLICY": {
+        "APPROVE": "",
         "AUTHOR": "",
         "NEW_POLICY": "",
         "NUMBER": "",
@@ -493,6 +502,8 @@
         "WORKFLOW": {
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
+            "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",
@@ -509,6 +520,7 @@
                 "ROLE": "",
                 "SEE_OTHERS_RESPONSES": "",
                 "SORT_DISABLED": "",
+                "SORT_ENABLED": "",
                 "START_DATE": "",
                 "TITLE": "",
                 "WRITE_ACCESS_READ": "",
@@ -516,7 +528,8 @@
             },
             "STEPS_FOR": "",
             "TITLE": "",
-            "TITLE_REQUIRED": ""
+            "TITLE_REQUIRED": "",
+            "WORKFLOW_TEMPLATES": ""
         }
     },
     "PRODUCT_TASKS": {
@@ -622,6 +635,14 @@
         "RIGHT_ERROR": "",
         "ROLE_RIGHT": "",
         "ROLE_RIGHTS": ""
+    },
+    "SEARCH": {
+        "CLEAR": "",
+        "EACH_WORD": "",
+        "NEXT": "",
+        "NOT_FOUND": "",
+        "PREV": "",
+        "SEARCH": ""
     },
     "SURVEYS": {
         "ABOVE": "",
@@ -789,5 +810,14 @@
         "HEADER": "",
         "ITEM": "",
         "TITLE": ""
+    },
+    "WORKFLOW_TEMPLATES": {
+        "DELETE_CONFIRM": "",
+        "DESCRIPTION": "",
+        "SAVE_WORKFLOW_TEMPLATE": "",
+        "STEPS": "",
+        "TITLE": "",
+        "WORKFLOW_TEMPLATE": "",
+        "WORKFLOW_TEMPLATES": ""
     }
 }
