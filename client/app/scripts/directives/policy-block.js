@@ -53,10 +53,6 @@ angular.module('greyscaleApp')
                         if (data.sections) {
                             _loadSections(data.sections);
                         }
-
-                        for (; i < qty; i++) {
-                            $scope.policyData.sections[i].deleted = true;
-                        }
                         _modifyEvt();
                     }
 
@@ -78,7 +74,8 @@ angular.module('greyscaleApp')
 
                 function _loadSections(data) {
                     var _sectionName,
-                        i = 0;
+                        i = 0,
+                        qty = $scope.policyData.sections.length;
 
                     for (_sectionName in data) {
                         if ($scope.policyData.sections.length <= i) {
@@ -92,6 +89,10 @@ angular.module('greyscaleApp')
                             $scope.policyData.sections[i].description = data[_sectionName];
                             i++;
                         }
+                    }
+
+                    for (; i < qty; i++) {
+                        $scope.policyData.sections[i].deleted = true;
                     }
                 }
 
