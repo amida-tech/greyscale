@@ -28,7 +28,7 @@
 
     <form name="model.dataForm" class="form">
         <div class="form-group">
-            <label translate=".TITLE"></label>
+            <label translate=".TITLE" class="required"></label>
 
             <div>
                 <input type="text" class="form-control" name="name" id="name"
@@ -39,10 +39,11 @@
                      ng-if="model.dataForm.name.$dirty">
                     <span ng-message="required, minlength" class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
                 </div>
+                <span ng-if="model.nameInUse" class="text-center help-block"><span translate=".TITLE_IN_USE"></span></span>
             </div>
         </div>
         <div class="form-group">
-            <label translate=".DESCRIPTION"></label>
+            <label translate=".DESCRIPTION" class="required"></label>
 
             <div>
                 <textarea type="text" class="form-control" name="description" id="description"

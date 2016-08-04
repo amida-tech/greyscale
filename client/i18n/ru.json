@@ -528,6 +528,7 @@
             },
             "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
+            "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "Название обязательно",
             "WORKFLOW_TEMPLATES": ""
         }

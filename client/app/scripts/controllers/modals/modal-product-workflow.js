@@ -22,6 +22,11 @@ angular.module('greyscaleApp')
 
     var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
 
+    var workflowTemplateData = {};
+    if (!workflowTemplateMode) {
+        workflowTemplateData.origName = product.workflow.name;
+    }
+
     productWorkflow.dataFilter.templateMode = workflowTemplateMode;
 
     productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
@@ -152,9 +157,17 @@ angular.module('greyscaleApp')
     }
 
     function _saveCurrentWorkflowAsTemplate() {
+        var workflowTemplateName = $scope.model.product.workflow.name;
+        $scope.model.nameInUse = workflowTemplateName === workflowTemplateData.origName ||
+            !!_.find($scope.model.workflowTemplates, {workflow: {name: workflowTemplateName}});
+
+        if ($scope.model.nameInUse) {
+            return;
+        }
+
         var template = {
             workflow: {
-                name: $scope.model.product.workflow.name + ' ' + i18n.translate('COMMON.SAVED'),
+                name: workflowTemplateName,
                 description: $scope.model.product.workflow.description,
             },
             steps: _getSteps()

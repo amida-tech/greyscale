@@ -528,6 +528,7 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
+            "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
             "WORKFLOW_TEMPLATES": "Workflow Templates"
         }
