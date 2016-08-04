@@ -1,0 +1,12 @@
+<span class="bar-btn-dropdown dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" ng-disabled="showHtml()">
+        <span>{{active}} </span>
+    </button>
+    <ul class="dropdown-menu">
+    <li ng-repeat="o in options">
+        <button class="checked-dropdown" type="button" ng-click="action(o.html)">
+            <i ng-if="o.active" class="fa fa-check"></i>{{o.name}}
+        </button>
+    </li>
+    </ul>
+</span>

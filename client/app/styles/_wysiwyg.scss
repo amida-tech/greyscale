@@ -1,0 +1,119 @@
+// Color-picker img path
+$img-path: '../../img/color-picker';
+
+// WYSIWYG
+$brand-primary: #428bca;
+
+//** Unit-less `line-height` for use in components like buttons.
+$line-height-base: 1.428571429; // 20/14
+
+//** Global color for active items (e.g., navs or dropdowns).
+$component-active-color: #fff;
+//** Global background color for active items (e.g., navs or dropdowns).
+$omponent-active-bg: $brand-primary;
+
+//** Dropdown link text color.
+$dropdown-link-color: $gray-dark;
+//** Hover color for dropdown links.
+$dropdown-link-hover-color: darken($gray-dark, 5%);
+//** Hover background for dropdown links.
+$dropdown-link-hover-bg: #f5f5f5;
+
+//** Active dropdown menu item text color.
+$dropdown-link-active-color: $component-active-color;
+//** Active dropdown menu item background color.
+$dropdown-link-active-bg: $component-active-bg;
+
+#taHtmlElement, #taTextElement {
+    height: 400px;
+    overflow-y: scroll;
+}
+
+// Toolbar buttons
+
+.btn-group {
+    & > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) button {
+        border-radius: 0;
+    }
+
+    & > .btn:first-child:not(:last-child):not(.dropdown-toggle) button {
+        border-bottom-right-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    & > .btn:last-child:not(:first-child):not(.dropdown-toggle) button {
+        border-bottom-left-radius: 0;
+        border-top-left-radius: 0;
+    }
+}
+
+.ta-toolbar .bar-btn-dropdown {
+    padding-right: 0;
+}
+// Links within the dropdown menu
+.bar-btn-dropdown {
+    //padding: 13px;
+
+    .dropdown-toggle {
+        float: right;
+        margin-left: 3px;
+        border-top: none;
+        border-bottom: none;
+        border-right: none;
+    }
+
+    .dropdown-menu > li > button {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: normal;
+        //line-height: $line-height-base;
+        color: $dropdown-link-color;
+        white-space: nowrap; // prevent links from randomly breaking onto new lines
+        background-color: $white;
+        -webkit-appearance: none;
+        width: 100%;
+        border: none;
+    }
+}
+
+// Dropdowns with active checkmark
+.bar-btn-dropdown .dropdown-menu > li > .checked-dropdown {
+    padding-left: 30px;
+    position: relative;
+    text-align: left;
+}
+
+.bar-btn-dropdown .dropdown-menu > li > button .fa-check {
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    margin-top: -5px;
+    font-size: 14px;
+}
+
+.dropdown-menu.inline-opts {
+    min-width: 0;
+}
+
+// Hover/Focus state
+.dropdown-menu > li > button {
+    &:hover,
+    &:focus {
+        text-decoration: none;
+        color: $dropdown-link-hover-color;
+        background-color: $dropdown-link-hover-bg;
+    }
+}
+
+// Active state
+.dropdown-menu > .active > button {
+    &,
+    &:hover,
+    &:focus {
+        color: $dropdown-link-active-color;
+        text-decoration: none;
+        outline: 0;
+        background-color: $dropdown-link-active-bg;
+    }
+}
