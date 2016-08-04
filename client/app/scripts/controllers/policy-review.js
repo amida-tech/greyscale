@@ -70,7 +70,8 @@ angular.module('greyscaleApp')
                     },
                     collaboratorIds: [],
                     collaborators: {},
-                    user: _user
+                    user: _user,
+                    resolveModeIsDisabled: true
                 };
 
                 if (resp.task) {

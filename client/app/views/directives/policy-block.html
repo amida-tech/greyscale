@@ -3,10 +3,10 @@
         <div search-panel search-selector="policyData.options.readonly ? '.section-text' :  '[ta-bind]'"></div>
 
         <div class="form-group">
-            <label for="title" class="col-sm-4 control-label" translate="POLICY.TITLE"></label>
+            <label for="title" class="col-sm-4 control-label required" translate="POLICY.TITLE"></label>
             <div class="col-sm-8">
                 <p class="form-control-static" ng-show="policyData.options.readonly">{{policyData.title}}</p>
-                <input type="text" class="form-control" name="title" id="title" ng-model="policyData.title"
+                <input type="text" class="form-control" ng-required="true" name="title" id="title" ng-model="policyData.title"
                        ng-hide="policyData.options.readonly"/>
             </div>
         </div>
@@ -54,10 +54,14 @@
                 <label translate="POLICY.TEXT"></label>
                 <p class="subtext" translate="POLICY.UPLOAD_TEXT"></p>
                 <form ng-show="!uploader.progress" class="row" name="{{formName}}">
-                    <input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader">
+                    <input type="file" class="form-control input-file" name="file" nv-file-select uploader="uploader"
+                    ng-class="{error: model.error}">
                 </form>
                 <div class="progress" ng-if="uploader.progress">
                     <div class="progress-bar" role="progressbar" ng-style="{width: uploader.progress + '%'}"></div>
+                </div>
+                <div class="text-center subtext error" role="alert" ng-if="model.error">
+                    <span translate="{{model.error.msg}}"></span>
                 </div>
             </div>
         </div>

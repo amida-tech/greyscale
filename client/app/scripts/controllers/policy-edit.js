@@ -37,6 +37,8 @@ angular.module('greyscaleApp')
             }
         };
 
+        $scope.publishIsDisabled = _publishIsDisabled;
+
         greyscaleEntityTypeApi.list({
                 tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
             })
@@ -228,6 +230,15 @@ angular.module('greyscaleApp')
                     label: 'POLICY.SECTION_' + q,
                     description: ''
                 });
+            }
+        }
+
+        function _publishIsDisabled(dataForm) {
+            if (dataForm.$invalid) {
+                return true;
+            }
+            if (surveyId && dataForm.$pristine) {
+                return false;
             }
         }
 
