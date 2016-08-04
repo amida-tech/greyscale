@@ -22,6 +22,9 @@ checkbox-list {
         margin-top: 0;
         margin-bottom: 0;
     }
+    &.with-other .checkbox-list-item {
+        margin-left: 13px;
+    }
 }
 
 .brick {

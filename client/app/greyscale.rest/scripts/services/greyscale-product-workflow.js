@@ -5,20 +5,35 @@
 
 angular.module('greyscale.rest')
     .factory('greyscaleProductWorkflowApi', function (greyscaleRestSrv, $q) {
+        return {
+            get: _get,
+            add: _add,
+            update: _upd,
+            workflow: _workflowApi
+        };
+
         function api() {
             return greyscaleRestSrv().one('workflows');
         }
 
+        function _prepareData(resp) {
+            if (resp) {
+                return resp.plain();
+            } else {
+                return resp;
+            }
+        }
+
         function _get(id, params) {
-            return api().one(id + '').get(params);
+            return api().one(id + '').get(params).then(_prepareData);
         }
 
         function _add(workflow) {
-            return api().customPOST(workflow);
+            return api().customPOST(workflow).then(_prepareData);
         }
 
         function _upd(workflow) {
-            return api().one(workflow.id + '').customPUT(workflow);
+            return api().one(workflow.id + '').customPUT(workflow).then(_prepareData);
         }
 
         function _workflowStepsApi(workflowId) {
@@ -28,6 +43,7 @@ angular.module('greyscale.rest')
         function _stepsList(workflowId) {
             return function (params) {
                 return _workflowStepsApi(workflowId).get(params)
+                    .then(_prepareData)
                     .then(function (steps) {
                         angular.forEach(steps, function (step) {
                             step.usergroupId = step.usergroupId || [1, 2];
@@ -40,21 +56,14 @@ angular.module('greyscale.rest')
 
         function _stepsListUpdate(workflowId) {
             return function (stepIds) {
-                return _workflowStepsApi(workflowId).customPUT(stepIds);
+                return _workflowStepsApi(workflowId).customPUT(stepIds).then(_prepareData);
             };
         }
 
-        var _workflowApi = function (workflowId) {
+        function _workflowApi(workflowId) {
             return {
                 stepsList: _stepsList(workflowId),
                 stepsListUpdate: _stepsListUpdate(workflowId)
             };
-        };
-
-        return {
-            get: _get,
-            add: _add,
-            update: _upd,
-            workflow: _workflowApi
-        };
+        }
     });

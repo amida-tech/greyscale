@@ -208,6 +208,13 @@ router.route('/:realm/v0.2/tasks/:id')
     .put(authenticate('token').always, jsonParser, tasks.updateOne)
     .delete(authenticate('token').always, tasks.delete);
 
+router.route('/:realm/v0.2/tasks/:id/start')
+    .get(authenticate('token').always, tasks.start);
+
+router.route('/:realm/v0.2/tasks/:id/approve')
+    .get(authenticate('token').always, tasks.approve);
+
+
 //----------------------------------------------------------------------------------------------------------------------
 //    TRANSLATIONS
 //----------------------------------------------------------------------------------------------------------------------
@@ -461,6 +468,8 @@ router.route('/:realm/v0.2/comments/entryscope')
     .get(authenticate('token').always, comments.getEntryScope);
 router.route('/:realm/v0.2/comments/entryscope/:id')
     .get(authenticate('token').always, comments.getEntryUpdate);
+router.route('/:realm/v0.2/comments/hidden')
+    .put(authenticate('token').always, jsonParser, comments.hideUnhide);
 router.route('/:realm/v0.2/comments/:id')
     .put(authenticate('token').always, jsonParser, comments.updateOne)
     .delete(authenticate('token').always, comments.deleteOne);

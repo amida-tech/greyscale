@@ -58,9 +58,7 @@ angular.module('greyscale.rest')
         }
 
         function _getList(params) {
-            return api().getList('', {
-                query: params
-            }).then(_plainResp);
+            return api().getList('', params).then(_plainResp);
         }
 
         function _add(product) {
