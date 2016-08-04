@@ -41,7 +41,7 @@
     "superagent": "^1.8.3",
     "aws-sdk": "^2.3.16",
     "utf8": "^2.1.1",
-    "mammoth": "^1.0.3",
+    "mammoth-colors": "^1.0.0",
     "cheerio": "^0.2.0"
   },
   "devDependencies": {

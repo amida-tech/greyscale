@@ -2,6 +2,7 @@
 angular.module('greyscale.tables')
     .factory('greyscaleProjectProductsTbl', function ($q, _,
         greyscaleProjectApi,
+        greyscaleSurveyApi,
         greyscaleProductApi,
         greyscaleModalsSrv,
         greyscaleUtilsSrv,
@@ -11,6 +12,8 @@ angular.module('greyscale.tables')
         inform, i18n) {
 
         var tns = 'PRODUCTS.TABLE.';
+
+        var _editProductMode;
 
         var _dicts = {
             surveys: []
@@ -45,7 +48,7 @@ angular.module('greyscale.tables')
             show: true,
             sortable: 'surveyId',
             dataFormat: 'option',
-            cellTemplate: '<i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
+            cellTemplate: '<span ng-if="option.id"><i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span>{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span></span>',
             //dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
@@ -75,6 +78,16 @@ angular.module('greyscale.tables')
             },
             dataHide: true
         }, {
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
@@ -87,17 +100,6 @@ angular.module('greyscale.tables')
                 valField: 'name',
                 getDisabled: _getDisabledStatus
             }
-        }, {
-            show: true,
-            dataFormat: 'action',
-            dataHide: true,
-            actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
         }, {
             title: tns + 'SETTINGS',
             show: true,
@@ -156,7 +158,7 @@ angular.module('greyscale.tables')
                 return $q.reject('');
             } else {
                 var req = {
-                    surveys: greyscaleProjectApi.surveysList(projectId),
+                    surveys: greyscaleSurveyApi.list(),
                     products: greyscaleProjectApi.productsList(projectId)
                 };
                 return $q.all(req).then(function (promises) {
@@ -183,10 +185,13 @@ angular.module('greyscale.tables')
         }
 
         function _getSurveys() {
-            return _dicts.surveys;
+            return !_editProductMode ? _dicts.surveys : _.filter(_dicts.surveys, function (survey) {
+                return _editProductMode.surveyId === survey.id || !survey.policyId || !survey.products || !survey.products.length;
+            });
         }
 
         function _editProduct(product) {
+            _editProductMode = product || {};
             var op = 'editing';
             return _loadProductExtendedData(product)
                 .then(function (extendedProduct) {
@@ -205,6 +210,9 @@ angular.module('greyscale.tables')
                         newProduct.matrixId = 4;
                         return greyscaleProductApi.add(newProduct);
                     }
+                })
+                .finally(function () {
+                    _editProductMode = undefined;
                 })
                 .then(_reload)
                 .catch(function (err) {
@@ -380,7 +388,7 @@ angular.module('greyscale.tables')
             removeProduct: _removeProduct,
             editProductWorkflow: _editProductWorkflow,
             fillSurvey: function (projectId) {
-                return greyscaleProjectApi.surveysList(projectId).then(function (surveys) {
+                return greyscaleSurveyApi.list().then(function (surveys) {
                     _dicts.surveys = surveys;
                 });
             }

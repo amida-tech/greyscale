@@ -14,6 +14,8 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMENTS": {
+        "HIDE_ALL": "",
+        "HIDE_ALL_FLAGGED": "",
         "NO_MESSAGES": "",
         "TAG_COMMENT": "",
         "TITLE": "",
@@ -87,6 +89,7 @@
         "ACCESS_RESTRICTED": "Доступ ограничен к",
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
+        "NOT_DOCX": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",
@@ -95,7 +98,9 @@
     },
     "FILE": {
         "CONTINUE": "Продолжить",
-        "SELECT": "Выберите файл для загрузки"
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "Выберите файл для загрузки",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "Выше",
@@ -180,10 +185,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "",
-            "DELAYED": "",
             "FLAGGED": "",
             "LATE": "",
-            "PENDING": ""
+            "PENDING": "",
+            "STARTED": ""
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Отменен",
@@ -238,6 +243,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "Название ISO",
+            "RESULT": "",
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",

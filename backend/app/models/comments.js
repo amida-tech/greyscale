@@ -20,7 +20,10 @@ var Comment = sql.define({
         'activated',
         'tags',
         'range',
-        'commentType'
+        'commentType',
+        'isHidden',
+        'userHideId',
+        'hiddenAt'
     ]
 });
 
@@ -39,7 +42,10 @@ Comment.insertCols = [
     'activated',
     'tags',
     'range',
-    'commentType'
+    'commentType',
+    'isHidden',
+    'userHideId',
+    'hiddenAt'
 ];
 
 Comment.updateCols = [
@@ -47,7 +53,10 @@ Comment.updateCols = [
     'updated',
     'tags',
     'range',
-    'commentType'
+    'commentType',
+    'isHidden',
+    'userHideId',
+    'hiddenAt'
 ];
 
 Comment.commentTypes = [{
