@@ -2,7 +2,7 @@
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance, i18n,
-    product, modalParams, Organization,
+    product, modalParams, Organization, greyscaleModalsSrv,
     greyscaleProductWorkflowTbl,
     greyscaleWorkflowTemplateApi,
     greyscaleUtilsSrv) {
@@ -20,21 +20,21 @@ angular.module('greyscaleApp')
         productWorkflow: productWorkflow
     };
 
-    var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
+    var tplEdit = $scope.tplEdit = !product.projectId;
 
-    var workflowTemplateData = {};
-    if (!workflowTemplateMode) {
-        workflowTemplateData.origName = product.workflow.name;
+    var initWorkflowName;
+    if (!tplEdit) {
+        initWorkflowName = product.workflow ? product.workflow.name : '';
     }
 
-    productWorkflow.dataFilter.templateMode = workflowTemplateMode;
+    productWorkflow.dataFilter.templateMode = tplEdit;
 
     productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
 
-    if (!workflowTemplateMode) {
+    if (!tplEdit) {
         _refreshTemplatesList();
     } else {
-        productWorkflow.dataFilter.workflowTemplateMode = true;
+        productWorkflow.dataFilter.tplEdit = true;
     }
 
     $scope.close = function () {
@@ -47,7 +47,7 @@ angular.module('greyscaleApp')
             workflow: $scope.model.product.workflow || {},
             steps: steps
         };
-        if (workflowTemplateMode) {
+        if (tplEdit) {
             resolveData.id = product.id;
         } else {
             resolveData.workflow.productId = product.id;
@@ -67,7 +67,7 @@ angular.module('greyscaleApp')
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
                 step.role && step.role !== '' &&
-                (workflowTemplateMode || (step.startDate && step.endDate)) &&
+                (tplEdit || (step.startDate && step.endDate)) &&
                 step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
@@ -158,12 +158,6 @@ angular.module('greyscaleApp')
 
     function _saveCurrentWorkflowAsTemplate() {
         var workflowTemplateName = $scope.model.product.workflow.name;
-        $scope.model.nameInUse = workflowTemplateName === workflowTemplateData.origName ||
-            !!_.find($scope.model.workflowTemplates, {workflow: {name: workflowTemplateName}});
-
-        if ($scope.model.nameInUse) {
-            return;
-        }
 
         var template = {
             workflow: {
@@ -172,16 +166,35 @@ angular.module('greyscaleApp')
             },
             steps: _getSteps()
         };
+
+        var inUse = workflowTemplateName === initWorkflowName ||
+            !!_.find($scope.model.workflowTemplates, {workflow: {name: workflowTemplateName}});
+
+        if (!inUse) {
+            _saveWorkflowTemplate(template);
+        } else {
+            greyscaleModalsSrv.promptWorkflowTemplateName({
+                initWorkflowName: initWorkflowName,
+                template: template,
+                templates: $scope.model.workflowTemplates
+            })
+            .then(_saveWorkflowTemplate);
+        }
+
+
+    }
+
+    function _saveWorkflowTemplate(template) {
         angular.forEach(template.steps, function(step, i){
             delete(template.steps[i].startDate);
             delete(template.steps[i].endDate);
             delete(template.steps[i].id);
         });
         greyscaleWorkflowTemplateApi.add(template)
-            .then(function(data) {
-                _refreshTemplatesList(data.id);
-            })
-            .catch(greyscaleUtilsSrv.errorMsg)
+        .then(function(data) {
+            _refreshTemplatesList(data.id);
+        })
+        .catch(greyscaleUtilsSrv.errorMsg)
     }
 
 });

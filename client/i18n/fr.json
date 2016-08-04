@@ -505,6 +505,7 @@
             "DESCRIPTION": "",
             "DESCRIPTION_REQUIRED": "",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
+            "SET_TITLE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "",

@@ -35,7 +35,8 @@ angular.module('greyscaleApp')
             addProduct: _addProduct,
             importDataset: _importDataset,
             policyComment: _policyComment,
-            fullScreenComment: _fullScreenComment
+            fullScreenComment: _fullScreenComment,
+            promptWorkflowTemplateName: _promptWorkflowTemplateName
         };
 
         function hndlModalErr(err) {
@@ -285,5 +286,17 @@ angular.module('greyscaleApp')
 
         function _fullScreenComment(comment) {
             return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
+        }
+
+        function _promptWorkflowTemplateName(data) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/workflow-template-name-form.html',
+                controller: 'ModalPromptWorkflowTemplateNameCtrl as ctrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    modalData: data
+                }
+            }).result;
         }
     });

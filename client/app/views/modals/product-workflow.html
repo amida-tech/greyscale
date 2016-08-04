@@ -3,7 +3,7 @@
     <span ng-if="modalParams.title">{{modalParams.title | translate}}</span>
 </modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
-    <div class="form-inline well well-sm" ng-if="!workflowTemplateMode">
+    <div class="form-inline well well-sm" ng-if="!tplEdit">
         <div class="form-group" style="padding-top: 8px">
             <label translate=".WORKFLOW_TEMPLATES"></label>:
         </div>
@@ -64,6 +64,6 @@
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
     <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()"
-            ng-click="save()">{{ workflowTemplateMode ? 'COMMON.SAVE' : 'COMMON.SAVE_AND_CONTINUE' | translate }}</button>
+            ng-click="save()">{{ tplEdit ? 'COMMON.SAVE' : 'COMMON.SAVE_AND_CONTINUE' | translate }}</button>
 </div>
 
