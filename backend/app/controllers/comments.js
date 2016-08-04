@@ -306,13 +306,26 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
 
-                req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
-                var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+            if (isResolve) {
+                // get userId from flagged comment
+                var flaggedComment = yield * common.getEntity(req, req.body.returnTaskId, Comment, 'id');   // returnTaskId is used as reference to flag comment id
+                req.body = _.extend(req.body, {
+                    userId: flaggedComment.userFromId
+                });
+            }
+
+            req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
+            var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
             if (isReturn) {
                 // TaskUserStates - start task for user
                 var oTaskUserState = new sTaskUserState(req);
                 yield oTaskUserState.flagged(task.id, req.user.id);
+            }
+
+            if (isResolve) {
+                // update return entries - resolve their
+                yield * updateReturnTask(req, req.body.returnTaskId);   // returnTaskId is used as reference to flag comment id
             }
 
             if (req.body.activated && !isResolve) {
@@ -958,4 +971,26 @@ function* checkDuplicateEntry(req, taskId, questionId, isReturn, isResolve) {
         throw new HttpError(403, rR + 'comment for questionId=`' + questionId + '` already exist');
     }
     return result;
+}
+
+function* updateReturnTask(req, commentId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.id.equals(commentId)
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            object: 'Comments',
+            entities: commentId,
+            info: 'Resolve flag'
+        });
+    }
 }
