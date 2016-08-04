@@ -166,6 +166,11 @@ body {
         @extend .row:after;
         line-height: 0;
     }
+
+    &.error {
+        color: $red;
+        font-style: italic;
+    }
 }
 
 .required:after {
@@ -227,6 +232,7 @@ mark {
     background-color: #fdfd9e;
     padding: 0;
 }
+
 mark.active {
     border-left: 1px dotted #ccc;
 }

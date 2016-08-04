@@ -13,6 +13,7 @@
         <table class="table table-responsive panel "
                ng-class="{'table-hover':model.selectable}"
                template-pagination="custom/pager"
+               ng-attr-header-class="{{::getHeaderClass(model)}}"
                ng-table-dynamic="model.tableParams with model.cols">
             <tbody ui-sortable="sortableOptions" ng-model="$data">
                 <tr ng-if="!model.$loading" ng-repeat="row in $data" ng-click="select(row, $event)"

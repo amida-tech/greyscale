@@ -227,11 +227,16 @@ angular.module('greyscaleApp')
 
         function _parseColumns(model) {
             angular.forEach(model.cols, function (col, i) {
+                col['class'] = col['class'] || '';
                 if (col.multiselect) {
                     _setMultiselect(col, model);
                 }
                 if (col.actions) {
-                    col['class'] = 'header-actions';
+                    col['class'] += ' header-actions';
+                }
+                if (col.textCenter) {
+                    console.log(col);
+                    col['class'] += ' text-center';
                 }
                 if (col.title) {
                     col.title = i18n.translate(col.title);
