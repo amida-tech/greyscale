@@ -2,6 +2,7 @@ var
     _ = require('underscore'),
     common = require('app/services/common'),
     TaskUserState = require('app/models/taskuserstates'),
+    Comment = require('app/models/comments'),   // ToDo: move to comments service when refactoring
     co = require('co'),
     Query = require('app/util').Query,
     sql = require('sql'),
@@ -270,14 +271,40 @@ var exportObject = function  (req, realm) {
             }
         });
     };
-    this.flagged = function (taskId, userId) {
+    this.flagged = function (taskId, userId, unflag) {
         // set taskUserState flag `flagged` and then modify stateId
         var self = this;
         return co(function* () {
             var taskUserState = yield self.get(taskId, userId); // get taskUserState
-            taskUserState.flagged = true;
+            taskUserState.flagged = unflag ? false : true;
             taskUserState.stateId = TaskUserState.setState(taskUserState);
             yield self.updateState(taskId, userId, _.pick(taskUserState, ['stateId', 'flagged']));
+        });
+    };
+    this.tryUnflag = function (taskId, userId) {
+        // check if task for user haven`t unresolved flags - unflag it
+        var self = this;
+        return co(function* () {
+            var isFlagged = yield self.isFlagged(taskId, userId);
+            if (!isFlagged) {
+                yield self.flagged(taskId, userId, !isFlagged);
+            }
+        });
+    };
+    this.isFlagged = function (taskId, userId) {    // ToDo: move to comments service when refactoring
+        // set taskUserState flag `flagged` and then modify stateId
+        var self = this;
+        return co(function* () {
+            var query = Comment
+                .select(Comment.id)
+                .where(Comment.userFromId.equals(userId)
+                    .and(Comment.taskId.equals(taskId))
+                    .and(Comment.isReturn.equals(true))
+                    .and(Comment.isResolve.equals(false))
+                    .and(Comment.activated.equals(true))
+            );
+            var result = yield thunkQuery(query);
+            return _.first(result);
         });
     };
 };

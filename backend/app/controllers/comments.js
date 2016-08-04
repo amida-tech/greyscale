@@ -281,6 +281,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oTaskUserState = new sTaskUserState(req);
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             yield * checkInsert(req);
@@ -319,13 +320,13 @@ module.exports = {
 
             if (isReturn) {
                 // TaskUserStates - start task for user
-                var oTaskUserState = new sTaskUserState(req);
                 yield oTaskUserState.flagged(task.id, req.user.id);
             }
 
             if (isResolve) {
                 // update return entries - resolve their
                 yield * updateReturnTask(req, req.body.returnTaskId);   // returnTaskId is used as reference to flag comment id
+                yield oTaskUserState.tryUnflag(task.id, req.body.userId);
             }
 
             if (req.body.activated && !isResolve) {

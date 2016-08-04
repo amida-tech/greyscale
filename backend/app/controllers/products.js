@@ -65,8 +65,6 @@ var moveWorkflow = function* (req, productId, UOAid) {
         // if exists entries with return flags then check existing resolve entries and create it if needed
         if (isPolicy) {
             autoResolve = yield * doAutoResolveForPolicy(req, curStep.task.id);
-            // update return entries - resolve their
-            yield * updateReturnTaskForPolicy(req, curStep.task.id);
         } else {
             autoResolve = yield * doAutoResolve(req, curStep.task.id);
         }
@@ -1980,31 +1978,6 @@ function* updateReturnTask(req, taskId) {
     }
 }
 
-function* updateReturnTaskForPolicy(req, taskId) {
-    var thunkQuery = req.thunkQuery;
-    var result = yield thunkQuery(
-        Comment.update({
-            isResolve: true
-        })
-            .where(
-            Comment.isReturn.equals(true)
-                .and(Comment.activated.equals(true))
-                .and(Comment.isResolve.equals(false))
-                .and(Comment.taskId.equals(taskId))
-        )
-            .returning(Comment.id)
-    );
-    if (_.first(result)) {
-        bologger.log({
-            req: req,
-            action: 'update',
-            entities: result,
-            quantity: result.length,
-            info: 'Autoresolve flags (policy)'
-        });
-    }
-}
-
 function* doAutoResolve(req, taskId) {
     var thunkQuery = req.thunkQuery;
     var query, result;
@@ -2101,7 +2074,9 @@ function* doAutoResolve(req, taskId) {
 
 function* doAutoResolveForPolicy(req, taskId) {
     var thunkQuery = req.thunkQuery;
+    var oTaskUserState = new sTaskUserState(req);
     var query, result;
+    var flaggedUsers = [];
     // get existing entries with flags
     query =
         Comment
@@ -2135,6 +2110,10 @@ function* doAutoResolveForPolicy(req, taskId) {
     }
 
     for (var i in flagsEntries) {
+        // add uniq userFromId from flagsEntries
+        if (flaggedUsers.indexOf(flagsEntries[i].userFromId) === -1) {
+            flaggedUsers.push(flagsEntries[i].userFromId);
+        }
         // find resolve entry corresponding flag entry
         var resolveEntry = _.find(resolveEntries, function (entry) {
             return (entry && entry.returnTaskId === flagsEntries[i].id);
@@ -2189,6 +2168,34 @@ function* doAutoResolveForPolicy(req, taskId) {
             }
 
         }
+    }
+    // update return entries - resolve their
+    result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.taskId.equals(taskId))
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Autoresolve flags (policy)'
+        });
+    }
+
+
+    // check task user states for unflagged
+    for (i in flaggedUsers) {
+        yield oTaskUserState.tryUnflag(taskId, flaggedUsers[i]);
     }
     return true;
 }
