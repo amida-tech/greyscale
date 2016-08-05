@@ -92,8 +92,12 @@ angular.module('greyscaleApp')
                     }
 
                     if (i) { //if one or more sections were imported
-                        for (; i < qty; i++) {
-                            $scope.policyData.sections[i].deleted = true;
+                        if ($scope.policyData.id) {
+                            for (; i < qty; i++) {
+                                $scope.policyData.sections[i].deleted = true;
+                            }
+                        } else {
+                            $scope.policyData.sections.splice(i);
                         }
                     } else {
                         greyscaleUtilsSrv.errorMsg('ERROR.NO_POLICY_SECTIONS');
