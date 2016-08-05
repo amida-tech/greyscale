@@ -37,6 +37,8 @@ angular.module('greyscaleApp')
             }
         };
 
+        $scope.publishIsDisabled = _publishIsDisabled;
+
         greyscaleEntityTypeApi.list({
                 tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
             })
@@ -45,29 +47,6 @@ angular.module('greyscaleApp')
                     $scope.model.policy.essenceId = essences[0].id;
                 }
             });
-
-        greyscaleProductApi.getList({
-            surveyId: surveyId
-        }).then(function (products) {
-            if (!products || !products.length) {
-                return;
-            }
-            var product = products[0];
-
-            greyscaleProductApi.product(product.id).tasksList().then(function (tasks) {
-                if (!tasks || !tasks.length) {
-                    return;
-                }
-
-                for (var i = 0; i < tasks.length; i++) {
-                    if (tasks[i].status !== 'current') {
-                        continue;
-                    }
-                    $scope.model.policy.taskId = tasks[i].id;
-                    break;
-                }
-            });
-        });
 
         greyscaleProfileSrv.getProfile().then(_setAuthor);
 
@@ -101,6 +80,30 @@ angular.module('greyscaleApp')
         $scope.publish = _publish;
 
         function _loadSurvey() {
+
+            greyscaleProductApi.getList({
+                surveyId: surveyId
+            }).then(function (products) {
+                if (!products || !products.length) {
+                    return;
+                }
+                var product = products[0];
+
+                greyscaleProductApi.product(product.id).tasksList().then(function (tasks) {
+                    if (!tasks || !tasks.length) {
+                        return;
+                    }
+
+                    for (var i = 0; i < tasks.length; i++) {
+                        if (tasks[i].status !== 'current') {
+                            continue;
+                        }
+                        $scope.model.policy.taskId = tasks[i].id;
+                        break;
+                    }
+                });
+            });
+
             greyscaleSurveyApi.get(surveyId).then(function (survey) {
                 var _questions = [],
                     _sections = [],
@@ -227,6 +230,15 @@ angular.module('greyscaleApp')
                     label: 'POLICY.SECTION_' + q,
                     description: ''
                 });
+            }
+        }
+
+        function _publishIsDisabled(dataForm) {
+            if (dataForm.$invalid) {
+                return true;
+            }
+            if (surveyId && dataForm.$pristine) {
+                return false;
             }
         }
 

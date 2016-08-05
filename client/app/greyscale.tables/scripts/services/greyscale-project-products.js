@@ -78,6 +78,16 @@ angular.module('greyscale.tables')
             },
             dataHide: true
         }, {
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
@@ -90,17 +100,6 @@ angular.module('greyscale.tables')
                 valField: 'name',
                 getDisabled: _getDisabledStatus
             }
-        }, {
-            show: true,
-            dataFormat: 'action',
-            dataHide: true,
-            actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
         }, {
             title: tns + 'SETTINGS',
             show: true,

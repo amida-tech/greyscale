@@ -23,7 +23,7 @@
                         ng-disabled="dataForm.$invalid || !dataForm.$dirty"
                         translate="COMMON.SAVE"></button>
                 <button class="btn btn-primary" ng-click="publish()"
-                        ng-disabled="dataForm.$invalid || !dataForm.$dirty"
+                        ng-disabled="publishIsDisabled(dataForm)"
                         translate="POLICY.PUBLISH"></button>
                 <button class="btn btn-default" ng-click="cancel()" translate="COMMON.CANCEL"></button>
             </div>
