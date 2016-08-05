@@ -1,0 +1,13 @@
+<div class="checkbox-list" ng-show="listItems.length > 0">
+    <div ng-repeat="item in listItems" class="checkbox-list-item">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" ng-model="item.checked" ng-change="onItemChange(item)">
+                <i class="chk-box"></i>{{item.name}}
+            </label>
+        </div>
+    </div>
+</div>
+<div class="row text-center" ng-hide="listItems.length > 0">
+    <h5 translate="COMMON.NO_DATA"></h5>
+</div>

@@ -5,7 +5,6 @@
 angular.module('greyscaleApp')
     .directive('surveyDiscussion', function (greyscaleGlobals, i18n, greyscaleDiscussionApi, greyscaleProfileSrv,
         greyscaleUtilsSrv, greyscaleProductWorkflowApi, _, $q) {
-        var fieldTypes = greyscaleGlobals.formBuilder.fieldTypes;
         var sectionTypes = greyscaleGlobals.formBuilder.excludedIndexes,
             flaggedQuestions = [],
             flaggedStep = null,
@@ -168,7 +167,7 @@ angular.module('greyscaleApp')
                         _steps;
 
                     /* assign to steps */
-                    _steps = _.remove(resp.steps.plain(), {
+                    _steps = _.remove(resp.steps, {
                         id: task.stepId
                     });
                     currentStep = _steps[0];

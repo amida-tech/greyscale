@@ -5,7 +5,7 @@
 
 angular.module('greyscale.core')
     .factory('greyscaleUtilsSrv', function (greyscaleEnv, _, greyscaleGlobals, $log, inform,
-        i18n, greyscaleRealmSrv, $translate) {
+        i18n, greyscaleRealmSrv, $translate, $window) {
 
         return {
             decode: _decode,
@@ -21,6 +21,7 @@ angular.module('greyscale.core')
             getUserName: _getUserName,
             getTagsAssociate: _getTagsAssociate,
             getTagsPostData: _getTagsPostData
+            getElemOffset: _getOffset
         };
 
         function _decode(dict, key, code, name) {
@@ -208,4 +209,45 @@ angular.module('greyscale.core')
             }
             return _tagsData;
         }
+
+        function _getOffset(elem) {
+            if (elem.getBoundingClientRect) {
+                return _getOffsetRect(elem);
+            } else {
+                return _getOffsetSum(elem);
+            }
+        }
+
+        function _getOffsetSum(elem) {
+            var top = 0,
+                left = 0;
+
+            while (elem) {
+                top = top + parseInt(elem.offsetTop);
+                left = left + parseInt(elem.offsetLeft);
+                elem = elem.offsetParent;
+            }
+
+            return {
+                top: top,
+                left: left
+            };
+        }
+
+        function _getOffsetRect(elem) {
+            var box = elem.getBoundingClientRect(),
+                body = $window.document.body,
+                docElem = $window.document.documentElement;
+
+            var scrollTop = $window.pageYOffset || docElem.scrollTop || body.scrollTop,
+                scrollLeft = $window.pageXOffset || docElem.scrollLeft || body.scrollLeft,
+                clientTop = docElem.clientTop || body.clientTop || 0,
+                clientLeft = docElem.clientLeft || body.clientLeft || 0;
+
+            return {
+                top: Math.round(box.top + scrollTop - clientTop),
+                left: Math.round(box.left + scrollLeft - clientLeft)
+            };
+        }
+
     });

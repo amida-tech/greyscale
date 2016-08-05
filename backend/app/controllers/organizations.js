@@ -253,9 +253,9 @@ module.exports = {
 
         var parser = function* (data) {
             return yield new Promise(function (resolve, reject) {
-                csv.parse(data, function (err, data) {
+                csv.parse(data, {relax_column_count: true}, function (err, data) {
                     if (err) {
-                        reject(new HttpError(403, 'Cannot parse data from file'));
+                        reject(new HttpError(403, 'Cannot parse data from file: ' + err.message));
                     }
                     resolve(data);
                 });

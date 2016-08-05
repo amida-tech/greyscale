@@ -267,7 +267,16 @@ angular.module('greyscaleApp')
         }
 
         function _policyComment(model, options) {
-            return _simpleLargeForm('views/modals/policy-comment.html', model, options);
+            return $uibModal.open({
+                templateUrl: 'views/modals/policy-comment.html',
+                controller: 'PolicyCommentFormCtrl',
+                size: 'lg',
+                windowClass: 'modal fade in',
+                resolve: {
+                    formData: model,
+                    extData: options
+                }
+            }).result;
         }
 
         function _fullScreenComment(comment) {

@@ -19,6 +19,8 @@
         "EXPLAIN_WHY_DISAGREE": "",
         "IS_AGREED": "",
         "IS_DISAGREED": "",
+        "HIDE_ALL": "",
+        "HIDE_ALL_FLAGGED": "",
         "NO_MESSAGES": "",
         "TAG_ANSWER": "",
         "TAG_COMMENT": "",
@@ -95,6 +97,7 @@
         "ACCESS_RESTRICTED": "",
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
+        "NOT_DOCX": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",
@@ -103,7 +106,9 @@
     },
     "FILE": {
         "CONTINUE": "",
-        "SELECT": ""
+        "ERROR_FILTER_CSV": "",
+        "SELECT": "",
+        "SELECT_CSV": ""
     },
     "FORMBUILDER": {
         "ABOVE": "",
@@ -188,10 +193,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "",
-            "DELAYED": "",
             "FLAGGED": "",
             "LATE": "",
-            "PENDING": ""
+            "PENDING": "",
+            "STARTED": ""
         },
         "PRODUCTSTATES": {
             "CANCELLED": "",
@@ -246,6 +251,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "",
+            "RESULT": "",
             "RESULTS_TITLE": "",
             "SHORT_NAME": "",
             "STATUS": "",

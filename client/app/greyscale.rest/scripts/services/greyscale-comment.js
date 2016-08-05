@@ -10,11 +10,13 @@ angular.module('greyscale.rest')
             scopeList: _scope,
             get: _get,
             add: _add,
+            autoSave: _autoSave,
             update: _update,
             remove: _remove,
             getUsers: _users,
             getAnswers: _getAnswers,
             postAnswer: _postAnswer
+            hide: _hide
         };
 
         function _api() {
@@ -44,8 +46,14 @@ angular.module('greyscale.rest')
             return _api().one('entryscope', id + '').get().then(_response);
         }
 
-        function _add(data) {
-            return _api().customPOST(data).then(_response);
+        function _add(data, params) {
+            return _api().customPOST(data, null, params).then(_response);
+        }
+
+        function _autoSave(data) {
+            return _add(data, {
+                autosave: true
+            });
         }
 
         function _update(id, data) {
@@ -66,5 +74,14 @@ angular.module('greyscale.rest')
 
         function _postAnswer(commentId, answer) {
             return _api().one(commentId + '').one('answers').customPOST(answer).then(_response);
+        }
+
+        function _hide(taskId, filter, show) {
+            //filter values - 'all', 'flagged', commentId
+            return _api().one('hidden').put({
+                taskId: taskId,
+                filter: filter,
+                hide: !show
+            });
         }
     });
