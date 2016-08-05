@@ -14,6 +14,8 @@
         "SLOGAN": "Turn knowledge into data."
     },
     "COMMENTS": {
+        "HIDE_ALL": "Hide all",
+        "HIDE_ALL_FLAGGED": "Hide all flagged",
         "NO_MESSAGES": "no messages",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
@@ -87,6 +89,7 @@
         "ACCESS_RESTRICTED": "Access restricted to",
         "BAD_TOKEN": "Authentication check error",
         "CHANGES_UNSAVED": "Changes unsaved",
+        "NOT_DOCX": "File must be .docx",
         "STEP_READONLY": "Task is readonly",
         "STEP_SUBMIT": "Task submit error",
         "SURVEY_UPDATE_ERROR": "Survey update error",
@@ -95,7 +98,9 @@
     },
     "FILE": {
         "CONTINUE": "Continue",
-        "SELECT": "Please select the file to upload"
+        "ERROR_FILTER_CSV": "Allowed only .csv file extension",
+        "SELECT": "Please select the file to upload",
+        "SELECT_CSV": "Please select .csv file to upload"
     },
     "FORMBUILDER": {
         "ABOVE": "Above",
@@ -180,10 +185,10 @@
         },
         "POLICYUSERSTATUSES": {
             "APPROVED": "Approved",
-            "DELAYED": "Delayed",
             "FLAGGED": "Flagged",
             "LATE": "Late",
-            "PENDING": "Pending"
+            "PENDING": "Pending",
+            "STARTED": "Started"
         },
         "PRODUCTSTATES": {
             "CANCELLED": "Cancelled",
@@ -238,6 +243,7 @@
             "ISO2": "ISO2",
             "NAME": "Name",
             "NAMEISO": "Name ISO",
+            "RESULT": "Result",
             "RESULTS_TITLE": "Import Results",
             "SHORT_NAME": "Short Name",
             "STATUS": "Status",
@@ -391,7 +397,7 @@
         "PROJECT": "Project"
     },
     "POLICY": {
-        "APPROVE": "Aprove",
+        "APPROVE": "Approve",
         "AUTHOR": "Author",
         "NEW_POLICY": "New policy",
         "NUMBER": "Number",

@@ -123,6 +123,17 @@ table.table-col-fixed {
     }
 }
 
+.ng-table {
+    &> thead > tr > th {
+        text-align: left;
+        position: relative;
+        vertical-align: middle;
+        &.text-center {
+            text-align: center;
+        }
+    }
+}
+
 .progress-blocks {
     .progress-block {
         position: relative;

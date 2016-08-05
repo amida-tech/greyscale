@@ -18,12 +18,14 @@
 </div>
 
 <script type="text/ng-template" id="my-tasks-cell-task.html">
-    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i><br>
+    {{row.step.title}} <i class="text-danger fa fa-flag" ng-if="row.flagged"></i>
+    <i class="fa fa-check text-success" ng-show="row.approved"></i>
+    <br>
     <small>{{row.step.description}}</small>
 </script>
 
 <script type="text/ng-template" id="my-tasks-cell-survey.html">
-    <a ui-sref="survey({id: row.survey.id, taskId: row.id})" ng-hide="row.survey.policyId">
+    <a ui-sref="survey({surveyId: row.survey.id, taskId: row.id})" ng-hide="row.survey.policyId">
         <i class="fa fa-list"></i> {{row.survey.title}}
     </a>
     <a ui-sref="policy.review({id: row.survey.id, taskId: row.id})" ng-show="row.survey.policyId">
