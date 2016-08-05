@@ -77,9 +77,9 @@ angular.module('greyscaleApp')
             Organization.$lock = false;
             lAnswerDirty();
             $interval.cancel(hbPromise);
+            _unlockPolicy($scope.model.survey.policyId);
             greyscaleWebSocketSrv.off(wsEvents.policyLocked, _policyLocked);
             greyscaleWebSocketSrv.off(wsEvents.policyUnlocked, _policyUnlocked);
-            _unlockPolicy($scope.model.survey.policyId);
             _destroy();
         });
 
@@ -287,8 +287,6 @@ angular.module('greyscaleApp')
         }
 
         function _goPolicyList() {
-            greyscaleWebSocketSrv.emit(wsEvents.policyUnlock);
-
             $state.go('policy');
         }
 

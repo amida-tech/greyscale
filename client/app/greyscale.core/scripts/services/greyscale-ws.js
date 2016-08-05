@@ -18,7 +18,6 @@ angular.module('greyscale.core')
 
         function _setUser() {
             _emit(events.ws.setUser, {
-                socketId: socket.id,
                 token: greyscaleTokenSrv()
             });
         }
@@ -44,10 +43,9 @@ angular.module('greyscale.core')
 
         function _emit(eventName, data) {
             if (socket) {
-                angular.extend(data, {
-                    socketId: socket.id
-                });
-                socket.emit(eventName, data);
+                socket.emit(eventName, angular.extend({
+                    socketId: _getId()
+                }, data));
             }
         }
 
@@ -74,12 +72,7 @@ angular.module('greyscale.core')
         }
 
         function _getId() {
-            var res = null;
-            if (socket) {
-                res = socket.id;
-            }
-
-            return res;
+            return socket ? socket.id : null;
         }
     })
     .run(function (greyscaleWebSocketSrv, greyscaleTokenSrv) {
