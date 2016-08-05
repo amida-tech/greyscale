@@ -2,11 +2,11 @@
  * Created by igi on 10.05.16.
  */
 'use strict';
-angular.module('greyscale.wysiwyg', ['textAngular'])
-    .config(function ($provide) {
-        var _red = '#ff0000';
+angular.module('greyscale.wysiwyg', ['textAngular']).config(function ($provide) {
+    $provide.decorator('taOptions', ['taRegisterTool', '$delegate',
+        function (taRegisterTool, taOptions) {
+            var _red = '#ff0000';
 
-        $provide.decorator('taOptions', ['taRegisterTool', '$delegate', function (taRegisterTool, taOptions) {
             taRegisterTool('markRed', {
                 iconclass: 'fa fa-square text-danger',
                 tooltiptext: 'Mark red',
@@ -17,8 +17,20 @@ angular.module('greyscale.wysiwyg', ['textAngular'])
                         this.$editor().wrapSelection('foreColor', _red);
                     }
                 },
-                activeState: _isRed
+                activeState: function (elem) {
+                    var res = false;
+                    if (elem && elem.nodeName === '#document') {
+                        return false;
+                    }
+                    if (elem) {
+                        res = elem.attr('color') === _red ||
+                            elem.attr('color') === 'red' ||
+                            elem.css('color') === 'rgb(255, 0, 0)';
+                    }
+                    return res;
+                }
             });
+
             /*
              toolbar: [
              ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'pre', 'quote'],
@@ -35,18 +47,6 @@ angular.module('greyscale.wysiwyg', ['textAngular'])
             ];
 
             return taOptions;
-
-            function _isRed(elem) {
-                var res = false;
-                if (elem && elem.nodeName === '#document') {
-                    return false;
-                }
-                if (elem) {
-                    res = elem.attr('color') === _red ||
-                        elem.attr('color') === 'red' ||
-                        elem.css('color') === 'rgb(255, 0, 0)';
-                }
-                return res;
-            }
-        }]);
-    });
+        }
+    ]);
+});
