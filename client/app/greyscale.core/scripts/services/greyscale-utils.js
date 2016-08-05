@@ -20,7 +20,7 @@ angular.module('greyscale.core')
             countWords: _countWords,
             getUserName: _getUserName,
             getTagsAssociate: _getTagsAssociate,
-            getTagsPostData: _getTagsPostData
+            getTagsPostData: _getTagsPostData,
             getElemOffset: _getOffset
         };
 

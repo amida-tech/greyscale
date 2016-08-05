@@ -15,7 +15,7 @@ angular.module('greyscale.rest')
             remove: _remove,
             getUsers: _users,
             getAnswers: _getAnswers,
-            postAnswer: _postAnswer
+            postAnswer: _postAnswer,
             hide: _hide
         };
 
