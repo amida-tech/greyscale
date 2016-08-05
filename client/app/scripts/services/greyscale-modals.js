@@ -36,7 +36,7 @@ angular.module('greyscaleApp')
             importDataset: _importDataset,
             policyComment: _policyComment,
             fullScreenComment: _fullScreenComment,
-            promptWorkflowTemplateName: _promptWorkflowTemplateName
+            saveAsWorkflowTemplate: _saveAsWorkflowTemplate
         };
 
         function hndlModalErr(err) {
@@ -288,10 +288,10 @@ angular.module('greyscaleApp')
             return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
         }
 
-        function _promptWorkflowTemplateName(data) {
+        function _saveAsWorkflowTemplate(data) {
             return $uibModal.open({
-                templateUrl: 'views/modals/workflow-template-name-form.html',
-                controller: 'ModalPromptWorkflowTemplateNameCtrl as ctrl',
+                templateUrl: 'views/modals/save-as-workflow-template-form.html',
+                controller: 'ModalSaveAsWorkflowTemplateCtrl',
                 size: 'md',
                 windowClass: 'modal fade in',
                 resolve: {

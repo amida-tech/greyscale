@@ -3,9 +3,8 @@
  */
 'use strict';
 angular.module('greyscaleApp')
-    .controller('ModalPromptWorkflowTemplateNameCtrl', function (_, $scope, $uibModalInstance, modalData, $timeout) {
+    .controller('ModalSaveAsWorkflowTemplateCtrl', function (_, $scope, $uibModalInstance, modalData, $timeout) {
 
-        var initWorkflowName = modalData.initWorkflowName;
         var workflowTemplates = modalData.templates;
 
         $scope.model = modalData.template.workflow;
@@ -22,10 +21,9 @@ angular.module('greyscaleApp')
             if (!$scope.dataForm) {
                 return;
             }
-            var inUse = $scope.model.name === initWorkflowName ||
-            !!_.find(workflowTemplates, {workflow: {name: $scope.model.name}});
 
-            $scope.dataForm.name.$setValidity('inUse', !inUse);
+            var inUseValid = !_.find(workflowTemplates, {workflow: {name: $scope.model.name}});
+            $scope.dataForm.name.$setValidity('inUse', inUseValid);
             $timeout(function(){
                 $scope.$apply();
             });

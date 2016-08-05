@@ -505,7 +505,6 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SET_TITLE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -533,6 +532,7 @@
             "TITLE": "Название",
             "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "Название обязательно",
+            "WORKFLOW_TEMPLATE": "",
             "WORKFLOW_TEMPLATES": ""
         }
     },

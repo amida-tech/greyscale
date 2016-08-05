@@ -505,7 +505,6 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
-            "SET_TITLE": "Workflow template title",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -533,6 +532,7 @@
             "TITLE": "Title",
             "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
+            "WORKFLOW_TEMPLATE": "Workflow Template",
             "WORKFLOW_TEMPLATES": "Workflow Templates"
         }
     },

@@ -22,11 +22,6 @@ angular.module('greyscaleApp')
 
     var tplEdit = $scope.tplEdit = !product.projectId;
 
-    var initWorkflowName;
-    if (!tplEdit) {
-        initWorkflowName = product.workflow ? product.workflow.name : '';
-    }
-
     productWorkflow.dataFilter.templateMode = tplEdit;
 
     productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
@@ -167,21 +162,11 @@ angular.module('greyscaleApp')
             steps: _getSteps()
         };
 
-        var inUse = workflowTemplateName === initWorkflowName ||
-            !!_.find($scope.model.workflowTemplates, {workflow: {name: workflowTemplateName}});
-
-        if (!inUse) {
-            _saveWorkflowTemplate(template);
-        } else {
-            greyscaleModalsSrv.promptWorkflowTemplateName({
-                initWorkflowName: initWorkflowName,
-                template: template,
-                templates: $scope.model.workflowTemplates
-            })
-            .then(_saveWorkflowTemplate);
-        }
-
-
+        greyscaleModalsSrv.saveAsWorkflowTemplate({
+            template: template,
+            templates: $scope.model.workflowTemplates
+        })
+        .then(_saveWorkflowTemplate);
     }
 
     function _saveWorkflowTemplate(template) {

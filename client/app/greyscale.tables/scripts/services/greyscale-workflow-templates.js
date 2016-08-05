@@ -24,7 +24,8 @@ angular.module('greyscale.tables')
             field: 'workflow.name',
             sortable: 'workflow.name',
             title: tns + 'TITLE',
-            show: true
+            show: true,
+            dataRequired: true
         }, {
             field: 'workflow.description',
             title: tns + 'DESCRIPTION',
