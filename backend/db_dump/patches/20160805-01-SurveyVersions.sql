@@ -5,15 +5,14 @@ DECLARE
     trigger_sql text;
     db_user constant text := 'indaba'; -- HAVE TO SET CORRECT DB USER
 BEGIN
---	FOR schema_name IN
---		SELECT pg_catalog.pg_namespace.nspname
---		FROM pg_catalog.pg_namespace
---		INNER JOIN pg_catalog.pg_user
---		ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid)
---		AND (pg_catalog.pg_user.usename = db_user)
---    LOOP
---        RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
-        schema_name := 'igiware';
+	FOR schema_name IN
+		SELECT pg_catalog.pg_namespace.nspname
+		FROM pg_catalog.pg_namespace
+		INNER JOIN pg_catalog.pg_user
+		ON (pg_catalog.pg_namespace.nspowner = pg_catalog.pg_user.usesysid)
+		AND (pg_catalog.pg_user.usename = db_user)
+    LOOP
+        RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
         EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 
         EXECUTE 'CREATE TABLE "SurveyVersions"'
@@ -103,57 +102,70 @@ BEGIN
 
         EXECUTE 'DROP SEQUENCE IF EXISTS "SurveyQuestions_id_seq" CASCADE';
 
-        CREATE OR REPLACE FUNCTION quote_ident(schema_name).generate_question_pk()
-          RETURNS trigger AS
-        $BODY$
-        DECLARE
-            _rel_id int;
-            _quest_id int;
-            _version int;
-        BEGIN
+        EXECUTE 'ALTER TABLE "SurveyQuestions" '
+        || 'DROP CONSTRAINT "SurveyQuestions_pkey", '
+        || 'ADD CONSTRAINT "SurveyQuestion_surveyId_version_fkey" FOREIGN KEY ("surveyId", "surveyVersion")'
+                           || '          REFERENCES "SurveyVersions" ("surveyId", "version") MATCH SIMPLE'
+                           || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
+        || 'ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id, "surveyVersion")';
 
-        	IF NEW."surveyVersion" IS NULL THEN
-        		NEW."surveyVersion" := 0;
-        	END IF;
+    trigger_sql :=
+    	$functionquery$
+            CREATE OR REPLACE FUNCTION generate_question_pk()
+              RETURNS trigger AS
+            $BODY$
+            DECLARE
+                _rel_id int;
+                _quest_id int;
+                _version int;
+            BEGIN
 
-        	SELECT oid
-        	INTO _rel_id
-        	FROM pg_class
-        	WHERE relname = 'SurveyQuestions'
-        	AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = quote_ident(schema_name));
+            	IF NEW."surveyVersion" IS NULL THEN
+            		NEW."surveyVersion" := 0;
+            	END IF;
 
-        	IF NEW.id IS NOT NULL THEN
-        		IF NOT EXISTS (
-        			SELECT  id FROM quote_ident(schema_name)."SurveyQuestions" WHERE id = NEW.id AND "surveyVersion" = 0
-        		) THEN
-        			RAISE EXCEPTION 'id not allowed %', NEW.id;
-        		END IF;
-        	ELSE
-        		PERFORM pg_advisory_xact_lock(_rel_id);
+            	SELECT oid
+            	INTO _rel_id
+            	FROM pg_class
+           	WHERE relname = 'SurveyQuestions'
+            	AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$functionquery$||schema_name||$functionquery$');
 
-        		SELECT  COALESCE(MAX(id) + 1, 1)
-        		INTO    NEW.id
-        		FROM    quote_ident(schema_name)."SurveyQuestions";
+            	IF NEW.id IS NOT NULL THEN
+            		IF NOT EXISTS (
+            			SELECT  id FROM $functionquery$||schema_name||$functionquery$."SurveyQuestions" WHERE id = NEW.id AND "surveyVersion" = 0
+            		) THEN
+            			RAISE EXCEPTION 'id not allowed %', NEW.id;
+            		END IF;
+            	ELSE
+            		PERFORM pg_advisory_xact_lock(_rel_id);
 
-
-        	END IF;
-
-            RETURN NEW;
-        END;
-        $BODY$
-          LANGUAGE plpgsql VOLATILE STRICT
-          COST 100;
-        ALTER FUNCTION schema_name.generate_question_pk()
-          OWNER TO db_user;
+            		SELECT  COALESCE(MAX(id) + 1, 1)
+            		INTO    NEW.id
+            		FROM    $functionquery$||schema_name||$functionquery$."SurveyQuestions";
 
 
---        EXECUTE 'CREATE TRIGGER generate_question_pk '
---        || '           BEFORE INSERT '
---        || '           ON ' || schema_name || '."SurveyQuestions" '
---        || '           FOR EACH ROW '
---        || '           EXECUTE PROCEDURE ' || schema_name || '.generate_question_pk();'
+            	END IF;
 
---    END LOOP;
+                RETURN NEW;
+            END;
+            $BODY$
+              LANGUAGE plpgsql VOLATILE STRICT
+              COST 100;
+            ALTER FUNCTION generate_question_pk()
+              OWNER TO $functionquery$||db_user||$functionquery$;
+
+
+
+            CREATE TRIGGER generate_question_pk
+                       BEFORE INSERT
+                       ON "SurveyQuestions"
+                       FOR EACH ROW
+                       EXECUTE PROCEDURE generate_question_pk();
+    	$functionquery$;
+
+    	EXECUTE trigger_sql;
+
+    END LOOP;
 
 END
 $do$
