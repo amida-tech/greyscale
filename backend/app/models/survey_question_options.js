@@ -7,7 +7,8 @@ var columns = [
     'label',
     'skip',
     'isSelected',
-    'langId'
+    'langId',
+    'surveyVersion'
 ];
 
 var SurveyQuestionOption = sql.define({
@@ -19,7 +20,5 @@ SurveyQuestionOption.translate = [
     'value',
     'label'
 ];
-
-//SurveyQuestionOption.whereCol = columns;
 
 module.exports = SurveyQuestionOption;

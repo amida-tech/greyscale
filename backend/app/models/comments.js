@@ -23,7 +23,8 @@ var Comment = sql.define({
         'commentType',
         'isHidden',
         'userHideId',
-        'hiddenAt'
+        'hiddenAt',
+        'surveyVersion'
     ]
 });
 
