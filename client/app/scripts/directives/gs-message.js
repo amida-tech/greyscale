@@ -57,6 +57,28 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
+                $scope.highlightSource = _highlightSource;
+                $scope.resolveFlag = function () {
+                    if ($scope.model.isResolve) {
+                        return;
+                    }
+                    var _newComment = {
+                        taskId: $scope.model.taskId,
+                        stepId: null,
+                        questionId: $scope.model.questionId,
+                        entry: $scope.model.entry,
+                        range: $scope.model.range,
+                        tags: $scope.model.tags,
+                        commentType: $scope.model.commentType,
+                        isReturn: false,
+                        isResolve: true,
+                        returnTaskId: $scope.model.id
+                    };
+                    greyscaleCommentApi.add(_newComment).then(function (result) {
+                        $scope.model.isResolve = true;
+                    });
+                };
+                
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
