@@ -14,15 +14,22 @@
         "SLOGAN": ""
     },
     "COMMENTS": {
+        "ANSWERS": "",
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "HIDE_ALL": "",
         "HIDE_ALL_FLAGGED": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
         "TYPE": ""
     },
     "COMMON": {
         "ADD": "",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "",
         "ASSIGN": "",
@@ -38,6 +45,7 @@
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
+        "DISAGREE": "",
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",

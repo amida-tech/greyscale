@@ -63,10 +63,6 @@ angular.module('greyscaleApp')
             return _simpleForm(tmplUrl, data, ext, 'lg');
         }
 
-        function _simpleFullScreenForm(tmplUrl, data, ext) {
-            return _simpleForm(tmplUrl, data, ext, 'xxl');
-        }
-
         function modalForm(data, tableDescription) {
             return $uibModal.open({
                 templateUrl: 'views/modals/modal-form.html',
@@ -284,6 +280,15 @@ angular.module('greyscaleApp')
         }
 
         function _fullScreenComment(comment) {
-            return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
+            //return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
+            return $uibModal.open({
+                templateUrl: 'views/modals/comment-full-screen.html',
+                controller: 'ModalCommentFullScreenCtrl',
+                size: 'xxl',
+                windowClass: 'modal fade in',
+                resolve: {
+                    comment: comment,
+                }
+            }).result.catch(hndlModalErr);
         }
     });

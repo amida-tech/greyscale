@@ -15,9 +15,13 @@
     <div ng-hide="model.isHidden" class="gs-message-body-warpper">
         <div class="gs-message-body" ng-hide="isEdit">
             <div class="ta-text" ng-bind-html="model.entry"></div>
-            <div class="gs-message-full-view text-right h2"><a ng-click="fullview()" class="action-primary action"><i class="fa fa-eye"></i></a></div>
+            <div class="gs-message-fader"></div>
         </div>
         <textarea ng-show="isEdit" ng-model="entry" class="form-control"></textarea>
+        <a ng-click="fullview()" class="pull-right gs-message-full-view">
+            <small>+{{model.agree||0}}/-{{model.disagree||0}}</small>
+            <i class="fa fa-comments-o"></i>
+        </a>
         <div class="text-right gs-message-actions" ng-hide="model.activated">
             <a ng-click="remove()" ng-hide="isEdit"><i class="fa fa-trash action-danger"></i></a>
             <a ng-click="edit()" ng-hide="isEdit"><i class="fa fa-pencil"></i></a>

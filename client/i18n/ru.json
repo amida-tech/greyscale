@@ -14,15 +14,22 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMENTS": {
+        "ANSWERS": "",
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "HIDE_ALL": "",
         "HIDE_ALL_FLAGGED": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
         "TYPE": ""
     },
     "COMMON": {
         "ADD": "Добавить",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
@@ -38,6 +45,7 @@
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
+        "DISAGREE": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
