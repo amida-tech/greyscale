@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
                 modalFormField: '=',
                 modalFormFieldModel: '='
             },
-            link: function (scope, elem, attr) {
+            require: '^form',
+            link: function (scope, elem, attr, ngForm) {
 
                 var clmn = scope.modalFormField;
 
@@ -118,10 +119,24 @@ angular.module('greyscaleApp')
                         }
                     }
 
-                    if (clmn.dataRequired === true) {
-                        if (!_embedded) {
-                            field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && !$parent.dataForm.' + clmn.field + '.$viewValue"><span class="help-block" translate="FORMS.FIELD_REQUIRED"></span></div>';
+                    if (!_embedded) {
+                        field += '<div class="text-center"' +
+                            //' ng-hide="$parent.dataForm.' + clmn.field + '.$pristine"' +
+                            ' ng-messages="$parent.dataForm.' + clmn.field + '.$error" role="alert" >';
+                        if (clmn.dataRequired === true) {
+                            field += '<span ng-if="$parent.dataForm.' + clmn.field + '.$dirty" ' +
+                                'ng-message="required" class="help-block" translate="FORMS.FIELD_REQUIRED"></span>\n';
                         }
+                        angular.forEach(clmn.dataValidate || [], function(validate) {
+                            field += '<span ng-message="' + validate.key + '" class="help-block" translate="' + validate.error + '"></span ng-message>\n';
+                        });
+                        field += '</div>';
+
+                        angular.forEach(clmn.dataValidate || [], function(validate) {
+                            if (validate.isValid) {
+                                _addValidator(ngForm[clmn.field], validate);
+                            }
+                        });
                     }
 
                     if (!_embedded) {
@@ -130,6 +145,20 @@ angular.module('greyscaleApp')
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
+
+                }
+
+                function _addValidator(ngModel, validate) {
+                    ngModel.$parsers.unshift(function(value){
+                        var valid = validate.isValid($scope.modalFormRec);
+                        ngModel.$setValidity(validate.key, valid);
+                        return valid ? value : undefined;
+                    });
+                    ngModel.$formatters.unshift(function(value) {
+                        var valid = validate.isValid($scope.modalFormRec);
+                        ngModel.$setValidity(validate.key, valid);
+                        return value;
+                    });
                 }
 
                 function _compileCellTemplate(template, ext) {

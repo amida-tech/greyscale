@@ -533,7 +533,8 @@
             "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
             "WORKFLOW_TEMPLATE": "Workflow Template",
-            "WORKFLOW_TEMPLATES": "Workflow Templates"
+            "WORKFLOW_TEMPLATES": "Workflow Templates",
+            "WORKFLOW_TEMPLATE_SAVED": "Saved"
         }
     },
     "PRODUCT_TASKS": {

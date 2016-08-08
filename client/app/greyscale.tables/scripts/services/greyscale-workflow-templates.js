@@ -73,11 +73,14 @@ angular.module('greyscale.tables')
         function _editWorkflowTemplate(template) {
             var action = template && template.id ? 'editing' : 'adding';
 
-            var modalParams = {
-                title: tns + 'WORKFLOW_TEMPLATE'
+            var modalData = {
+                title: tns + 'WORKFLOW_TEMPLATE',
+                product: template || {
+                    workflow: {}
+                }
             };
 
-            greyscaleModalsSrv.productWorkflow(template || {}, modalParams)
+            greyscaleModalsSrv.productWorkflow(modalData)
                 .then(function (data) {
                     _saveWorkflowTemplate(action, data);
                 });
@@ -122,6 +125,7 @@ angular.module('greyscale.tables')
             return $q.all(reqs)
                 .then(function (promises) {
                     greyscaleUtilsSrv.prepareFields(promises.workflowTemplates, _fields);
+                    _dicts.workflowtemplates = promises.workflowTemplates;
                     return promises.workflowTemplates;
                 })
                 .catch(errorHandler);

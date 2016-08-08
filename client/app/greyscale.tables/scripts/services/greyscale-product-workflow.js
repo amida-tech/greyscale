@@ -146,10 +146,11 @@ angular.module('greyscale.tables')
                 icon: true,
                 title: tns + 'SAVE_AS_TEMPLATE',
                 classes: 'right-gap',
+                disable: function(){
+                    return _table.dataFilter.saveAsTemplateDisable();
+                },
                 handler: function () {
-                    if (typeof _table.dataFilter.saveAsTemplate === 'function') {
-                        _table.dataFilter.saveAsTemplate();
-                    }
+                    _table.dataFilter.saveAsTemplate();
                 },
                 show: function () {
                     return !_table.dataFilter.templateMode;

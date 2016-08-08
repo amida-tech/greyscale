@@ -533,7 +533,8 @@
             "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "Название обязательно",
             "WORKFLOW_TEMPLATE": "",
-            "WORKFLOW_TEMPLATES": ""
+            "WORKFLOW_TEMPLATES": "",
+            "WORKFLOW_TEMPLATE_SAVED": ""
         }
     },
     "PRODUCT_TASKS": {

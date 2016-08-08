@@ -115,16 +115,15 @@ angular.module('greyscaleApp')
             }).result;
         }
 
-        function _productWorkflow(product, modalParams) {
+        function _productWorkflow(modalData) {
             return $uibModal.open({
                 templateUrl: 'views/modals/product-workflow.html',
-                controller: 'ModalProductWorkflowCtrl',
+                controller: 'ModalProductWorkflowCtrl as ctrl',
                 controllerAs: 'ctrl',
                 size: 'xxl',
                 windowClass: 'modal fade in',
                 resolve: {
-                    product: product,
-                    modalParams: modalParams || {}
+                    modalData: modalData
                 }
             }).result;
         }

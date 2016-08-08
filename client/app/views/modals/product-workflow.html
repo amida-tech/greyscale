@@ -1,6 +1,6 @@
 <modal-form-header>
-    <span ng-if="!modalParams.title" translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
-    <span ng-if="modalParams.title">{{modalParams.title | translate}}</span>
+    <span ng-if="!modalData.title" translate="PRODUCTS.WORKFLOW.STEPS_FOR" translate-values="{product:model.product.title}"></span>
+    <span ng-if="modalData.title">{{modalData.title | translate}}</span>
 </modal-form-header>
 <div class="modal-body" translate-namespace="PRODUCTS.WORKFLOW">
     <div class="form-inline well well-sm" ng-if="!tplEdit">
@@ -8,6 +8,7 @@
             <label translate=".WORKFLOW_TEMPLATES"></label>:
         </div>
         <div class="pull-right">
+            <span ng-show="model.templateSaved" translate=".WORKFLOW_TEMPLATE_SAVED"></span>
             <div class="form-group">
                 <select class="form-control" ng-model="model.selectedTemplate" ng-options="tpl as tpl.workflow.name for tpl in model.workflowTemplates">
                     <option value="" translate=".LOAD_FROM_WORKFLOW_TEMPLATE"></option>
@@ -19,14 +20,9 @@
             </div>
         </div>
         <div class="clearfix"></div>
-        <!--<div class="form-group">-->
-            <!--<br>-->
-            <!--<br>-->
-            <!--<a ng-click="saveAsTemplate()" translate=".SAVE_AS_TEMPLATE">Save</a>-->
-        <!--</div>-->
     </div>
 
-    <form name="model.dataForm" class="form">
+    <form name="ctrl.dataForm" class="form">
         <div class="form-group">
             <label translate=".TITLE" class="required"></label>
 
@@ -35,11 +31,12 @@
                        ng-model="model.product.workflow.name"
                        ng-required="true" ng-minlength="1">
 
-                <div class="text-center" ng-messages="model.dataForm.name.$error" role="alert"
-                     ng-if="model.dataForm.name.$dirty">
-                    <span ng-message="required, minlength" class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
+                <div class="text-center" ng-messages="ctrl.dataForm.name.$error" role="alert">
+                    <span ng-message="required, minlength"
+                          ng-if="ctrl.dataForm.name.$dirty"
+                          class="help-block"><span translate=".TITLE_REQUIRED"></span></span>
+                    <span ng-message="unique" class="help-block"><span translate=".TITLE_IN_USE"></span></span>
                 </div>
-                <span ng-if="model.nameInUse" class="text-center help-block"><span translate=".TITLE_IN_USE"></span></span>
             </div>
         </div>
         <div class="form-group">
@@ -50,10 +47,10 @@
                           ng-model="model.product.workflow.description"
                           ng-required="true" ng-minlength="1"></textarea>
 
-                <div class="text-center" ng-messages="model.dataForm.description.$error" role="alert"
-                     ng-if="model.dataForm.description.$dirty">
-                    <span ng-message="required, minlength" class="help-block"><span
-                        translate=".DESCRIPTION_REQUIRED"></span></span>
+                <div class="text-center" ng-messages="ctrl.dataForm.description.$error" role="alert">
+                    <span ng-message="required, minlength"
+                          ng-if="ctrl.dataForm.description.$dirty"
+                          class="help-block"><span translate=".DESCRIPTION_REQUIRED"></span></span>
                 </div>
             </div>
         </div>
@@ -63,7 +60,7 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></button>
-    <button class="btn btn-primary" ng-disabled="model.dataForm.$invalid || !validWorkflowSteps()"
+    <button class="btn btn-primary" ng-disabled="ctrl.dataForm.$invalid || !validWorkflowSteps()"
             ng-click="save()">{{ tplEdit ? 'COMMON.SAVE' : 'COMMON.SAVE_AND_CONTINUE' | translate }}</button>
 </div>
 
