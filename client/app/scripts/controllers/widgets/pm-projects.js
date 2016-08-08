@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('PmProjectsWidgetCtrl', function($scope, greyscaleProjectApi, $q, Organization){
+.controller('PmProjectsWidgetCtrl', function(_, $scope, greyscaleProjectApi, $q, Organization){
 
     $scope.model = {};
 
@@ -14,7 +14,9 @@ angular.module('greyscaleApp')
         }
         greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
             .then(function(products){
-                $scope.model.products = products;
+                $scope.model.products = _.filter(products, function(product){
+                    return product.status !== 0;
+                });
             });
     }
 });
