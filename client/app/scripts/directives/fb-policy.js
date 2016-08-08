@@ -10,7 +10,8 @@ angular.module('greyscaleApp')
             require: 'ngModel',
             scope: {
                 options: '=?',
-                associate: '=?'
+                associate: '=?',
+                author: '=?'
             },
             templateUrl: 'views/directives/fb-policy.html',
             link: function (scope, elem, attrs, ngModel) {
@@ -44,8 +45,9 @@ angular.module('greyscaleApp')
                             action: function (data) {
                                 var _comment = {
                                     section: scope.model,
-                                    quote: data.range.cloneRange().toString(),
-                                    range: data.selection
+                                    quote: data.selectedHtml,
+                                    range: data.selection,
+                                    policyAuthor: scope.author
                                 };
                                 $rootScope.$broadcast(greyscaleGlobals.events.policy.addComment, _comment);
                             }

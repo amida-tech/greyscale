@@ -1,9 +1,10 @@
 'use strict';
 
 angular.module('greyscale.tables')
-    .factory('greyscaleMyTasksTbl', function (_, $q, greyscaleTaskApi) {
+    .factory('greyscaleMyTasksTbl', function (_, greyscaleTaskApi, greyscaleGlobals) {
 
-        var tns = 'MY_TASKS.';
+        var tns = 'MY_TASKS.',
+            _userStatuses = greyscaleGlobals.policy.userStatuses;
 
         var resDescr = [{
             title: tns + 'TASK',
@@ -19,6 +20,8 @@ angular.module('greyscale.tables')
             show: true,
             cellTemplateUrl: 'my-tasks-cell-uoa.html'
         }, {
+            field: 'startDate',
+            sortable: true,
             title: tns + 'TERMS',
             show: true,
             cellTemplateUrl: 'my-tasks-cell-terms.html'
@@ -28,11 +31,11 @@ angular.module('greyscale.tables')
             cellTemplateUrl: 'my-tasks-cell-product.html'
         }];
 
-        var _table = {
+        return {
             title: tns + 'TITLE',
             icon: 'fa-tasks',
             sorting: {
-                id: 'asc'
+                startDate: 'asc'
             },
             cols: resDescr,
             dataPromise: _getData,
@@ -42,10 +45,13 @@ angular.module('greyscale.tables')
         function _getData() {
             return greyscaleTaskApi.myList().then(function (data) {
                 return _.filter(data, function (item) {
-                    return item.status === 'current';
+                    var res = item.status === 'current';
+
+                    if (res) {
+                        item.approved = (item.userStatus && item.userStatus === _userStatuses.approved);
+                    }
+                    return res;
                 });
             });
         }
-
-        return _table;
     });

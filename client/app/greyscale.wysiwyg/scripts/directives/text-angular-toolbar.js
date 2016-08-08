@@ -1,6 +1,6 @@
 'use strict';
-angular.module('greyscaleApp')
-    .directive('textAngularToolbar', function ($window, $interval) {
+angular.module('greyscale.wysiwyg')
+    .directive('textAngularToolbar', function ($window) {
         return {
             link: _link
         };
@@ -47,35 +47,28 @@ angular.module('greyscaleApp')
 
         function _controlPosition(el) {
             var prev;
+
             var setOffset = function () {
-                var offset = _getToolbarOffset(el);
+                var offset = _getToolbarOffsetY(el, el[0].parentNode);
                 if (prev !== offset) {
                     prev = offset;
                     el.css('top', offset);
                 }
             };
+
             setOffset();
-            angular.element($window).on('scroll', setOffset);
+
+            $window.document.addEventListener('scroll', setOffset);
             return function () {
-                angular.element($window).off('scroll', setOffset);
+                $window.document.removeEventListener('scroll', setOffset);
             };
         }
 
-        function _getToolbarOffset(el) {
-            var offset = _findWiewportOfset(el[0].parentNode);
+        function _getToolbarOffsetY(el, container) {
+            var _eBox = container.getBoundingClientRect();
+            var offset = _eBox.top;
             offset = offset < 0 ? -offset : 0;
             offset = (offset >= el.next().height()) ? 0 : offset;
             return offset;
-        }
-
-        function _findWiewportOfset(node) {
-            var viewportOffset = 0;
-            if (node.offsetParent) {
-                do {
-                    viewportOffset += node.offsetTop;
-                    node = node.offsetParent;
-                } while (node);
-            }
-            return viewportOffset - $window.scrollY;
         }
     });

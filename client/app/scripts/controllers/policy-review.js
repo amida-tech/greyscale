@@ -33,7 +33,8 @@ angular.module('greyscaleApp')
         }
 
         if (taskId) {
-            reqs.task = greyscaleTaskApi.get(taskId);
+            reqs.task = greyscaleTaskApi.get(taskId)
+                .then(_startTask);
         }
 
         $q.all(reqs)
@@ -51,6 +52,7 @@ angular.module('greyscaleApp')
                     },
                     policy: {
                         id: resp.survey.policyId,
+                        author: resp.survey.author,
                         title: resp.survey.title,
                         section: resp.survey.section,
                         subsection: resp.survey.subsection,
@@ -68,7 +70,8 @@ angular.module('greyscaleApp')
                     },
                     collaboratorIds: [],
                     collaborators: {},
-                    user: _user
+                    user: _user,
+                    resolveModeIsDisabled: true
                 };
 
                 if (resp.task) {
@@ -147,5 +150,16 @@ angular.module('greyscaleApp')
             }
             _survey.questions = _questions;
             data.policy.sections = _sections;
+        }
+
+        function _startTask(task) {
+            return greyscaleTaskApi.state(task.id, 'start')
+                .then(function () {
+                    return task;
+                })
+                .catch(function (err) {
+                    greyscaleUtilsSrv.errorMsg(err);
+                    return task;
+                });
         }
     });
