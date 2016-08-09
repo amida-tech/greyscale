@@ -47,6 +47,11 @@ $dropdown-link-active-bg: $component-active-bg;
     }
 }
 
+.ta-toolbar gs-ol-types {
+    white-space: normal;
+    display: inline;
+}
+
 .ta-toolbar .bar-btn-dropdown {
     padding-right: 0;
 }
