@@ -82,15 +82,17 @@ var exportObject = {
 
             socket.on('disconnect', function (reason) {
                 debug('Socket disconnected ' + socket.id);
-
-                var oPolicy = new sPolicy(socket.req);
-                oPolicy.unlockSocketPolicies(socket.id.replace('/#','') ).then(
-                    (data) => {
-                        for (var i in data) {
-                            self.send(socketEvents.policyUnlocked, {policyId: data[i].id});
+                if (socket.req) {
+                    var oPolicy = new sPolicy(socket.req);
+                    oPolicy.unlockSocketPolicies(socket.id.replace('/#','') ).then(
+                        (data) => {
+                            for (var i in data) {
+                                self.send(socketEvents.policyUnlocked, {policyId: data[i].id});
+                            }
                         }
-                    }
-                );
+                    );
+                }
+
             });
 
             socket.on(socketEvents.policyLock, function (data) {
