@@ -87,7 +87,7 @@ angular.module('greyscaleApp')
                             field += '<select-date data-id="' + clmn.field + '" ' +
                                 'result="modalFormFieldModel" form-field-value="$parent.dataForm.' + clmn.field + '" ' +
                                 (_embedded ? ' embedded ' : '') +
-                                'ng-required="modalFormField.dataRequired"  gs-model-validate="modalFormField.dataValidate"></select-date>';
+                                'ng-required="modalFormField.dataRequired"></select-date><input type="hidden" ng-model="modalFormFieldModel" gs-model-validate="modalFormField.dataValidate"/>';
                             if (!_embedded) {
                                 field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
                             }
