@@ -18,7 +18,7 @@
                 <div class="form-group"  ng-hide="model.flagDisabled">
                     <div class="checkbox-inline">
                         <label class="text-danger">
-                            <input type="checkbox" ng-model="model.isReturn"/> <i
+                            <input type="checkbox" ng-model="model.isReturn" ng-change="onFlagChange($event);" /> <i
                             class="chk-box"></i> <span translate="PLACEHOLDER.FLAG"></span>
                         </label>
                     </div>
@@ -27,6 +27,7 @@
             <div class="form-group col-sm-6">
                 <label for="person" class="control-label" translate="COMMENTS.TAG_COMMENT"></label>
                 <select id="person" ng-model="model.tag" class="form-control" multiple="multiple" required="required"
+                        ng-disabled="tagDisabled"
                         ng-options="tag as (tag.fullName || tag.title) for tag in view.tags"></select>
             </div>
         </div>

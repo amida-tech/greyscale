@@ -4,8 +4,13 @@
             <i class="fa" ng-class="{ 'fa-eye-slash': !model.isHidden, 'fa-eye': model.isHidden }"></i>
         </a>
         {{getUserName()}}
-        <i class="fa fa-flag pull-right" ng-show="model.isReturn"
-           ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+        <span ng-if="model.isReturn">
+            <a ng-if="isAdmin() && !model.isResolve" class="pull-right" ng-click="resolveFlag();">
+                <i class="fa fa-flag text-danger"></i>
+            </a>
+            <i ng-if="!isAdmin() || model.isResolve" class="fa fa-flag pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+        </span>
     </span>
     <div ng-hide="model.isHidden" class="gs-message-body-warpper">
         <div class="gs-message-body" ng-hide="isEdit">
