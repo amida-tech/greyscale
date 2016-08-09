@@ -119,18 +119,18 @@ angular.module('greyscaleApp')
                     }
 
                     if (!_embedded && (clmn.dataRequired === true || clmn.dataValidate)) {
-                            field += '<div class="text-center" ng-messages="$parent.dataForm.' + clmn.field + '.$error" role="alert" >';
-                            if (clmn.dataRequired === true) {
-                                field += '<span ng-if="$parent.dataForm.' + clmn.field + '.$dirty" ng-message="required" class="help-block"><span translate="FORMS.FIELD_REQUIRED"></span></span>';
-                            }
-                            if (clmn.dataValidate) {
-                                var validators = gsModelValidators.parse(clmn.dataValidate);
-                                angular.forEach(validators, function(validator){
-                                    var translationKey = 'FORMS.INVALID_' + validator.key.toUpperCase();
-                                    field += '<span ng-message="' + validator.key + '" class="help-block"><span translate="' + translationKey + '" translate-values="{field: \'' + fieldTitle + '\'}"></span></span>';
-                                });
-                            }
-                            field += '</div>';
+                        field += '<div class="text-center" ng-messages="$parent.dataForm.' + clmn.field + '.$error" role="alert" >';
+                        if (clmn.dataRequired === true) {
+                            field += '<span ng-if="$parent.dataForm.' + clmn.field + '.$dirty" ng-message="required" class="help-block"><span translate="FORMS.FIELD_REQUIRED"></span></span>';
+                        }
+                        if (clmn.dataValidate) {
+                            var validators = gsModelValidators.parse(clmn.dataValidate);
+                            angular.forEach(validators, function (validator) {
+                                var translationKey = 'FORMS.INVALID_' + validator.key.toUpperCase();
+                                field += '<span ng-message="' + validator.key + '" class="help-block"><span translate="' + translationKey + '" translate-values="{field: \'' + fieldTitle + '\'}"></span></span>';
+                            });
+                        }
+                        field += '</div>';
                     }
 
                     if (!_embedded) {

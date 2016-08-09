@@ -27,7 +27,13 @@ angular.module('greyscale.tables')
                 show: false,
                 sortable: 'email',
                 dataRequired: true,
-                dataValidate: ['email', {unique: {storage: dicts, dict: 'users', field: 'email'}}]
+                dataValidate: ['email', {
+                    unique: {
+                        storage: dicts,
+                        dict: 'users',
+                        field: 'email'
+                    }
+                }]
             }, {
                 field: 'firstName',
                 title: tns + 'FIRST_NAME',
