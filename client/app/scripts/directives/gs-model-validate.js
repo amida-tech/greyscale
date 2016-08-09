@@ -45,11 +45,24 @@ angular.module('greyscaleApp')
             // config.field - field name to check values
             // config.idField - ID field to exclude current record
             // config.noExclude - do not exclude current record from checking (default false)
+            // config.transform - transform comparing values
+            // config.caseSensitive - case sensitive comparing (default true)
             unique: function (config) {
+                if (config.caseSensitive === undefined) {
+                    config.caseSensitive = true;
+                }
                 return function (val, rec) {
+                    var checkVal = config.transform ? config.transform(val) : val;
+                    if (!config.caseSensitive) {
+                        checkVal = String(checkVal).toLowerCase();
+                    }
                     var idField = config.idField || 'id';
                     return !_.find(config.storage[config.dict], function (obj) {
-                        return obj[config.field] === val && (config.noExclude || obj[idField] !== rec[idField]);
+                        var objVal = config.transform ? config.transform(obj[config.field]) : obj[config.field];
+                        if (!config.caseSensitive) {
+                            objVal = String(objVal).toLowerCase();
+                        }
+                        return objVal === checkVal && (config.noExclude || obj[idField] !== rec[idField]);
                     });
                 };
             }

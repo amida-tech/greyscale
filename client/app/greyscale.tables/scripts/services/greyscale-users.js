@@ -31,7 +31,8 @@ angular.module('greyscale.tables')
                     unique: {
                         storage: dicts,
                         dict: 'users',
-                        field: 'email'
+                        field: 'email',
+                        caseSensitive: false
                     }
                 }]
             }, {
