@@ -39,11 +39,18 @@ angular.module('greyscaleApp')
         email: function(val){
             return !!String(val).match(/(.+)@(.+)\.(.+)/);
         },
+        // check for uniqueness using storage[dict] source
+        // config.storage - container object for dicts
+        // config.dict - dictionary property
+        // config.field - field name to check values
+        // config.idField - ID field to exclude current record
+        // config.noExclude - do not exclude current record from checking (default false)
         unique: function(config){
-            return function(val){
-                var query = {};
-                query[config.field] = val;
-                return !_.find(config.storage[config.dict], query);
+            return function(val, rec){
+                var idField = config.idField || 'id';
+                return !_.find(config.storage[config.dict], function(obj){
+                    return obj[config.field] === val && (config.noExclude || obj[idField] !== rec[idField]);
+                });
             };
         }
     };
