@@ -15,6 +15,23 @@ BEGIN
         RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
         EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 
+        EXECUTE 'ALTER TABLE "Policies" '
+                || 'ADD COLUMN "surveyId" integer,'
+                || 'ADD CONSTRAINT "Policies_surveyId_fkey" FOREIGN KEY ("surveyId)'
+                ||'       REFERENCES "Surveys" (id) MATCH SIMPLE'
+                ||'       ON UPDATE NO ACTION ON DELETE NO ACTION';
+
+        EXECUTE 'UPDATE "Policies" SET "surveyId" = (SELECT id FROM "Surveys" WHERE "policyId" = "Policies".id)';
+
+
+
+        EXECUTE 'ALTER TABLE "Surveys" '
+                || 'ADD COLUMN "creator" integer, '
+                || 'ADD COLUMN created timestamp without time zone NOT NULL DEFAULT now(),'
+                || 'ADD CONSTRAINT "SurveyVersions_creator_fkey" FOREIGN KEY (creator)'
+                ||'       REFERENCES "Users" (id) MATCH SIMPLE'
+                ||'       ON UPDATE NO ACTION ON DELETE NO ACTION';
+
         EXECUTE 'CREATE TABLE "SurveyVersions"'
                ||' ('
                ||'   id serial NOT NULL,'

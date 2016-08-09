@@ -9,7 +9,9 @@ var Survey = sql.define({
         'created',
         'projectId',
         'isDraft',
-        'policyId'
+        'policyId',
+        'creator', // TODO after merge with GREY-208 need to move editor fields here
+        'version'
     ]
 });
 
