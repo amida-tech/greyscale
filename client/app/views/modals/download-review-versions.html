@@ -1,0 +1,24 @@
+<modal-form-header>
+    <span translate="PM_PRODUCT_DASHBOARD.DOWNLOAD_VERSIONS.HEADER" data-translate-values="model.survey"></span>
+</modal-form-header>
+<div class="modal-body" translate-namespace="PM_PRODUCT_DASHBOARD.DOWNLOAD_VERSIONS">
+    <label translate=".CHOOSE_VERSION"></label>
+    <div class="list-group download-review-versions">
+        <a class="list-group-item"
+           ng-class="{'active': version.id == model.selectedVersionId}"
+           ng-click="model.selectedVersionId = version.id"
+           ng-repeat="version in model.versions track by $index">
+            {{version.user}} <span translate=".REVIEW"></span>
+            <span class="pull-right">{{version.created|date:'short'}}</span>
+        </a>
+    </div>
+</div>
+<div class="modal-footer">
+    <a class="btn btn-default" ng-click="close()" translate="COMMON.CANCEL"></a>
+    <a class="btn btn-primary"
+       ng-disabled="!model.selectedVersionId"
+       ng-href="{{model.downloadHref}}"
+       target="_self"
+       download="{{model.downloadFileName}}"
+       ng-click="download($event)" translate="COMMON.DOWNLOAD"></a>
+</div>

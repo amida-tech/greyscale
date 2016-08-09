@@ -35,7 +35,8 @@ angular.module('greyscaleApp')
             addProduct: _addProduct,
             importDataset: _importDataset,
             policyComment: _policyComment,
-            fullScreenComment: _fullScreenComment
+            fullScreenComment: _fullScreenComment,
+            downloadPolicyVersions: _downloadReviewVersions
         };
 
         function hndlModalErr(err) {
@@ -285,5 +286,17 @@ angular.module('greyscaleApp')
 
         function _fullScreenComment(comment) {
             return _simpleFullScreenForm('views/modals/comment-full-screen.html', comment);
+        }
+
+        function _downloadReviewVersions(survey) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/download-review-versions.html',
+                controller: 'ModalDownloadReviewVersionsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    survey: survey
+                }
+            }).result;
         }
     });

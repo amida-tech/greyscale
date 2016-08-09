@@ -38,6 +38,7 @@
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
+        "DOWNLOAD": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
@@ -389,6 +390,11 @@
         "COUNT_UOAS": "",
         "DEADLINE": "",
         "DOWNLOAD_DATA": "Загрузить данные",
+        "DOWNLOAD_VERSIONS": {
+            "CHOOSE_VERSION": "",
+            "HEADER": "",
+            "REVIEW": ""
+        },
         "INFO_TITLE": ""
     },
     "PM_PROJECTS": {

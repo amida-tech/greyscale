@@ -38,6 +38,7 @@
         "CREATE": "",
         "CURRENT_VALUE": "",
         "DELETE": "",
+        "DOWNLOAD": "",
         "EDIT": "",
         "FURTHER": "",
         "GLOBALLY": "",
@@ -389,6 +390,11 @@
         "COUNT_UOAS": "",
         "DEADLINE": "",
         "DOWNLOAD_DATA": "",
+        "DOWNLOAD_VERSIONS": {
+            "CHOOSE_VERSION": "",
+            "HEADER": "",
+            "REVIEW": ""
+        },
         "INFO_TITLE": ""
     },
     "PM_PROJECTS": {

@@ -186,3 +186,12 @@ div.disabled {
 em.hilitor.current {
     border: 1px dotted #ccc;
 }
+
+.list-group-item.active, .list-group-item.active:hover {
+    background-color: #777;
+    border-color: #777;
+}
+
+.download-review-versions {
+    margin-bottom: 0;
+}
