@@ -492,6 +492,7 @@ module.exports = {
 
             if (req.body.isPolicy) {
                 yield * checkPolicyData(req);
+                req.body = _.omit(req.body, 'id'); // remove id from body
 
                 var policy = yield thunkQuery(
                     Policy
