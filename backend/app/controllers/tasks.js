@@ -5,6 +5,7 @@ var
     common = require('app/services/common'),
     sTask = require('app/services/tasks'),
     sTaskUserState = require('app/services/taskuserstates'),
+    cProduct = require('app/controllers/products'), // ToDo - move to service
     Product = require('app/models/products'),
     Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
@@ -89,6 +90,11 @@ module.exports = {
             // TaskUserStates - set state to approve
             var oTaskUserState = new sTaskUserState(req);
             oTaskUserState.approve(req.params.id, req.user.id);
+            // Try to move next step (if all users approved task) ToDo: move to service (product)
+            var task = yield * common.getTask(req, req.params.id);
+            var productId = task.productId;
+            var uoaId = task.uoaId;
+            yield * cProduct.moveWorkflow(req, productId, uoaId);
         }).then(function () {
             res.status(200).end();
         }, function (err) {
