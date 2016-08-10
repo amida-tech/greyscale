@@ -489,10 +489,10 @@ module.exports = {
         var thunkQuery = req.thunkQuery;
         co(function* () {
             yield * checkSurveyData(req);
+            req.body = _.omit(req.body, 'id'); // remove id from body
 
             if (req.body.isPolicy) {
                 yield * checkPolicyData(req);
-                req.body = _.omit(req.body, 'id'); // remove id from body
 
                 var policy = yield thunkQuery(
                     Policy
