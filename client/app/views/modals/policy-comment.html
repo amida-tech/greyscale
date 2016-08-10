@@ -15,7 +15,7 @@
                     <select id="ctype" ng-model="model.commentType" class="form-control" required="required"
                             ng-options="item.value as item.name  for item in view.commentTypes"></select>
                 </div>
-                <div class="form-group"  ng-hide="model.flagDisabled">
+                <div class="form-group"  ng-hide="model.flagDisabled || !isAdmin">
                     <div class="checkbox-inline">
                         <label class="text-danger">
                             <input type="checkbox" ng-model="model.isReturn" ng-change="onFlagChange($event);" /> <i
