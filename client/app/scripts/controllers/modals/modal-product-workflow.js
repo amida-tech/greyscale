@@ -127,6 +127,8 @@ angular.module('greyscaleApp')
                 'discussionParticipation', 'seeOthersResponses',
                 'blindReview'
             ]);
+            item.startDate = undefined;
+            item.endDate = undefined;
             item.groups = _.map(step.usergroupId, _getGroup);
             if (step.writeToAnswers === false) {
                 item.surveyAccess = 'noWriteToAnswers';
