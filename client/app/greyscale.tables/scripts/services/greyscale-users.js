@@ -10,7 +10,9 @@ angular.module('greyscale.tables')
 
             var tns = 'USERS.';
 
-            var dicts = {};
+            var dicts = {
+                users: []
+            };
 
             var _fields = [{
                 field: 'id',
@@ -24,7 +26,15 @@ angular.module('greyscale.tables')
                 title: tns + 'EMAIL',
                 show: false,
                 sortable: 'email',
-                dataRequired: true
+                dataRequired: true,
+                dataValidate: ['email', {
+                    unique: {
+                        storage: dicts,
+                        dict: 'users',
+                        field: 'email',
+                        caseSensitive: false
+                    }
+                }]
             }, {
                 field: 'firstName',
                 title: tns + 'FIRST_NAME',
@@ -265,6 +275,7 @@ angular.module('greyscale.tables')
                         dicts.roles = _addTitles(_roles);
                         dicts.groups = promises.groups;
                         greyscaleUtilsSrv.prepareFields(promises.users, _fields);
+                        dicts.users = promises.users;
                         return promises.users;
                     });
 

@@ -148,6 +148,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "This field is required.",
+        "INVALID_EMAIL": "Wrong E-mail format",
+        "INVALID_UNIQUE": "{{field}} already in use.",
         "MUST_BE_INT": " Value must be integer.",
         "MUST_BE_NUMBER": " Not a number.",
         "WRONG_DATE_FORMAT": "Wrong date format."
