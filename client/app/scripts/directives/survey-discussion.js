@@ -84,7 +84,7 @@ angular.module('greyscaleApp')
 
                 $scope.filterSteps = function (elem) {
                     var res = (elem.id !== $scope.surveyParams.currentStepId);
-                    res = res && (!$scope.model.msg.isReturn || elem.position <= currentStep.position);
+                    res =  res && (!$scope.model.msg.isReturn || elem.position <= currentStep.position);
                     return res;
                 };
 
