@@ -78,7 +78,7 @@ angular.module('greyscaleApp')
                         $scope.model.isResolve = true;
                     });
                 };
-                
+
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
