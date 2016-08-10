@@ -624,7 +624,6 @@ module.exports = {
                 for (var uoaId in groups[questionId]) {
                     var groupAnswers = _.sortBy(groups[questionId][uoaId], 'stepPosition');
                     var stepPositions = _.uniq(_.pluck(groupAnswers, 'stepPosition'));
-                    var maxStep = _.max(stepPositions);
                     stepPositions.forEach(function (stepPosition) {
                         var maxVersion = -1;
                         var maxAnswer;
@@ -642,7 +641,6 @@ module.exports = {
                         }
                         var answer = groupAnswers[i-1];
                         answer.answerValue = maxAnswer.answerValue;
-                        answer.currentStep = (stepPosition === maxStep);
                         answer.answerOptions = maxAnswer.answerOptions;
                         answer.links = maxAnswer.links;
                         answer.attachments = maxAnswer.attachments;
@@ -768,8 +766,7 @@ module.exports = {
                 'answerValue': 'AnsValue',
                 'links': 'AnsLinks',
                 'attachments': 'AnsAttach',
-                'comments': 'AnsComment',
-                'currentStep': 'CurrStep'
+                'comments': 'AnsComment'
             };
 
             // only show relevant keys and order them as we want
@@ -786,7 +783,6 @@ module.exports = {
                 'uoaTags',
                 'stepTitle',
                 'stepPosition',
-                'currentStep',
                 'ownerId',
                 'ownerName',
                 'answerText',
