@@ -13,174 +13,241 @@ BEGIN
 		AND (pg_catalog.pg_user.usename = db_user)
     LOOP
         RAISE NOTICE 'db_user = %, schema = %', db_user, schema_name;
-        EXECUTE 'SET search_path TO ' || quote_ident(schema_name);
 
-        EXECUTE 'ALTER TABLE "Policies" '
-                || 'ADD COLUMN "surveyId" integer,'
-                || 'ADD CONSTRAINT "Policies_surveyId_fkey" FOREIGN KEY ("surveyId)'
-                ||'       REFERENCES "Surveys" (id) MATCH SIMPLE'
-                ||'       ON UPDATE NO ACTION ON DELETE NO ACTION';
+        EXECUTE $query$
+            SET search_path TO $query$ || schema_name || $query$;
 
-        EXECUTE 'UPDATE "Policies" SET "surveyId" = (SELECT id FROM "Surveys" WHERE "policyId" = "Policies".id)';
-
-
-
-        EXECUTE 'ALTER TABLE "Surveys" '
-                || 'ADD COLUMN "creator" integer, '
-                || 'ADD COLUMN created timestamp without time zone NOT NULL DEFAULT now(),'
-                || 'ADD CONSTRAINT "SurveyVersions_creator_fkey" FOREIGN KEY (creator)'
-                ||'       REFERENCES "Users" (id) MATCH SIMPLE'
-                ||'       ON UPDATE NO ACTION ON DELETE NO ACTION';
-
-        EXECUTE 'CREATE TABLE "SurveyVersions"'
-               ||' ('
-               ||'   id serial NOT NULL,'
-               ||'   "surveyId" integer,'
-               ||'   created timestamp without time zone NOT NULL DEFAULT now(),'
-               ||'   author integer,'
-               ||'   version integer NOT NULL DEFAULT 0,'
-               ||'   CONSTRAINT "SurveyVersions_pkey" PRIMARY KEY (id),'
-               ||'   CONSTRAINT "SurveyVersions_author_fkey" FOREIGN KEY (author)'
-               ||'       REFERENCES "Users" (id) MATCH SIMPLE'
-               ||'       ON UPDATE NO ACTION ON DELETE NO ACTION,'
-               ||'   CONSTRAINT "SurveyVersions_surveyId_fkey" FOREIGN KEY ("surveyId")'
-               ||'       REFERENCES "Surveys" (id) MATCH SIMPLE'
-               ||'       ON UPDATE NO ACTION ON DELETE NO ACTION,'
-               ||'   CONSTRAINT "SurveyVersions_surveyId_version_key" UNIQUE ("surveyId", version)'
-               ||' )'
-               ||' WITH ('
-               ||'   OIDS=FALSE'
-               ||' );'
-               ||' ALTER TABLE "SurveyVersions"'
-               ||'   OWNER TO ' || db_user;
-
-        -- Fill the SurveyVersions table
-        EXECUTE 'INSERT INTO "SurveyVersions" ("surveyId", "version")'
-              || ' SELECT  a.id, 0'
-              || ' FROM "Surveys" a'
-              || ' LEFT JOIN "SurveyVersions" b'
-              || ' ON a."id" = b."surveyId" AND b.version = 0'
-              || ' WHERE b.id IS NULL';
+            CREATE TABLE "SurveyLocks"
+                        (
+                          "surveyId" integer NOT NULL,
+                          "editor" integer,
+                          "startEdit" timestamp with time zone,
+                          "socketId" character varying,
+                          CONSTRAINT "SurveyLocks_pkey" PRIMARY KEY ("surveyId")
+                        )
+                        WITH (
+                          OIDS=FALSE
+                        );
+                        ALTER TABLE "SurveyLocks"
+                          OWNER TO $query$ || db_user || $query$;
 
 
-        -- Set new unique key for questions: id + surveyVersion (after need to delete old pk and autoincrement sequence)
-        EXECUTE 'ALTER TABLE "SurveyQuestions" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,'
-                || 'ALTER COLUMN id SET NOT NULL,'
-                || 'ADD CONSTRAINT "SurveyQuestions_id_surveyVersion_key" UNIQUE (id, "surveyVersion")';
+            ALTER TABLE "Surveys"
+                ADD COLUMN "creator" integer,
+                --ADD COLUMN "created" timestamp without time zone NOT NULL DEFAULT now(),
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                ADD COLUMN "productId" integer,
+                DROP COLUMN "projectId",
 
-        -- Set new composite foreign key for comments (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "Comments" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "Comments_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "Comments_questionId_fkey";';
+                ADD CONSTRAINT "Surveys_productId_fkey" FOREIGN KEY ("productId")
+                    REFERENCES "Products" (id) MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION,
 
-        -- Set new composite foreign key for discussions (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "Discussions" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "Discussions_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "Discussions_questionId_fkey";';
+                ADD CONSTRAINT "Surveys_creator_fkey" FOREIGN KEY ("creator")
+                    REFERENCES "Users" (id) MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-        -- Set new composite foreign key for IndexQuestionWeights (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "IndexQuestionWeights" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "IndexQuestionWeights_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "IndexQuestionWeights_questionId_fkey";';
+            UPDATE "Surveys" SET "productId" = (
+                SELECT id FROM "Products" WHERE "surveyId" = "Products"."surveyId" LIMIT 1
+            );
 
-        -- Set new composite foreign key for SubindexWeights (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "SubindexWeights" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "SubindexWeights_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "SubindexWeights_questionId_fkey";';
+            -- DROP OLD LINKS TO SURVEY TABLE
+            ALTER TABLE "Products" DROP COLUMN "surveyId";
+            ALTER TABLE "SurveyAnswers" DROP CONSTRAINT "SurveyAnswers_surveyId_fkey";
+            ALTER TABLE "SurveyQuestions" DROP CONSTRAINT "SurveyQuestions_surveyId_fkey";
 
-        -- Set new composite foreign key for SurveyAnswers (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "SurveyAnswers" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "SurveyAnswers_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "SurveyAnswers_questionId_fkey";';
+            ALTER TABLE "Surveys"
+                DROP CONSTRAINT "Surveys_pkey", -- DROP OLD PK
+                ADD CONSTRAINT "Surveys_pkey" PRIMARY KEY (id, "surveyVersion"); -- CREATE NEW COMPOSITE PK
 
-        -- Set new composite foreign key for SurveyAnswers (questionId + surveyVersion instead of just question id)
-        EXECUTE 'ALTER TABLE "SurveyQuestionOptions" '
-                || 'ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0, '
-                || 'ADD CONSTRAINT "SurveyQuestionOptions_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")'
-                || '          REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE'
-                || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-                || 'DROP CONSTRAINT "surveyQuestionOptions_questionId_fkey";';
+            ALTER TABLE "Policies"
+                ADD COLUMN "surveyId" integer,
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                ADD CONSTRAINT "Policies_surveyId_version_fkey" FOREIGN KEY ("surveyId","surveyVersion")
+                    REFERENCES "Surveys" ("id","surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
 
-        EXECUTE 'DROP SEQUENCE IF EXISTS "SurveyQuestions_id_seq" CASCADE';
+            UPDATE "Policies" SET "surveyId" = (
+                SELECT id FROM "Surveys" WHERE "policyId" = "Policies".id LIMIT 1)
+            ;
 
-        EXECUTE 'ALTER TABLE "SurveyQuestions" '
-        || 'DROP CONSTRAINT "SurveyQuestions_pkey", '
-        || 'ADD CONSTRAINT "SurveyQuestion_surveyId_version_fkey" FOREIGN KEY ("surveyId", "surveyVersion")'
-                           || '          REFERENCES "SurveyVersions" ("surveyId", "version") MATCH SIMPLE'
-                           || '          ON UPDATE NO ACTION ON DELETE NO ACTION,'
-        || 'ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id, "surveyVersion")';
+            ALTER TABLE "Surveys" DROP COLUMN "policyId";
 
-    trigger_sql :=
-    	$functionquery$
+            ALTER TABLE "SurveyQuestions"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                ALTER COLUMN id SET NOT NULL,
+                ADD CONSTRAINT "SurveyQuestions_surveyId_fkey" FOREIGN KEY ("surveyId", "surveyVersion")
+                    REFERENCES "Surveys" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            -- DROP OLD LINKS TO SURVEY QUESTION TABLE
+
+            ALTER TABLE "Comments"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "Comments_questionId_fkey";
+
+            ALTER TABLE "Discussions"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "Discussions_questionId_fkey";
+
+            ALTER TABLE "IndexQuestionWeights"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "IndexQuestionWeights_questionId_fkey";
+
+            ALTER TABLE "SubindexWeights"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "SubindexWeights_questionId_fkey";
+
+            ALTER TABLE "SurveyAnswers"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "SurveyAnswers_questionId_fkey";
+
+            ALTER TABLE "SurveyQuestionOptions"
+                ADD COLUMN "surveyVersion" integer NOT NULL DEFAULT 0,
+                DROP CONSTRAINT "surveyQuestionOptions_questionId_fkey";
+
+
+
+            ALTER TABLE "SurveyQuestions"
+                DROP CONSTRAINT "SurveyQuestions_pkey", -- DROP OLD PK
+                ADD CONSTRAINT "SurveyQuestions_pkey" PRIMARY KEY (id, "surveyVersion"); -- CREATE NEW COMPOSITE PK
+
+            -- CREATE NEW COMPOSITE FOREIGN KEYS FOR TABLES LINKED WITH SURVEY QUESTIONS
+
+            ALTER TABLE "Comments"
+                ADD CONSTRAINT "Comments_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            ALTER TABLE "Discussions"
+                ADD CONSTRAINT "Discussions_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            ALTER TABLE "IndexQuestionWeights"
+                ADD CONSTRAINT "IndexQuestionWeights_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            ALTER TABLE "SubindexWeights"
+                ADD CONSTRAINT "SubindexWeights_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            ALTER TABLE "SurveyAnswers"
+                ADD CONSTRAINT "SurveyAnswers_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            ALTER TABLE "SurveyQuestionOptions"
+                ADD CONSTRAINT "SurveyQuestionOptions_questionId_surveyVersion_fkey" FOREIGN KEY ("questionId", "surveyVersion")
+                    REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            -- CREATE TRIGGER ON INSERT FOR SURVEYS TO CONTROL SURVEY ID AND VERSION
+
+            CREATE OR REPLACE FUNCTION generate_survey_pk()
+                RETURNS trigger AS
+                $BODY$
+                    DECLARE
+                        _rel_id int;
+                        _quest_id int;
+                        _version int;
+                    BEGIN
+
+                    SELECT oid
+                    INTO _rel_id
+                    FROM pg_class
+                    WHERE relname = 'Surveys'
+                    AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$query$||schema_name||$query$');
+
+                    IF NEW.id IS NOT NULL THEN
+                        IF NOT EXISTS (
+                            SELECT id FROM $query$ || schema_name || $query$."Surveys" WHERE id = NEW.id
+                        ) THEN
+                            RAISE EXCEPTION 'id not allowed %', NEW.id;
+                        END IF;
+
+                        PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
+
+                        SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
+                        INTO    NEW."surveyVersion"
+                        FROM    $query$ || schema_name || $query$."Surveys"
+                        WHERE id = NEW.id;
+                    ELSE
+                        PERFORM pg_advisory_xact_lock(_rel_id);
+                        NEW."surveyVersion" := 0;
+
+                        SELECT  COALESCE(MAX(id) + 1, 1)
+                        INTO    NEW.id
+                        FROM    $query$ || schema_name || $query$."Surveys";
+                    END IF;
+
+                    RETURN NEW;
+                    END;
+                $BODY$
+                LANGUAGE plpgsql VOLATILE STRICT
+                COST 100;
+                ALTER FUNCTION generate_survey_pk() OWNER TO $query$ || db_user || $query$;
+
+                CREATE TRIGGER generate_survey_pk
+                    BEFORE INSERT
+                    ON "Surveys"
+                    FOR EACH ROW
+                    EXECUTE PROCEDURE generate_survey_pk();
+
+            -- CREATE TRIGGER ON INSERT FOR QUESTIONS TO CONTROL QUESTION ID
+
             CREATE OR REPLACE FUNCTION generate_question_pk()
-              RETURNS trigger AS
-            $BODY$
-            DECLARE
-                _rel_id int;
-                _quest_id int;
-                _version int;
-            BEGIN
+                RETURNS trigger AS
+                $BODY$
+                    DECLARE
+                        _rel_id int;
+                        _quest_id int;
+                        _version int;
+                    BEGIN
+                    IF NEW."surveyVersion" IS NULL THEN
+                        NEW."surveyVersion" := 0;
+                    END IF;
 
-            	IF NEW."surveyVersion" IS NULL THEN
-            		NEW."surveyVersion" := 0;
-            	END IF;
+                    SELECT oid
+                    INTO _rel_id
+                    FROM pg_class
+                    WHERE relname = 'SurveyQuestions'
+                    AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$query$||schema_name||$query$');
 
-            	SELECT oid
-            	INTO _rel_id
-            	FROM pg_class
-           	WHERE relname = 'SurveyQuestions'
-            	AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$functionquery$||schema_name||$functionquery$');
+                    IF NEW.id IS NOT NULL THEN
+                        IF NOT EXISTS (
+                            SELECT  id FROM $query$ || schema_name || $query$."SurveyQuestions" WHERE id = NEW.id AND "surveyVersion" = 0
+                        ) THEN
+                            RAISE EXCEPTION 'id not allowed %', NEW.id;
+                        END IF;
+                    ELSE
+                        PERFORM pg_advisory_xact_lock(_rel_id);
 
-            	IF NEW.id IS NOT NULL THEN
-            		IF NOT EXISTS (
-            			SELECT  id FROM $functionquery$||schema_name||$functionquery$."SurveyQuestions" WHERE id = NEW.id AND "surveyVersion" = 0
-            		) THEN
-            			RAISE EXCEPTION 'id not allowed %', NEW.id;
-            		END IF;
-            	ELSE
-            		PERFORM pg_advisory_xact_lock(_rel_id);
+                        SELECT  COALESCE(MAX(id) + 1, 1)
+                        INTO    NEW.id
+                        FROM    $query$ || schema_name || $query$."SurveyQuestions";
+                    END IF;
 
-            		SELECT  COALESCE(MAX(id) + 1, 1)
-            		INTO    NEW.id
-            		FROM    $functionquery$||schema_name||$functionquery$."SurveyQuestions";
+                    RETURN NEW;
+                    END;
+                $BODY$
+                LANGUAGE plpgsql VOLATILE STRICT
+                COST 100;
+                ALTER FUNCTION generate_question_pk() OWNER TO $query$ || db_user || $query$;
 
+                CREATE TRIGGER generate_question_pk
+                    BEFORE INSERT
+                    ON "SurveyQuestions"
+                    FOR EACH ROW
+                    EXECUTE PROCEDURE generate_question_pk();
+        $query$;
 
-            	END IF;
-
-                RETURN NEW;
-            END;
-            $BODY$
-              LANGUAGE plpgsql VOLATILE STRICT
-              COST 100;
-            ALTER FUNCTION generate_question_pk()
-              OWNER TO $functionquery$||db_user||$functionquery$;
-
-
-
-            CREATE TRIGGER generate_question_pk
-                       BEFORE INSERT
-                       ON "SurveyQuestions"
-                       FOR EACH ROW
-                       EXECUTE PROCEDURE generate_question_pk();
-    	$functionquery$;
-
-    	EXECUTE trigger_sql;
+         -- delete sequence to prevent autoincrement for survey id
+        DROP SEQUENCE IF EXISTS "JSON_id_seq" CASCADE; -- messy name, but true
+        -- delete sequence to prevent autoincrement for question id
+        DROP SEQUENCE IF EXISTS "SurveyQuestions_id_seq" CASCADE;
 
     END LOOP;
 
