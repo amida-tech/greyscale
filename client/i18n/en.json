@@ -505,7 +505,6 @@
             "DESCRIPTION": "Description",
             "DESCRIPTION_REQUIRED": "Description is required.",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "Select Workflow Template...",
-            "SAVE_AS_TEMPLATE": "Save Current Workflow As Template",
             "STEPS": {
                 "ADD_GROUP": "Add Group",
                 "ALLOW_EDIT": "Edit",
@@ -520,6 +519,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "Workflow Steps",
                 "PROVIDE_RESPONSES": "Provide Responses",
                 "ROLE": "Role",
+                "SAVE_AS_TEMPLATE": "Save as template",
                 "SEE_OTHERS_RESPONSES": "See Others Responses",
                 "SORT_DISABLED": "Reorder allowed only for project with status \"Planning\"",
                 "SORT_ENABLED": "Drag by this handle to reorder steps list",
@@ -530,8 +530,11 @@
             },
             "STEPS_FOR": "Workflow Steps <small>for \"{{product}}\" Project</small>",
             "TITLE": "Title",
+            "TITLE_IN_USE": "This title already in use.",
             "TITLE_REQUIRED": "Title is required.",
-            "WORKFLOW_TEMPLATES": "Workflow Templates"
+            "WORKFLOW_TEMPLATE": "Workflow Template",
+            "WORKFLOW_TEMPLATES": "Workflow Templates",
+            "WORKFLOW_TEMPLATE_SAVED": "Saved"
         }
     },
     "PRODUCT_TASKS": {
