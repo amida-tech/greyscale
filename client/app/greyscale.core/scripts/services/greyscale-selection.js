@@ -102,16 +102,34 @@ angular.module('greyscale.core')
             textRange.select();
         }
 
-        function _getSelectedHtml() {
-            var html = '';
+        function _getSelectedHtml(withParents) {
+            var html = '',
+                range,
+                _container,
+                _rootContainer;
             if (typeof window.getSelection !== 'undefined') {
                 var sel = window.getSelection();
                 if (sel.rangeCount) {
-                    var container = document.createElement('div');
+                    _rootContainer = document.createElement('div');
                     for (var i = 0, len = sel.rangeCount; i < len; ++i) {
-                        container.appendChild(sel.getRangeAt(i).cloneContents());
+                        range = sel.getRangeAt(i).cloneRange();
+                        if (withParents) {
+                            if (range.commonAncestorContainer === range.startContainer) {
+                                _container = range.commonAncestorContainer.parentNode;
+                            } else {
+                                _container = range.commonAncestorContainer;
+                                if (range.startContainer.parentNode.nodeName === 'LI') {
+                                    range.startContainer.parentNode.setAttribute('value',
+                                        _getLiIndex(range.startContainer.parentNode));
+                                }
+                            }
+                            _container = _cloneParents(_container, _rootContainer);
+                        } else {
+                            _container = _rootContainer;
+                        }
+                        _container.appendChild(range.cloneContents());
                     }
-                    html = container.innerHTML;
+                    html = _rootContainer.innerHTML;
                 }
             } else if (typeof document.selection !== 'undefined') {
                 if (document.selection.type === 'Text') {
@@ -121,4 +139,36 @@ angular.module('greyscale.core')
             return html;
         }
 
+        function _cloneParents(node, container) {
+            var _parents = [],
+                _container,
+                _node,
+                _clone,
+                q;
+
+            _node = node;
+
+            while (!(_node.nodeName === 'DIV' && ~_node.className.indexOf('ta-text')) &&
+            _node.nodeName !== '#document') {
+                _clone = _node.cloneNode(false);
+                if (_clone.nodeName === 'LI') {
+                    _clone.setAttribute('value', _getLiIndex(_node));
+                }
+                _parents.push(_clone);
+                _node = _node.parentNode;
+            }
+
+            q = _parents.length;
+
+            _container = container;
+            for (; q--;) {
+                _container = _container.appendChild(_parents[q]);
+            }
+
+            return _container;
+        }
+
+        function _getLiIndex(elemLi) {
+            return elemLi.getAttribute('value') || angular.element(elemLi).index() + 1;
+        }
     });
