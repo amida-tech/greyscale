@@ -20,8 +20,8 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.isEdit = false;
                 $scope.entry = '';
-                $scope.getUserName = function () {
-                    return _getUserName($scope.model.userFromId);
+                $scope.getUserName = function (userId) {
+                    return _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
@@ -78,7 +78,7 @@ angular.module('greyscaleApp')
                         $scope.model.isResolve = true;
                     });
                 };
-                
+
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
