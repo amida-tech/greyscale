@@ -57,12 +57,12 @@ angular.module('greyscale.core')
             while (!stop && (node = nodeStack.pop())) {
                 if (node.nodeType === 3) {
                     var nextCharIndex = charIndex + node.length;
-                    if (!foundStart && selection.start >= charIndex && selection.start <= nextCharIndex) {
+                    if (!foundStart && selection.start >= charIndex && selection.start < nextCharIndex) {
                         range.setStart(node, selection.start - charIndex);
                         startNode = node;
                         foundStart = true;
                     }
-                    if (foundStart && selection.end >= charIndex && selection.end <= nextCharIndex) {
+                    if (foundStart && selection.end > charIndex && selection.end <= nextCharIndex) {
                         range.setEnd(node, selection.end - charIndex);
                         stop = true;
                     }

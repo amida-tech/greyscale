@@ -57,6 +57,28 @@ angular.module('greyscaleApp')
                     greyscaleModalsSrv.fullScreenComment($scope.model);
                 };
 
+                $scope.highlightSource = _highlightSource;
+                $scope.resolveFlag = function () {
+                    if ($scope.model.isResolve) {
+                        return;
+                    }
+                    var _newComment = {
+                        taskId: $scope.model.taskId,
+                        stepId: null,
+                        questionId: $scope.model.questionId,
+                        entry: $scope.model.entry,
+                        range: $scope.model.range,
+                        tags: $scope.model.tags,
+                        commentType: $scope.model.commentType,
+                        isReturn: false,
+                        isResolve: true,
+                        returnTaskId: $scope.model.id
+                    };
+                    greyscaleCommentApi.add(_newComment).then(function (result) {
+                        $scope.model.isResolve = true;
+                    });
+                };
+
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
@@ -73,25 +95,17 @@ angular.module('greyscaleApp')
             link: function (scope, elem) {
 
                 scope.$watch('model', function () {
-                    var msgBody = (elem.find('.gs-message-body')),
-                        taText, fView;
 
-                    if (msgBody.length > 0) {
-                        taText = (msgBody.find('.ta-text'));
-                        fView = (msgBody.find('.gs-message-full-view'));
-                        if (msgBody.innerHeight() < taText.outerHeight()) {
-                            fView.show();
-                        } else {
-                            fView.hide();
-                        }
-
-                        taText.on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
-                    }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+
+                    var msgBody = (elem.find('.gs-message-body'));
+
+                    msgBody.find('.ta-text')
+                        .on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                 });
             }
         };

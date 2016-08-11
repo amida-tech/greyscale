@@ -4,7 +4,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-    .directive('modalFormField', function ($compile, $timeout, greyscaleUtilsSrv, $templateCache, $http) {
+    .directive('modalFormField', function ($compile, $timeout, greyscaleUtilsSrv, $templateCache, $http, gsModelValidators, $translate) {
         return {
             restrict: 'A',
             scope: {
@@ -29,9 +29,11 @@ angular.module('greyscaleApp')
                     var field = '';
                     var colon = !clmn.title || clmn.title === '' ? '' : ':';
 
+                    var fieldTitle = $translate.instant(clmn.title);
+
                     if (!_embedded) {
                         elem.append('<label for="' + clmn.field + '" class="col-sm-3 control-label" ng-class="{required:modalFormField.dataRequired}">' +
-                            '{{\'' + clmn.title + '\'|translate}}' + colon + '</label>');
+                            fieldTitle + colon + '</label>');
                         field += '<div class="col-sm-9';
                     }
 
@@ -79,13 +81,14 @@ angular.module('greyscaleApp')
                         switch (clmn.dataFormat) {
                         case 'textarea':
                             field += '<textarea class="form-control" type="text"  id="' + clmn.field +
-                                '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" ></textarea>';
+                                '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate" ></textarea>';
+                                '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" gs-model-validate="modalFormField.dataValidate"></textarea>';
                             break;
                         case 'date':
                             field += '<select-date data-id="' + clmn.field + '" ' +
                                 'result="modalFormFieldModel" form-field-value="$parent.dataForm.' + clmn.field + '" ' +
                                 (_embedded ? ' embedded ' : '') +
-                                'ng-required="modalFormField.dataRequired" on-change="fieldChange(modalFormRec, \'' + clmn.field + '\')"></select-date>';
+                                'ng-required="modalFormField.dataRequired" on-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate"></select-date>';
                             if (!_embedded) {
                                 field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
                             }
@@ -95,7 +98,7 @@ angular.module('greyscaleApp')
 
                             field += '<select class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ' +
                                 'ng-options="item.id as item.title ' + grouping + 'disable when model.getDisabled(item) for item in model.options" ' +
-                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')">';
+                                'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
                             var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
@@ -106,22 +109,31 @@ angular.module('greyscaleApp')
                         case 'boolean':
                             var booleanTitle = _embedded ? ' <span translate="' + clmn.title + '"></span>' : '';
                             field += '<div class="checkbox"><label><input type="checkbox" id="' + clmn.field + '" name="' + clmn.field +
-                                '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')"/>' +
+                                '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate"/>' +
                                 '<i class="chk-box"></i>' + booleanTitle + '</label></div>';
                             break;
                         case 'password':
-                            field += '<input type="password" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')"/>';
+                            field += '<input type="password" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate"/>';
                             break;
 
                         default:
-                            field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')"/>';
+                            field += '<input type="text" class="form-control" id="' + clmn.field + '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate"/>';
                         }
                     }
 
-                    if (clmn.dataRequired === true) {
-                        if (!_embedded) {
-                            field += '<div class="text-center" ng-messages="dataForm.' + clmn.field + '.$error" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && !$parent.dataForm.' + clmn.field + '.$viewValue"><span class="help-block" translate="FORMS.FIELD_REQUIRED"></span></div>';
+                    if (!_embedded && (clmn.dataRequired === true || clmn.dataValidate)) {
+                        field += '<div class="text-center" ng-messages="$parent.dataForm.' + clmn.field + '.$error" role="alert" >';
+                        if (clmn.dataRequired === true) {
+                            field += '<span ng-if="$parent.dataForm.' + clmn.field + '.$dirty" ng-message="required" class="help-block"><span translate="FORMS.FIELD_REQUIRED"></span></span>';
                         }
+                        if (clmn.dataValidate) {
+                            var validators = gsModelValidators.parse(clmn.dataValidate);
+                            angular.forEach(validators, function (validator) {
+                                var translationKey = 'FORMS.INVALID_' + validator.key.toUpperCase();
+                                field += '<span ng-message="' + validator.key + '" class="help-block"><span translate="' + translationKey + '" translate-values="{field: \'' + fieldTitle + '\'}"></span></span>';
+                            });
+                        }
+                        field += '</div>';
                     }
 
                     if (!_embedded) {
