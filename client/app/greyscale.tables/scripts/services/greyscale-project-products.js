@@ -46,7 +46,9 @@ angular.module('greyscale.tables')
             sortable: 'surveyId',
             dataFormat: 'option',
             cellTemplate: '<span ng-if="option.id">{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span>',
-            //dataRequired: true,
+            dataPlaceholder: tns + 'SELECT_SURVEY',
+            //dataNoEmptyOption: true,
+            dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
@@ -84,6 +86,7 @@ angular.module('greyscale.tables')
             title: tns + 'STATUS',
             dataFormat: 'option',
             dataNoEmptyOption: true,
+            dataRequired: true,
             dataSet: {
                 getData: _getStatus,
                 keyField: 'id',

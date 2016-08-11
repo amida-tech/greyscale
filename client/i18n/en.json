@@ -397,6 +397,7 @@
             "PAUSE_PRODUCT": "Suspend Project",
             "PLANNING_NOT_FINISH": "Planning not finished yet. Please, set Survey, Subjects, Workflow Steps and Tasks for this Project.",
             "PRODUCT": "Project",
+            "SELECT_SURVEY": "Select survey...",
             "SETTINGS": "Settings",
             "START_PRODUCT": "Start Project",
             "STATUS": "Status",

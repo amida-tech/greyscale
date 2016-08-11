@@ -98,7 +98,7 @@ angular.module('greyscaleApp')
                                 'ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" gs-model-validate="modalFormField.dataValidate">';
 
                             var hiddenAttr = clmn.dataNoEmptyOption && !clmn.dataPlaceholder ? ' style="display: none" ' : '';
-                            var disableAttr = clmn.dataNoEmptyOption ? ' disabled ' : '';
+                            var disableAttr = clmn.dataNoEmptyOption || clmn.dataPlaceholder ? ' disabled ' : '';
                             var placeholderAttr = clmn.dataPlaceholder ? ' translate="' + clmn.dataPlaceholder + '" ' : '';
                             field += '<option value="" ' + hiddenAttr + disableAttr + placeholderAttr + '></option>';
                             field += '</select>';
