@@ -461,6 +461,7 @@
             "POLICIES": "Policies",
             "POLICY": "Policy",
             "PRODUCT": "Project",
+            "SELECT_SURVEY": "Select survey or policy...",
             "SETTINGS": "Settings",
             "START_PRODUCT": "Start Project",
             "STATUS": "Status",
