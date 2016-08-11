@@ -2,13 +2,14 @@
 
 angular.module('greyscaleApp')
 .controller('ModalCommentFullScreenCtrl', function(comment, _, $scope, $q,
-    greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance, i18n) {
+    greyscaleCommentApi, greyscaleUtilsSrv, $uibModalInstance, i18n, greyscaleProfileSrv) {
 
     $scope.close = function () {
         $uibModalInstance.dismiss();
     };
 
     $scope.model = comment;
+    $scope.user = {};
 
     var _answers = {
         model: {},
@@ -23,6 +24,7 @@ angular.module('greyscaleApp')
         cancel: _cancel,
         submit: _submit
     };
+
 
     $scope.answers = _answers;
 
@@ -53,11 +55,13 @@ angular.module('greyscaleApp')
     function _clearAddingMode() {
         _answers.state.adding = false;
         _answers.model = {};
+        $scope.user.hasAnswered = true;
     }
 
     function _updateCommentData() {
 
         var reqs = {
+            profile: greyscaleProfileSrv.getProfile(),
             tags: greyscaleCommentApi.getUsers(comment.taskId),
             answers: greyscaleCommentApi.getAnswers(comment.id)
         };
@@ -65,6 +69,11 @@ angular.module('greyscaleApp')
         $q.all(reqs).then(function(resp){
             _answers.associate = greyscaleUtilsSrv.getTagsAssociate(resp.tags);
             _answers.list = resp.answers;
+
+            $scope.user.isOwner = resp.profile.id === comment.userFromId;
+
+            $scope.user.hasAnswered = !!_.find(_answers.list, { userFromId: resp.profile.id});
+
             return _answers.list;
         })
         .then(_setCounters);

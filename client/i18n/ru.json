@@ -25,7 +25,9 @@
         "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
-        "TYPE": ""
+        "TYPE": "",
+        "YOU_ANSWERED_ALREADY": "",
+        "YOU_ARE_THE_OWNER": ""
     },
     "COMMON": {
         "ADD": "Добавить",

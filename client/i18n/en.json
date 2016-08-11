@@ -25,7 +25,9 @@
         "TAG_ANSWER": "Tag Answer",
         "TAG_COMMENT": "Tag comment",
         "TITLE": "Make comment",
-        "TYPE": "Comment type"
+        "TYPE": "Comment type",
+        "YOU_ANSWERED_ALREADY": "You has been answered.",
+        "YOU_ARE_THE_OWNER": "You are the owner of this comment."
     },
     "COMMON": {
         "ADD": "Add",

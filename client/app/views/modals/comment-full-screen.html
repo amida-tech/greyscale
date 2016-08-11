@@ -42,8 +42,11 @@
         <button class="btn btn-primary" ng-click="answers.submit()" translate="COMMON.SUBMIT"></button>
     </div>
     <div ng-if="!answers.state.adding">
-        <button class="btn btn-primary" ng-click="answers.add(true)">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
-        <button class="btn btn-default" ng-click="answers.add(false)">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
+        <span ng-if="user.isOwner" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
+        <span ng-if="!user.isOwner && user.hasAnswered" translate="COMMENTS.YOU_ANSWERED_ALREADY"></span>
+        &nbsp;
+        <button class="btn btn-primary" ng-click="answers.add(true)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
+        <button class="btn btn-default" ng-click="answers.add(false)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
         <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
     </div>
 </div>
