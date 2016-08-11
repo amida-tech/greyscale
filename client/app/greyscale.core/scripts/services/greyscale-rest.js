@@ -41,9 +41,6 @@ angular.module('greyscale.core')
                 }
 
                 RestangularConfigurer.setDefaultHeaders(aHeaders);
-                RestangularConfigurer.setDefaultHttpFields({
-                    cache: true
-                });
             });
         };
     });
