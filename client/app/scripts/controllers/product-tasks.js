@@ -37,7 +37,7 @@ angular.module('greyscaleApp')
 
         Organization.$lock = true;
 
-        greyscaleProductApi.get(productId)
+        _loadProduct(productId)
             .then(function (product) {
                 if (Organization.projectId !== product.projectId) {
                     Organization.$setBy('projectId', product.projectId);
@@ -682,16 +682,21 @@ angular.module('greyscaleApp')
             return $q.all(reqs);
         }
 
+        var _productCached;
         function _loadProduct(productId) {
-            return greyscaleProductApi.get(productId)
-                .then(function (product) {
-                    $state.ext.productName = product.title;
-                    return product;
-                })
-                .catch(function (error) {
-                    greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
-                    $state.go('home');
-                });
+            if (_productCached) {
+                return $q.when(_productCached);
+            } else {
+                return _productCached = greyscaleProductApi.get(productId)
+                    .then(function (product) {
+                        $state.ext.productName = product.title;
+                        return product;
+                    })
+                    .catch(function (error) {
+                        greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
+                        $state.go('home');
+                    });
+            }
         }
 
     });
