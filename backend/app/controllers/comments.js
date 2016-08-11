@@ -281,6 +281,7 @@ module.exports = {
     insertOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var oTaskUserState = new sTaskUserState(req);
             var isReturn = req.body.isReturn;
             var isResolve = req.body.isResolve;
             yield * checkInsert(req);
@@ -306,13 +307,26 @@ module.exports = {
                 range: JSON.stringify(req.body.range)
             }); // stringify range
 
-                req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
-                var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
+            if (isResolve) {
+                // get userId from flagged comment
+                var flaggedComment = yield * common.getEntity(req, req.body.returnTaskId, Comment, 'id');   // returnTaskId is used as reference to flag comment id
+                req.body = _.extend(req.body, {
+                    userId: flaggedComment.userFromId
+                });
+            }
+
+            req.body = _.pick(req.body, Comment.insertCols); // insert only columns that may be inserted
+            var result = yield thunkQuery(Comment.insert(req.body).returning(Comment.id));
 
             if (isReturn) {
                 // TaskUserStates - start task for user
-                var oTaskUserState = new sTaskUserState(req);
                 yield oTaskUserState.flagged(task.id, req.user.id);
+            }
+
+            if (isResolve) {
+                // update return entries - resolve their
+                yield * updateReturnTask(req, req.body.returnTaskId);   // returnTaskId is used as reference to flag comment id
+                yield oTaskUserState.tryUnflag(task.id, req.body.userId);
             }
 
             if (req.body.activated && !isResolve) {
@@ -347,7 +361,6 @@ module.exports = {
         co(function* () {
             yield * checkAnswerInsert(req);
             var parentComment = yield * common.getEntity(req, req.params.commentId, Comment, 'id');
-            yield * checkDuplicateAnswer(req, parentComment.taskId, req.params.commentId, req.user.id);
             req.body = _.extend(req.body,_.pick(parentComment, Comment.answerFromParentCols)); // add key values from parent comment
             req.body = _.extend(req.body, {
                 parentId: parentComment.id
@@ -949,4 +962,26 @@ function* checkDuplicateAnswer(req, taskId, commentId, userId) {
         throw new HttpError(403, 'User already agreed/disagreed with this comment');
     }
     return result;
+}
+
+function* updateReturnTask(req, commentId) {
+    var thunkQuery = req.thunkQuery;
+    var result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.id.equals(commentId)
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            object: 'Comments',
+            entities: commentId,
+            info: 'Resolve flag'
+        });
+    }
 }

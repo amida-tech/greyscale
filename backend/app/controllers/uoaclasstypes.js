@@ -4,6 +4,7 @@ var client = require('app/db_bootstrap'),
     BoLogger = require('app/bologger'),
     bologger = new BoLogger(),
     UnitOfAnalysisClassType = require('app/models/uoaclasstypes'),
+    UnitOfAnalysisTag = require('app/models/uoatags'),
     AccessMatrix = require('app/models/access_matrices'),
     Translation = require('app/models/translations'),
     Language = require('app/models/languages'),
@@ -100,6 +101,10 @@ module.exports = {
     deleteOne: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
+            var result = yield thunkQuery(UnitOfAnalysisTag.select().where(UnitOfAnalysisTag.classTypeId.equals(req.params.id)));
+            if (_.first(result)) {
+                throw new HttpError(403, 'Tag with this Classification Type exists. Could not delete Classification Type');
+            }
             return yield thunkQuery(UnitOfAnalysisClassType.delete().where(UnitOfAnalysisClassType.id.equals(req.params.id)));
         }).then(function () {
             bologger.log({
