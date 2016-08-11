@@ -82,13 +82,12 @@ angular.module('greyscaleApp')
                         case 'textarea':
                             field += '<textarea class="form-control" type="text"  id="' + clmn.field +
                                 '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" ng-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate" ></textarea>';
-                                '" name="' + clmn.field + '" ng-model="modalFormFieldModel" ng-required="modalFormField.dataRequired" gs-model-validate="modalFormField.dataValidate"></textarea>';
                             break;
                         case 'date':
                             field += '<select-date data-id="' + clmn.field + '" ' +
                                 'result="modalFormFieldModel" form-field-value="$parent.dataForm.' + clmn.field + '" ' +
                                 (_embedded ? ' embedded ' : '') +
-                                'ng-required="modalFormField.dataRequired" on-change="fieldChange(modalFormRec, \'' + clmn.field + '\')" gs-model-validate="modalFormField.dataValidate"></select-date>';
+                                'ng-required="modalFormField.dataRequired" on-change="fieldChange(modalFormRec, \'' + clmn.field + '\')"></select-date><input type="hidden" ng-model="modalFormFieldModel" gs-model-validate="modalFormField.dataValidate">';
                             if (!_embedded) {
                                 field += '<div class="text-center" role="alert" ng-if="$parent.dataForm.' + clmn.field + '.$dirty && $parent.dataForm.' + clmn.field + '.$error.date"><span class="help-block" translate="FORMS.WRONG_DATE_FORMAT"></span></div>';
                             }
