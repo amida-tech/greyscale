@@ -246,7 +246,10 @@ angular.module('greyscale.tables')
         }
 
         function _editProductWorkflow(product) {
-            return greyscaleModalsSrv.productWorkflow(product)
+            var modalData = {
+                product: product
+            };
+            return greyscaleModalsSrv.productWorkflow(modalData)
                 .then(function (data) {
                     return _saveWorkflowAndSteps(product, data);
                 })
