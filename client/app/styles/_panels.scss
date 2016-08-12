@@ -57,7 +57,6 @@ checkbox-list {
 
             .gs-message-full-view {
                 position: absolute;
-                display: none;
                 left: 0;
                 right: 0;
                 bottom: 0;
@@ -185,4 +184,8 @@ div.disabled {
 
 em.hilitor.current {
     border: 1px dotted #ccc;
+}
+
+fb-policy .panel-title {
+    min-height: 1em;
 }

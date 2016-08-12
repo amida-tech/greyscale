@@ -78,7 +78,7 @@ angular.module('greyscaleApp')
                         $scope.model.isResolve = true;
                     });
                 };
-                
+
                 $scope.toggleComment = function () {
                     //hide $scope.model
                     greyscaleCommentApi.hide($scope.model.taskId, $scope.model.id, $scope.model.isHidden).then(function () {
@@ -95,25 +95,17 @@ angular.module('greyscaleApp')
             link: function (scope, elem) {
 
                 scope.$watch('model', function () {
-                    var msgBody = (elem.find('.gs-message-body')),
-                        taText, fView;
 
-                    if (msgBody.length > 0) {
-                        taText = (msgBody.find('.ta-text'));
-                        fView = (msgBody.find('.gs-message-full-view'));
-                        if (msgBody.innerHeight() < taText.outerHeight()) {
-                            fView.show();
-                        } else {
-                            fView.hide();
-                        }
-
-                        taText.on('click', function (e) {
-                            _highlightSource(scope.model, e.type);
-                        });
-                    }
                     if (scope.model) {
                         scope.model.fromUserFullName = _getUserName(scope.model.userFromId);
                     }
+
+                    var msgBody = (elem.find('.gs-message-body'));
+
+                    msgBody.find('.ta-text')
+                        .on('click', function (e) {
+                            _highlightSource(scope.model, e.type);
+                        });
                 });
             }
         };
