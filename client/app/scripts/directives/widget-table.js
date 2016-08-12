@@ -211,7 +211,6 @@ angular.module('greyscaleApp')
                     col['class'] += ' header-actions';
                 }
                 if (col.textCenter) {
-                    console.log(col);
                     col['class'] += ' text-center';
                 }
                 if (col.title) {

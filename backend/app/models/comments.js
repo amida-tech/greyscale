@@ -24,6 +24,8 @@ var Comment = sql.define({
         'isHidden',
         'userHideId',
         'hiddenAt',
+        'parentId',
+        'isAgree',
         'surveyVersion'
     ]
 });
@@ -46,7 +48,17 @@ Comment.insertCols = [
     'commentType',
     'isHidden',
     'userHideId',
-    'hiddenAt'
+    'hiddenAt',
+    'parentId',
+    'isAgree'
+];
+
+Comment.answerFromParentCols = [
+    'taskId',
+    'questionId',
+    'userId',
+    'stepId',
+    'stepFromId'
 ];
 
 Comment.updateCols = [
@@ -57,7 +69,9 @@ Comment.updateCols = [
     'commentType',
     'isHidden',
     'userHideId',
-    'hiddenAt'
+    'hiddenAt',
+    'isAgree'
+
 ];
 
 Comment.commentTypes = [{
