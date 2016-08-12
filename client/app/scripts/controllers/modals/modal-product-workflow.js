@@ -19,13 +19,12 @@ angular.module('greyscaleApp')
         product: angular.copy(product),
         productWorkflow: productWorkflow
     };
-
-    var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
+    var workflowTemplateMode =
+        $scope.workflowTemplateMode =
+        productWorkflow.dataFilter.workflowTemplateMode =  !product.projectId;
 
     if (!workflowTemplateMode) {
         _refreshTemplatesList();
-    } else {
-        productWorkflow.dataFilter.workflowTemplateMode = true;
     }
 
     $scope.close = function () {
