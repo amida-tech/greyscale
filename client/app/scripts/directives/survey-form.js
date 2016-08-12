@@ -396,6 +396,8 @@ angular.module('greyscaleApp')
             if (flags.isPolicy) {
                 scope.model.snsTitle = task.userStatus === userStatuses.approved ?
                     'GLOBALS.POLICYUSERSTATUSES.APPROVED' : 'POLICY.APPROVE';
+                scope.saveDraftBtnTitle = [userStatuses.approved,userStatuses.flagged].indexOf(task.userStatus) >= 0 ?
+                    'COMMON.SAVE' : null;
             }
             scope.model.translated = !flags.allowTranslate;
 
