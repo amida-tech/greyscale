@@ -20,8 +20,8 @@ angular.module('greyscaleApp')
             controller: function ($scope) {
                 $scope.isEdit = false;
                 $scope.entry = '';
-                $scope.getUserName = function () {
-                    return _getUserName($scope.model.userFromId);
+                $scope.getUserName = function (userId) {
+                    return _getUserName(userId || $scope.model.userFromId);
                 };
 
                 $scope.model.created = $scope.model.created ? $scope.model.created : new Date();
