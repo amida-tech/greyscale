@@ -5,7 +5,7 @@
                 'fa-caret-down': !sectionOpen}"></i></uib-accordion-heading>
         <text-angular ng-model="model.description" ng-if="!options.readonly"></text-angular>
         <div gs-context-menu="contextMenu" qid="{{model.qid}}" class="gs-contextmenu-wrapper dropdown">
-            <div id="{{model.qid}}" class="paragraph-numbers section-text ta-text" ng-show="options.readonly"
+            <div id="{{model.qid}}" class="line-numbers section-text ta-text" ng-show="options.readonly"
                  ng-bind-html="model.description"></div>
         </div>
     </uib-accordion-group>
