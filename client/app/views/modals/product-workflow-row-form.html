@@ -16,14 +16,16 @@
         </div>
         <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
             <label translate="{{ext.formFields.startDate.title}}" class="required"></label>
-            <span modal-form-rec="row"
+            <span modal-form-rec="row" ng-class="{'field-error':row.startDateInvalid}"
+                  title="{{row.startDateInvalid ? 'PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR' : '' | translate}}"
                   modal-form-field="ext.formFields.startDate" embedded="true"
-                  modal-form-field-model="row.startDate">
+                  modal-form-field-model="row.startDate" >
             </span>
         </div>
         <div class="col-md-3" ng-if="!ext.dataFilter.workflowTemplateMode">
             <label translate="{{ext.formFields.endDate.title}}" class="required"></label>
-            <span modal-form-rec="row"
+            <span modal-form-rec="row" ng-class="{'field-error':row.endDateInvalid}"
+                  title="{{row.endDateInvalid ? 'PRODUCTS.WORKFLOW.STEPS.DATES_ORDER_ERROR' : '' | translate}}"
                   modal-form-field="ext.formFields.endDate" embedded="true"
                   modal-form-field-model="row.endDate">
             </span>

@@ -181,3 +181,9 @@ option.disabled {
         }
     }
 }
+
+.field-error {
+    select-date .form-control {
+        background-color: lighten($brand-danger, 25%);
+    }
+}

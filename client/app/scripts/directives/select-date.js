@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
             template: '<p class="input-group"><input type="text" class="form-control {{class}}" id="{{dataId}}" name="{{dataId}}" ' +
                 'uib-datepicker-popup ng-model="result" gs-valid="validator" is-open="model.opened" min-date="minDate" max-date="maxDate" ' +
                 'datepicker-options="model.dateOptions" ng-required="{{model.required}}" required="{{model.required}}" ' +
-                '{{embedded}} ng-readonly="{{model.readonly}}"' +
+                'ng-readonly="{{model.readonly}}"' +
                 'close-text="{{model.closeText}}" placeholder="{{model.placeholder}}"/><span class="input-group-btn">' +
                 '<button type="button" class="btn btn-default" ng-click="open($event)" ng-disabled="{{model.disabled}}">' +
                 '<i class="glyphicon glyphicon-calendar"></i></button></span></p>',
@@ -20,7 +20,8 @@ angular.module('greyscaleApp')
                 minDate: '=',
                 maxDate: '=',
                 options: '=',
-                validator: '=?'
+                validator: '=?',
+                onChange: '&?'
             },
             controller: function ($scope, $element) {
                 $scope.dataId = $element.attr('data-id');
@@ -50,6 +51,15 @@ angular.module('greyscaleApp')
                 $scope.open = function () {
                     $scope.model.opened = true;
                 };
+
+                if ($scope.onChange !== undefined) {
+                    var stopWatch = $scope.$watch('result', function () {
+                        $scope.$eval($scope.onChange);
+                    });
+                    $scope.$on('$destroy', function () {
+                        stopWatch();
+                    });
+                }
             }
         };
     });
