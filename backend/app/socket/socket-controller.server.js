@@ -4,7 +4,6 @@ var io = require('socket.io');
 var sPolicy = require('app/services/policies');
 var Token = require('app/models/token');
 var sUser = require('app/services/users');
-var sPolicy = require('app/services/policies');
 var config = require('config');
 var Query = require('app/util').Query;
 var thunkify = require('thunkify');
@@ -28,11 +27,10 @@ var exportObject = {
     sendNotification: function (userId) {
         var clients = ioServer.sockets.sockets;
         for (var i in clients) {
-            if (clients[i].req.user.id !== userId) {
-                continue;
+            if (clients[i].req && clients[i].req.user.id === userId) {
+                debug('send notification to user ' + userId);
+                clients[i].emit(socketEvents.somethingNew);
             }
-            debug('send notification to user ' + clients[i].userId);
-            clients[i].emit(socketEvents.somethingNew);
         }
     },
 
@@ -102,11 +100,12 @@ var exportObject = {
                     co(function* () {
                         var oPolicy = new sPolicy(socket.req);
                         debug(socket.req.user.id);
+                        var policy;
                         try{
-                            var policy = yield oPolicy.lockPolicy(data.policyId, socket.req.user.id, socket.id.replace('/#',''));
+                            policy = yield oPolicy.lockPolicy(data.policyId, socket.req.user.id, socket.id.replace('/#',''));
                         }catch(err){
                             debug(JSON.stringify(err));
-                            var policy = yield oPolicy.getById(data.policyId);
+                            policy = yield oPolicy.getById(data.policyId);
                         }
                         return policy;
                     }).then(
