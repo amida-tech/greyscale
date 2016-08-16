@@ -118,7 +118,7 @@ angular.module('greyscaleApp')
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
                 step.role && step.role !== '' &&
-                (tplEdit || forTemplate || _allDatesValid)) &&
+                (tplEdit || forTemplate || _allDatesValid) &&
                 step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
