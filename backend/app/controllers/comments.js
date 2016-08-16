@@ -428,7 +428,7 @@ module.exports = {
 
             if (!result[0].isResolve) {
                 if (result[0].isReturn) {
-                    var authorId = yield * common.getPolicyAuthorIdByTask(result[0].taskId);
+                    var authorId = yield * common.getPolicyAuthorIdByTask(req, result[0].taskId);
                     notify(req, result[0].id, result[0].taskId, 'Flagged comment updated', 'Comments', 'comment', authorId);
                 } else {
                     notify(req, result[0].id, result[0].taskId, 'Comment updated', 'Comments', 'comment');
@@ -569,6 +569,9 @@ module.exports = {
 function* checkInsert(req) {
     var questionId = yield * checkOneId(req, req.body.questionId, SurveyQuestion, 'id', 'questionId', 'Question');
     var taskId = yield * checkOneId(req, req.body.taskId, Task, 'id', 'taskId', 'Task');
+    if (req.body.isReturn) {
+        var userId = yield * checkOneId(req, req.body.userId, User, 'id', 'userId', 'User');
+    }
     var entry = yield * checkString(req.body.entry, 'Entry');
     // check if return or resolve entry already exist for question
 /* it is possible to flag or resolve multiple times for each question (policy section)
