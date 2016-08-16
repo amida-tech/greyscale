@@ -6,8 +6,8 @@ var
     notifications = require('app/controllers/notifications'),
     ProductUOA = require('app/models/product_uoa'),
     Product = require('app/models/products'),
+    Organization = require('app/models/organizations'),
     Survey = require('app/models/surveys'),
-    Project = require('app/models/projects'),
     Task = require('app/models/tasks'),
     WorkflowStep = require('app/models/workflow_steps'),
     Task = require('app/models/tasks'),
@@ -96,11 +96,11 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.insertProduct = function () {
+    this.insertProduct = function (data) {
         return co(function* () {
             var product = yield thunkQuery(
                 Product
-                    .insert(_.pick(req.body, Product.table._initialConfig.columns))
+                    .insert(_.pick(data, Product.table._initialConfig.columns))
                     .returning(Product.id)
             );
             if (_.first(product)) {
@@ -133,38 +133,35 @@ var exportObject = function  (req, realm) {
             });
         });
     };
-    this.checkProductData = function() {
+
+    this.checkProductData = function(data) {
         return co(function* () {
-            if (!req.params.id) { // create
-                if (!req.body.projectId) {
-                    throw new HttpError(403, 'Project id is required');
+            if (!data.organizationId) {
+                throw new HttpError(
+                    403,
+                    'Organization id is required'
+                );
+            } else {
+                var org = yield thunkQuery(Organization.select().where(Organization.id.equals(data.organizationId)));
+                if (!org.length) {
+                    throw new HttpError(
+                        403,
+                        'Organization with id = ' + data.organizationId + ' does not exist'
+                    );
                 }
             }
 
-            if (typeof req.body.status !== 'undefined') {
-                if (typeof Product.statuses[req.body.status] === 'undefined') {
+            if (typeof data.status !== 'undefined') {
+                if (typeof Product.statuses[data.status] === 'undefined') {
                     throw new HttpError(
                         403,
                         'Status can be only: ' + JSON.stringify(Product.statuses)
                     );
                 }
             }
-
-            if (req.body.surveyId) {
-                var isExistSurvey = yield thunkQuery(Survey.select().where(Survey.id.equals(req.body.surveyId)));
-                if (!_.first(isExistSurvey)) {
-                    throw new HttpError(403, 'Survey with id = ' + req.body.surveyId + ' does not exist');
-                }
-            }
-
-            if (req.body.projectId) {
-                var isExistProject = yield thunkQuery(Project.select().where(Project.id.equals(req.body.projectId)));
-                if (!_.first(isExistProject)) {
-                    throw new HttpError(403, 'Project with this id does not exist');
-                }
-            }
         });
     };
+
     this.checkMultipleProjects = function(surveyId, policyId) {
         return co(function* () {
             if (policyId) {

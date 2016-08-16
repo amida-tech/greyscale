@@ -7,7 +7,6 @@ var
     sTaskUserState = require('app/services/taskuserstates'),
     cProduct = require('app/controllers/products'), // ToDo - move to service
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),

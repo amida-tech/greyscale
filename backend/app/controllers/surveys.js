@@ -678,7 +678,6 @@ function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
 
     if (!req.params.id) { // create
-        req.body.projectId = req.user.projectId;
 
         if (!req.body.title) {
             throw new HttpError(403, 'title field are required');

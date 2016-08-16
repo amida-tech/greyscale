@@ -51,8 +51,26 @@ BEGIN
                 SELECT id FROM "Products" WHERE "surveyId" = "Products"."surveyId" LIMIT 1
             );
 
+            ALTER TABLE "Products"
+                ADD COLUMN "organizationId" integer,
+                ADD CONSTRAINT "Surveys_organizationId_fkey" FOREIGN KEY ("organizationId")
+                    REFERENCES "Organizations" (id) MATCH SIMPLE
+                    ON UPDATE NO ACTION ON DELETE NO ACTION;
+
+            UPDATE "Products" SET "organizationId" = (
+                SELECT "Organizations".id
+                FROM "Projects"
+                JOIN "Organizations"
+                ON "Projects"."organizationId" = "Organizations".id
+                WHERE "Projects".id = "Products"."projectId"
+            );
+
             -- DROP OLD LINKS TO SURVEY TABLE
-            ALTER TABLE "Products" DROP COLUMN "surveyId";
+            ALTER TABLE "Products"
+                DROP COLUMN "surveyId",
+                DROP COLUMN "projectId",
+                DROP COLUMN "originalLangId";
+            DROP TABLE "Projects"; -- legacy table
             ALTER TABLE "SurveyAnswers" DROP CONSTRAINT "SurveyAnswers_surveyId_fkey";
             ALTER TABLE "SurveyQuestions" DROP CONSTRAINT "SurveyQuestions_surveyId_fkey";
 

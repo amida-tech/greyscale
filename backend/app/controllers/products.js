@@ -10,7 +10,6 @@ var
     bologger = new BoLogger(),
     csv = require('express-csv'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     Organization = require('app/models/organizations'),
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -1169,13 +1168,17 @@ module.exports = {
 
         co(function* () {
             var oProduct = new sProduct(req);
-            yield oProduct.checkProductData();
+            req.body.organizationId = req.user.organizationId;
+            yield oProduct.checkProductData(req.body);
             var newSurvey = req.body.surveyId ? yield * common.getEntity(req, req.body.surveyId, Survey, 'id') : null;
-            if (newSurvey && newSurvey.policyId) {                                        // new survey is policy
+
+            if (newSurvey && newSurvey.policyId) { // new survey is policy
                 // check one project - one policy
                 yield oProduct.checkMultipleProjects(req.body.surveyId, newSurvey.policyId);
             }
-            var productId = yield oProduct.insertProduct();
+
+            var productId = yield oProduct.insertProduct(req.body);
+
             if (productId) {
                 var policyUoaId = yield * common.getPolicyUoaId(req);
                 if (newSurvey && newSurvey.policyId) {  // new survey is policy

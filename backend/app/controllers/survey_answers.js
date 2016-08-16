@@ -14,7 +14,6 @@ var
     UOA = require('app/models/uoas'),
     Task = require('app/models/tasks'),
     Product = require('app/models/products'),
-    Project = require('app/models/projects'),
     Organization = require('app/models/organizations'),
     ProductUOA = require('app/models/product_uoa'),
     User = require('app/models/users'),
@@ -132,10 +131,8 @@ module.exports = {
                     .select(Organization.star())
                     .from(
                         Product
-                        .leftJoin(Project)
-                        .on(Product.projectId.equals(Project.id))
                         .leftJoin(Organization)
-                        .on(Project.organizationId.equals(Organization.id))
+                        .on(Product.organizationId.equals(Organization.id))
                     )
                     .where(Product.id.equals(req.params.productId))
                 );

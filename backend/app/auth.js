@@ -5,7 +5,6 @@ var passport = require('passport'),
     User = require('app/models/users'),
     Role = require('app/models/roles'),
     Token = require('app/models/token'),
-    Project = require('app/models/projects'),
     Organization = require('app/models/organizations'),
     EssenceRoles = require('app/models/essence_roles'),
     AccessPermission = require('app/models/access_permissions'),
@@ -253,26 +252,6 @@ passport.use(new TokenStrategy({
                         User.id.equals(existToken[0].userID)
                     )
                 );
-                if (data[0]) { // user is ok
-                    // add projectId from realm
-                    if (req.params.realm !== config.pgConnect.adminSchema) { // only if realm is not public
-                        clientThunkQuery = thunkify(new Query(req.params.realm));
-                        var project = yield clientThunkQuery(
-                            Project
-                            .select(
-                                Project.id.as('projectId')
-                            )
-                            .from(
-                                Project
-                                .leftJoin(Organization).on(Project.organizationId.equals(Organization.id))
-                            )
-                        );
-                        if (project[0]) {
-                            data[0].projectId = project[0].projectId;
-                        }
-
-                    }
-                }
             } else {
                 if (existToken[0].realm === req.params.realm) {
                     clientThunkQuery = thunkify(new Query(req.params.realm));
@@ -281,14 +260,12 @@ passport.use(new TokenStrategy({
                         .select(
                             User.star(),
                             Role.name.as('role'),
-                            requestRights,
-                            Project.id.as('projectId')
+                            requestRights
                         )
                         .from(
                             User
                             .leftJoin(Role).on(User.roleID.equals(Role.id))
                             .leftJoin(Organization).on(User.organizationId.equals(Organization.id))
-                            .leftJoin(Project).on(Project.organizationId.equals(Organization.id))
                         )
                         .where(
                             User.id.equals(existToken[0].userID)
