@@ -1,0 +1,13 @@
+<span>
+    {{getActive().title}}
+    <button class="btn btn-default dropdown-toggle" type="button" ng-disabled="isDisabled()">
+        <i class="fa fa-caret-down"></i>
+    </button>
+    <ul class="dropdown-menu">
+        <li ng-repeat="o in options">
+            <button class="checked-dropdown" type="button" ng-click="setType(o)">
+                <i ng-if="o.active" class="fa fa-check"></i>{{o.title}}
+            </button>
+        </li>
+    </ul>
+</span>

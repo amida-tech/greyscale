@@ -436,6 +436,9 @@ function* checkOrgData(req) {
             throw new HttpError(400, 'Realm \'' + req.body.realm + '\' already exists');
         }
     } else {
+        if (!req.body.name) {
+            throw new HttpError(400, 'name field is required');
+        }
         delete req.body.realm; // do not allow to edit realm in organization
     }
 

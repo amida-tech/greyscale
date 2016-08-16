@@ -389,6 +389,18 @@ var exportObject = function  (req, realm) {
             var groups = [];
             var chkUsers = [];
             var chkGroups = [];
+            // add policy author as 1st user to user list
+            var authorId = yield * common.getPolicyAuthorIdByTask(req, taskId);
+            chkUsers.push(authorId);
+            userTo = yield * common.getUser(req, authorId);
+            users.push({
+                userId: userTo.id,
+                firstName: userTo.firstName,
+                lastName: userTo.lastName,
+                email: userTo.email,
+                isAdmin: (userTo.roleID !== 3)
+            });
+            //
             var task = yield * common.getTask(req, taskId);
             var taskUsers = task.userIds;
             for (var i in taskUsers) {
@@ -399,7 +411,8 @@ var exportObject = function  (req, realm) {
                         userId: userTo.id,
                         firstName: userTo.firstName,
                         lastName: userTo.lastName,
-                        email: userTo.email
+                        email: userTo.email,
+                        isAdmin: (userTo.roleID !== 3)
                     });
                 }
             }
@@ -420,7 +433,8 @@ var exportObject = function  (req, realm) {
                                 userId: userTo.id,
                                 firstName: userTo.firstName,
                                 lastName: userTo.lastName,
-                                email: userTo.email
+                                email: userTo.email,
+                                isAdmin: (userTo.roleID !== 3)
                             });
                             chkUsers.push(usersFromGroup[j].userId);
                         }
