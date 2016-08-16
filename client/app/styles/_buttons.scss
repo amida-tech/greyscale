@@ -8,13 +8,6 @@
     }
 }
 
-a, .action, .action-secondary, .action-primary {
-    cursor: pointer;
-    &:hover {
-        text-decoration: none;
-    }
-}
-
 .action-primary {
     color: $green;
     &:hover {
@@ -26,6 +19,18 @@ a, .action, .action-secondary, .action-primary {
     color: $red;
     &:hover {
         color: $red-dark;
+    }
+}
+
+a, .action, .action-secondary, .action-primary {
+    cursor: pointer;
+    &:hover {
+        text-decoration: none;
+    }
+    &.disabled {
+        opacity: 0.5;
+        cursor: default;
+        color: $grey-medium-light;
     }
 }
 

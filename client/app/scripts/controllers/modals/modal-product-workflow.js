@@ -2,10 +2,12 @@
 angular.module('greyscaleApp')
 .controller('ModalProductWorkflowCtrl', function (_, $scope,
     $uibModalInstance, i18n,
-    product, modalParams, Organization,
+    modalData, Organization, greyscaleModalsSrv,
     greyscaleProductWorkflowTbl,
     greyscaleWorkflowTemplateApi,
     greyscaleUtilsSrv, $timeout) {
+
+    var product = modalData.product;
 
     var productWorkflow = greyscaleProductWorkflowTbl;
 
@@ -16,24 +18,32 @@ angular.module('greyscaleApp')
 
     productWorkflow.dragSortable = {onChange: _validateDates};
 
-    $scope.modalParams = angular.copy(modalParams);
+    $scope.modalData = angular.copy(modalData);
     $scope.model = {
         product: angular.copy(product),
         productWorkflow: productWorkflow
     };
 
-    var workflowTemplateMode = $scope.workflowTemplateMode = !product.projectId;
+    var ctrl = this;
+    var tplEdit = $scope.tplEdit = productWorkflow.dataFilter.tplEdit = !product.projectId;
 
-    productWorkflow.dataFilter.workflowTemplateMode = workflowTemplateMode;
-    if (!workflowTemplateMode) {
-        _refreshTemplatesList();
-    }
+    if (tplEdit) {
+        $timeout(function(){
+            _addValidators(ctrl.dataForm);
+        });
 
-    if (!workflowTemplateMode) {
-        _refreshTemplatesList();
     } else {
-        productWorkflow.dataFilter.workflowTemplateMode = true;
+        _refreshTemplatesList();
     }
+
+
+    productWorkflow.dataFilter.templateMode = tplEdit;
+
+    productWorkflow.dataFilter.saveAsTemplate = _saveCurrentWorkflowAsTemplate;
+
+    productWorkflow.dataFilter.saveAsTemplateDisable = function(){
+        return !_validateWorkflowSteps(true);
+    };
 
     $scope.close = function () {
         $uibModalInstance.dismiss();
@@ -45,7 +55,7 @@ angular.module('greyscaleApp')
             workflow: $scope.model.product.workflow || {},
             steps: steps
         };
-        if (workflowTemplateMode) {
+        if (tplEdit) {
             resolveData.id = product.id;
         } else {
             resolveData.workflow.productId = product.id;
@@ -102,13 +112,13 @@ angular.module('greyscaleApp')
         }
     }
 
-    function _validateWorkflowSteps() {
+    function _validateWorkflowSteps(forTemplate) {
         var steps = _getSteps();
         var valid = 0;
         angular.forEach(steps, function(step){
             if (step.title && step.title !== '' &&
                 step.role && step.role !== '' &&
-                (workflowTemplateMode || _allDatesValid) &&
+                (tplEdit || forTemplate || _allDatesValid)) &&
                 step.usergroupId && step.usergroupId.length
             ) {
                 valid++;
@@ -160,6 +170,8 @@ angular.module('greyscaleApp')
                 'discussionParticipation', 'seeOthersResponses',
                 'blindReview'
             ]);
+            item.startDate = undefined;
+            item.endDate = undefined;
             item.groups = _.map(step.usergroupId, _getGroup);
             if (step.writeToAnswers === false) {
                 item.surveyAccess = 'noWriteToAnswers';
@@ -179,10 +191,12 @@ angular.module('greyscaleApp')
     }
 
     function _refreshTemplatesList(currentTemplateId) {
-        greyscaleWorkflowTemplateApi.list()
+        return greyscaleWorkflowTemplateApi.list()
         .then(function(data){
             $scope.model.workflowTemplates = data;
-            $scope.model.selectedTemplate = currentTemplateId ? _.find(data, {id: currentTemplateId}) : undefined;
+            if (!tplEdit) {
+                $scope.model.selectedTemplate = currentTemplateId ? _.find(data, {id: currentTemplateId}) : undefined;
+            }
         })
         .catch(greyscaleUtilsSrv.errorMsg);
     }
@@ -198,23 +212,64 @@ angular.module('greyscaleApp')
     }
 
     function _saveCurrentWorkflowAsTemplate() {
+
+        var workflowTemplateName = $scope.model.product.workflow.name;
+
         var template = {
             workflow: {
-                name: $scope.model.product.workflow.name + ' ' + i18n.translate('COMMON.SAVED'),
+                name: workflowTemplateName,
                 description: $scope.model.product.workflow.description,
             },
             steps: _getSteps()
         };
+
+        if (workflowTemplateName && workflowTemplateName !== '' && _isUniqueName(workflowTemplateName)) {
+            _saveWorkflowTemplate(template);
+        } else {
+            greyscaleModalsSrv.saveAsWorkflowTemplate({
+                template: template,
+                templates: $scope.model.workflowTemplates
+            })
+            .then(_saveWorkflowTemplate);
+        }
+    }
+
+    function _saveWorkflowTemplate(template) {
         angular.forEach(template.steps, function(step, i){
             delete(template.steps[i].startDate);
             delete(template.steps[i].endDate);
             delete(template.steps[i].id);
         });
         greyscaleWorkflowTemplateApi.add(template)
-            .then(function(data) {
-                _refreshTemplatesList(data.id);
-            })
-            .catch(greyscaleUtilsSrv.errorMsg)
+        .then(function(data) {
+            return _refreshTemplatesList(data.id);
+        })
+        .then(function(){
+            $scope.model.templateSaved = true;
+            $timeout(function(){
+                $scope.model.templateSaved = false;
+            }, 2000);
+        })
+        .catch(greyscaleUtilsSrv.errorMsg)
     }
 
+    function _addValidators(ngForm) {
+        ngForm.name.$parsers.unshift(function(value){
+            var valid = _isUniqueName(value);
+            ngForm.name.$setValidity('unique', valid);
+            return valid ? value : undefined;
+        });
+        ngForm.name.$formatters.unshift(function(value){
+            var valid = _isUniqueName(value);
+            ngForm.name.$setValidity('unique', valid);
+            return value;
+        });
+    }
+
+    function _isUniqueName(name) {
+        if (tplEdit && name === product.workflow.name) {
+            return true;
+        }
+        return !_.find($scope.model.workflowTemplates, {workflow: {name: name}});
+    }
 });

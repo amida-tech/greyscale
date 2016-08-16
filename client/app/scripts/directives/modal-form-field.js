@@ -12,7 +12,8 @@ angular.module('greyscaleApp')
                 modalFormField: '=',
                 modalFormFieldModel: '='
             },
-            link: function (scope, elem, attr) {
+            require: '^form',
+            link: function (scope, elem, attr, ngForm) {
 
                 var clmn = scope.modalFormField;
 
@@ -141,6 +142,20 @@ angular.module('greyscaleApp')
 
                     elem.append(field);
                     $compile(elem.contents())(scope);
+
+                }
+
+                function _addValidator(ngModel, validate) {
+                    ngModel.$parsers.unshift(function(value){
+                        var valid = validate.isValid($scope.modalFormRec);
+                        ngModel.$setValidity(validate.key, valid);
+                        return valid ? value : undefined;
+                    });
+                    ngModel.$formatters.unshift(function(value) {
+                        var valid = validate.isValid($scope.modalFormRec);
+                        ngModel.$setValidity(validate.key, valid);
+                        return value;
+                    });
                 }
 
                 scope.fieldChange = function (row, field) {
