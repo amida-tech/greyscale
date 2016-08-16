@@ -1206,6 +1206,11 @@ module.exports = {
         co(function* () {
             yield * checkProductData(req);
             if (parseInt(req.body.status) === 1) { // if status changed to 'STARTED'
+                var product = yield * common.getEntity(req, req.params.id, Product, 'id');
+                var survey = yield * common.getEntity(req, product.surveyId, Survey, 'id');
+                if (survey.isDraft) {
+                    throw new HttpError(403, 'You can not start the project. Survey have status `in Draft`');
+                }
                 var result = yield * updateCurrentStepId(req);
                 if (typeof result === 'object') {
                     bologger.log({
