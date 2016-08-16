@@ -182,6 +182,12 @@ option.disabled {
     }
 }
 
+.field-error {
+    select-date .form-control {
+        background-color: lighten($brand-danger, 25%);
+    }
+}
+
 .gs-message-answer-form {
     .ta-editor, .ta-editor > .ta-bind{
         min-height: 90px;

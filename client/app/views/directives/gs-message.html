@@ -5,11 +5,18 @@
         </a>
         {{getUserName()}}
         <span ng-if="model.isReturn">
-            <a ng-if="isAdmin() && !model.isResolve" class="pull-right" ng-click="resolveFlag();">
+            <span class="pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}">
+                &nbsp;{{getUserName(model.userId)}}
+            </span>
+            <a ng-if="isAdmin() && !model.isResolve" class="pull-right"
+                ng-click="resolveFlag();">
                 <i class="fa fa-flag text-danger"></i>
             </a>
-            <i ng-if="!isAdmin() || model.isResolve" class="fa fa-flag pull-right"
-                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}"></i>
+            <i ng-if="!isAdmin() || model.isResolve" class="pull-right"
+                ng-class="{'text-success':model.isResolve, 'text-danger':!model.isResolve}">
+                <i class="fa fa-flag"></i>
+            </i>
         </span>
     </span>
     <div ng-hide="model.isHidden" class="gs-message-body-warpper">

@@ -99,6 +99,11 @@ angular.module('greyscaleApp')
                     handle: '.action-drag-sortable',
                     start: function (e, ui) {
                         ui.placeholder.height(ui.item.height());
+                    },
+                    stop: function (e, ui) {
+                        if (typeof model.dragSortable.onChange === 'function') {
+                            model.dragSortable.onChange(e, ui);
+                        }
                     }
                 };
             }
