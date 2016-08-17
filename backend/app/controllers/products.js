@@ -10,6 +10,7 @@ var
     bologger = new BoLogger(),
     csv = require('express-csv'),
     Product = require('app/models/products'),
+    Policy = require('app/models/policies'),
     Organization = require('app/models/organizations'),
     Workflow = require('app/models/workflows'),
     WorkflowStep = require('app/models/workflow_steps'),
@@ -225,12 +226,31 @@ module.exports = {
                 Product
                 .select(
                     Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy'
                 )
                 .from(
                     Product
-                    .leftJoin(Workflow)
-                    .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(Workflow)
+                        .on(Product.id.equals(Workflow.productId))
+                        .leftJoin(Survey)
+                        .on(
+                            Product.id.equals(Survey.productId)
+                                .and(
+                                    Survey.surveyVersion.in(
+                                        Survey.as('subS')
+                                            .subQuery()
+                                            .select(Survey.as('subS').surveyVersion.max())
+                                            .where(Survey.as('subS').id.equals(Survey.id))
+                                    )
+                                )
+                        )
+                        .leftJoin(Policy)
+                        .on(
+                            Policy.surveyId.equals(Survey.id)
+                                .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                        )
                 ), req.query
             );
         }).then(function (data) {
@@ -1055,12 +1075,31 @@ module.exports = {
                 Product
                 .select(
                     Product.star(),
-                    'row_to_json("Workflows".*) as workflow'
+                    'row_to_json("Workflows".*) as workflow',
+                    'row_to_json("Surveys".*) as survey',
+                    'row_to_json("Policies".*) as policy'
                 )
                 .from(
                     Product
                     .leftJoin(Workflow)
                     .on(Product.id.equals(Workflow.productId))
+                    .leftJoin(Survey)
+                    .on(
+                        Product.id.equals(Survey.productId)
+                        .and(
+                            Survey.surveyVersion.in(
+                                Survey.as('subS')
+                                .subQuery()
+                                .select(Survey.as('subS').surveyVersion.max())
+                                .where(Survey.as('subS').id.equals(Survey.id))
+                            )
+                        )
+                    )
+                    .leftJoin(Policy)
+                    .on(
+                        Policy.surveyId.equals(Survey.id)
+                        .and(Policy.surveyVersion.equals(Survey.surveyVersion))
+                    )
                 )
                 .where(Product.id.equals(req.params.id))
             );

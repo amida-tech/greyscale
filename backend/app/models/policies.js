@@ -5,7 +5,9 @@ var columns = [
     'section',
     'subsection',
     'number',
-    'author'
+    'author',
+    'surveyId',
+    'surveyVersion'
 ];
 
 var Policy = sql.define({

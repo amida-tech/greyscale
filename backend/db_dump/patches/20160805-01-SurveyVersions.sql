@@ -48,7 +48,7 @@ BEGIN
                     ON UPDATE NO ACTION ON DELETE NO ACTION;
 
             UPDATE "Surveys" SET "productId" = (
-                SELECT id FROM "Products" WHERE "surveyId" = "Products"."surveyId" LIMIT 1
+                SELECT id FROM "Products" WHERE "Surveys".id = "Products"."surveyId" LIMIT 1
             );
 
             ALTER TABLE "Products"
