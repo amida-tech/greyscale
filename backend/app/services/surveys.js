@@ -31,17 +31,17 @@ var exportObject = function  (req, realm) {
                             'ON e.id = al."essenceId" ' +
                             'AND e."tableName" = \'Policies\' ' +
                             'WHERE a."id" = ANY(al."attachments")' +
-                        ') as att) as attachments',
-                        '(' +
-                            'SELECT array_agg("Products"."id") ' +
-                            'FROM "Products" ' +
-                            'WHERE "Products"."surveyId" = "Surveys"."id"' +
-                        ') as products'
+                        ') as att) as attachments'
+                        //'(' +
+                        //    'SELECT array_agg("Products"."id") ' +
+                        //    'FROM "Products" ' +
+                        //    'WHERE "Products"."surveyId" = "Surveys"."id"' +
+                        //') as products'
                     )
                     .from(
                         Survey
                             .leftJoin(Policy)
-                            .on(Survey.policyId.equals(Policy.id))
+                            .on(Survey.id.equals(Policy.surveyId))
                     ),
                 req.query
             );
@@ -55,42 +55,45 @@ var exportObject = function  (req, realm) {
                     .from(
                         Survey
                             .leftJoin(Policy)
-                            .on(Survey.policyId.equals(Policy.id))
+                            .on(
+                                Survey.id.equals(Policy.surveyId)
+                                .and(Survey.surveyVersion.equals(Policy.surveyVersion))
+                            )
                     )
                     .select(
                         Survey.star(),
-                        Policy.section, Policy.subsection, Policy.author,
-                        Policy.editor, Policy.startEdit, Policy.number,
+                        Policy.section, Policy.subsection, Policy.author, Policy.number,
                         '(WITH sq AS ' +
                         '( ' +
-                        'SELECT ' +
-                        '"SurveyQuestions".* , ' +
-                        'array_agg(row_to_json("SurveyQuestionOptions".*)) as options ' +
-                        'FROM ' +
-                        '"SurveyQuestions" ' +
-                        'LEFT JOIN ' +
-                        '"SurveyQuestionOptions" ' +
-                        'ON ' +
-                        '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" ' +
-                        'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" ' +
-                        'GROUP BY "SurveyQuestions"."id" ' +
-                        'ORDER BY ' +
-                        '"SurveyQuestions"."position" ' +
+                            'SELECT ' +
+                            '"SurveyQuestions".* , ' +
+                            'array_agg(row_to_json("SurveyQuestionOptions".*)) as options ' +
+                            'FROM ' +
+                            '"SurveyQuestions" ' +
+                            'LEFT JOIN ' +
+                            '"SurveyQuestionOptions" ' +
+                            'ON ' +
+                            '"SurveyQuestions"."id" = "SurveyQuestionOptions"."questionId" ' +
+                            'AND "SurveyQuestions"."surveyVersion" = "SurveyQuestionOptions"."surveyVersion" ' +
+                            'WHERE "SurveyQuestions"."surveyId" = "Surveys"."id" ' +
+                            'GROUP BY "SurveyQuestions"."id", "SurveyQuestions"."surveyVersion" ' +
+                            'ORDER BY ' +
+                            '"SurveyQuestions"."position" ' +
                         ') ' +
                         'SELECT array_agg(row_to_json(sq.*)) as questions FROM sq)',
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
-                        'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                        'FROM "AttachmentLinks" al ' +
-                        'JOIN "Attachments" a ' +
-                        'ON al."entityId" = "Policies"."id" ' +
-                        'JOIN "Essences" e ' +
-                        'ON e.id = al."essenceId" ' +
-                        'AND e."tableName" = \'Policies\' ' +
-                        'WHERE a."id" = ANY(al."attachments")' +
+                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                            'FROM "AttachmentLinks" al ' +
+                            'JOIN "Attachments" a ' +
+                            'ON al."entityId" = "Policies"."id" ' +
+                            'JOIN "Essences" e ' +
+                            'ON e.id = al."essenceId" ' +
+                            'AND e."tableName" = \'Policies\' ' +
+                            'WHERE a."id" = ANY(al."attachments")' +
                         ') as att) as attachments'
                     )
                     .where(Survey.id.equals(id))
-                    .group(Survey.id, Policy.id)
+                    .group(Survey.id, Survey.surveyVersion, Policy.id)
             );
             return data[0] || false;
         });
