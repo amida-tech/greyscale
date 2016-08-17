@@ -13,6 +13,10 @@ function paragraphNumbersDirective(_, $timeout) {
                 'TR'
             ];
 
+            var textTags = [
+                'FONT', 'B', 'I', 'U', 'strong'
+            ];
+
             $timeout(function(){
                 if ((attr.contenteditable && attr.taBind) || el.hasClass('line-numbers')) {
                     _setLineNumbers(el[0]);
@@ -21,6 +25,9 @@ function paragraphNumbersDirective(_, $timeout) {
                             _setLineNumbers(el[0]);
                         });
                     }
+                    scope.$on('line-numbers-refresh', function(){
+                        _setLineNumbers(el[0]);
+                    });
                 }
 
             });
@@ -35,18 +42,24 @@ function paragraphNumbersDirective(_, $timeout) {
                     var hasTextChild = _hasTextChild(node);
                     var hasLineChild = _hasLineChild(node);
                     var hasDeepLineChild = _hasDeepLineChild(node);
+                    var isTable = node.tagName === 'TABLE';
                     if (isText) {
                         if (!insideLine) {
                             _setLn(node);
                         }
+
+                    } else if (isTable) {
+                        $(node).find('tr:not(.ln)').addClass('ln');
+
                     } else if (hasDeepLineChild) {
-                        _setLineNumbers(node, !hasLineChild);
                         if (hasTextChild) {
-                            $(node).addClass('ln');
+                            _setLn(node);
                         }
+                        _setLineNumbers(node, !hasLineChild);
+
                     } else if (isLine && hasTextChild) {
                         if (!insideLine) {
-                            $(node).addClass('ln');
+                            _setLn(node);
                         }
                         _setLineNumbers(node, true);
                     }
@@ -58,7 +71,8 @@ function paragraphNumbersDirective(_, $timeout) {
             }
 
             function _isText(node) {
-                return node.nodeType === 3 || (!_isLine(node) && $(node).text() === $(node).html());
+                return node.nodeType === 3 || (!_isLine(node) &&
+                    ($(node).text() === $(node).html() || textTags.indexOf(node.tagName) >= 0));
             }
 
             function _isLine(node) {
@@ -110,7 +124,7 @@ function paragraphNumbersDirective(_, $timeout) {
                     wrapper.className += 'ln';
                     parent.replaceChild(wrapper, node);
                     wrapper.appendChild(node);
-                } else if (_isLine(node)) {
+                } else if (_isLine(node) && !$(node).hasClass('ln')) {
                     $(node).addClass('ln');
                 }
             }
