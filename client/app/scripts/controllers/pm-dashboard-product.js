@@ -32,7 +32,7 @@ angular.module('greyscaleApp')
                     tasksTable.dataFilter.policyId = survey.policyId;
                 });
             }
-            greyscaleProjectProductsTbl.methods.fillSurvey(product.projectId);
+            greyscaleProjectProductsTbl.methods.fillSurvey();
 
             $state.ext.productName = product.title;
             return product;
