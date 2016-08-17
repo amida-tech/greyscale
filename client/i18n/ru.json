@@ -14,15 +14,24 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMENTS": {
+        "ANSWERS": "",
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "HIDE_ALL": "",
         "HIDE_ALL_FLAGGED": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
-        "TYPE": ""
+        "TYPE": "",
+        "YOU_ANSWERED_ALREADY": "",
+        "YOU_ARE_THE_OWNER": ""
     },
     "COMMON": {
         "ADD": "Добавить",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
@@ -38,6 +47,7 @@
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
+        "DISAGREE": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
@@ -508,7 +518,6 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
@@ -524,6 +533,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса",
                 "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
+                "SAVE_AS_TEMPLATE": "",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
@@ -534,8 +544,11 @@
             },
             "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
+            "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "Название обязательно",
-            "WORKFLOW_TEMPLATES": ""
+            "WORKFLOW_TEMPLATE": "",
+            "WORKFLOW_TEMPLATES": "",
+            "WORKFLOW_TEMPLATE_SAVED": ""
         }
     },
     "PRODUCT_TASKS": {

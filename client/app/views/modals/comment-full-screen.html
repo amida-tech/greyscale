@@ -12,7 +12,41 @@
         </div>
     </div>
     <p class="subtext">{{model.created | date : 'short'}}</p>
+    <div class="gs-message-subcomments-list" ng-if="answers.list.length">
+        <hr>
+        <h2 translate="COMMENTS.ANSWERS"></h2>
+        <div class="list-group">
+            <div ng-repeat="answer in answers.list" class="list-group-item">
+                <b class="gs-message-answer-user">{{getUserName(answer)}}</b>
+                <b class="gs-message-answer-agreement">{{ 'COMMENTS.IS_' + (answer.isAgree ? 'AGREED' : 'DISAGREED') | translate }}</b>
+                <small class="text-muted">{{answer.created | date: 'short'}}</small>
+                <div ng-bind-html="answer.entry"></div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
+    <div class="gs-message-answer-form" ng-if="answers.state.adding">
+        <h2 class="text-left">{{'COMMENTS.EXPLAIN_WHY_' + (answers.model.isAgree ? 'AGREE' : 'DISAGREE') | translate}}</h2>
+        <div name="dataForm" class="row form text-left" ng-form="dataForm">
+            <div class="form-group col-sm-8">
+                <text-angular ng-model="answers.model.entry"></text-angular>
+            </div>
+            <div class="form-group col-sm-4">
+                <label for="person" class="control-label" translate="COMMENTS.TAG_ANSWER"></label>
+                <select id="person" ng-model="answers.model.tag" class="form-control" multiple
+                        ng-options="tag as (tag.fullName || tag.title) for tag in answers.associate.tags"></select>
+            </div>
+        </div>
+        <button class="btn btn-default" ng-click="answers.cancel()" translate="COMMON.CANCEL"></button>
+        <button class="btn btn-primary" ng-click="answers.submit()" translate="COMMON.SUBMIT"></button>
+    </div>
+    <div ng-if="!answers.state.adding">
+        <span ng-if="user.isOwner" translate="COMMENTS.YOU_ARE_THE_OWNER"></span>
+        <span ng-if="!user.isOwner && user.hasAnswered" translate="COMMENTS.YOU_ANSWERED_ALREADY"></span>
+        &nbsp;
+        <button class="btn btn-primary" ng-click="answers.add(true)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.AGREE'|translate}} ({{model.agree||0}})</button>
+        <button class="btn btn-default" ng-click="answers.add(false)" ng-disabled="user.isOwner || user.hasAnswered">{{'COMMON.DISAGREE'|translate}} ({{model.disagree||0}})</button>
+        <button class="btn btn-default" ng-click="close()" translate="COMMON.CLOSE"></button>
+    </div>
 </div>

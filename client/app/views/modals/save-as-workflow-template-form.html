@@ -1,0 +1,23 @@
+<modal-form-header>
+    <span translate="PRODUCTS.WORKFLOW.WORKFLOW_TEMPLATE"></span>
+</modal-form-header>
+<div class="modal-body">
+    <div name="dataForm" ng-form="dataForm">
+        <div translate-namespace="PRODUCTS.WORKFLOW">
+            <div class="form-group">
+                <label class="control-label required" translate=".TITLE"></span></label>
+                <input class="form-control"
+                        id="name" name="name"
+                        ng-model="model.name"
+                        ng-change="validateName()"
+                        ng-required="true"/>
+
+                <div class="text-center" ng-messages="dataForm.name.$error" role="alert">
+                    <span ng-message="required" class="help-block" translate=".TITLE_REQUIRED"></span>
+                    <span ng-message="inUse" class="help-block" translate=".TITLE_IN_USE"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-form-footer"></div>
