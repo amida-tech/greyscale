@@ -473,6 +473,9 @@ router.route('/:realm/v0.2/comments/hidden')
 router.route('/:realm/v0.2/comments/:id')
     .put(authenticate('token').always, jsonParser, comments.updateOne)
     .delete(authenticate('token').always, comments.deleteOne);
+router.route('/:realm/v0.2/comments/:commentId/answers')
+    .get(authenticate('token').always, comments.selectAnswers)
+    .post(authenticate('token').always, jsonParser, comments.insertAnswer);
 
 //----------------------------------------------------------------------------------------------------------------------
 //    NOTIFICATIONS

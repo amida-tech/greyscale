@@ -49,7 +49,8 @@ angular.module('greyscale.tables')
             sortable: 'surveyId',
             dataFormat: 'option',
             cellTemplate: '<span ng-if="option.id"><i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span>{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span></span>',
-            //dataRequired: true,
+            dataPlaceholder: tns + 'SELECT_SURVEY',
+            dataRequired: true,
             dataSet: {
                 getData: _getSurveys,
                 keyField: 'id',
@@ -78,29 +79,29 @@ angular.module('greyscale.tables')
             },
             dataHide: true
         }, {
+            show: true,
+            dataFormat: 'action',
+            dataHide: true,
+            actions: [{
+                getIcon: _getStatusIcon,
+                getTooltip: _getStartOrPauseProductTooltip,
+                class: 'info',
+                handler: _startOrPauseProduct
+            }]
+        }, {
             field: 'status',
             show: true,
             sortable: 'status',
             title: tns + 'STATUS',
             dataFormat: 'option',
             dataNoEmptyOption: true,
+            dataRequired: true,
             dataSet: {
                 getData: _getStatus,
                 keyField: 'id',
                 valField: 'name',
                 getDisabled: _getDisabledStatus
             }
-        }, {
-            show: true,
-            dataFormat: 'action',
-            dataHide: true,
-            actions: [{
-                title: '',
-                getIcon: _getStatusIcon,
-                getTooltip: _getStartOrPauseProductTooltip,
-                class: 'info',
-                handler: _startOrPauseProduct
-            }]
         }, {
             title: tns + 'SETTINGS',
             show: true,
@@ -247,7 +248,10 @@ angular.module('greyscale.tables')
         }
 
         function _editProductWorkflow(product) {
-            return greyscaleModalsSrv.productWorkflow(product)
+            var modalData = {
+                product: product
+            };
+            return greyscaleModalsSrv.productWorkflow(modalData)
                 .then(function (data) {
                     return _saveWorkflowAndSteps(product, data);
                 })

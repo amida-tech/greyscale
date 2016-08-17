@@ -14,15 +14,24 @@
         "SLOGAN": "Превращение знаний в данные."
     },
     "COMMENTS": {
+        "ANSWERS": "",
+        "EXPLAIN_WHY_AGREE": "",
+        "EXPLAIN_WHY_DISAGREE": "",
         "HIDE_ALL": "",
         "HIDE_ALL_FLAGGED": "",
+        "IS_AGREED": "",
+        "IS_DISAGREED": "",
         "NO_MESSAGES": "",
+        "TAG_ANSWER": "",
         "TAG_COMMENT": "",
         "TITLE": "",
-        "TYPE": ""
+        "TYPE": "",
+        "YOU_ANSWERED_ALREADY": "",
+        "YOU_ARE_THE_OWNER": ""
     },
     "COMMON": {
         "ADD": "Добавить",
+        "AGREE": "",
         "ALL": "",
         "APPLY": "Применить",
         "ASSIGN": "Назначить",
@@ -38,6 +47,7 @@
         "CREATE": "Создать",
         "CURRENT_VALUE": "",
         "DELETE": "Удалить",
+        "DISAGREE": "",
         "EDIT": "Изменить",
         "FURTHER": "Далее",
         "GLOBALLY": "",
@@ -89,6 +99,7 @@
         "ACCESS_RESTRICTED": "Доступ ограничен к",
         "BAD_TOKEN": "",
         "CHANGES_UNSAVED": "",
+        "NOT_DOCX": "",
         "STEP_READONLY": "",
         "STEP_SUBMIT": "",
         "SURVEY_UPDATE_ERROR": "",
@@ -167,6 +178,8 @@
     },
     "FORMS": {
         "FIELD_REQUIRED": "Обязательное поле",
+        "INVALID_EMAIL": "",
+        "INVALID_UNIQUE": "",
         "MUST_BE_INT": "",
         "MUST_BE_NUMBER": "",
         "WRONG_DATE_FORMAT": "Неправильный формат даты"
@@ -242,6 +255,7 @@
             "ISO2": "",
             "NAME": "",
             "NAMEISO": "Название ISO",
+            "RESULT": "",
             "RESULTS_TITLE": "Результаты",
             "SHORT_NAME": "Короткое название",
             "STATUS": "Статус",
@@ -458,6 +472,7 @@
             "POLICIES": "",
             "POLICY": "",
             "PRODUCT": "Проект",
+            "SELECT_SURVEY": "",
             "SETTINGS": "Настройки",
             "START_PRODUCT": "Запустить проект",
             "STATUS": "Состояние",
@@ -504,13 +519,13 @@
             "DESCRIPTION": "Описание",
             "DESCRIPTION_REQUIRED": "Описание обязательно",
             "LOAD_FROM_WORKFLOW_TEMPLATE": "",
-            "SAVE_AS_TEMPLATE": "",
             "STEPS": {
                 "ADD_GROUP": "",
                 "ALLOW_EDIT": "Редактирование",
                 "ALLOW_TRANSLATE": "Перевод",
                 "ANSWERS_ACCESS": "Доступ к ответам",
                 "BLIND_REVIEW": "Слепой просмотр",
+                "DATES_ORDER_ERROR": "",
                 "DISCUSSION_PARTICIPATION": "Участие в обсуждении",
                 "END_DATE": "Дата окончания",
                 "GROUPS": "",
@@ -519,6 +534,7 @@
                 "PRODUCT_WORKFLOW_STEPS": "Шаги процесса",
                 "PROVIDE_RESPONSES": "Предоставление ответов",
                 "ROLE": "Роль",
+                "SAVE_AS_TEMPLATE": "",
                 "SEE_OTHERS_RESPONSES": "Видеть другие ответы",
                 "SORT_DISABLED": "",
                 "SORT_ENABLED": "",
@@ -529,8 +545,11 @@
             },
             "STEPS_FOR": "Шаги процесса <small>для проекта \"{{product}}\"</small>",
             "TITLE": "Название",
+            "TITLE_IN_USE": "",
             "TITLE_REQUIRED": "Название обязательно",
-            "WORKFLOW_TEMPLATES": ""
+            "WORKFLOW_TEMPLATE": "",
+            "WORKFLOW_TEMPLATES": "",
+            "WORKFLOW_TEMPLATE_SAVED": ""
         }
     },
     "PRODUCT_TASKS": {

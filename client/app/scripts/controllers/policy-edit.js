@@ -54,6 +54,17 @@ angular.module('greyscaleApp')
             }
         };
 
+        $scope.publishIsDisabled = _publishIsDisabled;
+
+        greyscaleEntityTypeApi.list({
+                tableName: (isPolicy ? 'Policies' : 'SurveyAnswers')
+            })
+            .then(function (essences) {
+                if (essences.length) {
+                    $scope.model.policy.essenceId = essences[0].id;
+                }
+            });
+
         lAnswerDirty = $scope.$on(surveyEvents.answerDirty, function () {
             $scope.dataForm.$setDirty();
         });
@@ -305,6 +316,15 @@ angular.module('greyscaleApp')
                     label: 'POLICY.SECTION_' + q,
                     description: ''
                 });
+            }
+        }
+
+        function _publishIsDisabled(dataForm) {
+            if (dataForm.$invalid) {
+                return true;
+            }
+            if (surveyId && dataForm.$pristine) {
+                return false;
             }
         }
 

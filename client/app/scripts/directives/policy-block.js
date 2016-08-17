@@ -12,13 +12,6 @@ angular.module('greyscaleApp')
             scope: {
                 policyData: '=?'
             },
-            link: function (scope) {
-                scope.$watch('policyData', function (data) {
-                    if (data) {
-                        _refreshPolicy(scope, data);
-                    }
-                });
-            },
             controller: function ($scope, $element, greyscaleUtilsSrv, FileUploader, $timeout, greyscaleTokenSrv,
                 greyscaleGlobals) {
 
@@ -27,7 +20,7 @@ angular.module('greyscaleApp')
 
                 $scope.formName = 'f_' + new Date().getTime();
 
-                $scope.model = $scope.model || [];
+                $scope.model = $scope.model || {};
 
                 $scope.inProgress = [];
 
@@ -36,8 +29,14 @@ angular.module('greyscaleApp')
                     withCredentials: false,
                     method: 'POST',
                     removeAfterUpload: true,
-                    autoUpload: true
+                    autoUpload: true,
+                    filters: [{
+                        name: 'docx',
+                        fn: _isDocx
+                    }]
                 });
+
+                uploader.onAfterAddingFile = _addedFile;
 
                 uploader.onBeforeUploadItem = function (item) {
                     if ($scope.formName && $scope[$scope.formName].$$parentForm) {
@@ -75,6 +74,8 @@ angular.module('greyscaleApp')
                     greyscaleUtilsSrv.errorMsg(response || 'File too big', 'Upload file');
                 };
 
+                uploader.onWhenAddingFileFailed = _addingFileFailed;
+
                 function _modifyEvt() {
                     $scope.$emit(greyscaleGlobals.events.survey.answerDirty);
                 }
@@ -91,7 +92,7 @@ angular.module('greyscaleApp')
                             });
                         }
                         if (data.hasOwnProperty(_sectionName) && $scope.policyData.sections[i]) {
-                            $scope.policyData.sections[i].label = _sectionName;
+                            $scope.policyData.sections[i].label = _sectionName || $scope.policyData.sections[i].label;
                             $scope.policyData.sections[i].description = data[_sectionName];
                             i++;
                         }
@@ -109,8 +110,22 @@ angular.module('greyscaleApp')
                         }
                     }
                 }
+
+                function _addedFile() {
+                    $scope.model.error = null;
+                }
+
+                function _addingFileFailed(item, filter) {
+                    $scope.model.error = {
+                        msg: 'ERROR.NOT_DOCX'
+                    };
+                }
+
+                function _isDocx(item) {
+                    var re = /.+\.docx$/i;
+                    return re.test(item.name);
+                }
             }
         };
 
-        function _refreshPolicy(scope, data) {}
     });

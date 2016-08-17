@@ -33,6 +33,8 @@ angular.module('greyscaleApp')
                 disabled: true
             };
 
+            _normalizeAddButtons(model);
+
             _translateParams(model);
 
             if (!model.tableParams || !(model.tableParams instanceof NgTableParams)) {
@@ -97,6 +99,11 @@ angular.module('greyscaleApp')
                     handle: '.action-drag-sortable',
                     start: function (e, ui) {
                         ui.placeholder.height(ui.item.height());
+                    },
+                    stop: function (e, ui) {
+                        if (typeof model.dragSortable.onChange === 'function') {
+                            model.dragSortable.onChange(e, ui);
+                        }
                     }
                 };
             }
@@ -151,6 +158,28 @@ angular.module('greyscaleApp')
 
         }
 
+        function _normalizeAddButtons(table) {
+            table.add = table.add || [];
+            if (!angular.isArray(table.add)) {
+                table.add = [table.add];
+            }
+
+            var showFn = function (showVal) {
+                return function () {
+                    if (showVal === undefined) {
+                        return true;
+                    }
+                    if (typeof showVal === 'function') {
+                        return showVal();
+                    }
+                };
+            };
+
+            angular.forEach(table.add, function (add, i) {
+                table.add[i].show = showFn(add.show);
+            });
+        }
+
         function _newPagination(scope) {
             var params = scope.model.tableParams;
             return {
@@ -203,11 +232,15 @@ angular.module('greyscaleApp')
 
         function _parseColumns(model) {
             angular.forEach(model.cols, function (col, i) {
+                col['class'] = col['class'] || '';
                 if (col.multiselect) {
                     _setMultiselect(col, model);
                 }
                 if (col.actions) {
-                    col['class'] = 'header-actions';
+                    col['class'] += ' header-actions';
+                }
+                if (col.textCenter) {
+                    col['class'] += ' text-center';
                 }
                 if (col.title) {
                     col.title = i18n.translate(col.title);

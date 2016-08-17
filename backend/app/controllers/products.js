@@ -24,8 +24,10 @@ var
     AccessMatrix = require('app/models/access_matrices'),
     ProductUOA = require('app/models/product_uoa'),
     Task = require('app/models/tasks'),
+    TaskUserState = require('app/models/taskuserstates'),
     UOA = require('app/models/uoas'),
     Discussion = require('app/models/discussions'),
+    Comment = require('app/models/comments'),
     Index = require('app/models/indexes.js'),
     Subindex = require('app/models/subindexes.js'),
     IndexQuestionWeight = require('app/models/index_question_weights.js'),
@@ -50,18 +52,25 @@ var moveWorkflow = function* (req, productId, UOAid) {
     var essenceId, task, userTo, organization, product, uoa, step, survey, note;
     var thunkQuery = req.thunkQuery;
     var oProduct = new sProduct(req);
+    var oTask = new sTask(req);
+
     //if (req.user.roleID !== 2 && req.user.roleID !== 1) { // TODO check org owner
     //    throw new HttpError(403, 'Access denied');
     //}
     var curStep = yield * common.getCurrentStepExt(req, productId, UOAid);
+    var isPolicy = yield oTask.isPolicy(curStep.task.id);
 
     var autoResolve = false;
     if (req.query.force) { // force to move step
         // if exists entries with return flags then check existing resolve entries and create it if needed
-        autoResolve = yield * doAutoResolve(req, curStep.task.id);
+        if (isPolicy) {
+            autoResolve = yield * doAutoResolveForPolicy(req, curStep.task.id);
+        } else {
+            autoResolve = yield * doAutoResolve(req, curStep.task.id);
+        }
     }
 
-    if (req.query.resolve || autoResolve) { // try to resolve
+    if ((req.query.resolve || autoResolve) && !isPolicy) { // try to resolve (only for survey - not policy)
         // check if resolve is possible
         var resolvePossible = yield * isResolvePossible(req, curStep.task.id);
         if (!resolvePossible) {
@@ -94,28 +103,43 @@ var moveWorkflow = function* (req, productId, UOAid) {
 
     }
 
-    // check if exist return flag(s)
-    var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
-    if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
-        // set currentStep to step from returnTaskId
-        yield * updateCurrentStep(req, returnStepId, productId, UOAid);
-        // activate discussion`s entry with return flag
-        var flagsCount = yield * activateEntries(req, curStep.task.id, {
-            isReturn: true
-        });
+    if (!isPolicy) {    // only for syrvey - not policy
+        // check if exist return flag(s)
+        var returnStepId = yield * common.getReturnStep(req, curStep.task.id);
+        if (returnStepId && !req.query.force && !req.query.resolve) { // exist discussion`s entries with return flags and not activated (only for !force and !resolve)
+            // set currentStep to step from returnTaskId
+            yield * updateCurrentStep(req, returnStepId, productId, UOAid);
+            // activate discussion`s entry with return flag
+            var flagsCount = yield * activateEntries(req, curStep.task.id, {
+                isReturn: true
+            });
 
-        // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
-        task = yield * common.getTaskByStep(req, returnStepId, UOAid);
-        oProduct.notify({
-            body: 'flags requiring resolution',
-            action: 'flags requiring resolution',
-            flags: {
-                count: flagsCount
-            }
-        }, null, task.id, '', 'returnFlag');
+            // notify:  notification that they have [X] flags requiring resolution in the [Subject] survey for the [Project]
+            task = yield * common.getTaskByStep(req, returnStepId, UOAid);
+            oProduct.notify({
+                body: 'flags requiring resolution',
+                action: 'flags requiring resolution',
+                flags: {
+                    count: flagsCount
+                }
+            }, null, task.id, '', 'returnFlag');
 
-        return;
+            return;
+        }
+    } else if (!req.query.force) {    // for policy - check all users approved task - only if no force
+        var oTaskUserState = new sTaskUserState(req);
+        var taskUserStates = yield oTaskUserState.getByLists([curStep.task.id],null);
+        if (!_.first(taskUserStates)) {
+            debug('Error getting taskUserStates - possible obsolete data - don`t move workflow step');
+            return;
+        }
+        var approvedId = TaskUserState.getStateId('approved');
+        if (_.find(taskUserStates, function(item){ return item.stateId !== approvedId; })) {
+            debug('At least one of taskUserStates is  not Approved  - don`t move workflow step');
+            return;
+        }
     }
+
     var minNextStepPosition = yield * common.getMinNextStepPositionWithTask(req, curStep, productId, UOAid);
     var nextStep = null;
     if (minNextStepPosition !== null) { // min next step exists, position is not null
@@ -1296,6 +1320,8 @@ module.exports = {
 
     },
 
+    moveWorkflow: moveWorkflow,
+
     productUOAmove: function (req, res, next) {
         var thunkQuery = req.thunkQuery;
         co(function* () {
@@ -1996,7 +2022,8 @@ function* doAutoResolve(req, taskId) {
             // resolve Entry exist - update it with "Resolved automatically"
             resolveEntry = _.extend(resolveEntry, {
                 entry: resolveEntry.entry.trim() + ' Resolved automatically',
-                updated: new Date()
+                updated: new Date(),
+                activated: false
             });
             var id = resolveEntry.id;
             resolveEntry = _.pick(resolveEntry, Discussion.updateCols); // update only columns that may be updated
@@ -2041,6 +2068,134 @@ function* doAutoResolve(req, taskId) {
             }
 
         }
+    }
+    return true;
+}
+
+function* doAutoResolveForPolicy(req, taskId) {
+    var thunkQuery = req.thunkQuery;
+    var oTaskUserState = new sTaskUserState(req);
+    var query, result;
+    var flaggedUsers = [];
+    // get existing entries with flags
+    query =
+        Comment
+            .select(Comment.star())
+            .from(Comment)
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.taskId.equals(taskId))
+        );
+    var flagsEntries = yield thunkQuery(query);
+    if (!_.first(flagsEntries) || flagsEntries.length === 0) {
+        return false; // flags does not exist - resolve is not needed
+    }
+    // get existing entries with Resolve
+    query =
+        Comment
+            .select(Comment.star())
+            .from(Comment)
+            .where(
+            Comment.isReturn.equals(false)
+                .and(Comment.activated.equals(false))
+                .and(Comment.isResolve.equals(true))
+                .and(Comment.taskId.equals(taskId))
+        );
+    var resolveEntries = yield thunkQuery(query);
+
+    if (!_.first(resolveEntries) || resolveEntries.length === 0) {
+        resolveEntries = []; // there are not resolved entries
+    }
+
+    for (var i in flagsEntries) {
+        // add uniq userFromId from flagsEntries
+        if (flaggedUsers.indexOf(flagsEntries[i].userFromId) === -1) {
+            flaggedUsers.push(flagsEntries[i].userFromId);
+        }
+        // find resolve entry corresponding flag entry
+        var resolveEntry = _.find(resolveEntries, function (entry) {
+            return (entry && entry.returnTaskId === flagsEntries[i].id);
+        });
+        if (resolveEntry) {
+            // resolve Entry exist - update it with "Resolved automatically"
+            resolveEntry = _.extend(resolveEntry, {
+                entry: resolveEntry.entry.trim() + ' Resolved automatically',
+                updated: new Date(),
+                activated: true
+            });
+            var id = resolveEntry.id;
+            resolveEntry = _.pick(resolveEntry, Comment.updateCols); // update only columns that may be updated
+            result = yield thunkQuery(Comment.update(resolveEntry).where(Comment.id.equals(id)).returning(Comment.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'update',
+                    object: 'Comments',
+                    entity: result[0].id,
+                    info: 'Update resolve entry (Resolved automatically)'
+                });
+            }
+        } else {
+            // corresponding resolve entry does not exist - create it
+            resolveEntry = _.extend(flagsEntries[i], {
+                taskId: flagsEntries[i].taskId,
+                userId: flagsEntries[i].userFromId,
+                userFromId: req.user.realmUserId,
+                stepFromId: flagsEntries[i].stepId,
+                stepId: flagsEntries[i].stepFromId,
+                isReturn: false,
+                returnTaskId: flagsEntries[i].id,       // returnTaskId is used as reference to flag comment id
+                isResolve: true,
+                activated: true,
+                entry: 'Resolved automatically',
+                order: flagsEntries[i].order + 1,
+                updated: new Date()
+            });
+            resolveEntry = _.pick(resolveEntry, Comment.insertCols); // insert only columns that may be inserted
+            result = yield thunkQuery(Comment.insert(resolveEntry).returning(Comment.id));
+            if (_.first(result)) {
+                bologger.log({
+                    req: req,
+                    user: req.user,
+                    action: 'insert',
+                    object: 'Comments',
+                    entity: result[0].id,
+                    info: 'Insert resolve entry (Resolved automatically)'
+                });
+            }
+
+        }
+    }
+    // update return entries - resolve their
+    result = yield thunkQuery(
+        Comment.update({
+            isResolve: true
+        })
+            .where(
+            Comment.isReturn.equals(true)
+                .and(Comment.activated.equals(true))
+                .and(Comment.isResolve.equals(false))
+                .and(Comment.taskId.equals(taskId))
+        )
+            .returning(Comment.id)
+    );
+    if (_.first(result)) {
+        bologger.log({
+            req: req,
+            action: 'update',
+            entities: result,
+            quantity: result.length,
+            info: 'Autoresolve flags (policy)'
+        });
+    }
+
+
+    // check task user states for unflagged
+    for (i in flaggedUsers) {
+        yield oTaskUserState.tryUnflag(taskId, flaggedUsers[i]);
     }
     return true;
 }
