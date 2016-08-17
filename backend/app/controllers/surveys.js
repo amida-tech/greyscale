@@ -26,9 +26,31 @@ debug.log = console.log.bind(console);
 module.exports = {
 
     select: function (req, res, next) {
-        var oSurvey = new sSurvey(req);
+        var oSurvey = new sSurvey(req); // TODO show max versions
         oSurvey.getList().then(
             (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    surveyVersions: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.getVersions(req.params.id).then(
+            (data) => res.json(data),
+            (err) => next(err)
+        );
+    },
+
+    surveyVersion: function (req, res, next) {
+        var oSurvey = new sSurvey(req);
+        oSurvey.getVersion(req.params.id, req.params.version).then(
+            (data) => {
+                if (data) {
+                    res.json(data);
+                } else {
+                    next(new HttpError(404, 'Version does not exist'));
+                }
+            },
             (err) => next(err)
         );
     },
