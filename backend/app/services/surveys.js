@@ -21,7 +21,7 @@ var exportObject = function  (req, realm) {
                 Survey
                     .select(
                         Survey.star(),
-                        Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
                         '(SELECT array_agg(row_to_json(att)) FROM (' +
                             'SELECT a."id", a."filename", a."size", a."mimetype" ' +
                             'FROM "AttachmentLinks" al ' +
@@ -62,7 +62,7 @@ var exportObject = function  (req, realm) {
                     )
                     .select(
                         Survey.star(),
-                        Policy.section, Policy.subsection, Policy.author, Policy.number,
+                        Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
                         '(WITH sq AS ' +
                         '( ' +
                             'SELECT ' +
