@@ -219,45 +219,11 @@ exports.moveWorkflow = moveWorkflow;
 module.exports = {
 
     select: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
-
-        co(function* () {
-            return yield thunkQuery(
-                Product
-                .select(
-                    Product.star(),
-                    'row_to_json("Workflows".*) as workflow',
-                    'row_to_json("Surveys".*) as survey',
-                    'row_to_json("Policies".*) as policy'
-                )
-                .from(
-                    Product
-                        .leftJoin(Workflow)
-                        .on(Product.id.equals(Workflow.productId))
-                        .leftJoin(Survey)
-                        .on(
-                            Product.id.equals(Survey.productId)
-                                .and(
-                                    Survey.surveyVersion.in(
-                                        Survey.as('subS')
-                                            .subQuery()
-                                            .select(Survey.as('subS').surveyVersion.max())
-                                            .where(Survey.as('subS').id.equals(Survey.id))
-                                    )
-                                )
-                        )
-                        .leftJoin(Policy)
-                        .on(
-                            Policy.surveyId.equals(Survey.id)
-                                .and(Policy.surveyVersion.equals(Survey.surveyVersion))
-                        )
-                ), req.query
-            );
-        }).then(function (data) {
-            res.json(data);
-        }, function (err) {
-            next(err);
-        });
+        var oProduct = new sProduct(req);
+        oProduct.getList(req.query).then(
+            (data) => res.json(data),
+            (err) => res.json(err)
+        );
     },
 
     tasks: function (req, res, next) {

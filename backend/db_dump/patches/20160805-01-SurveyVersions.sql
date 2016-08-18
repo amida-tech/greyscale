@@ -162,6 +162,12 @@ BEGIN
                     REFERENCES "SurveyQuestions" (id, "surveyVersion") MATCH SIMPLE
                     ON UPDATE NO ACTION ON DELETE NO ACTION;
 
+            -- ADD version column to attachments
+
+            ALTER TABLE "AttachmentLinks"
+            			ADD COLUMN "version" integer NOT NULL DEFAULT 0,
+            			ADD CONSTRAINT "AttachmentLinks_essenceId_entityId_version_key" UNIQUE ("essenceId", "entityId", "version");
+
             -- CREATE TRIGGER ON INSERT FOR SURVEYS TO CONTROL SURVEY ID AND VERSION
 
             CREATE OR REPLACE FUNCTION generate_survey_pk()
@@ -180,18 +186,23 @@ BEGIN
                     AND relnamespace = (SELECT oid FROM pg_namespace WHERE nspname = '$query$||schema_name||$query$');
 
                     IF NEW.id IS NOT NULL THEN
-                        IF NOT EXISTS (
-                            SELECT id FROM $query$ || schema_name || $query$."Surveys" WHERE id = NEW.id
-                        ) THEN
-                            RAISE EXCEPTION 'id not allowed %', NEW.id;
+                        SELECT "productId"
+                        INTO NEW."productId"
+                        FROM google."Surveys"
+                        WHERE id = NEW.id AND "surveyVersion" = 0;
+
+                                    IF NEW."productId" IS NULL THEN
+                                        RAISE EXCEPTION 'id not allowed %', NEW.id;
+                                    END IF;
+
+                                    PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
+
+                                    IF NEW."surveyVersion" <> -1 THEN
+                            SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
+                            INTO    NEW."surveyVersion"
+                            FROM    google."Surveys"
+                            WHERE id = NEW.id;
                         END IF;
-
-                        PERFORM pg_advisory_xact_lock(_rel_id, NEW.id);
-
-                        SELECT  COALESCE(MAX("surveyVersion") + 1, 1)
-                        INTO    NEW."surveyVersion"
-                        FROM    $query$ || schema_name || $query$."Surveys"
-                        WHERE id = NEW.id;
                     ELSE
                         PERFORM pg_advisory_xact_lock(_rel_id);
                         NEW."surveyVersion" := 0;

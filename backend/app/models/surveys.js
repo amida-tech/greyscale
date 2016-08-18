@@ -15,6 +15,7 @@ var Survey = sql.define({
     ]
 });
 
+Survey.insertCols = ['title', 'description', 'isDraft', 'creator', 'langId', 'surveyVersion', 'productId'];
 Survey.editCols = ['title', 'description', 'isDraft'];
 
 Survey.translate = [

@@ -15,35 +15,38 @@ var exportObject = function  (req, realm) {
         var thunkQuery = req.thunkQuery;
     }
 
-    this.getList = function () {
+    this.getList = function (options) {
         return co(function* () {
             return yield thunkQuery(
-                Survey
-                    .select(
-                        Survey.star(),
-                        Policy.id.as("policyId"), Policy.section, Policy.subsection, Policy.author, Policy.number,
-                        '(SELECT array_agg(row_to_json(att)) FROM (' +
-                            'SELECT a."id", a."filename", a."size", a."mimetype" ' +
-                            'FROM "AttachmentLinks" al ' +
-                            'JOIN "Attachments" a ' +
-                            'ON al."entityId" = "Policies"."id" ' +
-                            'JOIN "Essences" e ' +
-                            'ON e.id = al."essenceId" ' +
-                            'AND e."tableName" = \'Policies\' ' +
-                            'WHERE a."id" = ANY(al."attachments")' +
-                        ') as att) as attachments'
-                        //'(' +
-                        //    'SELECT array_agg("Products"."id") ' +
-                        //    'FROM "Products" ' +
-                        //    'WHERE "Products"."surveyId" = "Surveys"."id"' +
-                        //') as products'
-                    )
-                    .from(
-                        Survey
-                            .leftJoin(Policy)
-                            .on(Survey.id.equals(Policy.surveyId))
-                    ),
-                req.query
+                'SELECT ' +
+                '    "Surveys".*, ' +
+                '    "Policies"."id" AS "policyId", ' +
+                '    "Policies"."section", ' +
+                '    "Policies"."subsection", ' +
+                '    "Policies"."author", ' +
+                '    "Policies"."number", ' +
+                '    (SELECT array_agg(row_to_json(att)) ' +
+                '       FROM ( ' +
+                '           SELECT a."id", a."filename", a."size", a."mimetype" ' +
+                '           FROM "AttachmentLinks" al ' +
+                '           JOIN "Attachments" a ' +
+                '           ON al."entityId" = "Policies"."id" ' +
+                '           JOIN "Essences" e ' +
+                '           ON e.id = al."essenceId" ' +
+                '           AND e."tableName" = \'Policies\' ' +
+                '           WHERE a."id" = ANY(al."attachments") ' +
+                '       ) as att' +
+                '   ) as attachments ' +
+                'FROM ' +
+                '( ' +
+                '    SELECT a.id, max(a."surveyVersion") as version ' +
+                'FROM "Surveys" a ' +
+                'GROUP BY a."id" ' +
+                ') as maxv ' +
+                'LEFT JOIN "Surveys" ' +
+                'ON (maxv.id = "Surveys".id AND maxv.version = "Surveys"."surveyVersion") ' +
+                'LEFT JOIN "Policies" ' +
+                'ON ("Surveys"."id" = "Policies"."surveyId")'
             );
         });
     };
@@ -51,7 +54,7 @@ var exportObject = function  (req, realm) {
     this.getVersions = function (surveyId) {
         return co(function* () {
            return yield thunkQuery(
-               Survey.select().where(Survey.id.equals(surveyId))
+               Survey.select().where(Survey.id.equals(surveyId).and(Survey.surveyVersion.gte(0)))
            );
         });
     };
@@ -105,6 +108,84 @@ var exportObject = function  (req, realm) {
                     .group(Survey.id, Survey.surveyVersion, Policy.id)
             );
             return data[0] || false;
+        });
+    };
+
+    this.createVersion = function (fullSurveyData, surveyId) { // TODO full data or not?
+        var self = this;
+        return co(function* () {
+            var surveyData = yield self.checkSurveyData(fullSurveyData, surveyId);
+            var surveyVersion;
+            if (surveyId) {
+                surveyData.id = surveyId;
+            }
+            surveyVersion = yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+
+            yield self.deleteDraft(surveyId);
+
+            return surveyVersion;
+        });
+    };
+
+    this.deleteDraft = function (surveyId) {
+        return co(function* (){
+            yield thunkQuery(
+                Survey
+                .delete()
+                .where(
+                    Survey.id.equals(surveyId)
+                    .and(Survey.surveyVersion.equals(-1))
+                )
+            );
+        });
+    };
+
+    this.updateDraft = function (surveyId, surveyData) {
+        return co(function* () {
+            return yield thunkQuery(
+                Survey.update(surveyData)
+                .where(
+                    Survey.id.equals(surveyId)
+                    .and(Survey.surveyVersion.equals(-1))
+                )
+                .returning(Survey.star())
+            )
+        });
+    };
+
+    this.createDraft = function (surveyId, surveyData) {
+        return co(function* () {
+            surveyData.surveyVersion = -1;
+            surveyData.id = surveyId;
+            return yield thunkQuery(Survey.insert(surveyData).returning(Survey.star()));
+        });
+    };
+
+    this.saveDraft = function (fullSurveyData, surveyId) { // TODO full data or not?
+        var self = this;
+        return co(function* () {
+            var surveyData = yield self.checkSurveyData(fullSurveyData, surveyId);
+            var draft = yield self.getVersion(surveyId, -1);
+            if (!draft) {
+                draft = self.createDraft(surveyId, surveyData);
+            } else {
+                draft = self.updateDraft(surveyId, surveyData);
+            }
+            return draft;
+        });
+    };
+
+    this.checkSurveyData = function (surveyData, surveyId) {
+        return co(function* () {
+            if (!surveyId) { // create
+                surveyData = _.pick(surveyData, Survey.insertCols);
+                if (!req.body.title || !req.body.productId) {
+                    throw new HttpError(403, 'title and productId fields are required');
+                }
+            } else { // update
+                surveyData = _.pick(surveyData, Survey.editCols);
+            }
+            return surveyData;
         });
     };
 

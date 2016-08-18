@@ -76,7 +76,7 @@ router.route('/:realm/v0.2/surveys')
 
 router.route('/:realm/v0.2/surveys/:id')
     .get(authenticate('token').always, surveys.selectOne)
-    .put(authenticate('token').always, jsonParser,  surveys.editOne)
+    .put(authenticate('token').always, jsonParser, surveys.editOne)
     .delete(authenticate('token').always, surveys.delete);
 
 router.route('/:realm/v0.2/surveys/:id/versions')
