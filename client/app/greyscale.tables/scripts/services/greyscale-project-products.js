@@ -232,7 +232,7 @@ angular.module('greyscale.tables')
                 greyscaleProductApi.delete(product.id)
                     .then(_reload)
                     .catch(function (err) {
-                        inform.add('Product delete error: ' + err);
+                        return _errHandler(err, 'delete');
                     });
             });
         }
