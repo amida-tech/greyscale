@@ -43,12 +43,20 @@ angular.module('greyscale.tables')
             dataRequired: true,
             dataFormat: 'textarea'
         }, {
-            field: 'surveyId',
             title: tns + 'SURVEY_POLICY',
             show: true,
-            sortable: 'surveyId',
+            sortable: 'survey.id',
             dataFormat: 'option',
-            cellTemplate: '<span ng-if="option.id"><i class="fa" ng-class="{\'fa-file\':row.policyId, \'fa-list\': !row.policyId}"></i> <span>{{option.title}} <small>(<span ng-show="option.isDraft" translate="SURVEYS.IS_DRAFT"></span><span ng-show="!option.isDraft" translate="SURVEYS.IS_COMPLETE"></span>)</small></span></span>',
+            cellTemplate:
+            '<span ng-if="row.survey">' +
+            '  <i class="fa" ng-class="{\'fa-file\':row.policy, \'fa-list\': !row.policy}"></i> ' +
+            '  <span>{{row.survey.title}} ' +
+            '    <small>(' +
+            '      <span ng-show="row.survey.isDraft" translate="SURVEYS.IS_DRAFT"></span>' +
+            '      <span ng-show="!row.survey.isDraft" translate="SURVEYS.IS_COMPLETE"></span>' +
+            '    )</small>' +
+            '  </span>' +
+            '</span>',
             dataPlaceholder: tns + 'SELECT_SURVEY',
             dataRequired: true,
             dataSet: {
@@ -63,8 +71,8 @@ angular.module('greyscale.tables')
                 //target: '_blank',
                 //href: '/survey/{{item.id}}'
                 state: function (item) {
-                        return item.policyId ? 'policy.edit({id: item.surveyId})' :
-                            'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})';
+                        return item.policy ? 'policy.edit({id: item.policy.surveyId})' :
+                            'projects.setup.surveys.edit({surveyId: item.survey.id})';
                     }
                     //state: 'projects.setup.surveys.edit({projectId: item.projectId, surveyId: item.surveyId})'
             }
@@ -150,24 +158,24 @@ angular.module('greyscale.tables')
             }
         };
 
-        function _getProjectId() {
-            return _table.dataFilter.projectId;
-        }
+        // function _getProjectId() {
+        //     return _table.dataFilter.projectId;
+        // }
 
         function _getData() {
-            var projectId = _getProjectId();
-            if (!projectId) {
-                return $q.reject('');
-            } else {
+            // var projectId = _getProjectId();
+            // if (!projectId) {
+            //     return $q.reject('');
+            // } else {
                 var req = {
                     surveys: greyscaleSurveyApi.list(),
-                    products: greyscaleProjectApi.productsList(projectId)
+                    products: greyscaleProjectApi.productsList(/*projectId*/)
                 };
                 return $q.all(req).then(function (promises) {
                     _dicts.surveys = promises.surveys;
                     return _setPolicyId(promises.products);
                 });
-            }
+            // }
         }
 
         function _setPolicyId(products) {
@@ -208,7 +216,6 @@ angular.module('greyscale.tables')
                         return greyscaleProductApi.update(newProduct);
                     } else {
                         op = 'adding';
-                        newProduct.projectId = _getProjectId();
                         newProduct.matrixId = 4;
                         return greyscaleProductApi.add(newProduct);
                     }
@@ -389,7 +396,7 @@ angular.module('greyscale.tables')
             editProduct: _editProduct,
             removeProduct: _removeProduct,
             editProductWorkflow: _editProductWorkflow,
-            fillSurvey: function (projectId) {
+            fillSurvey: function () {
                 return greyscaleSurveyApi.list().then(function (surveys) {
                     _dicts.surveys = surveys;
                 });

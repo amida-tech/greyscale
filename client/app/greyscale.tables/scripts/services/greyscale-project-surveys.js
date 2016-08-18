@@ -56,22 +56,22 @@ angular.module('greyscale.tables')
             }
         };
 
-        function _getProjectId() {
-            return _table.dataFilter.projectId;
-        }
+        // function _getProjectId() {
+        //     return _table.dataFilter.projectId;
+        // }
 
         function _getData() {
-            var projectId = _getProjectId();
-            if (!projectId) {
-                return $q.reject();
-            } else {
+            // var projectId = _getProjectId();
+            // if (!projectId) {
+            //     return $q.reject();
+            // } else {
                 return greyscaleSurveyApi.list()
                     .then(function (data) {
                         return $filter('filter')(data, function (item) {
                             return (_isPolicy() && item.policyId || _isSurvey() && !item.policyId);
                         });
                     });
-            }
+            // }
         }
 
         function _reload() {
@@ -86,8 +86,7 @@ angular.module('greyscale.tables')
                     });
                 } else {
                     $state.go('projects.setup.surveys.edit', {
-                        surveyId: _survey.id,
-                        projectId: _getProjectId()
+                        surveyId: _survey.id
                     });
                 }
             } else {
@@ -95,8 +94,7 @@ angular.module('greyscale.tables')
                     $state.go('policy.edit');
                 } else {
                     $state.go('projects.setup.surveys.edit', {
-                        surveyId: 'new',
-                        projectId: _getProjectId()
+                        surveyId: 'new'
                     });
                 }
             }

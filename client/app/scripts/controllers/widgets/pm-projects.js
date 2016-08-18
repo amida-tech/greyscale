@@ -8,11 +8,11 @@ angular.module('greyscaleApp')
     Organization.$watch('realm', $scope, _renderProducts);
 
     function _renderProducts() {
-        var projectId = Organization.projectId;
-        if (!projectId) {
-            return;
-        }
-        greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
+        // var projectId = Organization.projectId;
+        // if (!projectId) {
+        //     return;
+        // }
+        greyscaleProjectApi.productsList(/*projectId, */{}, Organization.realm)
             .then(function(products){
                 $scope.model.products = products;
             });
