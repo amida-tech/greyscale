@@ -63,26 +63,6 @@ router.route('/:realm/v0.2/essences/:id')
     .delete(authenticate('token').always, /*checkRight('rights_view_all'),*/ essences.deleteOne);
 
 //----------------------------------------------------------------------------------------------------------------------
-//    PROJECTS
-//----------------------------------------------------------------------------------------------------------------------
-var projects = require('app/controllers/projects');
-
-router.route('/:realm/v0.2/projects')
-    .get(authenticate('token').always, /*checkRight('rights_view_all'),*/ projects.select)
-    .post(authenticate('token').always, jsonParser, /*checkRight('rights_view_all'),*/ projects.insertOne);
-
-router.route('/:realm/v0.2/projects/:id')
-    .get(authenticate('token').always, projects.selectOne)
-    .delete(authenticate('token').always, projects.delete)
-    .put(authenticate('token').always, jsonParser, projects.editOne);
-
-router.route('/:realm/v0.2/projects/:id/products')
-    .get(authenticate('token').always, projects.productList);
-
-router.route('/:realm/v0.2/projects/:id/surveys')
-    .get(authenticate('token').always, projects.surveyList);
-
-//----------------------------------------------------------------------------------------------------------------------
 //    SURVEYS
 //----------------------------------------------------------------------------------------------------------------------
 var surveys = require('app/controllers/surveys');
@@ -241,13 +221,13 @@ router.route('/:realm/v0.2/products')
     .post(authenticate('token').always, jsonParser, products.insertOne);
 
 router.route('/:realm/v0.2/products/:id')
-    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.selectOne)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.updateOne)
-    .delete(authenticate('token').always, /*checkPermission('product_delete', 'products'),*/ products.delete);
+    .get(authenticate('token').always, products.selectOne)
+    .put(authenticate('token').always, jsonParser, products.updateOne)
+    .delete(authenticate('token').always, products.delete);
 
 router.route('/:realm/v0.2/products/:id/tasks')
-    .get(authenticate('token').always, /*checkPermission('product_select', 'products'),*/ products.tasks)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_select', 'products'),*/ products.editTasks);
+    .get(authenticate('token').always, products.tasks)
+    .put(authenticate('token').always, jsonParser, products.editTasks);
 
 router.route('/:realm/v0.2/products/:id/aggregate')
     .get( /*authenticate('token').always,*/ products.aggregateIndexes);
@@ -257,11 +237,11 @@ router.route('/:realm/v0.2/products/:id/aggregate.csv')
 
 router.route('/:realm/v0.2/products/:id/indexes')
     .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.indexes)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editIndexes);
+    .put(authenticate('token').always, jsonParser, products.editIndexes);
 
 router.route('/:realm/v0.2/products/:id/subindexes')
-    .get( /*authenticate('token').always, checkPermission('product_select', 'products'),*/ products.subindexes)
-    .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
+    .get(products.subindexes)
+    .put(authenticate('token').always, jsonParser, products.editSubindexes);
 
 router.route('/:realm/v0.2/products/:ticket/export.csv')
     .get( /*authenticate('token').always,*/ products.export);

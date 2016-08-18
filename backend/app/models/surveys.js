@@ -7,9 +7,11 @@ var Survey = sql.define({
         'title',
         'description',
         'created',
-        'projectId',
         'isDraft',
-        'policyId'
+        'creator',
+        'langId',
+        'surveyVersion',
+        'productId'
     ]
 });
 

@@ -5,11 +5,11 @@ var
     TaskUserState = require('app/models/taskuserstates'),
     Survey = require('app/models/surveys'),
     Product = require('app/models/products'),
+    Policy = require('app/models/policies'),
     Group = require('app/models/groups'),
     WorkflowStep = require('app/models/workflow_steps'),
     ProductUOA = require('app/models/product_uoa'),
     UOA = require('app/models/uoas'),
-    Project = require('app/models/projects'),
     Attachment = require('app/models/attachments'),
     co = require('co'),
     Query = require('app/util').Query,
@@ -128,18 +128,18 @@ var exportObject = function  (req, realm) {
     this.isPolicyProduct = function (productId) {
         return co(function* () {
             var policyId = yield thunkQuery(
-                Task.select(
-                    Survey.policyId
-                )
-                    .from(
+                Product
+                .select()
+                .from(
                     Product
-                        .leftJoin(Survey)
-                        .on(Product.surveyId.equals(Survey.id))
+                    .join(Survey)
+                    .on(Survey.productId.equals(Product.id))
+                    .join(Policy)
+                    .on(Policy.surveyId.equals(Survey.id))
                 )
-                    .where(Product.id.equals(productId)
-                )
+                .where(Product.id.equals(productId))
             );
-            return (_.first(policyId) && policyId[0].policyId) ? true : false;
+            return (_.first(policyId)) ? true : false;
         });
     };
     this.getProductTasks = function () {
@@ -263,7 +263,6 @@ var exportObject = function  (req, realm) {
                 Task.endDate,
                 'row_to_json("UnitOfAnalysis".*) as uoa',
                 'row_to_json("Products".*) as product',
-                'row_to_json("Projects".*) as project',
                 'row_to_json("Surveys".*) as survey',
                 'row_to_json("WorkflowSteps") as step',
                 self.taskStatus.flaggedColumn(commentDiscussion),
@@ -277,8 +276,6 @@ var exportObject = function  (req, realm) {
                     .on(Task.uoaId.equals(UOA.id))
                     .leftJoin(Product)
                     .on(Task.productId.equals(Product.id))
-                    .leftJoin(Project)
-                    .on(Product.projectId.equals(Project.id))
                     .leftJoin(Survey)
                     .on(Product.surveyId.equals(Survey.id))
                     .leftJoin(WorkflowStep)

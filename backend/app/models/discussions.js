@@ -17,7 +17,8 @@ var Discussion = sql.define({
         'returnTaskId',
         'created',
         'updated',
-        'activated'
+        'activated',
+        'surveyVersion'
     ]
 });
 
@@ -33,7 +34,8 @@ Discussion.insertCols = [
     'isReturn',
     'isResolve',
     'returnTaskId',
-    'activated'
+    'activated',
+    'surveyVersion'
 ];
 
 Discussion.updateCols = [

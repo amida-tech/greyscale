@@ -22,7 +22,8 @@ var columns = [
     'attachment',
     'optionNumbering',
     'hasComments',
-    'withLinks'
+    'withLinks',
+    'surveyVersion'
 ];
 
 var SurveyQuestion = sql.define({

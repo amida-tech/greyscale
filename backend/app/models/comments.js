@@ -25,7 +25,8 @@ var Comment = sql.define({
         'userHideId',
         'hiddenAt',
         'parentId',
-        'isAgree'
+        'isAgree',
+        'surveyVersion'
     ]
 });
 

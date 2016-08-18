@@ -8,7 +8,6 @@ var
     bologger = new BoLogger(),
     Product = require('app/models/products'),
     ProductUOA = require('app/models/product_uoa'),
-    Project = require('app/models/projects'),
     Workflow = require('app/models/workflows'),
     EssenceRole = require('app/models/essence_roles'),
     WorkflowStep = require('app/models/workflow_steps'),

@@ -270,12 +270,12 @@ angular.module('greyscale.tables')
 
         function _getOrderHandleTooltip() {
             var product = _getProduct();
-            return (!product.projectId || product.status === 0) ? tns + 'SORT_ENABLED' : tns + 'SORT_DISABLED';
+            return (product.status === 0) ? tns + 'SORT_ENABLED' : tns + 'SORT_DISABLED';
         }
 
         function _getOrderHandleClass() {
             var product = _getProduct();
-            var cl = (!product.projectId || product.status === 0) ? 'drag-sortable' : 'disabled';
+            var cl = (product.status === 0) ? 'drag-sortable' : 'disabled';
             return cl;
         }
 
