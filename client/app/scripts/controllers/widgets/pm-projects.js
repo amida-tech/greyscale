@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('greyscaleApp')
-.controller('PmProjectsWidgetCtrl', function($scope, greyscaleProjectApi, $q, Organization){
+.controller('PmProjectsWidgetCtrl', function(_, $scope, greyscaleProjectApi, $q, Organization, greyscaleSurveyApi){
 
     $scope.model = {};
 
@@ -12,9 +12,22 @@ angular.module('greyscaleApp')
         if (!projectId) {
             return;
         }
-        greyscaleProjectApi.productsList(projectId, {}, Organization.realm)
-            .then(function(products){
-                $scope.model.products = products;
-            });
+
+        var reqs = {
+            products: greyscaleProjectApi.productsList(projectId),
+            surveys: greyscaleSurveyApi.list()
+        };
+
+        $q.all(reqs)
+        .then(function(promises){
+            _addRelations(promises);
+            $scope.model.products = promises.products;
+        });
+    }
+
+    function _addRelations(data) {
+        _.map(data.products, function(product){
+            product.survey = _.find(data.surveys, {id: product.surveyId});
+        });
     }
 });

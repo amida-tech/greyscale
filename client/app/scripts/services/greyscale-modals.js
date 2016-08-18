@@ -36,7 +36,8 @@ angular.module('greyscaleApp')
             importDataset: _importDataset,
             policyComment: _policyComment,
             fullScreenComment: _fullScreenComment,
-            saveAsWorkflowTemplate: _saveAsWorkflowTemplate
+            saveAsWorkflowTemplate: _saveAsWorkflowTemplate,
+            downloadPolicyVersions: _downloadReviewVersions
         };
 
         function hndlModalErr(err) {
@@ -300,6 +301,18 @@ angular.module('greyscaleApp')
                 windowClass: 'modal fade in',
                 resolve: {
                     modalData: data
+                }
+            }).result;
+        }
+
+        function _downloadReviewVersions(survey) {
+            return $uibModal.open({
+                templateUrl: 'views/modals/download-review-versions.html',
+                controller: 'ModalDownloadReviewVersionsCtrl',
+                size: 'md',
+                windowClass: 'modal fade in',
+                resolve: {
+                    survey: survey
                 }
             }).result;
         }

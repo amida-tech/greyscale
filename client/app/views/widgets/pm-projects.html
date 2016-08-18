@@ -2,8 +2,9 @@
 
     <div class="list-group">
         <a ui-sref="pmProductDashboard({productId:product.id})" class="list-group-item" ng-repeat="product in model.products">
+            <i class="fa fa-{{product.survey.policyId ? 'file' : 'list'}}"></i>
             {{product.title}}
-
+            <span class="text-muted">({{product.survey.title}})</span>
         </a>
         <div ng-if="model.products && !model.products.length" class="alert alert-warning" translate=".NO_PRODUCTS"></div>
     </div>

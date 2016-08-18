@@ -199,3 +199,12 @@ em.hilitor.current {
 fb-policy .panel-title {
     min-height: 1em;
 }
+
+.list-group-item.active, .list-group-item.active:hover {
+    background-color: #777;
+    border-color: #777;
+}
+
+.download-review-versions {
+    margin-bottom: 0;
+}
