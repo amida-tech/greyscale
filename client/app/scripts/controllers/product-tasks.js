@@ -683,11 +683,13 @@ angular.module('greyscaleApp')
         }
 
         var _productCached;
+
         function _loadProduct(productId) {
             if (_productCached) {
                 return $q.when(_productCached);
             } else {
-                return _productCached = greyscaleProductApi.get(productId)
+
+                _productCached = greyscaleProductApi.get(productId)
                     .then(function (product) {
                         $state.ext.productName = product.title;
                         return product;
@@ -696,6 +698,7 @@ angular.module('greyscaleApp')
                         greyscaleUtilsSrv.errorMsg(error, tns + 'PRODUCT_NOT_FOUND');
                         $state.go('home');
                     });
+                return _productCached;
             }
         }
 
