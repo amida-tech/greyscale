@@ -33,7 +33,7 @@ angular.module('greyscale.rest')
         }
 
         function _setAllRead() {
-            return api().one('markallread').get();
+            return api().one('markallread').customPUT();
         }
 
         function _setUnread(id) {
