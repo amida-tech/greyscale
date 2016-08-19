@@ -121,7 +121,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             parent: 'dashboard',
             url: '',
             data: {
-                name: 'NAV.HOME',
+                //name: 'NAV.HOME',
                 accessLevel: systemRoles.any.mask
             },
             views: {
@@ -317,7 +317,7 @@ _app.config(function ($stateProvider, $logProvider, $locationProvider, $urlMatch
             controller: 'ProjectSetupProductsCtrl',
             data: {
                 //name: 'NAV.PROJECTS.PRODUCTS'
-                name: 'NAV.PROJECT_MANAGEMENT',
+                name: 'NAV.PROJECTS.LABEL',
                 icon: 'fa-paper-plane'
             }
         })

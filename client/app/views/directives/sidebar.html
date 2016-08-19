@@ -2,7 +2,7 @@
 <div id="sidebar-wrapper" ng-show="menu.title">
     <div class="sidebar-inner">
         <div class="sidebar-header row">
-            <a ui-sref="home" class="logo"></a>
+            <span class="logo"></span>
             <a class="sidebar-toggle" ng-click="toggleSidebar()">
                 <i class="menu-icon fa " ng-class="{'fa-caret-left':toggle, 'fa-caret-right':!toggle}"></i>
             </a>
@@ -12,9 +12,11 @@
             <li class="sidebar-title" ng-repeat-start="group in menu.groups">
                 <span class="truncate text-capitalize" title="{{::group.title|translate}}">{{::group.title|translate}}</span>
             </li>
-            <li class="sidebar-list" ng-repeat-end ng-repeat="item in group.items">
-                <a ui-sref="{{item.sref}}" class="truncate" title="{{::item.title|translate}}">{{::item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
+            <li class="sidebar-list" ng-repeat="item in group.items" ng-class="{indent: item.indent}">
+                <b ng-if="item.section" class="sidebar-section" translate="{{item.title}}"></b>
+                <a ng-if="!item.section" ui-sref="{{item.sref}}" class="truncate" title="{{::item.title|translate}}">{{::item.title|translate}} <span class="menu-icon fa {{item.icon}}"></span></a>
             </li>
+            <li ng-repeat-end ></li>
         </ul>
         <div class="help-link">
             <a href="https://indaba.zendesk.com" translate="NAV.SUPPORT" class="truncate"></a>
