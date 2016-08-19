@@ -214,16 +214,14 @@ module.exports = {
 
 
     editOne: function (req, res, next) {
-        var thunkQuery = req.thunkQuery;
         var oSurvey = new sSurvey(req);
 
         co(function* () {
             if (req.query.draft) {
-                return yield oSurvey.saveDraft(req.body, req.params.id);
+                return yield oSurvey.saveDraft(req.params.id, req.body);
             } else {
-                return yield oSurvey.createVersion(req.body, req.params.id);
+                return yield oSurvey.createVersion(req.params.id, req.body);
             }
-
         }).then(function (data) {
             res.json(data);
         }, function (err) {
@@ -678,19 +676,9 @@ function* addQuestion(req, dataObj) {
 
 function* checkSurveyData(req) {
     var thunkQuery = req.thunkQuery;
-
-
 }
 
-function* checkPolicyData(req) {
-    var thunkQuery = thunkify(new Query(req.params.realm));
 
-    if (!req.body.section || !req.body.subsection) {
-        throw new HttpError(403, 'section and subsection fields are required');
-    }
-
-    req.body.author = req.user.realmUserId;
-}
 
 function* linkAttachments(req, policyId, attachArr) {
     var thunkQuery = req.thunkQuery;

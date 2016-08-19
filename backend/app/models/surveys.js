@@ -1,21 +1,23 @@
 var sql = require('sql');
 
+var columns = [
+    'id',
+    'title',
+    'description',
+    'created',
+    'isDraft',
+    'creator',
+    'langId',
+    'surveyVersion',
+    'productId'
+];
+
 var Survey = sql.define({
     name: 'Surveys',
-    columns: [
-        'id',
-        'title',
-        'description',
-        'created',
-        'isDraft',
-        'creator',
-        'langId',
-        'surveyVersion',
-        'productId'
-    ]
+    columns: columns
 });
 
-Survey.insertCols = ['title', 'description', 'isDraft', 'creator', 'langId', 'surveyVersion', 'productId'];
+Survey.insertCols = columns;
 Survey.editCols = ['title', 'description', 'isDraft'];
 
 Survey.translate = [
