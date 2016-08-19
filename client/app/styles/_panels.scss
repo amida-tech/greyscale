@@ -200,7 +200,7 @@ fb-policy .panel-title {
     min-height: 1em;
 }
 
-.line-numbers, [ta-bind] {
+.line-numbers.section-text, .line-numbers [ta-bind] {
 
     border-left: 1px solid #ddd;
     padding-left: 10px;
