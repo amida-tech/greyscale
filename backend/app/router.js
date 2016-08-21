@@ -264,7 +264,10 @@ router.route('/:realm/v0.2/products/:id/subindexes')
     .put(authenticate('token').always, jsonParser, /*checkPermission('product_update', 'products'),*/ products.editSubindexes);
 
 router.route('/:realm/v0.2/products/:ticket/export.csv')
-    .get( /*authenticate('token').always,*/ products.export);
+    //.get( /*authenticate('token').always,*/ products.export);
+//router.route('/:realm/v0.2/surveys/:id/savedocx')
+    .get( /*authenticate('token').always,*/ surveys.policyToDocx);
+
 
 router.route('/:realm/v0.2/products/:id/export_ticket')
     .get( /*authenticate('token').always,*/ products.getTicket);
