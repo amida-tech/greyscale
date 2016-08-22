@@ -118,10 +118,7 @@ angular.module('greyscale.core')
                                 _container = range.commonAncestorContainer.parentNode;
                             } else {
                                 _container = range.commonAncestorContainer;
-                                if (range.startContainer.parentNode.nodeName === 'LI') {
-                                    range.startContainer.parentNode.setAttribute('value',
-                                        _getLiIndex(range.startContainer.parentNode));
-                                }
+                                _setLiIndex(_container, range.startContainer);
                             }
                             _container = _cloneParents(_container, _rootContainer);
                         } else {
@@ -170,5 +167,13 @@ angular.module('greyscale.core')
 
         function _getLiIndex(elemLi) {
             return elemLi.getAttribute('value') || angular.element(elemLi).index() + 1;
+        }
+
+        function _setLiIndex(commonElem, startElem) {
+            var _elem = startElem;
+            while (_elem && _elem.parentNode !== commonElem && _elem.nodeName !== 'LI') {
+                _elem = _elem.parentNode;
+            }
+            _elem.setAttribute('value',_getLiIndex(_elem));
         }
     });
