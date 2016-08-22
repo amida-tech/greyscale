@@ -174,6 +174,8 @@ angular.module('greyscale.core')
             while (_elem && _elem.parentNode !== commonElem && _elem.nodeName !== 'LI') {
                 _elem = _elem.parentNode;
             }
-            _elem.setAttribute('value',_getLiIndex(_elem));
+            if (_elem && _elem.nodeName === 'LI') {
+                _elem.setAttribute('value', _getLiIndex(_elem));
+            }
         }
     });
