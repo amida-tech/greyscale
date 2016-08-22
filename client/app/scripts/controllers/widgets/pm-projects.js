@@ -9,7 +9,7 @@ angular.module('greyscaleApp')
 
     function _renderProducts() {
         var reqs = {
-            products: greyscaleProjectApi.productsList(),
+            products: greyscaleProjectApi.productsList()
         };
 
         $q.all(reqs)
